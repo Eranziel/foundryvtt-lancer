@@ -1471,11 +1471,11 @@ export class LancerActor extends Actor {
     // Add manual check for the aws images
     if (
       // @ts-expect-error Should be fixed with v10 types
-      this.token?.img == oldFramePath ||
+      this.prototypeToken?.texture?.src == oldFramePath ||
       // @ts-expect-error Should be fixed with v10 types
-      this.token?.img == defaultImg ||
+      this.prototypeToken?.texture?.src == defaultImg ||
       // @ts-expect-error Should be fixed with v10 types
-      this.token?.img?.includes("compcon-image-assets")
+      this.prototypeToken?.texture?.src?.includes("compcon-image-assets")
     ) {
       newData.token = { img: newFramePath };
       changed = true;
