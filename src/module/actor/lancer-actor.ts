@@ -835,9 +835,9 @@ export class LancerActor extends Actor {
           let owned_name = dep.Name.includes(data.callsign) ? dep.Name : `${data.callsign}'s ${dep.Name}`;
           flags.top_level_data["name"] = owned_name;
           flags.top_level_data["folder"] = unit_folder ? unit_folder.id : null;
-          flags.top_level_data["token.name"] = owned_name;
+          flags.top_level_data["prototypeToken.name"] = owned_name;
           flags.top_level_data["permission"] = permission;
-          flags.top_level_data["token.disposition"] = CONST.TOKEN_DISPOSITIONS.NEUTRAL;
+          flags.top_level_data["prototypeToken.disposition"] = CONST.TOKEN_DISPOSITIONS.NEUTRAL;
           // dep.writeback(); -- do this later, after setting active!
           synced_deployables.push(dep);
         },
@@ -851,10 +851,10 @@ export class LancerActor extends Actor {
           flags.top_level_data["folder"] = unit_folder ? unit_folder.id : null;
           flags.top_level_data["img"] = new_img;
           flags.top_level_data["permission"] = permission;
-          flags.top_level_data["token.name"] = data.callsign;
+          flags.top_level_data["prototypeToken.name"] = data.callsign;
           // @ts-expect-error Should be fixed with v10 types
-          flags.top_level_data["token.disposition"] = this.prototypeToken?.disposition;
-          flags.top_level_data["token.actorLink"] = true;
+          flags.top_level_data["prototypeToken.disposition"] = this.prototypeToken?.disposition;
+          flags.top_level_data["prototypeToken.actorLink"] = true;
 
           // Ensure each mounted weapon and mod is a unique instance, so that loaded/limited/etc... is tracked individually
           const mounted: { weps: MechWeapon[]; mods: WeaponMod[] } = { weps: [], mods: [] };
@@ -923,16 +923,16 @@ export class LancerActor extends Actor {
           let new_img = replace_default_resource(flags.top_level_data["img"], pilot.CloudPortrait);
           flags.top_level_data["name"] = pilot.Name;
           flags.top_level_data["img"] = new_img;
-          flags.top_level_data["token.name"] = pilot.Callsign;
+          flags.top_level_data["prototypeToken.name"] = pilot.Callsign;
 
           // Check and see if we have a custom token (not from imgur) set, and if we don't, set the token image.
           if (
             // @ts-expect-error Should be fixed with v10 types
-            this.token?.img === "systems/lancer/assets/icons/pilot.svg" ||
+            this.prototypeToken?.texture?.src === "systems/lancer/assets/icons/pilot.svg" ||
             // @ts-expect-error Should be fixed with v10 types
-            this.token?.img?.includes("imgur")
+            this.prototypeToken?.texture?.src?.includes("imgur")
           ) {
-            flags.top_level_data["token.img"] = new_img;
+            flags.top_level_data["prototypeToken.texture.src"] = new_img;
           }
         },
       });
@@ -1477,7 +1477,8 @@ export class LancerActor extends Actor {
       // @ts-expect-error Should be fixed with v10 types
       this.prototypeToken?.texture?.src?.includes("compcon-image-assets")
     ) {
-      newData.token = { img: newFramePath };
+      // @ts-expect-error Should be fixed with v10 types
+      newData["prototypeToken.texture.src"] = newFramePath;
       changed = true;
     }
 
@@ -1489,16 +1490,16 @@ export class LancerActor extends Actor {
       robot.Flags.top_level_data.img = newFramePath;
       if (
         // @ts-expect-error Should be fixed with v10 types
-        this.token?.img?.includes("systems/lancer/assets/retrograde-minis") ||
+        this.prototypeToken?.texture?.src?.includes("systems/lancer/assets/retrograde-minis") ||
         // @ts-expect-error Should be fixed with v10 types
-        this.token?.img == defaultImg
+        this.prototypeToken?.texture?.src == defaultImg
       ) {
         //we can override any retrograde assets, or the default image
-        robot.Flags.top_level_data["token.img"] = newFramePath;
+        robot.Flags.top_level_data["prototypeToken.texture.src"] = newFramePath;
       } else {
         //do not override any custom tokens
         // @ts-expect-error Should be fixed with v10 types
-        robot.Flags.top_level_data["token.img"] = this.token?.img;
+        robot.Flags.top_level_data["prototypeToken.texture.src"] = this.prototypeToken?.texture?.src;
       }
       changed = true;
     }
