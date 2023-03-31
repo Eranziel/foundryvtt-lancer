@@ -1,3 +1,11 @@
+# 1.5.2 (2023-03-30)
+## Features
+* Add a reload macro to the compendium, courtesy of Valk.
+* Update the ruin macro in the compendium, courtesy of Valk. Now searches for wreck images, and ignores biologicals.
+## Bug Fixes
+* #528 - Make Comp/Con login email case-insensitive. (Thanks Archiver#1883!)
+* #397 - Partial fix for consume lock on bug. Lock on is removed when consumed if a GM user is logged in when the attack is rolled.
+
 # 1.5.1 (2023-02-12)
 ## Bug Fixes
 * #521 - Fix chat button macro for reserves.
