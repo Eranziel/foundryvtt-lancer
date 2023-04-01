@@ -11,11 +11,10 @@
 
   import type { LancerMECH } from '../../../actor/lancer-actor.js';
   import MechHeaderStats from './MechHeaderStats.svelte';
-  export let elementRoot = void 0;
 
+  export let elementRoot = void 0;
   export let actor: Readable<LancerMECH>;
   setContext("actor", actor);
-
 
   // Tab data
   const tabs = [
@@ -140,7 +139,7 @@
   header.sheet-header {
     display: grid !important;
     grid-template-columns: 1fr 1fr 1fr 1fr;
-    grid-template-rows: 1.4fr 1fr;
+    grid-template-rows: 1.2fr 1fr;
 
     .charname-container {
       grid-area: 1 / 1 / 2 / 4;

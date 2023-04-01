@@ -9,6 +9,7 @@
 
 // Import SCSS into our build
 import "./lancer.scss";
+import "./module/apps/components/lancer-button.scss";
 // Svelte Material UI CSS
 import "@smui/button/bare.css";
 import "@smui/card/bare.css";

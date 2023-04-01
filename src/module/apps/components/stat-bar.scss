@@ -2,12 +2,13 @@
 @use '@material/linear-progress/index' as linear-progress;
 @use '@material/theme/index' as theme;
 
-.header-stats:hover .lancer-stat-bar .mdc-linear-progress {
-  height: 14px;
-  span.mdc-linear-progress__bar-inner {
-    border-top-width: 16px;
-  }
-}
+// Expand stat bar on hover
+// .header-stats:hover .lancer-stat-bar .mdc-linear-progress {
+//   height: 14px;
+//   span.mdc-linear-progress__bar-inner {
+//     border-top-width: 16px;
+//   }
+// }
 
 .mdc-linear-progress {
   height: 6px;

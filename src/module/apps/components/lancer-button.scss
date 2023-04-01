@@ -1,0 +1,17 @@
+@use '@material/button/index' as mdc-button;
+ 
+.roll-button {
+  @include mdc-button.shape-radius(10px);
+  
+  padding: 1em;
+  margin-left: 0.25em;
+  margin-right: 0.25em;
+
+  &.compact {
+    max-width: 1.5em !important;
+    max-height: 1.5em !important;
+    min-width: 1.5em !important;
+    min-height: 1.5em !important;
+    padding: 0.25em;
+  }
+}
