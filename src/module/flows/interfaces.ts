@@ -1,5 +1,5 @@
 import { ActionType } from "../action";
-import { ActivationType } from "../enums";
+import { ActivationType, DamageType } from "../enums";
 import { AccDiffData, AccDiffDataSerialized } from "../helpers/acc_diff";
 import { DamageData } from "../models/bits/damage";
 import { Tag, TagData } from "../models/bits/tag";
@@ -14,26 +14,57 @@ import { Tag, TagData } from "../models/bits/tag";
 export namespace LancerFlowState {
   // Shared by all rolls
   interface BaseRollData {
+    type: "base";
     title: string;
     roll_str: string;
   }
 
   // Configuration passed to initiate a stat roll
-  export interface StatRollData extends BaseRollData {
+  export interface StatRollData extends Omit<BaseRollData, "type"> {
+    type: "stat";
     bonus: string | number;
     acc_diff: AccDiffDataSerialized;
     effect?: string;
   }
 
+  export type AttackRolls = {
+    roll: string;
+    targeted: {
+      target: Token;
+      roll: string;
+      usedLockOn: { delete: () => void } | null;
+    }[];
+  };
+
+  export type AttackResult = {
+    roll: Roll;
+    tt: string | HTMLElement | JQuery<HTMLElement>; // Tooltip
+  };
+
+  export type DamageResult = {
+    roll: Roll;
+    tt: string | HTMLElement | JQuery<HTMLElement>; // Tooltip
+    d_type: DamageType;
+  };
+
+  export type HitResult = {
+    token: { name: string; img: string };
+    total: string;
+    hit: boolean;
+    crit: boolean;
+  };
+
   // Configuration passed to initiate an attack roll
-  export interface AttackRollData extends BaseRollData {
+  export interface AttackRollData extends Omit<BaseRollData, "type"> {
+    type: "attack";
     flat_bonus: number;
-    acc_diff: AccDiffDataSerialized;
+    acc_diff: AccDiffData;
 
     attack_type: string; // Melee, Ranged, Quick Tech, Full Tech
     effect?: string;
     on_attack?: string;
     on_hit?: string;
+    on_crit?: string;
 
     self_heat?: string; // The self heat roll if present
     tags?: TagData[];
@@ -41,28 +72,39 @@ export namespace LancerFlowState {
     scene_uuid?: string;
     origin_space?: [number, number];
     target_spaces?: [number, number][];
+    // Data for output chat template
+    defense: string;
+    attack_rolls: AttackRolls;
+    attack_results: AttackResult[];
+    hit_results: HitResult[];
+    damage_results: DamageResult[];
+    crit_damage_results: DamageResult[];
+    overkill_heat: number;
+    // TODO: deprecate base64 encoded reroll data
+    reroll_data: string;
   }
 
   // Specifically for weapons
-  export interface WeaponRollData extends AttackRollData {
+  export interface WeaponRollData extends Omit<AttackRollData, "type"> {
+    type: "weapon";
     damage?: DamageData[];
     bonus_damage?: DamageData[];
     loaded?: boolean;
     destroyed?: boolean;
     overkill?: boolean;
-    on_crit?: string;
   }
 
-  export interface TechAttackRollData extends AttackRollData {
+  export interface TechAttackRollData extends Omit<AttackRollData, "type"> {
+    type: "tech";
     invade: boolean;
     damage?: DamageData[]; // Typically heat for invades
     bonus_damage?: DamageData[];
     destroyed?: boolean;
-    on_crit?: string;
   }
 
   // Configuration passed to initiate the use of an action
-  export interface ActionUseData extends BaseRollData {
+  export interface ActionUseData extends Omit<BaseRollData, "type"> {
+    type: "action";
     acc: number;
     actionName: string;
     detail: string;

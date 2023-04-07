@@ -9,7 +9,7 @@
   <div class="card clipped">
     <div class="lancer-mini-header collapse-trigger" data-collapse-id="{{_uuid}}-attacks">{{localize "lancer.chat-card.title.attack"}}</div>
     <div class="collapse" data-collapse-id="{{_uuid}}-attacks">
-      {{#each attacks as |attack key|}}
+      {{#each attack_results as |attack key|}}
       <div class="dice-roll lancer-dice-roll">
         <div class="dice-result">
           <div class="dice-formula lancer-dice-formula flexrow">
@@ -25,11 +25,11 @@
       {{/each}}
     </div>
   </div>
-  {{#if hits}}
+  {{#if hit_results}}
   <div class="card clipped">
     <div class="lancer-mini-header collapse-trigger" data-collapse-id="{{_uuid}}-hits">{{localize "lancer.chat-card.title.defense-hit" defense=defense}}</div>
     <div class="collapse" data-collapse-id="{{_uuid}}-hits">
-      {{#each hits as |hit key|}}
+      {{#each hit_results as |hit key|}}
       <div class="lancer-hit">
         <div>
           <img class="lancer-hit-thumb" src="{{hit.token.img}}" />
@@ -48,10 +48,10 @@
       {{/each}}
     </div>
   </div>
-  {{/if}} {{#if damages}}
+  {{/if}} {{#if damage_results}}
   <div class="card clipped">
     <div class="lancer-mini-header collapse-trigger" data-collapse-id="{{_uuid}}-damage">{{localize "lancer.chat-card.title.damage"}}</div>
-    {{#each damages as |damage key|}}
+    {{#each damage_results as |damage key|}}
     <div class="dice-roll lancer-dice-roll collapse" data-collapse-id="{{../_uuid}}-damage">
       <div class="dice-result">
         <div class="dice-formula lancer-dice-formula flexrow">
@@ -72,10 +72,10 @@
     </div>
     {{/if}}
   </div>
-  {{/if}} {{#if crit_damages}}
+  {{/if}} {{#if crit_damage_results}}
   <div class="card clipped">
     <div class="lancer-mini-header collapse-trigger" data-collapse-id="{{_uuid}}-damage">{{localize "lancer.chat-card.title.crit-damage"}}</div>
-    {{#each crit_damages as |damage key|}}
+    {{#each crit_damage_results as |damage key|}}
     <div class="dice-roll lancer-dice-roll collapse" data-collapse-id="{{../_uuid}}-damage">
       <div class="dice-result">
         <div class="dice-formula lancer-dice-formula flexrow">
