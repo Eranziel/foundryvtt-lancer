@@ -5,7 +5,7 @@ import { AccDiffData, AccDiffDataSerialized } from "../helpers/acc_diff";
 import { encodeMacroData } from "./encode";
 import { resolveItemOrActor } from "./util";
 import { renderTemplateStep } from "./_render";
-import { attackRolls, checkTargets } from "./attack";
+import { attackRolls } from "./attack";
 import { SystemTemplates } from "../system-template";
 import { LancerFlowState } from "./interfaces";
 import { openSlidingHud } from "../helpers/slidinghud";
@@ -40,7 +40,7 @@ export async function prepareTechMacro(
     let acc = actor.is_mech() && actor.system.loadout.frame?.value?.system.lid == "mf_goblin" ? 1 : 0;
     acc_diff = AccDiffData.fromParams(actor, [], "BASIC TECH", Array.from(game.user!.targets), acc);
     mData = {
-      docUUID: actor.uuid,
+      // docUUID: actor.uuid,
       title: "BASIC TECH",
       flat_bonus: actor.system.tech_attack,
       tags: [],
@@ -61,7 +61,7 @@ export async function prepareTechMacro(
       let acc = sys.accuracy[tier_index] ?? 0;
       acc_diff = AccDiffData.fromParams(item, item.getTags() ?? [], item.name!, Array.from(game.user!.targets), acc);
       mData = {
-        docUUID: item.uuid,
+        // docUUID: item.uuid,
         title: item.name!,
         attack_type: sys.tech_type,
         flat_bonus: sys.attack_bonus[tier_index] ?? 0,
@@ -77,7 +77,7 @@ export async function prepareTechMacro(
       if (action) {
         // Use the action data
         mData = {
-          docUUID: item.uuid,
+          // docUUID: item.uuid,
           title: action.name == ActivationType.Invade ? `INVADE // ${action.name}` : action.name,
           attack_type: action.activation,
           effect: action.detail,
@@ -87,7 +87,7 @@ export async function prepareTechMacro(
       } else if (item.is_mech_system()) {
         // Use the system effect as a fallback
         mData = {
-          docUUID: item.uuid,
+          // docUUID: item.uuid,
           title: item.name!,
           attack_type: "N/A",
           effect: item.system.effect,
@@ -109,7 +109,7 @@ export async function prepareTechMacro(
 
   // Summon prompt
   acc_diff = await openSlidingHud("attack", acc_diff);
-  mData.acc_diff = acc_diff.toObject();
+  // mData.acc_diff = acc_diff.toObject();
 
   // Un-charge
   if (item && item.is_npc_feature() && item.system.tags.some(t => t.is_recharge)) {
@@ -121,16 +121,18 @@ export async function prepareTechMacro(
 
 export async function rollTechMacro(data: LancerFlowState.AttackRollData, reroll: boolean = false) {
   // Get actor
-  let { actor } = resolveItemOrActor(data.docUUID);
+  // let { actor } = resolveItemOrActor(data.docUUID);
+  let actor = undefined;
   if (!actor) return;
 
   // Populate and possibly regenerate ADD if reroll
-  let add = AccDiffData.fromObject(data.acc_diff);
+  // let add = AccDiffData.fromObject(data.acc_diff);
+  let add = data.acc_diff;
   if (reroll) {
     // Re-prompt
     add.replaceTargets(Array.from(game!.user!.targets));
     add = await openSlidingHud("attack", add);
-    data.acc_diff = add.toObject();
+    // data.acc_diff = add.toObject();
   }
 
   let rerollInvocation: LancerFlowState.InvocationData = {
@@ -142,7 +144,10 @@ export async function rollTechMacro(data: LancerFlowState.AttackRollData, reroll
   let atkRolls = attackRolls(data.flat_bonus, add);
   if (!atkRolls) return;
 
-  const { attacks, hits } = await checkTargets(atkRolls, true); // true = all tech attacks are "smart"
+  // TODO: use rollAttacks from ./attacks
+  // const { attacks, hits } = await checkTargets(atkRolls, true); // true = all tech attacks are "smart"
+  const attacks: any = [];
+  const hits: any = [];
 
   // Output
   const templateData = {

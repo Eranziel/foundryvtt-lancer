@@ -22,10 +22,12 @@ export async function prepareStatMacro(actor: string | LancerActor, statKey: str
   acc_diff = await openSlidingHud("hase", acc_diff);
 
   let mData: LancerFlowState.StatRollData = {
+    type: "stat",
     title: statPath[statPath.length - 1].toUpperCase(),
-    docUUID: actor.uuid,
+    // docUUID: actor.uuid,
     bonus,
     acc_diff: acc_diff.toObject(),
+    roll_str: "1d20",
   };
 
   rollStatMacro(mData);
@@ -41,10 +43,12 @@ export async function prepareSkillMacro(item: string | LancerItem) {
   let acc_diff = AccDiffData.fromParams(item, undefined, item.name!);
   acc_diff = await openSlidingHud("hase", acc_diff);
   let skillData: LancerFlowState.StatRollData = {
+    type: "stat",
     title: item.name!,
     bonus: (item as LancerSKILL).system.curr_rank * 2,
-    docUUID: item.uuid,
+    // docUUID: item.uuid,
     acc_diff: acc_diff.toObject(),
+    roll_str: "1d20",
   };
   await rollStatMacro(skillData);
 }
@@ -52,7 +56,8 @@ export async function prepareSkillMacro(item: string | LancerItem) {
 // Rollers
 
 export async function rollStatMacro(data: LancerFlowState.StatRollData) {
-  let { actor } = resolveItemOrActor(data.docUUID);
+  // let { actor } = resolveItemOrActor(data.docUUID);
+  let actor;
   if (!actor) return;
 
   // Get accuracy/difficulty with a prompt

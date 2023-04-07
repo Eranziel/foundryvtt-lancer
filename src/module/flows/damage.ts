@@ -7,7 +7,7 @@ import { LancerFlowState } from "./interfaces";
 /**
  * Flow for rolling and applying damage to a token, typically from a weapon attack
  */
-export class DamageApplyFlow extends Flow<LancerFlowState.AttackRollData> {
+export class DamageApplyFlow extends Flow<LancerFlowState.WeaponRollData> {
   constructor(uuid: UUIDRef | LancerItem | LancerActor, data?: LancerFlowState.WeaponRollData) {
     super("DamageApplyFlow", uuid, data);
     this.steps.set("getDamages", dummyDamageStep);
@@ -22,5 +22,5 @@ export class DamageApplyFlow extends Flow<LancerFlowState.AttackRollData> {
 
 async function dummyDamageStep(state: FlowState<LancerFlowState.WeaponRollData>) {
   await setTimeout(() => (console.log("dummyDamageStep"), 1000));
-  return;
+  return true;
 }

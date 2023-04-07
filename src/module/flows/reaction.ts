@@ -12,7 +12,8 @@ const lp = LANCER.log_prefix;
  * @param data Reaction macro data to render.
  */
 export function rollReactionMacro(data: LancerFlowState.ReactionRollData) {
-  let { actor } = resolveItemOrActor(data.docUUID);
+  // let { actor } = resolveItemOrActor(data.docUUID);
+  let actor;
   if (!actor) return;
 
   const template = `systems/${game.system.id}/templates/chat/reaction-card.hbs`;

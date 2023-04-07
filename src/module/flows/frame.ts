@@ -24,7 +24,7 @@ export async function prepareCoreActiveMacro(actor: string | LancerActor) {
 
   let frame = actor.system.loadout.frame.value;
   let mData: LancerFlowState.TextRollData = {
-    docUUID: frame.uuid,
+    // docUUID: frame.uuid,
     title: frame.system.core_system.active_name,
     description: frame.system.core_system.active_effect,
     tags: frame.system.core_system.tags,
@@ -68,7 +68,7 @@ export async function prepareCorePassiveMacro(actor: string | LancerActor) {
   if (!frame) return;
 
   let mData: LancerFlowState.TextRollData = {
-    docUUID: frame.uuid,
+    // docUUID: frame.uuid,
     title: frame.system.core_system.passive_name,
     description: frame.system.core_system.passive_effect,
     tags: frame.system.core_system.tags,
@@ -94,7 +94,7 @@ export async function prepareFrameTraitMacro(actor: string | LancerActor, index:
   if (!trait) return;
 
   let mData: LancerFlowState.TextRollData = {
-    docUUID: frame.uuid,
+    // docUUID: frame.uuid,
     title: trait.name,
     description: trait.description,
   };

@@ -7,7 +7,7 @@ export async function preparePilotGearMacro(item: string | LancerItem) {
   if (!item.actor || !item.is_pilot_gear()) return;
 
   let gearData: LancerFlowState.TextRollData = {
-    docUUID: item.uuid,
+    // docUUID: item.uuid,
     title: item.name!,
     description: item.system.description,
     tags: item.system.tags,
@@ -21,7 +21,7 @@ export async function prepareCoreBonusMacro(item: string | LancerItem) {
   if (!item.actor || !item.is_core_bonus()) return;
 
   let cbData: LancerFlowState.TextRollData = {
-    docUUID: item.uuid,
+    // docUUID: item.uuid,
     title: item.name ?? "",
     description: item.system.effect,
   };
@@ -33,7 +33,7 @@ export async function prepareReserveMacro(item: string | LancerItem) {
   if (!item.actor || !item.is_reserve()) return;
 
   let reserveData: LancerFlowState.TextRollData = {
-    docUUID: item.uuid,
+    // docUUID: item.uuid,
     title: `RESERVE :: ${item.system.resource_name ?? item.name}`,
     description: (item.system.label ? `<b>${item.system.label}</b></br>` : "") + item.system.description,
   };

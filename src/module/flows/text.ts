@@ -22,7 +22,7 @@ export function prepareTextMacro(
   tags?: Tag[]
 ): Promise<void> {
   let mData: LancerFlowState.TextRollData = {
-    docUUID: actor instanceof LancerActor ? actor.uuid : actor,
+    // docUUID: actor instanceof LancerActor ? actor.uuid : actor,
     title,
     description: text,
     tags: tags,
@@ -36,7 +36,8 @@ export function prepareTextMacro(
  * @param data {LancerTextMacroData} Prepared macro data.
  */
 export async function rollTextMacro(data: LancerFlowState.TextRollData) {
-  let { actor } = resolveItemOrActor(data.docUUID);
+  // let { actor } = resolveItemOrActor(data.docUUID);
+  let actor;
   if (!actor) return;
 
   const template = `systems/${game.system.id}/templates/chat/generic-card.hbs`;

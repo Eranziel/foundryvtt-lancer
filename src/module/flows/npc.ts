@@ -5,7 +5,7 @@ import { renderTemplateStep } from "./_render";
 import { LancerItem, LancerNPC_FEATURE } from "../item/lancer-item";
 import { rollTextMacro } from "./text";
 import { NpcFeatureType } from "../enums";
-import { prepareAttackMacro } from "./attack";
+// import { prepareAttackMacro } from "./attack";
 import { prepareTechMacro } from "./tech";
 import { LancerFlowState } from "./interfaces";
 import { SystemTemplates } from "../system-template";
@@ -22,13 +22,13 @@ export async function prepareNPCFeatureMacro(
 
   switch (item.system.type) {
     case NpcFeatureType.Weapon:
-      if (!options?.display) return prepareAttackMacro(item);
+      if (!options?.display) return; // prepareAttackMacro(item);
     case NpcFeatureType.Tech:
       if (!options?.display) return prepareTechMacro(item);
     case NpcFeatureType.System:
     case NpcFeatureType.Trait:
       let sysData: LancerFlowState.TextRollData = {
-        docUUID: item.uuid,
+        // docUUID: item.uuid,
         title: item.name!,
         description: item.system.effect,
         tags: item.system.tags,
@@ -37,7 +37,7 @@ export async function prepareNPCFeatureMacro(
       return rollTextMacro(sysData);
     case NpcFeatureType.Reaction:
       let reactData: LancerFlowState.ReactionRollData = {
-        docUUID: item.uuid,
+        // docUUID: item.uuid,
         title: item.name!,
         trigger: (item.system as SystemTemplates.NPC.ReactionData).trigger,
         effect: (item.system as SystemTemplates.NPC.ReactionData).effect,

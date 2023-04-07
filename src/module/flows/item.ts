@@ -1,5 +1,5 @@
 // Import TypeScript modules
-import { prepareAttackMacro } from "./attack";
+// import { prepareAttackMacro } from "./attack";
 import { prepareSystemMacro } from "./system";
 import { prepareTalentMacro } from "./talent";
 import { EntryType } from "../enums";
@@ -33,7 +33,9 @@ export async function prepareItemMacro(
     // Pilot OR Mech weapon
     case EntryType.PILOT_WEAPON:
     case EntryType.MECH_WEAPON:
-      return prepareAttackMacro(item, options);
+      // TODO refactor to trigger appropriate flow
+      // return prepareAttackMacro(item, options);
+      return;
     case EntryType.MECH_SYSTEM:
       return prepareSystemMacro(item);
     case EntryType.TALENT:
