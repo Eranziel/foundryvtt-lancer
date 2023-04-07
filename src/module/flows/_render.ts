@@ -6,7 +6,7 @@ import type { LancerActor } from "../actor/lancer-actor";
  *
  */
 // TODO: Indexed types for templates
-export async function renderTemplateStep(actor: LancerActor, template: string, templateData: any) {
+export async function renderTemplateStep(actor: LancerActor, template: string, templateData: any, flags?: any) {
   templateData._uuid = nanoid();
 
   const html = await renderTemplate(template, templateData);
@@ -27,10 +27,10 @@ export async function renderTemplateStep(actor: LancerActor, template: string, t
   }
   const roll = Roll.fromTerms([PoolTerm.fromRolls(aggregate)]);
 
-  return createChatMessageStep(actor, html, roll);
+  return createChatMessageStep(actor, html, roll, flags);
 }
 
-export async function createChatMessageStep(actor: LancerActor, html: HTMLElement | string, roll?: Roll) {
+export async function createChatMessageStep(actor: LancerActor, html: HTMLElement | string, roll?: Roll, flags?: any) {
   const rollMode = game.settings.get("core", "rollMode");
   const whisper_roll = rollMode !== "roll" ? ChatMessage.getWhisperRecipients("GM").filter(u => u.active) : undefined;
   let chat_data = {
@@ -43,6 +43,7 @@ export async function createChatMessageStep(actor: LancerActor, html: HTMLElemen
     },
     content: html,
     whisper: roll ? whisper_roll : [],
+    flags: flags ? { lancer: flags } : undefined,
   };
   if (!roll) delete chat_data.roll;
   // @ts-ignore This is fine
