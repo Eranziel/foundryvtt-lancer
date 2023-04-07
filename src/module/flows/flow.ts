@@ -17,12 +17,13 @@ export type Step<T, U> = (state: FlowState<T>, options?: U) => Promise<boolean>;
  * Encapsulates the current state of a Flow. `data` is a generic object with the data
  * relevant to the specific Flow type.
  */
-export type FlowState<T> = {
+export interface FlowState<T> {
   name: string;
   actor: LancerActor;
   item: LancerItem | null; // Not all flows involve items. e.g. structure/stress
-  data: T | undefined;
-};
+  currentStep: string;
+  data?: T;
+}
 
 /**
  * A Flow is a game process composed of one or more Steps. Flows can be triggered
@@ -37,13 +38,13 @@ export type FlowState<T> = {
  * the chat card), or buttons which can trigger other flows (e.g. damage
  * application).
  */
-export class Flow<T> {
+export class Flow<StateData> {
   // The Steps involved in this flow. Steps are resolved in the order of insertion.
-  steps: Map<string, Step<T, any> | Flow<any>>;
+  steps: Map<string, Step<StateData, any> | Flow<any>>;
   // State tracking object. Passed to each step for it to modify and then return.
-  state: FlowState<T>;
+  state: FlowState<StateData>;
 
-  constructor(name: string, uuid: UUIDRef | LancerItem | LancerActor, data?: T) {
+  constructor(name: string, uuid: UUIDRef | LancerItem | LancerActor, data?: StateData) {
     this.steps = new Map();
     let item: LancerItem | null = null;
     let actor: LancerActor | null = null;
@@ -85,6 +86,7 @@ export class Flow<T> {
       name,
       actor,
       item,
+      currentStep: "",
       data,
     };
   }
@@ -94,7 +96,7 @@ export class Flow<T> {
    * @param key Existing step key
    * @param step New step to insert
    */
-  insertStepBefore(key: string, step: Step<T, any> | Flow<any>) {
+  insertStepBefore(key: string, step: Step<StateData, any> | Flow<any>) {
     // TODO
   }
 
@@ -103,7 +105,7 @@ export class Flow<T> {
    * @param key Existing step key
    * @param step New step to insert
    */
-  insertStepAfter(key: string, step: Step<T, any> | Flow<any>) {
+  insertStepAfter(key: string, step: Step<StateData, any> | Flow<any>) {
     // TODO
   }
 
@@ -119,10 +121,11 @@ export class Flow<T> {
    * Start the flow. Each step is awaited in the order they were inserted to the map.
    * @param data Initial data for the specific flow to populate its state.data.
    */
-  async begin(data?: T): Promise<boolean> {
+  async begin(data?: StateData): Promise<boolean> {
     this.state.data = data;
     for (const [key, step] of this.steps.entries()) {
       console.log(`${lp} running flow step ${key}`);
+      this.state.currentStep = key;
       if (step instanceof Flow) {
         // Start the sub-flow
         if ((await step.begin()) === false) {
