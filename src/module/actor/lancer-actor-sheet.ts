@@ -193,7 +193,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
       const weaponElement = $(ev.currentTarget).closest("[data-uuid]")[0] as HTMLElement;
       const weaponId = weaponElement.dataset.uuid;
       const weapon = LancerItem.fromUuidSync(weaponId ?? "", "Error rolling macro");
-      prepareItemMacro(weapon.uuid!);
+      weapon.beginWeaponAttackFlow();
     });
 
     // TODO: For sanity's sake, merge these into a single "macro" handler

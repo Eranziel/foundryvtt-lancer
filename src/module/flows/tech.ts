@@ -127,7 +127,7 @@ export async function rollTechMacro(data: LancerFlowState.AttackRollData, reroll
 
   // Populate and possibly regenerate ADD if reroll
   // let add = AccDiffData.fromObject(data.acc_diff);
-  let add = data.acc_diff;
+  let add = data.acc_diff!;
   if (reroll) {
     // Re-prompt
     add.replaceTargets(Array.from(game!.user!.targets));

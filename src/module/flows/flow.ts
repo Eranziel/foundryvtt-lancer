@@ -122,7 +122,7 @@ export class Flow<StateData> {
    * @param data Initial data for the specific flow to populate its state.data.
    */
   async begin(data?: StateData): Promise<boolean> {
-    this.state.data = data;
+    this.state.data = data || this.state.data;
     for (const [key, step] of this.steps.entries()) {
       console.log(`${lp} running flow step ${key}`);
       this.state.currentStep = key;

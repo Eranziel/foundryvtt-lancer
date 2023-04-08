@@ -17,6 +17,7 @@ import { BonusData } from "../models/bits/bonus";
 import { ChangeWatchHelper } from "../util/misc";
 import { LancerMECH } from "../actor/lancer-actor";
 import { Damage } from "../models/bits/damage";
+import { WeaponAttackFlow } from "../flows/attack";
 
 const lp = LANCER.log_prefix;
 
@@ -539,6 +540,16 @@ export class LancerItem extends Item {
       throw new Error(message);
     }
     return x;
+  }
+
+  async beginWeaponAttackFlow() {
+    if (!this.is_mech_weapon() && !this.is_npc_feature() && !this.is_pilot_weapon()) {
+      ui.notifications!.error(`Item ${this.id} cannot attack as it is not a weapon!`);
+      return;
+    }
+    const flow = new WeaponAttackFlow(this);
+    await flow.begin();
+    console.log("Finished attack flow");
   }
 }
 

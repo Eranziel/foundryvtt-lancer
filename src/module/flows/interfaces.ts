@@ -58,7 +58,7 @@ export namespace LancerFlowState {
   export interface AttackRollData extends Omit<BaseRollData, "type"> {
     type: "attack";
     flat_bonus: number;
-    acc_diff: AccDiffData;
+    acc_diff?: AccDiffData;
 
     attack_type: string; // Melee, Ranged, Quick Tech, Full Tech
     effect?: string;
@@ -79,7 +79,7 @@ export namespace LancerFlowState {
     hit_results: HitResult[];
     damage_results: DamageResult[];
     crit_damage_results: DamageResult[];
-    overkill_heat: number;
+    overkill_heat?: number;
     // TODO: deprecate base64 encoded reroll data
     reroll_data: string;
   }

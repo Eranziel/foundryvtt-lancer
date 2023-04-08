@@ -54,6 +54,22 @@ export function attackRolls(flat_bonus: number, acc_diff: AccDiffData): LancerFl
  */
 export class WeaponAttackFlow extends Flow<LancerFlowState.WeaponRollData> {
   constructor(uuid: UUIDRef | LancerItem | LancerActor, data?: LancerFlowState.WeaponRollData) {
+    // Initialize data if not provided
+    data = data || {
+      type: "weapon",
+      title: "",
+      roll_str: "",
+      flat_bonus: 0,
+      attack_type: "unknown",
+      defense: "",
+      attack_rolls: { roll: "", targeted: [] },
+      attack_results: [],
+      hit_results: [],
+      damage_results: [],
+      crit_damage_results: [],
+      reroll_data: "",
+    };
+
     super("WeaponAttackFlow", uuid, data);
     if (!this.state.item) {
       throw new TypeError(`WeaponAttackFlow requires an Item, but none was provided`);
@@ -221,7 +237,7 @@ async function setAttackTags(
   if (!state.item) return true;
   if (state.item.is_mech_weapon()) {
     let profile = state.item.system.active_profile;
-    state.data.tags = [...profile.tags, ...profile.bonus_tags];
+    state.data.tags = [...(profile.tags ?? []), ...(profile.bonus_tags ?? [])];
     return true;
   } else if (state.item.is_npc_feature()) {
     let asWeapon = state.item.system as SystemTemplates.NPC.WeaponData;
@@ -276,7 +292,7 @@ async function showAttackHUD(
   options?: {}
 ): Promise<boolean> {
   if (!state.data) throw new TypeError(`Attack flow state missing!`);
-  state.data.acc_diff = await openSlidingHud("attack", state.data.acc_diff);
+  state.data.acc_diff = await openSlidingHud("attack", state.data.acc_diff!);
   // TODO: click cancel on HUD?
   return true;
 }
@@ -287,7 +303,7 @@ async function rollAttacks(
 ): Promise<boolean> {
   if (!state.data) throw new TypeError(`Attack flow state missing!`);
 
-  state.data.attack_rolls = attackRolls(state.data.flat_bonus, state.data.acc_diff);
+  state.data.attack_rolls = attackRolls(state.data.flat_bonus, state.data.acc_diff!);
   const hydratedTags = state.data.tags?.map(t => new Tag(t)) ?? [];
   const isSmart = hydratedTags.some(tag => tag.is_smart);
 
@@ -385,11 +401,12 @@ async function rollDamages(state: FlowState<LancerFlowState.WeaponRollData>, opt
   }
   // Calculate overkill heat
   if (state.data.overkill) {
+    state.data.overkill_heat = 0;
     (has_crit_hit ? state.data.crit_damage_results : state.data.damage_results).forEach(result => {
       result.roll.terms.forEach(p => {
         if (p instanceof DiceTerm) {
           p.results.forEach(r => {
-            if (r.exploded) state.data!.overkill_heat += 1;
+            if (r.exploded) state.data!.overkill_heat! += 1;
           });
         }
       });
@@ -413,7 +430,7 @@ async function applySelfHeat(
     if (state.actor.is_mech() || state.actor.is_npc()) {
       // TODO: overkill heat to move to damage flow
       await state.actor.update({
-        "system.heat.value": state.actor.system.heat.value + state.data.overkill_heat + self_heat,
+        "system.heat.value": state.actor.system.heat.value + (state.data.overkill_heat ?? 0) + self_heat,
       });
     }
   }
