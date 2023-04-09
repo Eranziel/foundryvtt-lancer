@@ -721,10 +721,19 @@ export class LancerActor extends Actor {
     return x;
   }
 
-  async beginBasicAttackFlow(title?: string) {
+  async beginBasicAttackFlow(title?: string): Promise<boolean> {
+    if (this.type === EntryType.DEPLOYABLE) {
+      // @ts-expect-error System's broken
+      if (!this.system.owner) {
+        ui.notifications!.warn(`Deployable ${this.id} has no deployer so cannot attack!`);
+        return false;
+      }
+      // @ts-expect-error System's broken
+      const owner = await LancerActor.fromUuid(this.system.owner.id);
+      return await owner.beginBasicAttackFlow(title);
+    }
     const flow = new BasicAttackFlow(this, title ? { title } : undefined);
-    await flow.begin();
-    console.log("Finished basic attack flow");
+    return await flow.begin();
   }
 }
 

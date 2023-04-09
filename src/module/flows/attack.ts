@@ -149,8 +149,6 @@ async function initAttackData(
     state.data.title = options?.title ?? "BASIC ATTACK";
     state.data.attack_type = AttackType.Melee; // Virtually all basic attacks are melee, so it's a good default
     state.data.flat_bonus = 0;
-    // TODO: move this actor swap into LancerActor.startAttackFlow when the actor's type is deployable
-    // if (state.actor.is_deployable() && state.actor.system.owner?.value) state.actor = state.actor.system.owner?.value;
     if (state.actor.is_pilot() || state.actor.is_mech()) {
       state.data.flat_bonus = state.actor.system.grit;
     } else if (state.actor.is_npc()) {
