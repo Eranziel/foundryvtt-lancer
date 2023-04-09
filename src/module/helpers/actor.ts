@@ -212,42 +212,36 @@ export function action_button(
 }
 
 // Suitable for any macros that take a single argument: the actor uuid
-export function actor_macro_button(
+export function actor_flow_button(
   title: string,
-  macro: string,
+  type: string,
   options: HelperOptions & { rollable?: boolean }
 ): string {
-  let args = [getActorUUID(options)];
+  let args = JSON.stringify([getActorUUID(options)]);
   let mIcon;
-  switch (macro) {
-    case "fullRepairMacro":
+  switch (type) {
+    case "FullRepair":
       mIcon = "cci-repair";
       break;
-    case "stabilizeMacro":
+    case "Stabilize":
       mIcon = "cci-marker";
       break;
-    case "prepareOverheatMacro":
+    case "Overheat":
       mIcon = "cci-heat";
       break;
-    case "prepareStructureMacro":
+    case "Structure":
       mIcon = "cci-condition-shredded";
       break;
-    case "prepareAttackMacro":
+    case "BasicAttack":
       mIcon = "cci-weapon";
       break;
-    case "prepareTechMacro":
+    case "TechAttack":
       mIcon = "cci-tech-quick";
       break;
   }
 
-  let macroData = encodeMacroData({
-    title: title,
-    fn: macro,
-    args: args,
-  });
-
   return `
-      <button type="button" class="lancer-macro-button lancer-macro activation-quick" data-macro="${macroData}">
+      <button type="button" class="lancer-flow-button lancer-flow activation-quick" data-flow-type="${type}" data-flow-args=${args}>
         <i class="cci ${mIcon} i--m"></i> ${title}
       </button>
     `;

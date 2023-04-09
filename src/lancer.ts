@@ -1,5 +1,5 @@
 /**
- * TypeScript entry file for Foundry VTT.
+ * TypeScript entry file for Lancer on Foundry VTT.
  * Registers custom settings, sheets, and constants using the Foundry API.
  *
  * Author: Eranziel
@@ -101,7 +101,7 @@ import {
   compact_stat_view,
   deployer_slot,
   is_combatant,
-  actor_macro_button,
+  actor_flow_button,
   npc_stat_block_clicker_card,
   npc_tier_selector,
   overcharge_button,
@@ -458,7 +458,7 @@ Hooks.once("init", async function () {
   Handlebars.registerHelper("std-checkbox", std_checkbox);
   Handlebars.registerHelper("std-select", std_enum_select);
   Handlebars.registerHelper("action-button", action_button);
-  Handlebars.registerHelper("macro-button", actor_macro_button);
+  Handlebars.registerHelper("flow-button", actor_flow_button);
   Handlebars.registerHelper("tech-flow-card", tech_flow_card);
 
   // ------------------------------------------------------------------------

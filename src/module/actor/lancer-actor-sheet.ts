@@ -184,6 +184,33 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
       runEncodedMacro(ev.currentTarget);
     });
 
+    // Basic flow buttons
+    let actorFlows = html.find(".lancer-flow");
+    actorFlows.on("click", ev => {
+      if (!ev.currentTarget) return; // No target, let other handlers take care of it.
+      ev.stopPropagation();
+      console.log("Lancer Flow Button");
+      // Check data-flow-type to pick which flow to trigger
+      const flowElement = $(ev.currentTarget).closest("[data-flow-type]")[0] as HTMLElement;
+      const flowType = flowElement.dataset.flowType;
+      const flowArgs = flowElement.dataset.flowArgs;
+      switch (flowType) {
+        case "FullRepair":
+          break;
+        case "Stabilize":
+          break;
+        case "Overheat":
+          break;
+        case "Structure":
+          break;
+        case "BasicAttack":
+          this.actor.beginBasicAttackFlow(flowArgs);
+          break;
+        case "Tech":
+          break;
+      }
+    });
+
     // Weapon rollers
     let weaponMacro = html.find(".roll-attack");
     weaponMacro.on("click", ev => {

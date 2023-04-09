@@ -49,30 +49,65 @@ export function attackRolls(flat_bonus: number, acc_diff: AccDiffData): LancerFl
   };
 }
 
+export class BasicAttackFlow extends Flow<LancerFlowState.AttackRollData> {
+  constructor(uuid: UUIDRef | LancerItem | LancerActor, data?: Partial<LancerFlowState.AttackRollData>) {
+    // Initialize data if not provided
+    const initialData: LancerFlowState.AttackRollData = {
+      type: "attack",
+      title: data?.title || "",
+      roll_str: data?.roll_str || "",
+      flat_bonus: data?.flat_bonus || 0,
+      attack_type: data?.attack_type || AttackType.Melee,
+      defense: data?.defense || "",
+      attack_rolls: data?.attack_rolls || { roll: "", targeted: [] },
+      attack_results: data?.attack_results || [],
+      hit_results: data?.hit_results || [],
+      damage_results: data?.damage_results || [],
+      crit_damage_results: data?.crit_damage_results || [],
+      reroll_data: data?.reroll_data || "",
+      tags: data?.tags || [],
+    };
+
+    super("BasicAttackFlow", uuid, initialData);
+
+    this.steps.set("initAttackData", initAttackData);
+    this.steps.set("setAttackTags", setAttackTags);
+    this.steps.set("setAttackEffects", setAttackEffects);
+    this.steps.set("setAttackTargets", setAttackTargets);
+    this.steps.set("showAttackHUD", showAttackHUD);
+    this.steps.set("rollAttacks", rollAttacks);
+    // TODO: think about whether/how basic attacks should be able to do damage (siege ram, I'm lookin' at you)
+    // this.steps.set("rollDamages", rollDamages);
+    this.steps.set("applySelfHeat", applySelfHeat);
+    this.steps.set("printAttackCard", printAttackCard);
+  }
+}
+
 // TODO: make a type for weapon attack flow state which narrows the type on item??
 
 /**
  * Flow for rolling weapon attacks against one or more targets
  */
 export class WeaponAttackFlow extends Flow<LancerFlowState.WeaponRollData> {
-  constructor(uuid: UUIDRef | LancerItem | LancerActor, data?: LancerFlowState.WeaponRollData) {
+  constructor(uuid: UUIDRef | LancerItem | LancerActor, data?: Partial<LancerFlowState.WeaponRollData>) {
     // Initialize data if not provided
-    data = data || {
+    const initialData: LancerFlowState.WeaponRollData = {
       type: "weapon",
-      title: "",
-      roll_str: "",
-      flat_bonus: 0,
-      attack_type: AttackType.Melee,
-      defense: "",
-      attack_rolls: { roll: "", targeted: [] },
-      attack_results: [],
-      hit_results: [],
-      damage_results: [],
-      crit_damage_results: [],
-      reroll_data: "",
+      title: data?.title || "",
+      roll_str: data?.roll_str || "",
+      flat_bonus: data?.flat_bonus || 0,
+      attack_type: data?.attack_type || AttackType.Melee,
+      defense: data?.defense || "",
+      attack_rolls: data?.attack_rolls || { roll: "", targeted: [] },
+      attack_results: data?.attack_results || [],
+      hit_results: data?.hit_results || [],
+      damage_results: data?.damage_results || [],
+      crit_damage_results: data?.crit_damage_results || [],
+      reroll_data: data?.reroll_data || "",
+      tags: data?.tags || [],
     };
 
-    super("WeaponAttackFlow", uuid, data);
+    super("WeaponAttackFlow", uuid, initialData);
     if (!this.state.item) {
       throw new TypeError(`WeaponAttackFlow requires an Item, but none was provided`);
     }

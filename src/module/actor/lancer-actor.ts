@@ -8,13 +8,14 @@ import { SourceDataType } from "../source-template";
 import * as defaults from "../util/unpacking/defaults";
 import { getAutomationOptions } from "../settings";
 import { pilotInnateEffect } from "../effects/converter";
-import { LancerFRAME, LancerItem, LancerNPC_CLASS, LancerNPC_FEATURE } from "../item/lancer-item";
+import { LancerFRAME, LancerItem, LancerNPC_CLASS } from "../item/lancer-item";
 import { LancerActiveEffect } from "../effects/lancer-active-effect";
 import { ChangeWatchHelper } from "../util/misc";
 import { frameToPath } from "./retrograde-map";
 import { EffectHelper } from "../effects/effector";
 import { LoadoutHelper } from "./loadout-util";
 import { StrussHelper } from "./struss-util";
+import { BasicAttackFlow } from "../flows/attack";
 const lp = LANCER.log_prefix;
 
 const DEFAULT_OVERCHARGE_SEQUENCE = ["+1", "+1d3", "+1d6", "+1d6+4"];
@@ -656,6 +657,7 @@ export class LancerActor extends Actor {
   hasHeatcap(): this is { system: SystemTemplates.heat } {
     return (this as any).system.heat !== undefined;
   }
+
   /**
    * Taking a new and old frame/class, swaps the actor and/or token images if
    * we detect that the image isn't custom. Will check each individually
@@ -717,6 +719,12 @@ export class LancerActor extends Actor {
       throw new Error(message);
     }
     return x;
+  }
+
+  async beginBasicAttackFlow(title?: string) {
+    const flow = new BasicAttackFlow(this, title ? { title } : undefined);
+    await flow.begin();
+    console.log("Finished basic attack flow");
   }
 }
 
