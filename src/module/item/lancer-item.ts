@@ -428,6 +428,9 @@ export class LancerItem extends Item {
   is_weapon_mod(): this is LancerWEAPON_MOD {
     return this.type === EntryType.WEAPON_MOD;
   }
+  is_weapon(): this is LancerMECH_WEAPON | LancerPILOT_WEAPON | LancerNPC_FEATURE {
+    return this.is_mech_weapon() || this.is_pilot_weapon() || (this.is_npc_feature() && this.system.type === "Weapon");
+  }
 
   // Quick checkers/getters
   getTags(): Tag[] | null {
