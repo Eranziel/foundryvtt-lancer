@@ -280,6 +280,14 @@ export enum DamageType {
 
 export type DamageTypeChecklist = { [key in DamageType]: boolean };
 
+export enum AttackType {
+  Melee = "Melee",
+  Ranged = "Ranged",
+  Tech = "Tech",
+}
+
+export type AttackTypeChecklist = { [key in AttackType]: boolean };
+
 export enum MechType {
   Balanced = "Balanced",
   Artillery = "Artillery",
