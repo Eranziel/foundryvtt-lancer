@@ -2,7 +2,7 @@
 import { LANCER } from "../config";
 import { getAutomationOptions } from "../settings";
 import { LancerItem, LancerMECH_WEAPON, LancerNPC_FEATURE, LancerPILOT_WEAPON } from "../item/lancer-item";
-import { LancerActor } from "../actor/lancer-actor";
+import { LancerActor, LancerNPC } from "../actor/lancer-actor";
 import { checkForHit } from "../helpers/automation/targeting";
 import { AccDiffData, AccDiffDataSerialized, RollModifier } from "../helpers/acc_diff";
 import { renderTemplateStep } from "./_render";
@@ -12,6 +12,8 @@ import { LancerFlowState } from "./interfaces";
 import { openSlidingHud } from "../helpers/slidinghud";
 import { Tag } from "../models/bits/tag";
 import { Flow, FlowState } from "./flow";
+import { AttackType, RangeType, WeaponType } from "../enums";
+import { Range } from "../models/bits/range";
 
 const lp = LANCER.log_prefix;
 
@@ -60,7 +62,7 @@ export class WeaponAttackFlow extends Flow<LancerFlowState.WeaponRollData> {
       title: "",
       roll_str: "",
       flat_bonus: 0,
-      attack_type: "unknown",
+      attack_type: AttackType.Melee,
       defense: "",
       attack_rolls: { roll: "", targeted: [] },
       attack_results: [],
@@ -88,26 +90,18 @@ export class WeaponAttackFlow extends Flow<LancerFlowState.WeaponRollData> {
     this.steps.set("rollDamages", rollDamages);
     this.steps.set("applySelfHeat", applySelfHeat);
     this.steps.set("updateItemAfterAttack", updateItemAfterAttack);
-    this.steps.set("printWeaponAttackCard", printWeaponAttackCard);
+    this.steps.set("printAttackCard", printAttackCard);
     // TODO: Start damage flow after attack
     // this.steps.set("applyDamage", DamageApplyFlow)
   }
 
   async begin(data?: LancerFlowState.WeaponRollData): Promise<boolean> {
-    if (
-      !this.state.item ||
-      (!this.state.item.is_mech_weapon() && !this.state.item.is_pilot_weapon() && !this.state.item.is_npc_feature())
-    ) {
+    if (!this.state.item || !this.state.item.is_weapon()) {
       console.log(`${lp} WeaponAttackFlow aborted - no weapon provided!`);
       return false;
     }
     return await super.begin(data);
   }
-}
-
-// Doesn't work as a type narrower
-function isWeapon(item: LancerItem | null): boolean {
-  return item instanceof LancerItem && (item.is_mech_weapon() || item.is_pilot_weapon() || item.is_npc_feature());
 }
 
 async function initAttackData(
@@ -118,6 +112,7 @@ async function initAttackData(
   // If we only have an actor, it's a basic attack
   if (!state.item) {
     state.data.title = options?.title ?? "BASIC ATTACK";
+    state.data.attack_type = AttackType.Melee; // Virtually all basic attacks are melee, so it's a good default
     state.data.flat_bonus = 0;
     // TODO: move this actor swap into LancerActor.startAttackFlow when the actor's type is deployable
     // if (state.actor.is_deployable() && state.actor.system.owner?.value) state.actor = state.actor.system.owner?.value;
@@ -144,6 +139,7 @@ async function initAttackData(
         return false;
       }
       let profile = state.item.system.active_profile;
+      state.data.attack_type = profile.type === WeaponType.Melee ? AttackType.Melee : AttackType.Ranged;
       state.data.flat_bonus = state.actor.system.pilot?.value.system.grit;
       // TODO: check bonuses for flat attack bonus
       state.data.acc_diff = options?.acc_diff
@@ -158,6 +154,7 @@ async function initAttackData(
       let tier_index = (state.item.system.tier_override || state.actor.system.tier) - 1;
 
       let asWeapon = state.item.system as SystemTemplates.NPC.WeaponData;
+      state.data.attack_type = asWeapon.weapon_type === WeaponType.Melee ? AttackType.Melee : AttackType.Ranged;
       state.data.flat_bonus = asWeapon.attack_bonus[tier_index] ?? 0;
       state.data.acc_diff = options?.acc_diff
         ? AccDiffData.fromObject(options.acc_diff)
@@ -174,6 +171,11 @@ async function initAttackData(
         ui.notifications?.warn("Non-pilot cannot fire a pilot weapon!");
         return false;
       }
+      // Pilot weapons don't have types like Mech/NPC weapons, so we need to check the ranges instead
+      state.data.attack_type = state.item.system.range.some(r => ![RangeType.Threat, RangeType.Thrown].includes(r.type))
+        ? AttackType.Ranged
+        : AttackType.Melee;
+      state.item.system;
       state.data.flat_bonus = state.actor.system.grit;
       state.data.acc_diff = options?.acc_diff
         ? AccDiffData.fromObject(options.acc_diff)
@@ -235,19 +237,28 @@ async function setAttackTags(
   if (!state.data) throw new TypeError(`Attack flow state missing!`);
   // Basic attacks have no tags, just continue on.
   if (!state.item) return true;
+  let success = false;
   if (state.item.is_mech_weapon()) {
     let profile = state.item.system.active_profile;
     state.data.tags = [...(profile.tags ?? []), ...(profile.bonus_tags ?? [])];
-    return true;
+    success = true;
   } else if (state.item.is_npc_feature()) {
     let asWeapon = state.item.system as SystemTemplates.NPC.WeaponData;
-    state.data.tags = asWeapon.tags.map(t => t.save());
-    return true;
+    state.data.tags = asWeapon.tags;
+    success = true;
   } else if (state.item.is_pilot_weapon()) {
-    state.data.tags = state.item.system.tags.map(t => t.save());
-    return true;
+    state.data.tags = state.item.system.tags;
+    success = true;
   }
-  return false;
+  if (success && state.data.tags) {
+    // Check for self-heat
+    const selfHeatTags = state.data.tags.filter(t => t.is_selfheat);
+    state.data.self_heat = selfHeatTags && selfHeatTags[0]?.val;
+    // Check for overkill
+    const overkillTags = state.data.tags.filter(t => t.is_overkill);
+    state.data.overkill = !!(overkillTags && overkillTags.length);
+  }
+  return success;
 }
 
 async function setAttackEffects(
@@ -349,6 +360,22 @@ async function rollAttacks(
 async function rollDamages(state: FlowState<LancerFlowState.WeaponRollData>, options?: {}): Promise<boolean> {
   if (!state.data) throw new TypeError(`Attack flow state missing!`);
 
+  if (state.item?.is_mech_weapon()) {
+    const profile = state.item.system.active_profile;
+    state.data.damage = profile.damage;
+    state.data.bonus_damage = profile.bonus_damage;
+  } else if (state.item?.is_npc_feature() && state.item.system.type === "Weapon") {
+    state.data.damage =
+      state.item.system.damage[state.item.system.tier_override || (state.actor as LancerNPC).system.tier - 1];
+  } else if (state.item?.is_pilot_weapon()) {
+    state.data.damage = state.item.system.damage;
+  } else {
+    ui.notifications!.warn(
+      state.item ? `Item ${state.item.id} is not a weapon!` : `Weapon attack flow is missing item!`
+    );
+    return false;
+  }
+
   const has_normal_hit =
     (state.data.hit_results.length === 0 && state.data.attack_results.some(attack => (attack.roll.total ?? 0) < 20)) ||
     state.data.hit_results.some(hit => hit.hit && !hit.crit);
@@ -399,6 +426,9 @@ async function rollDamages(state: FlowState<LancerFlowState.WeaponRollData>, opt
       })
     );
   }
+  // If there were only crit hits and no normal hits, don't show normal damage in the results
+  state.data.damage_results = has_normal_hit ? state.data.damage_results : [];
+
   // Calculate overkill heat
   if (state.data.overkill) {
     state.data.overkill_heat = 0;
@@ -449,8 +479,8 @@ async function updateItemAfterAttack(state: FlowState<LancerFlowState.WeaponRoll
   return true;
 }
 
-async function printWeaponAttackCard(
-  state: FlowState<LancerFlowState.WeaponRollData>,
+async function printAttackCard(
+  state: FlowState<LancerFlowState.AttackRollData | LancerFlowState.WeaponRollData>,
   options?: { template?: string }
 ): Promise<boolean> {
   if (!state.data) throw new TypeError(`Attack flow state missing!`);

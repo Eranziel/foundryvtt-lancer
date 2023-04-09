@@ -12,7 +12,7 @@ import { openSlidingHud } from "../helpers/slidinghud";
 import { LancerItem } from "../item/lancer-item";
 import { ActionData } from "../models/bits/action";
 import { resolve_dotpath } from "../helpers/commons";
-import { ActivationType } from "../enums";
+import { ActivationType, AttackType } from "../enums";
 import { Tag } from "../models/bits/tag";
 
 const lp = LANCER.log_prefix;
@@ -44,7 +44,7 @@ export async function prepareTechMacro(
       title: "BASIC TECH",
       flat_bonus: actor.system.tech_attack,
       tags: [],
-      attack_type: "Quick Tech",
+      attack_type: AttackType.Tech,
     };
   } else if (item) {
     // Get the item
@@ -63,9 +63,9 @@ export async function prepareTechMacro(
       mData = {
         // docUUID: item.uuid,
         title: item.name!,
-        attack_type: sys.tech_type,
+        attack_type: AttackType.Tech, //sys.tech_type,
         flat_bonus: sys.attack_bonus[tier_index] ?? 0,
-        tags: sys.tags.map(t => t.save()),
+        tags: sys.tags ?? undefined,
         effect: sys.effect,
       };
     } else {
@@ -79,20 +79,20 @@ export async function prepareTechMacro(
         mData = {
           // docUUID: item.uuid,
           title: action.name == ActivationType.Invade ? `INVADE // ${action.name}` : action.name,
-          attack_type: action.activation,
+          attack_type: AttackType.Tech,
           effect: action.detail,
           flat_bonus: (item.actor as LancerMECH).system.tech_attack,
-          tags: item.getTags()?.map(t => t.save()),
+          tags: item.getTags() ?? undefined,
         };
       } else if (item.is_mech_system()) {
         // Use the system effect as a fallback
         mData = {
           // docUUID: item.uuid,
           title: item.name!,
-          attack_type: "N/A",
+          attack_type: AttackType.Tech,
           effect: item.system.effect,
           flat_bonus: (item.actor as LancerMECH).system.tech_attack,
-          tags: item.getTags()?.map(t => t.save()),
+          tags: item.getTags() ?? undefined,
         };
       } else {
         ui.notifications!.error(

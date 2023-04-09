@@ -1,5 +1,5 @@
 import { ActionType } from "../action";
-import { ActivationType, DamageType } from "../enums";
+import { ActivationType, AttackType, DamageType } from "../enums";
 import { AccDiffData, AccDiffDataSerialized } from "../helpers/acc_diff";
 import { DamageData } from "../models/bits/damage";
 import { Tag, TagData } from "../models/bits/tag";
@@ -60,14 +60,15 @@ export namespace LancerFlowState {
     flat_bonus: number;
     acc_diff?: AccDiffData;
 
-    attack_type: string; // Melee, Ranged, Quick Tech, Full Tech
+    attack_type: AttackType; // Melee, Ranged, Quick Tech, Full Tech
     effect?: string;
     on_attack?: string;
     on_hit?: string;
     on_crit?: string;
 
+    tags?: Tag[];
     self_heat?: string; // The self heat roll if present
-    tags?: TagData[];
+    overkill?: boolean;
 
     scene_uuid?: string;
     origin_space?: [number, number];
@@ -91,7 +92,6 @@ export namespace LancerFlowState {
     bonus_damage?: DamageData[];
     loaded?: boolean;
     destroyed?: boolean;
-    overkill?: boolean;
   }
 
   export interface TechAttackRollData extends Omit<AttackRollData, "type"> {
