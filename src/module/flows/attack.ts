@@ -58,7 +58,7 @@ export class BasicAttackFlow extends Flow<LancerFlowState.AttackRollData> {
       roll_str: data?.roll_str || "",
       flat_bonus: data?.flat_bonus || 0,
       attack_type: data?.attack_type || AttackType.Melee,
-      defense: data?.defense || "",
+      is_smart: data?.is_smart || false,
       attack_rolls: data?.attack_rolls || { roll: "", targeted: [] },
       attack_results: data?.attack_results || [],
       hit_results: data?.hit_results || [],
@@ -97,7 +97,7 @@ export class WeaponAttackFlow extends Flow<LancerFlowState.WeaponRollData> {
       roll_str: data?.roll_str || "",
       flat_bonus: data?.flat_bonus || 0,
       attack_type: data?.attack_type || AttackType.Melee,
-      defense: data?.defense || "",
+      is_smart: data?.is_smart || false,
       attack_rolls: data?.attack_rolls || { roll: "", targeted: [] },
       attack_results: data?.attack_results || [],
       hit_results: data?.hit_results || [],
@@ -286,10 +286,13 @@ async function setAttackTags(
   if (success && state.data.tags) {
     // Check for self-heat
     const selfHeatTags = state.data.tags.filter(t => t.is_selfheat);
-    state.data.self_heat = selfHeatTags && selfHeatTags[0]?.val;
+    if (!!(selfHeatTags && selfHeatTags.length)) state.data.self_heat = selfHeatTags[0].val;
     // Check for overkill
     const overkillTags = state.data.tags.filter(t => t.is_overkill);
-    state.data.overkill = !!(overkillTags && overkillTags.length);
+    if (!!(overkillTags && overkillTags.length)) state.data.overkill = true;
+    // Check for smart
+    const smartTags = state.data.tags.filter(t => t.is_smart);
+    if (!!(smartTags && smartTags.length)) state.data.is_smart = true;
   }
   return success;
 }
@@ -348,8 +351,6 @@ async function rollAttacks(
   if (!state.data) throw new TypeError(`Attack flow state missing!`);
 
   state.data.attack_rolls = attackRolls(state.data.flat_bonus, state.data.acc_diff!);
-  const hydratedTags = state.data.tags?.map(t => new Tag(t)) ?? [];
-  const isSmart = hydratedTags.some(tag => tag.is_smart);
 
   if (getAutomationOptions().attacks && state.data.attack_rolls.targeted.length > 0) {
     let data = await Promise.all(
@@ -371,7 +372,7 @@ async function rollAttacks(
             // @ts-expect-error Token structure has changed
             token: { name: target.name!, img: target.document.texture?.src },
             total: String(attack_roll.total).padStart(2, "0"),
-            hit: await checkForHit(isSmart, attack_roll, actor),
+            hit: await checkForHit(state.data?.is_smart ?? false, attack_roll, actor),
             crit: (attack_roll.total || 0) >= 20,
           },
         };
