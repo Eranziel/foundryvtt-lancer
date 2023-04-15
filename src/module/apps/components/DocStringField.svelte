@@ -21,19 +21,28 @@
 
   // Change callback
   const onChange = (e: Event & { currentTarget: EventTarget & HTMLInputElement; }) => {
-    let newValueStr = e.currentTarget.value;
-    let newValue: number = NaN;
+    let newValueStr: string = e.currentTarget.value;
+    let newValueNum: number = NaN;
     if(integer && float) console.error("Cannot be both integer and float");
-    if(integer) newValue = parseInt(newValueStr);
-    if(float) newValue = parseFloat(newValueStr);
-    if((integer || float) && isNaN(newValue)) {
-      ui.notifications!.warn("Field value must be numeric! Resetting...");
-      value = value;
-      return;
+    if(integer) newValueNum = parseInt(newValueStr);
+    if(float) newValueNum = parseFloat(newValueStr);
+    if(integer || float) {
+      if(isNaN(newValueNum)) {
+        ui.notifications!.warn("Field value must be numeric! Resetting...");
+        value = value;
+        return;
+      } else {
+        // Update as num
+        document.update({
+            [path]: newValueNum
+        });
+      }
+    } else {
+      // Update as str
+      document.update({
+          [path]: newValueStr
+      });
     }
-    document.update({
-        [path]: newValue
-    });
   };
 
 </script>
