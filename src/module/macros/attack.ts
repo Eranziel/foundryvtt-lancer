@@ -623,14 +623,10 @@ Hooks.on("createChatMessage", async (cm: ChatMessage, options: any, id: string) 
       } else {
         // Remove status
         console.log(`Removing ${stat} from Token ${target.id}`);
-        const effects = tokenActor.effects.filter(e => e.getFlag("core", "statusId") === stat) || [];
-        statusToRemove.push(...effects);
+        statusToRemove.push(stat);
       }
     }
-    tokenActor?.deleteEmbeddedDocuments(
-      "ActiveEffect",
-      statusToRemove.map(e => e.id || "")
-    );
+    tokenActor?.remove_active_effects(statusToRemove);
   });
 });
 
