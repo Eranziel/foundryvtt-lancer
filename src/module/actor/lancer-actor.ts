@@ -557,6 +557,18 @@ export class LancerActor extends Actor {
   }
 
   /**
+   * Locates ActiveEffects on the Actor by names provided and removes them if present.
+   * @param effects Array of String names of the ActiveEffects to remove.
+   */
+  async remove_active_effects(effects: string[]) {
+    const target_effects = effects.map(e => findEffect(this, e));
+    this.deleteEmbeddedDocuments(
+      "ActiveEffect",
+      target_effects.map(e => e?.id || "")
+    );
+  }
+
+  /**
    * Wipes all ActiveEffects from the Actor.
    */
   async remove_all_active_effects() {

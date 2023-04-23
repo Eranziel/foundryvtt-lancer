@@ -21,7 +21,6 @@ import { is_loading, is_self_heat } from "machine-mind/dist/classes/mech/EquipUt
 import { FoundryReg } from "../mm-util/foundry-reg";
 import { checkForHit } from "../helpers/automation/targeting";
 import type { AccDiffData, AccDiffDataSerialized, RollModifier } from "../helpers/acc_diff";
-import { findEffect } from "../helpers/acc_diff";
 import { getMacroSpeaker, ownedItemFromString } from "./_util";
 import { encodeMacroData } from "./_encode";
 import { renderMacroTemplate } from "./_render";
@@ -624,14 +623,10 @@ Hooks.on("createChatMessage", async (cm: ChatMessage, options: any, id: string) 
       } else {
         // Remove status
         console.log(`Removing ${stat} from Token ${target.id}`);
-        const effect = findEffect(tokenActor, stat);
-        statusToRemove.push(effect);
+        statusToRemove.push(stat);
       }
     }
-    tokenActor?.deleteEmbeddedDocuments(
-      "ActiveEffect",
-      statusToRemove.map(e => e?.id || "")
-    );
+    tokenActor?.remove_active_effects(statusToRemove);
   });
 });
 
