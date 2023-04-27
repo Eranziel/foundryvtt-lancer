@@ -1,3 +1,7 @@
+# 1.5.4 (2023-04-26)
+## Bug Fixes
+* Fix a compatibility issue between CUB and the "consume lock on" feature.
+
 # 1.5.3 (2023-03-31)
 ## Bug Fixes
 * #529 - Fix issues with syncing pilot/mech images.
