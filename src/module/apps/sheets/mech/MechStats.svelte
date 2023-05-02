@@ -4,6 +4,7 @@
   import StatEditCard from "../../components/StatEditCard.svelte";
   import BoundedStatEditCard from "../../components/BoundedStatEditCard.svelte";
   import DocCheckboxField from "../../components/DocCheckboxField.svelte";
+  import ActorPopout from "../../components/ActorRefPopover.svelte";
   import Card from "../../components/Card.svelte";
   import type { Readable } from "svelte/store";
   import type { LancerActor } from "../../../actor/lancer-actor.js";
@@ -53,7 +54,7 @@
     <i class="cci cci-size-{$actor.system.size >= 1 ? $actor.system.size : 'half'} size-icon theme--main" />
   </div>
   <div class="pilot">
-    <!--pilot-slot "system.pilot" value=pilot-->
+    <ActorPopout actor={$actor.system.pilot.value}/>
   </div>
 </div>
 
@@ -85,7 +86,7 @@
   }
   .grouped-stat-grid {
     display: grid;
-    grid-template-columns: 170px 170px 170px 170px;
+    grid-template-columns: repeat(4, 1fr);
     grid-template-rows: 1fr 1fr;
     grid-template-areas:
       "hull sys misc size"

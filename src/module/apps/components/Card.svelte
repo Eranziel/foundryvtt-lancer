@@ -19,7 +19,7 @@
     flex-direction: row;
     align-items: center;
     text-align: center;
-    justify-content: start;
+    justify-content: flex-start;
     padding-left: 10px;
     padding-right: 10px;
   }

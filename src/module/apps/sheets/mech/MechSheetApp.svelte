@@ -83,20 +83,6 @@
             <!--macro-button "OVERHEAT" "prepareOverheatMacro" -->
           </div>
         </div>
-        <!--#if (is-combatant actor)-->
-        <div style="min-width:560px" class="card">
-          <span class="lancer-header submajor clipped-top">
-            <!--localize "lancer.mech-sheet.actions.label"-->
-          </span>
-          <div class="lancer-action-grid">
-            <!--action-button "Protocol" "system.action_tracker.protocol" "protocol"-->
-            <!--action-button "Movement" "system.action_tracker.move" "move"-->
-            <!--action-button "Full Action" "system.action_tracker.full" "full"-->
-            <!--action-button "Quick Action" "system.action_tracker.quick" "quick"-->
-            <!--action-button "Reaction" "system.action_tracker.reaction" "reaction"-->
-          </div>
-        </div>
-        <!--/if-->
       </div>
     </div>
 
