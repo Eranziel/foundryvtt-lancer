@@ -88,6 +88,15 @@ const config = defineConfig({
     svelte({
       preprocess: preprocess(),
       configFile: "../svelte.config.js", // relative to src/
+      onwarn: (warning, handler) => {
+        if (warning.message.includes("'game' is not defined")) {
+          return;
+        }
+        if (warning.message.includes("A11y")) {
+          return; // Foundry itself is not disability friendly, so, like, there's not much point
+        }
+        handler ? handler(warning) : null;
+      },
     }),
     resolve({
       browser: true,
