@@ -1,0 +1,21 @@
+_id: Q07qegz0pYbqIk61
+name: Structure Token
+type: script
+author: eC9B4k0LaO1597E7
+img: systems/lancer/assets/icons/macro-icons/condition_shredded.svg
+scope: global
+command: |-
+  if (canvas.tokens.controlled.length !== 1) {
+      ui.notifications.error("Select one and only one token");
+      return;
+  }
+  game.lancer.prepareStructureMacro(token.actor);
+folder: null
+sort: 0
+permission:
+  default: 0
+  eC9B4k0LaO1597E7: 3
+flags:
+  core:
+    sourceId: Macro.QwWNUKDeT8QcV1Hs
+_key: '!macros!Q07qegz0pYbqIk61'
