@@ -47,15 +47,16 @@
     "yargs": "^15.4.1"
   },
   "dependencies": {
+    "@foundryvtt/foundryvtt-cli": "^0.0.7",
     "@types/marked": "^1.2.1",
     "aws-amplify": "^4.2.9",
     "fp-ts": "^2.11.2",
     "io-ts": "^2.2.16",
+    "jszip": "^3.10.1",
+    "lancer-data": "^3.0.47",
     "lancer-initiative": "^3.1.0",
     "marked": "^4.0.10",
-    "lancer-data": "^3.0.47",
-    "tippy.js": "^6.3.1",
-    "jszip": "^3.10.1"
+    "tippy.js": "^6.3.1"
   },
   "lint-staged": {
     "*.ts": "prettier --write"

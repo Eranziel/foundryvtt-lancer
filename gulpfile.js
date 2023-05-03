@@ -43,6 +43,21 @@ function build() {
   return cp.spawn("npx", ["vite", "build"], { stdio: "inherit", shell: true });
 }
 
+function rebuild_pack(name) {
+  cp.spawnSync("rm", ["-r", `./dist/packs/${name}`], {stdio: "inherit"});
+  cp.spawnSync("mkdir", ["-p", `./dist/packs/${name}`], {stdio: "inherit"});
+  cp.spawnSync("cp", ["-r", `./src/packs/${name}`, `./dist/packs/${name}/_source`], {stdio: "inherit"});
+  cp.spawnSync("npx", ["fvtt", "package", "workon", "lancer", "--type", "System"], {stdio: "inherit"});
+  cp.spawnSync("npx", ["fvtt", "package", "pack", "-n", name], {stdio: "inherit"});
+  cp.spawnSync("rm", ["-r", `./dist/packs/${name}/_source`], {stdio: "inherit"});
+}
+
+function build_packs() {
+  rebuild_pack("core_macros");
+  rebuild_pack("aoe_templates");
+  return new Promise((r) => r()); // Silence gulp alarm
+}
+
 function _distWatcher() {
   const publicDirPath = path.resolve(process.cwd(), "public");
   const watcher = gulp.watch(["public/**/*.hbs"], { ignoreInitial: false });
@@ -268,6 +283,7 @@ function gitTag() {
 const execGit = gulp.series(gitAdd, gitCommit, gitTag);
 
 exports.build = build;
+exports.build_packs = build_packs;
 exports.watch = watch;
 exports.serve = serve;
 exports.link = linkUserData;

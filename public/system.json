@@ -32,14 +32,14 @@
       "name": "aoe-templates",
       "label": "AoE Templates",
       "system": "lancer",
-      "path": "./packs/aoe-templates.db",
+      "path": "./packs/aoe_templates",
       "type": "Macro"
     },
     {
       "name": "core_macros",
       "label": "LANCER Macros",
       "system": "lancer",
-      "path": "./packs/core_macros.db",
+      "path": "./packs/core_macros",
       "type": "Macro"
     }
   ],
