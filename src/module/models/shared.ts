@@ -113,14 +113,29 @@ export function fancy_merge_data(full_source_data: any, update_data: any): any {
   return full_source_data;
 }
 
-// Use this for all LIDs, to ensure consistent formatting
+// Use this for all LIDs, to ensure consistent formatting, and to allow easier setting
 export class LIDField extends fields.StringField {
   /** @override */
   _cast(value: any) {
     if (value.lid) value = value.lid;
     if (value.system?.lid) value = value.system.lid;
     if (typeof value === "string") return value;
-    throw new Error("Not a string or LID-posessing item: " + value);
+    console.error("Not a string or LID-posessing item: ", value);
+    return "";
+  }
+
+  _validateType(value: any, options: {}) {
+    let sup = super._validateType(value, options); // Check parent validation for nullish handling
+    if (sup) return sup;
+    if (typeof value === "string") return; // Always ok
+    if (!value) return; // Null / undefined handled elsewhere
+    if (typeof value === "object" && !value.lid && !value.system?.lid) {
+      // @ts-expect-error Missing type for this Failure
+      return new DataModelValidationFailure({
+        invalidValue: value,
+        message: "If passing as a value for an LIDField, object must have an `lid` or `system.lid` property",
+      });
+    }
   }
 }
 
