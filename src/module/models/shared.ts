@@ -120,7 +120,7 @@ export class LIDField extends fields.StringField {
     if (value.lid) value = value.lid;
     if (value.system?.lid) value = value.system.lid;
     if (typeof value === "string") return value;
-    console.error("Not a string or LID-posessing item: ", value);
+    console.error("Not a string or LID-posessing item: ", value); // This may be impossible to encounter because of validation
     return "";
   }
 
