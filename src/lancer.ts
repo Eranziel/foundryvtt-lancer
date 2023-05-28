@@ -194,50 +194,50 @@ Hooks.once("init", async function () {
   console.log(`Initializing LANCER RPG System ${LANCER.ASCII}`);
 
   // Add this schema for each document type.
-  // game.documentTypes.Item.forEach(type => CONFIG.Item.systemDataModels[type] = MyItemModel);
+  // game.documentTypes.Item.forEach(type => CONFIG.Item.dataModels[type] = MyItemModel);
   // @ts-expect-error
   game.documentTypes.Item.forEach(type => (CONFIG.Item.compendiumIndexFields = ["lid"]));
   // @ts-expect-error
-  CONFIG.Item.systemDataModels[EntryType.PILOT_ARMOR] = PilotArmorModel;
+  CONFIG.Item.dataModels[EntryType.PILOT_ARMOR] = PilotArmorModel;
   // @ts-expect-error
-  CONFIG.Item.systemDataModels[EntryType.PILOT_GEAR] = PilotGearModel;
+  CONFIG.Item.dataModels[EntryType.PILOT_GEAR] = PilotGearModel;
   // @ts-expect-error
-  CONFIG.Item.systemDataModels[EntryType.PILOT_WEAPON] = PilotWeaponModel;
+  CONFIG.Item.dataModels[EntryType.PILOT_WEAPON] = PilotWeaponModel;
   // @ts-expect-error
-  CONFIG.Item.systemDataModels[EntryType.CORE_BONUS] = CoreBonusModel;
+  CONFIG.Item.dataModels[EntryType.CORE_BONUS] = CoreBonusModel;
   // @ts-expect-error
-  CONFIG.Item.systemDataModels[EntryType.FRAME] = FrameModel;
+  CONFIG.Item.dataModels[EntryType.FRAME] = FrameModel;
   // @ts-expect-error
-  CONFIG.Item.systemDataModels[EntryType.LICENSE] = LicenseModel;
+  CONFIG.Item.dataModels[EntryType.LICENSE] = LicenseModel;
   // @ts-expect-error
-  CONFIG.Item.systemDataModels[EntryType.MECH_WEAPON] = MechWeaponModel;
+  CONFIG.Item.dataModels[EntryType.MECH_WEAPON] = MechWeaponModel;
   // @ts-expect-error
-  CONFIG.Item.systemDataModels[EntryType.MECH_SYSTEM] = MechSystemModel;
+  CONFIG.Item.dataModels[EntryType.MECH_SYSTEM] = MechSystemModel;
   // @ts-expect-error
-  CONFIG.Item.systemDataModels[EntryType.WEAPON_MOD] = WeaponModModel;
+  CONFIG.Item.dataModels[EntryType.WEAPON_MOD] = WeaponModModel;
   // @ts-expect-error
-  CONFIG.Item.systemDataModels[EntryType.RESERVE] = ReserveModel;
+  CONFIG.Item.dataModels[EntryType.RESERVE] = ReserveModel;
   // @ts-expect-error
-  CONFIG.Item.systemDataModels[EntryType.SKILL] = SkillModel;
+  CONFIG.Item.dataModels[EntryType.SKILL] = SkillModel;
   // @ts-expect-error
-  CONFIG.Item.systemDataModels[EntryType.STATUS] = StatusModel;
+  CONFIG.Item.dataModels[EntryType.STATUS] = StatusModel;
   // @ts-expect-error
-  CONFIG.Item.systemDataModels[EntryType.TALENT] = TalentModel;
+  CONFIG.Item.dataModels[EntryType.TALENT] = TalentModel;
   // @ts-expect-error
-  CONFIG.Item.systemDataModels[EntryType.NPC_CLASS] = NpcClassModel;
+  CONFIG.Item.dataModels[EntryType.NPC_CLASS] = NpcClassModel;
   // @ts-expect-error
-  CONFIG.Item.systemDataModels[EntryType.NPC_TEMPLATE] = NpcTemplateModel;
+  CONFIG.Item.dataModels[EntryType.NPC_TEMPLATE] = NpcTemplateModel;
   // @ts-expect-error
-  CONFIG.Item.systemDataModels[EntryType.NPC_FEATURE] = NpcFeatureModel;
+  CONFIG.Item.dataModels[EntryType.NPC_FEATURE] = NpcFeatureModel;
 
   // @ts-expect-error
-  CONFIG.Actor.systemDataModels[EntryType.MECH] = MechModel;
+  CONFIG.Actor.dataModels[EntryType.MECH] = MechModel;
   // @ts-expect-error
-  CONFIG.Actor.systemDataModels[EntryType.PILOT] = PilotModel;
+  CONFIG.Actor.dataModels[EntryType.PILOT] = PilotModel;
   // @ts-expect-error
-  CONFIG.Actor.systemDataModels[EntryType.NPC] = NpcModel;
+  CONFIG.Actor.dataModels[EntryType.NPC] = NpcModel;
   // @ts-expect-error
-  CONFIG.Actor.systemDataModels[EntryType.DEPLOYABLE] = DeployableModel;
+  CONFIG.Actor.dataModels[EntryType.DEPLOYABLE] = DeployableModel;
 
   // Register custom system settings
   registerSettings();
