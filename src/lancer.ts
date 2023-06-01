@@ -11,15 +11,7 @@
 import "./lancer.scss";
 
 // Import TypeScript modules
-import {
-  LANCER,
-  COMPATIBLE_MIGRATION_VERSION,
-  NEEDS_MAJOR_MIGRATION_VERSION,
-  NEEDS_MINOR_MIGRATION_VERSION,
-  STATUSES,
-  WELCOME,
-  NEEDS_AUTOMATION_MIGRATION_VERSION,
-} from "./module/config";
+import { LANCER, STATUSES, WELCOME } from "./module/config";
 import { LancerActor } from "./module/actor/lancer-actor";
 import { LancerItem } from "./module/item/lancer-item";
 import { populatePilotCache } from "./module/util/compcon";
@@ -618,7 +610,10 @@ Hooks.once("ready", async function () {
 
   console.log(`${lp} Foundry ready, doing final checks.`);
 
-  await doMigration();
+  // await doMigration();
+  // @ts-expect-error
+  window.domig = doMigration;
+  return;
   await showChangelog();
 
   applyGlobalDragListeners();
@@ -833,29 +828,28 @@ function setupSheets() {
 
 /**
  * Check whether the world needs any migration.
- * @return -1 for migration needed, 0 for world equal to migration target version,
- * 1 for world ahead of migration target version.
+ * @return True if migration is required
  */
-async function versionCheck(): Promise<"none" | "minor" | "major"> {
+async function versionCheck(): Promise<"yes" | "no" | "too_old"> {
   // Determine whether a system migration is required and feasible
   const currentVersion = game.settings.get(game.system.id, LANCER.setting_migration);
 
   // If it's 0 then it's a fresh install
-  if (currentVersion === "0" || currentVersion === "") {
+  if (currentVersion === "0" || !currentVersion) {
     // @ts-expect-error Should be fixed with v10 types
-    await game.settings.set(game.system.id, LANCER.setting_migration, game.system.version);
+    game.settings.set(game.system.id, LANCER.setting_migration, game.system.version);
     await promptInstallCoreData();
-    return "none";
+    return "no";
   }
 
-  // Modify these constants to set which Lancer version numbers need and permit migration.
-  if (foundry.utils.isNewerVersion(NEEDS_MAJOR_MIGRATION_VERSION, currentVersion)) {
-    return "major";
-  } else if (foundry.utils.isNewerVersion(NEEDS_MINOR_MIGRATION_VERSION, currentVersion)) {
-    return "minor";
-  } else {
-    return "none";
+  // Check if its before new rolling migration system was integrated
+  if (foundry.utils.isNewerVersion("1.5.0", currentVersion)) {
+    return "too_old";
   }
+
+  // Otherwise return if version is even slightly out of date
+  // @ts-expect-error version property is missing
+  return foundry.utils.isNewerVersion(game.system.version, currentVersion) ? "yes" : "no";
 }
 
 /**
@@ -864,51 +858,25 @@ async function versionCheck(): Promise<"none" | "minor" | "major"> {
  * Also performs system version checks
  */
 async function doMigration() {
-  // Determine whether a system migration is required and feasible
-  const currentVersion = game.settings.get(game.system.id, LANCER.setting_migration);
-  let migration = await versionCheck();
-  // Check whether system has been updated since last run.
-  if (migration != "none" && game.user!.isGM) {
+  // Determine whether a system migration  is needed
+  let needs_migrate = await versionCheck();
+
+  if (needs_migrate == "too_old") {
+    // System version is too old for migration
+    ui.notifications!.error(
+      "Your LANCER system data is from too old a version and cannot be reliably migrated to the latest version. Please install and migrate to version 1.5.0 before attempting this migration",
+      { permanent: true }
+    );
+    return;
+  } else if (needs_migrate == "yes" && game.user!.isGM) {
     // Un-hide the welcome message
     await game.settings.set(game.system.id, LANCER.setting_welcome, false);
-
-    if (migration == "major") {
-      if (currentVersion && foundry.utils.isNewerVersion(COMPATIBLE_MIGRATION_VERSION, currentVersion)) {
-        // System version is too old for migration
-        ui.notifications!.error(
-          `Your LANCER system data is from too old a version and cannot be reliably migrated to the latest version. The process will be attempted, but errors may occur.`,
-          { permanent: true }
-        );
-      }
-      // Perform the migration
-      await migrations.migrateWorld();
-      await migrations.minorMigration();
-    } else if (migration == "minor") {
-      // Perform the migration
-      await migrations.minorMigration();
-    }
-    // Set the version for future migration and welcome message checking
-    await game.settings.set(game.system.id, LANCER.setting_migration, game.system.data.version);
-  }
-
-  // Migrate old automation settings into the the new config option.
-  const automation_migration = foundry.utils.isNewerVersion(NEEDS_AUTOMATION_MIGRATION_VERSION, currentVersion);
-  if (automation_migration && game.user!.isGM) {
-    console.log(`${lp} Migrating automation settings.`);
-    const defs = getAutomationOptions(true);
-    const auto = {
-      enabled: game.settings.get(game.system.id, LANCER.setting_automation_switch),
-      attack_self_heat: game.settings.get(game.system.id, LANCER.setting_overkill_heat),
-      attacks: game.settings.get(game.system.id, LANCER.setting_automation_attack),
-      overcharge_heat: game.settings.get(game.system.id, LANCER.setting_pilot_oc_heat),
-      structure: game.settings.get(game.system.id, LANCER.setting_auto_structure),
-    };
-    await game.settings.set(
-      game.system.id,
-      LANCER.setting_automation,
-      foundry.utils.diffObject(defs, auto, { inner: true })
+    await migrations.migrateWorld();
+  } else if (needs_migrate == "yes") {
+    ui.notifications!.warn(
+      "Your GM needs to migrate this world. Please do not attempt to play the game while migrations are pending.",
+      { permanent: true }
     );
-    await game.settings.set(game.system.id, LANCER.setting_migration, game.system.data.version);
   }
 }
 
