@@ -539,7 +539,6 @@ export class LancerActor extends Actor {
     options: any,
     user: string
   ) {
-    super._onCreateEmbeddedDocuments(embeddedName, documents, result, options, user);
     let cause_updates = game.userId == user;
 
     // Create effects from new items
