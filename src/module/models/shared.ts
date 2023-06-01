@@ -194,6 +194,12 @@ export class EmbeddedRefField extends fields.StringField {
   }
 }
 
+function _parseUuid(value: any): string {
+  if (value?.uuid) value = value.uuid;
+  if (typeof value === "string") return value;
+  throw new Error("Not a string or UUID-posessing item: " + value);
+}
+
 // Similar to the foreignDocumentField, except untyped and supports uuids
 // Supports only sync lookup
 export class SyncUUIDRefField extends fields.StringField {
@@ -230,7 +236,6 @@ export class SyncUUIDRefField extends fields.StringField {
   _validateType(value: string | null) {
     try {
       if (value) {
-        //@ts-expect-error  Missing type
         _parseUuid(value);
         return true; // A definitive success
       }
@@ -317,7 +322,6 @@ export class AsyncUUIDRefField extends fields.StringField {
   _validateType(value: string | null) {
     try {
       if (value) {
-        //@ts-expect-error  Missing type
         _parseUuid(value);
         return true; // A definitive success
       }

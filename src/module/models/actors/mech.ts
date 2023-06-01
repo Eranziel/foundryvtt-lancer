@@ -12,7 +12,7 @@ import { EntryType, FittingSize, MountType } from "../../enums";
 const fields: any = foundry.data.fields;
 
 const mech_schema = {
-  overcharge: new fields.NumberField({ min: 0, integer: true, nullable: false }),
+  overcharge: new fields.NumberField({ min: 0, integer: true, nullable: false, initial: 0 }),
   repairs: new FakeBoundedNumberField(),
   core_active: new fields.BooleanField({ initial: false }),
   core_energy: new fields.NumberField({ min: 0, integer: true, initial: 1 }),
