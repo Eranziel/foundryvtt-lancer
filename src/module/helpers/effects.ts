@@ -5,8 +5,7 @@ import { LancerActiveEffect } from "../effects/lancer-active-effect";
  * Handlebars helper for a single effect
  */
 export function effect_view(effect: LancerActiveEffect, options: HelperOptions): string {
-  // @ts-expect-error
-  let label = effect.label;
+  let label = effect.name;
   return `<div class="active-effect" data-uuid="${effect.uuid}">
                 <span>
                     ${label}
