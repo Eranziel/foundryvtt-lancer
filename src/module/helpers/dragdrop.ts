@@ -349,9 +349,9 @@ export function applyGlobalDragListeners() {
       } else if (target?.dataset?.documentId) {
         // Is a foundry sidebar or compendium drag
         let sbt = $(target).parents(".sidebar-tab")[0];
-        if (sbt) {
+        if (sbt?.dataset?.tab) {
           // Can deduce type based on the tab
-          let tab = sbt.dataset.tab!;
+          let tab = sbt.dataset.tab;
           uuid = `${tab.charAt(0).capitalize()}${tab.slice(1, tab.length - 1)}.${target.dataset.documentId}`;
         } else {
           let cd = $(target).parents(".compendium.directory")[0];
