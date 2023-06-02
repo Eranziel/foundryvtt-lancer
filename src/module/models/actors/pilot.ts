@@ -2,6 +2,7 @@ import { template_action_tracking, template_statuses, template_universal_actor }
 
 import { FakeBoundedNumberField, LancerDataModel, LIDField, EmbeddedRefField, SyncUUIDRefField } from "../shared";
 import { EntryType } from "../../enums";
+import { regRefToUuid } from "../../migration";
 
 const fields: any = foundry.data.fields;
 
@@ -41,5 +42,15 @@ type PilotSchema = typeof pilot_schema;
 export class PilotModel extends LancerDataModel<"PilotModel"> {
   static defineSchema(): PilotSchema {
     return pilot_schema;
+  }
+
+  static migrateData(data: any) {
+    let prever = data.version || "0.0";
+    if (foundry.utils.isNewerVersion("2.0", prever)) {
+      data.active_mech = regRefToUuid("Actor", data.active_mech);
+    }
+
+    // @ts-expect-error v11
+    super.migrateData(data);
   }
 }

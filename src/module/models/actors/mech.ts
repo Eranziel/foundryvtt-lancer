@@ -8,11 +8,12 @@ import {
 
 import { FakeBoundedNumberField, LancerDataModel, EmbeddedRefField, SyncUUIDRefField } from "../shared";
 import { EntryType, FittingSize, MountType } from "../../enums";
+import { regRefToUuid } from "../../migration";
 
 const fields: any = foundry.data.fields;
 
 const mech_schema = {
-  overcharge: new fields.NumberField({ min: 0, integer: true, nullable: false }),
+  overcharge: new fields.NumberField({ min: 0, integer: true, nullable: false, initial: 0 }),
   repairs: new FakeBoundedNumberField(),
   core_active: new fields.BooleanField({ initial: false }),
   core_energy: new fields.NumberField({ min: 0, integer: true, initial: 1 }),
@@ -46,5 +47,15 @@ type MechSchema = typeof mech_schema;
 export class MechModel extends LancerDataModel<"MechModel"> {
   static defineSchema(): MechSchema {
     return mech_schema;
+  }
+
+  static migrateData(data: any) {
+    let prever = data.version || "0.0";
+    if (foundry.utils.isNewerVersion("2.0", prever)) {
+      data.pilot = regRefToUuid("Actor", data.pilot);
+    }
+
+    // @ts-expect-error v11
+    super.migrateData(data);
   }
 }

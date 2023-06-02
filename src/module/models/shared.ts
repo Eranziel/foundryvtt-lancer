@@ -4,7 +4,6 @@ import { format_dotpath } from "../helpers/commons";
 import { LancerItem } from "../item/lancer-item";
 import { SourceData } from "../source-template";
 import { SystemTemplates } from "../system-template";
-import { PackedDeployableData } from "../util/unpacking/packed-types";
 
 // @ts-ignore
 const fields: any = foundry.data.fields;
@@ -119,21 +118,18 @@ export class LIDField extends fields.StringField {
   _cast(value: any) {
     if (value.lid) value = value.lid;
     if (value.system?.lid) value = value.system.lid;
-    if (typeof value === "string") return value;
-    console.error("Not a string or LID-posessing item: ", value); // This may be impossible to encounter because of validation
-    return "";
+    console.warn("If passing an object as a value for an LIDField, object must have an `lid` or `system.lid` property");
+    return value; // Don't overzealouisly fix
   }
 
-  _validateType(value: any, options: {}) {
-    let sup = super._validateType(value, options); // Check parent validation for nullish handling
-    if (sup) return sup;
-    if (typeof value === "string") return; // Always ok
-    if (!value) return; // Null / undefined handled elsewhere
-    if (typeof value === "object" && !value.lid && !value.system?.lid) {
-      // @ts-expect-error Missing type for this Failure
-      return new DataModelValidationFailure({
+  _validateType(value: any) {
+    try {
+      super._validateType(value);
+    } catch (e) {
+      // @ts-expect-error
+      return new foundry.data.validation.DataModelValidationFailure({
         invalidValue: value,
-        message: "If passing as a value for an LIDField, object must have an `lid` or `system.lid` property",
+        message: "Not a valid LID",
       });
     }
   }
@@ -169,7 +165,7 @@ export class EmbeddedRefField extends fields.StringField {
     if (value?.id) value = value.id;
     if (value?.value) value = value.value;
     if (value?.id) value = value.id; // Intentionally duplicated
-    return String(value);
+    return value; // Don't overzealously fix
   }
 
   /** @inheritdoc */
@@ -238,19 +234,24 @@ export class SyncUUIDRefField extends fields.StringField {
     if (value?.uuid) value = value.uuid;
     if (value?.value) value = value.value;
     if (value?.uuid) value = value.uuid; // Intentionally duplicated
-    return String(value);
+    return value; // Don't overzealously fix
   }
 
   /** @override */
-  _validateType(value: string | null) {
+  _validateType(value: any) {
     try {
+      super._validateType(value);
       if (value) {
         //@ts-expect-error  Missing type
-        _parseUuid(value);
+        parseUuid(value);
         return true; // A definitive success
       }
     } catch (e) {
-      throw new Error("Not a valid uuid");
+      // @ts-expect-error Missing type for this Failure
+      return new foundry.data.validation.DataModelValidationFailure({
+        invalidValue: value,
+        message: "Not a valid uuid",
+      });
     }
   }
 
@@ -321,23 +322,27 @@ export class AsyncUUIDRefField extends fields.StringField {
 
   /** @override */
   _cast(value: any) {
+    if (value?.uuid) value = value.uuid;
     if (value?.value) value = value.value;
-    if (value?.uuid) {
-      value = value.uuid;
-    }
-    return String(value);
+    if (value?.uuid) value = value.uuid; // Intentionally duplicated
+    return value; // Don't overzealously fix
   }
 
   /** @override */
-  _validateType(value: string | null) {
+  _validateType(value: any) {
     try {
+      super._validateType(value);
       if (value) {
         //@ts-expect-error  Missing type
-        _parseUuid(value);
+        parseUuid(value);
         return true; // A definitive success
       }
     } catch (e) {
-      throw new Error("Not a valid uuid");
+      // @ts-expect-error Missing type for this Failure
+      return new foundry.data.validation.DataModelValidationFailure({
+        invalidValue: value,
+        message: "Not a valid uuid",
+      });
     }
   }
 
