@@ -54,8 +54,9 @@ export class SynergyField extends fields.SchemaField {
 
 export function unpackSynergy(data: PackedSynergyData): SynergyData {
   // Have to do a lot of annoying fixup
-  let locations: SynergyLocation[] = [];
-  locations = locations.flatMap(base => {
+  let raw_locations = data.locations ?? [];
+  if (!Array.isArray(raw_locations)) raw_locations = [raw_locations];
+  let locations = raw_locations.flatMap(base => {
     let l = base.toLowerCase().trim();
     if (l.includes(",")) return l.split(",").map(sub_l => sub_l.trim());
     return l;
