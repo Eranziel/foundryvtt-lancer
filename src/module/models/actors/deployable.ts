@@ -11,6 +11,7 @@ import { TagField, unpackTag } from "../bits/tag";
 import { restrict_enum } from "../../helpers/commons";
 import { ActivationType, DeployableType, EntryType } from "../../enums";
 import { slugify } from "../../util/lid";
+import { regRefToUuid } from "../../migration";
 
 const fields: any = foundry.data.fields;
 
@@ -56,6 +57,16 @@ type DeployableSchema = typeof deployable_schema;
 export class DeployableModel extends LancerDataModel<"DeployableModel"> {
   static defineSchema(): DeployableSchema {
     return deployable_schema;
+  }
+
+  static migrateData(data: any) {
+    let prever = data.version || "0.0";
+    if (foundry.utils.isNewerVersion("2.0", prever)) {
+      data.active_mech = regRefToUuid("Actor", data.deployer);
+    }
+
+    // @ts-expect-error v11
+    super.migrateData(data);
   }
 }
 
