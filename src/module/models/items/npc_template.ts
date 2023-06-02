@@ -1,4 +1,5 @@
 import { EntryType } from "../../enums";
+import { regRefToLid } from "../../migration";
 import { SourceData } from "../../source-template";
 import { PackedNpcClassData, PackedNpcTemplateData, PackedSkillData } from "../../util/unpacking/packed-types";
 import { LancerDataModel, LIDField, UnpackContext } from "../shared";
@@ -6,8 +7,7 @@ import { template_universal_item } from "./shared";
 
 const fields: any = foundry.data.fields;
 
-// @ts-ignore
-export class NpcTemplateModel extends LancerDataModel {
+export class NpcTemplateModel extends LancerDataModel<"NpcTemplateModel"> {
   static defineSchema() {
     return {
       description: new fields.HTMLField(),
@@ -15,6 +15,17 @@ export class NpcTemplateModel extends LancerDataModel {
       optional_features: new fields.ArrayField(new LIDField()),
       ...template_universal_item(),
     };
+  }
+
+  static migrateData(data: any) {
+    // Convert old regrefs
+    data.base_features = data.base_features?.map((bf: string | object) => regRefToLid(bf)).filter((x: any) => x);
+    data.optional_features = data.optional_features
+      ?.map((of: string | object) => regRefToLid(of))
+      .filter((x: any) => x);
+
+    // @ts-expect-error
+    return super.migrateData(data);
   }
 }
 

@@ -21,7 +21,6 @@ export class NpcClassModel extends LancerDataModel<"NpcClassModel"> {
   }
 
   static migrateData(data: any) {
-    console.error(data);
     data.flavor ??= data.info?.flavor;
     data.tactics ??= data.info?.tactics;
 
