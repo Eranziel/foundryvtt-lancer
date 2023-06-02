@@ -50,6 +50,13 @@ export class SynergyField extends fields.SchemaField {
       options
     );
   }
+
+  static migrateData(data: any) {
+    if (data.locations?.some((s: string) => s.includes(","))) {
+      data.locations = data.locations.flatMap((s: string) => s.split(",").map(s2 => s2.trim()));
+    }
+    super.migrateData(data);
+  }
 }
 
 export function unpackSynergy(data: PackedSynergyData): SynergyData {

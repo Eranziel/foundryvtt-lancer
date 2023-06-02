@@ -47,7 +47,7 @@ export function template_action_tracking() {
   return {
     action_tracker: new fields.SchemaField({
       protocol: new fields.BooleanField(),
-      move: new fields.NumberField({ min: 0, integer: true, nullable: false }),
+      move: new fields.NumberField({ min: 0, integer: true, nullable: false, initial: 0 }),
       full: new fields.BooleanField(),
       quick: new fields.BooleanField(),
       reaction: new fields.BooleanField(),

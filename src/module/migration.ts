@@ -26,7 +26,6 @@ export async function commitDataModelMigrations() {
  * Some changes aren't neatly handleable via DataModels,
  * such as changes to prototype tokens or flags.
  * Instead handle these via migrateWorld.
- * @param to_version The target version we are migrating to
  */
 export async function migrateWorld() {
   // Update World Compendium Packs, since updates comes with a more up to date version of lancerdata usually
@@ -180,34 +179,13 @@ export async function migrateActor(actor: LancerActor): Promise<object> {
   // Scaffold our update data
   const updateData = {
     _id: actor.id,
-    [`flags.${LANCER.flag_schema_version}`]: game.system.version,
     system: actor._source, // To commit any datamodel migrations
   };
-  const currVersion = actor.getFlag(game.system.id, LANCER.setting_auto_structure) ?? "1.0";
 
-  // Do version specific migrations
+  let currVersion = game.settings.get(game.system.id, LANCER.setting_migration);
   if (foundry.utils.isNewerVersion("2.0", currVersion)) {
-    // Migrate prototype bars
-    let pt = actor.prototypeToken;
-    if (pt?.bar1?.attribute) {
-      updateData["prototypeToken.bar1.attribute"] = correctLegacyBarAttribute(pt?.bar1.attribute);
-    }
-    if (pt?.bar2?.attribute) {
-      updateData["prototypeToken.bar2.attribute"] = correctLegacyBarAttribute(pt?.bar2.attribute);
-    }
-
-    // Fix bar brawlers
-    if (pt.flags?.barbrawl?.resourceBars) {
-      let bb_data = pt.flags.barbrawl;
-      for (let bar_key of Object.keys(bb_data.resourceBars)) {
-        updateData[`flags.barbrawl.resourceBars.${bar_key}.attribute`] = correctLegacyBarAttribute(
-          bb_data.resourceBars[bar_key].attribute
-        );
-      }
-    }
+    // ...
   }
-
-  // ... And other version specific code. Should go in order, oldest to newest, to maintain continuous support for old worlds going forward
 
   // Migrate Owned Items
   let itemUpdates = await Promise.all(actor.items.contents.map(migrateItem));
@@ -224,17 +202,13 @@ export async function migrateActor(actor: LancerActor): Promise<object> {
 export async function migrateItem(item: LancerItem): Promise<object> {
   const updateData = {
     _id: item.id,
-    [`flags.${LANCER.flag_schema_version}`]: game.system.version,
     system: item._source, // To commit any datamodel migrations
   };
-  const currVersion = actor.getFlag(game.system.id, LANCER.setting_auto_structure) ?? "1.0";
 
-  // Do version specific migrations
+  let currVersion = game.settings.get(game.system.id, LANCER.setting_migration);
   if (foundry.utils.isNewerVersion("2.0", currVersion)) {
-    // Left as a placeholder
+    // ...
   }
-
-  // ... And other version specific code. Should go in order, oldest to newest, to maintain continuous support for old worlds going forward
 
   // Return the migrated update data
   return updateData;
@@ -268,45 +242,29 @@ export async function migrateScene(scene: Scene) {
  * @return The updateData to apply to the provided item
  */
 export async function migrateTokenDocument(token: LancerTokenDocument): Promise<object> {
-  const updateData = {
-    [`flags.${LANCER.flag_schema_version}`]: game.system.version,
-  };
-  const currVersion = token.getFlag(game.system.id, LANCER.setting_auto_structure) ?? "1.0";
+  const updateData = {};
 
-  // Do version specific migrations
+  let currVersion = game.settings.get(game.system.id, LANCER.setting_migration);
   if (foundry.utils.isNewerVersion("2.0", currVersion)) {
-    // Fix the standard bars individually
-    if (token.bar1) {
-      updateData["bar1.attribute"] = correctLegacyBarAttribute(token.bar1.attribute);
-    }
-    if (token.bar2) {
-      updateData["bar2.attribute"] = correctLegacyBarAttribute(token.bar2.attribute);
-    }
-
-    // Fix bar brawlers
-    if (token.flags?.barbrawl?.resourceBars) {
-      let bb_data = token.flags.barbrawl;
-      for (let bar_key of Object.keys(bb_data.resourceBars)) {
-        updateData[`flags.barbrawl.resourceBars.${bar_key}.attribute`] = correctLegacyBarAttribute(
-          bb_data.resourceBars[bar_key].attribute
-        );
-      }
-    }
+    // ...
   }
 
-  // Apply update
+  // Return update
   return updateData;
 }
 
-// Used in many datamodel migrations
-export async function convertRegRef(rr: any): null | LancerActor | LancerItem {
+// ----------------- UTILITY FUNCTIONS -----------------------
+
+// Used in many datamodel migrations. Imperfect, but we can only do this sync, so fuck us I guess lmao
+export function regRefToUuid(doc_type: "Item" | "Actor", rr: any): null | string {
   // Handle null case
   if (!rr) return null;
   if (rr.reg_name == "comp_core" && rr.fallback_lid) {
-    // Need to do a compendium lookup
-    return await lookupLID(rr.fallback_lid);
-  } else if (rr.reg_name == "actor") {
-    // TODO
+    return null; // Nothing we could do, dude
+    // await lookupLID(rr.fallback_lid); -- if we had time for async, we would async
+  } else if (rr.reg_name == "game") {
+    // World entities are quite simple
+    return `${doc_type}.${rr.id}`;
   } else {
     console.error("Failed to process regref", rr);
     return null; // Unhandled
@@ -314,6 +272,7 @@ export async function convertRegRef(rr: any): null | LancerActor | LancerItem {
 }
 
 // Returns a corrected bar attribute or, if one could not be deduced, just hp
+// Used for fixing old derived.* attrs
 export function correctLegacyBarAttribute(attr_name: string | null): string {
   attr_name = attr_name || ""; // sanity
   if (attr_name.includes("heat")) {

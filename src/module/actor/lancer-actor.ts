@@ -734,6 +734,16 @@ export class LancerActor extends Actor {
     const flow = new BasicAttackFlow(this, title ? { title } : undefined);
     return await flow.begin();
   }
+
+  // Called as part of foundry document initialization process
+  static migrateData(source: any) {
+    // Note: Don't bother fixing prototypeToken, as LancerTokenDocument handles that itself
+
+    // ...
+
+    // @ts-expect-error
+    return super.migrateData(source);
+  }
 }
 
 // Typeguards

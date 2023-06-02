@@ -60,13 +60,13 @@ export class DeployableModel extends LancerDataModel<"DeployableModel"> {
   }
 
   static migrateData(data: any) {
-    let prever = data.version || "0.0";
-    if (foundry.utils.isNewerVersion("2.0", prever)) {
-      data.active_mech = regRefToUuid("Actor", data.deployer);
+    // Convert old regrefs
+    if (typeof data.deployer == "object") {
+      data.deployer = regRefToUuid("Actor", data.deployer);
     }
 
     // @ts-expect-error v11
-    super.migrateData(data);
+    return super.migrateData(data);
   }
 }
 

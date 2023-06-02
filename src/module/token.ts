@@ -1,3 +1,5 @@
+import { correctLegacyBarAttribute } from "./migration";
+
 declare global {
   interface DocumentClassConfig {
     Token: typeof LancerTokenDocument;
@@ -11,7 +13,30 @@ declare global {
  * Extend the base TokenDocument class to implement system-specific HP bar logic.
  * @extends {TokenDocument}
  */
-export class LancerTokenDocument extends TokenDocument {}
+export class LancerTokenDocument extends TokenDocument {
+  // Called as part of foundry document initialization process. Fix malformed data.
+  // When adding new code, do so at the bottom to reflect changes over time (in case order matters)
+  static migrateData(source: any) {
+    // Fix the standard bars individually
+    if (source.bar1?.attribute?.includes.includes("derived")) {
+      source.bar1.attribute = correctLegacyBarAttribute(source.bar1.attribute);
+    }
+    if (source.bar2?.attribute?.includes.includes("derived")) {
+      source.bar2.attribute = correctLegacyBarAttribute(source.bar2.attribute);
+    }
+
+    // Fix bar brawlers
+    if (source.flags?.barbrawl?.resourceBars) {
+      let bb_data = source.flags.barbrawl;
+      for (let bar of Object.values(bb_data.resourceBars) as Array<{ attribute: string | null }>) {
+        if (bar.attribute?.includes("derived")) bar.attribute = correctLegacyBarAttribute(bar.attribute);
+      }
+    }
+
+    // @ts-expect-error
+    return super.migrateData(source);
+  }
+}
 
 /**
  * Extend the base Token class to implement additional system-specific logic.

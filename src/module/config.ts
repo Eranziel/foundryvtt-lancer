@@ -165,7 +165,6 @@ export const LANCER = {
   setting_tag_config: "tagConfig" as const,
   // setting_120: "warningFor120" as const, // Old setting, currently unused.
   // setting_beta_warning: "warningForBeta" as const, // Old setting, currently unused.
-  flag_schema_version: "schema_ver" as const,
 };
 
 // Convenience for mapping item/actor types to full names

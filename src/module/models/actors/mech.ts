@@ -50,12 +50,12 @@ export class MechModel extends LancerDataModel<"MechModel"> {
   }
 
   static migrateData(data: any) {
-    let prever = data.version || "0.0";
-    if (foundry.utils.isNewerVersion("2.0", prever)) {
+    // Convert old regrefs
+    if (typeof data.pilot == "object") {
       data.pilot = regRefToUuid("Actor", data.pilot);
     }
 
     // @ts-expect-error v11
-    super.migrateData(data);
+    return super.migrateData(data);
   }
 }
