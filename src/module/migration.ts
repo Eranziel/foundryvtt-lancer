@@ -259,6 +259,7 @@ export async function migrateTokenDocument(token: LancerTokenDocument): Promise<
 export function regRefToUuid(doc_type: "Item" | "Actor", rr: any): null | string {
   // Handle null case
   if (!rr) return null;
+  if (typeof rr == "string") return rr;
   if (rr.reg_name == "comp_core" && rr.fallback_lid) {
     return null; // Nothing we could do, dude
     // await lookupLID(rr.fallback_lid); -- if we had time for async, we would async
@@ -269,6 +270,13 @@ export function regRefToUuid(doc_type: "Item" | "Actor", rr: any): null | string
     console.error("Failed to process regref", rr);
     return null; // Unhandled
   }
+}
+
+export function regRefToLid(rr: any): null | string {
+  // Handle null case
+  if (!rr) return null;
+  if (typeof rr == "string") return rr;
+  return rr.fallback_lid || null;
 }
 
 // Returns a corrected bar attribute or, if one could not be deduced, just hp
