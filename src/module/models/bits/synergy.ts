@@ -51,11 +51,12 @@ export class SynergyField extends fields.SchemaField {
     );
   }
 
-  static migrateData(data: any) {
-    if (data.locations?.some((s: string) => s.includes(","))) {
-      data.locations = data.locations.flatMap((s: string) => s.split(",").map(s2 => s2.trim()));
+  migrateSource(sourceData: any, fieldData: any) {
+    // In some old imports we never properly separated synergy locations
+    if (fieldData.locations?.some((s: string) => s.includes(","))) {
+      fieldData.locations = fieldData.locations.flatMap((s: string) => s.split(",").map(s2 => s2.trim()));
     }
-    super.migrateData(data);
+    return super.migrateSource(sourceData, fieldData);
   }
 }
 
