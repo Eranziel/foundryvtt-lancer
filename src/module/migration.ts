@@ -256,21 +256,54 @@ export async function migrateTokenDocument(token: LancerTokenDocument): Promise<
 
 // ----------------- UTILITY FUNCTIONS -----------------------
 
+// Looks through the raw game.data for probable lid matches. Returns a UUID
+function coarseLIDtoUUID(lid: string): string {
+  let actor = game.data.actors?.find(x => x.system?.lid == lid);
+  if (actor?._id) {
+    return `Actor.${actor._id}`;
+  }
+  let item = game.data.items?.find(x => x.system?.lid == lid);
+  if (item?._id) {
+    return `Item.${item._id}`;
+  }
+  return null;
+}
+
 // Used in many datamodel migrations. Imperfect, but we can only do this sync, so fuck us I guess lmao
 export function regRefToUuid(doc_type: "Item" | "Actor", rr: any): null | string {
   // Handle null case
   if (!rr) return null;
+  // Handle identity case
   if (typeof rr == "string") return rr;
-  if (rr.reg_name == "comp_core" && rr.fallback_lid) {
-    return null; // Nothing we could do, dude
-    // await lookupLID(rr.fallback_lid); -- if we had time for async, we would async
+  if (!rr.id && rr.fallback_lid) {
+    // We can at least look at raw world data
+    return coarseLIDtoUUID(rr.fallback_lid);
+  } else if (!rr.id) {
+    // Non recoverable without lid
+    return null;
+  } else if (rr.reg_name == "comp_core") {
+    // There is no way to recover this synchronously, unfortunately
+    return null;
   } else if (rr.reg_name == "game") {
     // World entities are quite simple
     return `${doc_type}.${rr.id}`;
+  } else if (rr.reg_name.startsWith("game|")) {
+    // As are inventory items
+    return `Actor.${rr.reg_name.split("game|")[1]}.Item.${rr.id}`;
   } else {
     console.error("Failed to process regref", rr);
     return null; // Unhandled
   }
+}
+
+export function regRefToId(doc_type: "Item" | "Actor", rr: any): null | string {
+  // Try using parent function
+  let base = regRefToUuid(doc_type, rr);
+  if (base) {
+    let parts = base.split(".");
+    return parts[parts.length - 1];
+  }
+  return null;
 }
 
 export function regRefToLid(rr: any): null | string {

@@ -129,7 +129,7 @@ export class LIDField extends fields.StringField {
       // @ts-expect-error
       return new foundry.data.validation.DataModelValidationFailure({
         invalidValue: value,
-        message: "Not a valid LID",
+        message: `Not a valid LID ${value}`,
       });
     }
   }
@@ -250,7 +250,7 @@ export class SyncUUIDRefField extends fields.StringField {
       // @ts-expect-error Missing type for this Failure
       return new foundry.data.validation.DataModelValidationFailure({
         invalidValue: value,
-        message: "Not a valid uuid",
+        message: `Not a valid uuid ${value}`,
       });
     }
   }
@@ -341,7 +341,7 @@ export class AsyncUUIDRefField extends fields.StringField {
       // @ts-expect-error Missing type for this Failure
       return new foundry.data.validation.DataModelValidationFailure({
         invalidValue: value,
-        message: "Not a valid uuid",
+        message: `Not a valid uuid ${value}`,
       });
     }
   }
