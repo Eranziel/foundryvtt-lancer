@@ -416,39 +416,23 @@ export class LancerActor extends Actor {
       return;
     }
 
-    let default_data: Record<string, any>;
-    let disposition: ValueOf<typeof CONST["TOKEN_DISPOSITIONS"]> = CONST.TOKEN_DISPOSITIONS.FRIENDLY;
-    switch (this.type) {
-      case EntryType.NPC:
-        default_data = defaults.NPC();
-        disposition = CONST.TOKEN_DISPOSITIONS.HOSTILE;
-        break;
-      case EntryType.PILOT:
-        default_data = defaults.PILOT();
-        break;
-      case EntryType.DEPLOYABLE:
-        default_data = defaults.DEPLOYABLE();
-        disposition = CONST.TOKEN_DISPOSITIONS.NEUTRAL;
-        break;
-      case EntryType.MECH:
-      default:
-        // Idk, just in case
-        default_data = defaults.MECH();
-        default_data.actions = { full: true };
-        break;
-    }
+    let disposition: ValueOf<typeof CONST["TOKEN_DISPOSITIONS"]> =
+      {
+        [EntryType.NPC]: CONST.TOKEN_DISPOSITIONS.HOSTILE,
+        [EntryType.PILOT]: CONST.TOKEN_DISPOSITIONS.FRIENDLY,
+        [EntryType.DEPLOYABLE]: CONST.TOKEN_DISPOSITIONS.NEUTRAL,
+        [EntryType.MECH]: CONST.TOKEN_DISPOSITIONS.FRIENDLY,
+      }[this.type] ?? CONST.TOKEN_DISPOSITIONS.FRIENDLY;
 
     // Put in the basics
     // @ts-expect-error Should be fixed with v10 types
     this.updateSource({
-      system: default_data,
       img: TypeIcon(this.type),
       // Link the token to the Actor for pilots and mechs, but not for NPCs or deployables
       prototypeToken: {
         actorLink: [EntryType.PILOT, EntryType.MECH].includes(this.type),
         disposition: disposition,
         displayName: CONST.TOKEN_DISPLAY_MODES.HOVER,
-        name: this.name ?? default_data.name,
       },
     });
   }
