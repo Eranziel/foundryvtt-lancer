@@ -50,16 +50,10 @@ export class PilotModel extends LancerDataModel<"PilotModel"> {
       data.active_mech = regRefToUuid("Actor", data.active_mech);
     }
 
-    // Convert loadout
-    if (Array.isArray(data.loadout?.armor)) {
-      data.loadout.armor = data.loadout.armor.map((a: any) => regRefToId("Item", a));
-    }
-    if (Array.isArray(data.loadout?.weapons)) {
-      data.loadout.weapons = data.loadout.weapons.map((w: any) => regRefToId("Item", w));
-    }
-    if (Array.isArray(data.loadout?.gear)) {
-      data.loadout.gear = data.loadout.gear.map((g: any) => regRefToId("Item", g));
-    }
+    // Strip nulls from loadouts
+    if (Array.isArray(data.loadout?.armor)) data.loadout.armor = data.loadout.armor.filter((a: any) => a);
+    if (Array.isArray(data.loadout?.gear)) data.loadout.gear = data.loadout.gear.filter((g: any) => g);
+    if (Array.isArray(data.loadout?.weapons)) data.loadout.weapons = data.loadout.weapons.filter((w: any) => w);
 
     // And renamed fields
     if (data.cloudID) data.cloud_id ??= data.cloudID;

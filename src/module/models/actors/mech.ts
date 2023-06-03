@@ -50,23 +50,14 @@ export class MechModel extends LancerDataModel<"MechModel"> {
   }
 
   static migrateData(data: any) {
-    // Convert old regrefs
-    if (typeof data.pilot == "object") {
-      data.pilot = regRefToUuid("Actor", data.pilot);
-    }
-
     // Convert loadout
-    // Always try to convert frame away from regref
-    if (data.loadout?.frame) {
-      data.loadout.frame = regRefToId("Item", data.loadout.frame);
-    }
     // If we don't already have a systems array attempt to convert a system_mounts array
     if (Array.isArray(data.loadout?.system_mounts)) {
       // Remap the var name + convert from regref + remove nulls
-      data.loadout.systems ??= data.loadout.system_mounts
-        .map((sm: any) => regRefToId("Item", sm?.system))
-        .filter((sm: string | null) => sm);
+      data.loadout.systems ??= data.loadout.system_mounts.filter((sm: any) => sm);
     }
+
+    // Weapon mounts also pretty gnarly
     if (Array.isArray(data.loadout?.weapon_mounts)) {
       // First remove nulls
       data.loadout.weapon_mounts = data.loadout.weapon_mounts.filter((wm: any) => wm); // Remove nulls if they exist
@@ -74,13 +65,7 @@ export class MechModel extends LancerDataModel<"MechModel"> {
       for (let wm of data.loadout.weapon_mounts) {
         wm.type ??= wm?.mount_type; // type got renamed
         wm.slots = wm.slots.filter((s: any) => s); // Remove nulls if they exist
-        for (let slot of wm.slots) {
-          // Fix slotwise. in particular just need to fix weapon and mod
-          slot.weapon = regRefToId("Item", slot.weapon);
-          slot.mod = regRefToId("Item", slot.mod);
-        }
       }
-      data.loadout.weapon_mounts = data.loadout.system_mounts.map((sm: any) => regRefToId("Item", sm?.system));
     }
 
     // @ts-expect-error v11
