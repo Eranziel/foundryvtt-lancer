@@ -14,7 +14,7 @@ import {
 import { DamageData, DamageField, unpackDamage } from "../bits/damage";
 import { RangeData, RangeField, unpackRange } from "../bits/range";
 import { TagField, unpackTag } from "../bits/tag";
-import { LancerDataModel, UnpackContext } from "../shared";
+import { LancerDataModel, NpcStatBlockField, UnpackContext } from "../shared";
 import { template_destructible, template_universal_item, template_uses } from "./shared";
 
 const fields: any = foundry.data.fields;
@@ -23,8 +23,8 @@ export class NpcFeatureModel extends LancerDataModel<"NpcFeatureModel"> {
   static defineSchema() {
     return {
       effect: new fields.HTMLField(),
-      bonus: new fields.ObjectField(),
-      override: new fields.ObjectField(),
+      bonus: new NpcStatBlockField({ nullable: true }),
+      override: new NpcStatBlockField({ nullable: true }),
       tags: new fields.ArrayField(new TagField()),
       type: new fields.StringField({ choices: Object.values(NpcFeatureType), initial: NpcFeatureType.Trait }),
 
@@ -67,10 +67,10 @@ export class NpcFeatureModel extends LancerDataModel<"NpcFeatureModel"> {
   static migrateData(data: any) {
     // Fix stats
     if (typeof data.bonus == "object" && !Array.isArray(data.bonus)) {
-      data.base_stats = convertNpcStats(data.bonus, false)[0];
+      data.bonus = convertNpcStats(data.bonus)[0];
     }
-    if (typeof data.bonus == "object" && !Array.isArray(data.bonus)) {
-      data.bonus = convertNpcStats(data.bonus, false)[0];
+    if (typeof data.override == "object" && !Array.isArray(data.override)) {
+      data.override = convertNpcStats(data.override)[0];
     }
 
     // @ts-expect-error

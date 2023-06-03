@@ -369,6 +369,34 @@ export class SystemTypeChecklistField extends ChecklistField {
   }
 }
 
+/** A single tier of npc stats */
+export class NpcStatBlockField extends fields.SchemaField {
+  constructor(options: { nullable: boolean }) {
+    let nullable = options.nullable;
+    super(
+      {
+        activations: new fields.NumberField({ integer: true, nullable, initial: nullable ? null : 1 }),
+        armor: new fields.NumberField({ integer: true, nullable, initial: nullable ? null : 0 }),
+        hp: new fields.NumberField({ integer: true, nullable, initial: nullable ? null : 10 }),
+        evasion: new fields.NumberField({ integer: true, nullable, initial: nullable ? null : 5 }),
+        edef: new fields.NumberField({ integer: true, nullable, initial: nullable ? null : 8 }),
+        heatcap: new fields.NumberField({ integer: true, nullable, initial: nullable ? null : 5 }),
+        speed: new fields.NumberField({ integer: true, nullable, initial: nullable ? null : 3 }),
+        sensor_range: new fields.NumberField({ integer: true, nullable, initial: nullable ? null : 10 }),
+        save: new fields.NumberField({ integer: true, nullable, initial: nullable ? null : 10 }),
+        hull: new fields.NumberField({ integer: true, nullable, initial: nullable ? null : 0 }),
+        agi: new fields.NumberField({ integer: true, nullable, initial: nullable ? null : 0 }),
+        sys: new fields.NumberField({ integer: true, nullable, initial: nullable ? null : 0 }),
+        eng: new fields.NumberField({ integer: true, nullable, initial: nullable ? null : 0 }),
+        size: new fields.NumberField({ integer: true, nullable, initial: nullable ? null : 1 }),
+        structure: new fields.NumberField({ integer: true, nullable, initial: nullable ? null : 1 }),
+        stress: new fields.NumberField({ integer: true, nullable, initial: nullable ? null : 1 }),
+      },
+      options
+    );
+  }
+}
+
 // Use this to track pending jobs while unpacking
 export interface UnpackContext {
   createdDeployables: Array<{

@@ -86,17 +86,15 @@ export function correctLegacyBarAttribute(attr_name: string | null): string {
 }
 
 /** Converts a stat array from compcon/old lancer standard to modern standards */
-export function convertNpcStats(
-  raw_data: Record<string, any>,
-  shim_missing: boolean
-): DeepPartial<SourceData.NpcClass["base_stats"]> {
+export function convertNpcStats(raw_data: Record<string, any>): DeepPartial<SourceData.NpcClass["base_stats"]> {
   let stats: DeepPartial<SourceData.NpcClass["base_stats"]> = [];
 
-  // Go through either all keys, or present keys, depending on shim_missing
+  // Go through either all keys, or present keys, depending on shim_missing.
+  // Order sort of matters - put less correct keys earlier, as they will be overwritten in case of a conflict
   let key_map = {
     activations: "activations",
-    agi: "agi",
     agility: "agi",
+    agi: "agi",
     armor: "armor",
     edef: "edef",
     evade: "evasion",
@@ -118,25 +116,24 @@ export function convertNpcStats(
   } as Record<keyof SourceTemplates.NPC.StatBlock | keyof PackedNpcClassStats, keyof SourceTemplates.NPC.StatBlock>;
 
   for (let i = 0; i < 3; i++) {
-    // Extreme data coersion go! We can accept any of number, number[], or number[][]
+    // Extreme data coersion go! We can accept any of number, number[], or number[][]. Return null on failure
     const giv = (key: keyof SourceTemplates.NPC.StatBlock | keyof PackedNpcClassStats) => {
-      let x: number | number[] | number[][] = raw_data[key] ?? [0];
-      if (!(typeof x == "number" || Array.isArray(x))) return 0; // Sanity check
+      // Certain types
+      let x: number | number[] | number[][] | null = raw_data[key] ?? null;
+      if (!(typeof x == "number" || Array.isArray(x))) return null; // Sanity escape
       x = Array.isArray(x) ? x : [x]; // number -> number[]
       x = x.length == 0 ? [0] : x; // [] -> [0]
       let y = i >= x.length ? x[x.length - 1] : x[i]; // get closest element of x to our tier index
       let z = Array.isArray(y) ? y[0] : y; // if it's still an array (e.g. original was number[][]), just take first element. we don't handle that
-      if (typeof z != "number") return 0; // Second sanity check
+      if (typeof z != "number") return null; // Second sanity check
       return z;
     };
 
     // Go through either all keys, or present keys
     let record: Partial<SourceTemplates.NPC.StatBlock> = {};
-    let source_keys = (shim_missing ? Array.from(Object.values(key_map)) : Array.from(Object.keys(raw_data))) as Array<
-      keyof SourceTemplates.NPC.StatBlock
-    >;
-    for (let k of source_keys) {
-      record[k] = giv(k);
+    for (let k of Object.keys(raw_data) as Array<keyof PackedNpcClassStats>) {
+      let v = giv(k);
+      if (v) record[key_map[k]] = v;
     }
     stats.push(record);
   }

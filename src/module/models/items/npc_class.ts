@@ -2,7 +2,7 @@ import { EntryType } from "../../enums";
 import { regRefToLid, convertNpcStats } from "../../util/migrations";
 import { SourceData } from "../../source-template";
 import { PackedNpcClassData, PackedSkillData } from "../../util/unpacking/packed-types";
-import { LancerDataModel, LIDField, UnpackContext } from "../shared";
+import { LancerDataModel, LIDField, NpcStatBlockField, UnpackContext } from "../shared";
 import { template_universal_item } from "./shared";
 
 const fields: any = foundry.data.fields;
@@ -15,7 +15,7 @@ export class NpcClassModel extends LancerDataModel<"NpcClassModel"> {
       tactics: new fields.HTMLField(),
       base_features: new fields.ArrayField(new LIDField()),
       optional_features: new fields.ArrayField(new LIDField()),
-      base_stats: new fields.ArrayField(new fields.ObjectField()),
+      base_stats: new fields.ArrayField(new NpcStatBlockField({ nullable: false })),
       ...template_universal_item(),
     };
   }
@@ -32,7 +32,7 @@ export class NpcClassModel extends LancerDataModel<"NpcClassModel"> {
 
     // Invert stats
     if (typeof data.base_stats == "object" && !Array.isArray(data.base_stats)) {
-      data.base_stats = convertNpcStats(data.base_stats, true);
+      data.base_stats = convertNpcStats(data.base_stats);
     }
 
     // @ts-expect-error
@@ -59,7 +59,7 @@ export function unpackNpcClass(
       tactics: data.info.tactics,
       base_features: data.base_features,
       optional_features: data.optional_features,
-      base_stats: convertNpcStats(data.stats, true),
+      base_stats: convertNpcStats(data.stats),
     },
   };
 }
