@@ -1,5 +1,6 @@
 import { EntryType, NpcFeatureType, NpcTechType } from "../../enums";
 import { restrict_choices, restrict_enum } from "../../helpers/commons";
+import { convertNpcStats, regRefToLid } from "../../migration";
 import { SourceData, SourceTemplates } from "../../source-template";
 import {
   PackedNpcClassData,
@@ -18,8 +19,7 @@ import { template_destructible, template_universal_item, template_uses } from ".
 
 const fields: any = foundry.data.fields;
 
-// @ts-ignore
-export class NpcFeatureModel extends LancerDataModel {
+export class NpcFeatureModel extends LancerDataModel<"NpcFeatureModel"> {
   static defineSchema() {
     return {
       effect: new fields.HTMLField(),
@@ -62,6 +62,25 @@ export class NpcFeatureModel extends LancerDataModel {
       ...template_uses(),
       ...template_universal_item(),
     };
+  }
+
+  static migrateData(data: any) {
+    // Convert old regrefs
+    data.base_features = data.base_features?.map((bf: string | object) => regRefToLid(bf)).filter((x: any) => x);
+    data.optional_features = data.optional_features
+      ?.map((of: string | object) => regRefToLid(of))
+      .filter((x: any) => x);
+
+    // Fix stats
+    if (typeof data.bonus == "object" && !Array.isArray(data.bonus)) {
+      data.base_stats = convertNpcStats(data.bonus, false)[0];
+    }
+    if (typeof data.bonus == "object" && !Array.isArray(data.bonus)) {
+      data.bonus = convertNpcStats(data.bonus, false)[0];
+    }
+
+    // @ts-expect-error
+    return super.migrateData(data);
   }
 }
 

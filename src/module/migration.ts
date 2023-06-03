@@ -6,6 +6,7 @@ import { LancerItem } from "./item/lancer-item";
 import { core_update, LCPManager, updateCore } from "./apps/lcp-manager";
 import { LancerTokenDocument } from "./token";
 import { lookupLID } from "./util/lid";
+import { PackedNpcClassStats } from "./util/unpacking/packed-types";
 
 export type MigrationVersion = "breaking" | "2.0";
 
@@ -300,4 +301,56 @@ export function correctLegacyBarAttribute(attr_name: string | null): string {
   } else {
     return "hp"; // a safe alternative
   }
+}
+
+/** Converts a stat array from compcon/old lancer standard to modern standards */
+export function convertNpcStats(
+  bs: Partial<PackedNpcClassStats>,
+  shim_missing: boolean
+): SourceData.NpcClass["base_stats"] {
+  let stats: SourceData.NpcClass["base_stats"] = [];
+
+  // Go through either all keys, or present keys, depending on shim_missing
+  let keys = shim_missing
+    ? [
+        "activations",
+        "agility",
+        "armor",
+        "edef",
+        "engineering",
+        "evade",
+        "heatcap",
+        "hp",
+        "hull",
+        "save",
+        "sensor",
+        "size",
+        "speed",
+        "stress",
+        "structure",
+        "systems",
+      ]
+    : Array.from(Object.keys(bs));
+
+  for (let i = 0; i < 3; i++) {
+    // Extreme data coersion go! We can accept any of number, number[], or number[][]
+    const giv = (key: string) => {
+      let x: number | number[] | number[][] = bs[key] ?? [0];
+      if (!(typeof x == "number" || Array.isArray(x))) return 0; // Sanity check
+      x = Array.isArray(x) ? x : [x]; // number -> number[]
+      x = x.length == 0 ? [0] : x; // [] -> [0]
+      let y = i >= x.length ? x[x.length - 1] : x[i]; // get closest element of x to our tier index
+      let z = Array.isArray(y) ? y[0] : y; // if it's still an array (e.g. original was number[][]), just take first element. we don't handle that
+      if (typeof z != "number") return 0; // Second sanity check
+      return z;
+    };
+
+    // Go through either all keys, or present keys
+    let record = {};
+    for (let k of keys) {
+      record[k] = giv(k);
+    }
+    stats.push(record);
+  }
+  return stats;
 }
