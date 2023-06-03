@@ -238,7 +238,7 @@ export class SyncUUIDRefField extends fields.StringField {
 
   /** @override */
   _cast(value: any) {
-    let rrtu = regRefToId(this.document_type, value);
+    let rrtu = regRefToUuid(this.document_type, value);
     if (rrtu) return rrtu;
     if (value?.uuid) value = value.uuid;
     if (value?.value) value = value.value;
