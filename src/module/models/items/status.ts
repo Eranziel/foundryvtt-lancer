@@ -7,14 +7,20 @@ import { template_universal_item } from "./shared";
 
 const fields: any = foundry.data.fields;
 
-// @ts-ignore
-export class StatusModel extends LancerDataModel {
+export class StatusModel extends LancerDataModel<"StatusModel"> {
   static defineSchema() {
     return {
       effects: new fields.HTMLField(),
       type: new fields.StringField({ choices: ["status", "condition", "effect"], initial: "effect" }),
       ...template_universal_item(),
     };
+  }
+
+  static migrateData(data: any) {
+    if (data.type) data.type = data.type.toLowerCase(); // Fix "Condition" / "Status"
+
+    // @ts-expect-error v11
+    return super.migrateData(data);
   }
 }
 
