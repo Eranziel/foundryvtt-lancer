@@ -610,10 +610,8 @@ Hooks.once("ready", async function () {
 
   console.log(`${lp} Foundry ready, doing final checks.`);
 
-  // await doMigration();
-  // @ts-expect-error
-  window.domig = doMigration;
-  return;
+  // await doMigration();  TODO revert
+
   await showChangelog();
 
   applyGlobalDragListeners();
