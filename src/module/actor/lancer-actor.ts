@@ -320,6 +320,12 @@ export class LancerActor extends Actor {
           gear.value.system.equipped = true;
         }
       }
+
+      // Collect all bonuses
+      this.system.all_bonuses = [];
+      for (let item of this.loadoutHelper.listLoadout()) {
+        this.system.all_bonuses.push(...(item.getBonuses() ?? []));
+      }
     } else if (this.is_mech()) {
       // Mark things equipped
       let ld = this.system.loadout;
@@ -346,7 +352,7 @@ export class LancerActor extends Actor {
       }
 
       // Collect all bonuses
-      // TODO - eventually we would rather have these handled via active effects
+      // TODO - eventually we would rather have these handled via active effects, somehow
       this.system.all_bonuses = [];
       for (let item of this.loadoutHelper.listLoadout()) {
         this.system.all_bonuses.push(...(item.getBonuses() ?? []));

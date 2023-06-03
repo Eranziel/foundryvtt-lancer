@@ -513,6 +513,7 @@ export namespace SystemData {
 
     // Derived attributes
     grit: number;
+    all_bonuses: BonusData[]; // All bonuses across everything
   }
   export interface Reserve extends SourceData.Reserve {}
   export interface Skill extends SourceData.Skill {}
