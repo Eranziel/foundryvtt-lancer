@@ -65,12 +65,6 @@ export class NpcFeatureModel extends LancerDataModel<"NpcFeatureModel"> {
   }
 
   static migrateData(data: any) {
-    // Convert old regrefs
-    data.base_features = data.base_features?.map((bf: string | object) => regRefToLid(bf)).filter((x: any) => x);
-    data.optional_features = data.optional_features
-      ?.map((of: string | object) => regRefToLid(of))
-      .filter((x: any) => x);
-
     // Fix stats
     if (typeof data.bonus == "object" && !Array.isArray(data.bonus)) {
       data.base_stats = convertNpcStats(data.bonus, false)[0];
