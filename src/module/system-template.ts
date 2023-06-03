@@ -217,15 +217,6 @@ export namespace SystemTemplates {
         value: null;
       };
   export type ResolvedSyncUuidRef<T> = ResolvedEmbeddedRef<T>;
-
-  // UUID refs could be in the compendium (oh no!). In which case they'll be a promise. bleh
-  export type ResolvedAsyncUuidRef<T> =
-    | ResolvedEmbeddedRef<T>
-    | {
-        status: "async"; // Was unable to resolve synchronously, but as of yet may be resolved as a promise. Oftentimes, we will choose to ignore the async possible
-        id: string;
-        value: Promise<T>;
-      };
 }
 
 // Use this for some "collected" items (e.x. all counters on a mech) or for effect-applied data
