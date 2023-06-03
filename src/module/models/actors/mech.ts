@@ -53,7 +53,7 @@ export class MechModel extends LancerDataModel<"MechModel"> {
     // If we don't already have a systems array attempt to convert a system_mounts array
     if (Array.isArray(data.loadout?.system_mounts)) {
       // Remap the var name + convert from regref + remove nulls
-      data.loadout.systems ??= data.loadout.system_mounts.filter((sm: any) => sm);
+      data.loadout.systems ??= data.loadout.system_mounts.map((s: any) => s?.system).filter((sm: any) => sm);
     }
 
     // Weapon mounts also pretty gnarly
