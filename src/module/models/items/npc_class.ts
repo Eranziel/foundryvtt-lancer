@@ -1,5 +1,5 @@
 import { EntryType } from "../../enums";
-import { regRefToLid, convertNpcStats } from "../../migration";
+import { regRefToLid, convertNpcStats } from "../../util/migrations";
 import { SourceData } from "../../source-template";
 import { PackedNpcClassData, PackedSkillData } from "../../util/unpacking/packed-types";
 import { LancerDataModel, LIDField, UnpackContext } from "../shared";

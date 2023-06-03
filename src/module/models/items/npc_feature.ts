@@ -1,6 +1,6 @@
 import { EntryType, NpcFeatureType, NpcTechType } from "../../enums";
-import { restrict_choices, restrict_enum } from "../../helpers/commons";
-import { convertNpcStats, regRefToLid } from "../../migration";
+import { restrict_enum } from "../../helpers/commons";
+import { convertNpcStats, regRefToLid } from "../../util/migrations";
 import { SourceData, SourceTemplates } from "../../source-template";
 import {
   PackedNpcClassData,

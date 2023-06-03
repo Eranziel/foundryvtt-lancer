@@ -1,4 +1,4 @@
-import { correctLegacyBarAttribute } from "./migration";
+import { correctLegacyBarAttribute } from "./util/migrations";
 
 declare global {
   interface DocumentClassConfig {
@@ -18,10 +18,10 @@ export class LancerTokenDocument extends TokenDocument {
   // When adding new code, do so at the bottom to reflect changes over time (in case order matters)
   static migrateData(source: any) {
     // Fix the standard bars individually
-    if (source.bar1?.attribute?.includes.includes("derived")) {
+    if (source.bar1?.attribute?.includes("derived")) {
       source.bar1.attribute = correctLegacyBarAttribute(source.bar1.attribute);
     }
-    if (source.bar2?.attribute?.includes.includes("derived")) {
+    if (source.bar2?.attribute?.includes("derived")) {
       source.bar2.attribute = correctLegacyBarAttribute(source.bar2.attribute);
     }
 

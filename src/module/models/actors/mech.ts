@@ -8,7 +8,6 @@ import {
 
 import { FakeBoundedNumberField, LancerDataModel, EmbeddedRefField, SyncUUIDRefField } from "../shared";
 import { EntryType, FittingSize, MountType } from "../../enums";
-import { regRefToId, regRefToUuid } from "../../migration";
 
 const fields: any = foundry.data.fields;
 
@@ -36,7 +35,7 @@ const mech_schema = {
   }),
   meltdown_timer: new fields.NumberField({ required: false, nullable: true, integer: true, min: 0 }),
   notes: new fields.HTMLField(),
-  pilot: new SyncUUIDRefField(),
+  pilot: new SyncUUIDRefField("Actor", { allowed_types: [EntryType.PILOT] }),
   ...template_universal_actor(),
   ...template_action_tracking(),
   ...template_heat(),

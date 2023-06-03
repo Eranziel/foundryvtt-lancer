@@ -2,6 +2,7 @@ import { LancerActor } from "../actor/lancer-actor";
 import { DamageType, EntryType, RangeType, SystemType, WeaponSize, WeaponType } from "../enums";
 import { format_dotpath } from "../helpers/commons";
 import { LancerItem } from "../item/lancer-item";
+import { regRefToId, regRefToLid, regRefToUuid } from "../util/migrations";
 import { SourceData } from "../source-template";
 import { SystemTemplates } from "../system-template";
 
@@ -10,8 +11,6 @@ const fields: any = foundry.data.fields;
 
 // @ts-expect-error
 export class LancerDataModel<T> extends foundry.abstract.DataModel<T> {
-  // For you, sohum. Svelte it to your heart's content
-
   /**
    * Create a full update payload, e.g. to preserve arrays
    * @param update_data the update data to apply
@@ -116,6 +115,8 @@ export function fancy_merge_data(full_source_data: any, update_data: any): any {
 export class LIDField extends fields.StringField {
   /** @override */
   _cast(value: any) {
+    let rrtl = regRefToLid(value);
+    if (rrtl) return rrtl;
     if (value.lid) value = value.lid;
     if (value.system?.lid) value = value.system.lid;
     console.warn("If passing an object as a value for an LIDField, object must have an `lid` or `system.lid` property");
@@ -143,7 +144,7 @@ export class EmbeddedRefField extends fields.StringField {
    * @param {StringFieldOptions} options  Options which configure the behavior of the field
    */
   constructor(
-    readonly embedded_collection: "Item" | "ActiveEffect",
+    readonly document_type: "Item" | "ActiveEffect",
     options: { allowed_types?: EntryType[] } & Record<string, any> = {}
   ) {
     super(options);
@@ -162,6 +163,8 @@ export class EmbeddedRefField extends fields.StringField {
 
   /** @override */
   _cast(value: any) {
+    let rrti = regRefToId(this.document_type, value);
+    if (rrti) return rrti;
     if (value?.id) value = value.id;
     if (value?.value) value = value.value;
     if (value?.id) value = value.id; // Intentionally duplicated
@@ -181,7 +184,7 @@ export class EmbeddedRefField extends fields.StringField {
     model.add_pre_finalize_task(() => {
       let sub: LancerItem | ActiveEffect | null =
         // @ts-expect-error
-        model?.parent?.getEmbeddedDocument(this.embedded_collection, value) ?? null;
+        model?.parent?.getEmbeddedDocument(this.document_type, value) ?? null;
       if (!sub) {
         console.log("Failed to resolve embedded ref: ID not found.", model, value);
         shell.status = "missing";
@@ -214,8 +217,12 @@ export class SyncUUIDRefField extends fields.StringField {
   /**
    * @param {StringFieldOptions} options  Options which configure the behavior of the field
    */
-  constructor(options: { allowed_types?: EntryType[] } & Record<string, any> = {}) {
+  constructor(
+    readonly document_type: "Actor" | "Item",
+    options: { allowed_types?: EntryType[] } & Record<string, any> = {}
+  ) {
     super(options);
+    this.document_type = options.document_type;
     this.allowed_types = options.allowed_types ?? null;
   }
 
@@ -231,6 +238,8 @@ export class SyncUUIDRefField extends fields.StringField {
 
   /** @override */
   _cast(value: any) {
+    let rrtu = regRefToId(this.document_type, value);
+    if (rrtu) return rrtu;
     if (value?.uuid) value = value.uuid;
     if (value?.value) value = value.value;
     if (value?.uuid) value = value.uuid; // Intentionally duplicated

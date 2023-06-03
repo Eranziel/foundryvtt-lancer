@@ -1,13 +1,13 @@
 import { template_action_tracking, template_statuses, template_universal_actor } from "./shared";
 
-import { FakeBoundedNumberField, LancerDataModel, LIDField, EmbeddedRefField, SyncUUIDRefField } from "../shared";
+import { LancerDataModel, EmbeddedRefField, SyncUUIDRefField } from "../shared";
 import { EntryType } from "../../enums";
-import { regRefToId, regRefToUuid } from "../../migration";
+import { regRefToUuid } from "../../util/migrations";
 
 const fields: any = foundry.data.fields;
 
 const pilot_schema = {
-  active_mech: new SyncUUIDRefField({ allowed_types: [EntryType.MECH] }),
+  active_mech: new SyncUUIDRefField("Actor", { allowed_types: [EntryType.MECH] }),
   background: new fields.HTMLField(),
   callsign: new fields.StringField(),
   cloud_id: new fields.StringField(),

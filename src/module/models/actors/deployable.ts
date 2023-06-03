@@ -11,7 +11,6 @@ import { TagField, unpackTag } from "../bits/tag";
 import { restrict_enum } from "../../helpers/commons";
 import { ActivationType, DeployableType, EntryType } from "../../enums";
 import { slugify } from "../../util/lid";
-import { regRefToUuid } from "../../migration";
 
 const fields: any = foundry.data.fields;
 
@@ -42,8 +41,8 @@ const deployable_schema = {
   type: new fields.StringField({ choices: Object.values(DeployableType), initial: DeployableType.Deployable }),
   avail_mounted: new fields.BooleanField({ initial: true }),
   avail_unmounted: new fields.BooleanField({ initial: false }),
-  deployer: new SyncUUIDRefField({ allowed_types: [EntryType.MECH, EntryType.PILOT, EntryType.NPC] }),
-  owner: new SyncUUIDRefField({ allowed_types: [EntryType.MECH, EntryType.PILOT, EntryType.NPC] }),
+  deployer: new SyncUUIDRefField("Actor", { allowed_types: [EntryType.MECH, EntryType.PILOT, EntryType.NPC] }),
+  owner: new SyncUUIDRefField("Actor", { allowed_types: [EntryType.MECH, EntryType.PILOT, EntryType.NPC] }),
   // destroyed: new fields.BooleanField({ initial: false }),
   // notes: new fields.HTMLField(),
 
@@ -60,10 +59,7 @@ export class DeployableModel extends LancerDataModel<"DeployableModel"> {
   }
 
   static migrateData(data: any) {
-    // Convert old regrefs
-    if (typeof data.deployer == "object") {
-      data.deployer = regRefToUuid("Actor", data.deployer);
-    }
+    // TODO
 
     // @ts-expect-error v11
     return super.migrateData(data);

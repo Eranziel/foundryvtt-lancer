@@ -34,7 +34,7 @@ import { WeaponRangeTemplate } from "./module/pixi/weapon-range-template";
 import { preloadTemplates } from "./module/preload-templates";
 import { getAutomationOptions, registerSettings } from "./module/settings";
 import { compact_tag_list } from "./module/helpers/tags";
-import * as migrations from "./module/migration";
+import * as migrations from "./module/world_migration";
 import { addLCPManager, updateCore, core_update } from "./module/apps/lcp-manager";
 
 // Import sliding HUD (used for accuracy/difficulty windows)
