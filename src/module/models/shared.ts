@@ -222,7 +222,6 @@ export class SyncUUIDRefField extends fields.StringField {
     options: { allowed_types?: EntryType[] } & Record<string, any> = {}
   ) {
     super(options);
-    this.document_type = options.document_type;
     this.allowed_types = options.allowed_types ?? null;
   }
 
