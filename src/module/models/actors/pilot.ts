@@ -46,7 +46,7 @@ export class PilotModel extends LancerDataModel<"PilotModel"> {
 
   static migrateData(data: any) {
     // Convert old regrefs
-    if (typeof data.pilot == "object") {
+    if (typeof data.active_mech == "object") {
       data.active_mech = regRefToUuid("Actor", data.active_mech);
     }
 
