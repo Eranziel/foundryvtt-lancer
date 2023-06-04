@@ -12,7 +12,7 @@ import { LancerFlowState } from "./interfaces";
 import { openSlidingHud } from "../helpers/slidinghud";
 import { Tag } from "../models/bits/tag";
 import { Flow, FlowState } from "./flow";
-import { AttackType, RangeType, WeaponType } from "../enums";
+import { AttackType, NpcFeatureType, RangeType, WeaponType } from "../enums";
 import { Range } from "../models/bits/range";
 
 const lp = LANCER.log_prefix;
@@ -58,7 +58,7 @@ export class BasicAttackFlow extends Flow<LancerFlowState.AttackRollData> {
       roll_str: data?.roll_str || "",
       flat_bonus: data?.flat_bonus || 0,
       attack_type: data?.attack_type || AttackType.Melee,
-      defense: data?.defense || "",
+      is_smart: data?.is_smart || false,
       attack_rolls: data?.attack_rolls || { roll: "", targeted: [] },
       attack_results: data?.attack_results || [],
       hit_results: data?.hit_results || [],
@@ -97,7 +97,7 @@ export class WeaponAttackFlow extends Flow<LancerFlowState.WeaponRollData> {
       roll_str: data?.roll_str || "",
       flat_bonus: data?.flat_bonus || 0,
       attack_type: data?.attack_type || AttackType.Melee,
-      defense: data?.defense || "",
+      is_smart: data?.is_smart || false,
       attack_rolls: data?.attack_rolls || { roll: "", targeted: [] },
       attack_results: data?.attack_results || [],
       hit_results: data?.hit_results || [],
@@ -113,9 +113,10 @@ export class WeaponAttackFlow extends Flow<LancerFlowState.WeaponRollData> {
     }
 
     this.steps.set("initAttackData", initAttackData);
-    this.steps.set("checkWeaponDestroyed", checkWeaponDestroyed);
+    this.steps.set("checkWeaponDestroyed", checkItemDestroyed);
     this.steps.set("checkWeaponLoaded", checkWeaponLoaded);
-    this.steps.set("checkWeaponLimited", checkWeaponLimited);
+    this.steps.set("checkWeaponLimited", checkItemLimited);
+    this.steps.set("checkWeaponCharged", checkItemCharged);
     this.steps.set("setAttackTags", setAttackTags);
     this.steps.set("setAttackEffects", setAttackEffects);
     this.steps.set("setAttackTargets", setAttackTargets);
@@ -139,8 +140,10 @@ export class WeaponAttackFlow extends Flow<LancerFlowState.WeaponRollData> {
   }
 }
 
-async function initAttackData(
-  state: FlowState<LancerFlowState.AttackRollData | LancerFlowState.WeaponRollData>,
+export async function initAttackData(
+  state: FlowState<
+    LancerFlowState.AttackRollData | LancerFlowState.WeaponRollData | LancerFlowState.TechAttackRollData
+  >,
   options?: { title?: string; flat_bonus?: number; acc_diff?: AccDiffDataSerialized }
 ): Promise<boolean> {
   if (!state.data) throw new TypeError(`Attack flow state missing!`);
@@ -220,23 +223,38 @@ async function initAttackData(
   }
 }
 
-async function checkWeaponDestroyed(state: FlowState<LancerFlowState.WeaponRollData>): Promise<boolean> {
+export async function checkItemDestroyed(
+  state: FlowState<LancerFlowState.WeaponRollData | LancerFlowState.TechAttackRollData>
+): Promise<boolean> {
   // If this automation option is not enabled, skip the check.
   if (!getAutomationOptions().limited_loading && getAutomationOptions().attacks) return true;
-  if (!state.item || (!state.item.is_mech_weapon() && !state.item.is_pilot_weapon() && !state.item.is_npc_feature())) {
+  if (
+    !state.item ||
+    (!state.item.is_mech_weapon() &&
+      !state.item.is_mech_system() &&
+      !state.item.is_pilot_weapon() &&
+      !state.item.is_npc_feature())
+  ) {
     return false;
   }
   if (state.item.is_pilot_weapon()) {
     return true; // Pilot weapons can't be destroyed
   }
   if (state.item.system.destroyed) {
-    ui.notifications!.warn(`Weapon ${state.item.name!} is destroyed!`);
+    if (
+      state.item.is_mech_system() ||
+      (state.item.is_npc_feature() && state.item.system.type !== NpcFeatureType.Weapon)
+    ) {
+      ui.notifications!.warn(`System ${state.item.name} has no remaining uses!`);
+    } else {
+      ui.notifications!.warn(`Weapon ${state.item.name} has no remaining uses!`);
+    }
     return false;
   }
   return true;
 }
 
-async function checkWeaponLoaded(state: FlowState<LancerFlowState.WeaponRollData>): Promise<boolean> {
+export async function checkWeaponLoaded(state: FlowState<LancerFlowState.WeaponRollData>): Promise<boolean> {
   // If this automation option is not enabled, skip the check.
   if (!getAutomationOptions().limited_loading && getAutomationOptions().attacks) return true;
   if (!state.item || (!state.item.is_mech_weapon() && !state.item.is_pilot_weapon() && !state.item.is_npc_feature())) {
@@ -249,22 +267,67 @@ async function checkWeaponLoaded(state: FlowState<LancerFlowState.WeaponRollData
   return true;
 }
 
-async function checkWeaponLimited(state: FlowState<LancerFlowState.WeaponRollData>): Promise<boolean> {
+export async function checkItemLimited(
+  state: FlowState<LancerFlowState.WeaponRollData | LancerFlowState.TechAttackRollData>
+): Promise<boolean> {
   // If this automation option is not enabled, skip the check.
   if (!getAutomationOptions().limited_loading && getAutomationOptions().attacks) return true;
-  if (!state.item || (!state.item.is_mech_weapon() && !state.item.is_pilot_weapon() && !state.item.is_npc_feature())) {
+  if (
+    !state.item ||
+    (!state.item.is_mech_weapon() &&
+      !state.item.is_mech_system() &&
+      !state.item.is_pilot_weapon() &&
+      !state.item.is_npc_feature())
+  ) {
     return false;
   }
   if (state.item.isLimited() && state.item.system.uses.value <= 0) {
-    ui.notifications!.warn(`Weapon ${state.item.name} has no remaining uses!`);
+    if (
+      state.item.is_mech_system() ||
+      (state.item.is_npc_feature() && state.item.system.type !== NpcFeatureType.Weapon)
+    ) {
+      ui.notifications!.warn(`System ${state.item.name} has no remaining uses!`);
+    } else {
+      ui.notifications!.warn(`Weapon ${state.item.name} has no remaining uses!`);
+    }
+    return false;
+  }
+  return true;
+}
+
+export async function checkItemCharged(
+  state: FlowState<LancerFlowState.WeaponRollData | LancerFlowState.TechAttackRollData>
+): Promise<boolean> {
+  // If this automation option is not enabled, skip the check.
+  if (!getAutomationOptions().limited_loading && getAutomationOptions().attacks) return true;
+  if (
+    !state.item ||
+    (!state.item.is_mech_weapon() &&
+      !state.item.is_mech_system() &&
+      !state.item.is_pilot_weapon() &&
+      !state.item.is_npc_feature())
+  ) {
+    return false;
+  }
+  if (!state.item.is_npc_feature()) return true; // Recharge only applies to NPC features
+
+  // TODO: check for recharge tag first
+  if (!state.item.system.charged) {
+    if (state.item.system.type !== NpcFeatureType.Weapon) {
+      ui.notifications!.warn(`System ${state.item.name} has no remaining uses!`);
+    } else {
+      ui.notifications!.warn(`Weapon ${state.item.name} has no remaining uses!`);
+    }
     return false;
   }
   return true;
 }
 
 // TODO: AccDiffData does not allow changing tags after instantiation
-async function setAttackTags(
-  state: FlowState<LancerFlowState.AttackRollData | LancerFlowState.WeaponRollData>,
+export async function setAttackTags(
+  state: FlowState<
+    LancerFlowState.AttackRollData | LancerFlowState.WeaponRollData | LancerFlowState.TechAttackRollData
+  >,
   options?: {}
 ): Promise<boolean> {
   if (!state.data) throw new TypeError(`Attack flow state missing!`);
@@ -286,16 +349,21 @@ async function setAttackTags(
   if (success && state.data.tags) {
     // Check for self-heat
     const selfHeatTags = state.data.tags.filter(t => t.is_selfheat);
-    state.data.self_heat = selfHeatTags && selfHeatTags[0]?.val;
+    if (!!(selfHeatTags && selfHeatTags.length)) state.data.self_heat = selfHeatTags[0].val;
     // Check for overkill
     const overkillTags = state.data.tags.filter(t => t.is_overkill);
-    state.data.overkill = !!(overkillTags && overkillTags.length);
+    if (!!(overkillTags && overkillTags.length)) state.data.overkill = true;
+    // Check for smart
+    const smartTags = state.data.tags.filter(t => t.is_smart);
+    if (!!(smartTags && smartTags.length)) state.data.is_smart = true;
   }
   return success;
 }
 
-async function setAttackEffects(
-  state: FlowState<LancerFlowState.AttackRollData | LancerFlowState.WeaponRollData>,
+export async function setAttackEffects(
+  state: FlowState<
+    LancerFlowState.AttackRollData | LancerFlowState.WeaponRollData | LancerFlowState.TechAttackRollData
+  >,
   options?: {}
 ): Promise<boolean> {
   if (!state.data) throw new TypeError(`Attack flow state missing!`);
@@ -320,8 +388,10 @@ async function setAttackEffects(
   return false;
 }
 
-async function setAttackTargets(
-  state: FlowState<LancerFlowState.AttackRollData | LancerFlowState.WeaponRollData>,
+export async function setAttackTargets(
+  state: FlowState<
+    LancerFlowState.AttackRollData | LancerFlowState.WeaponRollData | LancerFlowState.TechAttackRollData
+  >,
   options?: {}
 ): Promise<boolean> {
   if (!state.data) throw new TypeError(`Attack flow state missing!`);
@@ -331,8 +401,10 @@ async function setAttackTargets(
   return true;
 }
 
-async function showAttackHUD(
-  state: FlowState<LancerFlowState.AttackRollData | LancerFlowState.WeaponRollData>,
+export async function showAttackHUD(
+  state: FlowState<
+    LancerFlowState.AttackRollData | LancerFlowState.WeaponRollData | LancerFlowState.TechAttackRollData
+  >,
   options?: {}
 ): Promise<boolean> {
   if (!state.data) throw new TypeError(`Attack flow state missing!`);
@@ -341,15 +413,15 @@ async function showAttackHUD(
   return true;
 }
 
-async function rollAttacks(
-  state: FlowState<LancerFlowState.AttackRollData | LancerFlowState.WeaponRollData>,
+export async function rollAttacks(
+  state: FlowState<
+    LancerFlowState.AttackRollData | LancerFlowState.WeaponRollData | LancerFlowState.TechAttackRollData
+  >,
   options?: {}
 ): Promise<boolean> {
   if (!state.data) throw new TypeError(`Attack flow state missing!`);
 
   state.data.attack_rolls = attackRolls(state.data.flat_bonus, state.data.acc_diff!);
-  const hydratedTags = state.data.tags?.map(t => new Tag(t)) ?? [];
-  const isSmart = hydratedTags.some(tag => tag.is_smart);
 
   if (getAutomationOptions().attacks && state.data.attack_rolls.targeted.length > 0) {
     let data = await Promise.all(
@@ -371,7 +443,7 @@ async function rollAttacks(
             // @ts-expect-error Token structure has changed
             token: { name: target.name!, img: target.document.texture?.src },
             total: String(attack_roll.total).padStart(2, "0"),
-            hit: await checkForHit(isSmart, attack_roll, actor),
+            hit: await checkForHit(state.data?.is_smart ?? false, attack_roll, actor),
             crit: (attack_roll.total || 0) >= 20,
           },
         };
@@ -390,7 +462,7 @@ async function rollAttacks(
   }
 }
 
-async function rollDamages(state: FlowState<LancerFlowState.WeaponRollData>, options?: {}): Promise<boolean> {
+export async function rollDamages(state: FlowState<LancerFlowState.WeaponRollData>, options?: {}): Promise<boolean> {
   if (!state.data) throw new TypeError(`Attack flow state missing!`);
 
   if (state.item?.is_mech_weapon()) {
@@ -478,8 +550,10 @@ async function rollDamages(state: FlowState<LancerFlowState.WeaponRollData>, opt
   return true;
 }
 
-async function applySelfHeat(
-  state: FlowState<LancerFlowState.AttackRollData | LancerFlowState.WeaponRollData>,
+export async function applySelfHeat(
+  state: FlowState<
+    LancerFlowState.AttackRollData | LancerFlowState.WeaponRollData | LancerFlowState.TechAttackRollData
+  >,
   options?: {}
 ): Promise<boolean> {
   if (!state.data) throw new TypeError(`Attack flow state missing!`);
@@ -501,7 +575,10 @@ async function applySelfHeat(
   return true;
 }
 
-async function updateItemAfterAttack(state: FlowState<LancerFlowState.WeaponRollData>, options?: {}): Promise<boolean> {
+export async function updateItemAfterAttack(
+  state: FlowState<LancerFlowState.WeaponRollData | LancerFlowState.TechAttackRollData>,
+  options?: {}
+): Promise<boolean> {
   if (!state.data) throw new TypeError(`Attack flow state missing!`);
   if (state.item && getAutomationOptions().limited_loading && getAutomationOptions().attacks) {
     let item_changes: DeepPartial<SourceData.MechWeapon | SourceData.NpcFeature | SourceData.PilotWeapon> = {};
@@ -512,7 +589,7 @@ async function updateItemAfterAttack(state: FlowState<LancerFlowState.WeaponRoll
   return true;
 }
 
-async function printAttackCard(
+export async function printAttackCard(
   state: FlowState<LancerFlowState.AttackRollData | LancerFlowState.WeaponRollData>,
   options?: { template?: string }
 ): Promise<boolean> {
@@ -536,7 +613,7 @@ async function printAttackCard(
  * @param normal The orignal Roll
  * @returns An evaluated Roll
  */
-async function getCritRoll(normal: Roll) {
+export async function getCritRoll(normal: Roll) {
   const t_roll = new Roll(normal.formula);
   await t_roll.evaluate({ async: true });
 

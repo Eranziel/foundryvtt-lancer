@@ -188,7 +188,7 @@ Hooks.once("init", async function () {
   // Add this schema for each document type.
   // game.documentTypes.Item.forEach(type => CONFIG.Item.dataModels[type] = MyItemModel);
   // @ts-expect-error
-  game.documentTypes.Item.forEach(type => (CONFIG.Item.compendiumIndexFields = ["lid"]));
+  game.documentTypes.Item.forEach(type => (CONFIG.Item.compendiumIndexFields = ["system.lid"]));
   // @ts-expect-error
   CONFIG.Item.dataModels[EntryType.PILOT_ARMOR] = PilotArmorModel;
   // @ts-expect-error

@@ -23,11 +23,9 @@ export async function populatePilotCache(): Promise<CachedCloudPilot[]> {
   }
   const res = await Storage.list("pilot", {
     level: "protected",
-    // @ts-expect-error
     cacheControl: "no-cache",
   });
 
-  // @ts-expect-error
   const data: Array<PackedPilotData> = await Promise.all(res.map((obj: { key: string }) => fetchPilot(obj.key)));
   data.forEach(pilot => {
     pilot.mechs = [];

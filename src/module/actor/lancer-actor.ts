@@ -522,7 +522,7 @@ export class LancerActor extends Actor {
    * Due to the complex effects equipment can have on an actors statistical values, it is necessary to be sure our
    * effects are kept in lockstep as items are created, updated, and deleted
    */
-  _onCreateEmbeddedDocuments(
+  _onCreateDescendantDocuments(
     embeddedName: "Item" | "ActiveEffect",
     documents: LancerItem[] | LancerActiveEffect[],
     result: any,
@@ -544,14 +544,15 @@ export class LancerActor extends Actor {
   }
 
   /** @inheritdoc */
-  _onUpdateEmbeddedDocuments(
+  _onUpdateDescendantDocuments(
     embeddedName: "Item" | "ActiveEffect",
     documents: LancerItem[] | LancerActiveEffect[],
     result: any,
     options: any,
     user: string
   ) {
-    super._onUpdateEmbeddedDocuments(embeddedName, documents, result, options, user);
+    // @ts-expect-error v11
+    super._onUpdateDescendantDocuments(embeddedName, documents, result, options, user);
     let cause_updates = game.userId == user;
 
     // (Possibly) update effects from updated items, if the effects they provide have changed & item is equipped
@@ -567,14 +568,15 @@ export class LancerActor extends Actor {
   }
 
   /** @inheritdoc */
-  _onDeleteEmbeddedDocuments(
+  _onDeleteDescendantDocuments(
     embeddedName: "Item" | "ActiveEffect",
     documents: LancerItem[] | LancerActiveEffect[],
     result: any,
     options: any,
     user: string
   ) {
-    super._onDeleteEmbeddedDocuments(embeddedName, documents, result, options, user);
+    // @ts-expect-error v11
+    super._onDeleteDescendantDocuments(embeddedName, documents, result, options, user);
     // Mark them all as deleted for delete-deduplication purposes
     for (let doc of documents) {
       deleteIdCache.add(doc.uuid);
@@ -625,7 +627,8 @@ export class LancerActor extends Actor {
       }
     }
     deleteIdCacheCleanup();
-    return this.deleteEmbeddedDocuments(collection, toDelete, options);
+    // @ts-expect-error v11
+    return this.deleteDescendantDocuments(collection, toDelete, options);
   }
 
   // Typeguards

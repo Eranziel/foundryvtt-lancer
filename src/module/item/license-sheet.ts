@@ -33,7 +33,7 @@ export class LancerLicenseSheet extends LancerItemSheet<EntryType.LICENSE> {
     for (let et of [EntryType.FRAME, EntryType.MECH_SYSTEM, EntryType.MECH_WEAPON, EntryType.WEAPON_MOD]) {
       let pack = game.packs.get(`world.${et}`);
       if (pack) {
-        let docs = await pack.getDocuments({ "system.license": license.system.key });
+        let docs = (await pack.getDocuments({ system: { license: license.system.key } })) as any;
         for (let d of docs as LancerItem[]) {
           let rank = (d as any).system.license_level as number;
           while (unlocks.length <= rank) {

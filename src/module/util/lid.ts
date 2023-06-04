@@ -26,7 +26,9 @@ export async function lookupLIDPlural(
   let result: Array<LancerActor | LancerItem> = [];
   for (let t of types) {
     let pack = game.packs.get(`world.${t}`)!;
-    let newDocs = await pack?.getDocuments({ "system.lid": lid });
+    // Ensure that the index contains system.lid. It isn't populated at init.
+    await pack.getIndex();
+    let newDocs = await pack?.getDocuments({ system: { lid: lid } });
     // @ts-expect-error v9
     result.push(...newDocs);
     if (short_circuit && result.length) break;
@@ -69,8 +71,7 @@ export function lookupOwnedDeployables(owner: LancerActor): Record<string, Lance
   }
   let foundDeployables = game.actors!.filter(a => !!(a.is_deployable() && a.system.owner?.value == owner));
   let result: Record<string, LancerDEPLOYABLE> = {};
-  // @ts-expect-error v10
-  for (let dep of foundDeployables as LancerDEPLOYABLE[]) {
+  for (let dep of foundDeployables as unknown as LancerDEPLOYABLE[]) {
     result[dep.system.lid] = dep;
   }
   return result;
