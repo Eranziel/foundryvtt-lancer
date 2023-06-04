@@ -1,146 +1,78 @@
-import { LancerActor } from "../actor/lancer-actor";
+import { LancerActor, LancerMECH } from "../actor/lancer-actor";
 import { EntryType } from "../enums";
-import { LancerItem } from "../item/lancer-item";
+import { ChangeWatchHelper } from "../util/misc";
 import { LancerActiveEffect, LancerActiveEffectConstructorData } from "./lancer-active-effect";
 
-interface EffectsState {
-  data: LancerActiveEffectConstructorData[];
-  visible: boolean;
+export interface EffectsState {
+  data: LancerActiveEffectConstructorData[]; // The effect constructor data
+  visible: boolean; // Whether creation/deletion/update of this effect should cause a render
 }
 
 /**
- * A helper class purposed with managing active effects on a particular actor
+ * A helper class purposed with managing inherited ("ephemeral") active effects on a particular actor.
+ * These effects never live on the DB, and are instead instantiated ad-hoc from the system.inherited_effects + item inherited effects
  *
+ * Foundry doesn't have a way for actors to transfer effects impermanently to each other (and honestly, it really shouldn't!),
+ * so we do it ourselves here. It's a little odd, but all in the name of minimizing DB operations.
  */
 export class EffectHelper {
-  /**
-   * Maps uuid -> list of associated effects managed by this effector
+  /** Most actors can "passdown" effects to their descendants (deployed drones, etc).
+   * Doing this passdown can be expensive - it's a lot of updates possibly!
+   * This ChangeWatchHelper makes it so we only push down our ephemerals if we really need to
    */
-  #expectedEffects: Map<string, EffectsState> = new Map();
+  _passdownEffectTracker = new ChangeWatchHelper();
 
-  // Our current effect management task
-  #currTask: Promise<any> | null = null;
-
-  // If flagged as true, then an edit was made to managedEffects while currTask was running.
-  // This signals to currTask that it needs to re-run
-  #dirty = false;
-
-  // If true, the helper is currently deleting an effect
-  _deletingEffect = false;
-
+  // Track our parent actor
   constructor(private readonly actor: LancerActor) {}
 
-  // Set the expected effects for a given uuid
+  // Set the expected effects from a given uuid
   // Kick off an update if update == true
-  // If render, then the update will require redraw. Multiple accumulated renders
-  setEphemeralEffects(
-    uuid: string,
-    data: LancerActiveEffectConstructorData[],
-    update: boolean,
-    visible: boolean = true
-  ): void {
-    this.#expectedEffects.set(uuid, { data, visible });
-    if (update) {
-      this.#trySynchronize();
-    }
-  }
-
-  // Update our effects for the given item
-  // Kick off an update if update == true
-  setEphemeralEffectsFromItem(item: LancerItem, update: boolean, visible: boolean = true) {
-    let uuid = item.uuid;
-    let data = item._generatedEffectTracker.curr_value;
-    this.setEphemeralEffects(uuid, data, update, visible);
+  // If render, then the update will require redraw.
+  async setEphemeralEffects(source_uuid: string, data: LancerActiveEffectConstructorData[], visible: boolean = true) {
+    let es: EffectsState = {
+      data,
+      visible,
+    };
+    return this.actor.update(
+      {
+        [`system.inherited_effects.${source_uuid}`]: es,
+      },
+      {
+        render: visible,
+      }
+    );
   }
 
   // Clear the expected effects for a given uuid
   // Kick off an update if update == true
-  clearEphemeralEffects(uuid: string, update: boolean, visible: boolean = true): void {
-    this.#expectedEffects.set(uuid, {
-      data: [],
-      visible,
-    }); // Don't actually delete it yet! That will occur in synchronize
-    if (update) {
-      this.#trySynchronize();
+  async clearEphemeralEffects(source_uuid: string) {
+    // @ts-expect-error v11
+    let curr = this.actor.system.inherited_effects[source_uuid] as EffectsState;
+
+    if (curr) {
+      await this.actor.update(
+        {
+          [`-=system.inherited_effects.${source_uuid}`]: null,
+        },
+        {
+          render: curr.visible,
+        }
+      );
     }
   }
 
-  // Attempts to set all of our effects to rights
-  #trySynchronize(): void {
-    if (this.#currTask) {
-      this.#dirty = true;
-    } else {
-      this.#synchronize();
-    }
-  }
-
-  // Make sure that all of our managedEffects match what they ought to be. Debounced by 100ms
-  #synchronize() {
-    this.#currTask = new Promise<void>(async (succ, rej) => {
-      let done = false;
-      while (!done) {
-        // Sleep 100 ms
-        await new Promise(s => setTimeout(s, 100));
-        this.#dirty = false; // We're going
-
-        // Build a mapping of current effects -> uuid
-        let currOriginMap = new Map<string, LancerActiveEffect[]>();
-        for (let eff of this.actor.effects.contents) {
-          // @ts-expect-error
-          let origin = eff.origin;
-          let tmp = [] as LancerActiveEffect[];
-          let arr = currOriginMap.get(origin) ?? (currOriginMap.set(origin, tmp), tmp);
-          arr.push(eff as LancerActiveEffect);
-        }
-
-        // Reconcile everything we manage
-        let toClear = [];
-        for (let [uuid, evs] of this.#expectedEffects.entries()) {
-          let currEffects = currOriginMap.get(uuid) ?? [];
-          // Only touch ephemerals
-          currEffects = currEffects.filter(e => e._typedFlags.lancer?.ephemeral === true);
-
-          // If desired zero effects, then remove from expected effects. MUST occur before we await anything to avoid a race condition
-          if (evs.data.length == 0) toClear.push(uuid);
-
-          // Perform reconcile
-          await this.#reconcileEffects(currEffects, evs);
-        }
-
-        // Reset dirty if necessary, otherwise exit loop
-        if (this.#dirty) {
-          this.#dirty = false;
-        } else {
-          done = true;
-          this.#currTask = null;
+  // Generate activeffects based on our system.ephemeral_effect state
+  *ephemeralEffects(): Generator<LancerActiveEffect> {
+    let results: LancerActiveEffect[] = [];
+    let ephem_effects = (this.actor as LancerMECH).system.inherited_effects;
+    for (let [k, v] of Object.entries(ephem_effects)) {
+      for (let effect_state of v) {
+        for (let effect of effect_state.data) {
+          results.push(new LancerActiveEffect(effect));
         }
       }
-      succ();
-    });
-  }
-
-  async #reconcileEffects(currEffects: LancerActiveEffect[], desiredEffects: EffectsState) {
-    // First, if presently have too many effects, prune it back
-    if (currEffects.length > desiredEffects.data.length) {
-      let toDelete = currEffects.slice(desiredEffects.data.length);
-      this._deletingEffect = true;
-      await this.actor._safeDeleteEmbedded("ActiveEffect", toDelete, { render: desiredEffects.visible });
-      this._deletingEffect = false;
     }
-
-    // Then, update existing effects in-place to match new desired data
-    let inPlaceUpdates = foundry.utils.duplicate(desiredEffects.data.slice(0, currEffects.length));
-    if (inPlaceUpdates.length) {
-      inPlaceUpdates.forEach((ipu, index) => (ipu._id = currEffects[index].id)); // Tell them "I should update this existing effect"
-      await this.actor.updateEmbeddedDocuments("ActiveEffect", inPlaceUpdates, { render: desiredEffects.visible });
-    }
-
-    // Finally, if our desired exceed what we could handle by editing existing, add any new effects as necessary
-    if (currEffects.length < desiredEffects.data.length) {
-      let toAdd = desiredEffects.data.slice(currEffects.length);
-      // @ts-expect-error
-      await this.actor.createEmbeddedDocuments("ActiveEffect", toAdd, { render: desiredEffects.visible });
-    }
+    return results;
   }
 
   /**
@@ -151,11 +83,11 @@ export class EffectHelper {
     if (this.actor.is_deployable()) return [];
 
     // Start with all of them
-    let effects = this.actor.effects.map(e => e.toObject()) as unknown as LancerActiveEffectConstructorData[];
+    let effects = [...this.actor.allApplicableEffects()].map(e => e.toObject()) as LancerActiveEffectConstructorData[];
 
     // Remove all that we "consume" at this level. AKA only pass down unhandled effects
     effects = effects.filter(e => {
-      switch (e.flags.lancer?.target_type) {
+      switch (e.flags[game.system.id]?.target_type) {
         case EntryType.PILOT:
           return false; // Something targeting pilot will never get passed down, since who could possibly receive it?
         case EntryType.MECH:
@@ -178,42 +110,40 @@ export class EffectHelper {
 
   /**
    * Sends appropriate active effects to "children".
-   * Utilizes passdown effect tracker to minimize how often we actually send it. As such, feel free to call it as often as you want
-   * @param update Whether this operation can/should cause updates
-   * @param force If update is also true, whether we should force effect re-creation
-   * TODO: Minimally update???
+   * Utilizes delta tracker + debounce to minimize how often we actually send it. As such, feel free to call it as often as you want
+   * @param force If we should do it even if not dirty. Useful for when new deployables dropped etc
    * Debounced
    */
-  propagateEffects = foundry.utils.debounce(
-    (cause_updates: boolean, force: boolean = false) => this.propagateEffectsInner(cause_updates, force),
-    500
-  );
-  propagateEffectsInner(update: boolean, force: boolean = false) {
-    if (!force && !this.actor._passdownEffectTracker.isDirty) {
+  propagateEffects = foundry.utils.debounce((force: boolean) => this.propagateEffectsInner(force), 500);
+  async propagateEffectsInner(force: boolean) {
+    // Only do if force or dirty
+    if (!(force || this._passdownEffectTracker.isDirty)) {
       return;
     }
-    const propagateTo = (target: LancerActor) => {
+
+    // Define our actual logic for passing down effects
+    const propagateTo = async (target: LancerActor) => {
       console.debug(`Actor ${this.actor.name} propagating effects to ${target.name}`);
       // Add new from this pilot
       let changes: LancerActiveEffectConstructorData[] = foundry.utils.duplicate(
-        this.actor._passdownEffectTracker.curr_value
+        this._passdownEffectTracker.curr_value
       );
       changes.forEach(c => {
         c.flags.lancer ??= {};
         c.flags.lancer.deep_origin = c.origin;
         c.origin = this.actor.uuid;
       });
-      target.effectHelper.setEphemeralEffects(this.actor.uuid, changes, update);
+      await target.effectHelper.setEphemeralEffects(this.actor.uuid, changes);
     };
 
-    // Call this whenever update this actors stats in any meaningful way
+    // Pilots try to propagate to their mech
     if (this.actor.is_pilot()) {
       // Only propagate if we have a satisfied two-way binding
       if (
         this.actor.system.active_mech?.status == "resolved" &&
         this.actor.system.active_mech.value.system.pilot?.id == this.actor.uuid
       ) {
-        propagateTo(this.actor.system.active_mech.value);
+        await propagateTo(this.actor.system.active_mech.value);
       }
     }
 
@@ -228,13 +158,13 @@ export class EffectHelper {
           (a.system.owner.value == this.actor || a.system.owner.value == pilot)
       );
       for (let dep of ownedDeployables) {
-        propagateTo(dep);
+        await propagateTo(dep); // TODO - look for active tokens instead?
       }
     } else if (this.actor.is_npc()) {
       // Find our controlled deployables. Simpler here
       let ownedDeployables = game.actors!.filter(a => a.is_deployable() && a.system.owner?.value == this.actor);
       for (let dep of ownedDeployables) {
-        propagateTo(dep);
+        await propagateTo(dep); // TODO - look for active tokens instead?
       }
     }
   }
@@ -242,15 +172,15 @@ export class EffectHelper {
   // ########### Miscellaneous effect helper stuff that also lives here just to be in the same "namespace" so to speak #########
 
   /**
-   * Wipes all Statuses and (unsourced) ActiveEffects from the Actor.
+   * Wipes all Statuses and (non ephemeral) ActiveEffects from the Actor.
    *
    * This isn't really in the effectors purview per-say, but it tidies things up a bit
    */
   async removeAllStatuses() {
     let effects_to_delete = this.actor.effects.filter(e => e.sourceName === "None");
-    await this.actor._safeDeleteEmbedded("ActiveEffect", effects_to_delete);
+    await this.actor._safeDeleteDescendant("ActiveEffect", effects_to_delete);
     let items_to_delete = this.actor.items.filter(i => i.is_status());
-    await this.actor._safeDeleteEmbedded("Item", items_to_delete);
+    await this.actor._safeDeleteDescendant("Item", items_to_delete);
   }
   /**
    * Locates an ActiveEffect on the Actor by name and removes it if present.

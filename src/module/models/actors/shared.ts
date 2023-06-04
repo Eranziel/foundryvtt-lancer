@@ -38,6 +38,7 @@ export function template_universal_actor() {
 
     hp: new FakeBoundedNumberField({ integer: true, nullable: false, initial: 0 }),
     overshield: new FakeBoundedNumberField({ integer: true, nullable: false, initial: 0 }),
+    inherited_effects: new fields.ObjectField(),
 
     // Our derived property melange - not actually here! We generate those in prepareData
   };

@@ -93,12 +93,10 @@ export function frameInnateEffect(frame: LancerFRAME): LancerActiveEffectConstru
 
 /**
  * Creates the "innate" ActiveEffect of a pilot, essentially just the buff supplied by being piloted by this mech
- * @param pilot C
- * @returns
  */
-export function pilotInnateEffect(pilot: LancerPILOT): LancerActiveEffectConstructorData {
+export function pilotInnateEffect(pilot: LancerPILOT): LancerActiveEffect {
   // Bake GRIT+HASE into an active effect
-  return {
+  return new LancerActiveEffect({
     name: "Pilot Stats",
     changes: [
       // HASE
@@ -223,7 +221,7 @@ export function pilotInnateEffect(pilot: LancerPILOT): LancerActiveEffectConstru
         ephemeral: true,
       },
     },
-  };
+  });
 }
 
 /**
@@ -571,7 +569,7 @@ export function convertBonus(origin: string, name: string, bonus: BonusData): nu
   return {
     name,
     flags: {
-      lancer: {
+      [game.system.id]: {
         target_type,
         ephemeral: true,
       },

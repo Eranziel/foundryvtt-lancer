@@ -150,7 +150,7 @@ export class LoadoutHelper {
       }
     }
     // Kill!
-    if (deletables.length) await this.actor._safeDeleteEmbedded("Item", deletables);
+    if (deletables.length) await this.actor._safeDeleteDescendant("Item", deletables);
   }
 
   /**

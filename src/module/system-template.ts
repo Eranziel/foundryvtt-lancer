@@ -1,4 +1,5 @@
 import { LancerActor, LancerDEPLOYABLE, LancerMECH, LancerPILOT } from "./actor/lancer-actor";
+import { EffectsState } from "./effects/effector";
 import {
   ActivationType,
   DeployableType,
@@ -15,19 +16,13 @@ import {
   WeaponTypeChecklist,
 } from "./enums";
 import {
-  LancerCORE_BONUS,
   LancerFRAME,
-  LancerItem,
-  LancerLICENSE,
   LancerMECH_SYSTEM,
   LancerMECH_WEAPON,
   LancerNPC_CLASS,
-  LancerNPC_FEATURE,
   LancerPILOT_ARMOR,
   LancerPILOT_GEAR,
   LancerPILOT_WEAPON,
-  LancerSKILL,
-  LancerTALENT,
   LancerWEAPON_MOD,
 } from "./item/lancer-item";
 import { ActionData } from "./models/bits/action";
@@ -69,6 +64,8 @@ export namespace SystemTemplates {
 
     activations: number;
     custom_counters: CounterData[];
+    inherited_effects: Record<string, EffectsState[]>;
+
     // We replace these with bounded alternatives
     hp: FullBoundedNum;
     overshield: FullBoundedNum;

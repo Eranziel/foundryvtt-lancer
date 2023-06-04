@@ -185,6 +185,9 @@ window.addEventListener("unhandledrejection", function (event) {
 Hooks.once("init", async function () {
   console.log(`Initializing LANCER RPG System ${LANCER.ASCII}`);
 
+  // @ts-expect-error Use the v12+ active effect logic - effects never transfer from an item. Critical to how we handle effects
+  CONFIG.ActiveEffect.legacyTransferral = false;
+
   // Add this schema for each document type.
   // game.documentTypes.Item.forEach(type => CONFIG.Item.dataModels[type] = MyItemModel);
   // @ts-expect-error
