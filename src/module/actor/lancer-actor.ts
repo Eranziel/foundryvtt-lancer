@@ -348,6 +348,8 @@ export class LancerActor extends Actor {
       // Collect all bonuses
       // TODO - eventually we would rather have these handled via active effects
       this.system.all_bonuses = [];
+      // Ensure loadout helper is initialized.
+      if (!this.loadoutHelper) this.loadoutHelper = new LoadoutHelper(this);
       for (let item of this.loadoutHelper.listLoadout()) {
         this.system.all_bonuses.push(...(item.getBonuses() ?? []));
       }
