@@ -52,7 +52,7 @@ export class EffectHelper {
     if (curr) {
       await this.actor.update(
         {
-          [`-=system.inherited_effects.${source_uuid}`]: null,
+          [`system.inherited_effects.-=${source_uuid}`]: null,
         },
         {
           render: curr.visible,
