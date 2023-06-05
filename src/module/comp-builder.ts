@@ -142,7 +142,7 @@ export async function importCP(
       let existing_updates = [];
       let new_creates = [];
       for (let d of item_data) {
-        let existing = existing_lids.get(d.lid);
+        let existing = existing_lids.get(d.system.lid);
         if (existing) {
           // Formulate as an update
           existing_updates.push({
