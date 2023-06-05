@@ -1,5 +1,5 @@
 import { ActionTrackingData } from "./action";
-import { EffectsState } from "./effects/effector";
+import { InheritedEffectsState } from "./effects/effector";
 import {
   ActivationType,
   DeployableType,
@@ -50,7 +50,7 @@ export namespace SourceTemplates {
     burn: number;
     activations: number;
     custom_counters: CounterData[];
-    inherited_effects: Record<string, EffectsState[]>;
+    inherited_effects: InheritedEffectsState | null;
   }
 
   export interface item_universal {

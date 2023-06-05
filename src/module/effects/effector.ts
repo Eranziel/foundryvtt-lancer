@@ -3,7 +3,8 @@ import { EntryType } from "../enums";
 import { ChangeWatchHelper } from "../util/misc";
 import { LancerActiveEffect, LancerActiveEffectConstructorData } from "./lancer-active-effect";
 
-export interface EffectsState {
+export interface InheritedEffectsState {
+  from_uuid: string; // Who's giving it? We only inherit one at a time
   data: LancerActiveEffectConstructorData[]; // The effect constructor data
   visible: boolean; // Whether creation/deletion/update of this effect should cause a render
 }
@@ -29,13 +30,14 @@ export class EffectHelper {
   // Kick off an update if update == true
   // If render, then the update will require redraw.
   async setEphemeralEffects(source_uuid: string, data: LancerActiveEffectConstructorData[], visible: boolean = true) {
-    let es: EffectsState = {
+    let es: InheritedEffectsState = {
+      from_uuid: source_uuid,
       data,
       visible,
     };
     return this.actor.update(
       {
-        [`system.inherited_effects.${source_uuid}`]: es,
+        "system.inherited_effects": es,
       },
       {
         render: visible,
@@ -45,14 +47,13 @@ export class EffectHelper {
 
   // Clear the expected effects for a given uuid
   // Kick off an update if update == true
-  async clearEphemeralEffects(source_uuid: string) {
+  async clearEphemeralEffects() {
     // @ts-expect-error v11
-    let curr = this.actor.system.inherited_effects[source_uuid] as EffectsState;
-
+    let curr = this.actor.system.inherited_effects as InheritedEffectsState | null;
     if (curr) {
       await this.actor.update(
         {
-          [`system.inherited_effects.-=${source_uuid}`]: null,
+          "system.-=inherited_effects": null,
         },
         {
           render: curr.visible,
@@ -62,14 +63,12 @@ export class EffectHelper {
   }
 
   // Generate activeffects based on our system.ephemeral_effect state
-  *ephemeralEffects(): Generator<LancerActiveEffect> {
+  ephemeralEffects(): LancerActiveEffect[] {
     let results: LancerActiveEffect[] = [];
-    let ephem_effects = (this.actor as LancerMECH).system.inherited_effects;
-    for (let [k, v] of Object.entries(ephem_effects)) {
-      for (let effect_state of v) {
-        for (let effect of effect_state.data) {
-          results.push(new LancerActiveEffect(effect));
-        }
+    let inherited_effects = (this.actor as LancerMECH).system.inherited_effects;
+    if (inherited_effects) {
+      for (let effect of inherited_effects.data) {
+        results.push(new LancerActiveEffect(effect));
       }
     }
     return results;

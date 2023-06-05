@@ -1,5 +1,5 @@
-import { LancerActor, LancerDEPLOYABLE, LancerMECH, LancerPILOT } from "./actor/lancer-actor";
-import { EffectsState } from "./effects/effector";
+import { LancerActor, LancerMECH, LancerPILOT } from "./actor/lancer-actor";
+import { InheritedEffectsState } from "./effects/effector";
 import {
   ActivationType,
   DeployableType,
@@ -64,7 +64,7 @@ export namespace SystemTemplates {
 
     activations: number;
     custom_counters: CounterData[];
-    inherited_effects: Record<string, EffectsState[]>;
+    inherited_effects: InheritedEffectsState | null;
 
     // We replace these with bounded alternatives
     hp: FullBoundedNum;
