@@ -483,7 +483,7 @@ export class LancerActor extends Actor {
 
     // All other changes we want to only be handled by this user who actually triggered the effect
     // This is to prevent duplicate work + avoid permissions errors + they started it and should handle structuring/stressing
-    if (cause_updates) {
+    if (!cause_updates) {
       return;
     }
 
