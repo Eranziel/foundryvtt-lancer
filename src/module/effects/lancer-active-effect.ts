@@ -43,6 +43,7 @@ export interface LancerActiveEffectFlags {
 }
 
 export interface LancerActiveEffectConstructorData extends ActiveEffectDataConstructorData {
+  name: string; // TODO - this is native in v11
   flags: Record<string, unknown> & LancerActiveEffectFlags;
 }
 

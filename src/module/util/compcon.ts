@@ -23,10 +23,13 @@ export async function populatePilotCache(): Promise<CachedCloudPilot[]> {
   }
   const res = await Storage.list("pilot", {
     level: "protected",
+    // @ts-ignore  Unclear if this still does anything
     cacheControl: "no-cache",
   });
 
-  const data: Array<PackedPilotData> = await Promise.all(res.map((obj: { key: string }) => fetchPilot(obj.key)));
+  const data = (await Promise.all(res.map(obj => (obj.key ? fetchPilot(obj.key) : null)))).map(
+    x => x
+  ) as Array<PackedPilotData>;
   data.forEach(pilot => {
     pilot.mechs = [];
     pilot.cloudOwnerID = pilot.cloudOwnerID != null ? cleanCloudOwnerID(pilot.cloudOwnerID) : ""; // only clean the CloudOwnerID if its available

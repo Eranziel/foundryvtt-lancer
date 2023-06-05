@@ -83,7 +83,7 @@ export function frameInnateEffect(frame: LancerFRAME): LancerActiveEffectConstru
 
   return {
     flags: { lancer: { ephemeral: true } },
-    label: frame.name,
+    name: frame.name!,
     icon: frame.img,
     origin: frame.uuid,
     transfer: true,
@@ -99,7 +99,7 @@ export function frameInnateEffect(frame: LancerFRAME): LancerActiveEffectConstru
 export function pilotInnateEffect(pilot: LancerPILOT): LancerActiveEffectConstructorData {
   // Bake GRIT+HASE into an active effect
   return {
-    label: "Pilot Stats",
+    name: "Pilot Stats",
     changes: [
       // HASE
       {
@@ -238,7 +238,7 @@ export function statusInnateEffect(status: LancerSTATUS): LancerActiveEffectCons
     },
   ];
   return {
-    label: status.name,
+    name: status.name!,
     changes,
     origin: status.uuid,
     icon: status.img,
@@ -265,7 +265,7 @@ export function statusConfigEffect(status: LancerSTATUS): any {
   let base = statusInnateEffect(status);
   return {
     id: status.system.lid,
-    label: base.label,
+    name: base.name,
     changes: base.changes,
     origin: base.origin,
     icon: base.icon,
@@ -339,7 +339,7 @@ export function npcClassInnateEffect(class_: LancerNPC_CLASS): LancerActiveEffec
 
   return {
     flags: { lancer: { ephemeral: true } },
-    label: class_.name,
+    name: class_.name!,
     icon: class_.img,
     origin: class_.uuid,
     transfer: true,
@@ -348,11 +348,7 @@ export function npcClassInnateEffect(class_: LancerNPC_CLASS): LancerActiveEffec
 }
 
 // Converts a single bonus to a single active effect
-export function convertBonus(
-  origin: string,
-  label: string,
-  bonus: BonusData
-): null | LancerActiveEffectConstructorData {
+export function convertBonus(origin: string, name: string, bonus: BonusData): null | LancerActiveEffectConstructorData {
   // Separate logic for "restricted" bonuses
   if (bonus.lid == "damage") {
     // TODO
@@ -573,7 +569,7 @@ export function convertBonus(
   }
   // Return a normal bonus
   return {
-    label,
+    name,
     flags: {
       lancer: {
         target_type,

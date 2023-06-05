@@ -2,17 +2,15 @@ import { LancerActor } from "../actor/lancer-actor";
 import { DamageType, EntryType, RangeType, SystemType, WeaponSize, WeaponType } from "../enums";
 import { format_dotpath } from "../helpers/commons";
 import { LancerItem } from "../item/lancer-item";
+import { regRefToId, regRefToLid, regRefToUuid } from "../util/migrations";
 import { SourceData } from "../source-template";
 import { SystemTemplates } from "../system-template";
-import { PackedDeployableData } from "../util/unpacking/packed-types";
 
 // @ts-ignore
 const fields: any = foundry.data.fields;
 
 // @ts-expect-error
 export class LancerDataModel<T> extends foundry.abstract.DataModel<T> {
-  // For you, sohum. Svelte it to your heart's content
-
   /**
    * Create a full update payload, e.g. to preserve arrays
    * @param update_data the update data to apply
@@ -113,14 +111,28 @@ export function fancy_merge_data(full_source_data: any, update_data: any): any {
   return full_source_data;
 }
 
-// Use this for all LIDs, to ensure consistent formatting
+// Use this for all LIDs, to ensure consistent formatting, and to allow easier setting
 export class LIDField extends fields.StringField {
   /** @override */
   _cast(value: any) {
+    let rrtl = regRefToLid(value);
+    if (rrtl) return rrtl;
     if (value.lid) value = value.lid;
     if (value.system?.lid) value = value.system.lid;
-    if (typeof value === "string") return value;
-    throw new Error("Not a string or LID-posessing item: " + value);
+    console.warn("If passing an object as a value for an LIDField, object must have an `lid` or `system.lid` property");
+    return value; // Don't overzealouisly fix
+  }
+
+  _validateType(value: any) {
+    try {
+      super._validateType(value);
+    } catch (e) {
+      // @ts-expect-error
+      return new foundry.data.validation.DataModelValidationFailure({
+        invalidValue: value,
+        message: `Not a valid LID ${value}`,
+      });
+    }
   }
 }
 
@@ -132,7 +144,7 @@ export class EmbeddedRefField extends fields.StringField {
    * @param {StringFieldOptions} options  Options which configure the behavior of the field
    */
   constructor(
-    readonly embedded_collection: "Item" | "ActiveEffect",
+    readonly document_type: "Item" | "ActiveEffect",
     options: { allowed_types?: EntryType[] } & Record<string, any> = {}
   ) {
     super(options);
@@ -151,10 +163,12 @@ export class EmbeddedRefField extends fields.StringField {
 
   /** @override */
   _cast(value: any) {
+    let rrti = regRefToId(this.document_type, value);
+    if (rrti) return rrti;
     if (value?.id) value = value.id;
     if (value?.value) value = value.value;
     if (value?.id) value = value.id; // Intentionally duplicated
-    return String(value);
+    return value; // Don't overzealously fix
   }
 
   /** @inheritdoc */
@@ -170,7 +184,7 @@ export class EmbeddedRefField extends fields.StringField {
     model.add_pre_finalize_task(() => {
       let sub: LancerItem | ActiveEffect | null =
         // @ts-expect-error
-        model?.parent?.getEmbeddedDocument(this.embedded_collection, value) ?? null;
+        model?.parent?.getEmbeddedDocument(this.document_type, value) ?? null;
       if (!sub) {
         console.log("Failed to resolve embedded ref: ID not found.", model, value);
         shell.status = "missing";
@@ -194,12 +208,6 @@ export class EmbeddedRefField extends fields.StringField {
   }
 }
 
-function _parseUuid(value: any): string {
-  if (value?.uuid) value = value.uuid;
-  if (typeof value === "string") return value;
-  throw new Error("Not a string or UUID-posessing item: " + value);
-}
-
 // Similar to the foreignDocumentField, except untyped and supports uuids
 // Supports only sync lookup
 export class SyncUUIDRefField extends fields.StringField {
@@ -209,7 +217,10 @@ export class SyncUUIDRefField extends fields.StringField {
   /**
    * @param {StringFieldOptions} options  Options which configure the behavior of the field
    */
-  constructor(options: { allowed_types?: EntryType[] } & Record<string, any> = {}) {
+  constructor(
+    readonly document_type: "Actor" | "Item",
+    options: { allowed_types?: EntryType[] } & Record<string, any> = {}
+  ) {
     super(options);
     this.allowed_types = options.allowed_types ?? null;
   }
@@ -226,32 +237,40 @@ export class SyncUUIDRefField extends fields.StringField {
 
   /** @override */
   _cast(value: any) {
+    let rrtu = regRefToUuid(this.document_type, value);
+    if (rrtu) return rrtu;
     if (value?.uuid) value = value.uuid;
     if (value?.value) value = value.value;
     if (value?.uuid) value = value.uuid; // Intentionally duplicated
-    return String(value);
+    return value; // Don't overzealously fix
   }
 
   /** @override */
-  _validateType(value: string | null) {
+  _validateType(value: any) {
     try {
+      super._validateType(value);
       if (value) {
-        _parseUuid(value);
+        //@ts-expect-error  Missing type
+        parseUuid(value);
         return true; // A definitive success
       }
     } catch (e) {
-      throw new Error("Not a valid uuid");
+      // @ts-expect-error Missing type for this Failure
+      return new foundry.data.validation.DataModelValidationFailure({
+        invalidValue: value,
+        message: `Not a valid uuid ${value}`,
+      });
     }
   }
 
   /** @inheritdoc */
-  initialize(value: string, model: any): null | SystemTemplates.ResolvedAsyncUuidRef<any> {
+  initialize(value: string, model: any): null | SystemTemplates.ResolvedSyncUuidRef<any> {
     if (!value) return null;
 
     // Create shell
     let shell = {
       id: value,
-    } as SystemTemplates.ResolvedAsyncUuidRef<any>;
+    } as SystemTemplates.ResolvedSyncUuidRef<any>;
 
     // Create job
     model.add_pre_finalize_task(() => {
@@ -260,113 +279,6 @@ export class SyncUUIDRefField extends fields.StringField {
         console.error(`Failed to resolve uuid ref: Not found ${value}`, model, value);
         shell.status = "missing";
         shell.value = null;
-      } else if (this.allowed_types && !this.allowed_types.includes(syncRes.type)) {
-        console.error(
-          `Failed to resolve uuid ref: Wrong type ${syncRes.type} not in ${this.allowed_types.join("|")}`,
-          model,
-          value
-        );
-        shell.status = "missing";
-        shell.value = null;
-      } else {
-        // Sync resolved quickly and successfully
-        shell.status = "resolved";
-        // Set it as non enumerable to avoid circular issues
-        Object.defineProperty(shell, "value", {
-          value: syncRes,
-          enumerable: false,
-        });
-      }
-    });
-
-    // Return our shell, which will be filled by the above job
-    return shell;
-  }
-}
-
-// Similar to the foreignDocumentField, except untyped and supports uuids
-// Supports both sync and async lookup
-// I'm not really sure what this would usually be used for... prefer Sync in almost all cases
-export class AsyncUUIDRefField extends fields.StringField {
-  // The acceptable document.type's for this to resolve to. Null is any
-  allowed_types: string[] | null;
-
-  /**
-   * @param {StringFieldOptions} options  Options which configure the behavior of the field
-   */
-  constructor(options: { allowed_types?: EntryType[] } & Record<string, any> = {}) {
-    super(options);
-    this.allowed_types = options.allowed_types ?? null;
-  }
-
-  /** @inheritdoc */
-  static get _defaults() {
-    return mergeObject(super._defaults, {
-      initial: null,
-      blank: false,
-      trim: true,
-      nullable: true,
-    });
-  }
-
-  /** @override */
-  _cast(value: any) {
-    if (value?.value) value = value.value;
-    if (value?.uuid) {
-      value = value.uuid;
-    }
-    return String(value);
-  }
-
-  /** @override */
-  _validateType(value: string | null) {
-    try {
-      if (value) {
-        _parseUuid(value);
-        return true; // A definitive success
-      }
-    } catch (e) {
-      throw new Error("Not a valid uuid");
-    }
-  }
-
-  /** @inheritdoc */
-  initialize(value: string, model: any): null | SystemTemplates.ResolvedAsyncUuidRef<any> {
-    if (!value) return null;
-
-    // Create shell
-    let shell = {
-      id: value,
-    } as SystemTemplates.ResolvedAsyncUuidRef<any>;
-
-    // Create job
-    model.add_pre_finalize_task(() => {
-      let syncRes = fromUuidSync(value) as LancerActor | LancerItem;
-      if (!syncRes) {
-        shell.status = "async";
-        shell.value = (async () => {
-          let asyncRes = await fromUuid(value);
-          if (!asyncRes) {
-            // Retry once
-            await new Promise((a, d) => setTimeout(a, 100));
-            asyncRes = await fromUuid(value);
-          }
-          if (!asyncRes) return null;
-          if (this.allowed_types && !this.allowed_types.includes((asyncRes as any).type)) {
-            console.error(
-              `Failed to resolve uuid ref: Wrong type ${(asyncRes as any).type} not in ${this.allowed_types.join("|")}`
-            );
-            shell.status = "missing";
-            shell.value = null;
-          }
-          // Async resolved quickly & successfully
-          shell.status = "resolved";
-          // Set it as non enumerable to avoid circular issues
-          Object.defineProperty(shell, "value", {
-            value: asyncRes,
-            enumerable: false,
-          });
-        })();
       } else if (this.allowed_types && !this.allowed_types.includes(syncRes.type)) {
         console.error(
           `Failed to resolve uuid ref: Wrong type ${syncRes.type} not in ${this.allowed_types.join("|")}`,
@@ -454,6 +366,34 @@ export class WeaponSizeChecklistField extends ChecklistField {
 export class SystemTypeChecklistField extends ChecklistField {
   constructor(options = {}) {
     super(SystemType, options);
+  }
+}
+
+/** A single tier of npc stats */
+export class NpcStatBlockField extends fields.SchemaField {
+  constructor(options: { nullable: boolean }) {
+    let nullable = options.nullable;
+    super(
+      {
+        activations: new fields.NumberField({ integer: true, nullable, initial: nullable ? null : 1 }),
+        armor: new fields.NumberField({ integer: true, nullable, initial: nullable ? null : 0 }),
+        hp: new fields.NumberField({ integer: true, nullable, initial: nullable ? null : 10 }),
+        evasion: new fields.NumberField({ integer: true, nullable, initial: nullable ? null : 5 }),
+        edef: new fields.NumberField({ integer: true, nullable, initial: nullable ? null : 8 }),
+        heatcap: new fields.NumberField({ integer: true, nullable, initial: nullable ? null : 5 }),
+        speed: new fields.NumberField({ integer: true, nullable, initial: nullable ? null : 3 }),
+        sensor_range: new fields.NumberField({ integer: true, nullable, initial: nullable ? null : 10 }),
+        save: new fields.NumberField({ integer: true, nullable, initial: nullable ? null : 10 }),
+        hull: new fields.NumberField({ integer: true, nullable, initial: nullable ? null : 0 }),
+        agi: new fields.NumberField({ integer: true, nullable, initial: nullable ? null : 0 }),
+        sys: new fields.NumberField({ integer: true, nullable, initial: nullable ? null : 0 }),
+        eng: new fields.NumberField({ integer: true, nullable, initial: nullable ? null : 0 }),
+        size: new fields.NumberField({ integer: true, nullable, initial: nullable ? null : 1 }),
+        structure: new fields.NumberField({ integer: true, nullable, initial: nullable ? null : 1 }),
+        stress: new fields.NumberField({ integer: true, nullable, initial: nullable ? null : 1 }),
+      },
+      options
+    );
   }
 }
 

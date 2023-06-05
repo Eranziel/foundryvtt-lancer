@@ -41,8 +41,8 @@ const deployable_schema = {
   type: new fields.StringField({ choices: Object.values(DeployableType), initial: DeployableType.Deployable }),
   avail_mounted: new fields.BooleanField({ initial: true }),
   avail_unmounted: new fields.BooleanField({ initial: false }),
-  deployer: new SyncUUIDRefField({ allowed_types: [EntryType.MECH, EntryType.PILOT, EntryType.NPC] }),
-  owner: new SyncUUIDRefField({ allowed_types: [EntryType.MECH, EntryType.PILOT, EntryType.NPC] }),
+  deployer: new SyncUUIDRefField("Actor", { allowed_types: [EntryType.MECH, EntryType.PILOT, EntryType.NPC] }),
+  owner: new SyncUUIDRefField("Actor", { allowed_types: [EntryType.MECH, EntryType.PILOT, EntryType.NPC] }),
   // destroyed: new fields.BooleanField({ initial: false }),
   // notes: new fields.HTMLField(),
 
@@ -56,6 +56,13 @@ type DeployableSchema = typeof deployable_schema;
 export class DeployableModel extends LancerDataModel<"DeployableModel"> {
   static defineSchema(): DeployableSchema {
     return deployable_schema;
+  }
+
+  static migrateData(data: any) {
+    // TODO
+
+    // @ts-expect-error v11
+    return super.migrateData(data);
   }
 }
 

@@ -18,8 +18,7 @@ import {
 
 const fields: any = foundry.data.fields;
 
-// @ts-ignore
-export class MechSystemModel extends LancerDataModel {
+export class MechSystemModel extends LancerDataModel<"MechSystemModel"> {
   static defineSchema() {
     return {
       effect: new fields.HTMLField(),

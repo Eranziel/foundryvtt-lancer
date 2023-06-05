@@ -1,12 +1,13 @@
 import { template_action_tracking, template_statuses, template_universal_actor } from "./shared";
 
-import { FakeBoundedNumberField, LancerDataModel, LIDField, EmbeddedRefField, SyncUUIDRefField } from "../shared";
+import { LancerDataModel, EmbeddedRefField, SyncUUIDRefField } from "../shared";
 import { EntryType } from "../../enums";
+import { regRefToUuid } from "../../util/migrations";
 
 const fields: any = foundry.data.fields;
 
 const pilot_schema = {
-  active_mech: new SyncUUIDRefField({ allowed_types: [EntryType.MECH] }),
+  active_mech: new SyncUUIDRefField("Actor", { allowed_types: [EntryType.MECH] }),
   background: new fields.HTMLField(),
   callsign: new fields.StringField(),
   cloud_id: new fields.StringField(),
@@ -41,5 +42,30 @@ type PilotSchema = typeof pilot_schema;
 export class PilotModel extends LancerDataModel<"PilotModel"> {
   static defineSchema(): PilotSchema {
     return pilot_schema;
+  }
+
+  static migrateData(data: any) {
+    // Convert old regrefs
+    if (typeof data.active_mech == "object") {
+      data.active_mech = regRefToUuid("Actor", data.active_mech);
+    }
+
+    // Strip nulls from loadouts
+    if (Array.isArray(data.loadout?.armor)) data.loadout.armor = data.loadout.armor.filter((a: any) => a);
+    if (Array.isArray(data.loadout?.gear)) data.loadout.gear = data.loadout.gear.filter((g: any) => g);
+    if (Array.isArray(data.loadout?.weapons)) data.loadout.weapons = data.loadout.weapons.filter((w: any) => w);
+
+    // And renamed fields
+    if (data.cloudID) data.cloud_id ??= data.cloudID;
+    if (data.cloudOwnerID) data.cloud_owner_id ??= data.cloudOwnerID;
+    if (data.mechSkills?.length == 4) {
+      data.hull ??= data.mechSkills[0];
+      data.agi ??= data.mechSkills[1];
+      data.sys ??= data.mechSkills[2];
+      data.eng ??= data.mechSkills[3];
+    }
+
+    // @ts-expect-error v11
+    return super.migrateData(data);
   }
 }

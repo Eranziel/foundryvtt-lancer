@@ -75,16 +75,17 @@ export async function importCP(
     totalItems += cp.data.talents?.length ?? 0;
     totalItems += cp.data.weapons?.length ?? 0;
 
-    // Iterate over everything in core, collecting all lids
-    let existing_lids: string[] = [];
+    // Iterate over everything in core, collecting all lids into a map of LID -> document
+    let existing_lids: Map<string, LancerItem | LancerActor> = new Map();
     for (let et of Object.values(EntryType)) {
       let pack = await get_pack(et);
       // Get them all
       let docs = await pack.getDocuments();
       // Get their ids
-      // @ts-expect-error Should be fixed with v10 types
-      let doc_lids = docs.map(d => (d as LancerActor | LancerItem).system.lid);
-      existing_lids.push(...doc_lids);
+      docs.forEach(d => {
+        // @ts-expect-error Should be fixed with v10 types
+        existing_lids.set((d as LancerActor | LancerItem).system.lid, d);
+      });
     }
 
     // Import data to the actual foundry reg
@@ -136,26 +137,44 @@ export async function importCP(
       allLicenses.push(unpackLicense(frame.name, lid, frame.source, context));
     }
 
-    // Get creating
-    await CONFIG.Item.documentClass.createDocuments(allCoreBonuses, { pack: `world.${EntryType.CORE_BONUS}` });
-    await CONFIG.Item.documentClass.createDocuments(allFrames, { pack: `world.${EntryType.FRAME}` });
-    await CONFIG.Item.documentClass.createDocuments(allMods, { pack: `world.${EntryType.WEAPON_MOD}` });
-    await CONFIG.Item.documentClass.createDocuments(allLicenses, { pack: `world.${EntryType.LICENSE}` });
-    await CONFIG.Item.documentClass.createDocuments(allNpcClasses, { pack: `world.${EntryType.NPC_CLASS}` });
-    await CONFIG.Item.documentClass.createDocuments(allNpcTemplates, { pack: `world.${EntryType.NPC_TEMPLATE}` });
-    await CONFIG.Item.documentClass.createDocuments(allNpcFeatures, { pack: `world.${EntryType.NPC_FEATURE}` });
-    await CONFIG.Item.documentClass.createDocuments(allPilotArmor, { pack: `world.${EntryType.PILOT_ARMOR}` });
-    await CONFIG.Item.documentClass.createDocuments(allPilotGear, { pack: `world.${EntryType.PILOT_GEAR}` });
-    await CONFIG.Item.documentClass.createDocuments(allPilotWeapons, { pack: `world.${EntryType.PILOT_WEAPON}` });
-    await CONFIG.Item.documentClass.createDocuments(allReserves, { pack: `world.${EntryType.RESERVE}` });
-    await CONFIG.Item.documentClass.createDocuments(allSkills, { pack: `world.${EntryType.SKILL}` });
-    await CONFIG.Item.documentClass.createDocuments(allStatuses, { pack: `world.${EntryType.STATUS}` });
-    await CONFIG.Item.documentClass.createDocuments(allSystems, { pack: `world.${EntryType.MECH_SYSTEM}` });
-    await CONFIG.Item.documentClass.createDocuments(allTalents, { pack: `world.${EntryType.TALENT}` });
-    await CONFIG.Item.documentClass.createDocuments(allWeapons, { pack: `world.${EntryType.MECH_WEAPON}` });
-    await CONFIG.Actor.documentClass.createDocuments(context.createdDeployables, {
-      pack: `world.${EntryType.DEPLOYABLE}`,
-    });
+    // Get creating, or updating if the lid is already created. Typing is extremely fuzzy here, sorry, I just didn't really want to fight it
+    const createOrUpdateDocs = async (doc_class: any, item_data: Array<any>, et: EntryType) => {
+      let existing_updates = [];
+      let new_creates = [];
+      for (let d of item_data) {
+        let existing = existing_lids.get(d.lid);
+        if (existing) {
+          // Formulate as an update
+          existing_updates.push({
+            ...d,
+            _id: existing.id,
+          });
+        } else {
+          // Formulate as a doc
+          new_creates.push(d);
+        }
+      }
+      await doc_class.createDocuments(new_creates, { pack: `world.${et}` });
+      await doc_class.updateDocuments(existing_updates, { pack: `world.${et}` });
+    };
+
+    await createOrUpdateDocs(CONFIG.Item.documentClass, allCoreBonuses, EntryType.CORE_BONUS);
+    await createOrUpdateDocs(CONFIG.Item.documentClass, allFrames, EntryType.FRAME);
+    await createOrUpdateDocs(CONFIG.Item.documentClass, allMods, EntryType.WEAPON_MOD);
+    await createOrUpdateDocs(CONFIG.Item.documentClass, allLicenses, EntryType.LICENSE);
+    await createOrUpdateDocs(CONFIG.Item.documentClass, allNpcClasses, EntryType.NPC_CLASS);
+    await createOrUpdateDocs(CONFIG.Item.documentClass, allNpcTemplates, EntryType.NPC_TEMPLATE);
+    await createOrUpdateDocs(CONFIG.Item.documentClass, allNpcFeatures, EntryType.NPC_FEATURE);
+    await createOrUpdateDocs(CONFIG.Item.documentClass, allPilotArmor, EntryType.PILOT_ARMOR);
+    await createOrUpdateDocs(CONFIG.Item.documentClass, allPilotGear, EntryType.PILOT_GEAR);
+    await createOrUpdateDocs(CONFIG.Item.documentClass, allPilotWeapons, EntryType.PILOT_WEAPON);
+    await createOrUpdateDocs(CONFIG.Item.documentClass, allReserves, EntryType.RESERVE);
+    await createOrUpdateDocs(CONFIG.Item.documentClass, allSkills, EntryType.SKILL);
+    await createOrUpdateDocs(CONFIG.Item.documentClass, allStatuses, EntryType.STATUS);
+    await createOrUpdateDocs(CONFIG.Item.documentClass, allSystems, EntryType.MECH_SYSTEM);
+    await createOrUpdateDocs(CONFIG.Item.documentClass, allTalents, EntryType.TALENT);
+    await createOrUpdateDocs(CONFIG.Item.documentClass, allWeapons, EntryType.MECH_WEAPON);
+    await createOrUpdateDocs(CONFIG.Actor.documentClass, context.createdDeployables, EntryType.DEPLOYABLE);
 
     // Tags are stored in config
     let newTagConfig = foundry.utils.duplicate(game.settings.get(game.system.id, LANCER.setting_tag_config)) as Record<

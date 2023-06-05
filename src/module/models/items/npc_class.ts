@@ -1,13 +1,13 @@
 import { EntryType } from "../../enums";
+import { regRefToLid, convertNpcStats } from "../../util/migrations";
 import { SourceData } from "../../source-template";
 import { PackedNpcClassData, PackedSkillData } from "../../util/unpacking/packed-types";
-import { LancerDataModel, LIDField, UnpackContext } from "../shared";
+import { LancerDataModel, LIDField, NpcStatBlockField, UnpackContext } from "../shared";
 import { template_universal_item } from "./shared";
 
 const fields: any = foundry.data.fields;
 
-// @ts-ignore
-export class NpcClassModel extends LancerDataModel {
+export class NpcClassModel extends LancerDataModel<"NpcClassModel"> {
   static defineSchema() {
     return {
       role: new fields.StringField(),
@@ -15,9 +15,28 @@ export class NpcClassModel extends LancerDataModel {
       tactics: new fields.HTMLField(),
       base_features: new fields.ArrayField(new LIDField()),
       optional_features: new fields.ArrayField(new LIDField()),
-      base_stats: new fields.ArrayField(new fields.ObjectField()),
+      base_stats: new fields.ArrayField(new NpcStatBlockField({ nullable: false })),
       ...template_universal_item(),
     };
+  }
+
+  static migrateData(data: any) {
+    data.flavor ??= data.info?.flavor;
+    data.tactics ??= data.info?.tactics;
+
+    // Convert old regrefs
+    data.base_features = data.base_features?.map((bf: string | object) => regRefToLid(bf)).filter((x: any) => x);
+    data.optional_features = data.optional_features
+      ?.map((of: string | object) => regRefToLid(of))
+      .filter((x: any) => x);
+
+    // Invert stats
+    if (typeof data.base_stats == "object" && !Array.isArray(data.base_stats)) {
+      data.base_stats = convertNpcStats(data.base_stats);
+    }
+
+    // @ts-expect-error
+    return super.migrateData(data);
   }
 }
 
@@ -30,36 +49,6 @@ export function unpackNpcClass(
   type: EntryType.NPC_CLASS;
   system: DeepPartial<SourceData.NpcClass>;
 } {
-  let stats: SourceData.NpcClass["base_stats"] = [];
-  for (let i = 0; i < 3; i++) {
-    const giv = (key: string) => {
-      let x: number | number[] | number[][] = (data.stats as any)[key] ?? [0];
-      x = Array.isArray(x) ? x : [x];
-      x = x.length == 0 ? [0] : x;
-      let y = i >= x.length ? x[x.length - 1] : x[i];
-      let z = Array.isArray(y) ? y[0] : y;
-      return z;
-    };
-    stats.push({
-      activations: giv("activations"),
-      agi: giv("agility"),
-      armor: giv("armor"),
-      edef: giv("edef"),
-      eng: giv("engineering"),
-      evasion: giv("evade"),
-      heatcap: giv("heatcap"),
-      hp: giv("hp"),
-      hull: giv("hull"),
-      save: giv("save"),
-      sensor_range: giv("sensor"),
-      size: giv("size"),
-      speed: giv("speed"),
-      stress: giv("stress"),
-      structure: giv("structure"),
-      sys: giv("systems"),
-    });
-  }
-
   return {
     name: data.name,
     type: EntryType.NPC_CLASS,
@@ -70,7 +59,7 @@ export function unpackNpcClass(
       tactics: data.info.tactics,
       base_features: data.base_features,
       optional_features: data.optional_features,
-      base_stats: stats,
+      base_stats: convertNpcStats(data.stats),
     },
   };
 }

@@ -313,64 +313,8 @@ export class LancerItem extends Item {
     }
 
     console.log(`${lp} Initializing new ${this.type}`);
-    let default_data: SourceDataType<LancerItemType>;
-    switch (this.type) {
-      default:
-      case EntryType.CORE_BONUS:
-        default_data = defaults.CORE_BONUS();
-      case EntryType.FRAME:
-        default_data = defaults.FRAME();
-        break;
-      case EntryType.LICENSE:
-        default_data = defaults.LICENSE();
-        break;
-      case EntryType.MECH_SYSTEM:
-        default_data = defaults.MECH_SYSTEM();
-        break;
-      case EntryType.MECH_WEAPON:
-        default_data = defaults.MECH_WEAPON();
-        break;
-      case EntryType.NPC_CLASS:
-        default_data = defaults.NPC_CLASS();
-        break;
-      case EntryType.NPC_FEATURE:
-        default_data = defaults.NPC_FEATURE();
-        break;
-      case EntryType.NPC_TEMPLATE:
-        default_data = defaults.NPC_TEMPLATE();
-        break;
-      case EntryType.ORGANIZATION:
-        default_data = defaults.ORGANIZATION();
-        break;
-      case EntryType.PILOT_ARMOR:
-        default_data = defaults.PILOT_ARMOR();
-        break;
-      case EntryType.PILOT_GEAR:
-        default_data = defaults.PILOT_GEAR();
-        break;
-      case EntryType.PILOT_WEAPON:
-        default_data = defaults.PILOT_WEAPON();
-        break;
-      case EntryType.RESERVE:
-        default_data = defaults.RESERVE();
-        break;
-      case EntryType.SKILL:
-        default_data = defaults.SKILL();
-        break;
-      case EntryType.STATUS:
-        default_data = defaults.STATUS();
-        break;
-      case EntryType.TALENT:
-        default_data = defaults.TALENT();
-        break;
-      case EntryType.WEAPON_MOD:
-        default_data = defaults.WEAPON_MOD();
-        break;
-    }
-
     // @ts-expect-error Should be fixed with v10 types
     this.updateSource({
-      system: default_data,
       img: img,
       name: this.name ?? `New ${this.type}`,
     });

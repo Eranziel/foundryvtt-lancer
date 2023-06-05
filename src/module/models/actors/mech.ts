@@ -35,7 +35,7 @@ const mech_schema = {
   }),
   meltdown_timer: new fields.NumberField({ required: false, nullable: true, integer: true, min: 0 }),
   notes: new fields.HTMLField(),
-  pilot: new SyncUUIDRefField(),
+  pilot: new SyncUUIDRefField("Actor", { allowed_types: [EntryType.PILOT] }),
   ...template_universal_actor(),
   ...template_action_tracking(),
   ...template_heat(),
@@ -46,5 +46,28 @@ type MechSchema = typeof mech_schema;
 export class MechModel extends LancerDataModel<"MechModel"> {
   static defineSchema(): MechSchema {
     return mech_schema;
+  }
+
+  static migrateData(data: any) {
+    // Convert loadout
+    // If we don't already have a systems array attempt to convert a system_mounts array
+    if (Array.isArray(data.loadout?.system_mounts)) {
+      // Remap the var name + convert from regref + remove nulls
+      data.loadout.systems ??= data.loadout.system_mounts.map((s: any) => s?.system).filter((sm: any) => sm);
+    }
+
+    // Weapon mounts also pretty gnarly
+    if (Array.isArray(data.loadout?.weapon_mounts)) {
+      // First remove nulls
+      data.loadout.weapon_mounts = data.loadout.weapon_mounts.filter((wm: any) => wm); // Remove nulls if they exist
+      // Then process mount-by-mount
+      for (let wm of data.loadout.weapon_mounts) {
+        wm.type ??= wm?.mount_type; // type got renamed
+        wm.slots = wm.slots.filter((s: any) => s); // Remove nulls if they exist
+      }
+    }
+
+    // @ts-expect-error v11
+    return super.migrateData(data);
   }
 }
