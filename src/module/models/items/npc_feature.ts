@@ -95,7 +95,7 @@ export function unpackNpcFeature(
       effect: data.effect,
       bonus: data.bonus,
       override: data.override,
-      tags: data.tags.map(unpackTag),
+      tags: (data.tags || []).map(unpackTag),
       type: data.type,
 
       charged: undefined,

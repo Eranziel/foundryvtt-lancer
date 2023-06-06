@@ -344,12 +344,20 @@ export type SynergyLocation =
   | "rest"
   | "weapon"
   | "system"
+  | "deployable"
+  | "drone"
   | "move"
   | "boost"
   | "other"
   | "ram"
   | "grapple"
   | "tech_attack"
+  | "hp"
+  | "armor"
+  | "overshield"
+  | "structure"
+  | "heat"
+  | "stress"
   | "overcharge"
   | "skill_check"
   | "overwatch"
@@ -358,6 +366,8 @@ export type SynergyLocation =
   | "stabilize"
   | "tech"
   | "lock_on"
+  | "bolster"
+  | "hase"
   | "hull"
   | "agility"
   | "systems"
@@ -370,12 +380,20 @@ export const AllSynergyLocations = [
   "rest",
   "weapon",
   "system",
+  "deployable",
+  "drone",
   "move",
   "boost",
   "other",
   "ram",
   "grapple",
   "tech_attack",
+  "hp",
+  "armor",
+  "overshield",
+  "structure",
+  "heat",
+  "stress",
   "overcharge",
   "skill_check",
   "overwatch",
@@ -384,6 +402,8 @@ export const AllSynergyLocations = [
   "stabilize",
   "tech",
   "lock_on",
+  "bolster",
+  "hase",
   "hull",
   "agility",
   "systems",
