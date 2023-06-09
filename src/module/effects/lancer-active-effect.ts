@@ -63,7 +63,7 @@ export class LancerActiveEffect extends ActiveEffect {
     // Check right actor type
     // @ts-expect-error
     let tf = this.flags[game.system.id];
-    if (this.parent instanceof LancerActor && tf.target_type) {
+    if (this.parent instanceof LancerActor && tf?.target_type) {
       switch (tf.target_type) {
         case EntryType.PILOT:
           return this.parent.is_pilot();
