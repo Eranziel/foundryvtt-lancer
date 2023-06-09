@@ -128,8 +128,8 @@ export class EffectHelper {
         this._passdownEffectTracker.curr_value
       );
       changes.forEach(c => {
-        c.flags.lancer ??= {};
-        c.flags.lancer.deep_origin = c.origin;
+        c.flags[game.system.id] ??= {};
+        c.flags[game.system.id].deep_origin = c.origin;
         c.origin = this.actor.uuid;
       });
       await target.effectHelper.setEphemeralEffects(this.actor.uuid, changes);

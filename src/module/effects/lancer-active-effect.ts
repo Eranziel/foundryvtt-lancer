@@ -48,12 +48,6 @@ export interface LancerActiveEffectConstructorData extends ActiveEffectDataConst
 }
 
 export class LancerActiveEffect extends ActiveEffect {
-  get _typedFlags(): LancerActiveEffectFlags {
-    // TODO :remove this when flags are properly represented on effects
-    // @ts-expect-error
-    return this.flags;
-  }
-
   /**
    * Determine whether this Active Effect is suppressed or not.
    */
@@ -67,9 +61,10 @@ export class LancerActiveEffect extends ActiveEffect {
    */
   affectsUs(): boolean {
     // Check right actor type
-    let tf = this._typedFlags;
-    if (this.parent instanceof LancerActor && tf?.lancer?.target_type) {
-      switch (tf.lancer.target_type) {
+    // @ts-expect-error
+    let tf = this.flags[game.system.id];
+    if (this.parent instanceof LancerActor && tf.target_type) {
+      switch (tf.target_type) {
         case EntryType.PILOT:
           return this.parent.is_pilot();
         case EntryType.MECH:
@@ -122,12 +117,11 @@ export class LancerActiveEffect extends ActiveEffect {
     };
 
     // Iterate over active effects, classifying them into categories
-    for (let e of actor.effects.contents as LancerActiveEffect[]) {
+    for (let e of actor.allApplicableEffects()) {
       // e._getSourceName(); // Trigger a lookup for the source name
       if (!e.affectsUs()) passthrough.effects.push(e);
-      // @ts-expect-error
       else if (e.disabled) disabled.effects.push(e);
-      else if (e._typedFlags.lancer?.deep_origin) inherited.effects.push(e);
+      else if (e.flags[game.system.id]?.deep_origin) inherited.effects.push(e);
       else passives.effects.push(e);
     }
 
