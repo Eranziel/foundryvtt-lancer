@@ -279,7 +279,7 @@ export class LancerItem extends Item {
       bonus_effects.push(innate);
     }
 
-    return bonus_effects.map(e => new LancerActiveEffect(e));
+    return bonus_effects.map(e => new LancerActiveEffect(e, { parent: this }));
   }
 
   /** @inheritdoc */

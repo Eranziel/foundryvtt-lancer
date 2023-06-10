@@ -96,132 +96,137 @@ export function frameInnateEffect(frame: LancerFRAME): LancerActiveEffectConstru
  */
 export function pilotInnateEffect(pilot: LancerPILOT): LancerActiveEffect {
   // Bake GRIT+HASE into an active effect
-  return new LancerActiveEffect({
-    name: "Pilot Stats",
-    changes: [
-      // HASE
-      {
-        mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-        key: "system.hull",
-        priority: PILOT_STAT_PRIORITY,
-        // @ts-expect-error
-        value: pilot.system.hull,
-      },
-      {
-        mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-        key: "system.hp.max",
-        priority: PILOT_STAT_PRIORITY,
-        // @ts-expect-error
-        value: 2 * pilot.system.hull + pilot.system.grit,
-      },
-      {
-        mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-        key: "system.repairs.max",
-        priority: PILOT_STAT_PRIORITY,
-        // @ts-expect-error
-        value: Math.floor(pilot.system.hull / 2),
-      },
-      {
-        mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-        key: "system.agi",
-        priority: PILOT_STAT_PRIORITY,
-        // @ts-expect-error
-        value: pilot.system.agi,
-      },
-      {
-        mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-        key: "system.evasion",
-        priority: PILOT_STAT_PRIORITY,
-        // @ts-expect-error
-        value: pilot.system.agi,
-      },
-      {
-        mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-        key: "system.speed",
-        priority: PILOT_STAT_PRIORITY,
-        // @ts-expect-error
-        value: Math.floor(pilot.system.agi / 2),
-      },
-      {
-        mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-        key: "system.sys",
-        priority: PILOT_STAT_PRIORITY,
-        // @ts-expect-error
-        value: pilot.system.sys,
-      },
-      {
-        mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-        key: "system.edef",
-        priority: PILOT_STAT_PRIORITY,
-        // @ts-expect-error
-        value: pilot.system.sys,
-      },
-      {
-        mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-        key: "system.tech_attack",
-        priority: PILOT_STAT_PRIORITY,
-        // @ts-expect-error
-        value: pilot.system.sys,
-      },
-      {
-        mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-        key: "system.save",
-        priority: PILOT_STAT_PRIORITY,
-        // @ts-expect-error
-        value: pilot.system.grit,
-      },
-      {
-        mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-        key: "system.loadout.sp.max",
-        priority: PILOT_STAT_PRIORITY,
-        // @ts-expect-error
-        value: Math.floor(pilot.system.sys / 2) + pilot.system.grit,
-      },
-      {
-        mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-        key: "system.eng",
-        priority: PILOT_STAT_PRIORITY,
-        // @ts-expect-error
-        value: pilot.system.eng,
-      },
-      {
-        mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-        key: "system.heat.max",
-        priority: PILOT_STAT_PRIORITY,
-        // @ts-expect-error
-        value: pilot.system.eng,
-      },
-      {
-        mode: CONST.ACTIVE_EFFECT_MODES.ADD,
-        key: "system.loadout.limited_bonus",
-        priority: PILOT_STAT_PRIORITY,
-        // @ts-expect-error
-        value: Math.floor(pilot.system.eng / 2),
-      },
-      {
-        mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-        key: "system.grit",
-        priority: PILOT_STAT_PRIORITY,
-        // @ts-expect-error
-        value: pilot.system.grit,
-      },
-      // Bake the rest of the pilot source data into an active effect - TODO: Isolate to just counters or something
-      /*{
+  return new LancerActiveEffect(
+    {
+      name: "Pilot Stats",
+      changes: [
+        // HASE
+        {
+          mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+          key: "system.hull",
+          priority: PILOT_STAT_PRIORITY,
+          // @ts-expect-error
+          value: pilot.system.hull,
+        },
+        {
+          mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+          key: "system.hp.max",
+          priority: PILOT_STAT_PRIORITY,
+          // @ts-expect-error
+          value: 2 * pilot.system.hull + pilot.system.grit,
+        },
+        {
+          mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+          key: "system.repairs.max",
+          priority: PILOT_STAT_PRIORITY,
+          // @ts-expect-error
+          value: Math.floor(pilot.system.hull / 2),
+        },
+        {
+          mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+          key: "system.agi",
+          priority: PILOT_STAT_PRIORITY,
+          // @ts-expect-error
+          value: pilot.system.agi,
+        },
+        {
+          mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+          key: "system.evasion",
+          priority: PILOT_STAT_PRIORITY,
+          // @ts-expect-error
+          value: pilot.system.agi,
+        },
+        {
+          mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+          key: "system.speed",
+          priority: PILOT_STAT_PRIORITY,
+          // @ts-expect-error
+          value: Math.floor(pilot.system.agi / 2),
+        },
+        {
+          mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+          key: "system.sys",
+          priority: PILOT_STAT_PRIORITY,
+          // @ts-expect-error
+          value: pilot.system.sys,
+        },
+        {
+          mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+          key: "system.edef",
+          priority: PILOT_STAT_PRIORITY,
+          // @ts-expect-error
+          value: pilot.system.sys,
+        },
+        {
+          mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+          key: "system.tech_attack",
+          priority: PILOT_STAT_PRIORITY,
+          // @ts-expect-error
+          value: pilot.system.sys,
+        },
+        {
+          mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+          key: "system.save",
+          priority: PILOT_STAT_PRIORITY,
+          // @ts-expect-error
+          value: pilot.system.grit,
+        },
+        {
+          mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+          key: "system.loadout.sp.max",
+          priority: PILOT_STAT_PRIORITY,
+          // @ts-expect-error
+          value: Math.floor(pilot.system.sys / 2) + pilot.system.grit,
+        },
+        {
+          mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+          key: "system.eng",
+          priority: PILOT_STAT_PRIORITY,
+          // @ts-expect-error
+          value: pilot.system.eng,
+        },
+        {
+          mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+          key: "system.heat.max",
+          priority: PILOT_STAT_PRIORITY,
+          // @ts-expect-error
+          value: pilot.system.eng,
+        },
+        {
+          mode: CONST.ACTIVE_EFFECT_MODES.ADD,
+          key: "system.loadout.limited_bonus",
+          priority: PILOT_STAT_PRIORITY,
+          // @ts-expect-error
+          value: Math.floor(pilot.system.eng / 2),
+        },
+        {
+          mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+          key: "system.grit",
+          priority: PILOT_STAT_PRIORITY,
+          // @ts-expect-error
+          value: pilot.system.grit,
+        },
+        // Bake the rest of the pilot source data into an active effect - TODO: Isolate to just counters or something
+        /*{
         mode: AE_MODE_SET_JSON as any,
         key: "system.psd",
         // @ts-expect-error
         value: JSON.stringify(pilot.system.toObject()),
       }*/
-    ],
-    icon: pilot.img,
-    origin: pilot.uuid,
-    flags: {
-      lancer: {
-        target_type: EntryType.MECH,
-        ephemeral: true,
+      ],
+      icon: pilot.img,
+      origin: pilot.uuid,
+      flags: {
+        lancer: {
+          target_type: EntryType.MECH,
+          ephemeral: true,
+        },
       },
     },
-  });
+    {
+      parent: pilot,
+    }
+  );
 }
 
 /**

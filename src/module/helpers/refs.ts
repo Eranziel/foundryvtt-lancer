@@ -104,7 +104,8 @@ export async function click_evt_open_ref(event: any) {
   }
 }
 
-// Given a ref element (as created by simple_mm_ref or similar function), find the item it is currently referencing
+// Given a ref element (as created by simple_ref or similar function), find the item it is currently referencing
+// Has special logic for resolving ephemeral active effects
 export async function resolve_ref_element(
   elt: HTMLElement
 ): Promise<LancerItem | LancerActor | LancerActiveEffect | null> {
@@ -113,6 +114,20 @@ export async function resolve_ref_element(
   } else {
     let found = await fromUuid(elt.dataset.uuid);
     if (found && (found instanceof LancerItem || found instanceof LancerActor || found instanceof LancerActiveEffect)) {
+      // Special case for editing possibly-ephemeral effects
+      if (elt.dataset.activeEffectIndex) {
+        // The uuid provided is actually to the actor which has the active effect on it
+        // Look it up by index. Some are ephemeral, hence this circuitous route
+        let x = parseInt(elt.dataset.activeEffectIndex);
+        let i = 0;
+        for (let effect of (found as LancerActor).allApplicableEffects()) {
+          if (x == i) return effect;
+          i++;
+        }
+        return null;
+      }
+
+      // Otherwise just return the document
       return found;
     } else if (found) {
       console.warn(`Ref element pointed at a ${found.documentName} - unsupported`);

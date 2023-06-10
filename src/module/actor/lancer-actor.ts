@@ -386,7 +386,7 @@ export class LancerActor extends Actor {
     yield* super.allApplicableEffects();
 
     // Yield all inherited ephemeral effects
-    yield* this.effectHelper.ephemeralEffects();
+    yield* this.effectHelper.inheritedEffects();
 
     // Yield all items ephemeral effects
     for (let item of this.items.contents) {

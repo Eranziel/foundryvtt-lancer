@@ -93,36 +93,38 @@ export class LancerActiveEffect extends ActiveEffect {
    */
   static prepareActiveEffectCategories(
     actor: LancerActor
-  ): Array<{ type: string; label: string; effects: LancerActiveEffect[] }> {
+  ): Array<{ type: string; label: string; effects: [number, LancerActiveEffect][] }> {
     // Define effect header categories
     let passives = {
       type: "passive",
       label: game.i18n.localize("lancer.effect.categories.passive"),
-      effects: [] as LancerActiveEffect[],
+      effects: [] as [number, LancerActiveEffect][],
     };
     let inherited = {
       type: "inherited",
       label: game.i18n.localize("lancer.effect.categories.inherited"),
-      effects: [] as LancerActiveEffect[],
+      effects: [] as [number, LancerActiveEffect][],
     };
     let disabled = {
       type: "disabled",
       label: game.i18n.localize("lancer.effect.categories.disabled"),
-      effects: [] as LancerActiveEffect[],
+      effects: [] as [number, LancerActiveEffect][],
     };
     let passthrough = {
       type: "passthrough",
       label: game.i18n.localize("lancer.effect.categories.passthrough"),
-      effects: [] as LancerActiveEffect[],
+      effects: [] as [number, LancerActiveEffect][],
     };
 
     // Iterate over active effects, classifying them into categories
+    let index = 0;
     for (let e of actor.allApplicableEffects()) {
       // e._getSourceName(); // Trigger a lookup for the source name
-      if (!e.affectsUs()) passthrough.effects.push(e);
-      else if (e.disabled) disabled.effects.push(e);
-      else if (e.flags[game.system.id]?.deep_origin) inherited.effects.push(e);
-      else passives.effects.push(e);
+      if (!e.affectsUs()) passthrough.effects.push([index, e]);
+      else if (e.disabled) disabled.effects.push([index, e]);
+      else if (e.flags[game.system.id]?.deep_origin) inherited.effects.push([index, e]);
+      else passives.effects.push([index, e]);
+      index++;
     }
 
     // categories.suppressed.hidden = !categories.suppressed.effects.length;

@@ -63,12 +63,12 @@ export class EffectHelper {
   }
 
   // Generate activeffects based on our system.ephemeral_effect state
-  ephemeralEffects(): LancerActiveEffect[] {
+  inheritedEffects(): LancerActiveEffect[] {
     let results: LancerActiveEffect[] = [];
     let inherited_effects = (this.actor as LancerMECH).system.inherited_effects;
     if (inherited_effects) {
       for (let effect of inherited_effects.data) {
-        results.push(new LancerActiveEffect(effect));
+        results.push(new LancerActiveEffect(effect, { parent: this.actor }));
       }
     }
     return results;
