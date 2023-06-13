@@ -97,7 +97,7 @@ export class LancerItem extends Item {
     switch (this.type) {
       case EntryType.MECH_WEAPON:
         // @ts-expect-error Should be fixed with v10 types
-        const p = this.system.selected_profile;
+        const p = this.system.selected_profile_index;
         // @ts-expect-error Should be fixed with v10 types
         return this.system.profiles[p].range.filter(r => filter.has(r.type));
       case EntryType.PILOT_WEAPON:
@@ -147,7 +147,7 @@ export class LancerItem extends Item {
     // Collect all tags on mech weapons
     if (this.is_mech_weapon()) {
       this.system.all_tags = this.system.profiles.flatMap(p => p.tags);
-      this.system.active_profile = this.system.profiles[this.system.selected_profile] ?? this.system.profiles[0];
+      this.system.active_profile = this.system.profiles[this.system.selected_profile_index] ?? this.system.profiles[0];
     }
 
     // Talent apply unlocked items
@@ -243,14 +243,24 @@ export class LancerItem extends Item {
     if ((this as any).destroyed === true || !this.isEquipped()) return [];
 
     // Generate from bonuses + innate
-    let bonuses: BonusData[] = [];
+    let bonus_groups: {
+      group?: string;
+      bonuses: BonusData[];
+    }[] = [];
     let innate: LancerActiveEffectConstructorData | null = null;
     switch (this.type) {
       case EntryType.FRAME:
-        bonuses = [
-          ...(this as unknown as LancerFRAME).system.core_system.passive_bonuses,
-          ...(this as unknown as LancerFRAME).system.traits.flatMap(t => t.bonuses),
-        ];
+        let talf = this as unknown as LancerFRAME;
+        bonus_groups.push({
+          group: talf.system.core_system.passive_name || talf.system.core_system.name,
+          bonuses: talf.system.core_system.passive_bonuses,
+        });
+        for (let trait of talf.system.traits) {
+          bonus_groups.push({
+            group: trait.name,
+            bonuses: trait.bonuses,
+          });
+        }
         innate = frameInnate(this as unknown as LancerFRAME);
         break;
       case EntryType.NPC_CLASS:
@@ -263,16 +273,22 @@ export class LancerItem extends Item {
       case EntryType.WEAPON_MOD:
       case EntryType.CORE_BONUS:
       case EntryType.TALENT:
-        bonuses = (this as any).system.bonuses;
+        bonus_groups.push({ bonuses: (this as any).system.bonuses });
         break;
       case EntryType.MECH_WEAPON:
-        bonuses = (this as unknown as LancerMECH_WEAPON).system.active_profile.bonuses;
+        let tamw = this as unknown as LancerMECH_WEAPON;
+        bonus_groups.push({
+          group: tamw.system.active_profile.name || tamw.system.active_profile?.name,
+          bonuses: tamw.system.active_profile.bonuses,
+        });
         break;
     } // Nothing else needs particular care
 
     // Convert bonuses
-    let bonus_effects = bonuses
-      .map(b => convertBonus(this.uuid, `${this.name} - ${b.lid}`, b))
+    let bonus_effects = bonus_groups
+      .flatMap(bg =>
+        bg.bonuses.map(b => convertBonus(this.uuid, bg.group ? `${this.name} - ${bg.group}` : this.name!, b))
+      )
       .filter(b => b) as LancerActiveEffectConstructorData[];
 
     if (innate) {

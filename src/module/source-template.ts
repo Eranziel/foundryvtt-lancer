@@ -336,7 +336,7 @@ export namespace SourceData {
       counters: CounterData[];
     }>;
     loaded: false;
-    selected_profile: number;
+    selected_profile_index: number;
     size: WeaponSize;
     no_core_bonuses: boolean;
     no_mods: boolean;

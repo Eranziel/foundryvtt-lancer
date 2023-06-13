@@ -39,7 +39,7 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet<ItemShe
     if (this.item.is_mech_weapon()) {
       // @ts-ignore IDK if this even does anything
       // TODO Figure out if this even does anything
-      this.options.initial = `profile${this.item.system.selected_profile || 0}`;
+      this.options.initial = `profile${this.item.system.selected_profile_index}`;
     }
   }
 

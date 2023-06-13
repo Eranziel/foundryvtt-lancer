@@ -650,9 +650,9 @@ export function mech_weapon_display(weapon_path: string, mod_path: string | null
     for (let i = 0; i < weapon.system.profiles.length; i++) {
       let p = weapon.system.profiles[i];
       profiles += `<a class="gen-control weapon-profile ${
-        i === weapon.system.selected_profile ? "selected-profile" : ""
+        i === weapon.system.selected_profile_index ? "selected-profile" : ""
       }"
-data-action="set" data-action-value="(int)${i}" data-path="${weapon_path}.system.selected_profile">
+data-action="set" data-action-value="(int)${i}" data-path="${weapon_path}.system.selected_profile_index">
 <span class="minor">${p.name}</span>
 </a>`;
     }
@@ -663,12 +663,12 @@ data-action="set" data-action-value="(int)${i}" data-path="${weapon_path}.system
 
   // What profile are we using?
   let profile = weapon.system.active_profile;
-  let profile_path = `${weapon_path}.profiles.${weapon.system.selected_profile}`;
+  let profile_path = `${weapon_path}.profiles.${weapon.system.selected_profile_index}`;
 
   // Augment ranges
   /*
   if (mech) {
-    ranges = Range.CalcTotalRangeWithBonuses(weapon, weapon.system.selected_profile, mech, mod ?? undefined);
+    ranges = Range.CalcTotalRangeWithBonuses(weapon, weapon.system.selected_profile_index, mech, mod ?? undefined);
   }
 
   // Augment tags

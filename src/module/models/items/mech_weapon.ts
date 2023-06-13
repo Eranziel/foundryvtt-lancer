@@ -50,7 +50,7 @@ export class MechWeaponModel extends LancerDataModel {
         })
       ),
       loaded: new fields.BooleanField(),
-      selected_profile: new fields.NumberField({ nullable: false, initial: 0 }),
+      selected_profile_index: new fields.NumberField({ nullable: false, initial: 0 }),
       size: new fields.StringField({
         choices: Object.values(WeaponSize).concat("Ship-class" as unknown as WeaponSize),
         initial: WeaponSize.Main,
@@ -156,7 +156,7 @@ export function unpackMechWeapon(
       no_mods: data.no_mods,
       no_synergies: data.no_synergy,
       profiles,
-      selected_profile: 0,
+      selected_profile_index: 0,
       size: data.mount,
       sp: data.sp,
       uses: 0,
