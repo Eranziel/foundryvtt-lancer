@@ -518,18 +518,18 @@ export class LancerActor extends Actor {
     // If the Size of the ent has changed since the last update, set the
     // protype token size to the new size
     // @ts-expect-error System's broken
-    if (this.prototypeToken?.width !== this.system.size) {
-      // @ts-expect-error System's broken
-      const size = Math.max(1, this.system.size);
+    const expected_size = Math.max(1, this.system.size);
+    // @ts-expect-error System's broken
+    if (this.prototypeToken?.width !== expected_size) {
       // @ts-expect-error
       this.prototypeToken?.update({
-        width: size,
-        height: size,
+        width: expected_size,
+        height: expected_size,
         flags: {
           "hex-size-support": {
-            borderSize: size,
+            borderSize: expected_size,
             altSnapping: true,
-            evenSnap: !(size % 2),
+            evenSnap: !(expected_size % 2),
           },
         },
       });
