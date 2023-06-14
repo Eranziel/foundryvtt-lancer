@@ -81,7 +81,6 @@ export interface PackedSynergyData {
   weapon_types?: Array<WeaponType | "any"> | WeaponType | "any";
   weapon_sizes?: Array<WeaponSize | "any"> | WeaponSize | "any";
 }
-export type ISynergyData = PackedSynergyData;
 
 export interface PackedDeployableData {
   name: string;
@@ -111,7 +110,7 @@ export interface PackedDeployableData {
   resistances?: string[];
   actions?: PackedActionData[];
   bonuses?: PackedBonusData[];
-  synergies?: ISynergyData[];
+  synergies?: PackedSynergyData[];
   counters?: PackedCounterData[];
   tags?: PackedTagData[];
 }
@@ -161,7 +160,7 @@ export interface PackedReserveData {
   resource_cost: string;
   used: boolean;
   consumable: boolean;
-  synergies?: ISynergyData[];
+  synergies?: PackedSynergyData[];
   id: string;
   deployables?: PackedDeployableData[];
   counters?: PackedCounterData[];
@@ -433,7 +432,7 @@ export interface PackedCoreBonusData {
   effect: string; // v-html
   description: string; // v-html
   mounted_effect?: string;
-  synergies?: ISynergyData[];
+  synergies?: PackedSynergyData[];
   id: string;
   bonuses?: PackedBonusData[];
   deployables?: PackedDeployableData[];
@@ -487,12 +486,12 @@ export interface PackedCoreSystemData {
   //
   active_name: string;
   active_effect: string; // v-html
-  active_synergies: ISynergyData[];
+  active_synergies: PackedSynergyData[];
 
   // Basically the same but passives
   passive_name?: string;
   passive_effect?: string; // v-html,
-  passive_synergies?: ISynergyData[];
+  passive_synergies?: PackedSynergyData[];
 
   // And all the rest
   deployables?: PackedDeployableData[];
@@ -520,7 +519,7 @@ export interface PackedFrameTraitData {
   name: string;
   description: string; // v-html
   use?: FrameEffectUse;
-  synergies?: ISynergyData[];
+  synergies?: PackedSynergyData[];
   integrated?: string[];
   counters?: PackedCounterData[];
   deployables?: PackedDeployableData[];
@@ -547,7 +546,7 @@ export interface PackedMechWeaponData {
   on_crit?: string; // v-html
   actions?: PackedActionData[];
   bonuses?: PackedBonusData[];
-  synergies?: ISynergyData[];
+  synergies?: PackedSynergyData[];
   deployables?: PackedDeployableData[];
   counters?: PackedCounterData[];
   integrated?: string[];
@@ -576,7 +575,7 @@ export interface PackedMechSystemData {
   sp: number;
   description: string; // v-html
   effect: string; // v-html
-  synergies?: ISynergyData[];
+  synergies?: PackedSynergyData[];
 
   id: string;
   deployables?: PackedDeployableData[];
@@ -596,7 +595,7 @@ export interface PackedWeaponModData {
   license: string; // Frame Name
   license_level: number; // set to 0 to be available to all Pilots
   effect: string; // v-html
-  synergies?: ISynergyData[];
+  synergies?: PackedSynergyData[];
 
   id: string;
   source: string; // Manufacturer ID
@@ -624,7 +623,7 @@ interface AllPilotStuffPackedData {
   description: string;
   actions?: PackedActionData[]; // these are only available to UNMOUNTED pilots
   bonuses?: PackedBonusData[]; // these bonuses are applied to the pilot, not parent system
-  synergies?: ISynergyData[];
+  synergies?: PackedSynergyData[];
   deployables?: PackedDeployableData[];
   tags?: PackedTagInstanceData[];
 }
@@ -658,7 +657,7 @@ export interface PackedTalentRank {
   exclusive: boolean; // see below
   actions?: PackedActionData[];
   bonuses?: PackedBonusData[];
-  synergies?: ISynergyData[];
+  synergies?: PackedSynergyData[];
   deployables?: PackedDeployableData[];
   counters?: PackedCounterData[];
   integrated?: string[];
@@ -702,7 +701,6 @@ export type AnyPackedNpcFeatureData =
   | PackedNpcTraitData
   | PackedNpcWeaponData
   | PackedNpcSystemData
-  | PackedNpcWeaponData
   | PackedNpcReactionData;
 
 // Note: At present, just a raw implementation of the compcon method, which is due to be refactored at some point
@@ -771,18 +769,6 @@ export interface PackedNpcTemplateData {
   id: string;
   base_features: string[];
   optional_features: string[];
-}
-
-export interface PackedSkillData {
-  id: string;
-  name: string;
-  description: string; // terse, prefer fewest chars
-  detail: string; // v-html
-  family: SkillFamily;
-  rank?: number;
-  custom?: true;
-  custom_desc?: string;
-  custom_detail?: string;
 }
 
 export interface PackedStatusData {
