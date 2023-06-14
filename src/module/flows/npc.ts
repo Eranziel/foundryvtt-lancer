@@ -6,7 +6,7 @@ import { LancerItem, LancerNPC_FEATURE } from "../item/lancer-item";
 import { rollTextMacro } from "./text";
 import { NpcFeatureType } from "../enums";
 // import { prepareAttackMacro } from "./attack";
-import { prepareTechMacro } from "./tech";
+// import { prepareTechMacro } from "./tech";
 import { LancerFlowState } from "./interfaces";
 import { SystemTemplates } from "../system-template";
 import { rollReactionMacro } from "./reaction";
@@ -22,9 +22,9 @@ export async function prepareNPCFeatureMacro(
 
   switch (item.system.type) {
     case NpcFeatureType.Weapon:
-      if (!options?.display) return; // prepareAttackMacro(item);
+      if (!options?.display) return item.beginWeaponAttackFlow();
     case NpcFeatureType.Tech:
-      if (!options?.display) return prepareTechMacro(item);
+      if (!options?.display) return item.beginTechAttackFlow();
     case NpcFeatureType.System:
     case NpcFeatureType.Trait:
       let sysData: LancerFlowState.TextRollData = {

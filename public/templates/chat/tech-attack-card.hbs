@@ -10,11 +10,11 @@
     <div class="lancer-mini-header collapse-trigger" data-collapse-id="{{_uuid}}-attacks">
       {{localize "lancer.chat-card.title.attack"}}
     </div>
-    {{#each attacks as |attack key|}}
-      <div
-        class="dice-roll lancer-dice-roll collapse"
-        data-collapse-id="{{../_uuid}}-attacks"
-      >
+    {{#each attack_results as |attack key|}}
+    <div
+      class="dice-roll lancer-dice-roll collapse"
+      data-collapse-id="{{../_uuid}}-attacks"
+    >
       <div class="dice-result">
         <div class="dice-formula lancer-dice-formula flexrow">
           <span style="text-align: left; margin-left: 5px;">{{ attack.roll.formula }}</span>
@@ -28,10 +28,10 @@
     </div>
     {{/each}}
   </div>
-  {{#if hits}}
+  {{#if hit_results}}
   <div class="card clipped">
     <div class="lancer-mini-header collapse-trigger" data-collapse-id="{{_uuid}}-hits">{{localize "lancer.chat-card.title.e-defense-hit"}}</div>
-    {{#each hits as |hit key|}}
+    {{#each hit_results as |hit key|}}
     <div class="lancer-hit collapse" data-collapse-id="{{../_uuid}}-hits">
       <div>
         <img class="lancer-hit-thumb" src="{{hit.token.img}}" />

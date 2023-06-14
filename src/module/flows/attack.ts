@@ -1,7 +1,7 @@
 // Import TypeScript modules
 import { LANCER } from "../config";
 import { getAutomationOptions } from "../settings";
-import { LancerItem, LancerMECH_WEAPON, LancerNPC_FEATURE, LancerPILOT_WEAPON } from "../item/lancer-item";
+import { LancerItem } from "../item/lancer-item";
 import { LancerActor, LancerNPC } from "../actor/lancer-actor";
 import { checkForHit } from "../helpers/automation/targeting";
 import { AccDiffData, AccDiffDataSerialized, RollModifier } from "../helpers/acc_diff";
@@ -10,10 +10,8 @@ import { SystemTemplates } from "../system-template";
 import { SourceData, UUIDRef } from "../source-template";
 import { LancerFlowState } from "./interfaces";
 import { openSlidingHud } from "../helpers/slidinghud";
-import { Tag } from "../models/bits/tag";
 import { Flow, FlowState } from "./flow";
 import { AttackType, NpcFeatureType, RangeType, WeaponType } from "../enums";
-import { Range } from "../models/bits/range";
 
 const lp = LANCER.log_prefix;
 
@@ -113,10 +111,10 @@ export class WeaponAttackFlow extends Flow<LancerFlowState.WeaponRollData> {
     }
 
     this.steps.set("initAttackData", initAttackData);
-    this.steps.set("checkWeaponDestroyed", checkItemDestroyed);
+    this.steps.set("checkItemDestroyed", checkItemDestroyed);
     this.steps.set("checkWeaponLoaded", checkWeaponLoaded);
-    this.steps.set("checkWeaponLimited", checkItemLimited);
-    this.steps.set("checkWeaponCharged", checkItemCharged);
+    this.steps.set("checkItemLimited", checkItemLimited);
+    this.steps.set("checkItemCharged", checkItemCharged);
     this.steps.set("setAttackTags", setAttackTags);
     this.steps.set("setAttackEffects", setAttackEffects);
     this.steps.set("setAttackTargets", setAttackTargets);
@@ -149,13 +147,15 @@ export async function initAttackData(
   if (!state.data) throw new TypeError(`Attack flow state missing!`);
   // If we only have an actor, it's a basic attack
   if (!state.item) {
-    state.data.title = options?.title ?? "BASIC ATTACK";
-    state.data.attack_type = AttackType.Melee; // Virtually all basic attacks are melee, so it's a good default
+    const isTech = state.data.type === "tech";
+    const defaultTitle = isTech ? "TECH ATTACK" : "BASIC ATTACK";
+    state.data.title = options?.title ?? defaultTitle;
+    state.data.attack_type = isTech ? AttackType.Tech : AttackType.Melee; // Virtually all basic attacks are melee, so it's a good default
     state.data.flat_bonus = 0;
     if (state.actor.is_pilot() || state.actor.is_mech()) {
-      state.data.flat_bonus = state.actor.system.grit;
+      state.data.flat_bonus = isTech ? state.actor.system.tech_attack : state.actor.system.grit;
     } else if (state.actor.is_npc()) {
-      state.data.flat_bonus = state.actor.system.tier;
+      state.data.flat_bonus = isTech ? state.actor.system.sys : state.actor.system.tier;
     }
     // TODO: check bonuses for flat attack bonus
     state.data.acc_diff = options?.acc_diff
@@ -176,11 +176,27 @@ export async function initAttackData(
       }
       let profile = state.item.system.active_profile;
       state.data.attack_type = profile.type === WeaponType.Melee ? AttackType.Melee : AttackType.Ranged;
-      state.data.flat_bonus = state.actor.system.pilot?.value.system.grit;
+      state.data.flat_bonus = state.actor.system.grit;
       // TODO: check bonuses for flat attack bonus
       state.data.acc_diff = options?.acc_diff
         ? AccDiffData.fromObject(options.acc_diff)
         : AccDiffData.fromParams(state.item, profile.tags, state.data.title, Array.from(game.user!.targets));
+      return true;
+    } else if (state.item.is_mech_system()) {
+      // Tech attack system
+      if (!state.actor.is_mech()) {
+        ui.notifications?.warn("Non-mech cannot use a mech system!");
+        return false;
+      }
+      if (!state.actor.system.pilot?.value) {
+        ui.notifications?.warn("Cannot use a system on a non-piloted mech!");
+        return false;
+      }
+      state.data.flat_bonus = state.actor.system.tech_attack;
+      // TODO: check bonuses for flat attack bonus
+      state.data.acc_diff = options?.acc_diff
+        ? AccDiffData.fromObject(options.acc_diff)
+        : AccDiffData.fromParams(state.item, state.item.system.tags, state.data.title, Array.from(game.user!.targets));
       return true;
     } else if (state.item.is_npc_feature()) {
       if (!state.actor.is_npc()) {
@@ -218,7 +234,7 @@ export async function initAttackData(
         : AccDiffData.fromParams(state.item, state.item.system.tags, state.data.title, Array.from(game.user!.targets));
       return true;
     }
-    ui.notifications!.error(`Error in attack flow - ${state.item.name} is an unknown type!`);
+    ui.notifications!.error(`Error in attack flow - ${state.item.name} is an invalid type!`);
     return false;
   }
 }
@@ -311,12 +327,11 @@ export async function checkItemCharged(
   }
   if (!state.item.is_npc_feature()) return true; // Recharge only applies to NPC features
 
-  // TODO: check for recharge tag first
-  if (!state.item.system.charged) {
+  if (state.item.isRecharge() && !state.item.system.charged) {
     if (state.item.system.type !== NpcFeatureType.Weapon) {
-      ui.notifications!.warn(`System ${state.item.name} has no remaining uses!`);
+      ui.notifications!.warn(`System ${state.item.name} has not recharged!`);
     } else {
-      ui.notifications!.warn(`Weapon ${state.item.name} has no remaining uses!`);
+      ui.notifications!.warn(`Weapon ${state.item.name} has not recharged!`);
     }
     return false;
   }
@@ -337,6 +352,9 @@ export async function setAttackTags(
   if (state.item.is_mech_weapon()) {
     let profile = state.item.system.active_profile;
     state.data.tags = [...(profile.tags ?? []), ...(profile.bonus_tags ?? [])];
+    success = true;
+  } else if (state.item.is_mech_system()) {
+    state.data.tags = state.item.system.tags;
     success = true;
   } else if (state.item.is_npc_feature()) {
     let asWeapon = state.item.system as SystemTemplates.NPC.WeaponData;
@@ -375,6 +393,9 @@ export async function setAttackEffects(
     state.data.on_attack = profile.on_attack;
     state.data.on_hit = profile.on_hit;
     state.data.on_crit = profile.on_crit;
+    return true;
+  } else if (state.item.is_mech_system()) {
+    state.data.effect = state.item.system.effect;
     return true;
   } else if (state.item.is_npc_feature()) {
     let asWeapon = state.item.system as SystemTemplates.NPC.WeaponData;
@@ -420,8 +441,9 @@ export async function rollAttacks(
   options?: {}
 ): Promise<boolean> {
   if (!state.data) throw new TypeError(`Attack flow state missing!`);
+  if (!state.data.acc_diff) throw new TypeError(`Accuracy/difficulty data missing!`);
 
-  state.data.attack_rolls = attackRolls(state.data.flat_bonus, state.data.acc_diff!);
+  state.data.attack_rolls = attackRolls(state.data.flat_bonus, state.data.acc_diff);
 
   if (getAutomationOptions().attacks && state.data.attack_rolls.targeted.length > 0) {
     let data = await Promise.all(
@@ -584,6 +606,8 @@ export async function updateItemAfterAttack(
     let item_changes: DeepPartial<SourceData.MechWeapon | SourceData.NpcFeature | SourceData.PilotWeapon> = {};
     if (state.item.isLoading()) item_changes.loaded = false;
     if (state.item.isLimited()) item_changes.uses = Math.max(state.item.system.uses.value - 1, 0);
+    if (state.item.is_npc_feature() && state.item.isRecharge())
+      (item_changes as DeepPartial<SourceData.NpcFeature>).charged = false;
     await state.item.update({ system: item_changes });
   }
   return true;

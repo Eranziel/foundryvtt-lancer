@@ -1,4 +1,5 @@
 // Import TypeScript modules
+import { LANCER } from "../config";
 import { getAutomationOptions } from "../settings";
 import { LancerItem } from "../item/lancer-item";
 import type { LancerDEPLOYABLE } from "../actor/lancer-actor";
@@ -6,12 +7,13 @@ import type { AccDiffDataSerialized } from "../helpers/acc_diff";
 import { buildActionHTML, buildDeployableHTML } from "../helpers/item";
 import { ActivationOptions, ActivationType } from "../enums";
 import { createChatMessageStep, renderTemplateStep } from "./_render";
-import { prepareTechMacro, rollTechMacro } from "./tech";
 import { resolve_dotpath } from "../helpers/commons";
 import { ActionData } from "../models/bits/action";
 import { lookupOwnedDeployables } from "../util/lid";
 import { LancerFlowState } from "./interfaces";
 import { prepareTextMacro } from "./text";
+
+const lp = LANCER.log_prefix;
 
 /**
  * Dispatch wrapper for the "action chips" on the bottom of many items, traits, systems, and so on.
@@ -35,9 +37,9 @@ export async function prepareActivationMacro(item: string | LancerItem, type: Ac
     let action = resolve_dotpath<ActionData>(item, path);
     if (action) {
       if (action.tech_attack || action.activation == ActivationType.Invade) {
-        await prepareTechMacro(item.uuid, {
-          action_path: path,
-        });
+        // TODO: differentiate between tech attacks and invasions
+        // TODO: insert the action name into the title
+        await item.beginTechAttackFlow();
       } else {
         await prepareTextMacro(item.actor, action.name ?? item.name, buildActionHTML(item, path));
       }
@@ -71,9 +73,10 @@ async function prepareTechActionMacro(item: LancerItem, path: string) {
     effect: action.detail,
     tags: item.is_mech_system() ? item.system.tags : [],
   };
-  prepareTechMacro(item.uuid);
+  console.log(`${lp} Tech Action - deprecate or refactor to use a flow`);
+  // prepareTechMacro(item.uuid);
 
-  await rollTechMacro(mData);
+  // await rollTechMacro(mData);
 }
 
 async function prepareDeployableMacro(item: LancerItem, path: string) {

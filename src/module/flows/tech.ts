@@ -2,163 +2,174 @@
 import { LANCER } from "../config";
 import { LancerActor, LancerMECH, LancerNPC } from "../actor/lancer-actor";
 import { AccDiffData, AccDiffDataSerialized } from "../helpers/acc_diff";
-import { encodeMacroData } from "./encode";
-import { resolveItemOrActor } from "./util";
 import { renderTemplateStep } from "./_render";
-import { attackRolls } from "./attack";
+import {
+  applySelfHeat,
+  checkItemCharged,
+  checkItemDestroyed,
+  checkItemLimited,
+  rollAttacks,
+  setAttackEffects,
+  setAttackTags,
+  setAttackTargets,
+  showAttackHUD,
+  updateItemAfterAttack,
+} from "./attack";
 import { SystemTemplates } from "../system-template";
 import { LancerFlowState } from "./interfaces";
-import { openSlidingHud } from "../helpers/slidinghud";
 import { LancerItem } from "../item/lancer-item";
 import { ActionData } from "../models/bits/action";
 import { resolve_dotpath } from "../helpers/commons";
 import { ActivationType, AttackType } from "../enums";
-import { Tag } from "../models/bits/tag";
+import { Flow, FlowState } from "./flow";
+import { UUIDRef } from "../source-template";
 
 const lp = LANCER.log_prefix;
 
-export async function prepareTechMacro(
-  docUUID: string | LancerActor | LancerItem,
-  options?: {
-    action_path?: string;
-  }
-) {
-  // Determine provided doc
-  let { item, actor } = resolveItemOrActor(docUUID);
-  if (!actor) return;
-
-  let mData: Partial<LancerFlowState.AttackRollData>;
-  let acc_diff: AccDiffData;
-  if (actor && !item) {
-    // If we weren't passed an item assume generic "basic tech attack" roll
-    // TODO: make an actual flow to this that lets people pick an action/invade/item
-
-    if (!(actor.is_mech() || actor.is_npc())) {
-      ui.notifications!.error(`Error rolling tech attack macro (not a valid tech attacker).`);
-      return;
-    }
-    let acc = actor.is_mech() && actor.system.loadout.frame?.value?.system.lid == "mf_goblin" ? 1 : 0;
-    acc_diff = AccDiffData.fromParams(actor, [], "BASIC TECH", Array.from(game.user!.targets), acc);
-    mData = {
-      // docUUID: actor.uuid,
-      title: "BASIC TECH",
-      flat_bonus: actor.system.tech_attack,
-      tags: [],
-      attack_type: AttackType.Tech,
+export class TechAttackFlow extends Flow<LancerFlowState.TechAttackRollData> {
+  constructor(uuid: UUIDRef | LancerItem | LancerActor, data?: Partial<LancerFlowState.TechAttackRollData>) {
+    // Initialize data if not provided
+    const initialData: LancerFlowState.TechAttackRollData = {
+      type: "tech",
+      title: data?.title || "",
+      roll_str: data?.roll_str || "",
+      flat_bonus: data?.flat_bonus || 0,
+      attack_type: data?.attack_type || AttackType.Tech,
+      is_smart: true, // Tech attacks always target e-def
+      invade: data?.invade || false,
+      attack_rolls: data?.attack_rolls || { roll: "", targeted: [] },
+      attack_results: data?.attack_results || [],
+      hit_results: data?.hit_results || [],
+      damage_results: data?.damage_results || [],
+      crit_damage_results: data?.crit_damage_results || [],
+      reroll_data: data?.reroll_data || "",
+      tags: data?.tags || [],
     };
-  } else if (item) {
-    // Get the item
-    if (item.is_npc_feature()) {
-      // NPC features don't really have explicit actions
-      let tier_index: number = (item.system.tier_override || (item.actor as LancerNPC).system.tier) - 1;
 
-      if (item.system.tags.some(t => t.is_recharge) && !item.system.charged) {
-        ui.notifications!.warn(`Feature ${item.name} is not charged!`);
-        return;
+    super("TechAttackFlow", uuid, initialData);
+
+    this.steps.set("initTechAttackData", initTechAttackData);
+    this.steps.set("checkItemDestroyed", checkItemDestroyed);
+    this.steps.set("checkItemLimited", checkItemLimited);
+    this.steps.set("checkItemCharged", checkItemCharged);
+    this.steps.set("setAttackTags", setAttackTags);
+    this.steps.set("setAttackEffects", setAttackEffects);
+    this.steps.set("setAttackTargets", setAttackTargets);
+    this.steps.set("showAttackHUD", showAttackHUD);
+    this.steps.set("rollAttacks", rollAttacks);
+    // TODO: do we need a damage step for tech attacks?
+    // this.steps.set("rollDamages", rollDamages);
+    // TODO: pick invade option for each hit?
+    // this.steps.set("pickInvades", pickInvades);
+    this.steps.set("applySelfHeat", applySelfHeat);
+    this.steps.set("updateItemAfterAttack", updateItemAfterAttack);
+    this.steps.set("printTechAttackCard", printTechAttackCard);
+  }
+}
+
+export async function initTechAttackData(
+  state: FlowState<LancerFlowState.TechAttackRollData>,
+  options?: { title?: string; flat_bonus?: number; acc_diff?: AccDiffDataSerialized; action_path?: string }
+): Promise<boolean> {
+  if (!state.data) throw new TypeError(`Tech attack flow state missing!`);
+  // TODO: is there a bonus we can check for this type of effect?
+  // Add 1 accuracy for all you goblins
+  let acc = state.actor.is_mech() && state.actor.system.loadout.frame?.value?.system.lid == "mf_goblin" ? 1 : 0;
+  // If we only have an actor, it's a basic attack
+  if (!state.item) {
+    if (!state.actor.is_mech() && !state.actor.is_npc()) {
+      ui.notifications!.error(`Error rolling tech attack macro (not a valid tech attacker).`);
+      return false;
+    }
+    state.data.title = options?.title ?? "TECH ATTACK";
+    state.data.attack_type = AttackType.Tech;
+    state.data.flat_bonus = 0;
+    if (state.actor.is_pilot() || state.actor.is_mech()) {
+      state.data.flat_bonus = state.actor.system.tech_attack;
+    } else if (state.actor.is_npc()) {
+      state.data.flat_bonus = state.actor.system.sys;
+    }
+    state.data.acc_diff = options?.acc_diff
+      ? AccDiffData.fromObject(options.acc_diff)
+      : AccDiffData.fromParams(state.actor, [], state.data.title, Array.from(game.user!.targets));
+    return true;
+  } else {
+    // This title works for everything
+    state.data.title = options?.title ?? state.item.name!;
+    // All of these are tech attacks by definition
+    state.data.attack_type = AttackType.Tech;
+    if (state.item.is_npc_feature()) {
+      if (!state.actor.is_npc()) {
+        ui.notifications?.warn("Non-NPC cannot use an NPC system!");
+        return false;
+      }
+      let tier_index: number = state.item.system.tier_override || state.actor.system.tier - 1;
+      let asTech = state.item.system as SystemTemplates.NPC.TechData;
+      acc = asTech.accuracy[tier_index] ?? 0;
+      state.data.flat_bonus = asTech.attack_bonus[tier_index] ?? 0;
+      state.data.acc_diff = options?.acc_diff
+        ? AccDiffData.fromObject(options.acc_diff)
+        : AccDiffData.fromParams(state.item, asTech.tags, state.data.title, Array.from(game.user!.targets), acc);
+      return true;
+    } else if (state.item.is_mech_system()) {
+      // Tech attack system
+      if (!state.actor.is_mech()) {
+        ui.notifications?.warn("Non-mech cannot use a mech system!");
+        return false;
+      }
+      if (!state.actor.system.pilot?.value) {
+        ui.notifications?.warn("Cannot use a system on a non-piloted mech!");
+        return false;
       }
 
-      let sys = item.system as SystemTemplates.NPC.TechData;
-      let acc = sys.accuracy[tier_index] ?? 0;
-      acc_diff = AccDiffData.fromParams(item, item.getTags() ?? [], item.name!, Array.from(game.user!.targets), acc);
-      mData = {
-        // docUUID: item.uuid,
-        title: item.name!,
-        attack_type: AttackType.Tech, //sys.tech_type,
-        flat_bonus: sys.attack_bonus[tier_index] ?? 0,
-        tags: sys.tags ?? undefined,
-        effect: sys.effect,
-      };
-    } else {
       // Get the action if possible
       let action: ActionData | null = null;
       if (options?.action_path) {
-        action = resolve_dotpath(item, options.action_path);
+        action = resolve_dotpath(state.item, options.action_path);
       }
+      state.data.flat_bonus = state.actor.system.tech_attack;
+      state.data.tags = state.item.getTags() ?? undefined;
       if (action) {
         // Use the action data
-        mData = {
-          // docUUID: item.uuid,
-          title: action.name == ActivationType.Invade ? `INVADE // ${action.name}` : action.name,
-          attack_type: AttackType.Tech,
-          effect: action.detail,
-          flat_bonus: (item.actor as LancerMECH).system.tech_attack,
-          tags: item.getTags() ?? undefined,
-        };
-      } else if (item.is_mech_system()) {
-        // Use the system effect as a fallback
-        mData = {
-          // docUUID: item.uuid,
-          title: item.name!,
-          attack_type: AttackType.Tech,
-          effect: item.system.effect,
-          flat_bonus: (item.actor as LancerMECH).system.tech_attack,
-          tags: item.getTags() ?? undefined,
-        };
+        state.data.title = action.name == ActivationType.Invade ? `INVADE // ${action.name}` : action.name;
+        state.data.effect = action.detail;
       } else {
-        ui.notifications!.error(
-          `Error rolling tech attack macro - not the appropriate way of invoking this type of item, probably`
-        );
-        return;
+        // Use the system effect as a fallback
+        state.data.title = state.item.name!;
+        state.data.effect = state.item.system.effect;
       }
-      acc_diff = AccDiffData.fromParams(item, item.getTags() ?? [], mData.title, Array.from(game.user!.targets));
+
+      // TODO: check bonuses for flat attack bonus
+      state.data.acc_diff = options?.acc_diff
+        ? AccDiffData.fromObject(options.acc_diff)
+        : AccDiffData.fromParams(
+            state.item,
+            state.item.system.tags,
+            state.data.title,
+            Array.from(game.user!.targets),
+            acc
+          );
+      return true;
     }
-    console.log(`${lp} Tech Attack Macro Item:`, item, mData);
-  } else {
-    return;
+    ui.notifications!.error(`Error in tech attack flow - ${state.item.name} is an invalid type!`);
+    return false;
   }
-
-  // Summon prompt
-  acc_diff = await openSlidingHud("attack", acc_diff);
-  // mData.acc_diff = acc_diff.toObject();
-
-  // Un-charge
-  if (item && item.is_npc_feature() && item.system.tags.some(t => t.is_recharge)) {
-    await item.update({ "system.charged": false });
-  }
-
-  await rollTechMacro(mData as LancerFlowState.AttackRollData);
 }
 
-export async function rollTechMacro(data: LancerFlowState.AttackRollData, reroll: boolean = false) {
-  // Get actor
-  // let { actor } = resolveItemOrActor(data.docUUID);
-  let actor = undefined;
-  if (!actor) return;
-
-  // Populate and possibly regenerate ADD if reroll
-  // let add = AccDiffData.fromObject(data.acc_diff);
-  let add = data.acc_diff!;
-  if (reroll) {
-    // Re-prompt
-    add.replaceTargets(Array.from(game!.user!.targets));
-    add = await openSlidingHud("attack", add);
-    // data.acc_diff = add.toObject();
-  }
-
-  let rerollInvocation: LancerFlowState.InvocationData = {
-    title: "RollMacro",
-    fn: "rollTechMacro",
-    args: [data, true],
+export async function printTechAttackCard(
+  state: FlowState<LancerFlowState.TechAttackRollData>,
+  options?: { template?: string }
+): Promise<boolean> {
+  if (!state.data) throw new TypeError(`Tech attack flow state missing!`);
+  const template = options?.template || `systems/${game.system.id}/templates/chat/tech-attack-card.hbs`;
+  const flags = {
+    attackData: {
+      origin: state.actor.id,
+      targets: state.data.attack_rolls.targeted.map(t => {
+        return { id: t.target.id, lockOnConsumed: !!t.usedLockOn };
+      }),
+    },
   };
-
-  let atkRolls = attackRolls(data.flat_bonus, add);
-  if (!atkRolls) return;
-
-  // TODO: use rollAttacks from ./attacks
-  // const { attacks, hits } = await checkTargets(atkRolls, true); // true = all tech attacks are "smart"
-  const attacks: any = [];
-  const hits: any = [];
-
-  // Output
-  const templateData = {
-    title: data.title,
-    attacks: attacks,
-    hits: hits,
-    effect: data.effect ? data.effect : null,
-    tags: data.tags?.map(t => new Tag(t)) ?? [],
-    rerollMacroData: encodeMacroData(rerollInvocation),
-  };
-
-  const template = `systems/${game.system.id}/templates/chat/tech-attack-card.hbs`;
-  return await renderTemplateStep(actor, template, templateData);
+  await renderTemplateStep(state.actor, template, state.data, flags);
+  return true;
 }

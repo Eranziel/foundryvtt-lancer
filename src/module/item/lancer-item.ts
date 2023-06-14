@@ -18,6 +18,7 @@ import { ChangeWatchHelper } from "../util/misc";
 import { LancerMECH } from "../actor/lancer-actor";
 import { Damage } from "../models/bits/damage";
 import { WeaponAttackFlow } from "../flows/attack";
+import { TechAttackFlow } from "../flows/tech";
 
 const lp = LANCER.log_prefix;
 
@@ -444,6 +445,10 @@ export class LancerItem extends Item {
     return (this.getTags() ?? []).some(t => t.is_loading);
   }
 
+  isRecharge(): boolean {
+    return (this.getTags() ?? []).some(t => t.is_recharge);
+  }
+
   // Returns true & type information if this item has action data
   hasActions(): this is { system: { actions: ActionData[] } } {
     return (this as any).system.actions !== undefined;
@@ -497,6 +502,16 @@ export class LancerItem extends Item {
     const flow = new WeaponAttackFlow(this);
     await flow.begin();
     console.log("Finished attack flow");
+  }
+
+  async beginTechAttackFlow() {
+    if (!this.is_mech_system() && !this.is_npc_feature()) {
+      ui.notifications!.error(`Item ${this.id} cannot attack as it is not a system!`);
+      return;
+    }
+    const flow = new TechAttackFlow(this);
+    await flow.begin();
+    console.log("Finished tech attack flow");
   }
 }
 
