@@ -192,6 +192,7 @@ export namespace SourceData {
       evasion: number;
       heatcap: number;
       hp: number;
+      grit_hp: boolean;
       save: number;
       size: number;
       speed: number;
