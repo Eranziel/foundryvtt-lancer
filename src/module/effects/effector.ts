@@ -191,7 +191,7 @@ export class EffectHelper {
   }
 
   findEffect(effect: string): LancerActiveEffect | null {
-    // @ts-expect-error Should be fixed with v10 types
-    return this.actor.effects.find(eff => eff.flags.core?.statusId?.endsWith(effect) ?? false) ?? null;
+    // @ts-expect-error Should be fixed with v11 types
+    return this.actor.effects.find(eff => eff.statuses.some((name: string) => name.includes(effect)));
   }
 }

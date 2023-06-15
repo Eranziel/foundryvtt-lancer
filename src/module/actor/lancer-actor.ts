@@ -91,7 +91,8 @@ export class LancerActor extends Actor {
     }
 
     // Step 1: Exposed doubles non-burn, non-heat damage
-    if (this.effectHelper.findEffect("exposed")) {
+    // @ts-expect-error v11
+    if (this.system.statuses.exposed) {
       armored_damage_types.forEach(d => (damage[d] *= 2));
     }
 
@@ -101,7 +102,8 @@ export class LancerActor extends Actor {
      * Armor reduction may favor attacker or defender depending on automation.
      * Default is "favors defender".
      */
-    if (!paracausal && !this.effectHelper.findEffect("shredded")) {
+    // @ts-expect-error v11
+    if (!paracausal && !this.system.statuses.shredded) {
       const defense_favor = true; // getAutomationOptions().defenderArmor
       // @ts-expect-error System's broken
       const resist_armor_damage = armored_damage_types.filter(t => this.system.resistances[t.toLowerCase()]);
@@ -233,15 +235,7 @@ export class LancerActor extends Actor {
     };
     */
 
-    // 3. Query effects to set status flags
-    for (let eff of this.effects) {
-      let status_id = (eff.getFlag("core", "statusId") ?? null) as null | keyof typeof sys.statuses;
-      if (status_id && sys.statuses[status_id] === false) {
-        sys.statuses[status_id] = true;
-      }
-    }
-
-    // 4. Establish type specific attributes / perform type specific prep steps
+    // 3. Establish type specific attributes / perform type specific prep steps
     // HASE is pretty generic. All but pilot need defaults - pilot gets from source
     if (this.is_mech() || this.is_deployable() || this.is_npc()) {
       this.system.hull = 0;
