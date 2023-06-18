@@ -11,20 +11,35 @@
   {{!-- Sheet Body --}}
   <div class="flexcol">
     {{!-- major ideals --}}
-    <div class="card">
+    <div class="card clipped">
       <div class="lancer-header">MAJOR IDEALS</div>
-        {{{std-string-input "system.major_ideals.0" label=""}}}
-        {{{std-string-input "system.major_ideals.0" label=""}}}
-        {{{std-string-input "system.major_ideals.0" label=""}}}
+      <ul>
+        {{#each system.major_ideals}}
+          <li>{{{std-string-input (concat "system.major_ideals." @index) classes="lancer-text-field"}}}</li>
+        {{/each}}
+      </ul>
     </div>
     {{!-- minor ideals --}}
-    <div class="card">
+    <div class="card clipped">
       <div class="lancer-header">MINOR IDEALS</div>
-        {{{std-string-input "system.minor_ideals.0" label=""}}}
-        {{{std-string-input "system.minor_ideals.0" label=""}}}
-        {{{std-string-input "system.minor_ideals.0" label=""}}}
+      <ul>
+        {{#each system.minor_ideals}}
+          <li>{{{std-string-input (concat "system.minor_ideals." @index) classes="lancer-text-field"}}}</li>
+        {{/each}}
+      </ul>
     </div>
     {{!-- questions --}}
+    <div class="card clipped">
+      <div class="lancer-header">QUESTIONS</div>
+      {{#each system.questions as |question|}}
+        {{{std-string-input (concat "system.questions." (concat @index ".question")) classes="lancer-text-field"}}}
+        <ul>
+        {{#each question.options as |option|}}
+          <li>{{{std-string-input (concat "system.questions." (concat @../index (concat ".options." @index))) classes="lancer-text-field"}}}</li>
+        {{/each}}
+        </ul>
+      {{/each}}
+    </div>
     {{!-- powers --}}
   </div>
 </form>
