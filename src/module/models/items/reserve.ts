@@ -1,6 +1,5 @@
 import { EntryType, ReserveType } from "../../enums";
 import { restrict_enum } from "../../helpers/commons";
-import { dataTransfer } from "../../helpers/slidinghud/is-dragging";
 import { SourceData } from "../../source-template";
 import { PackedReserveData } from "../../util/unpacking/packed-types";
 import { unpackDeployable } from "../actors/deployable";

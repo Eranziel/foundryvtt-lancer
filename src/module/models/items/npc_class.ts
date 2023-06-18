@@ -1,7 +1,7 @@
 import { EntryType } from "../../enums";
 import { regRefToLid, convertNpcStats } from "../../util/migrations";
 import { SourceData } from "../../source-template";
-import { PackedNpcClassData, PackedSkillData } from "../../util/unpacking/packed-types";
+import { PackedNpcClassData } from "../../util/unpacking/packed-types";
 import { LancerDataModel, LIDField, NpcStatBlockField, UnpackContext } from "../shared";
 import { template_universal_item } from "./shared";
 

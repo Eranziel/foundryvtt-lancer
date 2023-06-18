@@ -11,13 +11,7 @@ import { RangeField, unpackRange } from "../bits/range";
 import { SynergyField, unpackSynergy } from "../bits/synergy";
 import { TagField, unpackTag } from "../bits/tag";
 import { LancerDataModel, LIDField, UnpackContext } from "../shared";
-import {
-  template_universal_item,
-  template_bascdt,
-  template_destructible,
-  template_licensed,
-  template_uses,
-} from "./shared";
+import { template_universal_item, template_destructible, template_licensed, template_uses } from "./shared";
 
 const fields: any = foundry.data.fields;
 

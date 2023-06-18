@@ -1,18 +1,16 @@
 import { EntryType, NpcFeatureType, NpcTechType } from "../../enums";
 import { restrict_enum } from "../../helpers/commons";
-import { convertNpcStats, regRefToLid } from "../../util/migrations";
+import { convertNpcStats } from "../../util/migrations";
 import { SourceData, SourceTemplates } from "../../source-template";
 import {
-  PackedNpcClassData,
   PackedNpcReactionData,
   PackedNpcSystemData,
   PackedNpcTechData,
   PackedNpcTraitData,
   PackedNpcWeaponData,
-  PackedSkillData,
 } from "../../util/unpacking/packed-types";
 import { DamageData, DamageField, unpackDamage } from "../bits/damage";
-import { RangeData, RangeField, unpackRange } from "../bits/range";
+import { RangeField, unpackRange } from "../bits/range";
 import { TagField, unpackTag } from "../bits/tag";
 import { LancerDataModel, NpcStatBlockField, UnpackContext } from "../shared";
 import { template_destructible, template_universal_item, template_uses } from "./shared";
