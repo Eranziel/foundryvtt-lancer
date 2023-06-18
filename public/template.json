@@ -137,7 +137,8 @@
       "reserve",
       "status",
       "talent",
-      "skill"
+      "skill",
+      "bond"
     ],
     "templates": {
       "universal": {
@@ -371,6 +372,14 @@
       "detail": "",
       "family": "cha",
       "curr_rank": 1
+    },
+    "bond": {
+      "templates": ["universal"],
+      "name": "",
+      "major_ideals": [],
+      "minor_ideals": [],
+      "questions": [],
+      "powers": []
     }
   }
 }

@@ -37,6 +37,8 @@ import { Damage, DamageData } from "./models/bits/damage";
 import { Range } from "./models/bits/range";
 import { SynergyData } from "./models/bits/synergy";
 import { Tag, TagData } from "./models/bits/tag";
+import { PowerData } from "./models/bits/power";
+import { BondQuestionData } from "./models/bits/question";
 import { FullBoundedNum, LIDRef, SourceData, SourceTemplates, UUIDRef } from "./source-template";
 
 export namespace SystemTemplates {
@@ -543,6 +545,12 @@ export namespace SystemData {
     bonuses: BonusData[]; // All unlocked bonuses
     synergies: SynergyData[]; // All unlocked synergies
     counters: CounterData[]; // All unlocked counters
+  }
+  export interface Bond extends SystemTemplates.item_universal {
+    major_ideals: string[];
+    minor_ideals: string[];
+    questions: BondQuestionData[];
+    powers: PowerData[];
   }
   export interface WeaponMod
     extends SystemTemplates.item_universal,

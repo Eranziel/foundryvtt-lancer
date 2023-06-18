@@ -51,6 +51,7 @@ type LancerItemSource =
   | LancerItemDataSource<EntryType.SKILL>
   | LancerItemDataSource<EntryType.STATUS>
   | LancerItemDataSource<EntryType.TALENT>
+  | LancerItemDataSource<EntryType.BOND>
   | LancerItemDataSource<EntryType.WEAPON_MOD>;
 
 /**
@@ -74,6 +75,7 @@ type LancerItemProperties =
   | LancerItemDataProperties<EntryType.SKILL>
   | LancerItemDataProperties<EntryType.STATUS>
   | LancerItemDataProperties<EntryType.TALENT>
+  | LancerItemDataProperties<EntryType.BOND>
   | LancerItemDataProperties<EntryType.WEAPON_MOD>;
 
 declare global {
@@ -531,6 +533,7 @@ export type LancerRESERVE = LancerItem & { system: SystemData.Reserve };
 export type LancerSKILL = LancerItem & { system: SystemData.Skill };
 export type LancerSTATUS = LancerItem & { system: SystemData.Status };
 export type LancerTALENT = LancerItem & { system: SystemData.Talent };
+export type LancerBOND = LancerItem & { system: SystemData.Bond };
 export type LancerWEAPON_MOD = LancerItem & { system: SystemData.WeaponMod };
 
 // This seems like it could be removed eventually
@@ -551,6 +554,7 @@ export type LancerItemType =
   | EntryType.SKILL
   | EntryType.STATUS
   | EntryType.TALENT
+  | EntryType.BOND
   | EntryType.WEAPON_MOD;
 export const ITEM_TYPES = [
   EntryType.CORE_BONUS,
@@ -568,6 +572,7 @@ export const ITEM_TYPES = [
   EntryType.SKILL,
   EntryType.STATUS,
   EntryType.TALENT,
+  EntryType.BOND,
   EntryType.WEAPON_MOD,
 ];
 export function is_item_type(type: EntryType): type is LancerItemType {

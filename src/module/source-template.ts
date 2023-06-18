@@ -21,6 +21,8 @@ import { ActionData } from "./models/bits/action";
 import { BonusData } from "./models/bits/bonus";
 import { CounterData } from "./models/bits/counter";
 import { DamageData } from "./models/bits/damage";
+import { PowerData } from "./models/bits/power";
+import { BondQuestionData } from "./models/bits/question";
 import { RangeData } from "./models/bits/range";
 import { SynergyData } from "./models/bits/synergy";
 import { TagData } from "./models/bits/tag";
@@ -449,6 +451,12 @@ export namespace SourceData {
       integrated: LIDRef[];
     }>;
     terse: string;
+  }
+  export interface Bond extends SourceTemplates.item_universal {
+    major_ideals: string[];
+    minor_ideals: string[];
+    questions: BondQuestionData[];
+    powers: PowerData[];
   }
   export interface WeaponMod
     extends SourceTemplates.item_universal,

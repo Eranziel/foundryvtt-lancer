@@ -189,6 +189,7 @@ const FRIENDLY_DOCUMENT_NAMES_SINGULAR = {
   [EntryType.SKILL]: "Skill",
   [EntryType.STATUS]: "Status/Condition",
   [EntryType.TALENT]: "Talent",
+  [EntryType.BOND]: "Bond",
   [EntryType.WEAPON_MOD]: "Weapon Mod",
 };
 const FRIENDLY_DOCUMENT_NAMES_PLURAL = {
@@ -212,6 +213,7 @@ const FRIENDLY_DOCUMENT_NAMES_PLURAL = {
   [EntryType.SKILL]: "Skills",
   [EntryType.STATUS]: "Statuses / Conditions",
   [EntryType.TALENT]: "Talents",
+  [EntryType.BOND]: "Bonds",
   [EntryType.WEAPON_MOD]: "Weapon Mods",
 };
 

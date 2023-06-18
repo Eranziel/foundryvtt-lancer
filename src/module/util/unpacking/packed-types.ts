@@ -663,6 +663,29 @@ export interface PackedTalentRank {
   integrated?: string[];
 }
 
+export interface PackedBondData {
+  id: string;
+  name: string;
+  major_ideals: string[];
+  minor_ideals: string[];
+  questions: PackedQuestionData[];
+  powers: PackedPowerData[];
+}
+
+export interface PackedQuestionData {
+  question: string;
+  options: string[];
+}
+
+export interface PackedPowerData {
+  name: string;
+  description: string;
+  frequency: string | undefined;
+  veteran: boolean | undefined;
+  master: boolean | undefined;
+  prerequisite: string | undefined;
+}
+
 interface AllNpcClassData {
   name: string;
   role: string;

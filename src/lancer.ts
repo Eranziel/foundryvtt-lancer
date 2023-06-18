@@ -171,6 +171,7 @@ import { LancerNPCClassSheet } from "./module/item/npc-class-sheet";
 import { WeaponModModel } from "./module/models/items/weapon_mod";
 import { ReserveModel } from "./module/models/items/reserve";
 import { StatusModel } from "./module/models/items/status";
+import { BondModel } from "./module/models/items/bond";
 
 const lp = LANCER.log_prefix;
 
@@ -215,6 +216,8 @@ Hooks.once("init", async function () {
   CONFIG.Item.dataModels[EntryType.STATUS] = StatusModel;
   // @ts-expect-error
   CONFIG.Item.dataModels[EntryType.TALENT] = TalentModel;
+  // @ts-expect-error
+  CONFIG.Item.dataModels[EntryType.BOND] = BondModel;
   // @ts-expect-error
   CONFIG.Item.dataModels[EntryType.NPC_CLASS] = NpcClassModel;
   // @ts-expect-error

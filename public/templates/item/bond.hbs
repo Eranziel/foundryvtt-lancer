@@ -1,0 +1,30 @@
+<form class="{{cssClass}} lancer-sheet" autocomplete="off">
+
+  {{!-- Sheet Header --}}
+  <header class="sheet-header card clipped-bot">
+    <div class="flexcol grow">
+      <h1 class="charname"><input class="header-field" name="name" type="text" value="{{item.name}}" placeholder="{{localize "lancer.placeholder.name"}}"/></h1>
+    </div>
+    {{{ ref-portrait-img item.img "img" item }}}
+  </header>
+
+  {{!-- Sheet Body --}}
+  <div class="flexcol">
+    {{!-- major ideals --}}
+    <div class="card">
+      <div class="lancer-header">MAJOR IDEALS</div>
+        {{{std-string-input "system.major_ideals.0" label=""}}}
+        {{{std-string-input "system.major_ideals.0" label=""}}}
+        {{{std-string-input "system.major_ideals.0" label=""}}}
+    </div>
+    {{!-- minor ideals --}}
+    <div class="card">
+      <div class="lancer-header">MINOR IDEALS</div>
+        {{{std-string-input "system.minor_ideals.0" label=""}}}
+        {{{std-string-input "system.minor_ideals.0" label=""}}}
+        {{{std-string-input "system.minor_ideals.0" label=""}}}
+    </div>
+    {{!-- questions --}}
+    {{!-- powers --}}
+  </div>
+</form>

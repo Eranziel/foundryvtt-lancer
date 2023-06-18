@@ -81,6 +81,7 @@ export enum EntryType {
   SKILL = "skill",
   STATUS = "status",
   TALENT = "talent",
+  BOND = "bond",
 }
 
 // Holds enums that are as of yet seen nowhere else
