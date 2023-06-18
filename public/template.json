@@ -1,11 +1,6 @@
 {
   "Actor": {
-    "types": [
-      "pilot",
-      "mech",
-      "npc",
-      "deployable"
-    ],
+    "types": ["pilot", "mech", "npc", "deployable"],
     "templates": {
       "universal": {
         "lid": "",
@@ -35,10 +30,10 @@
           "free": true,
           "used_reactions": []
         }
-      }, 
+      },
       "heat": {
         "heat": 0
-      },      
+      },
       "struss": {
         "stress": 1,
         "structure": 1
@@ -69,7 +64,7 @@
       "text_appearance": ""
     },
     "npc": {
-      "templates": ["universal", "action_tracking",  "heat", "struss"],
+      "templates": ["universal", "action_tracking", "heat", "struss"],
       "notes": "",
       "meltdown_timer": null,
       "tier": 1
@@ -177,9 +172,7 @@
     "frame": {
       "templates": ["universal", "licensed"],
       "description": "",
-      "mechtype": [
-        "Balanced"
-      ],
+      "mechtype": ["Balanced"],
       "mounts": [],
       "stats": {
         "armor": 0,
@@ -238,76 +231,20 @@
       "base_features": [],
       "optional_features": [],
       "base_stats": {
-        "activations": [ 
-          1, 
-          1, 
-          1 
-        ],
-        "armor": [
-          1,
-          1,
-          1
-        ],
-        "hp": [
-          10,
-          10,
-          10
-        ],
-        "evasion": [
-          10,
-          10,
-          10
-        ],
-        "edef": [
-          10,
-          10,
-          10
-        ],
-        "heatcap": [
-          5,
-          5,
-          5
-        ],
-        "speed": [
-          5,
-          5,
-          5
-        ],
-        "sensor_range": [
-          10,
-          10,
-          10
-        ],
-        "save": [
-          10,
-          10,
-          10
-        ],
-        "hull": [
-          0,
-          0,
-          0
-        ],
-        "agi": [
-          0,
-          0,
-          0
-        ],
-        "sys": [
-          0,
-          0,
-          0
-        ],
-        "eng": [
-          0,
-          0,
-          0
-        ],
-        "size": [
-          0,
-          0,
-          0
-        ]
+        "activations": [1, 1, 1],
+        "armor": [1, 1, 1],
+        "hp": [10, 10, 10],
+        "evasion": [10, 10, 10],
+        "edef": [10, 10, 10],
+        "heatcap": [5, 5, 5],
+        "speed": [5, 5, 5],
+        "sensor_range": [10, 10, 10],
+        "save": [10, 10, 10],
+        "hull": [0, 0, 0],
+        "agi": [0, 0, 0],
+        "sys": [0, 0, 0],
+        "eng": [0, 0, 0],
+        "size": [0, 0, 0]
       }
     },
     "npc_template": {
@@ -332,11 +269,7 @@
       "loaded": true,
       "uses": 0,
       "weapon_type": "",
-      "damage": [
-        [],
-        [],
-        []
-      ],
+      "damage": [[], [], []],
       "range": [],
       "on_hit": "",
       "accuracy": [],
