@@ -385,6 +385,7 @@ export interface IContentPackData {
   mods?: PackedWeaponModData[];
   pilotGear?: PackedPilotEquipmentData[];
   talents?: PackedTalentData[];
+  bonds?: PackedBondData[];
   tags?: PackedTagTemplateData[];
 
   npcClasses?: PackedNpcClassData[];

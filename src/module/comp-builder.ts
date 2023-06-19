@@ -18,6 +18,7 @@ import { unpackMechSystem } from "./models/items/mech_system";
 import { unpackCoreBonus } from "./models/items/core_bonus";
 import { TagData, TagTemplateData, unpackTag, unpackTagTemplate } from "./models/bits/tag";
 import { unpackTalent } from "./models/items/talent";
+import { unpackBond } from "./models/items/bond";
 import { unpackPilotArmor } from "./models/items/pilot_armor";
 import { unpackPilotGear } from "./models/items/pilot_gear";
 import { unpackPilotWeapon } from "./models/items/pilot_weapon";
@@ -126,6 +127,7 @@ export async function importCP(
     let allSystems = cp.data.systems?.map(s => unpackMechSystem(s, context)) ?? [];
     let allTags = cp.data.tags?.map(t => unpackTagTemplate(t)) ?? [];
     let allTalents = cp.data.talents?.map(t => unpackTalent(t, context)) ?? [];
+    let allBonds = cp.data.bonds?.map(b => unpackBond(b)) ?? [];
     let allWeapons = cp.data.weapons?.map(d => unpackMechWeapon(d, context)) ?? [];
     let allLicenses = [];
     let existingLicenses =
@@ -173,6 +175,7 @@ export async function importCP(
     await createOrUpdateDocs(CONFIG.Item.documentClass, allStatuses, EntryType.STATUS);
     await createOrUpdateDocs(CONFIG.Item.documentClass, allSystems, EntryType.MECH_SYSTEM);
     await createOrUpdateDocs(CONFIG.Item.documentClass, allTalents, EntryType.TALENT);
+    await createOrUpdateDocs(CONFIG.Item.documentClass, allBonds, EntryType.BOND);
     await createOrUpdateDocs(CONFIG.Item.documentClass, allWeapons, EntryType.MECH_WEAPON);
     await createOrUpdateDocs(CONFIG.Actor.documentClass, context.createdDeployables, EntryType.DEPLOYABLE);
 
