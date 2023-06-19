@@ -10,27 +10,30 @@
 
   {{!-- Sheet Body --}}
   <div class="flexcol">
-    {{!-- major ideals --}}
+    {{!-- TODO: add and delete buttons for ideals and questions --}}
+    {{!-- Major Ideals --}}
     <div class="card clipped">
-      <div class="lancer-header">MAJOR IDEALS</div>
+      <div class="lancer-header major">MAJOR IDEALS</div>
       <ul>
         {{#each system.major_ideals}}
           <li>{{{std-string-input (concat "system.major_ideals." @index) classes="lancer-text-field"}}}</li>
         {{/each}}
       </ul>
     </div>
-    {{!-- minor ideals --}}
+
+    {{!-- Minor Ideals --}}
     <div class="card clipped">
-      <div class="lancer-header">MINOR IDEALS</div>
+      <div class="lancer-header major">MINOR IDEALS</div>
       <ul>
         {{#each system.minor_ideals}}
           <li>{{{std-string-input (concat "system.minor_ideals." @index) classes="lancer-text-field"}}}</li>
         {{/each}}
       </ul>
     </div>
-    {{!-- questions --}}
+
+    {{!-- Questions --}}
     <div class="card clipped">
-      <div class="lancer-header">QUESTIONS</div>
+      <div class="lancer-header major">QUESTIONS</div>
       {{#each system.questions as |question|}}
         {{{std-string-input (concat "system.questions." (concat @index ".question")) classes="lancer-text-field"}}}
         <ul>
@@ -40,6 +43,43 @@
         </ul>
       {{/each}}
     </div>
-    {{!-- powers --}}
+
+    {{!-- Powers --}}
+    <div class="card clipped">
+      <div class="lancer-header major">POWERS</div>
+      {{#each system.powers as |power power_index|}}
+        <div class="card clipped">
+          <div class="lancer-header major">
+            {{!-- TODO: bond icon? --}}
+            <i class="cci cci-trait i--m i--light header-icon"> </i> 
+            {{{std-string-input (concat "system.powers." (concat power_index ".name")) classes="lancer-text-field"}}}
+            <a class="gen-control" data-action="splice" data-path="system.powers.{{power_index}}">
+              <i class="fas fa-trash"></i>
+            </a>
+          </div>
+          <div class="flexrow card">
+            {{{std-text-input (concat "system.powers." (concat power_index ".frequency")) label="Frequency:" classes="lancer-text-field"}}}
+            {{{std-checkbox (concat "system.powers." (concat power_index ".veteran")) label="Veteran:" classes=""}}}
+            {{{std-checkbox (concat "system.powers." (concat power_index ".master")) label="Master:" classes=""}}}
+          </div>
+          {{#if (or power.veteran power.master)}}
+            <div class="card">
+              <div class="lancer-header minor">
+                <span>Prerequisite</span>
+                {{{popout-editor-button (concat "system.powers." (concat power_index ".prerequisite")) }}}
+              </div>
+              <div class="desc-text">{{{safe-html power.prerequisite }}}</div>
+            </div>
+          {{/if}}
+          <div class="card">
+            <div class="lancer-header minor">
+              <span>Effect</span>
+              {{{popout-editor-button (concat "system.powers." (concat power_index ".description")) }}}
+            </div>
+            <div class="desc-text">{{{safe-html power.description }}}</div>
+          </div>
+        </div>
+      {{/each}}
+    </div>
   </div>
 </form>

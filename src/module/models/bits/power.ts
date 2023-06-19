@@ -1,7 +1,8 @@
+import { PackedPowerData } from "../../util/unpacking/packed-types";
+
 const fields: any = foundry.data.fields;
 
 export interface PowerData {
-  lid: string;
   name: string;
   description: string;
   frequency: string | null;
@@ -14,12 +15,11 @@ export class PowerField extends fields.SchemaField {
   constructor(options = {}) {
     super(
       {
-        lid: new fields.LIDField({ nullable: false }),
         name: new fields.StringField({ nullable: false }),
         description: new fields.StringField({ nullable: false }),
         frequency: new fields.StringField({ required: false, nullable: true }),
-        veteran: new fields.BooleanField({ nullable: false }),
-        master: new fields.BooleanField({ nullable: false }),
+        veteran: new fields.BooleanField(),
+        master: new fields.BooleanField(),
         prerequisite: new fields.StringField({ required: false, nullable: true }),
       },
       options
@@ -27,14 +27,13 @@ export class PowerField extends fields.SchemaField {
   }
 }
 
-export function unpackPower(data: any): PowerData {
+export function unpackPower(data: PackedPowerData): PowerData {
   return {
-    lid: data.lid,
     name: data.name,
     description: data.description,
-    frequency: data.frequency,
-    veteran: data.veteran,
-    master: data.master,
-    prerequisite: data.prerequisite,
+    frequency: data.frequency || null,
+    veteran: data.veteran || false,
+    master: data.master || false,
+    prerequisite: data.prerequisite || null,
   };
 }

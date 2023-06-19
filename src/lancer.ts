@@ -805,6 +805,7 @@ function setupSheets() {
     types: [
       EntryType.SKILL,
       EntryType.TALENT,
+      EntryType.BOND,
       EntryType.CORE_BONUS,
       EntryType.RESERVE,
       EntryType.STATUS,
