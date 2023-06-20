@@ -9,7 +9,7 @@ export const registerSettings = function () {
   /**
    * Track the system version upon which point a migration was last applied
    */
-  game.settings.register(game.system.id, LANCER.setting_migration, {
+  game.settings.register(game.system.id, LANCER.setting_migration_version, {
     name: "System Migration Version",
     scope: "world",
     config: false,

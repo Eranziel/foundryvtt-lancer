@@ -613,7 +613,7 @@ Hooks.once("ready", async function () {
 
   console.log(`${lp} Foundry ready, doing final checks.`);
 
-  // await doMigration();  TODO revert
+  await doMigration();
 
   await showChangelog();
 
@@ -833,18 +833,18 @@ function setupSheets() {
  */
 async function versionCheck(): Promise<"yes" | "no" | "too_old"> {
   // Determine whether a system migration is required and feasible
-  const currentVersion = game.settings.get(game.system.id, LANCER.setting_migration);
+  const currentVersion = game.settings.get(game.system.id, LANCER.setting_migration_version);
 
   // If it's 0 then it's a fresh install
   if (currentVersion === "0" || !currentVersion) {
     // @ts-expect-error Should be fixed with v10 types
-    game.settings.set(game.system.id, LANCER.setting_migration, game.system.version);
+    game.settings.set(game.system.id, LANCER.setting_migration_version, game.system.version);
     await promptInstallCoreData();
     return "no";
   }
 
   // Check if its before new rolling migration system was integrated
-  if (foundry.utils.isNewerVersion("1.5.0", currentVersion)) {
+  if (foundry.utils.isNewerVersion("1.0.0", currentVersion)) {
     return "too_old";
   }
 
@@ -865,7 +865,10 @@ async function doMigration() {
   if (needs_migrate == "too_old") {
     // System version is too old for migration
     ui.notifications!.error(
-      "Your LANCER system data is from too old a version and cannot be reliably migrated to the latest version. Please install and migrate to version 1.5.0 before attempting this migration",
+      `Your LANCER system data is from too old a version (${game.settings.get(
+        game.system.id,
+        LANCER.setting_migration_version
+      )}) and cannot be reliably migrated to the latest version. Please install and migrate to version 1.5.0 before attempting this migration`,
       { permanent: true }
     );
     return;

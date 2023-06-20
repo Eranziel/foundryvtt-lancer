@@ -9,7 +9,9 @@ import { LancerTokenDocument } from "./token";
 /**
  * DataModels should internally handle any migrations across versions.
  * However, it can be helpful for efficiency to occasionally "write all" to world objects that are
- * consistently prepared
+ * consistently prepared.
+ *
+ * Call this when new versions happen, perhaps?
  */
 export async function commitDataModelMigrations() {
   // Commit all world documents. Don't bother with packs.
@@ -20,6 +22,51 @@ export async function commitDataModelMigrations() {
 }
 
 /**
+ * Get the version messages from previous version to this version
+ */
+function getMigrationMessage() {
+  const currentVersion = game.settings.get(game.system.id, LANCER.setting_migration_version);
+  // @ts-expect-error
+  const newVersion = game.system.version;
+  let message = `<h1>Lancer ${currentVersion} -> ${newVersion}  Migration</h1>
+<div class="desc-text">
+  <span class="horus--subtle" style="white-space: pre">
+  WELCOME, LANCER.
+      PLEASE STAND BY WHILE WE MAKE SOME CHANGES.
+                                    (this won't hurt a bit)
+  </span>
+</div>
+<p>
+  Migration of Actors, Items, Scenes, and Tokens is ongoing in the background. 
+  <b>DO NOT LOG OFF OR CLOSE THE GAME</b>
+  until you see the notification "LANCER System Migration to version ${game.system.version} completed".
+</p>
+<h2>New version breaking data changes</h2>
+`;
+
+  if (foundry.utils.isNewerVersion("2.0.0", currentVersion)) {
+    message += `<p>The Lancer system has undergone a fairly significant since the 1.x versions, including simplifications of most of
+of the data model, as well as the removal of our machine-minds. More importantly, foundry has evolved significantly 
+as a platform, allowing us to do a lot of nice cleanup in how we store and work with data. As such, we once again need 
+to migrate! Improvements in how foundry tracks and validates data should make this a fairly painless operation, and luckily 
+the chance of your world being bricked are lower than ever though possible!.
+
+After lengthy debate, we have trimmed some of the fat in our data models. 
+As such, the following item types are now deprecated:
+<ul>
+  <li>"tag"s - which are now tracked via the world settings for efficiency and consistency.</li>
+  <li>"manufacturer"s - which never really warranted an "item", and are now just a string on licensed items.</li>
+  <li>"sitreps"s - which were barely supported to begin with, and didn't make sense to keep as an item.</li>
+  <li>"environments"s - which may see an eventual return, were not supported or implemented to our liking.</li>
+  <li>"factions"s - which may see an eventual return as a journal entry type when those are supported</li>
+  <li>"quirks"s - which seemed to fit better as just a text box.</li>
+</ul>`;
+  }
+
+  return message;
+}
+
+/**
  * Some changes aren't neatly handleable via DataModels,
  * such as changes to prototype tokens or flags.
  * Instead handle these via migrateWorld.
@@ -27,6 +74,7 @@ export async function commitDataModelMigrations() {
 export async function migrateWorld() {
   // Update World Compendium Packs, since updates comes with a more up to date version of lancerdata usually
   await updateCore(core_update);
+  const curr_version = game.settings.get(game.system.id, LANCER.setting_migration_version);
 
   if (game.settings.get(game.system.id, LANCER.setting_core_data) === core_update) {
     // Open the LCP manager for convenience.
@@ -36,36 +84,10 @@ export async function migrateWorld() {
     new Dialog(
       {
         title: `Migration Details`,
-        content: `
-<h1>Lancer 2.0 Migration - Now with 100% more data validation!</h1>
-<div class="desc-text">
-<span class="horus--subtle" style="white-space: pre">
-WELCOME, LANCER.
-     PLEASE STAND BY WHILE WE MAKE SOME CHANGES.
-                                  (this won't hurt a bit)
-</span></div>
-<p>The Lancer system has undergone a fairly significant since the 1.x versions, including simplifications of most of
-of the data model, as well as the removal of our machine-minds. More importantly, foundry has evolved significantly 
-as a platform, allowing us to do a lot of nice cleanup in how we store and work with data. As such, we once again need 
-to migrate! Improvements in how foundry tracks and validates data should make this a fairly painless operation, and luckily 
-the chance of your world being bricked are lower than ever though possible!.
-
-<h2>Migration is in progress!</h2>
-
-Migration of Actors, Items, Scenes, and Tokens is ongoing in the background. <b>DO NOT LOG OFF OR CLOSE THE GAME</b>
-until you see the notification "LANCER System Migration to version ${game.system.version} completed".</p>
-<h2>New version breaking changes</h2>
-After lengthy debate, we have trimmed some of the fat in our data models. 
-As such, the following item types are now deprecated:
-<ul>
-<li>"tag"s - which are now tracked via the world settings for efficiency and consistency.</li>
-<li>"manufacturer"s - which never really warranted an "item", and are now just a string on licensed items.</li>
-<li>"sitreps"s - which were barely supported to begin with, and didn't make sense to keep as an item.</li>
-<li>"environments"s - which may see an eventual return, were not supported or implemented to our liking.</li>
-<li>"factions"s - which may see an eventual return as a journal entry type when those are supported</li>
-<li>"quirks"s - which seemed to fit better as just a text box.</li>
-</ul>
-`,
+        content: getMigrationMessage(),
+        buttons: {
+          accept: { label: "Ok" },
+        },
       },
       {
         width: 800,
@@ -81,14 +103,9 @@ Please refresh the page to try again.</p>`,
       buttons: {
         accept: {
           label: "Refresh",
-          callback: async () => {
-            ui.notifications.info("Page reloading in 3...");
-            await sleep(1000);
-            ui.notifications.info("2...");
-            await sleep(1000);
-            ui.notifications.info("1...");
-            await sleep(1000);
-            window.location.reload(false);
+          callback: () => {
+            ui.notifications.info("Page reloading in 3 seconds...");
+            setTimeout(() => window.location.reload(false), 3000);
           },
         },
         cancel: {
@@ -105,7 +122,6 @@ Please refresh the page to try again.</p>`,
       await migrateCompendium(p);
     }
   }
-
   // Migrate World Actors
   let all_actor_updates = await Promise.all(game.actors.contents.map(migrateActor));
   await Actor.updateDocuments(all_actor_updates);
@@ -115,11 +131,12 @@ Please refresh the page to try again.</p>`,
   await Item.updateDocuments(all_item_updates);
 
   // Migrate World Scenes
-  let all_scene_updates = await Promise.all(game.scenes.contents.map(migrateScene));
-  await Scene.updateDocuments(all_scene_updates);
+  // let all_scene_updates =
+  await Promise.all(game.scenes.contents.map(migrateScene));
+  // await Scene.updateDocuments(all_scene_updates);
 
   // Set world as having migrated successfully
-  await game.settings.set(game.system.id, LANCER.setting_migration, game.system.version);
+  await game.settings.set(game.system.id, LANCER.setting_migration_version, game.system.version);
 
   // Set the version for future migration and welcome message checking
   ui.notifications.info(`LANCER System Migration to version ${game.system.version} completed!`, {
@@ -140,6 +157,13 @@ export async function migrateCompendium(pack: Compendium) {
 
   if (pack.locked) return ui.notifications.error(`Could not migrate ${pack.collection}: unable to unlock`);
 
+  // Destroy packs we no longer support
+  let name = pack.metadata.name;
+  if (["sitrep", "environment", "faction", "tag", "quirk", "manufacturer"].includes(name)) {
+    await pack.deleteCompendium();
+    return;
+  }
+
   // Iterate over compendium entries - applying fine-tuned migration functions
   if (pack.documentName == "Actor") {
     let documents = (await pack.getDocuments()) as LancerActor[];
@@ -159,7 +183,7 @@ export async function migrateCompendium(pack: Compendium) {
 
   // Re-lock if necessary
   await pack.configure({ locked: wasLocked });
-  console.log(`Migrated all ${docName} entities from Compendium ${pack.collection}`);
+  console.log(`Migrated all ${pack.documentName} entities from Compendium ${pack.collection}`);
 }
 
 /* -------------------------------------------- */
@@ -176,10 +200,11 @@ export async function migrateActor(actor: LancerActor): Promise<object> {
   // Scaffold our update data
   const updateData = {
     _id: actor.id,
-    system: actor._source, // To commit any datamodel migrations
+    // @ts-expect-error
+    system: actor.system.toObject(true), // To commit any datamodel migrations
   };
 
-  let currVersion = game.settings.get(game.system.id, LANCER.setting_migration);
+  let currVersion = game.settings.get(game.system.id, LANCER.setting_migration_version);
   if (foundry.utils.isNewerVersion("2.0", currVersion)) {
     // ...
   }
@@ -199,10 +224,11 @@ export async function migrateActor(actor: LancerActor): Promise<object> {
 export async function migrateItem(item: LancerItem): Promise<object> {
   const updateData = {
     _id: item.id,
-    system: item._source, // To commit any datamodel migrations
+    // @ts-expect-error
+    system: item.system.toObject(true), // To commit any datamodel migrations
   };
 
-  let currVersion = game.settings.get(game.system.id, LANCER.setting_migration);
+  let currVersion = game.settings.get(game.system.id, LANCER.setting_migration_version);
   if (foundry.utils.isNewerVersion("2.0", currVersion)) {
     // ...
   }
@@ -221,11 +247,9 @@ export async function migrateScene(scene: Scene) {
     // Migrate unlinked token actors
     if (!token.isLinked) {
       console.log(`Migrating unlinked token actor ${token.actor.name}`);
-      let updateData = await migrateActor(token.actor, ver);
+      let updateData = await migrateActor(token.actor);
       await token.actor.update(updateData);
     }
-
-    await token.migrateTokenDocument(token, ver);
   }
 
   // Migrate all token documents
@@ -239,9 +263,11 @@ export async function migrateScene(scene: Scene) {
  * @return The updateData to apply to the provided item
  */
 export async function migrateTokenDocument(token: LancerTokenDocument): Promise<object> {
-  const updateData = {};
+  const updateData = {
+    _id: token.id,
+  };
 
-  let currVersion = game.settings.get(game.system.id, LANCER.setting_migration);
+  let currVersion = game.settings.get(game.system.id, LANCER.setting_migration_version);
   if (foundry.utils.isNewerVersion("2.0", currVersion)) {
     // ...
   }
