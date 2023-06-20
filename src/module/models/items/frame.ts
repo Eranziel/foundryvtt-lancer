@@ -44,11 +44,8 @@ const frame_schema = {
       deployables: new fields.ArrayField(new LIDField()),
       actions: new fields.ArrayField(new ActionField()),
       synergies: new fields.ArrayField(new SynergyField()),
-      use: new fields.StringField({
-        nullable: false,
-        choices: Object.values(FrameEffectUse),
-        initial: FrameEffectUse.Unknown,
-      }),
+      // use: new fields.StringField({ nullable: false, choices: Object.values(FrameEffectUse), initial: FrameEffectUse.Unknown, }),
+      use: new fields.StringField({ nullable: true, initial: null }), // ^ Core data does not adhere to this schema
     })
   ),
   core_system: new fields.SchemaField({
@@ -56,7 +53,8 @@ const frame_schema = {
     description: new fields.HTMLField(),
     activation: new fields.StringField({ nullable: false, choices: Object.values(ActivationType) }),
     deactivation: new fields.StringField({ nullable: true, choices: Object.values(ActivationType), initial: null }),
-    use: new fields.StringField({ nullable: true, choices: Object.values(FrameEffectUse), initial: null }),
+    // use: new fields.StringField({ nullable: true, choices: Object.values(FrameEffectUse), initial: null }),
+    use: new fields.StringField({ nullable: true, initial: null }), // ^ Core data does not adhere to this schema
 
     active_name: new fields.StringField(),
     active_effect: new fields.HTMLField(),

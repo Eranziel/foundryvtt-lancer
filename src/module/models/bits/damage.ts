@@ -1,4 +1,5 @@
 import { DamageType, DamageTypeChecklist } from "../../enums";
+import { restrict_enum } from "../../helpers/commons";
 import { PackedDamageData } from "../../util/unpacking/packed-types";
 
 // @ts-ignore
@@ -116,6 +117,14 @@ export class DamageField extends fields.SchemaField {
   initialize(value: DamageData, model: unknown) {
     // Coerce to a range
     return new Damage(value);
+  }
+
+  migrateSource(sourceData: any, fieldData: any) {
+    if (fieldData.type) {
+      fieldData.type = restrict_enum(DamageType, DamageType.Kinetic, fieldData.type);
+    }
+
+    return super.migrateSource(sourceData, fieldData);
   }
 
   /** @override */

@@ -68,6 +68,10 @@ export class DeployableModel extends LancerDataModel<"DeployableModel"> {
       data.stats.grit_hp ??= dv.grit_hp;
     }
 
+    if (data.type && data.type[0] == data.type[0].toLowerCase()) {
+      data.type = restrict_enum(DeployableType, DeployableType.Deployable, data.type);
+    }
+
     // @ts-expect-error v11
     return super.migrateData(data);
   }

@@ -56,6 +56,11 @@ export class SynergyField extends fields.SchemaField {
     if (fieldData.locations?.some((s: string) => s.includes(","))) {
       fieldData.locations = fieldData.locations.flatMap((s: string) => s.split(",").map(s2 => s2.trim()));
     }
+    // Ensure all lowercase
+    if (fieldData.locations) {
+      fieldData.locations = fieldData.locations.map((l: string) => l.toLowerCase());
+    }
+
     return super.migrateSource(sourceData, fieldData);
   }
 }
