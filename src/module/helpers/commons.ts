@@ -876,7 +876,16 @@ export function tippy_context_menu(
 
 // Isolates a value to ensure it is compliant with a list of values
 export function restrict_choices<T extends string>(choices: T[], default_choice: T, provided?: string): T {
-  return choices.includes(provided as T) ? (provided as T) : default_choice;
+  if (!provided) return default_choice;
+  let lcp = provided.toLowerCase();
+  // Try matching on lower case
+  for (let caseFix of choices) {
+    if (caseFix.toLowerCase() == lcp) {
+      return caseFix;
+    }
+  }
+
+  return default_choice;
 }
 
 // List possible values of an enum
