@@ -58,10 +58,11 @@ export class BonusEditDialog extends FormApplication {
       ...super.defaultOptions,
       template: `systems/${game.system.id}/templates/window/bonus.hbs`,
       width: 400,
+      title: "Bonus Editing",
       height: "auto" as const,
       classes: ["lancer"],
       submitOnChange: false,
-      submitOnClose: false,
+      submitOnClose: true,
       closeOnSubmit: true,
     };
   }
@@ -131,8 +132,8 @@ export class BonusEditDialog extends FormApplication {
       new_bonus.weapon_sizes[ws] = form_data[ws] as boolean;
     }
 
-    // Do the merge
-    this.target.update({ [this.bonus_path]: new_bonus }).then(this.resolve);
+    // Submit changes
+    return this.target.update({ [this.bonus_path]: new_bonus }).then(this.resolve);
   }
 
   /* -------------------------------------------- */
@@ -144,14 +145,7 @@ export class BonusEditDialog extends FormApplication {
    */
   static async edit_bonus(document: LancerActor | LancerItem, path: string): Promise<void> {
     return new Promise((resolve, _reject) => {
-      const app = new this(
-        document,
-        path,
-        {
-          title: "Edit bonus",
-        },
-        resolve
-      );
+      const app = new this(document, path, {}, resolve);
       app.render(true);
     });
   }

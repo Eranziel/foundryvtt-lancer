@@ -1296,17 +1296,13 @@ function _updateButtonSiblingData(button: JQuery<HTMLElement>, delta: number) {
   }
 }
 
-async function _updateCounterData<T extends LancerActorSheetData<any> | LancerItemSheetData<any>>(
-  root_doc: LancerActor | LancerItem,
-  path: string,
-  delta: number
-) {
+async function _updateCounterData(root_doc: LancerActor | LancerItem, path: string, delta: number) {
   let dd = drilldownDocument(root_doc, path);
   const counter = dd.terminus as CounterData;
   const min = counter.min || 0;
   const max = counter.max || 6;
 
-  let new_val = counter.val;
+  let new_val = counter.val + delta;
   if (new_val < min) new_val = min;
   if (new_val > max) new_val = max;
 
@@ -1342,7 +1338,7 @@ export function HANDLER_activate_counter_listeners(html: JQuery, root_doc: Lance
     const path = elt.dataset.path;
     const available = elt.dataset.available === "true";
     if (path) {
-      _updateCounterData(root_doc, path, available ? 1 : -1);
+      _updateCounterData(root_doc, path, available ? -1 : 1);
     }
   });
 

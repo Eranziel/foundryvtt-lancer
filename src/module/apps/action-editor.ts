@@ -48,10 +48,11 @@ export class ActionEditDialog extends FormApplication {
     return mergeObject(super.defaultOptions, {
       template: `systems/${game.system.id}/templates/window/action_editor.hbs`,
       width: 400,
+      title: "Action Editing",
       height: "auto" as const,
       classes: ["lancer"],
       submitOnChange: false,
-      submitOnClose: false,
+      submitOnClose: true,
       closeOnSubmit: true,
     });
   }
@@ -97,20 +98,13 @@ export class ActionEditDialog extends FormApplication {
     _commit_callback: (v: T) => void | Promise<void>
   ): Promise<void> {
     return new Promise((resolve, _reject) => {
-      const app = new this(
-        document,
-        path,
-        {
-          title: "Edit action",
-        },
-        resolve
-      );
+      const app = new this(document, path, {}, resolve);
       app.render(true);
     });
   }
 }
 
-// Allows right clicking bonuses to edit them
+// Allows right clicking actions to edit them
 export function activate_action_editor(html: JQuery, item: LancerItem) {
   let bonuses = html.find(".action-editor");
   bonuses.on("click", async event => {

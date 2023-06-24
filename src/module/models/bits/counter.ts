@@ -20,16 +20,16 @@ export class CounterField extends fields.SchemaField {
       {
         lid: new LIDField(),
         name: new fields.StringField(),
-        min: new fields.NumberField(),
-        max: new fields.NumberField({ required: false, nullable: true }),
-        default_value: new fields.NumberField(),
-        val: new fields.NumberField(),
+        min: new fields.NumberField({ integer: true, nullable: false, initial: 0 }),
+        max: new fields.NumberField({ integer: true, nullable: true, initial: 6 }),
+        default_value: new fields.NumberField({ integer: true, nullable: false, initial: 0 }),
+        val: new fields.NumberField({ integer: true, nullable: false, initial: 0 }),
       },
       options
     );
   }
 
-  bound_val(value: CounterData, sub_val: number) {
+  static bound_val(value: CounterData, sub_val: number) {
     sub_val = Math.round(sub_val);
     sub_val = Math.max(sub_val, value.min);
     if (value.max !== null) sub_val = Math.min(sub_val, value.max);
@@ -40,8 +40,8 @@ export class CounterField extends fields.SchemaField {
   clean(value: CounterData, data: any, options: any) {
     // Attempt to move our .val back in bounds
     value = super.clean(value, data, options);
-    value.val = this.bound_val(value, value.val || 0);
-    value.default_value = this.bound_val(value, value.default_value || 0);
+    value.val = CounterField.bound_val(value, value.val || 0);
+    value.default_value = CounterField.bound_val(value, value.default_value || 0);
     return value;
   }
 
@@ -58,7 +58,7 @@ export function unpackCounter(data: PackedCounterData): CounterData {
     default_value,
     val: default_value,
     lid: data.id,
-    max: data.max ?? 999,
+    max: data.max ?? 6,
     min: data.min ?? 0,
     name: data.name,
   };

@@ -1,3 +1,4 @@
+import { delegate } from "tippy.js";
 import { LancerActor } from "../actor/lancer-actor";
 import { read_form, resolve_dotpath } from "../helpers/commons";
 import { LancerItem, LancerTALENT } from "../item/lancer-item";
@@ -7,7 +8,7 @@ import { CounterData } from "../models/bits/counter";
  * A helper FormApplication subclass for editing a counter
  * @extends {FormApplication}
  */
-export class CounterEditForm extends Dialog {
+export class CounterEditForm extends FormApplication {
   // The counter we're editing
   counter: CounterData;
 
@@ -15,18 +16,27 @@ export class CounterEditForm extends Dialog {
   target: LancerItem | LancerActor;
 
   // Where it is
-  path: string;
+  counter_path: string;
+
+  // Promise to signal completion of workflow
+  resolve: () => any;
 
   constructor(
     target: LancerItem | LancerActor,
-    path: string,
-    dialogData: Dialog.Data,
-    options: Partial<Dialog.Options> = {}
+    counter_path: string,
+    options: Partial<FormApplication.Options> = {},
+    resolve_Func: () => any
   ) {
-    super(dialogData, options);
-    this.path = path;
+    super(
+      {
+        hasPerm: () => true,
+      },
+      options
+    );
     this.target = target;
-    this.counter = resolve_dotpath(target, path) as CounterData;
+    this.counter_path = counter_path;
+    this.counter = resolve_dotpath(target, counter_path) as CounterData;
+    this.resolve = resolve_Func;
   }
 
   /* -------------------------------------------- */
@@ -40,6 +50,9 @@ export class CounterEditForm extends Dialog {
       title: "Counter Editing",
       height: "auto" as const,
       classes: ["lancer"],
+      submitOnChange: false,
+      submitOnClose: true,
+      closeOnSubmit: true,
     };
   }
 
@@ -53,8 +66,8 @@ export class CounterEditForm extends Dialog {
     };
   }
 
-  async commitFields(form: HTMLFormElement): Promise<void> {
-    let form_data = read_form(form);
+  /** @override */
+  async _updateObject(_event: unknown, form_data: Record<string, string | number | boolean>) {
     let name = form_data.name as string;
     let min = form_data.min as number;
     let max = form_data.max as number;
@@ -62,7 +75,7 @@ export class CounterEditForm extends Dialog {
 
     // Pre-fixup/check value
     let invalid = [min, max, val].find(x => Number.isNaN(x));
-    if (invalid !== null) {
+    if (invalid != null) {
       ui.notifications?.error(`${invalid} is not a valid numeric value`);
       return;
     }
@@ -80,14 +93,13 @@ export class CounterEditForm extends Dialog {
     }
 
     // Submit changes
-    let changes: Record<string, any> = {
-      [`${this.path}.name`]: name,
-      [`${this.path}.min`]: min,
-      [`${this.path}.max`]: max,
-      [`${this.path}.val`]: val,
+    let changes = {
+      [`${this.counter_path}.name`]: name,
+      [`${this.counter_path}.min`]: min,
+      [`${this.counter_path}.max`]: max,
+      [`${this.counter_path}.val`]: val,
     };
-    await this.target.update(changes);
-    this.close();
+    return this.target.update(changes).then(this.resolve);
   }
 
   /* -------------------------------------------- */
@@ -95,32 +107,14 @@ export class CounterEditForm extends Dialog {
   /**
    * A helper constructor function which displays the bonus editor and returns a Promise once it's
    * workflow has been resolved.
-   * @param doc
-   * @param path
-   * @param writeback_obj
+   * @param doc Document to edit
+   * @param path Where on the document the counter lies
    * @returns
    */
   static async edit_counter<T>(doc: LancerItem | LancerActor, path: string): Promise<void> {
     return new Promise((resolve, _reject) => {
-      const dlg: CounterEditForm = new this(doc, path, {
-        title: "Edit Counter",
-        content: "",
-        buttons: {
-          confirm: {
-            icon: '<i class="fas fa-save"></i>',
-            label: "Save",
-            callback: html => dlg.commitFields($(html).find("form")[0]),
-          },
-          cancel: {
-            icon: '<i class="fas fa-times"></i>',
-            label: "Cancel",
-            callback: () => resolve(),
-          },
-        },
-        default: "confirm",
-        close: html => dlg.commitFields($(html).find("form")[0]),
-      });
-      dlg.render(true);
+      const app = new this(doc, path, {}, resolve);
+      app.render(true);
     });
   }
 }
