@@ -39,18 +39,17 @@ export function compact_tag_list(tag_array_path: string, tags: Tag[], allow_drop
 }
 
 // Allows user to remove tags or edit their value via right click
-export function HANDLER_activate_tag_context_menus<T extends LancerActorSheetData<any> | LancerItemSheetData<any>>(
+export function handleTagContextMenus<T extends LancerActorSheetData<any> | LancerItemSheetData<any>>(
   html: JQuery,
   // Retrieves the data that we will operate on
   data_getter: () => Promise<T> | T,
   commit_func: (data: T) => void | Promise<void>
 ) {
-  /* TODO
   // This option allows the user to remove the right-clicked tag
+  /*
   let remove = {
     name: "Remove Tag",
     icon: '<i class="fas fa-fw fa-times"></i>',
-    // condition: game.user.isGM,
     callback: async (html: JQuery) => {
       let cd = await data_getter();
       let tag_path = html[0].dataset.path ?? "";
@@ -102,7 +101,7 @@ export function HANDLER_activate_tag_context_menus<T extends LancerActorSheetDat
 // Enables dropping of tags into open designated by .ref-list classed divs
 // Explicitly designed to handle natives. Generates a tag instance corresponding to that native, with a default value of 1
 // Follows conventional HANDLER design patterns
-export function HANDLER_activate_tag_dropping<T>(
+export function handleTagDropping<T>(
   html: JQuery,
   // Retrieves the data that we will operate on
   data_getter: () => Promise<T> | T,

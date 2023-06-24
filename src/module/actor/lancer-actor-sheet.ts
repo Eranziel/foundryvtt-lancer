@@ -1,13 +1,8 @@
 import { LANCER } from "../config";
-import { HANDLER_activate_general_controls, HANDLER_activate_popout_text_editor } from "../helpers/commons";
-import { HANDLER_enable_doc_dropping, ResolvedDropData } from "../helpers/dragdrop";
-import { HANDLER_activate_counter_listeners, HANDLER_activate_plus_minus_buttons } from "../helpers/item";
-import {
-  HANDLER_activate_ref_dragging,
-  HANDLER_activate_ref_slot_dropping,
-  click_evt_open_ref,
-  HANDLER_activate_uses_editor,
-} from "../helpers/refs";
+import { handleGenControls, handlePopoutTextEditor } from "../helpers/commons";
+import { handleDocDropping, ResolvedDropData } from "../helpers/dragdrop";
+import { handleCounterInteraction, handleInputPlusMinusButtons } from "../helpers/item";
+import { handleRefDragging, handleRefSlotDropping, click_evt_open_ref, handleUsesInteraction } from "../helpers/refs";
 import type { LancerActorSheetData } from "../interfaces";
 import { LancerItem, is_item_type, LancerItemType } from "../item/lancer-item";
 import { LancerActor, LancerActorType } from "./lancer-actor";
@@ -17,7 +12,7 @@ import { applyCollapseListeners, CollapseHandler, initializeCollapses } from "..
 import { addExportButton } from "../helpers/io";
 import type { ActionType } from "../action";
 import { InventoryDialog } from "../apps/inventory";
-import { HANDLER_activate_item_context_menus, HANDLER_activate_edit_counter } from "../helpers/item";
+import { handleItemContextMenus, handleCounterEditor } from "../helpers/item";
 import { getActionTrackerOptions } from "../settings";
 import { modAction } from "../action/action-tracker";
 import { insinuate } from "../util/doc";
@@ -63,7 +58,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
     $(html).find(".ref.set.click-open").on("click", click_evt_open_ref);
 
     // Enable ref dragging
-    HANDLER_activate_ref_dragging(html);
+    handleRefDragging(html);
 
     // Everything below here is only needed if the sheet is editable
     if (!this.options.editable) return;
@@ -77,36 +72,36 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
     let getfunc = () => this.getData();
 
     // Make +/- buttons work
-    HANDLER_activate_plus_minus_buttons(html, this.actor);
+    handleInputPlusMinusButtons(html, this.actor);
 
     // Make counter pips work
-    HANDLER_activate_counter_listeners(html, this.actor);
+    handleCounterInteraction(html, this.actor);
 
     // Enable hex use triggers.
-    HANDLER_activate_uses_editor(html, this.actor);
+    handleUsesInteraction(html, this.actor);
 
     // Enable context menu triggers.
-    HANDLER_activate_item_context_menus(html, this.actor);
+    handleItemContextMenus(html, this.actor);
 
     // Enable viewing inventory on sheets that support it
     this._activateInventoryButton(html);
 
     // Make refs droppable, in such a way that we take ownership when dropped
-    HANDLER_activate_ref_slot_dropping(html, this.actor, x => this.quickOwnDrop(x).then(v => v[0]));
+    handleRefSlotDropping(html, this.actor, x => this.quickOwnDrop(x).then(v => v[0]));
 
     // Enable general controls, so items can be deleted and such
-    HANDLER_activate_general_controls(html, this.actor);
+    handleGenControls(html, this.actor);
 
     // Enable popout editors
-    HANDLER_activate_popout_text_editor(html, this.actor);
+    handlePopoutTextEditor(html, this.actor);
 
-    HANDLER_activate_edit_counter(html, getfunc);
+    handleCounterEditor(html, getfunc);
 
     // Add export button.
     addExportButton(this.object, html);
 
     // Add root dropping
-    HANDLER_enable_doc_dropping(
+    handleDocDropping(
       html,
       async (entry, _dest, _event) => this.onRootDrop(entry, _event, _dest),
       (entry, _dest, _event) => this.canRootDrop(entry)

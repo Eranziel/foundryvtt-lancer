@@ -1,5 +1,5 @@
 import { LancerItemSheet } from "./item-sheet";
-import { HANDLER_activate_item_context_menus } from "../helpers/item";
+import { handleItemContextMenus } from "../helpers/item";
 import { LancerItemSheetData } from "../interfaces";
 import { EntryType } from "../enums";
 import { LancerItem, LancerLICENSE } from "./lancer-item";
@@ -57,7 +57,7 @@ export class LancerLicenseSheet extends LancerItemSheet<EntryType.LICENSE> {
    */
   _activate_context_listeners(html: JQuery) {
     // Enable custom context menu triggers with only the "view" option.
-    HANDLER_activate_item_context_menus(html, this.item, true);
+    handleItemContextMenus(html, this.item, true);
   }
 
   /**

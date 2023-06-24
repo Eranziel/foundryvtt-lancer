@@ -308,7 +308,7 @@ export function bonuses_display(bonuses_path: string, edit: boolean, options: He
 }
 
 // Allows right clicking bonuses to edit them
-export function HANDLER_activate_edit_bonus<T>(html: JQuery, root_doc: LancerItem | LancerActor) {
+export function handleEditBonuses<T>(html: JQuery, root_doc: LancerItem | LancerActor) {
   html.find(".editable.bonus").on("click", async evt => {
     evt.stopPropagation();
     const elt = evt.currentTarget;
@@ -321,7 +321,7 @@ export function HANDLER_activate_edit_bonus<T>(html: JQuery, root_doc: LancerIte
 }
 
 // Allows counter editing
-export function HANDLER_activate_edit_counter<T>(html: JQuery, data_getter: () => Promise<T> | T) {
+export function handleCounterEditor<T>(html: JQuery, data_getter: () => Promise<T> | T) {
   html.find(".counter-edit-button").on("click", async evt => {
     // Find the counter
     let path = evt.currentTarget.dataset.path;
@@ -1310,7 +1310,7 @@ async function _updateCounterData(root_doc: LancerActor | LancerItem, path: stri
 }
 
 // Handles  +/- buttons around _an input_
-export function HANDLER_activate_plus_minus_buttons(html: JQuery, root_doc: LancerActor | LancerItem) {
+export function handleInputPlusMinusButtons(html: JQuery, root_doc: LancerActor | LancerItem) {
   const mod_handler =
     (delta: number) => async (evt: JQuery.ClickEvent<HTMLElement, undefined, HTMLElement, HTMLElement>) => {
       evt.stopPropagation();
@@ -1330,7 +1330,7 @@ export function HANDLER_activate_plus_minus_buttons(html: JQuery, root_doc: Lanc
 }
 
 // Handles +/- buttons and hex clickables for _counters_
-export function HANDLER_activate_counter_listeners(html: JQuery, root_doc: LancerActor | LancerItem) {
+export function handleCounterInteraction(html: JQuery, root_doc: LancerActor | LancerItem) {
   // Make the hexes themselves clickable
   html.find(".counter-hex").on("click", async evt => {
     evt.stopPropagation();
@@ -1360,11 +1360,7 @@ export function HANDLER_activate_counter_listeners(html: JQuery, root_doc: Lance
   incr.on("click", mod_handler(+1));
 }
 
-export function HANDLER_activate_item_context_menus(
-  html: JQuery,
-  doc: LancerActor | LancerItem,
-  view_only: boolean = false
-) {
+export function handleItemContextMenus(html: JQuery, doc: LancerActor | LancerItem, view_only: boolean = false) {
   let edit: ContextMenuEntry = {
     name: view_only ? "View" : "Edit",
     icon: view_only ? `<i class="fas fa-eye"></i>` : `<i class="fas fa-edit"></i>`,
@@ -1487,7 +1483,7 @@ export function HANDLER_activate_item_context_menus(
 }
 
 // Allows user to remove or rename profiles value via right click
-export function HANDLER_activate_profile_context_menus<T extends LancerItemSheetData<any>>(
+export function handleProfileContextMenus<T extends LancerItemSheetData<any>>(
   html: JQuery,
   // Retrieves the data that we will operate on
   data_getter: () => Promise<T> | T,

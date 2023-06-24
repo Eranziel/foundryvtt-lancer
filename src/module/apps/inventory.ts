@@ -1,7 +1,7 @@
 import type { LancerActor } from "../actor/lancer-actor";
-import { HANDLER_activate_general_controls } from "../helpers/commons";
-import { HANDLER_activate_ref_dragging, click_evt_open_ref } from "../helpers/refs";
-import { HANDLER_activate_item_context_menus } from "../helpers/item";
+import { handleGenControls } from "../helpers/commons";
+import { handleRefDragging, click_evt_open_ref } from "../helpers/refs";
+import { handleItemContextMenus } from "../helpers/item";
 import { applyCollapseListeners, initializeCollapses } from "../helpers/collapse";
 
 interface FilledCategory {
@@ -150,12 +150,12 @@ export class InventoryDialog extends Dialog {
     let commitfunc = (_: any) => {};
 
     // Enable general controls, so items can be deleted and such
-    HANDLER_activate_general_controls(html, this.actor);
+    handleGenControls(html, this.actor);
 
     // Enable ref dragging
-    HANDLER_activate_ref_dragging(html);
+    handleRefDragging(html);
 
-    HANDLER_activate_item_context_menus(html, this.actor);
+    handleItemContextMenus(html, this.actor);
 
     // Make refs clickable to open the item
     $(html).find(".ref.set.click-open").on("click", click_evt_open_ref);

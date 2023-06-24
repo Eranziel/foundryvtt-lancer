@@ -409,7 +409,7 @@ export function extendHelper(
  * It has no influence on the behavior of the operation, but can nonetheless be useful for augmenting other behaviors.
  * (e.x. to delete associated entities when remove buttons cleared)
  */
-export function HANDLER_activate_general_controls(
+export function handleGenControls(
   html: JQuery,
   // Retrieves the data that we will operate on
   doc: LancerActor | LancerItem,
@@ -747,7 +747,7 @@ export function popout_editor_button(path: string) {
   return `<a class="fas fa-edit popout-text-edit-button" data-path="${path}"> </a>`;
 }
 
-export function HANDLER_activate_popout_text_editor(html: JQuery, root_doc: LancerActor | LancerItem) {
+export function handlePopoutTextEditor(html: JQuery, root_doc: LancerActor | LancerItem) {
   html.find(".popout-text-edit-button").on("click", async evt => {
     evt.stopPropagation();
     const elt = evt.currentTarget;

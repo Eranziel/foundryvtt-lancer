@@ -1,8 +1,4 @@
-import {
-  HANDLER_activate_general_controls,
-  HANDLER_activate_popout_text_editor,
-  resolve_dotpath,
-} from "../helpers/commons";
+import { handleGenControls, handlePopoutTextEditor, resolve_dotpath } from "../helpers/commons";
 import { LancerItem } from "../item/lancer-item";
 import { ActionData } from "../models/bits/action";
 /**
@@ -75,7 +71,7 @@ export class ActionEditDialog extends FormApplication {
    */
   activateListeners(html: JQuery<HTMLElement>) {
     super.activateListeners(html); // Enable popout editors
-    HANDLER_activate_popout_text_editor(html, this.target);
+    handlePopoutTextEditor(html, this.target);
   }
 
   /** @override */
@@ -105,7 +101,7 @@ export class ActionEditDialog extends FormApplication {
 }
 
 // Allows right clicking actions to edit them
-export function activate_action_editor(html: JQuery, item: LancerItem) {
+export function handleActionEditing(html: JQuery, item: LancerItem) {
   let bonuses = html.find(".action-editor");
   bonuses.on("click", async event => {
     // Find the bonus

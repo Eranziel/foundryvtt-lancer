@@ -1,27 +1,19 @@
 import type { LancerItemSheetData } from "../interfaces";
 import { LANCER } from "../config";
 import type { LancerItem, LancerItemType } from "./lancer-item";
+import { handleGenControls, handlePopoutTextEditor, resolve_dotpath } from "../helpers/commons";
+import { handleCounterInteraction, handleInputPlusMinusButtons } from "../helpers/item";
 import {
-  HANDLER_activate_general_controls,
-  HANDLER_activate_popout_text_editor,
-  resolve_dotpath,
-} from "../helpers/commons";
-import { HANDLER_activate_counter_listeners, HANDLER_activate_plus_minus_buttons } from "../helpers/item";
-import {
-  HANDLER_activate_ref_dragging,
-  HANDLER_activate_ref_slot_dropping,
-  HANDLER_add_doc_to_list_on_drop,
+  handleRefDragging,
+  handleRefSlotDropping,
+  handleDocListDropping,
   click_evt_open_ref,
-  HANDLER_activate_uses_editor,
+  handleUsesInteraction,
 } from "../helpers/refs";
-import {
-  HANDLER_activate_edit_bonus,
-  HANDLER_activate_item_context_menus,
-  HANDLER_activate_profile_context_menus,
-} from "../helpers/item";
-import { HANDLER_activate_tag_context_menus, HANDLER_activate_tag_dropping } from "../helpers/tags";
+import { handleEditBonuses, handleItemContextMenus, handleProfileContextMenus } from "../helpers/item";
+import { handleTagContextMenus, handleTagDropping } from "../helpers/tags";
 import { applyCollapseListeners, CollapseHandler, initializeCollapses } from "../helpers/collapse";
-import { activate_action_editor } from "../apps/action-editor";
+import { handleActionEditing } from "../apps/action-editor";
 import { find_license_for } from "../util/doc";
 import { lookupOwnedDeployables } from "../util/lid";
 import { EntryType } from "../enums";
@@ -81,7 +73,7 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet<ItemShe
    */
   _activate_context_listeners(html: JQuery) {
     // Enable custom context menu triggers. If the sheet is not editable, show only the "view" option.
-    HANDLER_activate_item_context_menus(html, this.item, !this.options.editable);
+    handleItemContextMenus(html, this.item, !this.options.editable);
   }
 
   /**
@@ -105,7 +97,7 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet<ItemShe
     $(html).find(".ref.set.click-open").on("click", click_evt_open_ref);
 
     // Enable ref dragging
-    HANDLER_activate_ref_dragging(html);
+    handleRefDragging(html);
 
     this._activate_context_listeners(html);
 
@@ -115,40 +107,40 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet<ItemShe
     }
 
     // Make +/- buttons work
-    HANDLER_activate_plus_minus_buttons(html, this.item);
+    handleInputPlusMinusButtons(html, this.item);
 
     // Make counter pips work
-    HANDLER_activate_counter_listeners(html, this.item);
+    handleCounterInteraction(html, this.item);
 
     // Enable hex use triggers.
-    HANDLER_activate_uses_editor(html, this.item);
+    handleUsesInteraction(html, this.item);
 
     // Allow dragging items into lists
-    HANDLER_add_doc_to_list_on_drop(html, this.item);
+    handleDocListDropping(html, this.item);
 
     // Allow set things by drop. Mostly we use this for manufacturer/license dragging
-    HANDLER_activate_ref_slot_dropping(html, this.item, null); // Don't restrict what can be dropped past type, and don't take ownership or whatever
+    handleRefSlotDropping(html, this.item, null); // Don't restrict what can be dropped past type, and don't take ownership or whatever
 
     // Enable bonus editors
-    HANDLER_activate_edit_bonus(html, this.item);
+    handleEditBonuses(html, this.item);
 
     // Enable tag editing
-    HANDLER_activate_tag_context_menus(html, getfunc, commitfunc);
+    handleTagContextMenus(html, getfunc, commitfunc);
 
     // Enable profile editing
-    HANDLER_activate_profile_context_menus(html, getfunc, commitfunc);
+    handleProfileContextMenus(html, getfunc, commitfunc);
 
     // Enable popout editors
-    HANDLER_activate_popout_text_editor(html, this.item);
+    handlePopoutTextEditor(html, this.item);
 
     // Enable general controls, so items can be deleted and such
-    HANDLER_activate_general_controls(html, this.item);
+    handleGenControls(html, this.item);
 
     // Enable tag dropping
-    HANDLER_activate_tag_dropping(html, getfunc, commitfunc);
+    handleTagDropping(html, getfunc, commitfunc);
 
     // Enable action editors
-    activate_action_editor(html, this.item);
+    handleActionEditing(html, this.item);
   }
 
   /* -------------------------------------------- */
