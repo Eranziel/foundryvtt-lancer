@@ -164,6 +164,8 @@ export async function migrateCompendium(pack: Compendium) {
     return;
   }
 
+  await pack.migrate();
+
   // Iterate over compendium entries - applying fine-tuned migration functions
   if (pack.documentName == "Actor") {
     let documents = (await pack.getDocuments()) as LancerActor[];
