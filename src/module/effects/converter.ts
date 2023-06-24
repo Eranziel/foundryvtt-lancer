@@ -1,6 +1,7 @@
+import type { EffectChangeDataConstructorData } from "@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/data/data.mjs/effectChangeData";
 import { LancerNPC, LancerPILOT } from "../actor/lancer-actor";
 import { EntryType } from "../enums";
-import { LancerFRAME, LancerMECH_WEAPON, LancerNPC_CLASS, LancerSTATUS } from "../item/lancer-item";
+import { LancerFRAME, LancerMECH_WEAPON, LancerNPC_CLASS, LancerNPC_FEATURE, LancerSTATUS } from "../item/lancer-item";
 import { BonusData } from "../models/bits/bonus";
 import { SystemData, SystemTemplates } from "../system-template";
 import {
@@ -10,10 +11,11 @@ import {
   LancerEffectTarget,
 } from "./lancer-active-effect";
 
-const FRAME_STAT_PRIORITY = 10;
+const FRAME_STAT_PRIORITY = 10; // Also handles npc classes
 const BONUS_STAT_PRIORITY = 20;
 const PILOT_STAT_PRIORITY = 30;
 const EFFECT_STAT_PRIORITY = 40;
+const FEATURE_OVERRIDE_PRIORITY = 50;
 
 // Makes an active effect for a frame.
 type FrameStatKey = keyof SystemData.Frame["stats"];
@@ -36,7 +38,6 @@ export function frameInnateEffect(frame: LancerFRAME): LancerActiveEffectConstru
     priority: FRAME_STAT_PRIORITY,
     value: frame.system.stats[key],
   }));
-
   // The weirder ones
   changes!.push({
     key: "system.hp.max",
@@ -281,64 +282,89 @@ export function statusConfigEffect(status: LancerSTATUS): any {
 }
 
 // Makes an active effect for an npc class.
-type ClassStatKey = keyof SystemData.NpcClass["base_stats"][0];
-type NpcStatKey = keyof SystemData.Npc;
-export function npcClassInnateEffect(class_: LancerNPC_CLASS): LancerActiveEffectConstructorData {
-  let keys: Array<ClassStatKey & NpcStatKey> = [
-    "activations",
-    "armor",
-    "evasion",
-    "edef",
-    "speed",
-    "sensor_range",
-    "save",
-    "hull",
-    "agi",
-    "sys",
-    "eng",
-    "size",
-  ];
+type ClassStatKey = keyof SystemTemplates.NPC.NullableStatBlock;
+const npc_keys: Array<ClassStatKey> = [
+  // Can be taken as is
+  "activations",
+  "armor",
+  "evasion",
+  "edef",
+  "speed",
+  "sensor_range",
+  "save",
+  "hull",
+  "agi",
+  "sys",
+  "eng",
+  "size",
 
+  // Handled specially
+  "hp",
+  "heatcap",
+  "structure",
+  "stress",
+];
+
+// Make a bonus appropriate to the provided stat key
+function makeNpcBonus(
+  stat: ClassStatKey,
+  value: number,
+  mode: EffectChangeDataConstructorData["mode"],
+  priority: number
+): EffectChangeDataConstructorData {
+  switch (stat) {
+    case "hp":
+      return {
+        key: "system.hp.max",
+        mode,
+        priority,
+        // @ts-expect-error
+        value,
+      };
+    case "heatcap":
+      return {
+        key: "system.heat.max",
+        mode,
+        priority,
+        // @ts-expect-error
+        value,
+      };
+    case "structure":
+      return {
+        key: "system.structure.max",
+        mode,
+        priority,
+        // @ts-expect-error
+        value,
+      };
+    case "stress":
+      return {
+        key: "system.stress.max",
+        mode,
+        priority,
+        // @ts-expect-error
+        value,
+      };
+    default:
+      // All the rest trivially handled
+      return {
+        key: `system.${stat}`,
+        mode,
+        priority,
+        // @ts-expect-error
+        value,
+      };
+  }
+}
+
+// Create innate effect for an npc class, AKA its base stats adjusted for tier
+export function npcClassInnateEffect(class_: LancerNPC_CLASS): LancerActiveEffectConstructorData {
   let tier = (class_?.actor as LancerNPC | undefined)?.system.tier ?? 1;
   let bs = class_.system.base_stats[tier - 1];
 
-  // @ts-expect-error Shouldn't be restricted to not take numbers I don't think
-  let changes: LancerActiveEffectConstructorData["changes"] = keys.map(key => ({
-    key: `system.${key}`,
-    mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-    priority: FRAME_STAT_PRIORITY,
-    value: bs[key],
-  }));
-
-  // The weirder ones
-  changes!.push({
-    key: "system.hp.max",
-    mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-    priority: FRAME_STAT_PRIORITY,
-    // @ts-expect-error
-    value: bs.hp,
-  });
-  changes!.push({
-    key: "system.structure.max",
-    mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-    priority: FRAME_STAT_PRIORITY,
-    // @ts-expect-error
-    value: bs.structure,
-  });
-  changes!.push({
-    key: "system.stress.max",
-    mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-    priority: FRAME_STAT_PRIORITY,
-    // @ts-expect-error
-    value: bs.stress,
-  });
-  changes!.push({
-    key: "system.heat.max",
-    mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
-    priority: FRAME_STAT_PRIORITY,
-    // @ts-expect-error
-    value: bs.heatcap,
-  });
+  let changes: LancerActiveEffectConstructorData["changes"] = npc_keys.map(key =>
+    makeNpcBonus(key, bs[key], CONST.ACTIVE_EFFECT_MODES.OVERRIDE, FRAME_STAT_PRIORITY)
+  );
 
   return {
     flags: { lancer: { ephemeral: true } },
@@ -348,6 +374,52 @@ export function npcClassInnateEffect(class_: LancerNPC_CLASS): LancerActiveEffec
     transfer: true,
     changes,
   };
+}
+
+// Converts the system.bonus of an npc feature into an array
+export function npcFeatureBonusEffects(feature: LancerNPC_FEATURE): LancerActiveEffectConstructorData | null {
+  let changes: LancerActiveEffectConstructorData["changes"] = [];
+  for (let key of npc_keys) {
+    let value = feature.system.bonus[key];
+    if (value !== null) {
+      changes.push(makeNpcBonus(key, value, CONST.ACTIVE_EFFECT_MODES.ADD, BONUS_STAT_PRIORITY));
+    }
+  }
+  if (changes.length) {
+    return {
+      flags: { lancer: { ephemeral: true } },
+      name: `${feature.name!} - bonuses`,
+      icon: feature.img,
+      origin: feature.uuid,
+      transfer: true,
+      changes,
+    };
+  } else {
+    return null;
+  }
+}
+
+// Converts the system.override of an npc feature into an array
+export function npcFeatureOverrideEffects(feature: LancerNPC_FEATURE): LancerActiveEffectConstructorData | null {
+  let changes: LancerActiveEffectConstructorData["changes"] = [];
+  for (let key of npc_keys) {
+    let value = feature.system.override[key];
+    if (value !== null) {
+      changes.push(makeNpcBonus(key, value, CONST.ACTIVE_EFFECT_MODES.OVERRIDE, FEATURE_OVERRIDE_PRIORITY));
+    }
+  }
+  if (changes.length) {
+    return {
+      flags: { lancer: { ephemeral: true } },
+      name: `${feature.name!} - overrides`,
+      icon: feature.img,
+      origin: feature.uuid,
+      transfer: true,
+      changes,
+    };
+  } else {
+    return null;
+  }
 }
 
 // Converts a single bonus to a single active effect

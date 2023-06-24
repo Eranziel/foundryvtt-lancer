@@ -34,6 +34,10 @@ export interface BoundedNum {
   value: number;
 }
 
+export type WithNullableProperties<T> = {
+  [K in keyof T]: T[K] | null;
+};
+
 export type FullBoundedNum = Required<BoundedNum>;
 export type UUIDRef = string; // A UUID reference to a document.
 export type EmbeddedRef = string; // A local item on an actor. Used for loadouts / active equipment
@@ -118,14 +122,15 @@ export namespace SourceTemplates {
       structure: number;
       stress: number;
     }
+    export type NullableStatBlock = WithNullableProperties<StatBlock>;
 
     // All features have at least this core data
     export interface BaseFeatureData extends uses, destructible {
       lid: string;
       // We strip origin - it isn't particularly helpful to store in source, but could be derived maybe
       effect: string;
-      bonus: Partial<StatBlock>;
-      override: Partial<StatBlock>;
+      bonus: NullableStatBlock;
+      override: NullableStatBlock;
       tags: TagData[];
       type: NpcFeatureType;
 

@@ -166,7 +166,9 @@ export namespace SystemTemplates {
   // NPC stuff
   export namespace NPC {
     // Everything herein is more or less an exact copy
+    // These duplicated here for clarity and future proofing
     export interface StatBlock extends SourceTemplates.NPC.StatBlock {}
+    export interface NullableStatBlock extends SourceTemplates.NPC.NullableStatBlock {}
 
     // This small helper type is just used to repair npc types "tags" field
     type NPCFixup<T extends { tags: TagData[]; uses: number }> = Omit<T, "tags" | "uses" | "range" | "damage"> & {
@@ -437,22 +439,7 @@ export namespace SystemData {
     };
     base_features: LIDRef[];
     optional_features: LIDRef[];
-    base_stats: Array<{
-      activations: number;
-      armor: number;
-      hp: number;
-      evasion: number;
-      edef: number;
-      heatcap: number;
-      speed: number;
-      sensor_range: number;
-      save: number;
-      hull: number;
-      agi: number;
-      sys: number;
-      eng: number;
-      size: number; // TODO: don't miss this in migrations
-    }>;
+    base_stats: Array<SystemTemplates.NPC.StatBlock>;
   }
   export type NpcFeature = SystemTemplates.NPC.AnyFeature & {
     origin: {

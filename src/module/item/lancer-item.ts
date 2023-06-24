@@ -11,9 +11,10 @@ import {
   convertBonus,
   frameInnateEffect as frameInnate,
   npcClassInnateEffect as npcClassInnate,
+  npcFeatureBonusEffects,
+  npcFeatureOverrideEffects,
 } from "../effects/converter";
 import { BonusData } from "../models/bits/bonus";
-import { ChangeWatchHelper } from "../util/misc";
 import { LancerMECH } from "../actor/lancer-actor";
 import { Damage } from "../models/bits/damage";
 import { WeaponAttackFlow } from "../flows/attack";
@@ -242,12 +243,14 @@ export class LancerItem extends Item {
     // Destroyed items produce no effects
     if ((this as any).destroyed === true || !this.isEquipped()) return [];
 
-    // Generate from bonuses + innate
+    // Generate from bonuses + innate effects
+    let effects: LancerActiveEffectConstructorData[] = [];
     let bonus_groups: {
+      // Converted & added to effects later
       group?: string;
       bonuses: BonusData[];
     }[] = [];
-    let innate: LancerActiveEffectConstructorData | null = null;
+
     switch (this.type) {
       case EntryType.FRAME:
         let talf = this as unknown as LancerFRAME;
@@ -261,10 +264,16 @@ export class LancerItem extends Item {
             bonuses: trait.bonuses,
           });
         }
-        innate = frameInnate(this as unknown as LancerFRAME);
+        effects.push(frameInnate(this as unknown as LancerFRAME));
         break;
       case EntryType.NPC_CLASS:
-        innate = npcClassInnate(this as unknown as LancerNPC_CLASS);
+        effects.push(npcClassInnate(this as unknown as LancerNPC_CLASS));
+        break;
+      case EntryType.NPC_FEATURE:
+        let be = npcFeatureBonusEffects(this as unknown as LancerNPC_FEATURE);
+        let oe = npcFeatureOverrideEffects(this as unknown as LancerNPC_FEATURE);
+        if (be) effects.push(be);
+        if (oe) effects.push(oe);
         break;
       case EntryType.PILOT_ARMOR:
       case EntryType.PILOT_GEAR:
@@ -285,17 +294,15 @@ export class LancerItem extends Item {
     } // Nothing else needs particular care
 
     // Convert bonuses
-    let bonus_effects = bonus_groups
-      .flatMap(bg =>
-        bg.bonuses.map(b => convertBonus(this.uuid, bg.group ? `${this.name} - ${bg.group}` : this.name!, b))
-      )
-      .filter(b => b) as LancerActiveEffectConstructorData[];
+    effects.push(
+      ...(bonus_groups
+        .flatMap(bg =>
+          bg.bonuses.map(b => convertBonus(this.uuid, bg.group ? `${this.name} - ${bg.group}` : this.name!, b))
+        )
+        .filter(b => b) as LancerActiveEffectConstructorData[])
+    );
 
-    if (innate) {
-      bonus_effects.push(innate);
-    }
-
-    return bonus_effects.map(e => new LancerActiveEffect(e, { parent: this }));
+    return effects.map(e => new LancerActiveEffect(e, { parent: this }));
   }
 
   /** @inheritdoc */
