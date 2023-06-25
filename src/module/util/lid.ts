@@ -1,21 +1,20 @@
 import { LancerActor, LancerDEPLOYABLE } from "../actor/lancer-actor";
-import { FetcherCache } from "./async";
+import { FetcherCache, RepentantFetcherCache } from "./async";
 import { LancerItem } from "../item/lancer-item";
 import { EntryType } from "../enums";
 
-const CACHE_DURATION = 10_000;
+const CACHE_DURATION = 999_999_000; // Basically indefinitely. But on a miss, they regenerate
 
-// Cache compendium index lookups for 5 second
 // Converts the index into a map of LID -> index entry
 const indexFastCache = new FetcherCache<string, Map<string, any> | null>(async (pack: string) => {
   let index = await (game.packs.get(pack)?.getIndex() ?? null);
   if (index) {
     let map = new Map<string, any>();
     for (let i of index.contents as any[]) {
-      if (i.system?.lid) {
+      if (i.system?.lid != null) {
         map.set(i.system.lid, i);
       } else {
-        console.log("Item without lid:", i);
+        console.error("Index item without lid:", i);
       }
     }
     return map;
@@ -26,35 +25,43 @@ const indexFastCache = new FetcherCache<string, Map<string, any> | null>(async (
 /**
  * Lookup all documents with the associated lid in the given types.
  * Document types are checked in order. If no type(s) supplied, all are queried.
- * short_circuit will make it stop with first valid result. Will still return all results of that category, but will not check further categories
  */
-const lookupLIDPluralCache = new FetcherCache<string, Array<LancerActor | LancerItem>>(async lid_and_types => {
-  let [lid, raw_types] = lid_and_types.split("|");
-  let types = raw_types.split("/") as EntryType[];
+const lookupLIDPluralCache = new RepentantFetcherCache<string, Array<LancerActor | LancerItem>>(
+  async (lid_and_types, retrying) => {
+    let [lid, raw_types] = lid_and_types.split("|");
+    let types = raw_types.split("/") as EntryType[];
 
-  // Note: typeless lookup is (somewhat obviously) up to 20x more expensive than non. Doesn't really matter, though
-  if (types.length == 0) {
-    types = Object.values(EntryType);
-  }
-
-  let result: Array<LancerActor | LancerItem> = [];
-  for (let t of types) {
-    let pack_name = `world.${t}`;
-    let pack = game.packs.get(pack_name)!;
-    let index = await indexFastCache.fetch(pack_name);
-    let id = index?.get(lid)?._id;
-    let doc = id ? ((await pack.getDocument(id)) as LancerActor | LancerItem) : null;
-    if (doc) {
-      result.push(doc);
+    // If no types, all types
+    if (types.length == 0) {
+      types = Object.values(EntryType);
     }
-  }
 
-  if (result.length == 0) {
-    ui.notifications?.error(`Error looking up LID '${lid}'. Ensure you have all required LCPs for this actor.`);
-  }
+    let result: Array<LancerActor | LancerItem> = [];
+    for (let t of types) {
+      let pack_name = `world.${t}`;
+      let pack = game.packs.get(pack_name);
+      if (!pack) {
+        console.error(`Pack not found: ${pack_name}`);
+        continue;
+      }
+      if (retrying) indexFastCache.flush(pack_name); // Better safe than sorry
+      let index = await indexFastCache.fetch(pack_name);
+      let id = index?.get(lid)?._id;
+      let doc = id ? ((await pack.getDocument(id)) as LancerActor | LancerItem) : null;
+      if (doc) {
+        result.push(doc);
+      }
+    }
 
-  return result;
-}, CACHE_DURATION);
+    if (result.length == 0) {
+      ui.notifications?.error(`Error looking up LID '${lid}'. Ensure you have all required LCPs for this actor.`);
+    }
+
+    return result;
+  },
+  x => !!x,
+  CACHE_DURATION
+);
 
 export async function lookupLIDPlural(
   lid: string,
