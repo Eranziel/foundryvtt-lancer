@@ -191,8 +191,6 @@ Hooks.once("init", async function () {
   // Add this schema for each document type.
   // game.documentTypes.Item.forEach(type => CONFIG.Item.dataModels[type] = MyItemModel);
   // @ts-expect-error
-  game.documentTypes.Item.forEach(type => (CONFIG.Item.compendiumIndexFields = ["system.lid"]));
-  // @ts-expect-error
   CONFIG.Item.dataModels[EntryType.PILOT_ARMOR] = PilotArmorModel;
   // @ts-expect-error
   CONFIG.Item.dataModels[EntryType.PILOT_GEAR] = PilotGearModel;
@@ -233,6 +231,12 @@ Hooks.once("init", async function () {
   CONFIG.Actor.dataModels[EntryType.NPC] = NpcModel;
   // @ts-expect-error
   CONFIG.Actor.dataModels[EntryType.DEPLOYABLE] = DeployableModel;
+
+  // Configure indexes
+  // @ts-expect-error
+  CONFIG.Item.compendiumIndexFields = ["system.lid"];
+  // @ts-expect-error
+  CONFIG.Actor.compendiumIndexFields = ["system.lid"];
 
   // Register custom system settings
   registerSettings();
@@ -289,10 +293,6 @@ Hooks.once("init", async function () {
 
   // Record Configuration Values
   CONFIG.Actor.documentClass = LancerActor;
-  // @ts-expect-error v10
-  CONFIG.Actor.compendiumIndexFields.push("system.lid");
-  // @ts-expect-error v10
-  CONFIG.Item.compendiumIndexFields.push("system.lid");
   CONFIG.Item.documentClass = LancerItem;
   CONFIG.ActiveEffect.documentClass = LancerActiveEffect;
   CONFIG.Token.documentClass = LancerTokenDocument;
