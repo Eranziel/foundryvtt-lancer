@@ -1372,7 +1372,7 @@ function handleContextMenusImpl(
   // Logic elsewhere will clean up the array item (if any) if said array item would be problematic left blank
   let clear_reference: ContextMenuEntry = {
     name: "Unlink",
-    icon: '<i class="fas fa-fw fa-trash"></i>',
+    icon: '<i class="fas fa-times"></i>',
     callback: async (html: JQuery) => {
       // Set as null
       doc.update({ [path(html)!]: null });
