@@ -83,8 +83,6 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
           item.setAttribute("draggable", "true");
         });
     }
-
-    this._activateTooltips();
   }
 
   _onDragMacroableStart(event: DragEvent) {
@@ -102,13 +100,6 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
     };
 
     event.dataTransfer?.setData("text/plain", JSON.stringify(data));
-  }
-
-  private _activateTooltips() {
-    tippy('[data-context-menu="toggle"][data-field="Destroyed"]', {
-      content: "Right Click to Destroy",
-      delay: [300, 100],
-    });
   }
 
   /* -------------------------------------------- */

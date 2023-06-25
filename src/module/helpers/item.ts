@@ -344,7 +344,7 @@ export function pilot_armor_slot(armor_path: string, options: HelperOptions): st
             <div class="lancer-header">
               <i class="mdi mdi-shield-outline i--m i--light"> </i>
               <span class="minor">${armor.name}</span>
-              <a class="lancer-context-menu" data-context-menu="${armor.type}" data-path="${armor_path}"">
+              <a class="lancer-context-menu" data-path="${armor_path}"">
                 <i class="fas fa-ellipsis-v"></i>
               </a>
             </div>
@@ -410,7 +410,7 @@ export function pilot_weapon_refview(weapon_path: string, options: HelperOptions
     <div class="lancer-header">
       <i class="cci cci-weapon i--m i--light"> </i>
       <span class="minor">${weapon.name}</span>
-              <a class="lancer-context-menu" data-context-menu="${weapon.type}" data-path="${weapon_path}"">
+              <a class="lancer-context-menu" data-path="${weapon_path}"">
                 <i class="fas fa-ellipsis-v"></i>
               </a>
     </div>
@@ -465,7 +465,7 @@ export function pilot_gear_refview(gear_path: string, options: HelperOptions): s
       <i class="cci cci-generic-item i--m"> </i>
       <a class="gear-macro"><i class="mdi mdi-message"></i></a>
       <span class="minor">${gear.name!}</span>
-      <a class="lancer-context-menu" data-context-menu="${gear.type}" data-path="${gear_path}"">
+      <a class="lancer-context-menu" data-path="${gear_path}"">
         <i class="fas fa-ellipsis-v"></i>
       </a>
     </div>
@@ -549,7 +549,7 @@ export function reserve_refview(reserve_path: string, options: HelperOptions): s
       <i class="${icon} i--m"> </i>
       <a class="reserve-macro"><i class="mdi mdi-message"></i></a>
       <span class="minor">${reserve.name}</span>
-      <a class="lancer-context-menu" data-context-menu="${reserve.type}" data-path="${reserve_path}"">
+      <a class="lancer-context-menu" data-path="${reserve_path}"">
         <i class="fas fa-ellipsis-v"></i>
       </a>
     </div>
@@ -662,7 +662,7 @@ data-action="set" data-action-value="(int)${i}" data-path="${weapon_path}.system
           ${weapon.name} // ${weapon.system.size.toUpperCase()} ${profile.type.toUpperCase()}
         </span>
         ${collapseButton(collapse, weapon)}
-        <a class="lancer-context-menu" data-context-menu="${EntryType.MECH_WEAPON}" data-path="${weapon_path}">
+        <a class="lancer-context-menu" data-path="${weapon_path}">
           <i class="fas fa-ellipsis-v"></i>
         </a>
       </div> 
@@ -759,7 +759,7 @@ export function weapon_mod_ref(mod_path: string, weapon_path: string | null, opt
     <div class="lancer-header">
       <i class="cci cci-weaponmod i--m i--light"> </i>
       <span class="minor">${mod.name}</span>
-      <a class="lancer-context-menu" data-context-menu="${EntryType.WEAPON_MOD}" data-path="${mod_path}">
+      <a class="lancer-context-menu" data-path="${mod_path}">
         <i class="fas fa-ellipsis-v"></i>
       </a>
     </div>
@@ -813,7 +813,7 @@ export function license_ref(item_path: string, options: HelperOptions): string {
         <i class="cci cci-license i--m i--dark"> </i>
         <div class="major modifier-name">${license.name} ${license.system.curr_rank}</div>
         <div class="ref-controls">
-          <a class="lancer-context-menu" data-context-menu="${license.type}" data-path="${item_path}"">
+          <a class="lancer-context-menu" data-path="${item_path}"">
             <i class="fas fa-ellipsis-v"></i>
           </a>
         </div>
@@ -833,7 +833,7 @@ export function framePreview(path: string, options: HelperOptions): string {
         <span class="img-bar" style="background-image: url(${frame_img})"></span>
         <div class="major modifier-name i--light">${frame.system.manufacturer} ${frame.name}</div>
         <div class="ref-controls">
-          <a class="lancer-context-menu" data-context-menu="${frame.type}" data-path="${path}"">
+          <a class="lancer-context-menu" data-path="${path}"">
             <i class="fas fa-ellipsis-v i--light"></i>
           </a>
         </div>
@@ -853,7 +853,7 @@ export function npc_class_ref(npc_class: LancerNPC_CLASS | null, item_path?: str
         <span class="img-bar" style="background-image: url(${frame_img})"></span>
         <div class="major modifier-name i--light">${npc_class.name} // ${npc_class.system.role.toUpperCase()}</div>
         <div class="ref-controls">
-          <a class="lancer-context-menu" data-context-menu="${npc_class.type}" data-path="${item_path}"">
+          <a class="lancer-context-menu" data-path="${item_path}"">
             <i class="fas fa-ellipsis-v i--light"></i>
           </a>
         </div>
@@ -872,7 +872,7 @@ export function npc_template_ref(template: LancerNPC_TEMPLATE | null, item_path?
         <span class="img-bar" style="background-image: url(${template.img})"></span>
         <div class="major modifier-name i--light">${template.name}</div>
         <div class="ref-controls">
-          <a class="lancer-context-menu" data-context-menu="${template.type}" data-path="${item_path}"">
+          <a class="lancer-context-menu" data-path="${item_path}"">
             <i class="fas fa-ellipsis-v i--light"></i>
           </a>
         </div>
@@ -1180,9 +1180,7 @@ export function buildCounterHeader(data: CounterData, path: string, can_delete?:
   <div class="card clipped-bot counter-wrapper" data-path="${path}">
     <div class="lancer-header">
       <span>// ${data.name} //</span>
-      <a class="lancer-context-menu" data-context-menu="counter" data-path="${path}" data-can-delete="${
-    can_delete ? can_delete : false
-  }">
+      <a class="lancer-context-menu" data-path="${path}" data-can-delete="${can_delete ? can_delete : false}">
         <i class="fas fa-ellipsis-v"></i>
       </a>
     </div>`;

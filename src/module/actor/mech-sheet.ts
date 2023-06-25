@@ -41,8 +41,6 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
   activateListeners(html: JQuery<HTMLElement>) {
     super.activateListeners(html);
 
-    LancerMechSheet._activateTooltips();
-
     // Everything below here is only needed if the sheet is editable
     if (!this.options.editable) return;
 
@@ -52,13 +50,6 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
   }
 
   /* -------------------------------------------- */
-
-  private static _activateTooltips() {
-    tippy('[data-context-menu="toggle"][data-field="Destroyed"]', {
-      content: "Right Click to Destroy",
-      delay: [300, 100],
-    });
-  }
 
   canRootDrop(item: ResolvedDropData): boolean {
     // Reject any non npc / non pilot item

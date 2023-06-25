@@ -205,7 +205,7 @@ export function item_preview<T extends LancerItemType>(
         <span class="major">${doc.name}</span>
         <hr class="vsep"> 
         <div class="ref-controls">
-          <a class="lancer-context-menu" data-context-menu="${doc.type}" data-path="${item_path}">
+          <a class="lancer-context-menu" data-path="${item_path}">
             <i class="fas fa-ellipsis-v"></i>
           </a>
         </div>

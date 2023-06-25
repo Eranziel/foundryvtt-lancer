@@ -78,7 +78,7 @@ export function mech_system_view(system_path: string, options: HelperOptions): s
           <span class="minor grow">${doc.name}</span>
           ${collapseButton(collapse, doc)}
           <div class="ref-controls">
-            <a class="lancer-context-menu" data-context-menu="${doc.type}" data-path="${system_path}"">
+            <a class="lancer-context-menu" data-path="${system_path}"">
               <i class="fas fa-ellipsis-v"></i>
             </a>
           </div>
