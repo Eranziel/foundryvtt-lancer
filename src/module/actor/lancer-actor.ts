@@ -535,49 +535,55 @@ export class LancerActor extends Actor {
    * effects are kept in lockstep as items are created, updated, and deleted
    */
   _onCreateDescendantDocuments(
-    _embeddedName: "Item" | "ActiveEffect",
-    _documents: LancerItem[] | LancerActiveEffect[],
-    _result: any,
-    _options: any,
-    user: string
+    parent: foundry.abstract.Document<any>,
+    collection: "items" | "effects",
+    documents: LancerItem[] | LancerActiveEffect[],
+    changes: any[],
+    options: any,
+    userId: string
   ) {
-    let cause_updates = game.userId == user;
-
-    if (cause_updates) {
+    // @ts-expect-error
+    super._onCreateDescendantDocuments(parent, collection, documents, changes, options, userId);
+    if (game.userId == userId) {
       this.effectHelper.propagateEffects(false); // Items / Effects have changed - may need to propagate
     }
   }
 
   /** @inheritdoc */
   _onUpdateDescendantDocuments(
-    _embeddedName: "Item" | "ActiveEffect",
-    _documents: LancerItem[] | LancerActiveEffect[],
-    _result: any,
-    _options: any,
-    user: string
+    parent: foundry.abstract.Document<any>,
+    collection: "items" | "effects",
+    documents: LancerItem[] | LancerActiveEffect[],
+    changes: any[],
+    options: any,
+    userId: string
   ) {
-    let cause_updates = game.userId == user;
-
-    if (cause_updates) {
+    // @ts-expect-error
+    super._onUpdateDescendantDocuments(parent, collection, documents, changes, options, userId);
+    if (game.userId == userId) {
       this.effectHelper.propagateEffects(false); // Effects have changed - may need to propagate
     }
   }
 
   /** @inheritdoc */
   _onDeleteDescendantDocuments(
-    _embeddedName: "Item" | "ActiveEffect",
+    parent: foundry.abstract.Document<any>,
+    collection: "items" | "effects",
     documents: LancerItem[] | LancerActiveEffect[],
-    _result: any,
-    _options: any,
-    user: string
+    changes: any[],
+    options: any,
+    userId: string
   ) {
+    // @ts-expect-error
+    super._onDeleteDescendantDocuments(parent, collection, documents, changes, options, userId);
+
     // Mark them all as deleted for delete-deduplication purposes
     for (let doc of documents) {
       deleteIdCache.add(doc.uuid);
     }
     deleteIdCacheCleanup();
 
-    let cause_updates = game.userId == user;
+    let cause_updates = game.userId == userId;
 
     // Clear effects from deleted items
     if (cause_updates) {
