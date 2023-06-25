@@ -10,14 +10,15 @@ import {
   click_evt_open_ref,
   handleUsesInteraction,
 } from "../helpers/refs";
-import { handleEditBonuses, handleItemContextMenus, handleProfileContextMenus } from "../helpers/item";
-import { handleTagContextMenus, handleTagDropping } from "../helpers/tags";
+import { handleContextMenus } from "../helpers/item";
+import { handleTagDropping } from "../helpers/tags";
 import { applyCollapseListeners, CollapseHandler, initializeCollapses } from "../helpers/collapse";
-import { handleActionEditing } from "../apps/action-editor";
+import { ActionEditDialog } from "../apps/action-editor";
 import { find_license_for } from "../util/doc";
 import { lookupOwnedDeployables } from "../util/lid";
 import { EntryType } from "../enums";
 import { LancerDEPLOYABLE } from "../actor/lancer-actor";
+import { BonusEditDialog } from "../apps/bonus-editor";
 
 const lp = LANCER.log_prefix;
 
@@ -73,7 +74,7 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet<ItemShe
    */
   _activate_context_listeners(html: JQuery) {
     // Enable custom context menu triggers. If the sheet is not editable, show only the "view" option.
-    handleItemContextMenus(html, this.item, !this.options.editable);
+    handleContextMenus(html, this.item, !this.options.editable);
   }
 
   /**
@@ -121,14 +122,9 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet<ItemShe
     // Allow set things by drop. Mostly we use this for manufacturer/license dragging
     handleRefSlotDropping(html, this.item, null); // Don't restrict what can be dropped past type, and don't take ownership or whatever
 
-    // Enable bonus editors
-    handleEditBonuses(html, this.item);
-
-    // Enable tag editing
-    handleTagContextMenus(html, getfunc, commitfunc);
-
-    // Enable profile editing
-    handleProfileContextMenus(html, getfunc, commitfunc);
+    // Enable our subform editors editors
+    BonusEditDialog.handle(html, ".editable.bonus", this.item);
+    ActionEditDialog.handle(html, ".editable.action", this.item);
 
     // Enable popout editors
     handlePopoutTextEditor(html, this.item);
@@ -138,9 +134,6 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet<ItemShe
 
     // Enable tag dropping
     handleTagDropping(html, getfunc, commitfunc);
-
-    // Enable action editors
-    handleActionEditing(html, this.item);
   }
 
   /* -------------------------------------------- */

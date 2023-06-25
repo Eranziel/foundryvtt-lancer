@@ -3,7 +3,6 @@
 /* ------------------------------------ */
 
 import type { HelperOptions } from "handlebars";
-import { BonusEditDialog } from "../apps/bonus-editor";
 import { TypeIcon } from "../config";
 import {
   npc_reaction_effect_preview,
@@ -14,25 +13,21 @@ import {
 } from "./npc";
 import { compact_tag_list } from "./tags";
 import {
-  array_path_edit,
   array_path_edit_changes,
   drilldownDocument,
   effect_box,
   extendHelper,
-  format_dotpath,
   inc_if,
-  popout_editor_button,
   resolve_dotpath,
   resolve_helper_dotpath,
   sp_display,
   std_enum_select,
   std_string_input,
   std_x_of_y,
-  tippy_context_menu,
+  tippyContextMenu,
 } from "./commons";
 import { limited_uses_indicator, ref_params, reserve_used_indicator, resolve_ref_element } from "./refs";
 import {
-  ActivationOptions,
   ActivationType,
   ChipIcons,
   DamageType,
@@ -44,13 +39,11 @@ import {
   WeaponSize,
   WeaponType,
 } from "../enums";
-import type { LancerActorSheetData, LancerItemSheetData } from "../interfaces";
 import { encodeMacroData } from "../macros";
 import { collapseButton, collapseParam, CollapseRegistry } from "./collapse";
 import { promptText } from "../apps/simple-prompt";
 import { CounterEditForm } from "../apps/counter-editor";
 import { frameToPath } from "../actor/retrograde-map";
-import { InventoryDialogData } from "../apps/inventory";
 import { Damage } from "../models/bits/damage";
 import { Range } from "../models/bits/range";
 import { BonusData } from "../models/bits/bonus";
@@ -306,41 +299,6 @@ export function bonuses_display(bonuses_path: string, edit: boolean, options: He
     </div>
     `;
 }
-
-// Allows right clicking bonuses to edit them
-export function handleEditBonuses<T>(html: JQuery, root_doc: LancerItem | LancerActor) {
-  html.find(".editable.bonus").on("click", async evt => {
-    evt.stopPropagation();
-    const elt = evt.currentTarget;
-    const path = elt.dataset.path;
-    if (path) {
-      let dd = drilldownDocument(root_doc, path);
-      return BonusEditDialog.edit_bonus(dd.sub_doc, dd.sub_path);
-    }
-  });
-}
-
-// Allows counter editing
-export function handleCounterEditor<T>(html: JQuery, data_getter: () => Promise<T> | T) {
-  html.find(".counter-edit-button").on("click", async evt => {
-    // Find the counter
-    let path = evt.currentTarget.dataset.path;
-    let writeback_path = evt.currentTarget.dataset.writeback_path;
-    if (!path || !writeback_path) throw "Counters weren't set up right";
-
-    return; // TODO
-    /*
-    let data = await data_getter();
-
-    let document = resolve_dotpath(data, writeback_path) as LancerItem | LancerActor | null;
-
-    if (!document) throw new Error("Writeback is broken");
-
-    return CounterEditForm.edit_counter(item, path, document).catch(e => console.error("Dialog failed", e));
-    */
-  });
-}
-
 /** Expected arguments:
  * - bonus_path=<string path to the individual bonus item>,  ex: ="doc.system.actions.3"
  * - bonus=<bonus object to pre-populate with>
@@ -1272,30 +1230,6 @@ export function buildCounterArrayHTML(
   </div>`;
 }
 
-function _updateButtonSiblingData(button: JQuery<HTMLElement>, delta: number) {
-  const input = button.siblings("input");
-  const curr = Number.parseInt(input.prop("value"));
-  if (!isNaN(curr)) {
-    if (delta > 0) {
-      if (
-        !button[0].dataset["max"] ||
-        button[0].dataset["max"] == "-1" ||
-        curr + delta <= Number.parseInt(button[0].dataset["max"])
-      ) {
-        input.prop("value", curr + delta);
-      } else {
-        input.prop("value", input[0].dataset["max"]);
-      }
-    } else if (delta < 0) {
-      if (curr + delta >= 0) {
-        input.prop("value", curr + delta);
-      } else {
-        input.prop("value", 0);
-      }
-    }
-  }
-}
-
 async function _updateCounterData(root_doc: LancerActor | LancerItem, path: string, delta: number) {
   let dd = drilldownDocument(root_doc, path);
   const counter = dd.terminus as CounterData;
@@ -1360,189 +1294,157 @@ export function handleCounterInteraction(html: JQuery, root_doc: LancerActor | L
   incr.on("click", mod_handler(+1));
 }
 
-export function handleItemContextMenus(html: JQuery, doc: LancerActor | LancerItem, view_only: boolean = false) {
+export function handleContextMenus(html: JQuery, doc: LancerActor | LancerItem, view_only: boolean = false) {
+  handleContextMenusImpl(html, ".lancer-context-menu", "click", doc, view_only);
+  handleContextMenusImpl(html, ".weapon-profile-tab", "contextmenu", doc, view_only);
+  handleContextMenusImpl(html, ".tag-list-append > .editable-tag-instance", "contextmenu", doc, view_only);
+}
+
+/** Handles context menus for
+ * - Viewing an item sheet
+ * - Marking items destroyed
+ * - Deleting items
+ * - Removing items from slots
+ * - Edit counters
+ * - Remove counters/tags
+ * - Rename weapon profiles (and possibly more?)
+ * - TODO: more, perhaps
+ * @param html The html to bind listeners to
+ * @param doc Document to be modified
+ * @param view_only If edit options should be presented
+ */
+function handleContextMenusImpl(
+  html: JQuery,
+  selector: string,
+  event: string,
+  doc: LancerActor | LancerItem,
+  view_only: boolean
+) {
+  // Define some common utilities
+  const path = (html: JQuery) => (html[0].dataset.path || null) as string | null;
+  const dd = (html: JQuery) => (path(html) ? drilldownDocument(doc, path(html)!) : null);
+
+  // Renders the sheet for the document referenced at data-path
   let edit: ContextMenuEntry = {
     name: view_only ? "View" : "Edit",
     icon: view_only ? `<i class="fas fa-eye"></i>` : `<i class="fas fa-edit"></i>`,
-    callback: async (html: JQuery) => {
-      let element = html.closest("[data-uuid]")[0];
-      if (element) {
-        const found_doc = await resolve_ref_element(element);
-        if (!found_doc) return;
-
+    callback: html => {
+      let found_doc = dd(html)?.terminus as LancerActor | LancerItem | null;
+      if (found_doc) {
         let sheet = found_doc.sheet;
         // If the sheet is already rendered:
         if (sheet?.rendered) {
-          await sheet.maximize();
-          sheet.bringToTop();
+          sheet.maximize().then(() => sheet!.bringToTop());
         }
         // Otherwise render the sheet
         else sheet?.render(true);
       }
     },
+    condition: html => dd(html)?.terminus instanceof foundry.abstract.Document,
   };
-  let destroy: ContextMenuEntry = {
+
+  // Toggle destroyed status, for items that support it
+  let toggle_destroyed: ContextMenuEntry = {
     name: "Toggle Destroyed",
     icon: `<i class="fas fa-fw fa-wrench"></i>`,
-    callback: async (html: JQuery) => {
-      let path = html[0].dataset.path ?? "";
-      if (path) {
-        let item = resolve_dotpath(doc, path, null) as LancerMECH_WEAPON | LancerMECH_SYSTEM | LancerNPC_FEATURE | null;
-        if (item) {
-          await item.update({ "system.destroyed": !item.system.destroyed });
-        }
-      }
+    callback: html => {
+      let item = dd(html)?.terminus as LancerMECH_SYSTEM | LancerMECH_WEAPON | LancerNPC_FEATURE | null;
+      item?.update({ "system.destroyed": !item!.system.destroyed });
     },
-  };
-  let remove: ContextMenuEntry = {
-    name: "Delete",
-    icon: '<i class="fas fa-fw fa-trash"></i>',
-    callback: async (html: JQuery) => {
-      let element = html.closest("[data-uuid]")[0];
-      if (element) {
-        const found_doc = await resolve_ref_element(element);
-        if (!found_doc) return;
-        found_doc.delete();
-      }
-    },
-  };
-  let remove_reference: ContextMenuEntry = {
-    name: "Remove",
-    icon: '<i class="fas fa-fw fa-trash"></i>',
-    callback: async (html: JQuery) => {
-      // let path = html[0].dataset.path ?? "";
-      // let dd = drilldownDocument(actor, path);
-      // let update = array_path_edit_changes(dd.sub_doc, dd.sub_path, null, "delete");
-      // dd.sub_doc.update({[update.path]: update});
-      ui.notifications?.error("This needs some fixing");
+    condition: html => {
+      let vap = dd(html)?.terminus as LancerItem | null;
+      return (
+        !view_only &&
+        vap instanceof LancerItem &&
+        (vap.is_mech_system() || vap.is_mech_weapon() || vap.is_npc_feature())
+      );
     },
   };
 
-  // Counters are special so they unfortunately need dedicated controls
-  let counter_edit: ContextMenuEntry = {
-    name: "Edit",
-    icon: `<i class="fas fa-edit"></i>`,
-    callback: async (html: JQuery) => {
-      // Find the counter
-      let counter_el = html.closest(".counter-wrapper")[0];
-      let path = counter_el.dataset.path;
-      let dd = drilldownDocument(doc, path!);
-      return CounterEditForm.edit_counter(dd.sub_doc, dd.sub_path).catch(e => console.error("Dialog failed", e));
-    },
-  };
-  let counter_remove: ContextMenuEntry = {
-    name: "Remove",
+  // Fully delete a document
+  let delete_document: ContextMenuEntry = {
+    name: "Delete Document",
     icon: '<i class="fas fa-fw fa-trash"></i>',
     callback: async (html: JQuery) => {
+      (dd(html)?.terminus as foundry.abstract.Document<any, any> | null)?.delete();
+    },
+    condition: html => !view_only && dd(html)?.terminus instanceof foundry.abstract.Document,
+  };
+
+  // Sets a reference to null
+  // Logic elsewhere will clean up the array item (if any) if said array item would be problematic left blank
+  let clear_reference: ContextMenuEntry = {
+    name: "Unlink",
+    icon: '<i class="fas fa-fw fa-trash"></i>',
+    callback: async (html: JQuery) => {
+      // Set as null
+      doc.update({ [path(html)!]: null });
+    },
+    condition: html => {
+      // We support this if the path ends with a .value, and the ref has a truthy value
+      let p = path(html);
+      if (!p?.endsWith(".value")) return false;
+      return !!(!view_only && dd(html)?.terminus);
+    },
+  };
+
+  // Remove an array item (e.x. a counter or weapon profile)
+  let array_remove: ContextMenuEntry = {
+    name: "Remove",
+    icon: '<i class="fas fa-fw fa-trash"></i>',
+    callback: (html: JQuery) => {
       // Find the counter
       let counter_el = html.closest(".counter-wrapper")[0];
       let path = counter_el.dataset.path;
       let dd = drilldownDocument(doc, path!);
       let change = array_path_edit_changes(dd.sub_doc, dd.sub_path, null, "delete");
-      await doc.update({ [change.path]: change.new_val });
+      dd.sub_doc.update({ [change.path]: change.new_val });
     },
+    condition: () => !view_only && false, // TODO - fix so counters etc an be removed
   };
 
-  let e_d_r = view_only ? [edit] : [edit, destroy, remove];
-  let e_d_rr = view_only ? [edit] : [edit, destroy, remove_reference];
-  let e_r = view_only ? [edit] : [edit, remove];
+  // Summon counter editor dialogue
+  let counter_edit: ContextMenuEntry = {
+    name: "Edit",
+    icon: `<i class="fas fa-edit"></i>`,
+    callback: html => {
+      // Find the counter
+      let counter_el = html.closest(".counter-wrapper")[0];
+      let path = counter_el.dataset.path;
+      let dd = drilldownDocument(doc, path!);
+      CounterEditForm.edit(dd.sub_doc, dd.sub_path);
+    },
+    condition: html => !view_only && !!path(html)?.includes("counters"), // Crude but effective
+  };
 
-  // Finally, setup the context menu
-  tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"mech_weapon\"]`), "click", e_d_r);
-  tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"mech_system\"]`), "click", e_d_r);
-  if (html.offsetParent().hasClass("item")) {
-    tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"npc_feature\"]`), "click", e_d_rr);
-  } else {
-    tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"npc_feature\"]`), "click", e_d_r);
-  }
-  tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"weapon_mod\"]`), "click", e_r);
-  tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"pilot_weapon\"]`), "click", e_r);
-  tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"pilot_armor\"]`), "click", e_r);
-  tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"pilot_gear\"]`), "click", e_r);
-  tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"reserve\"]`), "click", e_r);
-  tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"talent\"]`), "click", e_r);
-  tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"skill\"]`), "click", e_r);
-  tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"core_bonus\"]`), "click", e_r);
-  tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"license\"]`), "click", e_r);
-  tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"frame\"]`), "click", e_r);
-  tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"npc_class\"]`), "click", e_r);
-  tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"npc_template\"]`), "click", e_r);
-  tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"active-effect\"]`), "click", e_r);
-
-  // Only some counters can be deleted
-  tippy_context_menu(
-    html.find(`.lancer-context-menu[data-context-menu=\"counter\"][data-can-delete=\"false\"]`),
-    "click",
-    [counter_edit]
-  );
-  tippy_context_menu(
-    html.find(`.lancer-context-menu[data-context-menu=\"counter\"][data-can-delete=\"true\"]`),
-    "click",
-    [counter_edit, counter_remove]
-  );
-}
-
-// Allows user to remove or rename profiles value via right click
-export function handleProfileContextMenus<T extends LancerItemSheetData<any>>(
-  html: JQuery,
-  // Retrieves the data that we will operate on
-  data_getter: () => Promise<T> | T,
-  commit_func: (data: T) => void | Promise<void>
-) {
-  // This option allows the user to remove the right-profile tag
-  let remove = {
-    name: "Delete Profile",
+  let tag_edit: ContextMenuEntry = {
+    name: "Edit",
     icon: '<i class="fas fa-fw fa-times"></i>',
     callback: async (html: JQuery) => {
-      let cd = await data_getter();
-      let profile_path = html[0].dataset.path ?? "";
-
-      // Remove the tag from its array
-      if (profile_path) {
-        // Make sure we aren't deleting the last item
-        let profile_path_parts = format_dotpath(profile_path).split(".");
-        let weapon_path = profile_path_parts.slice(0, profile_path_parts.length - 2).join(".");
-        let weapon = resolve_dotpath(cd, weapon_path, null) as LancerMECH_WEAPON | null;
-
-        if ((weapon?.system.profiles.length ?? 0) <= 1) {
-          ui.notifications!.error("Cannot delete last profile on a weapon");
-          return;
-        }
-
-        // Otherwise its fine
-        array_path_edit(cd, profile_path, null, "delete");
-
-        // Then commit
-        return commit_func(cd);
-      }
+      // TODO: make a tag edit dialogue
     },
+    condition: html => !view_only && !!path(html)?.includes("tags"), // Crude but effective
   };
 
-  // This option pops up a small dialogue that lets the user set the tag instance's value
-  let set_value = {
-    name: "Rename Profile",
+  // If the "renameSubpath" appears in the dataset, allow simple-prompt to change the
+  let rename: ContextMenuEntry = {
+    name: "Rename",
     icon: '<i class="fas fa-fw fa-edit"></i>',
-    // condition: game.user.isGM,
-    callback: async (html: JQuery) => {
-      let cd = await data_getter();
-      let profile_path = html[0].dataset.path ?? "";
-
-      // Get the profile
-      let profile = resolve_dotpath(cd, profile_path) as LancerMECH_WEAPON["system"]["profiles"][0];
-
-      // Spawn the dialogue to edit
-      let new_val = await promptText("Rename profile", (profile.name ?? "").toString());
-
-      if (new_val !== null) {
-        // Set the name
-        profile.name = new_val;
-
-        // At last, commit
-        return commit_func(cd);
+    callback: async html => {
+      let full_path = path(html)! + html[0].dataset.renameSubpath;
+      let old_val = drilldownDocument(doc, full_path).terminus as string;
+      let new_val = await promptText("Rename profile", old_val);
+      if (new_val) {
+        doc.update({
+          [full_path]: new_val,
+        });
       }
     },
+    condition: html => !!(!view_only && html[0].dataset.renameSubpath && dd(html)?.terminus),
   };
+
+  let all = [edit, toggle_destroyed, delete_document, clear_reference, array_remove, counter_edit, rename];
 
   // Finally, setup the context menu
-  tippy_context_menu(html.find(".weapon-profile-tab"), "contextmenu", [remove, set_value]);
+  tippyContextMenu(html.find(selector), event, all);
 }

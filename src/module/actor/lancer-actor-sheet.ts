@@ -12,7 +12,7 @@ import { applyCollapseListeners, CollapseHandler, initializeCollapses } from "..
 import { addExportButton } from "../helpers/io";
 import type { ActionType } from "../action";
 import { InventoryDialog } from "../apps/inventory";
-import { handleItemContextMenus, handleCounterEditor } from "../helpers/item";
+import { handleContextMenus } from "../helpers/item";
 import { getActionTrackerOptions } from "../settings";
 import { modAction } from "../action/action-tracker";
 import { insinuate } from "../util/doc";
@@ -69,8 +69,6 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
     // All-actor macro dragging
     this._activateMacroDragging(html);
 
-    let getfunc = () => this.getData();
-
     // Make +/- buttons work
     handleInputPlusMinusButtons(html, this.actor);
 
@@ -81,7 +79,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
     handleUsesInteraction(html, this.actor);
 
     // Enable context menu triggers.
-    handleItemContextMenus(html, this.actor);
+    handleContextMenus(html, this.actor);
 
     // Enable viewing inventory on sheets that support it
     this._activateInventoryButton(html);
@@ -94,8 +92,6 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
 
     // Enable popout editors
     handlePopoutTextEditor(html, this.actor);
-
-    handleCounterEditor(html, getfunc);
 
     // Add export button.
     addExportButton(this.object, html);

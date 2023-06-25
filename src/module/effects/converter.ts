@@ -639,7 +639,7 @@ export function convertBonus(origin: string, name: string, bonus: BonusData): nu
       changes.push({ mode, value, priority, key: "system.speed" });
       break;
     default:
-      ui.notifications?.warn(`Bonus of type ${bonus.lid} not yet supported. Source: ${origin}`);
+      console.warn(`Bonus of type ${bonus.lid} not yet supported. Please fix or remove it. Source: ${origin}`);
       return null; // This effect is unsupported
   }
   // Return a normal bonus

@@ -1,7 +1,7 @@
 import type { LancerActor } from "../actor/lancer-actor";
 import { handleGenControls } from "../helpers/commons";
 import { handleRefDragging, click_evt_open_ref } from "../helpers/refs";
-import { handleItemContextMenus } from "../helpers/item";
+import { handleContextMenus } from "../helpers/item";
 import { applyCollapseListeners, initializeCollapses } from "../helpers/collapse";
 
 interface FilledCategory {
@@ -155,7 +155,7 @@ export class InventoryDialog extends Dialog {
     // Enable ref dragging
     handleRefDragging(html);
 
-    handleItemContextMenus(html, this.actor);
+    handleContextMenus(html, this.actor);
 
     // Make refs clickable to open the item
     $(html).find(".ref.set.click-open").on("click", click_evt_open_ref);
