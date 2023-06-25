@@ -63,14 +63,11 @@ import {
   LancerWEAPON_MOD,
 } from "../item/lancer-item";
 import { ActionData } from "../models/bits/action";
-import { Tag } from "../models/bits/tag";
 import { LancerActor, LancerDEPLOYABLE, LancerMECH } from "../actor/lancer-actor";
 import { CounterData } from "../models/bits/counter";
-import { LancerDoc } from "../util/doc";
-import { item_edit_arrayed_actions } from "./item-editors";
 import { slugify } from "../util/lid";
-import { MacroData } from "@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/data/module.mjs";
 import { LancerFlowState } from "../flows/interfaces";
+import { TagEditForm } from "../apps/tag-editor";
 
 /**
  * Handlebars helper for weapon size selector
@@ -1394,11 +1391,8 @@ function handleContextMenusImpl(
     icon: '<i class="fas fa-fw fa-trash"></i>',
     callback: (html: JQuery) => {
       // Find the counter
-      let counter_el = html.closest(".counter-wrapper")[0];
-      let path = counter_el.dataset.path;
-      let dd = drilldownDocument(doc, path!);
-      let change = array_path_edit_changes(dd.sub_doc, dd.sub_path, null, "delete");
-      dd.sub_doc.update({ [change.path]: change.new_val });
+      // let change = array_path_edit_changes(dd.sub_doc, dd.sub_path, null, "delete");
+      // dd.sub_doc.update({ [change.path]: change.new_val });
     },
     condition: () => !view_only && false, // TODO - fix so counters etc an be removed
   };
@@ -1408,20 +1402,17 @@ function handleContextMenusImpl(
     name: "Edit",
     icon: `<i class="fas fa-edit"></i>`,
     callback: html => {
-      // Find the counter
-      let counter_el = html.closest(".counter-wrapper")[0];
-      let path = counter_el.dataset.path;
-      let dd = drilldownDocument(doc, path!);
-      CounterEditForm.edit(dd.sub_doc, dd.sub_path);
+      CounterEditForm.edit(doc, path(html)!);
     },
     condition: html => !view_only && !!path(html)?.includes("counters"), // Crude but effective
   };
 
+  // Summon a tag editor dialog
   let tag_edit: ContextMenuEntry = {
     name: "Edit",
-    icon: '<i class="fas fa-fw fa-times"></i>',
-    callback: async (html: JQuery) => {
-      // TODO: make a tag edit dialogue
+    icon: '<i class="fas fa-edit"></i>',
+    callback: html => {
+      TagEditForm.edit(doc, path(html)!);
     },
     condition: html => !view_only && !!path(html)?.includes("tags"), // Crude but effective
   };
@@ -1443,7 +1434,7 @@ function handleContextMenusImpl(
     condition: html => !!(!view_only && html[0].dataset.renameSubpath && dd(html)?.terminus),
   };
 
-  let all = [edit, toggle_destroyed, delete_document, clear_reference, array_remove, counter_edit, rename];
+  let all = [edit, toggle_destroyed, delete_document, clear_reference, array_remove, counter_edit, tag_edit, rename];
 
   // Finally, setup the context menu
   tippyContextMenu(html.find(selector), event, all);

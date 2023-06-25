@@ -5,7 +5,7 @@ import { TargetedEditForm } from "./targeted-form-editor";
  * A helper FormApplication subclass for editing a tag
  * @extends {FormApplication}
  */
-export class TagEditDialog extends TargetedEditForm<TagData> {
+export class TagEditForm extends TargetedEditForm<TagData> {
   /** @override */
   static get defaultOptions() {
     return {
