@@ -233,7 +233,8 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
         item.document.is_skill() ||
         item.document.is_talent() ||
         item.document.is_organization() ||
-        item.document.is_reserve())
+        item.document.is_reserve() ||
+        item.document.is_bond())
     ) {
       return true;
     }
@@ -244,13 +245,12 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
 
   async onRootDrop(base_drop: ResolvedDropData, event: JQuery.DropEvent, _dest: JQuery<HTMLElement>): Promise<void> {
     if (!this.actor.is_pilot()) return; // Just for types really
-
-    console.log("ROOOOT DROP");
+    let pilot = this.actor as LancerPILOT;
+    let loadout = pilot.system.loadout;
+    let oldBond = pilot.system.bond;
 
     // Take posession
     let [drop, is_new] = await this.quickOwnDrop(base_drop);
-    let pilot = this.actor as LancerPILOT;
-    let loadout = pilot.system.loadout;
 
     // Now, do sensible things with it
     if (drop.type == "Item") {
@@ -288,6 +288,8 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
       } else if ((is_new && drop.document.is_talent()) || drop.document.is_skill()) {
         // If new skill or talent, reset to level 1
         await drop.document.update({ "system.rank": 1 });
+      } else if (is_new && drop.document.is_bond() && oldBond) {
+        await pilot._safeDeleteEmbedded("Item", [oldBond]);
       }
     } else if (drop.type == "Actor" && drop.document.is_mech()) {
       this.activateMech(drop.document);
