@@ -422,6 +422,19 @@ export namespace SourceData {
     player_name: string;
     status: string;
     text_appearance: string;
+    bond_state: {
+      xp: number;
+      stress: number;
+      xp_checklist: {
+        major_ideals: Array<boolean>;
+        minor_ideals: boolean;
+        veteran_power: boolean;
+      };
+      answers: Array<string>;
+      minor_ideal: string;
+      burdens: Array<CounterData>;
+      clocks: Array<CounterData>;
+    };
   }
   export interface Reserve extends SourceTemplates.item_universal, SourceTemplates.bascdt {
     consumable: boolean;

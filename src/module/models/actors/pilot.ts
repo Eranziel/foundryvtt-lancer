@@ -1,8 +1,8 @@
 import { template_action_tracking, template_statuses, template_universal_actor } from "./shared";
-
-import { LancerDataModel, EmbeddedRefField, SyncUUIDRefField } from "../shared";
+import { LancerDataModel, EmbeddedRefField, SyncUUIDRefField, FakeBoundedNumberField } from "../shared";
 import { EntryType } from "../../enums";
 import { regRefToUuid } from "../../util/migrations";
+import { CounterField } from "../bits/counter";
 
 const fields: any = foundry.data.fields;
 
@@ -31,6 +31,20 @@ const pilot_schema = {
   player_name: new fields.StringField(),
   status: new fields.StringField(),
   text_appearance: new fields.HTMLField(),
+
+  bond_state: new fields.SchemaField({
+    xp: new FakeBoundedNumberField({ min: 0, max: 8, integer: true }),
+    stress: new FakeBoundedNumberField({ min: 0, max: 8, integer: true }),
+    xp_checklist: new fields.SchemaField({
+      major_ideals: new fields.ArrayField(new fields.BooleanField()),
+      minor_ideals: new fields.BooleanField(),
+      veteran_power: new fields.BooleanField(),
+    }),
+    answers: new fields.ArrayField(new fields.StringField()),
+    minor_ideal: new fields.StringField(),
+    burdens: new fields.ArrayField(new CounterField()),
+    clocks: new fields.ArrayField(new CounterField()),
+  }),
 
   ...template_universal_actor(),
   ...template_action_tracking(),
@@ -64,6 +78,14 @@ export class PilotModel extends LancerDataModel<"PilotModel"> {
       data.sys ??= data.mechSkills[2];
       data.eng ??= data.mechSkills[3];
     }
+
+    // Initialize missing bond state
+    if (!data.bond_state.xp) data.bond_state.xp = 0;
+    if (!data.bond_state.stress) data.bond_state.stress = 0;
+    if (data.bond_state.xp_checklist?.major_ideals?.length === 0) {
+      data.bond_state.xp_checklist.major_ideals = [false, false, false];
+    }
+    if (!data.bond_state.minor_ideal) data.bond_state.minor_ideal = "";
 
     // @ts-expect-error v11
     return super.migrateData(data);

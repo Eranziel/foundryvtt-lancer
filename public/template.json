@@ -61,7 +61,20 @@
       "notes": "",
       "player_name": "",
       "status": "",
-      "text_appearance": ""
+      "text_appearance": "",
+      "bond_state": {
+        "xp": 0,
+        "xp_checklist": {
+          "major_ideals": [false, false, false],
+          "minor_ideal": false,
+          "veteran_power": false
+        },
+        "stress": 0,
+        "answers": [],
+        "minor_ideal": "",
+        "burdens": [],
+        "clocks": []
+      }
     },
     "npc": {
       "templates": ["universal", "action_tracking", "heat", "struss"],

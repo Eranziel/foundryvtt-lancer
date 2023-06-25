@@ -16,6 +16,8 @@ import {
   WeaponTypeChecklist,
 } from "./enums";
 import {
+  LancerBOND,
+  LancerCORE_BONUS,
   LancerFRAME,
   LancerMECH_SYSTEM,
   LancerMECH_WEAPON,
@@ -497,6 +499,21 @@ export namespace SystemData {
     player_name: string;
     status: string;
     text_appearance: string;
+    bond: LancerBOND | null;
+    bond_state: {
+      xp: FullBoundedNum;
+      stress: FullBoundedNum;
+      xp_checklist: {
+        major_ideals: Array<boolean>;
+        minor_ideals: boolean;
+        veteran_power: boolean;
+      };
+      answers: Array<string>;
+      minor_ideal: string;
+      burdens: Array<CounterData>;
+      clocks: Array<CounterData>;
+      powers: Array<PowerData>;
+    };
 
     // Derived attributes
     grit: number;

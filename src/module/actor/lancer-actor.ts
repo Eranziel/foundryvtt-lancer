@@ -6,7 +6,8 @@ import { AppliedDamage } from "./damage-calc";
 import { SystemData, SystemDataType, SystemTemplates } from "../system-template";
 import { SourceDataType } from "../source-template";
 import { getAutomationOptions } from "../settings";
-import { LancerFRAME, LancerItem, LancerNPC_CLASS } from "../item/lancer-item";
+import { pilotInnateEffect } from "../effects/converter";
+import { LancerBOND, LancerFRAME, LancerItem, LancerNPC_CLASS } from "../item/lancer-item";
 import { LancerActiveEffect } from "../effects/lancer-active-effect";
 import { frameToPath } from "./retrograde-map";
 import { EffectHelper } from "../effects/effector";
@@ -247,6 +248,9 @@ export class LancerActor extends Actor {
     if (this.is_pilot()) {
       this.system.grit = Math.ceil(this.system.level / 2);
       this.system.hp.max = 6 + this.system.grit;
+      this.system.bond_state.xp.max = 8;
+      this.system.bond_state.stress.max = 8;
+      this.system.bond = this.items.find(i => i.is_bond()) as unknown as LancerBOND;
     } else if (this.is_mech()) {
       // Aggregate sp/ai
       let equipped_sp = 0;
