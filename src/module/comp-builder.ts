@@ -74,6 +74,7 @@ export async function importCP(
     totalItems += cp.data.systems?.length ?? 0;
     totalItems += cp.data.tags?.length ?? 0;
     totalItems += cp.data.talents?.length ?? 0;
+    totalItems += cp.data.bonds?.length ?? 0;
     totalItems += cp.data.weapons?.length ?? 0;
 
     // Iterate over everything in core, collecting all lids into a map of LID -> document

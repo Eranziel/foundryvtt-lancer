@@ -392,6 +392,9 @@ export class LancerItem extends Item {
   is_talent(): this is LancerTALENT {
     return this.type === EntryType.TALENT;
   }
+  is_bond(): this is LancerBOND {
+    return this.type === EntryType.BOND;
+  }
   is_weapon_mod(): this is LancerWEAPON_MOD {
     return this.type === EntryType.WEAPON_MOD;
   }

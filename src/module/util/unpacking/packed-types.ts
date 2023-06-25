@@ -670,7 +670,7 @@ export interface PackedBondData {
   major_ideals: string[];
   minor_ideals: string[];
   questions: PackedQuestionData[];
-  powers: PackedPowerData[];
+  powers: PackedBondPowerData[];
 }
 
 export interface PackedQuestionData {
@@ -678,7 +678,7 @@ export interface PackedQuestionData {
   options: string[];
 }
 
-export interface PackedPowerData {
+export interface PackedBondPowerData {
   name: string;
   description: string;
   frequency: string | undefined;

@@ -12,7 +12,6 @@ const fields: any = foundry.data.fields;
 export class BondModel extends LancerDataModel<"BondModel"> {
   static defineSchema() {
     return {
-      name: new fields.StringField(),
       major_ideals: new fields.ArrayField(new fields.StringField()),
       minor_ideals: new fields.ArrayField(new fields.StringField()),
       questions: new fields.ArrayField(new BondQuestionField()),
@@ -31,6 +30,7 @@ export function unpackBond(data: PackedBondData): {
     name: data.name,
     type: EntryType.BOND,
     system: {
+      lid: data.id,
       major_ideals: data.major_ideals,
       minor_ideals: data.minor_ideals,
       questions: data.questions,
