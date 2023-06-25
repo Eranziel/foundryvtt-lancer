@@ -1338,6 +1338,27 @@ function handleContextMenusImpl(
     condition: html => dd(html)?.terminus instanceof foundry.abstract.Document,
   };
 
+  // Renders the sheet for the document referenced at data-path
+  let edit_effect: ContextMenuEntry = {
+    name: view_only ? "View" : "Edit",
+    icon: view_only ? `<i class="fas fa-eye"></i>` : `<i class="fas fa-edit"></i>`,
+    callback: html => {
+      // @ts-expect-error
+      let effects = [...doc.allApplicableEffects()];
+      let index = parseInt(html[0].dataset.activeEffectIndex ?? "-1");
+      if (effects[index]) {
+        let sheet = effects[index].sheet;
+        // If the sheet is already rendered:
+        if (sheet?.rendered) {
+          sheet.maximize().then(() => sheet!.bringToTop());
+        }
+        // Otherwise render the sheet
+        else sheet?.render(true);
+      }
+    },
+    condition: html => html[0].dataset.activeEffectIndex != undefined,
+  };
+
   // Toggle destroyed status, for items that support it
   let toggle_destroyed: ContextMenuEntry = {
     name: "Toggle Destroyed",
@@ -1432,7 +1453,17 @@ function handleContextMenusImpl(
     condition: html => !!(!view_only && html[0].dataset.renameSubpath && dd(html)?.terminus),
   };
 
-  let all = [edit, toggle_destroyed, delete_document, clear_reference, array_remove, counter_edit, tag_edit, rename];
+  let all = [
+    edit,
+    edit_effect,
+    toggle_destroyed,
+    delete_document,
+    clear_reference,
+    array_remove,
+    counter_edit,
+    tag_edit,
+    rename,
+  ];
 
   // Finally, setup the context menu
   tippyContextMenu(html.find(selector), event, all);

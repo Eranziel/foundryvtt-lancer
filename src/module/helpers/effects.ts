@@ -11,11 +11,11 @@ export function effect_view(
   effect: LancerActiveEffect,
   options: HelperOptions
 ): string {
-  return `<div class="active-effect" data-uuid="${actor.uuid}" data-active-effect-index="${index}">
+  return `<div class="active-effect">
                 <span>
                     ${effect.getFlag(game.system.id, "ephemeral") ? "[Readonly]: " : ""}${effect.name}
                 </span>
-                <a class="lancer-context-menu" data-context-menu="active-effect">
+                <a class="lancer-context-menu" data-active-effect-index="${index}" data-uuid="${actor.uuid}">
                     <i class="fas fa-ellipsis-v"></i>
                 </a>
             </div>`;
