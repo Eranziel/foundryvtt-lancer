@@ -1162,7 +1162,9 @@ export function buildCounterHTML(data: CounterData, path: string, can_delete?: b
     } theme--light" data-available="${available}" data-path="${path}"></i>`;
   });
 
-  return `${buildCounterHeader(data, path, can_delete)}
+  return `
+  <div class="card clipped-bot counter-wrapper" data-path="${path}">
+    ${buildCounterHeader(data, path, can_delete)}
     <div class="flexrow flex-center no-wrap">
       <button class="clicker-minus-button hex" type="button">-</button>
       ${hexes.join("")}
@@ -1177,7 +1179,6 @@ export function buildCounterHTML(data: CounterData, path: string, can_delete?: b
 export function buildCounterHeader(data: CounterData, path: string, can_delete?: boolean): string {
   //
   return `
-  <div class="card clipped-bot counter-wrapper" data-path="${path}">
     <div class="lancer-header">
       <span>// ${data.name} //</span>
       <a class="lancer-context-menu" data-path="${path}" data-can-delete="${can_delete ? can_delete : false}">
