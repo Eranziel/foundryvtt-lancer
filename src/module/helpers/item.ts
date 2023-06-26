@@ -1156,7 +1156,7 @@ export function buildSystemHTML(system: LancerMECH_SYSTEM): string {
 // This has gotten very messy to account for the pilots, should refactor - TODO
 export function buildCounterHTML(data: CounterData, path: string, can_delete?: boolean): string {
   let hexes = [...Array(data.max)].map((_ele, index) => {
-    const available = index + 1 <= data.val;
+    const available = index + 1 <= data.value;
     return `<i class="counter-hex mdi ${
       available ? "mdi-hexagon-slice-6" : "mdi-hexagon-outline"
     } theme--light" data-available="${available}" data-path="${path}"></i>`;
@@ -1232,11 +1232,11 @@ async function _updateCounterData(root_doc: LancerActor | LancerItem, path: stri
   const min = counter.min || 0;
   const max = counter.max || 6;
 
-  let new_val = counter.val + delta;
+  let new_val = counter.value + delta;
   if (new_val < min) new_val = min;
   if (new_val > max) new_val = max;
 
-  dd.sub_doc.update({ [dd.sub_path + ".val"]: new_val });
+  dd.sub_doc.update({ [dd.sub_path + ".value"]: new_val });
 }
 
 // Handles  +/- buttons around _an input_

@@ -22,11 +22,11 @@ export class CounterEditForm extends TargetedEditForm<CounterData> {
     let name = form_data.name as string;
     let min = form_data.min as number;
     let max = form_data.max as number;
-    let val = form_data.val as number;
+    let value = form_data.value as number;
 
     // Pre-fixup/check value
-    let invalid = [min, max, val].find(x => Number.isNaN(x));
-    if (invalid != null) {
+    let invalid = [min, max, value].find(x => Number.isNaN(x));
+    if (invalid !== undefined) {
       let message = `${invalid} is not a valid numeric value`;
       ui.notifications?.error(message);
       throw new Error(message);
@@ -37,11 +37,11 @@ export class CounterEditForm extends TargetedEditForm<CounterData> {
     if (max < min) {
       max = min;
     }
-    if (val < min) {
-      val = min;
+    if (value < min) {
+      value = min;
     }
-    if (val > max) {
-      val = max;
+    if (value > max) {
+      value = max;
     }
 
     // Submit changes

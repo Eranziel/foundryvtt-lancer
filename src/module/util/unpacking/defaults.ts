@@ -91,7 +91,7 @@ export function COUNTER(): CounterData {
     min: 1,
     max: 6,
     default_value: 1,
-    val: 1,
+    value: 1,
   };
 }
 
