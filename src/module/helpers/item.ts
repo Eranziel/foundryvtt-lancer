@@ -1360,19 +1360,39 @@ function handleContextMenusImpl(
   };
 
   // Toggle destroyed status, for items that support it
-  let toggle_destroyed: ContextMenuEntry = {
-    name: "Toggle Destroyed",
+  let repair_item: ContextMenuEntry = {
+    name: "Mark Repaired",
     icon: `<i class="fas fa-fw fa-wrench"></i>`,
     callback: html => {
       let item = dd(html)?.terminus as LancerMECH_SYSTEM | LancerMECH_WEAPON | LancerNPC_FEATURE | null;
       item?.update({ "system.destroyed": !item!.system.destroyed });
     },
     condition: html => {
-      let vap = dd(html)?.terminus as LancerItem | null;
+      let item = dd(html)?.terminus as LancerItem | null;
       return (
         !view_only &&
-        vap instanceof LancerItem &&
-        (vap.is_mech_system() || vap.is_mech_weapon() || vap.is_npc_feature())
+        item instanceof LancerItem &&
+        (item.is_mech_system() || item.is_mech_weapon() || item.is_npc_feature()) &&
+        item.system.destroyed
+      );
+    },
+  };
+
+  // Toggle destroyed status, for items that support it
+  let destroy_item: ContextMenuEntry = {
+    name: "Mark Destroyed",
+    icon: `<i class="cci cci-eclipse"></i>`,
+    callback: html => {
+      let item = dd(html)?.terminus as LancerMECH_SYSTEM | LancerMECH_WEAPON | LancerNPC_FEATURE | null;
+      item?.update({ "system.destroyed": !item!.system.destroyed });
+    },
+    condition: html => {
+      let item = dd(html)?.terminus as LancerItem | null;
+      return (
+        !view_only &&
+        item instanceof LancerItem &&
+        (item.is_mech_system() || item.is_mech_weapon() || item.is_npc_feature()) &&
+        !item.system.destroyed
       );
     },
   };
@@ -1456,7 +1476,8 @@ function handleContextMenusImpl(
   let all = [
     edit,
     edit_effect,
-    toggle_destroyed,
+    repair_item,
+    destroy_item,
     delete_document,
     clear_reference,
     array_remove,
