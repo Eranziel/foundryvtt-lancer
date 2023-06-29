@@ -54,12 +54,12 @@ fairly painless operation, and luckily the chance of your world being bricked ar
 <p>After lengthy debate, we have trimmed some of the fat in our data models. As such, the following item types are now
 deprecated:</p>
 <ul>
-  <li>"tag"s - which are now tracked via the world settings for efficiency and consistency.</li>
-  <li>"manufacturer"s - which never really warranted an "item", and are now just a string on licensed items.</li>
-  <li>"sitreps"s - which were barely supported to begin with, and didn't make sense to keep as an item.</li>
-  <li>"environments"s - which may see an eventual return, were not supported or implemented to our liking.</li>
-  <li>"factions"s - which may see an eventual return as a journal entry type when those are supported</li>
-  <li>"quirks"s - which seemed to fit better as just a text box.</li>
+  <li><code>tag</code>s - which are now tracked via the world settings for efficiency and consistency.</li>
+  <li><code>manufacturer</code>s - which never really warranted an "item", and are now just a string on licensed items.</li>
+  <li><code>sitreps</code>s - which were barely supported to begin with, and didn't make sense to keep as an item.</li>
+  <li><code>environments</code>s - which may see an eventual return, were not supported or implemented to our liking.</li>
+  <li><code>factions</code>s - which may see an eventual return as a journal entry type when those are supported</li>
+  <li><code>quirks</code>s - which seemed to fit better as just a text box.</li>
 </ul>`;
   }
 

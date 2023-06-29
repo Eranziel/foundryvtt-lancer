@@ -103,6 +103,12 @@ $document-types: join($item-types, $actor-types);
   );
 }
 
+code {
+  padding: 0px 5px !important;
+  background-color: rgba(0, 0, 0, 0.1);
+  border-radius: 5px;
+}
+
 .app {
   /* Set UI icons to white when located in headers and over the dark colour scheme */
   color: white;
