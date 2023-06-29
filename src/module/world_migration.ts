@@ -41,18 +41,18 @@ function getMigrationMessage() {
   <b>DO NOT LOG OFF OR CLOSE THE GAME</b>
   until you see the notification "LANCER System Migration to version ${game.system.version} completed".
 </p>
-<h2>New version breaking data changes</h2>
 `;
 
   if (foundry.utils.isNewerVersion("2.0.0", currentVersion)) {
-    message += `<p>The Lancer system has undergone a fairly significant since the 1.x versions, including simplifications of most of
-of the data model, as well as the removal of our machine-minds. More importantly, foundry has evolved significantly 
-as a platform, allowing us to do a lot of nice cleanup in how we store and work with data. As such, we once again need 
-to migrate! Improvements in how foundry tracks and validates data should make this a fairly painless operation, and luckily 
-the chance of your world being bricked are lower than ever though possible!.
+    message += `<h2>New version breaking data changes</h2>
+<p>The Lancer system has undergone a fairly significant change since the 1.x versions, including
+simplifications of most of of the data model, as well as the removal of our machine-minds. More importantly, Foundry
+has evolved significantly as a platform, allowing us to do a lot of nice cleanup in how we store and work with data.
+As such, we once again need to migrate! Improvements in how foundry tracks and validates data should make this a
+fairly painless operation, and luckily the chance of your world being bricked are lower than ever though possible!</p>
 
-After lengthy debate, we have trimmed some of the fat in our data models. 
-As such, the following item types are now deprecated:
+<p>After lengthy debate, we have trimmed some of the fat in our data models. As such, the following item types are now
+deprecated:</p>
 <ul>
   <li>"tag"s - which are now tracked via the world settings for efficiency and consistency.</li>
   <li>"manufacturer"s - which never really warranted an "item", and are now just a string on licensed items.</li>
@@ -131,9 +131,7 @@ Please refresh the page to try again.</p>`,
   await Item.updateDocuments(all_item_updates);
 
   // Migrate World Scenes
-  // let all_scene_updates =
   await Promise.all(game.scenes.contents.map(migrateScene));
-  // await Scene.updateDocuments(all_scene_updates);
 
   // Set world as having migrated successfully
   await game.settings.set(game.system.id, LANCER.setting_migration_version, game.system.version);

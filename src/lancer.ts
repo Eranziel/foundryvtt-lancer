@@ -186,7 +186,7 @@ window.addEventListener("unhandledrejection", function (event) {
 Hooks.once("init", async function () {
   console.log(`Initializing LANCER RPG System ${LANCER.ASCII}`);
 
-  // @ts-expect-error Use the v12+ active effect logic - effects never transfer from an item. Critical to how we handle effects
+  // @ts-expect-error Use the v11+ active effect logic - effects never transfer from an item. Critical to how we handle effects
   CONFIG.ActiveEffect.legacyTransferral = false;
 
   // Add this schema for each document type.
@@ -847,7 +847,7 @@ async function versionCheck(): Promise<"yes" | "no" | "too_old"> {
   }
 
   // Check if its before new rolling migration system was integrated
-  if (foundry.utils.isNewerVersion("1.0.0", currentVersion)) {
+  if (foundry.utils.isNewerVersion("1.5.0", currentVersion)) {
     return "too_old";
   }
 

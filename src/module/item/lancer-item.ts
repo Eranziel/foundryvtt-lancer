@@ -253,12 +253,12 @@ export class LancerItem extends Item {
 
     switch (this.type) {
       case EntryType.FRAME:
-        let talf = this as unknown as LancerFRAME;
+        let frame = this as unknown as LancerFRAME;
         bonus_groups.push({
-          group: talf.system.core_system.passive_name || talf.system.core_system.name,
-          bonuses: talf.system.core_system.passive_bonuses,
+          group: frame.system.core_system.passive_name || frame.system.core_system.name,
+          bonuses: frame.system.core_system.passive_bonuses,
         });
-        for (let trait of talf.system.traits) {
+        for (let trait of frame.system.traits) {
           bonus_groups.push({
             group: trait.name,
             bonuses: trait.bonuses,

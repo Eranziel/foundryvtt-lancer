@@ -1338,7 +1338,7 @@ function handleContextMenusImpl(
     condition: html => dd(html)?.terminus instanceof foundry.abstract.Document,
   };
 
-  // Renders the sheet for the document referenced at data-path
+  // Renders the editor for the effect referenced at data-path
   let edit_effect: ContextMenuEntry = {
     name: view_only ? "View" : "Edit",
     icon: view_only ? `<i class="fas fa-eye"></i>` : `<i class="fas fa-edit"></i>`,
@@ -1436,7 +1436,7 @@ function handleContextMenusImpl(
     condition: html => !view_only && !!path(html)?.includes("tags"), // Crude but effective
   };
 
-  // If the "renameSubpath" appears in the dataset, allow simple-prompt to change the
+  // If the "renameSubpath" appears in the dataset, allow simple-prompt to change the name
   let rename: ContextMenuEntry = {
     name: "Rename",
     icon: '<i class="fas fa-fw fa-edit"></i>',
