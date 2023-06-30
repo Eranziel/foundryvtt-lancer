@@ -332,7 +332,7 @@ export function pilot_counters(pilot: LancerPILOT, _options: HelperOptions): str
       } else {
         counter_detail = counter_detail.concat(
           buildCounterHeader(counter, `system.custom_counters.${i}`, true),
-          clicker_num_input(`system.custom_counters.${i}.val`, _options),
+          clicker_num_input(`system.custom_counters.${i}.value`, _options),
           "</div>"
         );
       }

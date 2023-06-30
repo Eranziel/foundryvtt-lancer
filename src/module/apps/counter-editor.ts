@@ -45,6 +45,6 @@ export class CounterEditForm extends TargetedEditForm<CounterData> {
     }
 
     // Submit changes
-    return { name, min, max, val };
+    return { name, min, max, value };
   }
 }
