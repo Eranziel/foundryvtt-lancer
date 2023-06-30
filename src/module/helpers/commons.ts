@@ -721,13 +721,11 @@ export function std_enum_select<T extends string>(path: string, enum_: { [key: s
   }
 
   // Restrict value to the enum
-  let selected = restrict_enum(enum_, default_val, value!);
+  let currentVal = restrict_enum(enum_, default_val, value!);
 
   let choices: string[] = [];
   for (let choice of Object.values(enum_)) {
-    choices.push(
-      `<option value="${choice}" ${inc_if("selected", choice === selected)}>${choice.toUpperCase()}</option>`
-    );
+    choices.push(`<option value="${choice}" ${selected(choice === currentVal)}>${choice.toUpperCase()}</option>`);
   }
 
   let select = `
