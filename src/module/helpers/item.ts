@@ -1303,10 +1303,16 @@ export function handleCounterInteraction(html: JQuery, root_doc: LancerActor | L
   incr.on("click", mod_handler(+1));
 }
 
+/**
+ * Attach context menus to the appropriate elements and events
+ * @param html The html to bind listeners to
+ * @param doc Document to be modified
+ * @param view_only If edit options should be presented
+ */
 export function handleContextMenus(html: JQuery, doc: LancerActor | LancerItem, view_only: boolean = false) {
-  handleContextMenusImpl(html, ".lancer-context-menu", "click", doc, view_only);
-  handleContextMenusImpl(html, ".weapon-profile-tab", "contextmenu", doc, view_only);
-  handleContextMenusImpl(html, ".tag-list-append > .editable-tag-instance", "contextmenu", doc, view_only);
+  _handleContextMenus(html, ".lancer-context-menu", "click", doc, view_only);
+  _handleContextMenus(html, ".weapon-profile-tab", "contextmenu", doc, view_only);
+  _handleContextMenus(html, ".tag-list-append > .editable-tag-instance", "contextmenu", doc, view_only);
 }
 
 /** Handles context menus for
@@ -1319,10 +1325,12 @@ export function handleContextMenus(html: JQuery, doc: LancerActor | LancerItem, 
  * - Rename weapon profiles (and possibly more?)
  * - TODO: more, perhaps
  * @param html The html to bind listeners to
+ * @param selector CSS selector to narrow which elements to bind to
+ * @param event The event to listen for
  * @param doc Document to be modified
  * @param view_only If edit options should be presented
  */
-function handleContextMenusImpl(
+function _handleContextMenus(
   html: JQuery,
   selector: string,
   event: string,
