@@ -85,6 +85,7 @@ import {
   action_type_icon,
   npc_class_ref,
   npc_template_ref,
+  generic_counter,
 } from "./module/helpers/item";
 import {
   action_button,
@@ -103,6 +104,7 @@ import {
   stat_rollable_card,
   stat_view_card,
   tech_flow_card,
+  bond_answer_selector,
 } from "./module/helpers/actor";
 import type { HelperOptions } from "handlebars";
 import {
@@ -491,6 +493,8 @@ Hooks.once("init", async function () {
   Handlebars.registerHelper("pilot-weapon-slot", pilot_weapon_refview);
   Handlebars.registerHelper("pilot-gear-slot", pilot_gear_refview);
   Handlebars.registerHelper("reserve-slot", reserve_refview);
+  Handlebars.registerHelper("generic-counter", generic_counter);
+  Handlebars.registerHelper("bond-answer-selector", bond_answer_selector);
   Handlebars.registerHelper("counter-array", buildCounterArrayHTML);
   Handlebars.registerHelper("pilot-counters", pilot_counters);
   Handlebars.registerHelper("all-mech-preview", all_mech_preview);

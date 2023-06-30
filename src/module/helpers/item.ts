@@ -68,6 +68,7 @@ import { CounterData } from "../models/bits/counter";
 import { slugify } from "../util/lid";
 import { LancerFlowState } from "../flows/interfaces";
 import { TagEditForm } from "../apps/tag-editor";
+import { FullBoundedNum } from "../source-template";
 
 /**
  * Handlebars helper for weapon size selector
@@ -1224,6 +1225,18 @@ export function buildCounterArrayHTML(
     </span>
     ${counter_detail}
   </div>`;
+}
+
+export function generic_counter(name: string, data: FullBoundedNum, path: string): string {
+  const counterData: CounterData = {
+    name,
+    min: data.min,
+    max: data.max,
+    value: data.value,
+    default_value: data.min,
+    lid: "",
+  };
+  return buildCounterHTML(counterData, path, false);
 }
 
 async function _updateCounterData(root_doc: LancerActor | LancerItem, path: string, delta: number) {

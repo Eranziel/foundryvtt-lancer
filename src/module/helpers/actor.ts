@@ -8,6 +8,7 @@ import type { LancerActor, LancerMECH, LancerNPC, LancerPILOT } from "../actor/l
 import { getActionTrackerOptions } from "../settings";
 import { EntryType } from "../enums";
 import { SystemTemplates } from "../system-template";
+import { LancerBOND } from "../item/lancer-item";
 
 // ---------------------------------------
 // Some simple stat editing thingies
@@ -180,6 +181,19 @@ export function clicker_stat_card(
       </div>
     </div>
   `;
+}
+
+export function bond_answer_selector(pilot: LancerPILOT, index: number): string {
+  const bond = pilot.system.bond;
+  const currentAnswer = pilot.system.bond_state.answers[index];
+  if (!bond || index > bond.system.questions.length - 1) return "";
+  let options = "";
+  bond.system.questions[index].options.forEach((answer, index) => {
+    options += `<option value="${index}" ${currentAnswer === answer ? "selected" : ""}>${answer}</option>`;
+  });
+  return `<select class="bond-question-select" name="system.bond_state.answers.${index}" data-type="number" style="height: 2em; float: right">
+    ${options}
+  </select>`;
 }
 
 export function action_button(
