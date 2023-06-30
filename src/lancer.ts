@@ -61,6 +61,7 @@ import {
   std_num_input,
   std_checkbox,
   std_enum_select,
+  saveCancelButtons,
 } from "./module/helpers/commons";
 import {
   weapon_size_selector,
@@ -186,10 +187,11 @@ window.addEventListener("unhandledrejection", function (event) {
 Hooks.once("init", async function () {
   console.log(`Initializing LANCER RPG System ${LANCER.ASCII}`);
 
+  // @ts-expect-error Use the v11+ active effect logic - effects never transfer from an item. Critical to how we handle effects
+  CONFIG.ActiveEffect.legacyTransferral = false;
+
   // Add this schema for each document type.
   // game.documentTypes.Item.forEach(type => CONFIG.Item.dataModels[type] = MyItemModel);
-  // @ts-expect-error
-  game.documentTypes.Item.forEach(type => (CONFIG.Item.compendiumIndexFields = ["system.lid"]));
   // @ts-expect-error
   CONFIG.Item.dataModels[EntryType.PILOT_ARMOR] = PilotArmorModel;
   // @ts-expect-error
@@ -233,6 +235,12 @@ Hooks.once("init", async function () {
   CONFIG.Actor.dataModels[EntryType.NPC] = NpcModel;
   // @ts-expect-error
   CONFIG.Actor.dataModels[EntryType.DEPLOYABLE] = DeployableModel;
+
+  // Configure indexes
+  // @ts-expect-error
+  CONFIG.Item.compendiumIndexFields = ["system.lid"];
+  // @ts-expect-error
+  CONFIG.Actor.compendiumIndexFields = ["system.lid"];
 
   // Register custom system settings
   registerSettings();
@@ -289,10 +297,6 @@ Hooks.once("init", async function () {
 
   // Record Configuration Values
   CONFIG.Actor.documentClass = LancerActor;
-  // @ts-expect-error v10
-  CONFIG.Actor.compendiumIndexFields.push("system.lid");
-  // @ts-expect-error v10
-  CONFIG.Item.compendiumIndexFields.push("system.lid");
   CONFIG.Item.documentClass = LancerItem;
   CONFIG.ActiveEffect.documentClass = LancerActiveEffect;
   CONFIG.Token.documentClass = LancerTokenDocument;
@@ -421,6 +425,8 @@ Hooks.once("init", async function () {
   // ------------------------------------------------------------------------
   // Generic components
   Handlebars.registerHelper("l-num-input", clicker_num_input);
+
+  Handlebars.registerPartial("dialog-save-buttons", saveCancelButtons());
 
   // For debugging
   Handlebars.registerHelper("debug_each", function (it: any, block: any) {
@@ -613,7 +619,7 @@ Hooks.once("ready", async function () {
 
   console.log(`${lp} Foundry ready, doing final checks.`);
 
-  // await doMigration();  TODO revert
+  await doMigration();
 
   await showChangelog();
 
@@ -834,12 +840,12 @@ function setupSheets() {
  */
 async function versionCheck(): Promise<"yes" | "no" | "too_old"> {
   // Determine whether a system migration is required and feasible
-  const currentVersion = game.settings.get(game.system.id, LANCER.setting_migration);
+  const currentVersion = game.settings.get(game.system.id, LANCER.setting_migration_version);
 
   // If it's 0 then it's a fresh install
   if (currentVersion === "0" || !currentVersion) {
     // @ts-expect-error Should be fixed with v10 types
-    game.settings.set(game.system.id, LANCER.setting_migration, game.system.version);
+    game.settings.set(game.system.id, LANCER.setting_migration_version, game.system.version);
     await promptInstallCoreData();
     return "no";
   }
@@ -866,7 +872,10 @@ async function doMigration() {
   if (needs_migrate == "too_old") {
     // System version is too old for migration
     ui.notifications!.error(
-      "Your LANCER system data is from too old a version and cannot be reliably migrated to the latest version. Please install and migrate to version 1.5.0 before attempting this migration",
+      `Your LANCER system data is from too old a version (${game.settings.get(
+        game.system.id,
+        LANCER.setting_migration_version
+      )}) and cannot be reliably migrated to the latest version. Please install and migrate to version 1.5.0 before attempting this migration`,
       { permanent: true }
     );
     return;

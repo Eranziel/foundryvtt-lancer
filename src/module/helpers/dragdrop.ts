@@ -36,7 +36,7 @@ export type HoverHandler = (
  * @param hover_handler: Optional callback provided with all info as the drop handler, but also is informed if the mouse is entering or exiting
  * This can be used for fancier on-hover enter/exit visual behavior. It is only called if dropping is permitted on that item
  */
-export function HANDLER_enable_doc_dropping(
+export function handleDocDropping(
   items: JQuery,
   drop_handler: DropHandler,
   allow_drop?: DropPredicate,
@@ -134,7 +134,7 @@ type DragStartEndFunc = (
   event: JQuery.DragStartEvent | JQuery.DragEndEvent
 ) => void;
 // type AllowDragFunc = (drag_source: JQuery, event: JQuery.DragStartEvent | JQuery.DragEndEvent) => void;
-export function HANDLER_enable_dragging(
+export function handleDragging(
   items: string | JQuery,
   data_transfer_func: DragDeriveDataFunc,
   start_stop_func?: DragStartEndFunc

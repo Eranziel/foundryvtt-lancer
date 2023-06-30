@@ -147,7 +147,7 @@ export function WELCOME(changelog: string): string {
 export const LANCER = {
   ASCII,
   log_prefix: "LANCER |" as const,
-  setting_migration: "systemMigrationVersion" as const,
+  setting_migration_version: "systemMigrationVersion" as const,
   setting_core_data: "coreDataVersion" as const,
   setting_lcps: "installedLCPs" as const,
   setting_stock_icons: "keepStockIcons" as const,

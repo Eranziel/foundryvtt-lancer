@@ -63,7 +63,8 @@ export class AccDiffWeapon {
   }
 
   get impaired(): ActiveEffect | null {
-    return (this.#data?.lancerActor && this.#data.lancerActor?.effectHelper.findEffect("impaired")) ?? null;
+    // @ts-expect-error
+    return !!this.#data?.lancerActor?.system?.statuses.impaired;
   }
 
   total(cover: number) {
@@ -216,7 +217,8 @@ export class AccDiffTarget {
   }
 
   get lockOnAvailable(): null | LancerActiveEffect {
-    return this.target.actor?.effectHelper.findEffect("lockon") ?? null; // TODO - use status flag
+    // @ts-expect-error
+    return !!this.token.actor?.system.statuses.lockon;
   }
 
   get total() {

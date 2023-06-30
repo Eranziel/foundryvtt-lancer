@@ -5,17 +5,15 @@ import { fix_modify_token_attribute, LancerTokenDocument } from "../token";
 import { AppliedDamage } from "./damage-calc";
 import { SystemData, SystemDataType, SystemTemplates } from "../system-template";
 import { SourceDataType } from "../source-template";
-import * as defaults from "../util/unpacking/defaults";
 import { getAutomationOptions } from "../settings";
-import { pilotInnateEffect } from "../effects/converter";
 import { LancerFRAME, LancerItem, LancerNPC_CLASS } from "../item/lancer-item";
 import { LancerActiveEffect } from "../effects/lancer-active-effect";
-import { ChangeWatchHelper } from "../util/misc";
 import { frameToPath } from "./retrograde-map";
 import { EffectHelper } from "../effects/effector";
 import { LoadoutHelper } from "./loadout-util";
 import { StrussHelper } from "./struss-util";
 import { BasicAttackFlow } from "../flows/attack";
+import { pilotInnateEffect } from "../effects/converter";
 const lp = LANCER.log_prefix;
 
 const DEFAULT_OVERCHARGE_SEQUENCE = ["+1", "+1d3", "+1d6", "+1d6+4"];
@@ -61,17 +59,23 @@ const deleteIdCacheCleanup = foundry.utils.debounce(() => deleteIdCache.clear(),
  * Extend the Actor class for Lancer Actors.
  */
 export class LancerActor extends Actor {
-  // Kept for comparing previous to next values / doing deltas
-  _passdownEffectTracker = new ChangeWatchHelper(); // Holds effects that are/will be passed down to descendants. Invalidation means we must pass down effects again
-
   // Helps us manage our ephemeral effects, as well as providing miscellaneous utility functions for effect management
-  effectHelper = new EffectHelper(this);
+  effectHelper!: EffectHelper; // = new EffectHelper(this);
 
   // Helps us manage our loadout, as well as providing miscellaneous utility functions for item management
-  loadoutHelper = new LoadoutHelper(this);
+  loadoutHelper!: LoadoutHelper; // = new LoadoutHelper(this);
 
   // Helps us handle structuring/overheating, as well as providing miscellaneous utility functions for struct/stress
-  strussHelper = new StrussHelper(this);
+  strussHelper!: StrussHelper; // = new StrussHelper(this);
+
+  // These cannot be instantiated the normal way (e.x. via constructor)
+  _configure() {
+    // @ts-expect-error
+    super._configure();
+    this.effectHelper = new EffectHelper(this);
+    this.loadoutHelper = new LoadoutHelper(this);
+    this.strussHelper = new StrussHelper(this);
+  }
 
   async damage_calc(damage: AppliedDamage, ap = false, paracausal = false): Promise<number> {
     const armored_damage_types = ["Kinetic", "Energy", "Explosive", "Variable"] as const;
@@ -87,7 +91,8 @@ export class LancerActor extends Actor {
     }
 
     // Step 1: Exposed doubles non-burn, non-heat damage
-    if (this.effectHelper.findEffect("exposed")) {
+    // @ts-expect-error v11
+    if (this.system.statuses.exposed) {
       armored_damage_types.forEach(d => (damage[d] *= 2));
     }
 
@@ -97,7 +102,8 @@ export class LancerActor extends Actor {
      * Armor reduction may favor attacker or defender depending on automation.
      * Default is "favors defender".
      */
-    if (!paracausal && !this.effectHelper.findEffect("shredded")) {
+    // @ts-expect-error v11
+    if (!paracausal && !this.system.statuses.shredded) {
       const defense_favor = true; // getAutomationOptions().defenderArmor
       // @ts-expect-error System's broken
       const resist_armor_damage = armored_damage_types.filter(t => this.system.resistances[t.toLowerCase()]);
@@ -229,15 +235,7 @@ export class LancerActor extends Actor {
     };
     */
 
-    // 3. Query effects to set status flags
-    for (let eff of this.effects) {
-      let status_id = (eff.getFlag("core", "statusId") ?? null) as null | keyof typeof sys.statuses;
-      if (status_id && sys.statuses[status_id] === false) {
-        sys.statuses[status_id] = true;
-      }
-    }
-
-    // 4. Establish type specific attributes / perform type specific prep steps
+    // 3. Establish type specific attributes / perform type specific prep steps
     // HASE is pretty generic. All but pilot need defaults - pilot gets from source
     if (this.is_mech() || this.is_deployable() || this.is_npc()) {
       this.system.hull = 0;
@@ -293,6 +291,9 @@ export class LancerActor extends Actor {
       sys.size = this.system.stats.size;
       sys.speed = this.system.stats.speed;
     }
+
+    // Marked our equipped items as such
+    this._markEquipped();
   }
 
   /** @override
@@ -301,65 +302,7 @@ export class LancerActor extends Actor {
    *  - Finalize derived data on weaponry based on fully prepared actor statistics
    */
   prepareDerivedData() {
-    // Track equipping if pilot or mech
-    if (this.is_pilot()) {
-      // Mark things equipped
-      let ld = this.system.loadout;
-      for (let armor of ld.armor) {
-        if (armor?.status == "resolved") {
-          armor.value.system.equipped = true;
-        }
-      }
-      for (let weapon of ld.weapons) {
-        if (weapon?.status == "resolved") {
-          weapon.value.system.equipped = true;
-        }
-      }
-      for (let gear of ld.gear) {
-        if (gear?.status == "resolved") {
-          gear.value.system.equipped = true;
-        }
-      }
-
-      // Collect all bonuses
-      this.system.all_bonuses = [];
-      for (let item of this.loadoutHelper.listLoadout()) {
-        this.system.all_bonuses.push(...(item.getBonuses() ?? []));
-      }
-    } else if (this.is_mech()) {
-      // Mark things equipped
-      let ld = this.system.loadout;
-      if (ld.frame?.status == "resolved") {
-        ld.frame.value.system.equipped = true;
-      }
-      for (let system of ld.systems) {
-        if (system?.status == "resolved") {
-          system.value.system.equipped = true;
-        }
-      }
-      for (let mount of this.system.loadout.weapon_mounts) {
-        for (let slot of mount.slots) {
-          if (slot.weapon?.status == "resolved") {
-            slot.weapon.value.system.equipped = true;
-          }
-          if (slot.mod?.status == "resolved") {
-            slot.mod.value.system.equipped = true;
-            if (slot.weapon?.status == "resolved") {
-              slot.weapon.value.system.mod = slot.mod.value;
-            }
-          }
-        }
-      }
-
-      // Collect all bonuses
-      // TODO - eventually we would rather have these handled via active effects, somehow
-      this.system.all_bonuses = [];
-      // Ensure loadout helper is initialized.
-      if (!this.loadoutHelper) this.loadoutHelper = new LoadoutHelper(this);
-      for (let item of this.loadoutHelper.listLoadout()) {
-        this.system.all_bonuses.push(...(item.getBonuses() ?? []));
-      }
-    }
+    this._gatherAllBonuses();
 
     // Ask items to prepare their final attributes using weapon_bonuses / equip information
     for (let item of this.items.contents) {
@@ -368,11 +311,91 @@ export class LancerActor extends Actor {
     }
 
     // Track shift in values. Use optional to handle compendium bulk-created items, which handle strangely
-    this._passdownEffectTracker?.setValue(this.effectHelper.collectPassdownEffects());
+    this.effectHelper._passdownEffectTracker?.setValue(this.effectHelper.collectPassdownEffects());
   }
 
-  /** @override
+  /** Mark our equipped items as equipped */
+  _markEquipped() {
+    // Mark things as default equipped or unequipped as appropriate
+    for (let i of this.items) {
+      i._resetEquipped();
+    }
+
+    // Track equipping if pilot or mech
+    if (this.is_pilot()) {
+      // Mark things equipped
+      let ld = this.system.loadout;
+      for (let armor of ld.armor) {
+        if (armor?.value) armor.value.system.equipped = true;
+      }
+      for (let weapon of ld.weapons) {
+        if (weapon?.value) weapon.value.system.equipped = true;
+      }
+      for (let gear of ld.gear) {
+        if (gear?.value) gear.value.system.equipped = true;
+      }
+    } else if (this.is_mech()) {
+      // Mark things equipped
+      let ld = this.system.loadout;
+      if (ld.frame?.value) ld.frame.value.system.equipped = true;
+      for (let system of ld.systems) {
+        if (system?.value) system.value.system.equipped = true;
+      }
+      for (let mount of this.system.loadout.weapon_mounts) {
+        for (let slot of mount.slots) {
+          if (slot.weapon?.value) slot.weapon.value.system.equipped = true;
+          if (slot.mod?.value) slot.mod.value.system.equipped = true;
+        }
+      }
+    }
+  }
+
+  /**
+   * Populate system.all_bonuses
+   * TODO - eventually we would rather have these handled via active effects, or moved into model
+   */
+  _gatherAllBonuses() {
+    if (this.is_pilot()) {
+      // Collect all bonuses
+      this.system.all_bonuses = [];
+      for (let item of this.loadoutHelper.listLoadout()) {
+        this.system.all_bonuses.push(...(item.getBonuses() ?? []));
+      }
+    } else if (this.is_mech()) {
+      // Collect all bonuses
+      this.system.all_bonuses = [];
+      // Ensure loadout helper is initialized.
+      for (let item of this.loadoutHelper.listLoadout()) {
+        this.system.all_bonuses.push(...(item.getBonuses() ?? []));
+      }
+    }
+  }
+
+  /**
+   * Want to yield from all items ephemeral effects
+   * @override
+   */
+  *allApplicableEffects() {
+    // @ts-expect-error v11
+    yield* super.allApplicableEffects();
+
+    // Yield all inherited ephemeral effects
+    yield* this.effectHelper.inheritedEffects();
+
+    // Yield all items ephemeral effects
+    for (let item of this.items.contents) {
+      yield* item._generateEphemeralEffects();
+    }
+
+    // Yield this actors innate effects
+    if (this.is_pilot()) {
+      yield pilotInnateEffect(this);
+    } // TODO mech
+  }
+
+  /**
    * Want to preserve our arrays, so we use full_update_data to hydrate our update data
+   * @override
    */
   async update(data: any, options: any = {}) {
     // @ts-expect-error
@@ -444,42 +467,29 @@ export class LancerActor extends Actor {
    */
   protected _onUpdate(...[changed, options, user]: Parameters<Actor["_onUpdate"]>) {
     super._onUpdate(changed, options, user);
-    let i_did_this = game.userId == user;
+    let cause_updates = game.userId == user;
 
-    // If changing active mech, force a propagate, and force all mechs to render
+    // If changing active mech, all mechs need to render to recompute if they are the active mech
     if ((changed as any).system?.active_mech !== undefined) {
-      this.effectHelper.propagateEffects(i_did_this, true);
-      // @ts-expect-error
-      let owned_mechs = game.actors?.filter(a => a.is_mech() && a.system.pilot?.value == this);
+      // @ts-expect-error idk why this is unhappy
+      let owned_mechs = game.actors!.filter(a => a.is_mech() && a.system.pilot?.value == this);
       owned_mechs?.forEach(m => m.render());
-    }
-
-    // First try to regenerate our innate effect. If this is a no-op, it won't actually do any db operations
-    if (this.is_pilot()) {
-      // TODO - experiment with how the behaves with multiple users given that we currently only trigger this when the editing user
-      // In theory we might need a "no-op" set ephemeral effects, that tells it what it oughj
-      this.effectHelper.setEphemeralEffects(this.uuid, [pilotInnateEffect(this)], i_did_this, false);
     }
 
     // All other changes we want to only be handled by this user who actually triggered the effect
     // This is to prevent duplicate work + avoid permissions errors + they started it and should handle structuring/stressing
-    if (!i_did_this) {
+    if (!cause_updates) {
       return;
     }
+
+    // Any update could change our innate effects which would then need to be passed down
+    this.effectHelper.propagateEffects(false);
 
     // Many of the operations below MIGHT cause DB operations (async operations!).
     // We can't really await them here, nor should we - they will re-trigger an onUpdate as necessary
     // Remove unresolved references.
     this.loadoutHelper.cleanupUnresolvedReferences();
 
-    // Then re-asset all of our item effects
-    for (let item of this.items.contents) {
-      if (item.isEquipped()) {
-        this.effectHelper.setEphemeralEffectsFromItem(item, i_did_this);
-      } else {
-        this.effectHelper.clearEphemeralEffects(item.uuid, i_did_this);
-      }
-    }
     // Check for overheating / structure
     if (
       getAutomationOptions().structure &&
@@ -502,18 +512,18 @@ export class LancerActor extends Actor {
     // If the Size of the ent has changed since the last update, set the
     // protype token size to the new size
     // @ts-expect-error System's broken
-    if (this.prototypeToken?.width !== this.system.size) {
-      // @ts-expect-error System's broken
-      const size = Math.max(1, this.system.size);
+    const expected_size = Math.max(1, this.system.size);
+    // @ts-expect-error System's broken
+    if (this.prototypeToken?.width !== expected_size) {
       // @ts-expect-error
       this.prototypeToken?.update({
-        width: size,
-        height: size,
+        width: expected_size,
+        height: expected_size,
         flags: {
           "hex-size-support": {
-            borderSize: size,
+            borderSize: expected_size,
             altSnapping: true,
-            evenSnap: !(size % 2),
+            evenSnap: !(expected_size % 2),
           },
         },
       });
@@ -525,96 +535,68 @@ export class LancerActor extends Actor {
    * effects are kept in lockstep as items are created, updated, and deleted
    */
   _onCreateDescendantDocuments(
-    embeddedName: "Item" | "ActiveEffect",
+    parent: foundry.abstract.Document<any>,
+    collection: "items" | "effects",
     documents: LancerItem[] | LancerActiveEffect[],
-    result: any,
+    changes: any[],
     options: any,
-    user: string
+    userId: string
   ) {
-    let cause_updates = game.userId == user;
-
-    // Create effects from new items
-    if (embeddedName == "Item") {
-      for (let item of documents as LancerItem[]) {
-        if (item.isEquipped()) {
-          this.effectHelper.setEphemeralEffectsFromItem(item, cause_updates); // Update the effects this item creates
-        }
-      }
-    } else {
-      this.effectHelper.propagateEffects(cause_updates); // Effects have changed - need to propagate
+    // @ts-expect-error
+    super._onCreateDescendantDocuments(parent, collection, documents, changes, options, userId);
+    if (game.userId == userId) {
+      this.effectHelper.propagateEffects(false); // Items / Effects have changed - may need to propagate
     }
   }
 
   /** @inheritdoc */
   _onUpdateDescendantDocuments(
-    embeddedName: "Item" | "ActiveEffect",
+    parent: foundry.abstract.Document<any>,
+    collection: "items" | "effects",
     documents: LancerItem[] | LancerActiveEffect[],
-    result: any,
+    changes: any[],
     options: any,
-    user: string
+    userId: string
   ) {
-    // @ts-expect-error v11
-    super._onUpdateDescendantDocuments(embeddedName, documents, result, options, user);
-    let cause_updates = game.userId == user;
-
-    // (Possibly) update effects from updated items, if the effects they provide have changed & item is equipped
-    if (embeddedName == "Item") {
-      for (let item of documents as LancerItem[]) {
-        if (item.isEquipped() && item._generatedEffectTracker.isDirty) {
-          this.effectHelper.setEphemeralEffectsFromItem(item, cause_updates); // Update the effects this item creates
-        }
-      }
-    } else {
-      this.effectHelper.propagateEffects(cause_updates); // Effects have changed - need to propagate
+    // @ts-expect-error
+    super._onUpdateDescendantDocuments(parent, collection, documents, changes, options, userId);
+    if (game.userId == userId) {
+      this.effectHelper.propagateEffects(false); // Effects have changed - may need to propagate
     }
   }
 
   /** @inheritdoc */
   _onDeleteDescendantDocuments(
-    embeddedName: "Item" | "ActiveEffect",
+    parent: foundry.abstract.Document<any>,
+    collection: "items" | "effects",
     documents: LancerItem[] | LancerActiveEffect[],
-    result: any,
+    changes: any[],
     options: any,
-    user: string
+    userId: string
   ) {
-    // @ts-expect-error v11
-    super._onDeleteDescendantDocuments(embeddedName, documents, result, options, user);
+    // @ts-expect-error
+    super._onDeleteDescendantDocuments(parent, collection, documents, changes, options, userId);
+
     // Mark them all as deleted for delete-deduplication purposes
     for (let doc of documents) {
       deleteIdCache.add(doc.uuid);
     }
     deleteIdCacheCleanup();
 
-    let cause_updates = game.userId == user;
+    let cause_updates = game.userId == userId;
 
     // Clear effects from deleted items
-    if (embeddedName == "Item") {
-      for (let item of documents as LancerItem[]) {
-        this.effectHelper.clearEphemeralEffects(item.uuid, cause_updates);
-      }
-      if (cause_updates) {
-        this.loadoutHelper.cleanupUnresolvedReferences();
-      }
-    } else {
-      this.effectHelper.propagateEffects(cause_updates); // Effects have changed
-      // Warn if it appears that a user has tried to delete a managed effect
-      if (!this.effectHelper._deletingEffect) {
-        for (let doc of documents as LancerActiveEffect[]) {
-          if (doc._typedFlags?.lancer?.ephemeral) {
-            let msg =
-              "Attempting to delete an effect sourced from an item or other actor. It might regenerate! Instead of deleting the effect, delete the source.";
-            ui.notifications?.warn(msg);
-          }
-        }
-      }
+    if (cause_updates) {
+      this.loadoutHelper.cleanupUnresolvedReferences(); // Deleted items may have left unresolved references
+      this.effectHelper.propagateEffects(false); // Effects have changed - may need to propagate
     }
   }
 
   /**
-   * Delete an active effect(s) without worrying if its been deleted before.
+   * Delete a descendant document without worrying if its been deleted before.
    * There is still technically an _exceedingly_ narrow window in which we can get duplicate deletion of effects, but this mitigates it
    */
-  async _safeDeleteEmbedded(
+  async _safeDeleteDescendant(
     collection: "Item" | "ActiveEffect",
     effects: ActiveEffect[] | Item[],
     options?: DocumentModificationContext
@@ -655,7 +637,6 @@ export class LancerActor extends Actor {
   /**
    * Taking a new and old frame/class, swaps the actor and/or token images if
    * we detect that the image isn't custom. Will check each individually
-   * @param oldFrame  Old Frame or NPC Class
    * @param newFrame  New Frame or NPC Class
    * @returns         The newFrame if any updates were performed
    */

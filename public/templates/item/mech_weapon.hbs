@@ -13,7 +13,7 @@
   {{!-- Sheet Tab Navigation --}}
   <nav class="lancer-tabs" data-group="primary">
     {{#each system.profiles as |profile prof_index|}}
-      <a class="item lancer-tab medium weapon-profile-tab" data-tab="profile{{prof_index}}" data-path="system.profiles.{{prof_index}}"> 
+      <a class="item lancer-tab medium weapon-profile-tab" data-tab="profile{{prof_index}}" data-path="system.profiles.{{prof_index}}" data-rename-subpath=".name"> 
         &lt;{{profile.name}}&gt;
       </a>
     {{/each}}

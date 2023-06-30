@@ -1,5 +1,4 @@
 import { CounterField } from "../bits/counter";
-import { DamageField } from "../bits/damage";
 import { FakeBoundedNumberField, LIDField } from "../shared";
 const fields: any = foundry.data.fields;
 
@@ -38,6 +37,14 @@ export function template_universal_actor() {
 
     hp: new FakeBoundedNumberField({ integer: true, nullable: false, initial: 0 }),
     overshield: new FakeBoundedNumberField({ integer: true, nullable: false, initial: 0 }),
+    inherited_effects: new fields.SchemaField(
+      {
+        from_uuid: new fields.StringField(),
+        data: new fields.ArrayField(new fields.ObjectField()),
+        visible: new fields.BooleanField(),
+      },
+      { nullable: true, initial: null }
+    ),
 
     // Our derived property melange - not actually here! We generate those in prepareData
   };

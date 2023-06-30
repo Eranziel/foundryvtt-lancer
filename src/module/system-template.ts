@@ -1,4 +1,5 @@
-import { LancerActor, LancerDEPLOYABLE, LancerMECH, LancerPILOT } from "./actor/lancer-actor";
+import { LancerActor, LancerMECH, LancerPILOT } from "./actor/lancer-actor";
+import { InheritedEffectsState } from "./effects/effector";
 import {
   ActivationType,
   DeployableType,
@@ -15,19 +16,13 @@ import {
   WeaponTypeChecklist,
 } from "./enums";
 import {
-  LancerCORE_BONUS,
   LancerFRAME,
-  LancerItem,
-  LancerLICENSE,
   LancerMECH_SYSTEM,
   LancerMECH_WEAPON,
   LancerNPC_CLASS,
-  LancerNPC_FEATURE,
   LancerPILOT_ARMOR,
   LancerPILOT_GEAR,
   LancerPILOT_WEAPON,
-  LancerSKILL,
-  LancerTALENT,
   LancerWEAPON_MOD,
 } from "./item/lancer-item";
 import { ActionData } from "./models/bits/action";
@@ -71,6 +66,8 @@ export namespace SystemTemplates {
 
     activations: number;
     custom_counters: CounterData[];
+    inherited_effects: InheritedEffectsState | null;
+
     // We replace these with bounded alternatives
     hp: FullBoundedNum;
     overshield: FullBoundedNum;
@@ -171,7 +168,9 @@ export namespace SystemTemplates {
   // NPC stuff
   export namespace NPC {
     // Everything herein is more or less an exact copy
+    // These duplicated here for clarity and future proofing
     export interface StatBlock extends SourceTemplates.NPC.StatBlock {}
+    export interface NullableStatBlock extends SourceTemplates.NPC.NullableStatBlock {}
 
     // This small helper type is just used to repair npc types "tags" field
     type NPCFixup<T extends { tags: TagData[]; uses: number }> = Omit<T, "tags" | "uses" | "range" | "damage"> & {
@@ -251,6 +250,7 @@ export namespace SystemData {
       evasion: number;
       heatcap: number;
       hp: number;
+      grit_hp: boolean;
       save: number;
       size: number;
       speed: number;
@@ -407,7 +407,7 @@ export namespace SystemData {
       bonus_range: Range[];
     }>;
     loaded: false;
-    selected_profile: number;
+    selected_profile_index: number;
     size: WeaponSize;
     no_core_bonuses: boolean;
     no_mods: boolean;
@@ -441,22 +441,7 @@ export namespace SystemData {
     };
     base_features: LIDRef[];
     optional_features: LIDRef[];
-    base_stats: Array<{
-      activations: number;
-      armor: number;
-      hp: number;
-      evasion: number;
-      edef: number;
-      heatcap: number;
-      speed: number;
-      sensor_range: number;
-      save: number;
-      hull: number;
-      agi: number;
-      sys: number;
-      eng: number;
-      size: number; // TODO: don't miss this in migrations
-    }>;
+    base_stats: Array<SystemTemplates.NPC.StatBlock>;
   }
   export type NpcFeature = SystemTemplates.NPC.AnyFeature & {
     origin: {

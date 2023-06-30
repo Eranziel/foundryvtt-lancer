@@ -48,12 +48,6 @@ export interface LancerActiveEffectConstructorData extends ActiveEffectDataConst
 }
 
 export class LancerActiveEffect extends ActiveEffect {
-  get _typedFlags(): LancerActiveEffectFlags {
-    // TODO :remove this when flags are properly represented on effects
-    // @ts-expect-error
-    return this.flags;
-  }
-
   /**
    * Determine whether this Active Effect is suppressed or not.
    */
@@ -67,9 +61,10 @@ export class LancerActiveEffect extends ActiveEffect {
    */
   affectsUs(): boolean {
     // Check right actor type
-    let tf = this._typedFlags;
-    if (this.parent instanceof LancerActor && tf?.lancer?.target_type) {
-      switch (tf.lancer.target_type) {
+    // @ts-expect-error
+    let tf = this.flags[game.system.id];
+    if (this.parent instanceof LancerActor && tf?.target_type) {
+      switch (tf.target_type) {
         case EntryType.PILOT:
           return this.parent.is_pilot();
         case EntryType.MECH:
@@ -98,37 +93,38 @@ export class LancerActiveEffect extends ActiveEffect {
    */
   static prepareActiveEffectCategories(
     actor: LancerActor
-  ): Array<{ type: string; label: string; effects: LancerActiveEffect[] }> {
+  ): Array<{ type: string; label: string; effects: [number, LancerActiveEffect][] }> {
     // Define effect header categories
     let passives = {
       type: "passive",
       label: game.i18n.localize("lancer.effect.categories.passive"),
-      effects: [] as LancerActiveEffect[],
+      effects: [] as [number, LancerActiveEffect][],
     };
     let inherited = {
       type: "inherited",
       label: game.i18n.localize("lancer.effect.categories.inherited"),
-      effects: [] as LancerActiveEffect[],
+      effects: [] as [number, LancerActiveEffect][],
     };
     let disabled = {
       type: "disabled",
       label: game.i18n.localize("lancer.effect.categories.disabled"),
-      effects: [] as LancerActiveEffect[],
+      effects: [] as [number, LancerActiveEffect][],
     };
     let passthrough = {
       type: "passthrough",
       label: game.i18n.localize("lancer.effect.categories.passthrough"),
-      effects: [] as LancerActiveEffect[],
+      effects: [] as [number, LancerActiveEffect][],
     };
 
     // Iterate over active effects, classifying them into categories
-    for (let e of actor.effects.contents as LancerActiveEffect[]) {
+    let index = 0;
+    for (let e of actor.allApplicableEffects()) {
       // e._getSourceName(); // Trigger a lookup for the source name
-      if (!e.affectsUs()) passthrough.effects.push(e);
-      // @ts-expect-error
-      else if (e.disabled) disabled.effects.push(e);
-      else if (e._typedFlags.lancer?.deep_origin) inherited.effects.push(e);
-      else passives.effects.push(e);
+      if (!e.affectsUs()) passthrough.effects.push([index, e]);
+      else if (e.disabled) disabled.effects.push([index, e]);
+      else if (e.flags[game.system.id]?.deep_origin) inherited.effects.push([index, e]);
+      else passives.effects.push([index, e]);
+      index++;
     }
 
     // categories.suppressed.hidden = !categories.suppressed.effects.length;

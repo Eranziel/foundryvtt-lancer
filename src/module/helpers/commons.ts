@@ -1,6 +1,6 @@
 import type { HelperOptions } from "handlebars";
 import { HTMLEditDialog } from "../apps/text-editor";
-import type { ContextMenuItem, GenControlContext, LancerActorSheetData, LancerItemSheetData } from "../interfaces";
+import type { GenControlContext } from "../interfaces";
 import * as defaults from "../util/unpacking/defaults";
 
 import tippy from "tippy.js";
@@ -242,7 +242,7 @@ export function format_dotpath(path: string): string {
 // Returns every item along the path, starting with the object itself
 // Any failed resolutions will still be emitted, but as an undefined
 // An empty string resolved in this way will simply return root.
-export function stepwise_resolve_dotpath(
+export function stepwiseResolveDotpath(
   obj: any,
   dotpath: string
 ): Array<{
@@ -283,7 +283,7 @@ export function drilldownDocument(
   sub_path: string; // Path to terminus, continuing from sub_doc
   terminus: any; // What was found at the end of the path
 } {
-  let steps = stepwise_resolve_dotpath(rootDoc, path);
+  let steps = stepwiseResolveDotpath(rootDoc, path);
   for (let i = steps.length - 1; i >= 0; i--) {
     // Walk it back till first document
     let step = steps[i];
@@ -313,7 +313,7 @@ export function resolve_dotpath(
     shorten_by?: number; // If provided, skip the last N path items
   }
 ): unknown {
-  let path = stepwise_resolve_dotpath(obj, dotpath);
+  let path = stepwiseResolveDotpath(obj, dotpath);
   let item;
 
   // Get the last item, or one even further back if shorten-by provided
@@ -409,7 +409,7 @@ export function extendHelper(
  * It has no influence on the behavior of the operation, but can nonetheless be useful for augmenting other behaviors.
  * (e.x. to delete associated entities when remove buttons cleared)
  */
-export function HANDLER_activate_general_controls(
+export function handleGenControls(
   html: JQuery,
   // Retrieves the data that we will operate on
   doc: LancerActor | LancerItem,
@@ -747,7 +747,7 @@ export function popout_editor_button(path: string) {
   return `<a class="fas fa-edit popout-text-edit-button" data-path="${path}"> </a>`;
 }
 
-export function HANDLER_activate_popout_text_editor(html: JQuery, root_doc: LancerActor | LancerItem) {
+export function handlePopoutTextEditor(html: JQuery, root_doc: LancerActor | LancerItem) {
   html.find(".popout-text-edit-button").on("click", async evt => {
     evt.stopPropagation();
     const elt = evt.currentTarget;
@@ -788,13 +788,27 @@ export function large_textbox_card(title: string, text_path: string, options: He
   `;
 }
 
+// Our standard save/cancel buttons for most of our smaller edit forms
+export function saveCancelButtons() {
+  return `<div class="dialog-buttons">
+        <button data-button="confirm">
+            <i class="fas fa-save"></i>
+            Save
+        </button>
+        <button data-button="cancel">
+            <i class="fas fa-times"></i>
+            Cancel
+        </button>
+    </div>`;
+}
+
 // Reads the specified form to a JSON object, including unchecked inputs
 // Wraps the build in foundry method
 export function read_form(form_element: HTMLFormElement): Record<string, string | number | boolean> {
   // @ts-ignore The typings don't yet include this utility class
   let form_data = new FormDataExtended(form_element);
   // @ts-ignore We may want to double check this, but it's probably fine
-  return form_data.object();
+  return form_data.object;
 }
 
 /** Clip paths kill native foundry context menus. Mix our own!
@@ -805,7 +819,7 @@ export function read_form(form_element: HTMLFormElement): Record<string, string 
  */
 export function create_context_menu(
   parent: JQuery<HTMLElement>,
-  options: ContextMenuItem[],
+  options: ContextMenuEntry[],
   on_select_any?: () => void
 ): Element {
   let menu = $(`<div class="lancer-context-menu flexcol" />`);
@@ -826,19 +840,12 @@ export function create_context_menu(
  * @param event_types JQuery event types to trigger showing the context menu.
  * @param options Array of context menu items.
  */
-export function tippy_context_menu(
-  targets: JQuery<HTMLElement>,
-  event_types: string,
-  options: ContextMenuItem[] | ((specific_target: JQuery<HTMLElement>) => ContextMenuItem[])
-): void {
+export function tippyContextMenu(targets: JQuery<HTMLElement>, event_types: string, options: ContextMenuEntry[]): void {
   targets.each((_, _target) => {
     let target = $(_target);
 
-    // Make the options
-    let curr_options = options;
-    if (!Array.isArray(curr_options)) {
-      curr_options = curr_options(target);
-    }
+    // Filter the options
+    let curr_options = options.filter(o => (o.condition ? o.condition === true || o.condition(target) : true));
 
     // Make the instance
     const instance = tippy(_target, {
@@ -854,7 +861,7 @@ export function tippy_context_menu(
     let content = create_context_menu(target, curr_options, () => instance.hide());
     instance.setContent(content);
 
-    // Bind it to right click
+    // Bind it to whatever event is provided. Sometimes we want left clicks, other times right
     target.on(event_types, async event => {
       event.stopPropagation();
       event.preventDefault();
@@ -876,7 +883,16 @@ export function tippy_context_menu(
 
 // Isolates a value to ensure it is compliant with a list of values
 export function restrict_choices<T extends string>(choices: T[], default_choice: T, provided?: string): T {
-  return choices.includes(provided as T) ? (provided as T) : default_choice;
+  if (!provided) return default_choice;
+  let lcp = provided.toLowerCase();
+  // Try matching on lower case
+  for (let caseFix of choices) {
+    if (caseFix.toLowerCase() == lcp) {
+      return caseFix;
+    }
+  }
+
+  return default_choice;
 }
 
 // List possible values of an enum

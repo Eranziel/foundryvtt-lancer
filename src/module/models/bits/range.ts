@@ -1,5 +1,6 @@
 import { LancerMECH } from "../../actor/lancer-actor";
 import { RangeType, RangeTypeChecklist } from "../../enums";
+import { restrict_enum } from "../../helpers/commons";
 import { LancerMECH_WEAPON, LancerWEAPON_MOD } from "../../item/lancer-item";
 import { PackedRangeData } from "../../util/unpacking/packed-types";
 
@@ -171,6 +172,17 @@ export class RangeField extends fields.SchemaField {
   initialize(value: RangeData, model: unknown) {
     // Coerce to a range
     return new Range(value);
+  }
+
+  migrateSource(sourceData: any, fieldData: any) {
+    if (typeof fieldData.val == "string") {
+      fieldData.val = parseInt(fieldData.val) || 1;
+    }
+    if (fieldData.type) {
+      fieldData.type = restrict_enum(RangeType, RangeType.Range, fieldData.type);
+    }
+
+    return super.migrateSource(sourceData, fieldData);
   }
 
   /** @override */

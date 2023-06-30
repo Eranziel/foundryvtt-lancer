@@ -188,6 +188,14 @@ export class TagField extends fields.SchemaField {
     }
     return super._cast(value);
   }
+
+  migrateSource(sourceData: any, fieldData: any) {
+    // Convert old style tags
+    if (typeof fieldData?.tag == "object") {
+      fieldData.lid = fieldData.tag.fallback_lid;
+    }
+    return super.migrateSource(sourceData, fieldData);
+  }
 }
 
 export function unpackTagTemplate(data: PackedTagTemplateData): TagTemplateData {

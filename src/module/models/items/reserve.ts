@@ -21,7 +21,8 @@ export class ReserveModel extends LancerDataModel {
       resource_name: new fields.StringField(),
       resource_note: new fields.StringField(),
       resource_cost: new fields.StringField(),
-      type: new fields.StringField({ choices: Object.values(ReserveType), initial: ReserveType.Tactical }),
+      // type: new fields.StringField({ choices: Object.values(ReserveType), initial: ReserveType.Tactical }),
+      type: new fields.StringField({ initial: ReserveType.Tactical }), // ^ Strictness here isn't really super useful
       used: new fields.BooleanField(),
       description: new fields.HTMLField(),
       ...template_universal_item(),

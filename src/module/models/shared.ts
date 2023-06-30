@@ -166,7 +166,7 @@ export class EmbeddedRefField extends fields.StringField {
     let rrti = regRefToId(this.document_type, value);
     if (rrti) return rrti;
     if (value?.id) value = value.id;
-    if (value?.value) value = value.value;
+    if (value?.value !== undefined) value = value.value;
     if (value?.id) value = value.id; // Intentionally duplicated
     return value; // Don't overzealously fix
   }
@@ -240,7 +240,7 @@ export class SyncUUIDRefField extends fields.StringField {
     let rrtu = regRefToUuid(this.document_type, value);
     if (rrtu) return rrtu;
     if (value?.uuid) value = value.uuid;
-    if (value?.value) value = value.value;
+    if (value?.value !== undefined) value = value.value;
     if (value?.uuid) value = value.uuid; // Intentionally duplicated
     return value; // Don't overzealously fix
   }

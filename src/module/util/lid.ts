@@ -1,44 +1,75 @@
 import { LancerActor, LancerDEPLOYABLE } from "../actor/lancer-actor";
-import { FetcherCache } from "./async";
+import { FetcherCache, RepentantFetcherCache } from "./async";
 import { LancerItem } from "../item/lancer-item";
 import { EntryType } from "../enums";
+
+const CACHE_DURATION = 999_999_000; // Basically indefinitely. But on a miss, they regenerate
+
+// Converts the index into a map of LID -> index entry
+const indexFastCache = new FetcherCache<string, Map<string, any> | null>(async (pack: string) => {
+  let index = await (game.packs.get(pack)?.getIndex() ?? null);
+  if (index) {
+    let map = new Map<string, any>();
+    for (let i of index.contents as any[]) {
+      if (i.system?.lid != null) {
+        map.set(i.system.lid, i);
+      } else {
+        console.error("Index item without lid:", i);
+      }
+    }
+    return map;
+  }
+  return null;
+}, CACHE_DURATION);
 
 /**
  * Lookup all documents with the associated lid in the given types.
  * Document types are checked in order. If no type(s) supplied, all are queried.
- * short_circuit will make it stop with first valid result. Will still return all results of that category, but will not check further categories
- *
- * TODO: re-implement using bolts' lid performance imprvoements
  */
+const lookupLIDPluralCache = new RepentantFetcherCache<string, Array<LancerActor | LancerItem>>(
+  async (lid_and_types, retrying) => {
+    let [lid, raw_types] = lid_and_types.split("|");
+    let types = raw_types.split("/") as EntryType[];
+
+    // If no types, all types
+    if (types.length == 0) {
+      types = Object.values(EntryType);
+    }
+
+    let result: Array<LancerActor | LancerItem> = [];
+    for (let t of types) {
+      let pack_name = `world.${t}`;
+      let pack = game.packs.get(pack_name);
+      if (!pack) {
+        console.error(`Pack not found: ${pack_name}`);
+        continue;
+      }
+      if (retrying) indexFastCache.flush(pack_name); // Better safe than sorry
+      let index = await indexFastCache.fetch(pack_name);
+      let id = index?.get(lid)?._id;
+      let doc = id ? ((await pack.getDocument(id)) as LancerActor | LancerItem) : null;
+      if (doc) {
+        result.push(doc);
+      }
+    }
+
+    if (result.length == 0) {
+      ui.notifications?.error(`Error looking up LID '${lid}'. Ensure you have all required LCPs for this actor.`);
+    }
+
+    return result;
+  },
+  x => !!x,
+  CACHE_DURATION
+);
+
 export async function lookupLIDPlural(
   lid: string,
-  short_circuit: boolean = true,
   types?: EntryType | EntryType[]
 ): Promise<Array<LancerActor | LancerItem>> {
-  // Note: typeless lookup is (somewhat obviously) up to 13x more expensive than non
-  if (!types) {
-    // TODO: Try to guess faster by using slug prefix. ex mw -> check mech weapons first
-    types = Object.values(EntryType);
-  } else if (!Array.isArray(types)) {
-    types = [types];
-  }
-
-  let result: Array<LancerActor | LancerItem> = [];
-  for (let t of types) {
-    let pack = game.packs.get(`world.${t}`)!;
-    // Ensure that the index contains system.lid. It isn't populated at init.
-    await pack.getIndex();
-    let newDocs = await pack?.getDocuments({ system: { lid: lid } });
-    // @ts-expect-error v9
-    result.push(...newDocs);
-    if (short_circuit && result.length) break;
-  }
-
-  if (result.length == 0) {
-    ui.notifications?.error(`Error looking up LID '${lid}'. Ensure you have all required LCPs for this actor.`);
-  }
-
-  return result;
+  if (!types) types = [];
+  if (!Array.isArray(types)) types = [types];
+  return lookupLIDPluralCache.fetch(`${lid}|${types.join("/")}`);
 }
 
 // As compendium_lookup_lid, but just takes first result
@@ -46,7 +77,7 @@ export async function lookupLID(
   lid: string,
   types?: EntryType | EntryType[]
 ): Promise<LancerActor | LancerItem | null> {
-  let res = await lookupLIDPlural(lid, true, types);
+  let res = await lookupLIDPlural(lid, types);
   if (res.length) {
     return res[0];
   } else {
@@ -81,13 +112,6 @@ export function lookupOwnedDeployables(owner: LancerActor): Record<string, Lance
 export async function lookupIntegrated(lids: string[]) {
   let foundDeployables = await Promise.all(lids.map(lid => lookupLID(lid)));
   return foundDeployables.filter(x => x);
-}
-
-// A fetcher cache for LIDs
-export class LIDLookupCache extends FetcherCache<string, LancerActor | LancerItem | null> {
-  constructor(timeout?: number) {
-    super(key => lookupLID(key), timeout);
-  }
 }
 
 // Converts things like "LEAVIATHAN HEAVY ASSAULT CANNON" into "leaviathan_heavy_assault_cannon"

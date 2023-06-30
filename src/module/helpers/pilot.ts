@@ -17,7 +17,7 @@ export function talent_view(talent_path: string, options: HelperOptions) {
           <span class="major">${talent.name}</span>
           ${collapseButton(collapse, talent)}
           <div class="ref-controls">
-            <a class="lancer-context-menu" data-context-menu="${talent.type}" data-path="${talent_path}"">
+            <a class="lancer-context-menu" data-path="${talent_path}"">
               <i class="fas fa-ellipsis-v"></i>
             </a>
           </div>
@@ -65,7 +65,7 @@ export function skillView(skill_path: string, options: HelperOptions) {
           <i class="cci cci-skill i--m i--dark"> </i>
           <span class="major modifier-name">${skill.name}</span>
           <div class="ref-controls">
-            <a class="lancer-context-menu" data-context-menu="${skill.type}" data-path="${skill_path}">
+            <a class="lancer-context-menu" data-path="${skill_path}">
               <i class="fas fa-ellipsis-v"></i>
             </a>
           </div>
@@ -89,7 +89,7 @@ export function coreBonusView(item_path: string, options: HelperOptions) {
           <span class="major modifier-name">${coreBonus.name}</span>
           ${collapseButton(collapse, coreBonus)}
           <div class="ref-controls">
-            <a class="lancer-context-menu" data-context-menu="${coreBonus.type}" data-path="${item_path}">
+            <a class="lancer-context-menu" data-path="${item_path}">
               <i class="fas fa-ellipsis-v"></i>
             </a>
           </div>

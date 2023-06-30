@@ -38,7 +38,6 @@ export function unpackNpcTemplate(
   type: EntryType.NPC_TEMPLATE;
   system: DeepPartial<SourceData.NpcTemplate>;
 } {
-  console.log(data);
   return {
     name: data.name,
     type: EntryType.NPC_TEMPLATE,

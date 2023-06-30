@@ -27,6 +27,7 @@ const deployable_schema = {
     evasion: new fields.NumberField({ min: 0, integer: true, nullable: false, initial: 10 }),
     heatcap: new fields.NumberField({ min: 1, integer: true, nullable: false, initial: 5 }),
     hp: new fields.NumberField({ min: 1, integer: true, nullable: false, initial: 5 }),
+    grit_hp: new fields.BooleanField({ initial: false }),
     save: new fields.NumberField({ min: 0, integer: true, nullable: false, initial: 10 }),
     size: new fields.NumberField({ min: 0.5, integer: false, nullable: false, initial: 0.5 }),
     speed: new fields.NumberField({ min: 0, integer: true, nullable: false, initial: 0 }),
@@ -59,14 +60,43 @@ export class DeployableModel extends LancerDataModel<"DeployableModel"> {
   }
 
   static migrateData(data: any) {
-    // TODO
+    if (typeof data.hp == "string") {
+      let dv = decompose_hp(data.hp);
+      data.hp = dv.hp;
+      data.stats ??= {};
+      data.stats.hp ??= dv.hp;
+      data.stats.grit_hp ??= dv.grit_hp;
+    }
+
+    if (data.type && data.type[0] == data.type[0].toLowerCase()) {
+      data.type = restrict_enum(DeployableType, DeployableType.Deployable, data.type);
+    }
 
     // @ts-expect-error v11
     return super.migrateData(data);
   }
 }
 
+// Handles deployables with grit hp
+function decompose_hp(raw_hp: unknown): { hp: number; grit_hp?: boolean } {
+  if (typeof raw_hp == "string") {
+    let m = raw_hp.match(/\d+/);
+    return {
+      hp: m ? parseInt(m[0]) : 5,
+      grit_hp: raw_hp.includes("grit"),
+    };
+  } else if (typeof raw_hp == "number") {
+    return { hp: raw_hp };
+  } else {
+    return {
+      hp: 5,
+      grit_hp: false,
+    };
+  }
+}
+
 export function unpackDeployableData(data: PackedDeployableData): DeepPartial<SourceData.Deployable> {
+  let dh = decompose_hp(data.hp);
   let rv = {
     actions: data.actions?.map(unpackAction),
     bonuses: data.bonuses?.map(unpackBonus),
@@ -79,7 +109,8 @@ export function unpackDeployableData(data: PackedDeployableData): DeepPartial<So
       edef: data.edef,
       evasion: data.evasion,
       heatcap: data.heatcap,
-      hp: data.hp,
+      hp: dh.hp,
+      grit_hp: dh.grit_hp ?? false,
       save: data.save,
       size: data.size,
       speed: data.speed,
@@ -100,12 +131,6 @@ export function unpackDeployableData(data: PackedDeployableData): DeepPartial<So
     redeploy: data.redeploy,
     type: restrict_enum(DeployableType, DeployableType.Deployable, data.type),
   };
-
-  // For some drones.... its the best we can do
-  if (typeof data.hp == "string") {
-    rv.stats.hp = 5;
-    rv.detail = (rv.detail ?? "") + `<br>Base Max HP = ${data.hp}`;
-  }
 
   return rv;
 }

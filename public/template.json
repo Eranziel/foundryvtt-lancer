@@ -306,7 +306,7 @@
       "uses": 0,
       "profiles": [],
       "loaded": false,
-      "selected_profile": 0,
+      "selected_profile_index": 0,
       "size": "",
       "no_core_bonuses": false,
       "no_mods": false,

@@ -3,7 +3,6 @@
 /* ------------------------------------ */
 
 import type { HelperOptions } from "handlebars";
-import { BonusEditDialog } from "../apps/bonus-editor";
 import { TypeIcon } from "../config";
 import {
   npc_reaction_effect_preview,
@@ -14,25 +13,21 @@ import {
 } from "./npc";
 import { compact_tag_list } from "./tags";
 import {
-  array_path_edit,
   array_path_edit_changes,
   drilldownDocument,
   effect_box,
   extendHelper,
-  format_dotpath,
   inc_if,
-  popout_editor_button,
   resolve_dotpath,
   resolve_helper_dotpath,
   sp_display,
   std_enum_select,
   std_string_input,
   std_x_of_y,
-  tippy_context_menu,
+  tippyContextMenu,
 } from "./commons";
 import { limited_uses_indicator, ref_params, reserve_used_indicator, resolve_ref_element } from "./refs";
 import {
-  ActivationOptions,
   ActivationType,
   ChipIcons,
   DamageType,
@@ -44,13 +39,11 @@ import {
   WeaponSize,
   WeaponType,
 } from "../enums";
-import type { LancerActorSheetData, LancerItemSheetData } from "../interfaces";
 import { encodeMacroData } from "../macros";
 import { collapseButton, collapseParam, CollapseRegistry } from "./collapse";
 import { promptText } from "../apps/simple-prompt";
 import { CounterEditForm } from "../apps/counter-editor";
 import { frameToPath } from "../actor/retrograde-map";
-import { InventoryDialogData } from "../apps/inventory";
 import { Damage } from "../models/bits/damage";
 import { Range } from "../models/bits/range";
 import { BonusData } from "../models/bits/bonus";
@@ -70,14 +63,11 @@ import {
   LancerWEAPON_MOD,
 } from "../item/lancer-item";
 import { ActionData } from "../models/bits/action";
-import { Tag } from "../models/bits/tag";
 import { LancerActor, LancerDEPLOYABLE, LancerMECH } from "../actor/lancer-actor";
 import { CounterData } from "../models/bits/counter";
-import { LancerDoc } from "../util/doc";
-import { item_edit_arrayed_actions } from "./item-editors";
 import { slugify } from "../util/lid";
-import { MacroData } from "@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/data/module.mjs";
 import { LancerFlowState } from "../flows/interfaces";
+import { TagEditForm } from "../apps/tag-editor";
 
 /**
  * Handlebars helper for weapon size selector
@@ -306,41 +296,6 @@ export function bonuses_display(bonuses_path: string, edit: boolean, options: He
     </div>
     `;
 }
-
-// Allows right clicking bonuses to edit them
-export function HANDLER_activate_edit_bonus<T>(html: JQuery, root_doc: LancerItem | LancerActor) {
-  html.find(".editable.bonus").on("click", async evt => {
-    evt.stopPropagation();
-    const elt = evt.currentTarget;
-    const path = elt.dataset.path;
-    if (path) {
-      let dd = drilldownDocument(root_doc, path);
-      return BonusEditDialog.edit_bonus(dd.sub_doc, dd.sub_path);
-    }
-  });
-}
-
-// Allows counter editing
-export function HANDLER_activate_edit_counter<T>(html: JQuery, data_getter: () => Promise<T> | T) {
-  html.find(".counter-edit-button").on("click", async evt => {
-    // Find the counter
-    let path = evt.currentTarget.dataset.path;
-    let writeback_path = evt.currentTarget.dataset.writeback_path;
-    if (!path || !writeback_path) throw "Counters weren't set up right";
-
-    return; // TODO
-    /*
-    let data = await data_getter();
-
-    let document = resolve_dotpath(data, writeback_path) as LancerItem | LancerActor | null;
-
-    if (!document) throw new Error("Writeback is broken");
-
-    return CounterEditForm.edit_counter(item, path, document).catch(e => console.error("Dialog failed", e));
-    */
-  });
-}
-
 /** Expected arguments:
  * - bonus_path=<string path to the individual bonus item>,  ex: ="doc.system.actions.3"
  * - bonus=<bonus object to pre-populate with>
@@ -389,7 +344,7 @@ export function pilot_armor_slot(armor_path: string, options: HelperOptions): st
             <div class="lancer-header">
               <i class="mdi mdi-shield-outline i--m i--light"> </i>
               <span class="minor">${armor.name}</span>
-              <a class="lancer-context-menu" data-context-menu="${armor.type}" data-path="${armor_path}"">
+              <a class="lancer-context-menu" data-path="${armor_path}"">
                 <i class="fas fa-ellipsis-v"></i>
               </a>
             </div>
@@ -455,7 +410,7 @@ export function pilot_weapon_refview(weapon_path: string, options: HelperOptions
     <div class="lancer-header">
       <i class="cci cci-weapon i--m i--light"> </i>
       <span class="minor">${weapon.name}</span>
-              <a class="lancer-context-menu" data-context-menu="${weapon.type}" data-path="${weapon_path}"">
+              <a class="lancer-context-menu" data-path="${weapon_path}"">
                 <i class="fas fa-ellipsis-v"></i>
               </a>
     </div>
@@ -510,7 +465,7 @@ export function pilot_gear_refview(gear_path: string, options: HelperOptions): s
       <i class="cci cci-generic-item i--m"> </i>
       <a class="gear-macro"><i class="mdi mdi-message"></i></a>
       <span class="minor">${gear.name!}</span>
-      <a class="lancer-context-menu" data-context-menu="${gear.type}" data-path="${gear_path}"">
+      <a class="lancer-context-menu" data-path="${gear_path}"">
         <i class="fas fa-ellipsis-v"></i>
       </a>
     </div>
@@ -594,7 +549,7 @@ export function reserve_refview(reserve_path: string, options: HelperOptions): s
       <i class="${icon} i--m"> </i>
       <a class="reserve-macro"><i class="mdi mdi-message"></i></a>
       <span class="minor">${reserve.name}</span>
-      <a class="lancer-context-menu" data-context-menu="${reserve.type}" data-path="${reserve_path}"">
+      <a class="lancer-context-menu" data-path="${reserve_path}"">
         <i class="fas fa-ellipsis-v"></i>
       </a>
     </div>
@@ -650,9 +605,9 @@ export function mech_weapon_display(weapon_path: string, mod_path: string | null
     for (let i = 0; i < weapon.system.profiles.length; i++) {
       let p = weapon.system.profiles[i];
       profiles += `<a class="gen-control weapon-profile ${
-        i === weapon.system.selected_profile ? "selected-profile" : ""
+        i === weapon.system.selected_profile_index ? "selected-profile" : ""
       }"
-data-action="set" data-action-value="(int)${i}" data-path="${weapon_path}.system.selected_profile">
+data-action="set" data-action-value="(int)${i}" data-path="${weapon_path}.system.selected_profile_index">
 <span class="minor">${p.name}</span>
 </a>`;
     }
@@ -663,12 +618,12 @@ data-action="set" data-action-value="(int)${i}" data-path="${weapon_path}.system
 
   // What profile are we using?
   let profile = weapon.system.active_profile;
-  let profile_path = `${weapon_path}.profiles.${weapon.system.selected_profile}`;
+  let profile_path = `${weapon_path}.profiles.${weapon.system.selected_profile_index}`;
 
   // Augment ranges
   /*
   if (mech) {
-    ranges = Range.CalcTotalRangeWithBonuses(weapon, weapon.system.selected_profile, mech, mod ?? undefined);
+    ranges = Range.CalcTotalRangeWithBonuses(weapon, weapon.system.selected_profile_index, mech, mod ?? undefined);
   }
 
   // Augment tags
@@ -707,7 +662,7 @@ data-action="set" data-action-value="(int)${i}" data-path="${weapon_path}.system
           ${weapon.name} // ${weapon.system.size.toUpperCase()} ${profile.type.toUpperCase()}
         </span>
         ${collapseButton(collapse, weapon)}
-        <a class="lancer-context-menu" data-context-menu="${EntryType.MECH_WEAPON}" data-path="${weapon_path}">
+        <a class="lancer-context-menu" data-path="${weapon_path}">
           <i class="fas fa-ellipsis-v"></i>
         </a>
       </div> 
@@ -804,7 +759,7 @@ export function weapon_mod_ref(mod_path: string, weapon_path: string | null, opt
     <div class="lancer-header">
       <i class="cci cci-weaponmod i--m i--light"> </i>
       <span class="minor">${mod.name}</span>
-      <a class="lancer-context-menu" data-context-menu="${EntryType.WEAPON_MOD}" data-path="${mod_path}">
+      <a class="lancer-context-menu" data-path="${mod_path}">
         <i class="fas fa-ellipsis-v"></i>
       </a>
     </div>
@@ -858,7 +813,7 @@ export function license_ref(item_path: string, options: HelperOptions): string {
         <i class="cci cci-license i--m i--dark"> </i>
         <div class="major modifier-name">${license.name} ${license.system.curr_rank}</div>
         <div class="ref-controls">
-          <a class="lancer-context-menu" data-context-menu="${license.type}" data-path="${item_path}"">
+          <a class="lancer-context-menu" data-path="${item_path}"">
             <i class="fas fa-ellipsis-v"></i>
           </a>
         </div>
@@ -878,7 +833,7 @@ export function framePreview(path: string, options: HelperOptions): string {
         <span class="img-bar" style="background-image: url(${frame_img})"></span>
         <div class="major modifier-name i--light">${frame.system.manufacturer} ${frame.name}</div>
         <div class="ref-controls">
-          <a class="lancer-context-menu" data-context-menu="${frame.type}" data-path="${path}"">
+          <a class="lancer-context-menu" data-path="${path}"">
             <i class="fas fa-ellipsis-v i--light"></i>
           </a>
         </div>
@@ -898,7 +853,7 @@ export function npc_class_ref(npc_class: LancerNPC_CLASS | null, item_path?: str
         <span class="img-bar" style="background-image: url(${frame_img})"></span>
         <div class="major modifier-name i--light">${npc_class.name} // ${npc_class.system.role.toUpperCase()}</div>
         <div class="ref-controls">
-          <a class="lancer-context-menu" data-context-menu="${npc_class.type}" data-path="${item_path}"">
+          <a class="lancer-context-menu" data-path="${item_path}"">
             <i class="fas fa-ellipsis-v i--light"></i>
           </a>
         </div>
@@ -917,7 +872,7 @@ export function npc_template_ref(template: LancerNPC_TEMPLATE | null, item_path?
         <span class="img-bar" style="background-image: url(${template.img})"></span>
         <div class="major modifier-name i--light">${template.name}</div>
         <div class="ref-controls">
-          <a class="lancer-context-menu" data-context-menu="${template.type}" data-path="${item_path}"">
+          <a class="lancer-context-menu" data-path="${item_path}"">
             <i class="fas fa-ellipsis-v i--light"></i>
           </a>
         </div>
@@ -1225,9 +1180,7 @@ export function buildCounterHeader(data: CounterData, path: string, can_delete?:
   <div class="card clipped-bot counter-wrapper" data-path="${path}">
     <div class="lancer-header">
       <span>// ${data.name} //</span>
-      <a class="lancer-context-menu" data-context-menu="counter" data-path="${path}" data-can-delete="${
-    can_delete ? can_delete : false
-  }">
+      <a class="lancer-context-menu" data-path="${path}" data-can-delete="${can_delete ? can_delete : false}">
         <i class="fas fa-ellipsis-v"></i>
       </a>
     </div>`;
@@ -1272,41 +1225,13 @@ export function buildCounterArrayHTML(
   </div>`;
 }
 
-function _updateButtonSiblingData(button: JQuery<HTMLElement>, delta: number) {
-  const input = button.siblings("input");
-  const curr = Number.parseInt(input.prop("value"));
-  if (!isNaN(curr)) {
-    if (delta > 0) {
-      if (
-        !button[0].dataset["max"] ||
-        button[0].dataset["max"] == "-1" ||
-        curr + delta <= Number.parseInt(button[0].dataset["max"])
-      ) {
-        input.prop("value", curr + delta);
-      } else {
-        input.prop("value", input[0].dataset["max"]);
-      }
-    } else if (delta < 0) {
-      if (curr + delta >= 0) {
-        input.prop("value", curr + delta);
-      } else {
-        input.prop("value", 0);
-      }
-    }
-  }
-}
-
-async function _updateCounterData<T extends LancerActorSheetData<any> | LancerItemSheetData<any>>(
-  root_doc: LancerActor | LancerItem,
-  path: string,
-  delta: number
-) {
+async function _updateCounterData(root_doc: LancerActor | LancerItem, path: string, delta: number) {
   let dd = drilldownDocument(root_doc, path);
   const counter = dd.terminus as CounterData;
   const min = counter.min || 0;
   const max = counter.max || 6;
 
-  let new_val = counter.val;
+  let new_val = counter.val + delta;
   if (new_val < min) new_val = min;
   if (new_val > max) new_val = max;
 
@@ -1314,7 +1239,7 @@ async function _updateCounterData<T extends LancerActorSheetData<any> | LancerIt
 }
 
 // Handles  +/- buttons around _an input_
-export function HANDLER_activate_plus_minus_buttons(html: JQuery, root_doc: LancerActor | LancerItem) {
+export function handleInputPlusMinusButtons(html: JQuery, root_doc: LancerActor | LancerItem) {
   const mod_handler =
     (delta: number) => async (evt: JQuery.ClickEvent<HTMLElement, undefined, HTMLElement, HTMLElement>) => {
       evt.stopPropagation();
@@ -1334,7 +1259,7 @@ export function HANDLER_activate_plus_minus_buttons(html: JQuery, root_doc: Lanc
 }
 
 // Handles +/- buttons and hex clickables for _counters_
-export function HANDLER_activate_counter_listeners(html: JQuery, root_doc: LancerActor | LancerItem) {
+export function handleCounterInteraction(html: JQuery, root_doc: LancerActor | LancerItem) {
   // Make the hexes themselves clickable
   html.find(".counter-hex").on("click", async evt => {
     evt.stopPropagation();
@@ -1342,7 +1267,7 @@ export function HANDLER_activate_counter_listeners(html: JQuery, root_doc: Lance
     const path = elt.dataset.path;
     const available = elt.dataset.available === "true";
     if (path) {
-      _updateCounterData(root_doc, path, available ? 1 : -1);
+      _updateCounterData(root_doc, path, available ? -1 : 1);
     }
   });
 
@@ -1364,193 +1289,203 @@ export function HANDLER_activate_counter_listeners(html: JQuery, root_doc: Lance
   incr.on("click", mod_handler(+1));
 }
 
-export function HANDLER_activate_item_context_menus(
+export function handleContextMenus(html: JQuery, doc: LancerActor | LancerItem, view_only: boolean = false) {
+  handleContextMenusImpl(html, ".lancer-context-menu", "click", doc, view_only);
+  handleContextMenusImpl(html, ".weapon-profile-tab", "contextmenu", doc, view_only);
+  handleContextMenusImpl(html, ".tag-list-append > .editable-tag-instance", "contextmenu", doc, view_only);
+}
+
+/** Handles context menus for
+ * - Viewing an item sheet
+ * - Marking items destroyed
+ * - Deleting items
+ * - Removing items from slots
+ * - Edit counters
+ * - Remove counters/tags
+ * - Rename weapon profiles (and possibly more?)
+ * - TODO: more, perhaps
+ * @param html The html to bind listeners to
+ * @param doc Document to be modified
+ * @param view_only If edit options should be presented
+ */
+function handleContextMenusImpl(
   html: JQuery,
+  selector: string,
+  event: string,
   doc: LancerActor | LancerItem,
-  view_only: boolean = false
+  view_only: boolean
 ) {
+  // Define some common utilities
+  const path = (html: JQuery) => (html[0].dataset.path || null) as string | null;
+  const dd = (html: JQuery) => (path(html) ? drilldownDocument(doc, path(html)!) : null);
+
+  // Renders the sheet for the document referenced at data-path
   let edit: ContextMenuEntry = {
     name: view_only ? "View" : "Edit",
     icon: view_only ? `<i class="fas fa-eye"></i>` : `<i class="fas fa-edit"></i>`,
-    callback: async (html: JQuery) => {
-      let element = html.closest("[data-uuid]")[0];
-      if (element) {
-        const found_doc = await resolve_ref_element(element);
-        if (!found_doc) return;
-
+    callback: html => {
+      let found_doc = dd(html)?.terminus as LancerActor | LancerItem | null;
+      if (found_doc) {
         let sheet = found_doc.sheet;
         // If the sheet is already rendered:
         if (sheet?.rendered) {
-          await sheet.maximize();
-          sheet.bringToTop();
+          sheet.maximize().then(() => sheet!.bringToTop());
         }
         // Otherwise render the sheet
         else sheet?.render(true);
       }
     },
+    condition: html => dd(html)?.terminus instanceof foundry.abstract.Document,
   };
-  let destroy: ContextMenuEntry = {
-    name: "Toggle Destroyed",
-    icon: `<i class="fas fa-fw fa-wrench"></i>`,
-    callback: async (html: JQuery) => {
-      let path = html[0].dataset.path ?? "";
-      if (path) {
-        let item = resolve_dotpath(doc, path, null) as LancerMECH_WEAPON | LancerMECH_SYSTEM | LancerNPC_FEATURE | null;
-        if (item) {
-          await item.update({ "system.destroyed": !item.system.destroyed });
+
+  // Renders the editor for the effect referenced at data-path
+  let edit_effect: ContextMenuEntry = {
+    name: view_only ? "View" : "Edit",
+    icon: view_only ? `<i class="fas fa-eye"></i>` : `<i class="fas fa-edit"></i>`,
+    callback: html => {
+      // @ts-expect-error
+      let effects = [...doc.allApplicableEffects()];
+      let index = parseInt(html[0].dataset.activeEffectIndex ?? "-1");
+      if (effects[index]) {
+        let sheet = effects[index].sheet;
+        // If the sheet is already rendered:
+        if (sheet?.rendered) {
+          sheet.maximize().then(() => sheet!.bringToTop());
         }
+        // Otherwise render the sheet
+        else sheet?.render(true);
       }
     },
+    condition: html => html[0].dataset.activeEffectIndex != undefined,
   };
-  let remove: ContextMenuEntry = {
-    name: "Delete",
-    icon: '<i class="fas fa-fw fa-trash"></i>',
-    callback: async (html: JQuery) => {
-      let element = html.closest("[data-uuid]")[0];
-      if (element) {
-        const found_doc = await resolve_ref_element(element);
-        if (!found_doc) return;
-        found_doc.delete();
-      }
+
+  // Toggle destroyed status, for items that support it
+  let repair_item: ContextMenuEntry = {
+    name: "Mark Repaired",
+    icon: `<i class="fas fa-fw fa-wrench"></i>`,
+    callback: html => {
+      let item = dd(html)?.terminus as LancerMECH_SYSTEM | LancerMECH_WEAPON | LancerNPC_FEATURE | null;
+      item?.update({ "system.destroyed": !item!.system.destroyed });
     },
-  };
-  let remove_reference: ContextMenuEntry = {
-    name: "Remove",
-    icon: '<i class="fas fa-fw fa-trash"></i>',
-    callback: async (html: JQuery) => {
-      // let path = html[0].dataset.path ?? "";
-      // let dd = drilldownDocument(actor, path);
-      // let update = array_path_edit_changes(dd.sub_doc, dd.sub_path, null, "delete");
-      // dd.sub_doc.update({[update.path]: update});
-      ui.notifications?.error("This needs some fixing");
+    condition: html => {
+      let item = dd(html)?.terminus as LancerItem | null;
+      return (
+        !view_only &&
+        item instanceof LancerItem &&
+        (item.is_mech_system() || item.is_mech_weapon() || item.is_npc_feature()) &&
+        item.system.destroyed
+      );
     },
   };
 
-  // Counters are special so they unfortunately need dedicated controls
+  // Toggle destroyed status, for items that support it
+  let destroy_item: ContextMenuEntry = {
+    name: "Mark Destroyed",
+    icon: `<i class="cci cci-eclipse"></i>`,
+    callback: html => {
+      let item = dd(html)?.terminus as LancerMECH_SYSTEM | LancerMECH_WEAPON | LancerNPC_FEATURE | null;
+      item?.update({ "system.destroyed": !item!.system.destroyed });
+    },
+    condition: html => {
+      let item = dd(html)?.terminus as LancerItem | null;
+      return (
+        !view_only &&
+        item instanceof LancerItem &&
+        (item.is_mech_system() || item.is_mech_weapon() || item.is_npc_feature()) &&
+        !item.system.destroyed
+      );
+    },
+  };
+
+  // Fully delete a document
+  let delete_document: ContextMenuEntry = {
+    name: "Delete Document",
+    icon: '<i class="fas fa-fw fa-trash"></i>',
+    callback: async (html: JQuery) => {
+      (dd(html)?.terminus as foundry.abstract.Document<any, any> | null)?.delete();
+    },
+    condition: html => !view_only && dd(html)?.terminus instanceof foundry.abstract.Document,
+  };
+
+  // Sets a reference to null
+  // Logic elsewhere will clean up the array item (if any) if said array item would be problematic left blank
+  let clear_reference: ContextMenuEntry = {
+    name: "Unlink",
+    icon: '<i class="fas fa-times"></i>',
+    callback: async (html: JQuery) => {
+      // Set as null
+      doc.update({ [path(html)!]: null });
+    },
+    condition: html => {
+      // We support this if the path ends with a .value, and the ref has a truthy value
+      let p = path(html);
+      if (!p?.endsWith(".value")) return false;
+      return !!(!view_only && dd(html)?.terminus);
+    },
+  };
+
+  // Remove an array item (e.x. a counter or weapon profile)
+  let array_remove: ContextMenuEntry = {
+    name: "Remove",
+    icon: '<i class="fas fa-fw fa-trash"></i>',
+    callback: (html: JQuery) => {
+      // Find the counter
+      // let change = array_path_edit_changes(dd.sub_doc, dd.sub_path, null, "delete");
+      // dd.sub_doc.update({ [change.path]: change.new_val });
+    },
+    condition: () => !view_only && false, // TODO - fix so counters etc an be removed
+  };
+
+  // Summon counter editor dialogue
   let counter_edit: ContextMenuEntry = {
     name: "Edit",
     icon: `<i class="fas fa-edit"></i>`,
-    callback: async (html: JQuery) => {
-      // Find the counter
-      let counter_el = html.closest(".counter-wrapper")[0];
-      let path = counter_el.dataset.path;
-      let dd = drilldownDocument(doc, path!);
-      return CounterEditForm.edit_counter(dd.sub_doc, dd.sub_path).catch(e => console.error("Dialog failed", e));
+    callback: html => {
+      CounterEditForm.edit(doc, path(html)!);
     },
-  };
-  let counter_remove: ContextMenuEntry = {
-    name: "Remove",
-    icon: '<i class="fas fa-fw fa-trash"></i>',
-    callback: async (html: JQuery) => {
-      // Find the counter
-      let counter_el = html.closest(".counter-wrapper")[0];
-      let path = counter_el.dataset.path;
-      let dd = drilldownDocument(doc, path!);
-      let change = array_path_edit_changes(dd.sub_doc, dd.sub_path, null, "delete");
-      await doc.update({ [change.path]: change.new_val });
-    },
+    condition: html => !view_only && !!path(html)?.includes("counters"), // Crude but effective
   };
 
-  let e_d_r = view_only ? [edit] : [edit, destroy, remove];
-  let e_d_rr = view_only ? [edit] : [edit, destroy, remove_reference];
-  let e_r = view_only ? [edit] : [edit, remove];
-
-  // Finally, setup the context menu
-  tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"mech_weapon\"]`), "click", e_d_r);
-  tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"mech_system\"]`), "click", e_d_r);
-  if (html.offsetParent().hasClass("item")) {
-    tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"npc_feature\"]`), "click", e_d_rr);
-  } else {
-    tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"npc_feature\"]`), "click", e_d_r);
-  }
-  tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"weapon_mod\"]`), "click", e_r);
-  tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"pilot_weapon\"]`), "click", e_r);
-  tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"pilot_armor\"]`), "click", e_r);
-  tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"pilot_gear\"]`), "click", e_r);
-  tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"reserve\"]`), "click", e_r);
-  tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"talent\"]`), "click", e_r);
-  tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"skill\"]`), "click", e_r);
-  tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"core_bonus\"]`), "click", e_r);
-  tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"license\"]`), "click", e_r);
-  tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"frame\"]`), "click", e_r);
-  tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"npc_class\"]`), "click", e_r);
-  tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"npc_template\"]`), "click", e_r);
-  tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"active-effect\"]`), "click", e_r);
-
-  // Only some counters can be deleted
-  tippy_context_menu(
-    html.find(`.lancer-context-menu[data-context-menu=\"counter\"][data-can-delete=\"false\"]`),
-    "click",
-    [counter_edit]
-  );
-  tippy_context_menu(
-    html.find(`.lancer-context-menu[data-context-menu=\"counter\"][data-can-delete=\"true\"]`),
-    "click",
-    [counter_edit, counter_remove]
-  );
-}
-
-// Allows user to remove or rename profiles value via right click
-export function HANDLER_activate_profile_context_menus<T extends LancerItemSheetData<any>>(
-  html: JQuery,
-  // Retrieves the data that we will operate on
-  data_getter: () => Promise<T> | T,
-  commit_func: (data: T) => void | Promise<void>
-) {
-  // This option allows the user to remove the right-profile tag
-  let remove = {
-    name: "Delete Profile",
-    icon: '<i class="fas fa-fw fa-times"></i>',
-    callback: async (html: JQuery) => {
-      let cd = await data_getter();
-      let profile_path = html[0].dataset.path ?? "";
-
-      // Remove the tag from its array
-      if (profile_path) {
-        // Make sure we aren't deleting the last item
-        let profile_path_parts = format_dotpath(profile_path).split(".");
-        let weapon_path = profile_path_parts.slice(0, profile_path_parts.length - 2).join(".");
-        let weapon = resolve_dotpath(cd, weapon_path, null) as LancerMECH_WEAPON | null;
-
-        if ((weapon?.system.profiles.length ?? 0) <= 1) {
-          ui.notifications!.error("Cannot delete last profile on a weapon");
-          return;
-        }
-
-        // Otherwise its fine
-        array_path_edit(cd, profile_path, null, "delete");
-
-        // Then commit
-        return commit_func(cd);
-      }
+  // Summon a tag editor dialog
+  let tag_edit: ContextMenuEntry = {
+    name: "Edit",
+    icon: '<i class="fas fa-edit"></i>',
+    callback: html => {
+      TagEditForm.edit(doc, path(html)!);
     },
+    condition: html => !view_only && !!path(html)?.includes("tags"), // Crude but effective
   };
 
-  // This option pops up a small dialogue that lets the user set the tag instance's value
-  let set_value = {
-    name: "Rename Profile",
+  // If the "renameSubpath" appears in the dataset, allow simple-prompt to change the name
+  let rename: ContextMenuEntry = {
+    name: "Rename",
     icon: '<i class="fas fa-fw fa-edit"></i>',
-    // condition: game.user.isGM,
-    callback: async (html: JQuery) => {
-      let cd = await data_getter();
-      let profile_path = html[0].dataset.path ?? "";
-
-      // Get the profile
-      let profile = resolve_dotpath(cd, profile_path) as LancerMECH_WEAPON["system"]["profiles"][0];
-
-      // Spawn the dialogue to edit
-      let new_val = await promptText("Rename profile", (profile.name ?? "").toString());
-
-      if (new_val !== null) {
-        // Set the name
-        profile.name = new_val;
-
-        // At last, commit
-        return commit_func(cd);
+    callback: async html => {
+      let full_path = path(html)! + html[0].dataset.renameSubpath;
+      let old_val = drilldownDocument(doc, full_path).terminus as string;
+      let new_val = await promptText("Rename profile", old_val);
+      if (new_val) {
+        doc.update({
+          [full_path]: new_val,
+        });
       }
     },
+    condition: html => !!(!view_only && html[0].dataset.renameSubpath && dd(html)?.terminus),
   };
 
+  let all = [
+    edit,
+    edit_effect,
+    repair_item,
+    destroy_item,
+    delete_document,
+    clear_reference,
+    array_remove,
+    counter_edit,
+    tag_edit,
+    rename,
+  ];
+
   // Finally, setup the context menu
-  tippy_context_menu(html.find(".weapon-profile-tab"), "contextmenu", [remove, set_value]);
+  tippyContextMenu(html.find(selector), event, all);
 }

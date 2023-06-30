@@ -39,49 +39,4 @@ export class LancerNPCClassSheet extends LancerItemSheet<EntryType.NPC_CLASS | E
 
     return data;
   }
-
-  /** @override */
-  _updateObject(_event: any, formData: any) {
-    /*
-    formData["data.stats.size"] = (formData["data.stats.size"] as number[]).map(x => {
-      if (x < 0.5) return 0.5;
-      else if (x !== 0.5 && x % 1 < 1) return Math.floor(x);
-      else return x;
-    });
-    */
-    console.log("TODO");
-
-    console.log(`${lp} Item sheet form data: `, formData);
-
-    // Update the Item
-    return this.object.update(formData);
-  }
-
-  static arrayifyStats(data: string[]) {
-    return data.map(x => parseFloat(x));
-  }
-
-  // TODO: npc_feature_preview expects a path to the feature, not a feature reference
-  /*
-  private _displayFeatures(features: LancerNpcFeatureData[], elementToReplace: JQuery<Element>) {
-    let featureItems = features
-      .map(feature => {
-        return npc_feature_preview(feature, 0, {});
-      })
-      .map(featureItem => {
-        if (featureItem) {
-          const element = jQuery(featureItem);
-          element.each((i: number, item: any) => {
-            item.setAttribute("draggable", "true");
-            item.addEventListener("dragstart", (ev: DragEvent) => this._onDragStart(ev), false);
-          });
-          return element;
-        }
-        return jQuery("");
-      })
-      .map(element => element[0]);
-
-    elementToReplace.replaceWith(featureItems);
-  }
-   */
 }

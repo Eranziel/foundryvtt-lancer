@@ -277,16 +277,17 @@ export function item_edit_arrayed_integrated(path: string, title: string, option
  * @returns         HTML for license in string format
  */
 export function item_edit_license(options: HelperOptions): string {
-  let license: LancerLICENSE | null = options.data.root.license;
+  let license: string | null = options.data.root?.system?.license || null;
   let licenseInfo: string;
   if (!license) licenseInfo = "No license";
   else {
-    licenseInfo = `<div class="set ${EntryType.LICENSE} ref lancer-license-header medium clipped-top" ${ref_params(
-      license
-    )}>
-    <i class="cci cci-license i--m i--dark"> </i>
-    <span class="major modifier-name">${license.name}</span>
-  </div>`;
+    licenseInfo = license; // TODO - use a sync lookup to make this look nice
+    /*
+      licenseInfo = `<div class="set ${EntryType.LICENSE} ref lancer-license-header medium clipped-top" ${ref_params(license)}>
+      <i class="cci cci-license i--m i--dark"> </i>
+      <span class="major modifier-name">${license.name}</span>
+    </div>`;
+    */
   }
 
   return `      
@@ -306,7 +307,6 @@ export function item_edit_license(options: HelperOptions): string {
  * @returns         HTML for our SP editor
  */
 export function item_edit_sp(path: string, options: HelperOptions): string {
-  console.log("TODO: Using temporary SP editor");
   options.hash["label"] = "SP:";
   return std_num_input(path, options);
 }

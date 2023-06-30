@@ -2,19 +2,19 @@ import { LANCER, TypeIcon } from "../config";
 import { SystemData, SystemDataType, SystemTemplates } from "../system-template";
 import { SourceDataType } from "../source-template";
 import { DamageType, EntryType, NpcFeatureType, RangeType, WeaponType } from "../enums";
-import * as defaults from "../util/unpacking/defaults";
 import { ActionData } from "../models/bits/action";
 import { RangeData, Range } from "../models/bits/range";
 import { Tag } from "../models/bits/tag";
-import { LancerActiveEffectConstructorData } from "../effects/lancer-active-effect";
+import { LancerActiveEffect, LancerActiveEffectConstructorData } from "../effects/lancer-active-effect";
 import {
   bonusAffectsWeapon,
   convertBonus,
   frameInnateEffect as frameInnate,
   npcClassInnateEffect as npcClassInnate,
+  npcFeatureBonusEffects,
+  npcFeatureOverrideEffects,
 } from "../effects/converter";
 import { BonusData } from "../models/bits/bonus";
-import { ChangeWatchHelper } from "../util/misc";
 import { LancerMECH } from "../actor/lancer-actor";
 import { Damage } from "../models/bits/damage";
 import { WeaponAttackFlow } from "../flows/attack";
@@ -91,11 +91,6 @@ declare global {
 }
 
 export class LancerItem extends Item {
-  // Internally helps us monitor for when active effects need to be regenerated
-  // Dirty => Need to regenerate
-  // Value => Current effects
-  _generatedEffectTracker = new ChangeWatchHelper();
-
   /**
    * Returns all ranges for the item that match the provided range types
    */
@@ -106,7 +101,7 @@ export class LancerItem extends Item {
     switch (this.type) {
       case EntryType.MECH_WEAPON:
         // @ts-expect-error Should be fixed with v10 types
-        const p = this.system.selected_profile;
+        const p = this.system.selected_profile_index;
         // @ts-expect-error Should be fixed with v10 types
         return this.system.profiles[p].range.filter(r => filter.has(r.type));
       case EntryType.PILOT_WEAPON:
@@ -122,15 +117,8 @@ export class LancerItem extends Item {
     }
   }
 
-  /**
-   * Perform preliminary item preparation.
-   * Set equipped to its initial value (to be later finalized)
-   * Set active weapon profile
-   * Set limited max based on tags
-   */
-  prepareData() {
-    super.prepareData();
-
+  /** Sets this item to its default equipped state */
+  _resetEquipped() {
     // Default equipped based on if its something that must manually be equipped,
     // or is just inherently equipped
     switch (this.type) {
@@ -149,11 +137,21 @@ export class LancerItem extends Item {
         this.system.equipped = true;
         break;
     }
+  }
+
+  /**
+   * Perform preliminary item preparation.
+   * Set equipped to its initial value (to be later finalized)
+   * Set active weapon profile
+   * Set limited max based on tags
+   */
+  prepareBaseData() {
+    super.prepareBaseData();
 
     // Collect all tags on mech weapons
     if (this.is_mech_weapon()) {
       this.system.all_tags = this.system.profiles.flatMap(p => p.tags);
-      this.system.active_profile = this.system.profiles[this.system.selected_profile] ?? this.system.profiles[0];
+      this.system.active_profile = this.system.profiles[this.system.selected_profile_index] ?? this.system.profiles[0];
     }
 
     // Talent apply unlocked items
@@ -225,9 +223,6 @@ export class LancerItem extends Item {
         }
       }
     }
-
-    // Update our change watcher.
-    this._generatedEffectTracker.setValue(this._generateEffectData());
   }
 
   /** @override
@@ -242,25 +237,46 @@ export class LancerItem extends Item {
   /**
    * Generates the effect data for this items bonuses and innate effects (such as those from armor, a frame, etc).
    * Generates no effects if item is destroyed, or unequipped.
-   * Does not care if item is equipped or not.
+   * Result will be a mix of
+   * - Bonus effects (aka from compcon Bonus type bonuses)
+   * - Innate effects (e.x. the statistical affect of a frames base stats)
+   * Result is a temporary ActiveEffect document - it is not persisted to DB
    */
-  _generateEffectData(): LancerActiveEffectConstructorData[] {
+  _generateEphemeralEffects(): LancerActiveEffect[] {
     // Destroyed items produce no effects
     if ((this as any).destroyed === true || !this.isEquipped()) return [];
 
-    // Generate from bonuses + innate
-    let bonuses: BonusData[] = [];
-    let innate: LancerActiveEffectConstructorData | null = null;
+    // Generate from bonuses + innate effects
+    let effects: LancerActiveEffectConstructorData[] = [];
+    let bonus_groups: {
+      // Converted & added to effects later
+      group?: string;
+      bonuses: BonusData[];
+    }[] = [];
+
     switch (this.type) {
       case EntryType.FRAME:
-        bonuses = [
-          ...(this as unknown as LancerFRAME).system.core_system.passive_bonuses,
-          ...(this as unknown as LancerFRAME).system.traits.flatMap(t => t.bonuses),
-        ];
-        innate = frameInnate(this as unknown as LancerFRAME);
+        let frame = this as unknown as LancerFRAME;
+        bonus_groups.push({
+          group: frame.system.core_system.passive_name || frame.system.core_system.name,
+          bonuses: frame.system.core_system.passive_bonuses,
+        });
+        for (let trait of frame.system.traits) {
+          bonus_groups.push({
+            group: trait.name,
+            bonuses: trait.bonuses,
+          });
+        }
+        effects.push(frameInnate(this as unknown as LancerFRAME));
         break;
       case EntryType.NPC_CLASS:
-        innate = npcClassInnate(this as unknown as LancerNPC_CLASS);
+        effects.push(npcClassInnate(this as unknown as LancerNPC_CLASS));
+        break;
+      case EntryType.NPC_FEATURE:
+        let be = npcFeatureBonusEffects(this as unknown as LancerNPC_FEATURE);
+        let oe = npcFeatureOverrideEffects(this as unknown as LancerNPC_FEATURE);
+        if (be) effects.push(be);
+        if (oe) effects.push(oe);
         break;
       case EntryType.PILOT_ARMOR:
       case EntryType.PILOT_GEAR:
@@ -269,23 +285,27 @@ export class LancerItem extends Item {
       case EntryType.WEAPON_MOD:
       case EntryType.CORE_BONUS:
       case EntryType.TALENT:
-        bonuses = (this as any).system.bonuses;
+        bonus_groups.push({ bonuses: (this as any).system.bonuses });
         break;
       case EntryType.MECH_WEAPON:
-        bonuses = (this as unknown as LancerMECH_WEAPON).system.active_profile.bonuses;
+        let tamw = this as unknown as LancerMECH_WEAPON;
+        bonus_groups.push({
+          group: tamw.system.active_profile.name || tamw.system.active_profile?.name,
+          bonuses: tamw.system.active_profile.bonuses,
+        });
         break;
     } // Nothing else needs particular care
 
     // Convert bonuses
-    let bonus_effects = bonuses
-      .map(b => convertBonus(this.uuid, `${this.name} - ${b.lid}`, b))
-      .filter(b => b) as LancerActiveEffectConstructorData[];
+    effects.push(
+      ...(bonus_groups
+        .flatMap(bg =>
+          bg.bonuses.map(b => convertBonus(this.uuid, bg.group ? `${this.name} - ${bg.group}` : this.name!, b))
+        )
+        .filter(b => b) as LancerActiveEffectConstructorData[])
+    );
 
-    if (innate) {
-      bonus_effects.push(innate);
-    }
-
-    return bonus_effects;
+    return effects.map(e => new LancerActiveEffect(e, { parent: this }));
   }
 
   /** @inheritdoc */
