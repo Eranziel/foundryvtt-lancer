@@ -6,27 +6,23 @@
   "version": "2.0.0-rc1",
   "minimumCoreVersion": "10",
   "compatibility": {
-    "minimum": 10,
-    "verified": "10.291",
+    "minimum": 11,
+    "verified": "11.303",
     "maximum": 11
   },
   "authors": [
-    {"name": "Eranziel"},
-    {"name": "Grygon"},
-    {"name": "Whitespine"},
-    {"name": "SohumB"},
-    {"name": "BoltsJ"},
-    {"name": "Valkyrion"},
-    {"name": "Kuenaimaku"},
-    {"name": "dodgepong"}
+    { "name": "Eranziel" },
+    { "name": "Grygon" },
+    { "name": "Whitespine" },
+    { "name": "SohumB" },
+    { "name": "BoltsJ" },
+    { "name": "Valkyrion" },
+    { "name": "Kuenaimaku" },
+    { "name": "dodgepong" }
   ],
   "scripts": [],
   "esmodules": ["index.js"],
-  "styles": [
-    "style.css",
-    "fonts/compcon/glyphs.css",
-    "fonts/mdi.css"
-  ],
+  "styles": ["style.css", "fonts/compcon/glyphs.css", "fonts/mdi.css"],
   "packs": [
     {
       "name": "aoe-templates",
