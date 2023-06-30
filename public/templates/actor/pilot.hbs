@@ -68,8 +68,9 @@
           <span class="lancer-header major">{{localize "lancer.pilot-sheet.cloud-download.label"}}</span>
           <a class="cloud-control i--dark i--l" style="align-self: center;" data-action="download"><i
               class="cci cci-tech-quick"></i></a>
-          <span class="minor desc-text" style="text-align: center;">{{localize
-            "lancer.pilot-sheet.cloud-download.lastSync" timestamp=system.last_cloud_update}}</span>
+          <span class="minor desc-text" style="text-align: center;">
+            {{localize "lancer.pilot-sheet.cloud-download.lastSync" timestamp=system.last_cloud_update}}
+          </span>
         </div>
 
         <div class="card clipped" style="grid-area: 2/2/3/3;">
@@ -109,6 +110,66 @@
           {{{stat-rollable-card "GRIT" "cci cci-armor" "system.grit" }}}
         </div>
       </div>
+
+      {{!-- Bond --}}
+      {{#if system.bond}}
+        <div class="card clipped">
+          <h2 class="lancer-header clipped">
+            <span>{{upper-case (localize "lancer.pilot-sheet.narrative.bond" bondName=system.bond.name)}}</span>
+            <a class="lancer-context-menu" data-path="itemTypes.bond.0">
+              <i class="fas fa-ellipsis-v"></i>
+            </a>
+          </h2>
+          <div class="flexrow">
+            {{!-- Questions --}}
+            <div class="flexcol">
+              {{#each system.bond.system.questions as |question index|}}
+                <div class="flexcol flex-center bond-question-item">
+                  <p class="bond-question-question">{{question.question}}</p>
+                  {{{bond-answer-selector ../this index}}}
+                </div>
+              {{/each}}
+            </div>
+            {{!-- XP Checklist --}}
+            <div class="flexcol">
+              {{#each system.bond.system.major_ideals as |ideal index|}}
+                  <div class="flexrow flex-center bond-xp-item">
+                    {{{std-checkbox (concat "system.bond_state.xp_checklist.major_ideals." index)}}}
+                    <span class="grow">{{ideal}}</span>
+                  </div>
+              {{/each}}
+              <div class="flexrow flex-center bond-xp-item">
+                {{{std-checkbox "system.bond_state.xp_checklist.minor_ideal"}}}
+                <span class="grow">{{system.bond_state.minor_ideal}}</span>
+              </div>
+              <div class="flexrow flex-center bond-xp-item">
+                {{{std-checkbox "system.bond_state.xp_checklist.veteran_power"}}}
+                <span class="grow">Boon XP from another PC.</span>
+              </div>
+              <div class="flexrow flex-center">
+                <button class="xp-button grow">
+                  <i class="mdi mdi-arrow-up-bold-hexagon-outline"></i>
+                  Tally XP
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="flexrow">
+            {{!-- Stress and XP --}}
+            <div class="flexrow">
+              {{{generic-counter "Stress" system.bond_state.stress "system.bond_state.stress"}}}
+              {{{generic-counter "XP" system.bond_state.xp "system.bond_state.xp"}}}
+            </div>
+
+          </div>
+
+          {{!-- Powers --}}
+          <div class="flexcol">
+
+          </div>
+
+        </div>
+      {{/if}}
 
       {{!-- Skill Triggers --}}
       <div class="card clipped">

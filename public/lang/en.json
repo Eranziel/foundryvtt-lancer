@@ -85,6 +85,9 @@
         "cs": "CALLSIGN",
         "name": "NAME"
       },
+      "narrative": {
+        "bond": "BOND OF {bondName}"
+      },
       "tactical": {
         "armor": "ARMOR",
         "weapons": "WEAPONS",

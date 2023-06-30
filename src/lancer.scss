@@ -1178,6 +1178,27 @@ input[type="string"].lancer-input {
   background-color: var(--main-theme-color, fuchsia);
 }
 
+.bond-xp-item {
+  text-align: left;
+  padding: 0.2em 1em;
+}
+
+.bond-question-item {
+  padding: 0.5em 1em 0.5em 1em;
+
+  .bond-question-question {
+    width: 100%;
+    text-align: left;
+    font-weight: bold;
+  }
+
+  .bond-question-select {
+    width: 100% !important;
+    flex-grow: 1;
+    text-wrap: wrap; // Firefox doesn't seem to have an equivalent, unfortunately
+  }
+}
+
 .desc-text {
   text-align: left;
   padding: 0.5em;
@@ -2052,11 +2073,18 @@ a.activation-chip > i.mdi {
   padding: 4px;
 }
 
-.lancer-macro-grid button {
+.lancer-macro-grid button,
+.xp-button {
   margin: 4px;
   border-radius: 15px 0px;
   color: white;
   background-color: var(--main-theme-color);
+}
+
+.xp-button {
+  background-color: var(--tech-color);
+  margin-left: 1em;
+  margin-right: 1em;
 }
 
 // Actions
@@ -2165,6 +2193,11 @@ a.action {
   .tippy-content {
     transform: skew(330deg);
   }
+}
+
+.lancer-context-menu {
+  display: inline-block;
+  min-width: 20px;
 }
 
 .tippy-box[data-theme~="lancer-large"] {

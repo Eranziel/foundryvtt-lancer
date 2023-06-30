@@ -247,7 +247,7 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
     if (!this.actor.is_pilot()) return; // Just for types really
     let pilot = this.actor as LancerPILOT;
     let loadout = pilot.system.loadout;
-    let oldBond = pilot.system.bond;
+    let oldBonds = pilot.items.filter(i => i.is_bond());
 
     // Take posession
     let [drop, is_new] = await this.quickOwnDrop(base_drop);
@@ -288,8 +288,11 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
       } else if ((is_new && drop.document.is_talent()) || drop.document.is_skill()) {
         // If new skill or talent, reset to level 1
         await drop.document.update({ "system.rank": 1 });
-      } else if (is_new && drop.document.is_bond() && oldBond) {
-        await pilot._safeDeleteEmbedded("Item", [oldBond]);
+      } else if (is_new && drop.document.is_bond() && oldBonds.length > 0) {
+        // Delete all other bond items
+        for (let oldBond of oldBonds) {
+          await pilot._safeDeleteDescendant("Item", [oldBond]);
+        }
       }
     } else if (drop.type == "Actor" && drop.document.is_mech()) {
       this.activateMech(drop.document);

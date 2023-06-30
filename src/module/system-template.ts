@@ -505,7 +505,7 @@ export namespace SystemData {
       stress: FullBoundedNum;
       xp_checklist: {
         major_ideals: Array<boolean>;
-        minor_ideals: boolean;
+        minor_ideal: boolean;
         veteran_power: boolean;
       };
       answers: Array<string>;

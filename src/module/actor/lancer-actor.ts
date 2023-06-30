@@ -1,12 +1,11 @@
 import { LANCER, replaceDefaultResource, TypeIcon } from "../config";
 import { prepareOverheatMacro, prepareStructureMacro } from "../macros";
 import { DamageType, EntryType } from "../enums";
-import { fix_modify_token_attribute, LancerTokenDocument } from "../token";
+import { fix_modify_token_attribute } from "../token";
 import { AppliedDamage } from "./damage-calc";
 import { SystemData, SystemDataType, SystemTemplates } from "../system-template";
-import { SourceDataType } from "../source-template";
+import { SourceData, SourceDataType } from "../source-template";
 import { getAutomationOptions } from "../settings";
-import { pilotInnateEffect } from "../effects/converter";
 import { LancerBOND, LancerFRAME, LancerItem, LancerNPC_CLASS } from "../item/lancer-item";
 import { LancerActiveEffect } from "../effects/lancer-active-effect";
 import { frameToPath } from "./retrograde-map";
@@ -248,9 +247,29 @@ export class LancerActor extends Actor {
     if (this.is_pilot()) {
       this.system.grit = Math.ceil(this.system.level / 2);
       this.system.hp.max = 6 + this.system.grit;
+      this.system.bond = this.items.find(i => i.is_bond()) as unknown as LancerBOND;
       this.system.bond_state.xp.max = 8;
       this.system.bond_state.stress.max = 8;
-      this.system.bond = this.items.find(i => i.is_bond()) as unknown as LancerBOND;
+      // sys should actually be the pilot's source data. There's probably a more elegant way to coerce the type here.
+      this.system.bond_state.minor_ideal = this.system.bond
+        ? this.system.bond.system.minor_ideals[(sys as unknown as SourceData.Pilot).bond_state.minor_ideal]
+        : "No Bond";
+      if (this.system.bond) {
+        const bond = this.system.bond;
+        if (this.system.bond_state.answers.length > this.system.bond.system.questions.length) {
+          this.system.bond_state.answers = this.system.bond_state.answers.slice(
+            0,
+            this.system.bond.system.questions.length
+          );
+        }
+        this.system.bond_state.answers = (sys as unknown as SourceData.Pilot).bond_state.answers.map((a, i) => {
+          let q = bond.system.questions[i];
+          if (a >= q.options.length) {
+            return q.options[0];
+          }
+          return bond.system.questions[i].options[a];
+        });
+      }
     } else if (this.is_mech()) {
       // Aggregate sp/ai
       let equipped_sp = 0;
@@ -615,8 +634,7 @@ export class LancerActor extends Actor {
       }
     }
     deleteIdCacheCleanup();
-    // @ts-expect-error v11
-    return this.deleteDescendantDocuments(collection, toDelete, options);
+    return this.deleteEmbeddedDocuments(collection, toDelete, options);
   }
 
   // Typeguards

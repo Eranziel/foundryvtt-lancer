@@ -427,11 +427,11 @@ export namespace SourceData {
       stress: number;
       xp_checklist: {
         major_ideals: Array<boolean>;
-        minor_ideals: boolean;
+        minor_ideal: boolean;
         veteran_power: boolean;
       };
-      answers: Array<string>;
-      minor_ideal: string;
+      answers: Array<number>;
+      minor_ideal: number;
       burdens: Array<CounterData>;
       clocks: Array<CounterData>;
     };
