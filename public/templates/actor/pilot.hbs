@@ -140,7 +140,7 @@
               {{/each}}
               <div class="flexrow flex-center bond-xp-item">
                 {{{std-checkbox "system.bond_state.xp_checklist.minor_ideal"}}}
-                <span class="grow">{{system.bond_state.minor_ideal}}</span>
+                {{{bond-ideal-selector this}}}
               </div>
               <div class="flexrow flex-center bond-xp-item">
                 {{{std-checkbox "system.bond_state.xp_checklist.veteran_power"}}}
@@ -160,12 +160,15 @@
               {{{generic-counter "Stress" system.bond_state.stress "system.bond_state.stress"}}}
               {{{generic-counter "XP" system.bond_state.xp "system.bond_state.xp"}}}
             </div>
-
           </div>
 
           {{!-- Powers --}}
           <div class="flexcol">
-
+            {{#each system.bond.system.powers as |power index|}}
+              {{#if power.unlocked}}
+                {{{bond-power (concat "system.bond.system.powers." index)}}}
+              {{/if}}
+            {{/each}}
           </div>
 
         </div>

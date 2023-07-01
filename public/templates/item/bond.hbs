@@ -50,6 +50,7 @@
       {{#each system.powers as |power power_index|}}
         <div class="card clipped">
           <div class="lancer-header major">
+            {{{std-checkbox (concat "system.powers." (concat power_index ".unlocked")) label="" classes=""}}}
             {{!-- TODO: bond icon? --}}
             <i class="cci cci-trait i--m i--light header-icon"> </i> 
             {{{std-string-input (concat "system.powers." (concat power_index ".name")) classes="lancer-text-field"}}}

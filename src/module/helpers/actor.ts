@@ -188,10 +188,22 @@ export function bond_answer_selector(pilot: LancerPILOT, index: number): string 
   const currentAnswer = pilot.system.bond_state.answers[index];
   if (!bond || index > bond.system.questions.length - 1) return "";
   let options = "";
-  bond.system.questions[index].options.forEach((answer, index) => {
-    options += `<option value="${index}" ${currentAnswer === answer ? "selected" : ""}>${answer}</option>`;
+  bond.system.questions[index].options.forEach((answer, idx) => {
+    options += `<option value="${idx}" ${currentAnswer === answer ? "selected" : ""}>${answer}</option>\n`;
   });
-  return `<select class="bond-question-select" name="system.bond_state.answers.${index}" data-type="number" style="height: 2em; float: right">
+  return `<select class="bond-question-select" name="system.bond_state.answers.${index}" data-type="Number">
+    ${options}
+  </select>`;
+}
+
+export function bond_minor_ideal_selector(pilot: LancerPILOT): string {
+  const bond = pilot.system.bond;
+  const currentIdeal: number = bond?.system.minor_ideals.findIndex(i => i === pilot.system.bond_state.minor_ideal) ?? 0;
+  let options = "";
+  bond?.system.minor_ideals.forEach((ideal, idx) => {
+    options += `<option value="${idx}" ${currentIdeal === idx ? "selected" : ""}>${ideal}</option>\n`;
+  });
+  return `<select class="bond-ideal-select" name="system.bond_state.minor_ideal" data-type="Number">
     ${options}
   </select>`;
 }

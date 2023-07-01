@@ -86,6 +86,7 @@ import {
   npc_class_ref,
   npc_template_ref,
   generic_counter,
+  bond_power,
 } from "./module/helpers/item";
 import {
   action_button,
@@ -105,6 +106,7 @@ import {
   stat_view_card,
   tech_flow_card,
   bond_answer_selector,
+  bond_minor_ideal_selector,
 } from "./module/helpers/actor";
 import type { HelperOptions } from "handlebars";
 import {
@@ -495,6 +497,8 @@ Hooks.once("init", async function () {
   Handlebars.registerHelper("reserve-slot", reserve_refview);
   Handlebars.registerHelper("generic-counter", generic_counter);
   Handlebars.registerHelper("bond-answer-selector", bond_answer_selector);
+  Handlebars.registerHelper("bond-ideal-selector", bond_minor_ideal_selector);
+  Handlebars.registerHelper("bond-power", bond_power);
   Handlebars.registerHelper("counter-array", buildCounterArrayHTML);
   Handlebars.registerHelper("pilot-counters", pilot_counters);
   Handlebars.registerHelper("all-mech-preview", all_mech_preview);

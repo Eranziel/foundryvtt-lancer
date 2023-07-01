@@ -1183,6 +1183,13 @@ input[type="string"].lancer-input {
   padding: 0.2em 1em;
 }
 
+.bond-ideal-select,
+.bond-question-select {
+  width: 100% !important;
+  flex-grow: 1;
+  text-wrap: wrap; // Firefox doesn't seem to have an equivalent, unfortunately
+}
+
 .bond-question-item {
   padding: 0.5em 1em 0.5em 1em;
 
@@ -1190,12 +1197,6 @@ input[type="string"].lancer-input {
     width: 100%;
     text-align: left;
     font-weight: bold;
-  }
-
-  .bond-question-select {
-    width: 100% !important;
-    flex-grow: 1;
-    text-wrap: wrap; // Firefox doesn't seem to have an equivalent, unfortunately
   }
 }
 
@@ -1602,6 +1603,7 @@ input.core-power-toggle:not(:checked)::before {
 .lancer-mech-trait-header,
 .lancer-core-sys-header,
 .lancer-talent-header,
+.lancer-bond-power-header,
 .lancer-system-header,
 .lancer-trait-header,
 .lancer-trigger-header,
