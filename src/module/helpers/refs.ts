@@ -213,15 +213,6 @@ export function item_preview<T extends LancerItemType>(
   }
 }
 
-export function hex_array(curr: number, max: number, path: string) {
-  return [...Array(max)].map((_ele, index) => {
-    const available = index + 1 <= curr;
-    return `<a><i class="uses-hex mdi ${
-      available ? "mdi-hexagon-slice-6" : "mdi-hexagon-outline"
-    } theme--light" data-available="${available}" data-path="${path}"></i></a>`;
-  });
-}
-
 export function limited_uses_indicator(
   item:
     | LancerMECH_WEAPON
@@ -234,7 +225,7 @@ export function limited_uses_indicator(
 ): string {
   const uses = item.system.uses;
 
-  const hexes = hex_array(uses.value, uses.max, path);
+  const hexes = hex_array(uses.value, uses.max, path, "uses-hex");
 
   return `<div class="clipped card limited-card">USES ${hexes.join("")}</div>`;
 }

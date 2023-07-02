@@ -1,7 +1,7 @@
 import { LANCER } from "../config";
 import { handleGenControls, handlePopoutTextEditor } from "../helpers/commons";
 import { handleDocDropping, ResolvedDropData } from "../helpers/dragdrop";
-import { handleCounterInteraction, handleInputPlusMinusButtons } from "../helpers/item";
+import { handleCounterInteraction, handleInputPlusMinusButtons, handlePowerUsesInteraction } from "../helpers/item";
 import { handleRefDragging, handleRefSlotDropping, click_evt_open_ref, handleUsesInteraction } from "../helpers/refs";
 import type { LancerActorSheetData } from "../interfaces";
 import { LancerItem, is_item_type, LancerItemType } from "../item/lancer-item";
@@ -77,6 +77,9 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
 
     // Enable hex use triggers.
     handleUsesInteraction(html, this.actor);
+
+    // Enable power use triggers.
+    handlePowerUsesInteraction(html, this.actor);
 
     // Enable context menu triggers.
     handleContextMenus(html, this.actor);

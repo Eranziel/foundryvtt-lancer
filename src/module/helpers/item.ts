@@ -17,6 +17,7 @@ import {
   drilldownDocument,
   effect_box,
   extendHelper,
+  hex_array,
   inc_if,
   resolve_dotpath,
   resolve_helper_dotpath,
@@ -48,6 +49,7 @@ import { Damage } from "../models/bits/damage";
 import { Range } from "../models/bits/range";
 import { BonusData } from "../models/bits/bonus";
 import {
+  LancerBOND,
   LancerFRAME,
   LancerItem,
   LancerLICENSE,
@@ -314,6 +316,35 @@ export function single_action_editor(path: string, options: HelperOptions) {
     </div>`;
 }
 
+export function bond_power(bond_path: string, power_index: number, options: HelperOptions): string {
+  let bond = resolve_helper_dotpath<LancerBOND>(options, bond_path);
+  let power = bond?.system.powers[power_index];
+  if (!bond || !power) return "";
+  let body = `<span class="desc-text">${power.description}</span>`;
+  return `
+    <div class="card clipped bond-power">
+      <div class="lancer-bond-power-header medium clipped-top">
+        <a class="bond-power-flow"><i class="cci cci-trait i--m"></i></a>
+        ${power.name}
+        ${power.veteran ? `<i class="mdi mdi-alpha-v-circle i--s"></i>` : ``}
+        ${power.master ? `<i class="mdi mdi-alpha-m-circle i--s"></i>` : ``}
+      </div>
+      ${
+        power.uses
+          ? `<div class="flexrow">
+            ${body}
+            ${
+              power.uses && power.uses.max
+                ? bond_power_uses_indicator(bond, power_index, `${bond_path}.system.powers.${power_index}`)
+                : ""
+            }
+          </div>`
+          : `${body}`
+      }
+    </div>
+  `;
+}
+
 // Helper for showing a piece of armor, or a slot to hold it (if path is provided)
 export function pilot_armor_slot(armor_path: string, options: HelperOptions): string {
   // Fetch the item
@@ -481,6 +512,16 @@ export function pilot_gear_refview(gear_path: string, options: HelperOptions): s
 
       ${compact_tag_list(gear_path + ".system.tags", gear.system.tags, false)}
     </div>
+  </div>`;
+}
+
+export function bond_power_uses_indicator(item: LancerBOND, power_index: number, path: string): string {
+  const power = item.system.powers[power_index];
+  if (!power.uses) return "";
+  console.log(`bond power ${power.name} uses`, power.uses);
+  const hexes = hex_array(power.uses.value, power.uses.max, path, "power-uses-hex");
+  return `<div class="clipped card limited-card">
+    <div class="flexcol"><span>USES</span><div>${hexes.join("")}</div></div>
   </div>`;
 }
 
@@ -1301,6 +1342,34 @@ export function handleCounterInteraction(html: JQuery, root_doc: LancerActor | L
   decr.on("click", mod_handler(-1));
   let incr = html.find('button[class*="clicker-plus-button"].hex');
   incr.on("click", mod_handler(+1));
+}
+
+export function handlePowerUsesInteraction<T>(html: JQuery, doc: LancerActor | LancerItem) {
+  let elements = html.find(".power-uses-hex");
+  elements.on("click", async ev => {
+    ev.stopPropagation();
+
+    const params = ev.currentTarget.dataset;
+    if (params.path) {
+      const pathParts = params.path.split(".");
+      const powerIndex = parseInt(pathParts[pathParts.length - 1]);
+      const dd = drilldownDocument(doc, params.path);
+      const item = dd.sub_doc as LancerBOND;
+      const power = item.system.powers[powerIndex];
+      const available = params.available === "true";
+      if (!item || !power || !power.uses) return;
+
+      let newUses = power.uses.value;
+      if (available) {
+        // Deduct uses.
+        newUses = Math.max(newUses - 1, power.uses.min);
+      } else {
+        // Increment uses.
+        newUses = Math.min(newUses + 1, power.uses.max);
+      }
+      item.update({ [`system.powers.${powerIndex}.uses.value`]: newUses });
+    }
+  });
 }
 
 /**

@@ -905,3 +905,12 @@ export function restrict_enum<T extends string>(enum_: { [key: string]: T }, def
   let choices = list_enum(enum_);
   return restrict_choices(choices, default_choice, provided);
 }
+
+export function hex_array(curr: number, max: number, path: string, classes?: string) {
+  return [...Array(max)].map((_ele, index) => {
+    const available = index + 1 <= curr;
+    return `<a><i class="${classes} mdi ${
+      available ? "mdi-hexagon-slice-6" : "mdi-hexagon-outline"
+    } theme--light" data-available="${available}" data-path="${path}"></i></a>`;
+  });
+}

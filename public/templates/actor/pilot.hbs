@@ -166,7 +166,7 @@
           <div class="flexcol">
             {{#each system.bond.system.powers as |power index|}}
               {{#if power.unlocked}}
-                {{{bond-power (concat "system.bond.system.powers." index)}}}
+                {{{bond-power "system.bond" index}}}
               {{/if}}
             {{/each}}
           </div>
