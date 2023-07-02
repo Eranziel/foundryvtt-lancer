@@ -30,7 +30,7 @@ import {
 import { ActionData } from "./models/bits/action";
 import { BonusData } from "./models/bits/bonus";
 import { CounterData } from "./models/bits/counter";
-import { Damage, DamageData } from "./models/bits/damage";
+import { Damage } from "./models/bits/damage";
 import { Range } from "./models/bits/range";
 import { SynergyData } from "./models/bits/synergy";
 import { Tag, TagData } from "./models/bits/tag";

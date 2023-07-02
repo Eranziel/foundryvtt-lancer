@@ -13,7 +13,6 @@ import {
 } from "./npc";
 import { compact_tag_list } from "./tags";
 import {
-  array_path_edit_changes,
   drilldownDocument,
   effect_box,
   extendHelper,
@@ -27,7 +26,7 @@ import {
   std_x_of_y,
   tippyContextMenu,
 } from "./commons";
-import { limited_uses_indicator, ref_params, reserve_used_indicator, resolve_ref_element } from "./refs";
+import { limited_uses_indicator, ref_params, reserve_used_indicator } from "./refs";
 import {
   ActivationType,
   ChipIcons,
@@ -65,7 +64,7 @@ import {
   LancerWEAPON_MOD,
 } from "../item/lancer-item";
 import { ActionData } from "../models/bits/action";
-import { LancerActor, LancerDEPLOYABLE, LancerMECH } from "../actor/lancer-actor";
+import { LancerActor, LancerDEPLOYABLE } from "../actor/lancer-actor";
 import { CounterData } from "../models/bits/counter";
 import { slugify } from "../util/lid";
 import { LancerFlowState } from "../flows/interfaces";

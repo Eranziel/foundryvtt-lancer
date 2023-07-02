@@ -330,15 +330,6 @@ export enum EncounterSide {
   Neutral = "Neutral",
 }
 
-export enum SkillFamily {
-  str = "str",
-  dex = "dex",
-  int = "int",
-  cha = "cha",
-  con = "con",
-  // custom = "custom"
-}
-
 export type SynergyLocation =
   | "any" // Acts as a wildcard
   | "active_effects"

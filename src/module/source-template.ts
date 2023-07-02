@@ -449,7 +449,6 @@ export namespace SourceData {
   export interface Skill extends SourceTemplates.item_universal {
     description: string;
     detail: string;
-    family: string;
     curr_rank: number;
   }
   export interface Status extends SourceTemplates.item_universal {

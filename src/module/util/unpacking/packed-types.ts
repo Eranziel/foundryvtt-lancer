@@ -7,7 +7,6 @@ import {
   NpcFeatureType,
   OrgType,
   RangeType,
-  SkillFamily,
   SynergyLocation,
   SystemType,
   WeaponSize,
@@ -43,7 +42,7 @@ export interface PackedSkillData {
   name: string;
   description: string; // terse, prefer fewest chars
   detail: string; // v-html
-  family: SkillFamily;
+  family: any; // These exist in lancer-data, but we will purposefully ignore them
   rank?: number;
   custom?: true;
   custom_desc?: string;

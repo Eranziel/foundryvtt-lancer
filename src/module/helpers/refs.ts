@@ -2,7 +2,6 @@ import type { HelperOptions } from "handlebars";
 import { TypeIcon } from "../config";
 import {
   LancerItem,
-  is_item_type,
   LancerItemType,
   LancerMECH_SYSTEM,
   LancerMECH_WEAPON,
@@ -12,15 +11,14 @@ import {
   LancerWEAPON_MOD,
   LancerRESERVE,
 } from "../item/lancer-item";
-import { array_path_edit_changes, drilldownDocument, resolve_helper_dotpath } from "./commons";
+import { array_path_edit_changes, drilldownDocument, hex_array, resolve_helper_dotpath } from "./commons";
 import { FoundryDropData, handleDocDropping, handleDragging, ResolvedDropData } from "./dragdrop";
 import { framePreview, license_ref, mech_weapon_display as mechWeaponView, npc_feature_preview } from "./item";
-import { frameView as loadoutFrameView, mech_system_view as mechSystemView } from "./loadout";
+import { mech_system_view as mechSystemView } from "./loadout";
 import { LancerDoc } from "../util/doc";
-import { EntryType, SystemType } from "../enums";
-import { LancerActor, LancerPILOT } from "../actor/lancer-actor";
+import { EntryType } from "../enums";
+import { LancerActor } from "../actor/lancer-actor";
 import { coreBonusView, skillView, talent_view as talentView } from "./pilot";
-import { CollapseRegistry } from "./collapse";
 import { SourceData } from "../source-template";
 import { LancerActiveEffect } from "../effects/lancer-active-effect";
 
@@ -155,8 +153,6 @@ export function ref_portrait<T extends EntryType>(
     item
   )} width="100" height="100" />`;
 }
-
-// Use this slot callback to add items of certain kind(s) to a list.
 
 // A helper suitable for showing a small preview of a ref (slot)
 // In general, any preview here is less for "use" (e.x. don't tend to have elaborate macros) and more just to show something is there

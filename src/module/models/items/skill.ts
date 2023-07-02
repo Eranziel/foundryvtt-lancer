@@ -12,7 +12,6 @@ export class SkillModel extends LancerDataModel {
     return {
       description: new fields.HTMLField(),
       detail: new fields.StringField(),
-      family: new fields.StringField(),
       curr_rank: new fields.NumberField({ nullable: false, initial: 1, min: 1, max: 3 }),
       ...template_universal_item(),
     };
@@ -36,7 +35,6 @@ export function unpackSkill(
       curr_rank: 1,
       description: data.description,
       detail: data.detail,
-      family: data.family,
     },
   };
 }
