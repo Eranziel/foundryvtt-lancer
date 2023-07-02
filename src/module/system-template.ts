@@ -512,7 +512,6 @@ export namespace SystemData {
       minor_ideal: string;
       burdens: Array<CounterData>;
       clocks: Array<CounterData>;
-      powers: Array<PowerData>;
     };
 
     // Derived attributes

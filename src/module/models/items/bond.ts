@@ -1,14 +1,13 @@
 import { EntryType } from "../../enums";
 import { SourceData } from "../../source-template";
 import { PackedBondData } from "../../util/unpacking/packed-types";
-import { PowerField } from "../bits/power";
+import { PowerField, unpackPower } from "../bits/power";
 import { BondQuestionField } from "../bits/question";
 import { LancerDataModel } from "../shared";
 import { template_universal_item } from "./shared";
 
 const fields: any = foundry.data.fields;
 
-// TODO: add fields for in-play tracking of ideal fulfillment and power usage
 export class BondModel extends LancerDataModel<"BondModel"> {
   static defineSchema() {
     return {
@@ -26,6 +25,7 @@ export function unpackBond(data: PackedBondData): {
   type: EntryType.BOND;
   system: DeepPartial<SourceData.Bond>;
 } {
+  const powers = data.powers.map(p => unpackPower(p));
   return {
     name: data.name,
     type: EntryType.BOND,
@@ -34,7 +34,7 @@ export function unpackBond(data: PackedBondData): {
       major_ideals: data.major_ideals,
       minor_ideals: data.minor_ideals,
       questions: data.questions,
-      powers: data.powers,
+      powers,
     },
   };
 }

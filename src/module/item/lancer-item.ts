@@ -19,6 +19,7 @@ import { LancerMECH } from "../actor/lancer-actor";
 import { Damage } from "../models/bits/damage";
 import { WeaponAttackFlow } from "../flows/attack";
 import { TechAttackFlow } from "../flows/tech";
+import { fixupPowerUses } from "../models/bits/power";
 
 const lp = LANCER.log_prefix;
 
@@ -152,16 +153,17 @@ export class LancerItem extends Item {
     if (this.is_mech_weapon()) {
       this.system.all_tags = this.system.profiles.flatMap(p => p.tags);
       this.system.active_profile = this.system.profiles[this.system.selected_profile_index] ?? this.system.profiles[0];
-    }
-
-    // Talent apply unlocked items
-    if (this.is_talent()) {
+    } else if (this.is_talent()) {
+      // Talent apply unlocked items
       let unlocked_ranks = this.system.ranks.slice(0, this.system.curr_rank);
       this.system.actions = unlocked_ranks.flatMap(a => a.actions);
       this.system.bonuses = unlocked_ranks.flatMap(a => a.bonuses);
       this.system.counters = unlocked_ranks.flatMap(a => a.counters);
       this.system.synergies = unlocked_ranks.flatMap(a => a.synergies);
       // TODO - handle exclusive
+    } else if (this.is_bond()) {
+      // Construct uses from frequency
+      this.system.powers = this.system.powers.map(p => fixupPowerUses(p));
     }
 
     // Apply limited max from tags, as applicable
