@@ -12,7 +12,7 @@ const encodedMacroWhitelist = [
   "prepareOverchargeMacro",
   "prepareStructureSecondaryRollMacro",
   "prepareOverheatMacro",
-  "prepareStructureMacro",
+  // "prepareStructureMacro",
   "rollAttackMacro",
   "rollTechMacro",
   "importIntegrated",
