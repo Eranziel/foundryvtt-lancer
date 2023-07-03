@@ -16,5 +16,5 @@ export { prepareTalentMacro } from "./flows/talent";
 export { prepareTextMacro } from "./flows/text";
 export { prepareStabilizeMacro as stabilizeMacro } from "./flows/stabilize";
 export { prepareOverheatMacro } from "./flows/stress";
-export { prepareStructureMacro, prepareStructureSecondaryRollMacro } from "./flows/structure";
+export { beginStructureFlow, beginSecondaryStructureFlow } from "./flows/structure";
 export { prepareFullRepairMacro as fullRepairMacro } from "./flows/full-repair";

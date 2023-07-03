@@ -149,8 +149,19 @@ export namespace LancerFlowState {
     roll: string;
   }
 
-  // export interface StructureRollData {
-  // }
+  export interface StructureRollData {
+    reroll_data?: { structure: number };
+    hull_check?: boolean;
+    secondary_roll_check?: boolean;
+    destruction_check?: boolean;
+    primary_roll: Roll;
+    primary_roll_result: number;
+    primary_roll_title: string;
+    primary_roll_desc: string;
+    primary_roll_tooltip: string;
+    secondary_roll_result: number;
+    struct_lost: number;
+  }
 
   // export interface StressRollData {
   // }
