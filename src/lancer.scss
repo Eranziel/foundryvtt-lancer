@@ -2077,15 +2077,20 @@ a.activation-chip > i.mdi {
 }
 
 .lancer-macro-grid button,
-.xp-button {
+.bond-xp-button,
+.refresh-powers-button {
   margin: 4px;
   border-radius: 15px 0px;
   color: white;
   background-color: var(--main-theme-color);
 }
 
-.xp-button {
+.bond-xp-button,
+.refresh-powers-button {
   background-color: var(--tech-color);
+}
+
+.bond-xp-button {
   margin-left: 1em;
   margin-right: 1em;
 }
@@ -2405,7 +2410,6 @@ Here, this means we want to allow for drag stuff etc to show contextually if:
   grid-column: 1/2;
   grid-row: 1/2;
 }
-
 
 /* Lancer Initiative stuff
    This is plain css for now */

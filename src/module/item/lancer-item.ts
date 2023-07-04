@@ -1,6 +1,6 @@
 import { LANCER, TypeIcon } from "../config";
 import { SystemData, SystemDataType, SystemTemplates } from "../system-template";
-import { SourceDataType } from "../source-template";
+import { SourceData, SourceDataType } from "../source-template";
 import { DamageType, EntryType, NpcFeatureType, RangeType, WeaponType } from "../enums";
 import { ActionData } from "../models/bits/action";
 import { RangeData, Range } from "../models/bits/range";
@@ -550,6 +550,19 @@ export class LancerItem extends Item {
     const flow = new BondPowerFlow(this, { powerIndex });
     await flow.begin();
     console.log("Finished bond power flow");
+  }
+
+  async refreshPowers() {
+    if (!this.is_bond()) {
+      ui.notifications!.error(`Item ${this.id} has no bond powers!`);
+      return;
+    }
+    for (let i = 0; i < this.system.powers.length; i++) {
+      const p = this.system.powers[i];
+      if (p.uses) {
+        await this.update({ [`system.powers.${i}.uses.value`]: p.uses.max });
+      }
+    }
   }
 }
 

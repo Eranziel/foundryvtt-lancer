@@ -4,7 +4,7 @@ import { handleDocDropping, ResolvedDropData } from "../helpers/dragdrop";
 import { handleCounterInteraction, handleInputPlusMinusButtons, handlePowerUsesInteraction } from "../helpers/item";
 import { handleRefDragging, handleRefSlotDropping, click_evt_open_ref, handleUsesInteraction } from "../helpers/refs";
 import type { LancerActorSheetData } from "../interfaces";
-import { LancerItem, is_item_type, LancerItemType } from "../item/lancer-item";
+import { LancerItem } from "../item/lancer-item";
 import { LancerActor, LancerActorType } from "./lancer-actor";
 import { prepareActivationMacro, prepareChargeMacro, prepareItemMacro, runEncodedMacro } from "../macros";
 import { ActivationOptions } from "../enums";
@@ -247,6 +247,28 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
       const bond = LancerItem.fromUuidSync(bondId ?? "", "Error rolling macro");
       const powerIndex = parseInt(powerElement.dataset.powerIndex ?? "-1");
       bond.beginBondPowerFlow(powerIndex);
+    });
+
+    // Bond XP
+    let bondXp = html.find(".bond-xp-button");
+    bondXp.on("click", ev => {
+      if (!ev.currentTarget) return; // No target, let other handlers take care of it.
+      ev.stopPropagation();
+
+      const actor = this.actor as LancerActor;
+      if (!actor.is_pilot() || !actor.system.bond) return;
+      actor.tallyBondXP();
+    });
+
+    // Refresh Bond powers
+    let bondRefresh = html.find(".refresh-powers-button");
+    bondRefresh.on("click", ev => {
+      if (!ev.currentTarget) return; // No target, let other handlers take care of it.
+      ev.stopPropagation();
+
+      const actor = this.actor as LancerActor;
+      if (!actor.is_pilot() || !actor.system.bond) return;
+      actor.system.bond.refreshPowers();
     });
 
     // Action-chip (system? Or broader?) macros

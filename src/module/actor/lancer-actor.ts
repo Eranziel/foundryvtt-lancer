@@ -733,6 +733,28 @@ export class LancerActor extends Actor {
     return await flow.begin();
   }
 
+  async tallyBondXP() {
+    if (!this.is_pilot()) return;
+    let totalIncrease = 0;
+    for (const ideal of this.system.bond_state.xp_checklist.major_ideals) {
+      if (ideal) totalIncrease += 1;
+    }
+    if (this.system.bond_state.xp_checklist.minor_ideal) totalIncrease += 1;
+    if (this.system.bond_state.xp_checklist.veteran_power) totalIncrease += 1;
+    if (totalIncrease) {
+      await this.update({
+        [`system.bond_state.xp.value`]: this.system.bond_state.xp.value + totalIncrease,
+      });
+      await this.update({
+        "system.bond_state.xp_checklist": {
+          major_ideals: [false, false, false],
+          minor_ideal: false,
+          veteran_power: false,
+        },
+      });
+    }
+  }
+
   // Called as part of foundry document initialization process
   static migrateData(source: any) {
     // Note: Don't bother fixing prototypeToken, as LancerTokenDocument handles that itself
