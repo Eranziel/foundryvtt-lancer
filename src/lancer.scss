@@ -984,6 +984,10 @@ textarea {
     background-color: var(--main-theme-color);
   }
 
+  .bond-power & {
+    background-color: var(--main-theme-color);
+  }
+
   .mech_weapon:hover &,
   .weapon_mod:hover &,
   .npc-weapon:hover &,
@@ -1603,7 +1607,6 @@ input.core-power-toggle:not(:checked)::before {
 .lancer-mech-trait-header,
 .lancer-core-sys-header,
 .lancer-talent-header,
-.lancer-bond-power-header,
 .lancer-system-header,
 .lancer-trait-header,
 .lancer-trigger-header,

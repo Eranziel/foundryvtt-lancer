@@ -322,11 +322,12 @@ export function bond_power(bond_path: string, power_index: number, options: Help
   let body = `<span class="desc-text">${power.description}</span>`;
   return `
     <div class="card clipped bond-power" data-uuid="${bond.uuid}" data-power-index="${power_index}">
-      <div class="lancer-bond-power-header medium clipped-top">
-        <a class="bond-power-flow"><i class="cci cci-trait i--m"></i></a>
-        ${power.name}
-        ${power.veteran ? `<i class="mdi mdi-alpha-v-circle i--s"></i>` : ``}
-        ${power.master ? `<i class="mdi mdi-alpha-m-circle i--s"></i>` : ``}
+      <div class="lancer-header medium clipped-top">
+        <i class="cci cci-trait i--m"></i>
+        <a class="bond-power-flow"><i class="mdi mdi-message"></i></a>
+        <span>${power.name}</span>
+        ${power.veteran ? `<i class="mdi mdi-alpha-v-box i--sm"></i>` : ``}
+        ${power.master ? `<i class="mdi mdi-alpha-m-box i--sm"></i>` : ``}
       </div>
       ${
         power.uses
