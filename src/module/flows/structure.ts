@@ -34,20 +34,8 @@ export class StructureFlow extends Flow<LancerFlowState.StructureRollData> {
     this.steps.set("structureMultipleChecks", structureMultipleChecks);
     this.steps.set("structureHullCheck", structureHullCheck);
     this.steps.set("structureSecondaryRoll", structureSecondaryRoll);
-
     this.steps.set("structureRemaining", structureRemaining);
   }
-}
-
-/**
- * Helper function for printing out structure cards
- *
- * @param actor
- * @param templateData
- */
-async function printStructureCard(actor: LancerActor, templateData: {}) {
-  const template = `systems/${game.system.id}/templates/chat/structure-card.hbs`;
-  await renderMacroTemplate(actor, template, templateData);
 }
 
 /**
@@ -106,7 +94,18 @@ export async function preStructureRollChecks(state: FlowState<LancerFlowState.St
   return true;
 }
 
-// Table of descriptions
+// Table of structure table titles
+const structTableTitles = [
+  "Crushing Hit",
+  "Direct Hit",
+  "System Trauma",
+  "System Trauma",
+  "System Trauma",
+  "Glancing Blow",
+  "Glancing Blow",
+];
+
+// Table of structure table descriptions
 function structTableDescriptions(roll: number, remStruct: number): string {
   switch (roll) {
     // Used for multiple ones
@@ -131,17 +130,6 @@ function structTableDescriptions(roll: number, remStruct: number): string {
   }
   return "";
 }
-
-// Table of titles
-const structTableTitles = [
-  "Crushing Hit",
-  "Direct Hit",
-  "System Trauma",
-  "System Trauma",
-  "System Trauma",
-  "Glancing Blow",
-  "Glancing Blow",
-];
 
 /**
  * Perform roll on structure table
@@ -184,9 +172,10 @@ export async function noStructureRemaining(state: FlowState<LancerFlowState.Stru
   if (!state.data) throw new TypeError(`Structure roll data flow state missing!`);
 
   if (state.data.struct_lost > 0) {
-    console.log("there's remaining structure, exiting");
     return true;
   }
+
+  console.log("no structure remaining criteria met");
 
   var actor = state.actor;
   if (!actor.is_mech() && !actor.is_npc()) {
@@ -227,23 +216,7 @@ export async function structureRemaining(state: FlowState<LancerFlowState.Struct
   state.data.primary_roll_title = structTableTitles[result];
   state.data.primary_roll_desc = structTableDescriptions(result, state.data.struct_lost);
 
-  var templateData = {
-    val: actor.system.structure.value,
-    max: actor.system.structure.max,
-    tt: state.data.primary_roll_tooltip,
-    title: state.data.primary_roll_title,
-    total: result.toString(),
-    text: state.data.primary_roll_desc,
-    roll: state.data.primary_roll,
-    secondaryRoll: "",
-    rerollMacroData: encodeMacroData({
-      title: "Structure Damage",
-      fn: "beginStructureFlow",
-      args: [actor.uuid!, { structure: state.data.struct_lost }],
-    }),
-  };
-
-  printStructureCard(actor, templateData);
+  readyAndPrintCommonStructureCard(state, "");
   return true;
 }
 
@@ -264,6 +237,7 @@ export async function structureMultipleChecks(state: FlowState<LancerFlowState.S
   // Crushing hits
   let one_count = (state.data.primary_roll.terms as Die[])[0].results.filter(v => v.result === 1).length;
   if (one_count > 1) {
+    console.log("structure multiple check criteria met");
     var templateData = {
       val: actor.system.structure.value,
       max: actor.system.structure.max,
@@ -302,6 +276,7 @@ export async function structureHullCheck(state: FlowState<LancerFlowState.Struct
   }
 
   if (state.data.primary_roll_result === 1 && state.data.struct_lost === 2) {
+    console.log("structure hull check criteria met");
     let macroData = encodeMacroData({
       title: "Hull",
       fn: "prepareStatMacro",
@@ -309,23 +284,7 @@ export async function structureHullCheck(state: FlowState<LancerFlowState.Struct
     });
 
     let secondaryRoll = `<button class="chat-button chat-macro-button" data-macro="${macroData}"><i class="fas fa-dice-d20"></i> Hull</button>`;
-    var templateData = {
-      val: actor.system.structure.value,
-      max: actor.system.structure.max,
-      tt: state.data.primary_roll_tooltip,
-      title: state.data.primary_roll_title,
-      total: state.data.primary_roll_result.toString(),
-      text: state.data.primary_roll_desc,
-      roll: state.data.primary_roll,
-      secondaryRoll: secondaryRoll,
-      rerollMacroData: encodeMacroData({
-        title: "Structure Damage",
-        fn: "beginStructureFlow",
-        args: [actor.uuid!, { structure: state.data.struct_lost }],
-      }),
-    };
-
-    printStructureCard(actor, templateData);
+    readyAndPrintCommonStructureCard(state, secondaryRoll);
     return false;
   }
   return true;
@@ -346,6 +305,7 @@ export async function structureSecondaryRoll(state: FlowState<LancerFlowState.St
   }
 
   if (state.data.primary_roll_result >= 2 && state.data.primary_roll_result <= 4) {
+    console.log("structure secondary roll criteria met");
     state.data.secondary_roll_check = true;
     let macroData = encodeMacroData({
       // TODO: Should create a "prepareRollMacro" or something to handle generic roll-based macros
@@ -356,27 +316,77 @@ export async function structureSecondaryRoll(state: FlowState<LancerFlowState.St
     });
 
     let secondaryRoll = `<button class="chat-macro-button"><a class="chat-button" data-macro="${macroData}"><i class="fas fa-dice-d20"></i> Destroy</a></button>`;
-    var templateData = {
-      val: actor.system.structure.value,
-      max: actor.system.structure.max,
-      tt: state.data.primary_roll_tooltip,
-      title: state.data.primary_roll_title,
-      total: state.data.primary_roll_result.toString(),
-      text: state.data.primary_roll_desc,
-      roll: state.data.primary_roll,
-      secondaryRoll: secondaryRoll,
-      rerollMacroData: encodeMacroData({
-        title: "Structure Damage",
-        fn: "beginStructureFlow",
-        args: [actor.uuid!, { reroll_data: { structure: state.data.struct_lost } }],
-      }),
-    };
-
-    printStructureCard(actor, templateData);
+    readyAndPrintCommonStructureCard(state, secondaryRoll);
     return false;
   }
 
   return true;
+}
+
+function readyAndPrintCommonStructureCard(
+  state: FlowState<LancerFlowState.StructureRollData>,
+  secondaryRoll: string
+): boolean {
+  if (!state.data) throw new TypeError(`Structure roll data flow state missing!`);
+  let rerollMacroData = encodeMacroData({
+    title: "Structure Damage",
+    fn: "beginStructureFlow",
+    args: [state.actor.uuid!, { reroll_data: { structure: state.data.struct_lost } }],
+  });
+  return readyAndPrintStructureCard(
+    state.actor,
+    state.data.primary_roll_tooltip,
+    state.data.primary_roll_title,
+    state.data.primary_roll_result.toString(),
+    state.data.primary_roll_desc,
+    state.data.primary_roll,
+    secondaryRoll,
+    state.data.struct_lost,
+    rerollMacroData
+  );
+}
+
+function readyAndPrintStructureCard(
+  actor: LancerActor,
+  tooltip: string,
+  title: string,
+  rollTotal: string,
+  description: string,
+  roll: Roll,
+  secondaryRoll: string,
+  structLost: number,
+  rerollMacroData: string
+): boolean {
+  if (!actor.is_mech() && !actor.is_npc()) {
+    ui.notifications!.warn('Only npcs and mechs can work with "remaining structure" logic.');
+    return false;
+  }
+
+  var templateData = {
+    val: actor.system.structure.value,
+    max: actor.system.structure.max,
+    tt: tooltip,
+    title: title,
+    total: rollTotal,
+    text: description,
+    roll: roll,
+    secondaryRoll: secondaryRoll,
+    rerollMacroData: rerollMacroData,
+  };
+
+  printStructureCard(actor, templateData);
+  return true;
+}
+
+/**
+ * Helper function for printing out structure cards
+ *
+ * @param actor
+ * @param templateData
+ */
+async function printStructureCard(actor: LancerActor, templateData: {}) {
+  const template = `systems/${game.system.id}/templates/chat/structure-card.hbs`;
+  await renderMacroTemplate(actor, template, templateData);
 }
 
 /**
