@@ -321,7 +321,7 @@ export function bond_power(bond_path: string, power_index: number, options: Help
   if (!bond || !power) return "";
   let body = `<span class="desc-text">${power.description}</span>`;
   return `
-    <div class="card clipped bond-power">
+    <div class="card clipped bond-power" data-uuid="${bond.uuid}" data-power-index="${power_index}">
       <div class="lancer-bond-power-header medium clipped-top">
         <a class="bond-power-flow"><i class="cci cci-trait i--m"></i></a>
         ${power.name}
@@ -517,7 +517,6 @@ export function pilot_gear_refview(gear_path: string, options: HelperOptions): s
 export function bond_power_uses_indicator(item: LancerBOND, power_index: number, path: string): string {
   const power = item.system.powers[power_index];
   if (!power.uses) return "";
-  console.log(`bond power ${power.name} uses`, power.uses);
   const hexes = hex_array(power.uses.value, power.uses.max, path, "power-uses-hex");
   return `<div class="clipped card limited-card">
     <div class="flexcol"><span>USES</span><div>${hexes.join("")}</div></div>

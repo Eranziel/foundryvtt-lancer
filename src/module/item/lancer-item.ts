@@ -20,6 +20,7 @@ import { Damage } from "../models/bits/damage";
 import { WeaponAttackFlow } from "../flows/attack";
 import { TechAttackFlow } from "../flows/tech";
 import { fixupPowerUses } from "../models/bits/power";
+import { BondPowerFlow } from "../flows/bond";
 
 const lp = LANCER.log_prefix;
 
@@ -539,6 +540,16 @@ export class LancerItem extends Item {
     const flow = new TechAttackFlow(this);
     await flow.begin();
     console.log("Finished tech attack flow");
+  }
+
+  async beginBondPowerFlow(powerIndex: number) {
+    if (!this.is_bond()) {
+      ui.notifications!.error(`Item ${this.id} has no bond powers!`);
+      return;
+    }
+    const flow = new BondPowerFlow(this, { powerIndex });
+    await flow.begin();
+    console.log("Finished bond power flow");
   }
 }
 

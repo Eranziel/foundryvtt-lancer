@@ -206,8 +206,8 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
     });
 
     // Weapon rollers
-    let weaponMacro = html.find(".roll-attack");
-    weaponMacro.on("click", ev => {
+    let weaponRollers = html.find(".roll-attack");
+    weaponRollers.on("click", ev => {
       if (!ev.currentTarget) return; // No target, let other handlers take care of it.
       ev.stopPropagation();
 
@@ -234,6 +234,19 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
 
       const el = $(ev.currentTarget).closest("[data-uuid]")[0] as HTMLElement;
       prepareItemMacro(el.dataset.uuid!);
+    });
+
+    // Bond Power flow
+    let powerFlows = html.find(".bond-power-flow");
+    powerFlows.on("click", ev => {
+      if (!ev.currentTarget) return; // No target, let other handlers take care of it.
+      ev.stopPropagation();
+
+      const powerElement = $(ev.currentTarget).closest("[data-uuid]")[0] as HTMLElement;
+      const bondId = powerElement.dataset.uuid;
+      const bond = LancerItem.fromUuidSync(bondId ?? "", "Error rolling macro");
+      const powerIndex = parseInt(powerElement.dataset.powerIndex ?? "-1");
+      bond.beginBondPowerFlow(powerIndex);
     });
 
     // Action-chip (system? Or broader?) macros

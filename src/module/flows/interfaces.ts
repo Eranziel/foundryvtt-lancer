@@ -117,6 +117,12 @@ export namespace LancerFlowState {
     rank: number;
   }
 
+  export interface BondPowerUseData {
+    title: string;
+    powerIndex: number;
+    description: string;
+  }
+
   // Just like, if you want to
   export interface GenericData {
     title: string;
