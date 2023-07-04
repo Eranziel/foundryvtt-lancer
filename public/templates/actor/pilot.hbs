@@ -178,12 +178,37 @@
         </div>
       {{/if}}
 
-      {{!-- Skill Triggers --}}
-      <div class="card clipped">
-        <h2 class="lancer-title clipped">{{localize "lancer.pilot-sheet.abilities.skills"}}</h2>
-        {{#each itemTypes.skill as |skill index|}} 
-          {{{item-preview (concat "itemTypes.skill." index) "delete" }}}
-        {{/each}}
+      <div class="flexrow">
+        {{!-- Skill Triggers --}}
+        <div class="card clipped">
+          <h2 class="lancer-title clipped">{{localize "lancer.pilot-sheet.abilities.skills"}}</h2>
+          {{#each itemTypes.skill as |skill index|}} 
+            {{{item-preview (concat "itemTypes.skill." index) "delete" }}}
+          {{/each}}
+        </div>
+        {{!-- Bond Clocks --}}
+        {{#if system.bond}}
+          <div class="flexcol">
+            <div class="card clipped grow">
+              <div class="lancer-header submajor clipped">
+                <span>{{localize "lancer.pilot-sheet.narrative.burdens"}}</span>
+                <a class="gen-control fas fa-plus" data-action="append" data-path="system.bond_state.burdens" data-action-value="(struct)counter"></a>
+              </div>
+              {{#each system.bond_state.burdens as |burden index|}}
+                  {{{counter burden (concat "system.bond_state.burdens." index) "true"}}}
+              {{/each}}
+            </div>
+            <div class="card clipped grow">
+              <div class="lancer-header submajor clipped">
+                <span>{{localize "lancer.pilot-sheet.narrative.clocks"}}</span>
+                <a class="gen-control fas fa-plus" data-action="append" data-path="system.bond_state.clocks" data-action-value="(struct)counter"></a>
+              </div>
+              {{#each system.bond_state.clocks as |clock index|}}
+                  {{{counter clock (concat "system.bond_state.clocks." index) "true"}}}
+              {{/each}}
+            </div>
+          </div>
+        {{/if}}
       </div>
 
       <div class="card clipped lancer-macro-grid">

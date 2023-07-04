@@ -87,6 +87,7 @@ import {
   npc_template_ref,
   generic_counter,
   bond_power,
+  buildCounterHTML,
 } from "./module/helpers/item";
 import {
   action_button,
@@ -499,6 +500,7 @@ Hooks.once("init", async function () {
   Handlebars.registerHelper("bond-answer-selector", bond_answer_selector);
   Handlebars.registerHelper("bond-ideal-selector", bond_minor_ideal_selector);
   Handlebars.registerHelper("bond-power", bond_power);
+  Handlebars.registerHelper("counter", buildCounterHTML);
   Handlebars.registerHelper("counter-array", buildCounterArrayHTML);
   Handlebars.registerHelper("pilot-counters", pilot_counters);
   Handlebars.registerHelper("all-mech-preview", all_mech_preview);

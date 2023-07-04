@@ -86,7 +86,9 @@
         "name": "NAME"
       },
       "narrative": {
-        "bond": "BOND OF {bondName}"
+        "bond": "BOND OF {bondName}",
+        "burdens": "BURDENS",
+        "clocks": "CLOCKS"
       },
       "tactical": {
         "armor": "ARMOR",

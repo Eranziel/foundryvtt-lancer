@@ -1533,7 +1533,9 @@ function _handleContextMenus(
     callback: html => {
       CounterEditForm.edit(doc, path(html)!);
     },
-    condition: html => !view_only && !!path(html)?.includes("counters"), // Crude but effective
+    condition: html =>
+      !view_only &&
+      (!!path(html)?.includes("counters") || !!path(html)?.includes("burdens") || !!path(html)?.includes("clocks")), // Crude but effective
   };
 
   // Summon a tag editor dialog
