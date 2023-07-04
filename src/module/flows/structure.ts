@@ -238,23 +238,24 @@ export async function structureMultipleChecks(state: FlowState<LancerFlowState.S
   let one_count = (state.data.primary_roll.terms as Die[])[0].results.filter(v => v.result === 1).length;
   if (one_count > 1) {
     console.log("structure multiple check criteria met");
-    var templateData = {
-      val: actor.system.structure.value,
-      max: actor.system.structure.max,
-      tt: state.data.primary_roll_tooltip,
-      title: structTableTitles[0],
-      total: "Multiple Ones",
-      text: structTableDescriptions(state.data.primary_roll_result, 1),
-      roll: state.data.primary_roll,
-      secondaryRoll: "",
-      rerollMacroData: encodeMacroData({
-        title: "Structure Damage",
-        fn: "beginStructureFlow",
-        args: [actor.uuid!, { structure: state.data.struct_lost }],
-      }),
-    };
+    let rerollMacroData = encodeMacroData({
+      title: "Structure Damage",
+      fn: "beginStructureFlow",
+      args: [actor.uuid!, { structure: state.data.struct_lost }],
+    });
 
-    printStructureCard(actor, templateData);
+    readyAndPrintStructureCard(
+      state.actor,
+      state.data.primary_roll_tooltip,
+      structTableTitles[0],
+      "Multiple Ones",
+      structTableDescriptions(state.data.primary_roll_result, 1),
+      state.data.primary_roll,
+      "",
+      state.data.struct_lost,
+      rerollMacroData
+    );
+
     return false;
   }
 
