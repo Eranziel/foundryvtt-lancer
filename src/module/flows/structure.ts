@@ -5,29 +5,61 @@ import { getAutomationOptions } from "../settings";
 import { prepareTextMacro } from "./text";
 import { LancerFlowState } from "./interfaces";
 import { Flow, FlowState } from "./flow";
-import { LancerItem } from "../item/lancer-item";
 import { LancerActor, LancerNPC } from "../actor/lancer-actor";
 import { encodeMacroData, renderMacroTemplate } from "../macros";
 
 const lp = LANCER.log_prefix;
 
+/**
+ * StructureFlow manages all the steps necessary for the initial structure rolls and outcomes.
+ */
 export class StructureFlow extends Flow<LancerFlowState.StructureRollData> {
   constructor(uuid: UUIDRef | LancerActor, data?: Partial<LancerFlowState.StructureRollData>) {
     const initialData: LancerFlowState.StructureRollData = {
       reroll_data: data?.reroll_data,
       primary_roll_result: data?.primary_roll_result || -1,
       secondary_roll_result: data?.secondary_roll_result || -1,
-      remStruct: data?.remStruct || 0,
+      struct_lost: data?.struct_lost || 0,
+      primary_roll: data?.primary_roll || new Roll(``),
+      primary_roll_title: data?.primary_roll_title || "",
+      primary_roll_desc: data?.primary_roll_desc || "",
+      primary_roll_tooltip: data?.primary_roll_tooltip || "",
     };
 
     super("StructureFlow", uuid, initialData);
 
-    this.steps.set("structureChecks", structureChecks);
+    this.steps.set("preStructureRollChecks", preStructureRollChecks);
     this.steps.set("rollStructureTable", rollStructureTable);
     this.steps.set("noStructureRemaining", noStructureRemaining);
+    this.steps.set("structureMultipleChecks", structureMultipleChecks);
+    this.steps.set("structureHullCheck", structureHullCheck);
+    this.steps.set("structureSecondaryRoll", structureSecondaryRoll);
+
     this.steps.set("structureRemaining", structureRemaining);
-    this.steps.set("prepareStructureSecondaryRollMacro", prepareStructureSecondaryRollMacro);
   }
+}
+
+/**
+ * Helper function for printing out structure cards
+ *
+ * @param actor
+ * @param templateData
+ */
+async function printStructureCard(actor: LancerActor, templateData: {}) {
+  const template = `systems/${game.system.id}/templates/chat/structure-card.hbs`;
+  await renderMacroTemplate(actor, template, templateData);
+}
+
+/**
+ * Helper function for beginning structure flows
+ *
+ * @param actor
+ * @param flowArgs
+ * @returns
+ */
+export async function beginStructureFlow(actor: string, flowArgs: {}) {
+  const flow = new StructureFlow(actor, flowArgs);
+  return await flow.begin();
 }
 
 /**
@@ -36,7 +68,7 @@ export class StructureFlow extends Flow<LancerFlowState.StructureRollData> {
  * @param actor   - Actor or ID of actor to structure
  * @param reroll_data - Data to use if rerolling. Setting this also supresses the dialog.
  */
-export async function structureChecks(state: FlowState<LancerFlowState.StructureRollData>): Promise<boolean> {
+export async function preStructureRollChecks(state: FlowState<LancerFlowState.StructureRollData>): Promise<boolean> {
   if (!state.data) throw new TypeError(`Structure roll data flow state missing!`);
   const actor = state.actor;
 
@@ -75,7 +107,7 @@ export async function structureChecks(state: FlowState<LancerFlowState.Structure
 }
 
 // Table of descriptions
-function structTableDescriptions(roll: number, remStruct: number) {
+function structTableDescriptions(roll: number, remStruct: number): string {
   switch (roll) {
     // Used for multiple ones
     case 0:
@@ -97,6 +129,7 @@ function structTableDescriptions(roll: number, remStruct: number) {
     case 6:
       return "Emergency systems kick in and stabilize your mech, but it’s @Compendium[world.status.IMPAIRED] until the end of your next turn.";
   }
+  return "";
 }
 
 // Table of titles
@@ -129,12 +162,16 @@ export async function rollStructureTable(state: FlowState<LancerFlowState.Struct
     return false;
   }
 
-  let remStruct = state.data?.reroll_data?.structure ?? actor.system.structure.value;
-  console.log("rollStructureTable internal remStruct: ", remStruct);
-  let templateData = {};
+  let struct_lost = state.data?.reroll_data?.structure ?? actor.system.structure.value;
+  let damage = actor.system.structure.max - struct_lost;
+  let roll: Roll = await new Roll(`${damage}d6kl1`).evaluate({ async: true });
 
-  state.data.remStruct = remStruct;
-  console.log("rollStructureTable state remStruct: ", state.data.remStruct);
+  if (roll.total === undefined) return false;
+
+  state.data.primary_roll = roll;
+  state.data.primary_roll_result = roll.total;
+  state.data.struct_lost = struct_lost;
+
   return true;
 }
 
@@ -146,7 +183,7 @@ export async function rollStructureTable(state: FlowState<LancerFlowState.Struct
 export async function noStructureRemaining(state: FlowState<LancerFlowState.StructureRollData>): Promise<boolean> {
   if (!state.data) throw new TypeError(`Structure roll data flow state missing!`);
 
-  if (state.data.remStruct > 0) {
+  if (state.data.struct_lost > 0) {
     console.log("there's remaining structure, exiting");
     return true;
   }
@@ -167,9 +204,7 @@ export async function noStructureRemaining(state: FlowState<LancerFlowState.Stru
     text: text,
   };
 
-  const template = `systems/${game.system.id}/templates/chat/structure-card.hbs`;
-  await renderMacroTemplate(actor, template, templateData);
-
+  printStructureCard(actor, templateData);
   return false;
 }
 
@@ -187,69 +222,160 @@ export async function structureRemaining(state: FlowState<LancerFlowState.Struct
     return false;
   }
 
-  console.log("structureRemaining remStruct: ", state.data.remStruct);
-  let damage = actor.system.structure.max - state.data.remStruct;
+  let result = state.data.primary_roll_result;
+  state.data.primary_roll_tooltip = await state.data.primary_roll.getTooltip();
+  state.data.primary_roll_title = structTableTitles[result];
+  state.data.primary_roll_desc = structTableDescriptions(result, state.data.struct_lost);
 
-  let roll: Roll = await new Roll(`${damage}d6kl1`).evaluate({ async: true });
-  let result = roll.total;
-  if (result === undefined) return false;
-
-  // save roll result in state
-  state.data.primary_roll_result = result;
-
-  let tt = await roll.getTooltip();
-  let title = structTableTitles[result];
-  let text = structTableDescriptions(result, state.data.remStruct);
-  let total = result.toString();
-
-  let secondaryRoll = "";
-
-  // Crushing hits
-  let one_count = (roll.terms as Die[])[0].results.filter(v => v.result === 1).length;
-  if (one_count > 1) {
-    text = structTableDescriptions(result, 1);
-    title = structTableTitles[0];
-    total = "Multiple Ones";
-  } else {
-    if (result === 1 && state.data.remStruct === 2) {
-      let macroData = encodeMacroData({
-        title: "Hull",
-        fn: "prepareStatMacro",
-        args: [actor.uuid, "system.hull"],
-      });
-
-      secondaryRoll = `<button class="chat-button chat-macro-button" data-macro="${macroData}"><i class="fas fa-dice-d20"></i> Hull</button>`;
-    } else if (result >= 2 && result <= 4) {
-      state.data.secondary_roll_check = true;
-      let macroData = encodeMacroData({
-        // TODO: Should create a "prepareRollMacro" or something to handle generic roll-based macros
-        // Since we can't change prepareTextMacro too much or break everyone's macros
-        title: "Roll for Destruction",
-        fn: "prepareStructureSecondaryRollMacro",
-        args: [state],
-      });
-
-      secondaryRoll = `<button class="chat-macro-button"><a class="chat-button" data-macro="${macroData}"><i class="fas fa-dice-d20"></i> Destroy</a></button>`;
-    }
-  }
   var templateData = {
     val: actor.system.structure.value,
     max: actor.system.structure.max,
-    tt: tt,
-    title: title,
-    total: total,
-    text: text,
-    roll: roll,
-    secondaryRoll: secondaryRoll,
+    tt: state.data.primary_roll_tooltip,
+    title: state.data.primary_roll_title,
+    total: result.toString(),
+    text: state.data.primary_roll_desc,
+    roll: state.data.primary_roll,
+    secondaryRoll: "",
     rerollMacroData: encodeMacroData({
       title: "Structure Damage",
-      fn: "prepareStructureMacro",
-      args: [actor.uuid!, { structure: state.data.remStruct }],
+      fn: "beginStructureFlow",
+      args: [actor.uuid!, { structure: state.data.struct_lost }],
     }),
   };
 
-  const template = `systems/${game.system.id}/templates/chat/structure-card.hbs`;
-  await renderMacroTemplate(actor, template, templateData);
+  printStructureCard(actor, templateData);
+  return true;
+}
+
+/**
+ * Handle logic for when a mech has structure remaining.
+ * @param state
+ * @returns
+ */
+export async function structureMultipleChecks(state: FlowState<LancerFlowState.StructureRollData>): Promise<boolean> {
+  if (!state.data) throw new TypeError(`Structure roll data flow state missing!`);
+
+  var actor = state.actor;
+  if (!actor.is_mech() && !actor.is_npc()) {
+    ui.notifications!.warn('Only npcs and mechs can work with "multiple structure check" logic.');
+    return false;
+  }
+
+  // Crushing hits
+  let one_count = (state.data.primary_roll.terms as Die[])[0].results.filter(v => v.result === 1).length;
+  if (one_count > 1) {
+    var templateData = {
+      val: actor.system.structure.value,
+      max: actor.system.structure.max,
+      tt: state.data.primary_roll_tooltip,
+      title: structTableTitles[0],
+      total: "Multiple Ones",
+      text: structTableDescriptions(state.data.primary_roll_result, 1),
+      roll: state.data.primary_roll,
+      secondaryRoll: "",
+      rerollMacroData: encodeMacroData({
+        title: "Structure Damage",
+        fn: "beginStructureFlow",
+        args: [actor.uuid!, { structure: state.data.struct_lost }],
+      }),
+    };
+
+    printStructureCard(actor, templateData);
+    return false;
+  }
+
+  return true;
+}
+
+/**
+ * Handle logic for when a mech needs to perform a hull check after the initial structure roll
+ * @param state
+ * @returns
+ */
+export async function structureHullCheck(state: FlowState<LancerFlowState.StructureRollData>): Promise<boolean> {
+  if (!state.data) throw new TypeError(`Structure roll data flow state missing!`);
+
+  var actor = state.actor;
+  if (!actor.is_mech() && !actor.is_npc()) {
+    ui.notifications!.warn('Only npcs and mechs can work with "remaining structure" logic.');
+    return false;
+  }
+
+  if (state.data.primary_roll_result === 1 && state.data.struct_lost === 2) {
+    let macroData = encodeMacroData({
+      title: "Hull",
+      fn: "prepareStatMacro",
+      args: [actor.uuid, "system.hull"],
+    });
+
+    let secondaryRoll = `<button class="chat-button chat-macro-button" data-macro="${macroData}"><i class="fas fa-dice-d20"></i> Hull</button>`;
+    var templateData = {
+      val: actor.system.structure.value,
+      max: actor.system.structure.max,
+      tt: state.data.primary_roll_tooltip,
+      title: state.data.primary_roll_title,
+      total: state.data.primary_roll_result.toString(),
+      text: state.data.primary_roll_desc,
+      roll: state.data.primary_roll,
+      secondaryRoll: secondaryRoll,
+      rerollMacroData: encodeMacroData({
+        title: "Structure Damage",
+        fn: "beginStructureFlow",
+        args: [actor.uuid!, { structure: state.data.struct_lost }],
+      }),
+    };
+
+    printStructureCard(actor, templateData);
+    return false;
+  }
+  return true;
+}
+
+/**
+ * Handle logic for when a structure roll leads to the secondary structure roll
+ * @param state
+ * @returns
+ */
+export async function structureSecondaryRoll(state: FlowState<LancerFlowState.StructureRollData>): Promise<boolean> {
+  if (!state.data) throw new TypeError(`Structure roll data flow state missing!`);
+
+  var actor = state.actor;
+  if (!actor.is_mech() && !actor.is_npc()) {
+    ui.notifications!.warn('Only npcs and mechs can work with "remaining structure" logic.');
+    return false;
+  }
+
+  if (state.data.primary_roll_result >= 2 && state.data.primary_roll_result <= 4) {
+    state.data.secondary_roll_check = true;
+    let macroData = encodeMacroData({
+      // TODO: Should create a "prepareRollMacro" or something to handle generic roll-based macros
+      // Since we can't change prepareTextMacro too much or break everyone's macros
+      title: "Roll for Destruction",
+      fn: "prepareStructureSecondaryRollMacro",
+      args: [state],
+    });
+
+    let secondaryRoll = `<button class="chat-macro-button"><a class="chat-button" data-macro="${macroData}"><i class="fas fa-dice-d20"></i> Destroy</a></button>`;
+    var templateData = {
+      val: actor.system.structure.value,
+      max: actor.system.structure.max,
+      tt: state.data.primary_roll_tooltip,
+      title: state.data.primary_roll_title,
+      total: state.data.primary_roll_result.toString(),
+      text: state.data.primary_roll_desc,
+      roll: state.data.primary_roll,
+      secondaryRoll: secondaryRoll,
+      rerollMacroData: encodeMacroData({
+        title: "Structure Damage",
+        fn: "beginStructureFlow",
+        args: [actor.uuid!, { reroll_data: { structure: state.data.struct_lost } }],
+      }),
+    };
+
+    printStructureCard(actor, templateData);
+    return false;
+  }
+
   return true;
 }
 
