@@ -1407,8 +1407,8 @@ code.horus:hover {
   margin: 3px 10px;
   min-width: 3em;
   height: 3em;
-  background: rgba(0,0,0,0.25);
-  border: 1px solid rgba(0,0,0,0.25);
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(0, 0, 0, 0.25);
   border-radius: 5px;
   box-shadow: 1px 1px 1px 0.6px #000000b3;
 }
@@ -1748,10 +1748,9 @@ $activations-colors: rgb(204, 10, 10) rgb(98, 0, 255) #3949ab #3949ab #222222 #2
   display: grid;
   grid-template-columns: 48px 1fr auto;
   grid-template-rows: 20px 1fr;
-  grid-template-areas:  
-    "img title title" 
-    "img desc chip" 
-  ;
+  grid-template-areas:
+    "img title title"
+    "img desc chip";
 }
 
 .action-wrapper,
