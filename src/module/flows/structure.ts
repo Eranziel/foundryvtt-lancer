@@ -1,11 +1,11 @@
 // Import TypeScript modules
 import { LANCER } from "../config";
-import { SourceData, UUIDRef } from "../source-template";
+import { UUIDRef } from "../source-template";
 import { getAutomationOptions } from "../settings";
 import { prepareTextMacro } from "./text";
 import { LancerFlowState } from "./interfaces";
 import { Flow, FlowState } from "./flow";
-import { LancerActor, LancerNPC } from "../actor/lancer-actor";
+import { LancerActor } from "../actor/lancer-actor";
 import { encodeMacroData, renderMacroTemplate } from "../macros";
 
 const lp = LANCER.log_prefix;
@@ -312,8 +312,8 @@ export async function structureSecondaryRoll(state: FlowState<LancerFlowState.St
       // TODO: Should create a "prepareRollMacro" or something to handle generic roll-based macros
       // Since we can't change prepareTextMacro too much or break everyone's macros
       title: "Roll for Destruction",
-      fn: "prepareStructureSecondaryRollMacro",
-      args: [state],
+      fn: "beginSecondaryStructureFlow",
+      args: [state.actor.uuid!, { reroll_data: { structure: state.data.struct_lost } }],
     });
 
     let secondaryRoll = `<button class="chat-macro-button"><a class="chat-button" data-macro="${macroData}"><i class="fas fa-dice-d20"></i> Destroy</a></button>`;
@@ -391,13 +391,42 @@ async function printStructureCard(actor: LancerActor, templateData: {}) {
 }
 
 /**
+ * Helper function for beginning the secondary structure flow
+ *
+ * @param actor
+ * @param flowArgs
+ * @returns
+ */
+export async function beginSecondaryStructureFlow(actor: string, flowArgs: {}) {
+  const flow = new SecondaryStructureFlow(actor, flowArgs);
+  return await flow.begin();
+}
+
+export class SecondaryStructureFlow extends Flow<LancerFlowState.StructureRollData> {
+  constructor(uuid: UUIDRef | LancerActor, data?: Partial<LancerFlowState.StructureRollData>) {
+    const initialData: LancerFlowState.StructureRollData = {
+      reroll_data: data?.reroll_data,
+      primary_roll_result: data?.primary_roll_result || -1,
+      secondary_roll_result: data?.secondary_roll_result || -1,
+      struct_lost: data?.struct_lost || 0,
+      primary_roll: data?.primary_roll || new Roll(``),
+      primary_roll_title: data?.primary_roll_title || "",
+      primary_roll_desc: data?.primary_roll_desc || "",
+      primary_roll_tooltip: data?.primary_roll_tooltip || "",
+    };
+
+    super("SecondaryStructureFlow", uuid, initialData);
+
+    this.steps.set("secondaryStructureRoll", secondaryStructureRoll);
+  }
+}
+
+/**
  * SECONDARY STRUCTURE ROLL LOGIC
  * @param state
  * @returns
  */
-export async function prepareStructureSecondaryRollMacro(
-  state: FlowState<LancerFlowState.StructureRollData>
-): Promise<boolean> {
+export async function secondaryStructureRoll(state: FlowState<LancerFlowState.StructureRollData>): Promise<boolean> {
   if (!state.data) throw new TypeError(`Structure roll data flow state missing!`);
 
   if (!state.data.secondary_roll_check) {
@@ -440,5 +469,6 @@ export async function prepareStructureSecondaryRollMacro(
 <span>On a 4–6, a system of your choice is destroyed</span>`
     );
   }
+  console.log("end of secondaryStructureRoll);");
   return true;
 }
