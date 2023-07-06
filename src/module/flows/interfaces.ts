@@ -160,6 +160,8 @@ export namespace LancerFlowState {
     primary_roll_desc: string;
     primary_roll_tooltip: string;
     secondary_roll_result: number;
+    secondary_roll_title: string;
+    secondary_roll_text: string;
     struct_lost: number;
   }
 

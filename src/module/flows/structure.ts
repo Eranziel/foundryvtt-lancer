@@ -25,6 +25,8 @@ export class StructureFlow extends Flow<LancerFlowState.StructureRollData> {
       primary_roll_title: data?.primary_roll_title || "",
       primary_roll_desc: data?.primary_roll_desc || "",
       primary_roll_tooltip: data?.primary_roll_tooltip || "",
+      secondary_roll_title: data?.secondary_roll_title || "",
+      secondary_roll_text: data?.secondary_roll_text || "",
     };
 
     super("StructureFlow", uuid, initialData);
@@ -34,7 +36,7 @@ export class StructureFlow extends Flow<LancerFlowState.StructureRollData> {
     this.steps.set("noStructureRemaining", noStructureRemaining);
     this.steps.set("structureMultipleChecks", structureMultipleChecks);
     this.steps.set("structureHullCheck", structureHullCheck);
-    this.steps.set("structureSecondaryRoll", structureSecondaryRoll);
+    this.steps.set("secondaryStructureRollCheck", secondaryStructureRollCheck);
     this.steps.set("structureRemaining", structureRemaining);
   }
 }
@@ -297,7 +299,9 @@ export async function structureHullCheck(state: FlowState<LancerFlowState.Struct
  * @param state
  * @returns
  */
-export async function structureSecondaryRoll(state: FlowState<LancerFlowState.StructureRollData>): Promise<boolean> {
+export async function secondaryStructureRollCheck(
+  state: FlowState<LancerFlowState.StructureRollData>
+): Promise<boolean> {
   if (!state.data) throw new TypeError(`Structure roll data flow state missing!`);
 
   var actor = state.actor;
@@ -314,7 +318,7 @@ export async function structureSecondaryRoll(state: FlowState<LancerFlowState.St
       // Since we can't change prepareTextMacro too much or break everyone's macros
       title: "Roll for Destruction",
       fn: "beginSecondaryStructureFlow",
-      args: [state.actor.uuid!, { reroll_data: { structure: state.data.struct_lost } }],
+      args: [state.actor.uuid!, state],
     });
 
     let secondaryRoll = `<button class="chat-macro-button"><a class="chat-button" data-macro="${macroData}"><i class="fas fa-dice-d20"></i> Destroy</a></button>`;
@@ -391,6 +395,8 @@ async function printStructureCard(actor: LancerActor, templateData: {}) {
   await renderTemplateStep(actor, template, templateData);
 }
 
+// Secondary Structure Code //
+
 /**
  * Helper function for beginning the secondary structure flow
  *
@@ -414,6 +420,8 @@ export class SecondaryStructureFlow extends Flow<LancerFlowState.StructureRollDa
       primary_roll_title: data?.primary_roll_title || "",
       primary_roll_desc: data?.primary_roll_desc || "",
       primary_roll_tooltip: data?.primary_roll_tooltip || "",
+      secondary_roll_title: data?.secondary_roll_title || "",
+      secondary_roll_text: data?.secondary_roll_text || "",
     };
 
     super("SecondaryStructureFlow", uuid, initialData);
@@ -430,53 +438,35 @@ export class SecondaryStructureFlow extends Flow<LancerFlowState.StructureRollDa
 export async function secondaryStructureRoll(state: FlowState<LancerFlowState.StructureRollData>): Promise<boolean> {
   if (!state.data) throw new TypeError(`Structure roll data flow state missing!`);
 
-  // Determine which Actor to speak as
   const actor = state.actor;
+  if (!actor.is_mech() && !actor.is_npc()) {
+    ui.notifications!.warn('Only npcs and mechs can work with "remaining structure" logic.');
+    return false;
+  }
 
   // @ts-ignore
   let roll = new Roll("1d6").evaluate({ async: false });
   let result = roll.total!;
   if (result <= 3) {
-    // migrate HTML to separate secondary roll template
-    createChatMessageStep(
-      actor,
-      `
-<div class="card clipped-bot" style="margin: 0px;">
-  <div class="lancer-header ">// Destroy Weapon //</div>
-    <div class="dice-roll lancer-dice-roll">
-      <div class="dice-result">
-        <div class="dice-formula lancer-dice-formula flexrow">
-          <span style="text-align: left; margin-left: 5px;">${roll.formula}</span>
-          <span class="dice-total lancer-dice-total major">${result}</span>
-        </div>
-        <div style="text-align: left;">
-        On a 1–3, all weapons on one mount of your choice are destroyed
-        </div>
-      </div>
-    </div>
-</div>`
-    );
+    state.data.secondary_roll_title = "Weapon Destruction";
+    state.data.secondary_roll_text = "On a 1–3, all weapons on one mount of your choice are destroyed";
   } else {
-    // migrate HTML to separate secondary roll template
-    createChatMessageStep(
-      actor,
-      `
-<div class="card clipped-bot" style="margin: 0px;">
-  <div class="lancer-header ">// Destroy System //</div>
-    <div class="dice-roll lancer-dice-roll">
-      <div class="dice-result">
-        <div class="dice-formula lancer-dice-formula flexrow">
-          <span style="text-align: left; margin-left: 5px;">${roll.formula}</span>
-          <span class="dice-total lancer-dice-total major">${result}</span>
-        </div>
-        <div style="text-align: left;">
-        On a 4–6, a system of your choice is destroyed
-        </div>
-      </div>
-    </div>
-</div>`
-    );
+    state.data.secondary_roll_title = "System Destruction";
+    state.data.secondary_roll_text = "On a 4–6, a system of your choice is destroyed";
   }
-  console.log("end of secondaryStructureRoll);");
+
+  var templateData = {
+    title: state.data.secondary_roll_title,
+    total: state.data.secondary_roll_result,
+    roll: roll,
+    text: state.data.secondary_roll_text,
+  };
+
+  printSecondaryStructureCard(actor, templateData);
   return true;
+}
+
+async function printSecondaryStructureCard(actor: LancerActor, templateData: {}) {
+  const template = `systems/${game.system.id}/templates/chat/structure-secondary-card.hbs`;
+  await renderTemplateStep(actor, template, templateData);
 }
