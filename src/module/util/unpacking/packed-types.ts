@@ -208,14 +208,14 @@ export interface PackedPilotData {
   orgs: PackedOrganizationData[];
   bondId: string;
   xp: number;
-  stress: 0;
+  stress: number;
   maxStress: number;
   burdens: PackedClockBurdenData[];
+  clocks: PackedClockBurdenData[];
   bondPowers: PackedBondPowerData[];
   powerSelections: number;
   bondAnswers: string[];
   minorIdeal: string;
-  clocks: PackedClockBurdenData[];
   mechs: PackedMechData[];
   state?: IMechState;
   counter_data: PackedCounterSaveData[];
