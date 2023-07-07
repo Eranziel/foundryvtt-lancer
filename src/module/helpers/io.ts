@@ -1,7 +1,6 @@
 // TODO: This needs a complete once-over as a lot of the stuff in here appears broken
 import { nanoid } from "nanoid";
 import type { LancerActor } from "../actor/lancer-actor";
-import { EntryType } from "../enums";
 import {
   PackedMechData,
   PackedMechLoadoutData,
@@ -367,6 +366,17 @@ function handlePilotExport(actor: LegacyLancerActor) {
     ],
     counter_data: [],
     custom_counters: [],
+    // TODO: bond state isn't properly populated here
+    bondId: "",
+    xp: 0,
+    stress: 0,
+    maxStress: 8,
+    burdens: [],
+    clocks: [],
+    bondPowers: [],
+    powerSelections: 0,
+    bondAnswers: ["", ""],
+    minorIdeal: "",
   };
 
   console.debug(exportPilot);

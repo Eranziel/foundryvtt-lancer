@@ -206,6 +206,16 @@ export interface PackedPilotData {
   talents: PackedRankedData[];
   reserves: PackedReserveData[];
   orgs: PackedOrganizationData[];
+  bondId: string;
+  xp: number;
+  stress: 0;
+  maxStress: number;
+  burdens: PackedClockBurdenData[];
+  bondPowers: PackedBondPowerData[];
+  powerSelections: number;
+  bondAnswers: string[];
+  minorIdeal: string;
+  clocks: PackedClockBurdenData[];
   mechs: PackedMechData[];
   state?: IMechState;
   counter_data: PackedCounterSaveData[];
@@ -684,6 +694,15 @@ export interface PackedBondPowerData {
   veteran: boolean | undefined;
   master: boolean | undefined;
   prerequisite: string | undefined;
+}
+
+export interface PackedClockBurdenData {
+  id: string;
+  title: string;
+  description: string;
+  resolution: string;
+  segments: number;
+  progress: number;
 }
 
 interface AllNpcClassData {

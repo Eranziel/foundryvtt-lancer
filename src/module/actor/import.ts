@@ -1,6 +1,7 @@
 import { replaceDefaultResource } from "../config";
 import { EntryType, FittingSize, MountType } from "../enums";
 import {
+  LancerBOND,
   LancerCORE_BONUS,
   LancerFRAME,
   LancerItem,
@@ -14,6 +15,7 @@ import {
   LancerTALENT,
   LancerWEAPON_MOD,
 } from "../item/lancer-item";
+import { PowerData } from "../models/bits/power";
 import { SourceData } from "../source-template";
 import { insinuate } from "../util/doc";
 import { lookupLID } from "../util/lid";
@@ -66,6 +68,7 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
     let populatedGear: string[] = [];
     let populatedArmor: string[] = [];
     let populatedWeapons: string[] = [];
+    let bond: LancerBOND | null = null;
     if (data.loadout) {
       // Make a helper to get (a unique copy of) a given lid item, importing if necessary
       let pilot_item_pool = [...pilot.items.contents];
@@ -146,6 +149,55 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
         }
       }
 
+      // Populate bond data
+      bond = (data.bondId ? await getPilotItemByLid(data.bondId, EntryType.BOND) : null) as LancerBOND | null;
+      if (bond && data.bondPowers) {
+        // Disable all powers, in case the pilot already had this bond
+        bond.system.powers.forEach(p => {
+          p.unlocked = false;
+        });
+
+        const bondPack = game.packs.get(`world.${EntryType.BOND}`);
+        await bondPack?.getIndex();
+        const bonds: LancerItem[] | null = ((await bondPack?.getDocuments({})) as unknown as LancerItem[]) ?? null;
+        const unlockAndRefill = function (power: PowerData) {
+          power.unlocked = true;
+          if (power.uses) {
+            power.uses.value = power.uses.max;
+          }
+        };
+        data.bondPowers.forEach(p => {
+          // Find and unlock the power on the bond
+          let i = bond!.system.powers.findIndex(x => x.name == p.name);
+          if (i != undefined && i != -1) {
+            const power = bond!.system.powers[i];
+            unlockAndRefill(power);
+            return;
+          }
+          // The power isn't from this bond - look for it in the compendium
+          let found = false;
+          for (const b of bonds) {
+            if (found || !b.is_bond()) return;
+            const newPower = b.system.powers.find(x => x.name == p.name);
+            if (newPower) {
+              found = true;
+              unlockAndRefill(newPower);
+              bond!.system.powers.push(newPower);
+
+              // The pilot has a power from another bond - unlock the veteran power
+              i = bond!.system.powers.findIndex(x => x.veteran);
+              if (i != undefined && i != -1) {
+                const power = bond!.system.powers[i];
+                unlockAndRefill(power);
+              }
+              break;
+            }
+          }
+        });
+        // Commit the updates
+        await bond.update({ "system.powers": bond.system.powers });
+      }
+
       // Do licenses
       for (let license of data.licenses) {
         let t = (await getPilotItemByLid(license.id.replace("mf", "lic"), EntryType.LICENSE)) as LancerLICENSE | null;
@@ -195,6 +247,42 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
         player_name: data.player_name,
         status: data.status,
         text_appearance: data.text_appearance,
+        bond_state: bond
+          ? {
+              xp: data.xp,
+              stress: data.stress,
+              answers: data.bondAnswers.map((a, i) => {
+                if (!bond?.system.questions || i >= bond?.system.questions.length) return 0;
+                return bond?.system.questions[i].options.findIndex(o => o == a);
+              }),
+              minor_ideal: bond.system.minor_ideals.findIndex(i => i == data.minorIdeal) ?? 0,
+              burdens: data.burdens.map(b => {
+                return {
+                  lid: b.id,
+                  name: b.title,
+                  min: 0,
+                  max: b.segments,
+                  value: b.progress,
+                  default_value: 0,
+                };
+              }),
+              clocks: data.clocks.map(c => {
+                return {
+                  lid: c.id,
+                  name: c.title,
+                  min: 0,
+                  max: c.segments,
+                  value: c.progress,
+                  default_value: 0,
+                };
+              }),
+            }
+          : {
+              xp: 0,
+              stress: 0,
+              answers: [],
+              minor_ideal: 0,
+            },
       },
       prototypeToken: {
         name: data.name,
