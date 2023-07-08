@@ -519,6 +519,9 @@ async function parse_control_val(raw_val: string): Promise<{ success: boolean; v
     let type = match[1];
     let val = match[2];
     switch (type) {
+      case "string":
+        // Just pass val as-is
+        return { success: true, val };
       case "int":
         let parsed_int = parseInt(val);
         if (!Number.isNaN(parsed_int)) {

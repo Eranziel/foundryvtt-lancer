@@ -251,38 +251,26 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
           ? {
               xp: data.xp,
               stress: data.stress,
-              answers: data.bondAnswers.map((a, i) => {
-                if (!bond?.system.questions || i >= bond?.system.questions.length) return 0;
-                return bond?.system.questions[i].options.findIndex(o => o == a);
-              }),
-              minor_ideal: bond.system.minor_ideals.findIndex(i => i == data.minorIdeal) ?? 0,
-              burdens: data.burdens.map(b => {
-                return {
-                  lid: b.id,
-                  name: b.title,
-                  min: 0,
-                  max: b.segments,
-                  value: b.progress,
-                  default_value: 0,
-                };
-              }),
-              clocks: data.clocks.map(c => {
-                return {
-                  lid: c.id,
-                  name: c.title,
-                  min: 0,
-                  max: c.segments,
-                  value: c.progress,
-                  default_value: 0,
-                };
-              }),
+              answers: data.bondAnswers,
+              minor_ideal: data.minorIdeal,
+              burdens: data.burdens.map(b => ({
+                lid: b.id,
+                name: b.title,
+                min: 0,
+                max: b.segments,
+                value: b.progress,
+                default_value: 0,
+              })),
+              clocks: data.clocks.map(c => ({
+                lid: c.id,
+                name: c.title,
+                min: 0,
+                max: c.segments,
+                value: c.progress,
+                default_value: 0,
+              })),
             }
-          : {
-              xp: 0,
-              stress: 0,
-              answers: [],
-              minor_ideal: 0,
-            },
+          : undefined,
       },
       prototypeToken: {
         name: data.name,
