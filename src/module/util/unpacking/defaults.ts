@@ -19,7 +19,7 @@ import { SystemTemplates } from "../../system-template";
 import { PowerData } from "../../models/bits/power";
 import { BondQuestionData } from "../../models/bits/question";
 
-const DEFAULT_DESCRIPTION = "...";
+const DEFAULT_DESCRIPTION = "";
 
 // Our default bonus basically does nothing but allows everything
 export function BONUS(): BonusData {

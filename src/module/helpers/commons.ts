@@ -8,6 +8,8 @@ import { ActivationType, MountType, WeaponSize, WeaponType } from "../enums";
 import { LancerActor } from "../actor/lancer-actor";
 import { LancerItem } from "../item/lancer-item";
 
+const defaultPlaceholder = "// MISSING ENTRY //";
+
 // A shorthand for only including the first string if the second value is truthy
 export function inc_if(val: string, test: any) {
   return test ? val : "";
@@ -620,8 +622,9 @@ function std_input(path: string, type: string, options: HelperOptions) {
 
   let html_type = type.toLowerCase();
   let data_type = type == "Password" || type == "Text" ? "String" : type;
+  let placeholder = type == "Text" || type == "String" ? `placeholder="${defaultPlaceholder}"` : "";
 
-  let input = `<input class="grow ${input_classes}" name="${path}" value="${value}" type="${html_type}" data-dtype="${data_type}" />`;
+  let input = `<input class="grow ${input_classes}" name="${path}" value="${value}" type="${html_type}" data-dtype="${data_type}" ${placeholder}/>`;
 
   if (label) {
     return `
@@ -786,7 +789,7 @@ export function large_textbox_card(title: string, text_path: string, options: He
       ${popout_editor_button(text_path)}
     </div>
     <div class="desc-text">
-      ${safe_html_helper(resolved.trim() || "// MISSING ENTRY //")}
+      ${safe_html_helper(resolved.trim() || defaultPlaceholder)}
     </div>
   </div>
   `;
