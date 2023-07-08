@@ -1,7 +1,7 @@
 import type { HelperOptions } from "handlebars";
 import { ChipIcons, EntryType, SystemType } from "../enums";
 import { encodeMacroData } from "../macros";
-import { inc_if, resolve_helper_dotpath, array_path_edit, sp_display, effect_box } from "./commons";
+import { inc_if, resolve_helper_dotpath, array_path_edit, sp_display, effect_box, defaultPlaceholder } from "./commons";
 import {
   mech_loadout_weapon_slot,
   buildActionHTML,
@@ -320,7 +320,7 @@ function frameTraits(frame_path: string, options: HelperOptions): string {
       <span class="minor grow">${trait.name}</span>
     </div>
     <div class="lancer-body">
-      <div class="effect-text">${trait.description}</div>
+      <div class="effect-text">${trait.description || defaultPlaceholder}</div>
       ${actionHTML ? actionHTML : ""}
       ${depHTML ? depHTML : ""}
     </div>

@@ -13,6 +13,7 @@ import {
 } from "./npc";
 import { compact_tag_list } from "./tags";
 import {
+  defaultPlaceholder,
   drilldownDocument,
   effect_box,
   extendHelper,
@@ -981,7 +982,7 @@ export function buildActionHTML(
     detailText = `
       <div class="action-detail">
         <hr class="hsep">
-        ${action.detail}
+        ${action.detail || defaultPlaceholder}
       </div>`;
   // Otherwise, look to be explicit about which is which
   else {
@@ -989,9 +990,9 @@ export function buildActionHTML(
       <div class="action-detail ${options?.full ? "" : "collapsed"}">
         <hr class="hsep">
         <div class="overline">${game.i18n.localize("lancer.chat-card.label.trigger")}</div> 
-        <div>${action.trigger}</div>
+        <div>${action.trigger || defaultPlaceholder}</div>
         <div class="overline">${game.i18n.localize("lancer.chat-card.label.effect")}</div> 
-        <div>${action.detail}</div> 
+        <div>${action.detail || defaultPlaceholder}</div> 
       </div>`;
   }
 

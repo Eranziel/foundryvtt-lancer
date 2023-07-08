@@ -8,7 +8,7 @@ import { ActivationType, MountType, WeaponSize, WeaponType } from "../enums";
 import { LancerActor } from "../actor/lancer-actor";
 import { LancerItem } from "../item/lancer-item";
 
-const defaultPlaceholder = "// MISSING ENTRY //";
+export const defaultPlaceholder = "// MISSING ENTRY //";
 
 // A shorthand for only including the first string if the second value is truthy
 export function inc_if(val: string, test: any) {
@@ -776,7 +776,7 @@ export function safe_html_helper(orig: string) {
   // then kill all on<event>. Technically this will hit attrs, we don't really care
   let bad = /on[a-zA-Z\-]+=".*?"/g;
   orig = orig.replace(bad, "");
-  return orig;
+  return orig || defaultPlaceholder;
 }
 
 // These typically are the exact same so we made a helper for 'em
