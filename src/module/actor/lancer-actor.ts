@@ -514,10 +514,11 @@ export class LancerActor extends Actor {
     // protype token size to the new size
     // @ts-expect-error System's broken
     const expected_size = Math.max(1, this.system.size);
+    // Update either prototype token or the token itself depending
     // @ts-expect-error System's broken
-    if (this.prototypeToken?.width !== expected_size) {
-      // @ts-expect-error
-      this.prototypeToken?.update({
+    const token = this.token ?? this.prototypeToken;
+    if (token && token.width !== expected_size) {
+      token.update({
         width: expected_size,
         height: expected_size,
         flags: {

@@ -17,7 +17,7 @@ export class LancerDataModel<T> extends foundry.abstract.DataModel<T> {
    */
   full_update_data(update_data: object): object {
     // @ts-expect-error
-    let system = this.toObject();
+    let system = foundry.utils.duplicate(this._source);
     return fancy_merge_data({ system }, update_data);
   }
 
