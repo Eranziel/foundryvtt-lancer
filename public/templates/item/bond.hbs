@@ -1,4 +1,4 @@
-<form class="{{cssClass}} lancer-sheet" autocomplete="off">
+<form class="{{cssClass}} lancer-sheet bond" autocomplete="off">
 
   {{!-- Sheet Header --}}
   <header class="sheet-header card clipped-bot">
@@ -13,40 +13,86 @@
     {{!-- TODO: add and delete buttons for ideals and questions --}}
     {{!-- Major Ideals --}}
     <div class="card clipped">
-      <div class="lancer-header major">MAJOR IDEALS</div>
+      <div class="lancer-header major">
+        <span>MAJOR IDEALS</span>
+        <a class="gen-control fas fa-plus" data-action="append" data-path="system.major_ideals" data-action-value="(struct)string"></a>
+      </div>
       <ul>
         {{#each system.major_ideals}}
-          <li>{{{std-string-input (concat "system.major_ideals." @index) classes="lancer-text-field"}}}</li>
+          <li>
+            <div class="bond-ideal-row">
+              {{{std-string-input (concat "system.major_ideals." @index) classes="lancer-text-field bond-ideal"}}}
+              <a class="gen-control" data-action="splice" data-path="system.major_ideals.{{@index}}">
+                <i class="fas fa-trash"></i>
+              </a>
+            </div>
+          </li>
         {{/each}}
       </ul>
     </div>
 
     {{!-- Minor Ideals --}}
     <div class="card clipped">
-      <div class="lancer-header major">MINOR IDEALS</div>
+      <div class="lancer-header major">
+        <span>MINOR IDEALS</span>
+        <a class="gen-control fas fa-plus" data-action="append" data-path="system.minor_ideals" data-action-value="(struct)string"></a>
+      </div>
       <ul>
         {{#each system.minor_ideals}}
-          <li>{{{std-string-input (concat "system.minor_ideals." @index) classes="lancer-text-field"}}}</li>
+          <li>
+            <div class="bond-ideal-row">
+              {{{std-string-input (concat "system.minor_ideals." @index) classes="lancer-text-field"}}}
+              <a class="gen-control" data-action="splice" data-path="system.minor_ideals.{{@index}}">
+                <i class="fas fa-trash"></i>
+              </a>
+            </div>
+          </li>
         {{/each}}
       </ul>
     </div>
 
     {{!-- Questions --}}
     <div class="card clipped">
-      <div class="lancer-header major">QUESTIONS</div>
+      <div class="lancer-header major">
+        <span>QUESTIONS</span>
+        <a class="gen-control fas fa-plus" data-action="append" data-path="system.questions" data-action-value="(struct)bond_question"></a>
+      </div>
       {{#each system.questions as |question|}}
-        {{{std-string-input (concat "system.questions." (concat @index ".question")) classes="lancer-text-field"}}}
-        <ul>
-        {{#each question.options as |option|}}
-          <li>{{{std-string-input (concat "system.questions." (concat @../index (concat ".options." @index))) classes="lancer-text-field"}}}</li>
-        {{/each}}
-        </ul>
+        <div class="bond-question">
+          <div class="bond-question-row">
+            {{{std-string-input (concat "system.questions." (concat @index ".question")) classes="lancer-text-field"}}}
+            <a class="gen-control" data-action="splice" data-path="system.questions.{{@index}}">
+              <i class="fas fa-trash"></i>
+            </a>
+          </div>
+          <ul class="bond-question-options">
+            {{#each question.options as |option|}}
+              <li>
+                <div class="bond-question-option-row">
+                  {{{std-string-input (concat "system.questions." (concat @../index (concat ".options." @index))) classes="lancer-text-field"}}}
+                  <a class="gen-control" data-action="splice" data-path="system.questions.{{@../index}}.options.{{@index}}">
+                    <i class="fas fa-trash"></i>
+                  </a>
+                </div>
+              </li>
+            {{/each}}
+            <li>
+              <span>
+                <a class="gen-control add-question fas fa-plus" data-action="append" data-path="{{concat "system.questions[" (concat @index "].options")}}" data-action-value="(struct)string"></a>
+              </span>
+            </li>
+          </ul>
+        </div>
+        <hr style="width: 95%;">
       {{/each}}
     </div>
 
     {{!-- Powers --}}
     <div class="card clipped">
-      <div class="lancer-header major">POWERS</div>
+      <div class="lancer-header major">
+        <span>POWERS</span>
+        <a class="gen-control fas fa-plus" data-action="append" data-path="system.powers" data-action-value="(struct)power"></a>
+      </div>
       {{#each system.powers as |power power_index|}}
         <div class="card clipped">
           <div class="lancer-header major">
@@ -58,8 +104,8 @@
               <i class="fas fa-trash"></i>
             </a>
           </div>
-          <div class="flexrow card">
-            {{{std-text-input (concat "system.powers." (concat power_index ".frequency")) label="Frequency:" classes="lancer-text-field"}}}
+          <div class="flexrow" style="padding: 0em 1.5em">
+            {{{std-text-input (concat "system.powers." (concat power_index ".frequency")) label="Frequency:" label_classes="flex-center flex2" classes="lancer-text-field"}}}
             {{{std-checkbox (concat "system.powers." (concat power_index ".veteran")) label="Veteran:" classes=""}}}
             {{{std-checkbox (concat "system.powers." (concat power_index ".master")) label="Master:" classes=""}}}
           </div>

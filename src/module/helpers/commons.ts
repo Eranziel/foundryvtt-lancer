@@ -564,6 +564,10 @@ async function control_structs(key: string): Promise<{ success: boolean; val: an
       return { success: true, val: defaults.ACTION() };
     case "counter":
       return { success: true, val: defaults.COUNTER() };
+    case "bond_question":
+      return { success: true, val: defaults.BOND_QUESTION() };
+    case "power":
+      return { success: true, val: defaults.POWER() };
     case "mount_type":
       return { success: true, val: MountType.Main };
     case "range":

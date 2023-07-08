@@ -2018,6 +2018,66 @@ a.activation-chip > i.mdi {
   margin: 5px;
 }
 
+.gen-control.add-question {
+  float: left;
+  margin-left: 10px;
+  border: 1px solid rgba(0, 0, 0, 0.5);
+  border-radius: 4px;
+  padding: 3px;
+}
+
+.lancer-sheet.bond input.lancer-text-field {
+  margin-top: 0.1em;
+  margin-bottom: 0.1em;
+}
+
+.bond-question {
+  .bond-question-row {
+    display: flex;
+    align-items: center;
+    margin-right: 1em;
+
+    a {
+      flex: 0 0 auto;
+      padding-left: 5px;
+      padding-right: 5px;
+    }
+  }
+
+  .bond-question-options {
+    margin-top: 0;
+    margin-bottom: 0.25em;
+
+    .bond-question-option-row {
+      display: flex;
+      align-items: center;
+      margin-right: 3em;
+
+      a {
+        flex: 0 0 auto;
+        padding-left: 5px;
+        padding-right: 5px;
+      }
+    }
+  }
+}
+
+.bond-ideal-row {
+  display: flex;
+  align-items: center;
+  margin-right: 1em;
+
+  .bond-ideal {
+    flex-grow: 1;
+  }
+
+  a {
+    flex: 0 0 auto;
+    padding-left: 5px;
+    padding-right: 5px;
+  }
+}
+
 .action-editor-wrapper {
   float: right;
   margin-right: 0.5em;

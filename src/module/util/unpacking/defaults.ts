@@ -16,6 +16,8 @@ import { DamageData } from "../../models/bits/damage";
 import { RangeData } from "../../models/bits/range";
 import { CounterData } from "../../models/bits/counter";
 import { SystemTemplates } from "../../system-template";
+import { PowerData } from "../../models/bits/power";
+import { BondQuestionData } from "../../models/bits/question";
 
 const DEFAULT_DESCRIPTION = "...";
 
@@ -92,6 +94,26 @@ export function COUNTER(): CounterData {
     max: 6,
     default_value: 1,
     value: 1,
+  };
+}
+
+export function BOND_QUESTION(): BondQuestionData {
+  return {
+    question: DEFAULT_DESCRIPTION,
+    options: [DEFAULT_DESCRIPTION],
+  };
+}
+
+export function POWER(): PowerData {
+  return {
+    name: "New Power",
+    description: DEFAULT_DESCRIPTION,
+    unlocked: false,
+    frequency: null,
+    uses: null,
+    veteran: false,
+    master: false,
+    prerequisite: null,
   };
 }
 
