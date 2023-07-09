@@ -315,7 +315,7 @@ export class FakeBoundedNumberField extends fields.NumberField {
     // Expand to a somewhat reasonable range. `prepareData` functions should handle the rest
     return {
       min: this.options?.min ?? 0,
-      max: this.options.max ?? 0,
+      max: this.options?.max ?? 0,
       value,
     };
   }
