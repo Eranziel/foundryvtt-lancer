@@ -13,6 +13,7 @@ import {
 } from "./npc";
 import { compact_tag_list } from "./tags";
 import {
+  array_path_edit_changes,
   defaultPlaceholder,
   drilldownDocument,
   effect_box,
@@ -1516,16 +1517,25 @@ function _handleContextMenus(
     },
   };
 
-  // Remove an array item (e.x. a counter or weapon profile)
+  // Remove an array item (e.x. a counter, tag, or weapon profile)
   let array_remove: ContextMenuEntry = {
     name: "Remove",
     icon: '<i class="fas fa-fw fa-trash"></i>',
-    callback: (html: JQuery) => {
+    callback: html => {
       // Find the counter
-      // let change = array_path_edit_changes(dd.sub_doc, dd.sub_path, null, "delete");
-      // dd.sub_doc.update({ [change.path]: change.new_val });
+      let dd_ = dd(html);
+      if (dd_) {
+        let change = array_path_edit_changes(dd_.sub_doc, dd_.sub_path, null, "delete");
+        dd_.sub_doc.update({ [change.path]: change.new_val });
+      }
     },
-    condition: () => !view_only && false, // TODO - fix so counters etc an be removed
+    condition: html => {
+      let p = path(html);
+      return !!(
+        !view_only &&
+        (p?.includes("tags") || p?.includes("counters") || p?.substring(0, p.length - 2).endsWith("profiles"))
+      );
+    },
   };
 
   // Summon counter editor dialogue
