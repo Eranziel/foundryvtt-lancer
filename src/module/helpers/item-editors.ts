@@ -263,7 +263,6 @@ export function item_edit_arrayed_integrated(path: string, title: string, option
     <div class="card clipped item-edit-arrayed">
       <span class="lancer-header submajor ">
         INTEGRATED ITEMS
-        <a class="gen-control fas fa-plus" data-action="append" data-path="${path}" data-action-value="(struct)string"></a>
       </span>
         ${intHTML}
     </div>`;
