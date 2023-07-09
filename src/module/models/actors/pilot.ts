@@ -13,7 +13,7 @@ const pilot_schema = {
   cloud_id: new fields.StringField(),
   history: new fields.HTMLField(),
   last_cloud_update: new fields.StringField(),
-  level: new fields.NumberField({ min: 0, max: 12, integer: true }),
+  level: new fields.NumberField({ min: 0, max: 12, integer: true, initial: 0 }),
 
   loadout: new fields.SchemaField({
     armor: new fields.ArrayField(new EmbeddedRefField("Item", { allowed_types: [EntryType.PILOT_ARMOR] })),
@@ -21,12 +21,12 @@ const pilot_schema = {
     weapons: new fields.ArrayField(new EmbeddedRefField("Item", { allowed_types: [EntryType.PILOT_WEAPON] })),
   }),
 
-  hull: new fields.NumberField({ min: 0, max: 6, integer: true }),
-  agi: new fields.NumberField({ min: 0, max: 6, integer: true }),
-  sys: new fields.NumberField({ min: 0, max: 6, integer: true }),
-  eng: new fields.NumberField({ min: 0, max: 6, integer: true }),
+  hull: new fields.NumberField({ min: 0, max: 6, integer: true, initial: 0 }),
+  agi: new fields.NumberField({ min: 0, max: 6, integer: true, initial: 0 }),
+  sys: new fields.NumberField({ min: 0, max: 6, integer: true, initial: 0 }),
+  eng: new fields.NumberField({ min: 0, max: 6, integer: true, initial: 0 }),
 
-  mounted: new fields.BooleanField(),
+  mounted: new fields.BooleanField({ initial: false }),
   notes: new fields.HTMLField(),
   player_name: new fields.StringField(),
   status: new fields.StringField(),
@@ -36,12 +36,12 @@ const pilot_schema = {
     xp: new FakeBoundedNumberField({ min: 0, max: 8, integer: true }),
     stress: new FakeBoundedNumberField({ min: 0, max: 8, integer: true }),
     xp_checklist: new fields.SchemaField({
-      major_ideals: new fields.ArrayField(new fields.BooleanField()),
-      minor_ideal: new fields.BooleanField(),
-      veteran_power: new fields.BooleanField(),
+      major_ideals: new fields.ArrayField(new fields.BooleanField(), { initial: [false, false, false] }),
+      minor_ideal: new fields.BooleanField({ initial: false }),
+      veteran_power: new fields.BooleanField({ initial: false }),
     }),
-    answers: new fields.ArrayField(new fields.NumberField()),
-    minor_ideal: new fields.NumberField(),
+    answers: new fields.ArrayField(new fields.StringField()),
+    minor_ideal: new fields.StringField(),
     burdens: new fields.ArrayField(new CounterField()),
     clocks: new fields.ArrayField(new CounterField()),
   }),
@@ -78,14 +78,6 @@ export class PilotModel extends LancerDataModel<"PilotModel"> {
       data.sys ??= data.mechSkills[2];
       data.eng ??= data.mechSkills[3];
     }
-
-    // Initialize missing bond state
-    if (!data.bond_state.xp) data.bond_state.xp = 0;
-    if (!data.bond_state.stress) data.bond_state.stress = 0;
-    if (data.bond_state.xp_checklist?.major_ideals?.length === 0) {
-      data.bond_state.xp_checklist.major_ideals = [false, false, false];
-    }
-    if (!data.bond_state.minor_ideal) data.bond_state.minor_ideal = "";
 
     // @ts-expect-error v11
     return super.migrateData(data);

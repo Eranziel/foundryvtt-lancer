@@ -17,7 +17,7 @@ export class LancerDataModel<T> extends foundry.abstract.DataModel<T> {
    */
   full_update_data(update_data: object): object {
     // @ts-expect-error
-    let system = this.toObject();
+    let system = foundry.utils.duplicate(this._source);
     return fancy_merge_data({ system }, update_data);
   }
 
@@ -306,16 +306,16 @@ export class SyncUUIDRefField extends fields.StringField {
 // Use this to represent a field that is effectively just a number, but should present as a min/max/value field in expanded `system` data
 // This is 10% so we can show them with bars, and 90% because usually the max is computed and we don't want to confuse anyone
 export class FakeBoundedNumberField extends fields.NumberField {
-  constructor(a: any = undefined) {
-    super(a);
+  constructor(options: object = {}) {
+    super(options);
   }
 
   /** @override */
   initialize(value: number, model: any) {
     // Expand to a somewhat reasonable range. `prepareData` functions should handle the rest
     return {
-      min: 0,
-      max: 0,
+      min: this.options?.min ?? 0,
+      max: this.options?.max ?? 0,
       value,
     };
   }

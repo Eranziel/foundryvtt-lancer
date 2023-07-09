@@ -861,7 +861,7 @@ async function versionCheck(): Promise<"yes" | "no" | "too_old"> {
   }
 
   // Check if its before new rolling migration system was integrated
-  if (foundry.utils.isNewerVersion("1.5.0", currentVersion)) {
+  if (foundry.utils.isNewerVersion("1.0.0", currentVersion)) {
     return "too_old";
   }
 

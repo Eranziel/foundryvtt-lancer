@@ -247,29 +247,7 @@ export class LancerActor extends Actor {
     if (this.is_pilot()) {
       this.system.grit = Math.ceil(this.system.level / 2);
       this.system.hp.max = 6 + this.system.grit;
-      this.system.bond = this.items.find(i => i.is_bond()) as unknown as LancerBOND;
-      this.system.bond_state.xp.max = 8;
-      this.system.bond_state.stress.max = 8;
-      // sys should actually be the pilot's source data. There's probably a more elegant way to coerce the type here.
-      this.system.bond_state.minor_ideal = this.system.bond
-        ? this.system.bond.system.minor_ideals[(sys as unknown as SourceData.Pilot).bond_state.minor_ideal]
-        : "No Bond";
-      if (this.system.bond) {
-        const bond = this.system.bond;
-        if (this.system.bond_state.answers.length > this.system.bond.system.questions.length) {
-          this.system.bond_state.answers = this.system.bond_state.answers.slice(
-            0,
-            this.system.bond.system.questions.length
-          );
-        }
-        this.system.bond_state.answers = (sys as unknown as SourceData.Pilot).bond_state.answers.map((a, i) => {
-          let q = bond.system.questions[i];
-          if (a >= q.options.length) {
-            return q.options[0];
-          }
-          return bond.system.questions[i].options[a];
-        });
-      }
+      this.system.bond = (this.items.find(i => i.is_bond()) ?? null) as unknown as LancerBOND | null;
     } else if (this.is_mech()) {
       // Aggregate sp/ai
       let equipped_sp = 0;
@@ -536,10 +514,11 @@ export class LancerActor extends Actor {
     // protype token size to the new size
     // @ts-expect-error System's broken
     const expected_size = Math.max(1, this.system.size);
+    // Update either prototype token or the token itself depending
     // @ts-expect-error System's broken
-    if (this.prototypeToken?.width !== expected_size) {
-      // @ts-expect-error
-      this.prototypeToken?.update({
+    const token = this.token ?? this.prototypeToken;
+    if (token && token.width !== expected_size) {
+      token.update({
         width: expected_size,
         height: expected_size,
         flags: {

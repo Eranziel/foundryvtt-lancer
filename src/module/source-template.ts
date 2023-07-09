@@ -430,8 +430,8 @@ export namespace SourceData {
         minor_ideal: boolean;
         veteran_power: boolean;
       };
-      answers: Array<number>;
-      minor_ideal: number;
+      answers: Array<string>;
+      minor_ideal: string;
       burdens: Array<CounterData>;
       clocks: Array<CounterData>;
     };
