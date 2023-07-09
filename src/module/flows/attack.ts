@@ -47,6 +47,14 @@ export function attackRolls(flat_bonus: number, acc_diff: AccDiffData): LancerFl
   };
 }
 
+type AttackFlag = {
+  origin: string;
+  targets: {
+    id: string;
+    setConditions?: object; // keys are statusEffect ids, values are boolean to indicate whether to apply or remove
+  }[];
+};
+
 export class BasicAttackFlow extends Flow<LancerFlowState.AttackRollData> {
   constructor(uuid: UUIDRef | LancerItem | LancerActor, data?: Partial<LancerFlowState.AttackRollData>) {
     // Initialize data if not provided
@@ -455,7 +463,7 @@ export async function rollAttacks(
         attack_roll.dice.forEach(d => (d.options.rollOrder = 1));
         const attack_tt = await attack_roll.getTooltip();
 
-        if (targetingData.usedLockOn) {
+        if (targetingData.usedLockOn && game.user!.isGM) {
           targetingData.usedLockOn.delete();
         }
 
@@ -623,7 +631,7 @@ export async function printAttackCard(
     attackData: {
       origin: state.actor.id,
       targets: state.data.attack_rolls.targeted.map(t => {
-        return { id: t.target.id, lockOnConsumed: !!t.usedLockOn };
+        return { id: t.target.id, setConditions: !!t.usedLockOn ? { lockon: !t.usedLockOn } : undefined };
       }),
     },
   };
@@ -689,3 +697,30 @@ export async function getCritRoll(normal: Roll) {
 
   return Roll.fromTerms(terms);
 }
+
+// If user is GM, apply status changes to attacked tokens
+Hooks.on("createChatMessage", async (cm: ChatMessage, options: any, id: string) => {
+  // Consume lock-on if we are a GM
+  if (!game.user?.isGM) return;
+  const atkData: AttackFlag = cm.getFlag(game.system.id, "attackData") as any;
+  if (!atkData || !atkData.targets) return;
+  atkData.targets.forEach(target => {
+    // Find the target in this scene
+    const tokenActor = game.canvas.scene?.tokens.find(token => token.id === target.id)?.actor;
+    if (!tokenActor) return;
+    const statusToApply = [];
+    const statusToRemove = [];
+    for (const [stat, val] of Object.entries(target.setConditions || {})) {
+      if (val) {
+        // Apply status
+        console.log(`(Not) Applying ${stat} to Token ${target.id}`);
+        // TODO
+      } else {
+        // Remove status
+        console.log(`Removing ${stat} from Token ${target.id}`);
+        statusToRemove.push(stat);
+      }
+    }
+    tokenActor?.effectHelper.removeActiveEffects(statusToRemove);
+  });
+});

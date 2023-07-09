@@ -190,6 +190,18 @@ export class EffectHelper {
     target_effect?.delete();
   }
 
+  /**
+   * Locates ActiveEffects on the Actor by names provided and removes them if present.
+   * @param effects Array of String names of the ActiveEffects to remove.
+   */
+  async removeActiveEffects(effects: string[]) {
+    const target_effects = effects.map(e => this.findEffect(e));
+    this.actor.deleteEmbeddedDocuments(
+      "ActiveEffect",
+      target_effects.map(e => e?.id || "")
+    );
+  }
+
   findEffect(effect: string): LancerActiveEffect | null {
     // @ts-expect-error Should be fixed with v11 types
     return this.actor.effects.find(eff => eff.statuses.some((name: string) => name.includes(effect)));
