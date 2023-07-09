@@ -10,7 +10,7 @@ This project incorporates several resources and open source software (either in 
 
 - [Comp/Con](https://compcon.app), the incredible companion app for Lancer, created by beeftime and ari. ([Github](https://github.com/massif-press/compcon))
 - Comp/Con icons, created by megane.
-- Icons from the Lancer community, Font Awesome, and Game-icons.net - see [Icon Attributions](public/assets/icons/ATTRIBUTION.md).
+- Icons from the Lancer community, Font Awesome, and Game-icons.net - see [Icon Attributions](public/assets/icons/_ATTRIBUTION.md).
 - [lancer-data](https://github.com/massif-press/lancer-data), a JSON library of Lancer content.
 - [Foundry Project Creator](https://gitlab.com/foundry-projects/foundry-pc) by NickEast, without which this project would have taken much longer to find its feet!
 - [Material Design Icons](https://materialdesignicons.com/), open source community-led iconography.
