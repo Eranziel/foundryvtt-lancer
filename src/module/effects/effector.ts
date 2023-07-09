@@ -195,6 +195,7 @@ export class EffectHelper {
    */
   async removeActiveEffects(effects: string[]) {
     const target_effects = effects.map(e => this.findEffect(e));
+    if (!target_effects || !target_effects.some(e => !!e)) return;
     this.actor.deleteEmbeddedDocuments(
       "ActiveEffect",
       target_effects.map(e => e?.id || "")

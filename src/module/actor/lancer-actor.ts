@@ -308,6 +308,18 @@ export class LancerActor extends Actor {
 
     // Track shift in values. Use optional to handle compendium bulk-created items, which handle strangely
     this.effectHelper._passdownEffectTracker?.setValue(this.effectHelper.collectPassdownEffects());
+    this._markStatuses();
+  }
+
+  /** Check which statuses this actor has active and set system.status accordingly */
+  _markStatuses() {
+    // @ts-expect-error v11
+    if (!this.statuses) return;
+    // @ts-expect-error v11
+    for (const status of this.statuses.keys()) {
+      // @ts-expect-error
+      this.system.statuses[status] = true;
+    }
   }
 
   /** Mark our equipped items as equipped */

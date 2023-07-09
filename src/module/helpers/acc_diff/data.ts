@@ -212,13 +212,12 @@ export class AccDiffTarget {
     }
   }
 
-  get usingLockOn(): null | LancerActiveEffect {
+  get usingLockOn(): null | boolean {
     return (this.consumeLockOn && this.lockOnAvailable) || null;
   }
 
-  get lockOnAvailable(): null | LancerActiveEffect {
-    // @ts-expect-error
-    return !!this.token.actor?.system.statuses.lockon;
+  get lockOnAvailable(): null | boolean {
+    return !!this.target.actor?.system.statuses.lockon;
   }
 
   get total() {

@@ -464,7 +464,7 @@ export async function rollAttacks(
         const attack_tt = await attack_roll.getTooltip();
 
         if (targetingData.usedLockOn && game.user!.isGM) {
-          targetingData.usedLockOn.delete();
+          targetingData.target.actor?.effectHelper.removeActiveEffect("lockon");
         }
 
         return {
