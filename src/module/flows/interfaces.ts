@@ -162,7 +162,7 @@ export namespace LancerFlowState {
     secondary_roll_result: number;
     secondary_roll_title: string;
     secondary_roll_text: string;
-    struct_lost: number;
+    remStruct: number;
   }
 
   // export interface StressRollData {
