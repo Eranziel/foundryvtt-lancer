@@ -135,6 +135,7 @@ import {
   item_edit_uses,
   item_edit_arrayed_integrated,
   item_edit_enum,
+  item_edit_checkboxes_object,
 } from "./module/helpers/item-editors";
 import { applyCollapseListeners, initializeCollapses } from "./module/helpers/collapse";
 import { handleCombatUpdate } from "./module/helpers/automation/combat";
@@ -556,13 +557,13 @@ Hooks.once("init", async function () {
   Handlebars.registerHelper("item-edit-arrayed-damage", item_edit_arrayed_damage);
   Handlebars.registerHelper("item-edit-arrayed-range", item_edit_arrayed_range);
   Handlebars.registerHelper("item-edit-arrayed-enum", item_edit_arrayed_enum);
+  Handlebars.registerHelper("item-edit-checkboxes-object", item_edit_checkboxes_object);
   Handlebars.registerHelper("item-edit-arrayed-bonuses", item_edit_arrayed_bonuses);
   Handlebars.registerHelper("item-edit-arrayed-counters", item_edit_arrayed_counters);
   Handlebars.registerHelper("item-edit-arrayed-deployables", item_edit_arrayed_deployables);
   Handlebars.registerHelper("item-edit-arrayed-synergies", item_edit_arrayed_synergies);
   Handlebars.registerHelper("item-edit-arrayed-integrated", item_edit_arrayed_integrated);
   // Generic handler for an array that can take a selectable enum
-  Handlebars.registerHelper("item-edit-arrayed-enum", item_edit_arrayed_enum);
   // And a single enum-based selector.
   // Which is just a wrapper for std_enum_select but we can pass in a string and resolve it
   Handlebars.registerHelper("item-edit-enum", item_edit_enum);

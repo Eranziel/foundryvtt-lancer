@@ -46,20 +46,8 @@
         {{#if (is-limited item)}}
           {{{limited-uses-indicator "item"}}}
         {{/if}}
-        {{{item-edit-arrayed-enum         "Allowed Sizes"         "system.allowed_sizes"     "WeaponSize"}}}
-        {{{item-edit-arrayed-enum         "Allowed Types"         "system.allowed_types"     "WeaponType"}}}
-        <div class="flexcol">
-          <span class="lancer-header">WEAPON TYPES</span>
-          {{#each types as |type index|}}
-          {{{ std-checkbox type.key label=type.label default=type.val }}}
-          {{/each}}
-        </div>
-        <div class="flexcol">
-          <span class="lancer-header">WEAPON SIZES</span>
-          {{#each sizes as |size index|}}
-          {{{ std-checkbox size.key label=size.label default=size.val }}}
-          {{/each}}
-        </div>
+        {{{item-edit-checkboxes-object         "Allowed Sizes"         "system.allowed_sizes"}}}
+        {{{item-edit-checkboxes-object         "Allowed Types"         "system.allowed_types"}}}
       </div>
     </section>
   </form>

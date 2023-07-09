@@ -6,6 +6,7 @@ import {
   helper_root_doc,
   large_textbox_card,
   resolve_helper_dotpath,
+  std_checkbox,
   std_enum_select,
   std_num_input,
 } from "./commons";
@@ -195,6 +196,24 @@ export function item_edit_arrayed_enum(title: string, path: string, enum_name: s
         <a class="gen-control fas fa-plus" data-action="append" data-path="${path}" data-action-value="(struct)${enum_name}"></a>
       </span>
         ${selector_detail}
+    </div>`;
+}
+
+export function item_edit_checkboxes_object(title: string, path: string, options: HelperOptions): string {
+  let checkbox_obj = resolve_helper_dotpath<Record<string, boolean>>(options, path, {});
+  let selector_detail = "";
+  for (let [k, v] of Object.entries(checkbox_obj)) {
+    selector_detail += `<div class="flexrow">
+        ${std_checkbox(path.concat(`.${k}`), extendHelper(options, { label: k }))}
+    </div>`;
+  }
+
+  return `
+    <div class="card clipped item-edit-arrayed">
+      <span class="lancer-header submajor ">
+        ${title}
+      </span>
+      ${selector_detail}
     </div>`;
 }
 
