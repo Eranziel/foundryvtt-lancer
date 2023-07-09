@@ -314,7 +314,7 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
       // Use the Actor's name for the pilot's callsign
       // formData["name"] = formData["data.callsign"];
       // Copy the pilot's callsign to the prototype token
-      formData["token.name"] = formData["callsign"];
+      formData["prototypeToken.name"] = formData["callsign"];
     }
     // Then let parent handle
     return super._updateObject(event, formData);
