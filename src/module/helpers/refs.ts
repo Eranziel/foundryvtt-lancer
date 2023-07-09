@@ -244,6 +244,7 @@ export function item_preview_list(item_array_path: string, allowed_types: string
          data-path="${item_array_path}" 
          data-accept-types="${allowed_types}">
          ${previews.join("")}
+         ${dropIndicator(allowed_types, options)}
     </div>`;
 }
 
@@ -309,36 +310,18 @@ export function handleUsesInteraction<T>(html: JQuery, doc: LancerActor | Lancer
 // This doesn't handle natives
 export function handleRefDragging(html: JQuery) {
   // Allow refs to be dragged arbitrarily
-  handleDragging(
-    html.find(".ref.set"),
-    (source, evt) => {
-      let uuid = evt.currentTarget.dataset.uuid as string;
-      if (!uuid || !(uuid.includes("Item.") || uuid.includes("Actor.") || uuid.includes("Token."))) {
-        console.error("Unable to properly drag ref", source, evt.currentTarget);
-        throw new Error("Drag error");
-      }
-      let result: FoundryDropData = {
-        type: uuid.includes("Item.") ? "Item" : "Actor",
-        uuid,
-      };
-      return JSON.stringify(result);
-    },
-
-    (start_stop, src, _evt) => {
-      /*
-    // Highlight valid drop points
-    let drop_set_target_selector = `.ref.drop-settable.${src[0].dataset.type}`;
-    let drop_append_target_selector = `.ref.ref-list.${src[0].dataset.type}`;
-    let target_selector = `${drop_set_target_selector}, ${drop_append_target_selector}`;
-
-    if (start_stop == "start") {
-      $(target_selector).addClass("highlight-can-drop");
-    } else {
-      $(target_selector).removeClass("highlight-can-drop");
+  handleDragging(html.find(".ref.set"), (source, evt) => {
+    let uuid = evt.currentTarget.dataset.uuid as string;
+    if (!uuid || !(uuid.includes("Item.") || uuid.includes("Actor.") || uuid.includes("Token."))) {
+      console.error("Unable to properly drag ref", source, evt.currentTarget);
+      throw new Error("Drag error");
     }
-    */
-    }
-  );
+    let result: FoundryDropData = {
+      type: uuid.includes("Item.") ? "Item" : "Actor",
+      uuid,
+    };
+    return JSON.stringify(result);
+  });
 }
 
 // Allow every ".ref.drop-settable" spot to be dropped onto, with a payload of a JSON RegRef
