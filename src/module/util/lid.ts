@@ -20,7 +20,7 @@ const indexFastCache = new FetcherCache<string, Map<string, any> | null>(async (
     return map;
   }
   return null;
-}, CACHE_DURATION);
+}, 5000); // Only keep this once per second. It can't really miss, so best to
 
 /**
  * Lookup all documents with the associated lid in the given types.
@@ -37,6 +37,7 @@ const lookupLIDPluralCache = new RepentantFetcherCache<string, Array<LancerActor
     }
 
     let result: Array<LancerActor | LancerItem> = [];
+    // Dig through compendium
     for (let t of types) {
       let pack_name = `world.${t}`;
       let pack = game.packs.get(pack_name);
@@ -50,6 +51,14 @@ const lookupLIDPluralCache = new RepentantFetcherCache<string, Array<LancerActor
       let doc = id ? ((await pack.getDocument(id)) as LancerActor | LancerItem) : null;
       if (doc) {
         result.push(doc);
+      }
+    }
+
+    // Also dig through world items
+    for (let item of game.items!.contents as LancerItem[]) {
+      // @ts-expect-error
+      if (item.system.lid == lid && raw_types.includes(item.type)) {
+        result.push(item);
       }
     }
 
