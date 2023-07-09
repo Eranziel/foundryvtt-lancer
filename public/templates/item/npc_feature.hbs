@@ -168,9 +168,10 @@
     {{/if}}
     {{! Tags }}
     <div class="card full">
-      <span class="lancer-header major">
-        TAGS
-      </span>
+      <div class="lancer-header major">
+        <span>TAGS</span>
+        <a class="gen-control fas fa-plus" data-action="append" data-path="system.tags" data-action-value="(struct)tag"></a>
+      </div>
       {{{tag-list "system.tags" system.tags editable}}}
     </div>
   </section>

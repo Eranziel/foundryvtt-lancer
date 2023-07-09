@@ -4,9 +4,10 @@
 			<i class="${icon} i--m i--light header-icon"> </i>
 			<span class="major">TAG</span>
 		</div>
-		<div class="flexrow">
-			<label>LID: <input name="lid" value="{{ value.lid }}"/> </label>
-			<label>Value: <input class="lancer-stat" type="number" name="val" value="{{ value.val }}" data-dtype="Number" /></label>
+		<div class="flexrow flex-center">
+			{{{std-select "lid" lid_options label="LID: "}}}
+			<label for="val">Value: </label>
+			<input class="lancer-stat" type="number" name="val" value="{{ value.val }}" data-dtype="Number" />
 		</div>
 	</div>
 	{{> dialog-save-buttons}}

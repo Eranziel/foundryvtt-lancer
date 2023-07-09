@@ -566,6 +566,8 @@ async function control_structs(key: string): Promise<{ success: boolean; val: an
       return { success: true, val: defaults.ACTION() };
     case "counter":
       return { success: true, val: defaults.COUNTER() };
+    case "tag":
+      return { success: true, val: defaults.TAG() };
     case "bond_question":
       return { success: true, val: defaults.BOND_QUESTION() };
     case "power":
@@ -740,7 +742,7 @@ export function std_enum_select<T extends string>(path: string, enum_: { [key: s
         ${choices.join("")}
       </select>`;
   if (options.hash["label"]) {
-    return `<label class="flexrow no-wrap ${label_classes}">
+    return `<label class="flexrow flex-center no-wrap ${label_classes}">
       ${options.hash["label"]}
       ${select}
     </label>`;
