@@ -68,6 +68,9 @@ export class LancerActor extends Actor {
   // Helps us handle structuring/overheating, as well as providing miscellaneous utility functions for struct/stress
   strussHelper!: StrussHelper; // = new StrussHelper(this);
 
+  // @ts-expect-error - Foundry initializes this.
+  system: SystemData.Pilot | SystemData.Mech | SystemData.Npc | SystemData.Deployable;
+
   // These cannot be instantiated the normal way (e.x. via constructor)
   _configure() {
     // @ts-expect-error
@@ -91,7 +94,6 @@ export class LancerActor extends Actor {
     }
 
     // Step 1: Exposed doubles non-burn, non-heat damage
-    // @ts-expect-error v11
     if (this.system.statuses.exposed) {
       armored_damage_types.forEach(d => (damage[d] *= 2));
     }
@@ -102,16 +104,15 @@ export class LancerActor extends Actor {
      * Armor reduction may favor attacker or defender depending on automation.
      * Default is "favors defender".
      */
-    // @ts-expect-error v11
     if (!paracausal && !this.system.statuses.shredded) {
       const defense_favor = true; // getAutomationOptions().defenderArmor
-      // @ts-expect-error System's broken
+      // TODO: figure out how to fix this typing
+      // @ts-expect-error
       const resist_armor_damage = armored_damage_types.filter(t => this.system.resistances[t.toLowerCase()]);
-      // @ts-expect-error System's broken
+      // @ts-expect-error
       const normal_armor_damage = armored_damage_types.filter(t => !this.system.resistances[t.toLowerCase()]);
-      // @ts-expect-error System's broken
+      // @ts-expect-error
       const resist_ap_damage = ap_damage_types.filter(t => this.system.resistances[t.toLowerCase()]);
-      // @ts-expect-error System's broken
       let armor = ap ? 0 : this.system.armor;
       let leftover_armor: number; // Temp 'storage' variable for tracking used armor
 
@@ -155,24 +156,19 @@ export class LancerActor extends Actor {
     let total_damage = armor_damage + damage.Burn;
 
     // Reduce Overshield first
-    // @ts-expect-error System's broken
     if (this.system.overshield.value) {
-      // @ts-expect-error System's broken
       const leftover_overshield = Math.max(this.system.overshield.value - total_damage, 0);
-      // @ts-expect-error System's broken
       total_damage = Math.max(total_damage - this.system.overshield.value, 0);
       changes["system.overshield"] = leftover_overshield;
     }
 
     // Finally reduce HP by remaining damage
     if (total_damage) {
-      // @ts-expect-error System's broken
       changes["system.hp"] = this.system.hp.value - total_damage;
     }
 
     // Add to Burn stat
     if (damage.Burn) {
-      // @ts-expect-error System's broken
       changes["system.burn"] = this.system.burn + damage.Burn;
     }
 
@@ -192,7 +188,6 @@ export class LancerActor extends Actor {
     this.system.finalize_tasks();
 
     // 2. Initialize our universal derived stat fields
-    // @ts-expect-error
     let sys: SystemTemplates.actor_universal = this.system;
     sys.edef = 0;
     sys.evasion = 0;
@@ -408,7 +403,6 @@ export class LancerActor extends Actor {
    * This is mostly copy-pasted from Actor.modifyTokenAttribute to allow negative hps, which are useful for structure checks
    */
   async modifyTokenAttribute(attribute: string, value: any, isDelta = false, isBar = true) {
-    // @ts-expect-error Should be fixed with v10 types
     const current = foundry.utils.getProperty(this.system, attribute);
 
     let updates;
@@ -472,7 +466,6 @@ export class LancerActor extends Actor {
 
     // If changing active mech, all mechs need to render to recompute if they are the active mech
     if ((changed as any).system?.active_mech !== undefined) {
-      // @ts-expect-error idk why this is unhappy
       let owned_mechs = game.actors!.filter(a => a.is_mech() && a.system.pilot?.value == this);
       owned_mechs?.forEach(m => m.render());
     }
@@ -512,10 +505,9 @@ export class LancerActor extends Actor {
 
     // If the Size of the ent has changed since the last update, set the
     // protype token size to the new size
-    // @ts-expect-error System's broken
     const expected_size = Math.max(1, this.system.size);
     // Update either prototype token or the token itself depending
-    // @ts-expect-error System's broken
+    // @ts-expect-error prototypeToken is not in the types
     const token = this.token ?? this.prototypeToken;
     if (token && token.width !== expected_size) {
       token.update({

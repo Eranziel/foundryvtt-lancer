@@ -74,7 +74,6 @@ export class LoadoutHelper {
     await this.deleteUnequippedItems();
 
     let changes: Record<string, any> = {
-      // @ts-expect-error System's broken unless narrowed
       "system.hp": this.actor.system.hp.max,
       "system.burn": 0,
       "system.overshield": 0,

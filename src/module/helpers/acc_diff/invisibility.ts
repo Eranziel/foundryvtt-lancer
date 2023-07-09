@@ -57,7 +57,6 @@ export default class Invisibility implements AccDiffCheckboxPluginData {
     if (!this.token) {
       return false;
     }
-    // @ts-expect-error
     return !!this.token.actor?.system.statuses.invisible;
   }
 

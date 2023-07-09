@@ -48,7 +48,6 @@ export class EffectHelper {
   // Clear the expected effects for a given uuid
   // Kick off an update if update == true
   async clearEphemeralEffects() {
-    // @ts-expect-error v11
     let curr = this.actor.system.inherited_effects as InheritedEffectsState | null;
     if (curr) {
       await this.actor.update(
