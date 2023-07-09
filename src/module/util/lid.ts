@@ -1,5 +1,5 @@
 import { LancerActor, LancerDEPLOYABLE } from "../actor/lancer-actor";
-import { FetcherCache, RepentantFetcherCache } from "./async";
+import { FetcherCache, PENDING, RepentantFetcherCache } from "./async";
 import { LancerItem } from "../item/lancer-item";
 import { EntryType } from "../enums";
 
@@ -85,6 +85,25 @@ export async function lookupLID(
   types?: EntryType | EntryType[]
 ): Promise<LancerActor | LancerItem | null> {
   let res = await lookupLIDPlural(lid, types);
+  if (res.length) {
+    return res[0];
+  } else {
+    return null;
+  }
+}
+
+// As compendium_lookup_lid, but sync.
+export function lookupLIDPluralSync(lid: string, types?: EntryType | EntryType[]): Array<LancerActor | LancerItem> {
+  if (!types) types = [];
+  if (!Array.isArray(types)) types = [types];
+  let result = lookupLIDPluralCache.sync_fetch(`${lid}|${types.join("/")}`);
+  if (result != PENDING) return result;
+  return [];
+}
+
+// As compendium_lookup_lid, but just takes first result
+export function lookupLIDSync(lid: string, types?: EntryType | EntryType[]): LancerActor | LancerItem | null {
+  let res = lookupLIDPluralSync(lid, types);
   if (res.length) {
     return res[0];
   } else {
