@@ -317,16 +317,15 @@ export function npc_stat_block_clicker_card(
   return `
     <div class="card clipped">
       <div class="flexrow lancer-header major">
-        <span class="lancer-header major ">${title}</span>
-        <!--<a class="gen-control" data-path="${data_base_path}" data-action="set" data-action-value="(struct)npc_stat_array"><i class="fas fa-redo"></i></a>-->
+        <span class="lancer-header major">${title}</span>
       </div>
       ${tier_clickers.join("")}
     </div>`;
 }
 
 // Simpler case of above. Seem damage for a use case
-export function npc_stat_array_clicker_card(title: string, data_path: string, options: HelperOptions): string {
-  let stats = resolve_helper_dotpath<number[][]>(options, data_path) ?? [];
+export function npc_stat_array_clicker_card(title: string, path: string, options: HelperOptions): string {
+  let stats = resolve_helper_dotpath<number[]>(options, path) ?? [];
   let tier_clickers: string[] = [];
 
   // Make a clicker for every tier
@@ -334,15 +333,13 @@ export function npc_stat_array_clicker_card(title: string, data_path: string, op
     tier_clickers.push(`
       <div class="flexrow stat-container" style="align-self: center;">
         <i class="cci cci-npc-tier-${tier} i--m i--dark"></i>
-        ${clicker_num_input(`${data_path}.${tier - 1}`, options)}
+        ${clicker_num_input(`${path}.${tier - 1}`, options)}
       </div>`);
-    tier++;
   }
   return `
     <div class="card clipped">
       <div class="flexrow lancer-header major">
         <span class="lancer-header major ">${title}</span>
-        <a class="gen-control" data-path="${data_path}" data-action="set" data-action-value="(struct)npc_stat_array"><i class="fas fa-redo"></i></a>
       </div>
       ${tier_clickers.join("")}
     </div>`;

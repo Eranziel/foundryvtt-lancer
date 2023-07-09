@@ -108,6 +108,7 @@ import {
   tech_flow_card,
   bond_answer_selector,
   bond_minor_ideal_selector,
+  npc_stat_array_clicker_card,
 } from "./module/helpers/actor";
 import type { HelperOptions } from "handlebars";
 import {
@@ -456,7 +457,7 @@ Hooks.once("init", async function () {
   Handlebars.registerHelper("stat-edit-max-card", stat_edit_card_max);
   Handlebars.registerHelper("clicker-stat-card", clicker_stat_card);
   Handlebars.registerHelper("npc-clicker-statblock-card", npc_stat_block_clicker_card);
-  Handlebars.registerHelper("npc-clicker-statarr-card", npc_stat_block_clicker_card);
+  Handlebars.registerHelper("npc-clicker-statarr-card", npc_stat_array_clicker_card);
   Handlebars.registerHelper("std-string-input", std_string_input);
   Handlebars.registerHelper("std-text-input", std_text_input);
   Handlebars.registerHelper("std-password-input", std_password_input);
