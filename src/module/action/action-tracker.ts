@@ -104,6 +104,5 @@ export async function toggleAction(actor: LancerActor, type: ActionType) {
 }
 
 function getSpeed(actor: LancerActor) {
-  // @ts-expect-error
   return actor.system.speed;
 }

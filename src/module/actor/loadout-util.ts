@@ -327,7 +327,6 @@ export class LoadoutHelper {
       let baseMounts = frame.system.mounts;
 
       let pilot = this.actor.system.pilot?.value;
-      // @ts-expect-error
       const get_cb = (lid: string) => pilot?.itemTypes.core_bonus.find(cb => cb.system.lid == lid);
       let retrofitting = get_cb("cb_mount_retrofitting");
       let improved_armament = get_cb("cb_improved_armament");
@@ -352,7 +351,6 @@ export class LoadoutHelper {
 
       // If frame has an integrated weapon, insert that (or those) as our first weapon(s)
       for (let integrated_lid of frame.system.core_system.integrated) {
-        // @ts-expect-error
         let corr_item = this.actor.items.find(x => x.system.lid == integrated_lid);
         if (corr_item && corr_item.is_mech_weapon()) {
           newMounts.push({
