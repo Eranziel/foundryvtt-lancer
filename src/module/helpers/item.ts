@@ -245,7 +245,7 @@ export function uses_control(uses_path: string, max_uses: number, options: Helpe
 }
 
 export function npc_feature_preview(npc_feature_path: string, options: HelperOptions): string {
-  let feature = resolve_helper_dotpath<LancerNPC_FEATURE>(options, npc_feature_path);
+  let feature = options.hash["item"] ?? resolve_helper_dotpath<LancerNPC_FEATURE>(options, npc_feature_path);
   if (!feature) return "";
 
   switch (feature.system.type) {

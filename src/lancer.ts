@@ -115,7 +115,7 @@ import {
   item_preview,
   simple_ref_slot,
   ref_portrait,
-  item_preview_list,
+  lid_item_list,
   limited_uses_indicator,
   reserve_used_indicator,
 } from "./module/helpers/refs";
@@ -486,7 +486,7 @@ Hooks.once("init", async function () {
   // Refs
   Handlebars.registerHelper("simple-ref", simple_ref_slot);
   Handlebars.registerHelper("item-preview", item_preview);
-  Handlebars.registerHelper("item-preview-list", item_preview_list);
+  Handlebars.registerHelper("lid-item-list", lid_item_list);
   Handlebars.registerHelper("pilot-slot", pilot_slot);
   Handlebars.registerHelper("deployer-slot", deployer_slot); // Can be pilot, npc, or mech. Preferably mech, lol
   Handlebars.registerHelper("ref-portrait-img", ref_portrait);

@@ -9,6 +9,7 @@ import {
   handleDocListDropping,
   click_evt_open_ref,
   handleUsesInteraction,
+  handleLIDListDropping,
 } from "../helpers/refs";
 import { handleContextMenus } from "../helpers/item";
 import { applyCollapseListeners, CollapseHandler, initializeCollapses } from "../helpers/collapse";
@@ -117,6 +118,7 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet<ItemShe
 
     // Allow dragging items into lists
     handleDocListDropping(html, this.item);
+    handleLIDListDropping(html, this.item);
 
     // Allow set things by drop. Mostly we use this for manufacturer/license dragging
     handleRefSlotDropping(html, this.item, null); // Don't restrict what can be dropped past type, and don't take ownership or whatever
