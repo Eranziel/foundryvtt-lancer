@@ -41,6 +41,11 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
     }
   }
 
+  // Immediately fix the name, so deployables get named properly
+  await pilot.update({
+    name: data.name,
+  });
+
   try {
     let unit_folder = pilot.folder;
     // @ts-expect-error Should be fixed with v10 types
