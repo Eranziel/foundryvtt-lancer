@@ -311,7 +311,7 @@ export class FakeBoundedNumberField extends fields.NumberField {
   }
 
   /** @override */
-  initialize(value: string, model: any) {
+  initialize(value: number, model: any) {
     // Expand to a somewhat reasonable range. `prepareData` functions should handle the rest
     return {
       min: 0,
