@@ -107,7 +107,7 @@ export function npc_reaction_effect_preview(path: string, options: HelperOptions
       }
       ${effect_box("TRIGGER", (npc_feature.system as SystemTemplates.NPC.ReactionData).trigger)}
       ${effect_box("EFFECT", npc_feature.system.effect)}
-      ${compact_tag_list(path + ".system.tags", npc_feature.system.tags, false)}
+      ${compact_tag_list(path + ".system.tags", options)}
     </div>`,
     options
   );
@@ -128,7 +128,7 @@ function npc_system_trait_effect_preview(path: string, options: HelperOptions): 
           : ""
       }
       ${effect_box("EFFECT", npc_feature.system.effect)}
-      ${compact_tag_list(path + ".system.tags", npc_feature.system.tags, false)}
+      ${compact_tag_list(path + ".system.tags", options)}
     </div>`,
     options
   );
@@ -185,7 +185,7 @@ export function npc_tech_effect_preview(path: string, options: HelperOptions) {
       </div>
       <div class="flexcol" style="padding: 0 10px;">
         ${effect_box("EFFECT", feature_data.effect)}
-        ${compact_tag_list(path + ".system.tags", npc_feature.system.tags, false)}
+        ${compact_tag_list(path + ".system.tags", options)}
       </div>
     </div>
     `,
@@ -247,7 +247,7 @@ export function npc_weapon_effect_preview(path: string, options: HelperOptions):
       </div>
       ${effect_box("ON HIT", feature_data.on_hit)}
       ${effect_box("EFFECT", feature_data.effect)}
-      ${compact_tag_list(path + ".system.tags", feature_data.tags, false)}
+      ${compact_tag_list(path + ".system.tags", options)}
     </div>
     `,
     options

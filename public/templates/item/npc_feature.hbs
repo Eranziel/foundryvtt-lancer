@@ -166,13 +166,6 @@
         {{{textarea-card "EFFECT" "system.effect"}}}
       </div>
     {{/if}}
-    {{! Tags }}
-    <div class="card full">
-      <div class="lancer-header major">
-        <span>TAGS</span>
-        <a class="gen-control fas fa-plus" data-action="append" data-path="system.tags" data-action-value="(struct)tag"></a>
-      </div>
-      {{{tag-list "system.tags" system.tags editable}}}
-    </div>
+    {{{item-edit-arrayed-tags "system.tags" "TAGS"}}}
   </section>
 </form>

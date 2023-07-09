@@ -21,6 +21,7 @@ import {
   inc_if,
   resolve_dotpath,
   resolve_helper_dotpath,
+  spoofHelper,
   sp_display,
   std_enum_select,
   std_string_input,
@@ -406,7 +407,7 @@ export function pilot_armor_slot(armor_path: string, options: HelperOptions): st
             <div class="effect-text" style=" padding: 5px">
               ${armor.system.description}
             </div>
-            ${compact_tag_list(armor_path + ".system.tags", armor.system.tags, false)}
+            ${compact_tag_list(armor_path + ".system.tags", options)}
           </div>`;
 }
 
@@ -465,7 +466,7 @@ export function pilot_weapon_refview(weapon_path: string, options: HelperOptions
         ${inc_if(`</div>`, loading || limited)}
       </div>
 
-      ${compact_tag_list(weapon_path + ".system.tags", weapon.system.tags, false)}
+      ${compact_tag_list(weapon_path + ".system.tags", options)}
     </div>
   </div>`;
 }
@@ -511,7 +512,7 @@ export function pilot_gear_refview(gear_path: string, options: HelperOptions): s
         ${gear.system.description}
       </div>
 
-      ${compact_tag_list(gear_path + ".system.tags", gear.system.tags, false)}
+      ${compact_tag_list(gear_path + ".system.tags", options)}
     </div>
   </div>`;
 }
@@ -731,7 +732,7 @@ data-action="set" data-action-value="(int)${i}" data-path="${weapon_path}.system
           ${on_attack}
           ${on_hit}
           ${on_crit}
-          ${compact_tag_list(profile_path + ".tags", profile.tags, false)}
+          ${compact_tag_list(profile_path + ".tags", options)}
         </div>
         ${mod_text}
       </div>
@@ -783,11 +784,11 @@ export function weapon_mod_ref(mod_path: string, weapon_path: string | null, opt
     added_tags = `
     <div class="effect-box">
       <span class="effect-title clipped-bot">ADDED TAGS</span>
-      ${compact_tag_list(mod_path + ".system.added_tags", mod.system.added_tags, false)}
+      ${compact_tag_list(mod_path + ".system.added_tags", options)}
     </div>
     `;
   }
-  let tags = mod.system.tags.length ? compact_tag_list(`${mod_path}.system.tags`, mod.system.tags, false) : "";
+  let tags = mod.system.tags.length ? compact_tag_list(`${mod_path}.system.tags`, options) : "";
   let actions = "";
   if (mod.system.actions.length) {
     actions = buildActionArrayHTML(mod, "system.actions");
@@ -1020,7 +1021,7 @@ export function buildActionHTML(
   }
 
   if (options?.tags && doc instanceof LancerItem && doc.getTags()) {
-    tags = compact_tag_list("", doc.getTags()!, false);
+    tags = compact_tag_list("tags", spoofHelper({ tags: doc.getTags()! }));
   }
 
   return `
@@ -1190,7 +1191,7 @@ export function buildSystemHTML(system: LancerMECH_SYSTEM): string {
   ${eff ? eff : ""}
   ${actions ? actions : ""}
   ${deployables ? deployables : ""}
-  ${compact_tag_list("data.Tags", system.system.tags, false)}
+  ${compact_tag_list("tags", spoofHelper({ tags: system.getTags() }))}
 </div>`;
   return html;
 }
