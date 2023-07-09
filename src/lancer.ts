@@ -244,7 +244,7 @@ Hooks.once("init", async function () {
 
   // Configure indexes
   // @ts-expect-error
-  CONFIG.Item.compendiumIndexFields = ["system.lid"];
+  CONFIG.Item.compendiumIndexFields = ["system.lid", "system.license"];
   // @ts-expect-error
   CONFIG.Actor.compendiumIndexFields = ["system.lid"];
 
