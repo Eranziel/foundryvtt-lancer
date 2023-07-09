@@ -24,7 +24,7 @@ export class MechWeaponModel extends LancerDataModel {
       sp: new fields.NumberField({ nullable: false, initial: 0 }),
       profiles: new ControlledLengthArrayField(
         new fields.SchemaField({
-          name: new fields.StringField(),
+          name: new fields.StringField({ initial: "Base Profile" }),
           type: new fields.StringField({ choices: Object.values(WeaponType), initial: WeaponType.Rifle }),
           damage: new fields.ArrayField(new DamageField()),
           range: new fields.ArrayField(new RangeField()),
