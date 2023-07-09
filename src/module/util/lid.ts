@@ -3,8 +3,6 @@ import { FetcherCache, RepentantFetcherCache } from "./async";
 import { LancerItem } from "../item/lancer-item";
 import { EntryType } from "../enums";
 
-const CACHE_DURATION = 999_999_000; // Basically indefinitely. But on a miss, they regenerate
-
 // Converts the index into a map of LID -> index entry
 const indexFastCache = new FetcherCache<string, Map<string, any> | null>(async (pack: string) => {
   let index = await (game.packs.get(pack)?.getIndex() ?? null);
@@ -69,7 +67,7 @@ const lookupLIDPluralCache = new RepentantFetcherCache<string, Array<LancerActor
     return result;
   },
   x => !!x,
-  CACHE_DURATION
+  999_999_000 // Since we are repentant, keep for a while
 );
 
 export async function lookupLIDPlural(
