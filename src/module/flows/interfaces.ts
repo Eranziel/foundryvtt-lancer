@@ -149,20 +149,29 @@ export namespace LancerFlowState {
     roll: string;
   }
 
-  export interface StructureRollData {
+  interface BaseRollDataZ {
+    type: "base";
+    title: string;
+    roll_str: string;
+  }
+
+  export interface BaseCardRollData {
+    roll: Roll;
+    result: number;
+    title: string;
+    desc: string;
+    tooltip: string;
+  }
+
+  export interface PrimaryStructureRollData extends BaseCardRollData {
     reroll_data?: { structure: number };
-    hull_check?: boolean;
-    secondary_roll_check?: boolean;
-    destruction_check?: boolean;
-    primary_roll: Roll;
-    primary_roll_result: number;
-    primary_roll_title: string;
-    primary_roll_desc: string;
-    primary_roll_tooltip: string;
-    secondary_roll_result: number;
-    secondary_roll_title: string;
-    secondary_roll_text: string;
     remStruct: number;
+  }
+
+  export interface StructureRollData {
+    reroll_data?: {};
+    primary_roll?: PrimaryStructureRollData;
+    secondary_roll?: BaseCardRollData;
   }
 
   // export interface StressRollData {
