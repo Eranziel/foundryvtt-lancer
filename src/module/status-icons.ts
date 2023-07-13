@@ -1,6 +1,8 @@
 import { LANCER } from "./config";
 import { StatusIconConfigOptions } from "./settings";
 
+const lp = LANCER.log_prefix;
+
 const defaultStatuses = [
   {
     id: "immobilized",
@@ -738,6 +740,49 @@ export function configureStatusIcons(): void {
   if (statusIconConfig.tommyConditionsStatus) {
     statuses = statuses.concat(tommyConditionsStatus);
   }
-
+  console.log(`Lancer | ${statuses.length} status icons configured`);
   CONFIG.statusEffects = statuses;
+}
+
+export async function migrateLancerConditions() {
+  // Migrate settings from the module
+  console.log(`${lp} Migrating settings from Lancer Condition Icons`);
+  if (game.modules.get("lancer-conditions")?.active) {
+    const iconSettings: StatusIconConfigOptions = {
+      defaultConditionsStatus: (await game.settings.get("lancer-conditions", "keepStockIcons")) as boolean,
+      cancerConditionsStatus: (await game.settings.get("lancer-conditions", "cancerConditionsStatus")) as boolean,
+      cancerNPCTemplates: (await game.settings.get("lancer-conditions", "cancerNPCTemplates")) as boolean,
+      hayleyConditionsStatus: (await game.settings.get("lancer-conditions", "hayleyConditionsStatus")) as boolean,
+      hayleyPC: (await game.settings.get("lancer-conditions", "hayleyPC")) as boolean,
+      hayleyNPC: (await game.settings.get("lancer-conditions", "hayleyNPC")) as boolean,
+      hayleyUtility: (await game.settings.get("lancer-conditions", "hayleyUtility")) as boolean,
+      tommyConditionsStatus: (await game.settings.get("lancer-conditions", "tommyConditionsStatus")) as boolean,
+    };
+    game.settings.set(game.system.id, LANCER.setting_status_icons, iconSettings);
+
+    // Disable the module
+    const mods = game.settings.get("core", "moduleConfiguration");
+    mods["lancer-conditions"] = false;
+    game.settings.set("core", "moduleConfiguration", mods);
+
+    // Show a dialog to let the user know what happened
+    const text = `
+    <p>The icons and functionality from Lancer Condition Icons has been integrated with the system,
+    and your settings have been migrated. Lancer Condition Icons will now be disabled, and you can
+    feel free to uninstall it if no other worlds are using it.</p>
+    <p>The page must now be refreshed for the module change to take effect.</p>`;
+    new Dialog(
+      {
+        title: `Lancer Condition Icons is Integrated`,
+        content: text,
+        buttons: {
+          ok: { label: "Refresh", callback: () => window.location.reload() },
+        },
+        default: "No",
+      },
+      {
+        width: 350,
+      }
+    ).render(true);
+  }
 }

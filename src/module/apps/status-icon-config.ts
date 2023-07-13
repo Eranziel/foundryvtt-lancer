@@ -1,5 +1,6 @@
 import { LANCER } from "../config";
 import { StatusIconConfigOptions, getStatusIconConfigOptions } from "../settings";
+import { configureStatusIcons } from "../status-icons";
 
 /**
  * Settings form for customizing the icon appearance of the icon used in the
@@ -35,9 +36,8 @@ export class StatusIconConfig extends FormApplication<FormApplication.Options, S
 
   /** @override */
   async _updateObject(_: Event, data: Record<string, unknown>): Promise<void> {
-    const defs = getStatusIconConfigOptions();
-    const set = foundry.utils.diffObject(defs, data, { inner: true });
-    game.settings.set(game.system.id, LANCER.setting_status_icons, data);
+    await game.settings.set(game.system.id, LANCER.setting_status_icons, data);
+    configureStatusIcons();
   }
 
   /**

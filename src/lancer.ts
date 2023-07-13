@@ -19,7 +19,7 @@ import {
   WELCOME,
   NEEDS_AUTOMATION_MIGRATION_VERSION,
 } from "./module/config";
-import { configureStatusIcons } from "./module/status-icons";
+import { configureStatusIcons, migrateLancerConditions } from "./module/status-icons";
 import { LancerActor } from "./module/actor/lancer-actor";
 import { LancerItem } from "./module/item/lancer-item";
 import { populatePilotCache } from "./module/compcon";
@@ -40,7 +40,7 @@ import { WeaponRangeTemplate } from "./module/pixi/weapon-range-template";
 
 // Import helpers
 import { preloadTemplates } from "./module/preloadTemplates";
-import { getAutomationOptions, registerSettings } from "./module/settings";
+import { StatusIconConfigOptions, getAutomationOptions, registerSettings } from "./module/settings";
 import { compact_tag_list } from "./module/helpers/tags";
 import * as migrations from "./module/migration";
 import { addLCPManager, updateCore, core_update } from "./module/apps/lcpManager";
@@ -623,6 +623,9 @@ Hooks.once("ready", () => {
     game.settings.set(game.system.id, LANCER.setting_dsn_setup, true);
   }
 });
+
+// Migrate settings from Lancer Condition Icons and disable the module
+Hooks.once("ready", migrateLancerConditions);
 
 Hooks.once("canvasInit", () => {
   SquareGrid.prototype.measureDistances = measureDistances;
