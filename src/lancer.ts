@@ -16,10 +16,10 @@ import {
   COMPATIBLE_MIGRATION_VERSION,
   NEEDS_MAJOR_MIGRATION_VERSION,
   NEEDS_MINOR_MIGRATION_VERSION,
-  STATUSES,
   WELCOME,
   NEEDS_AUTOMATION_MIGRATION_VERSION,
 } from "./module/config";
+import { configureStatusIcons } from "./module/status-icons";
 import { LancerActor } from "./module/actor/lancer-actor";
 import { LancerItem } from "./module/item/lancer-item";
 import { populatePilotCache } from "./module/compcon";
@@ -248,11 +248,7 @@ Hooks.once("init", async function () {
   CONFIG.ui.combat = LancerCombatTracker;
 
   // Set up system status icons
-  const keepStock = game.settings.get(game.system.id, LANCER.setting_stock_icons);
-  let statuses: { id: string; label: string; icon: string }[] = [];
-  if (keepStock) statuses = statuses.concat(CONFIG.statusEffects);
-  statuses = statuses.concat(STATUSES);
-  CONFIG.statusEffects = statuses;
+  configureStatusIcons();
 
   // Register Web Components
   customElements.define("card-clipped", class LancerClippedCard extends HTMLDivElement {}, {
