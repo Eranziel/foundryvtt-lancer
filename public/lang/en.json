@@ -1,208 +1,208 @@
 {
-    "lancer": {
-        "placeholder": {
-            "name": "Name"
-        },
-        "deployable-sheet": {
-            "tabs": {
-                "status": "<STATUS>",
-                "config": "<CONFIG>"
-            },
-            "deployer": {
-                "label": "DEPLOYER"
-            },
-            "stats": {
-                "label": "BASE STATS"
-            }
-        },
-        "mech-sheet": {
-            "tabs": {
-                "stats": "<MECH//STATS>",
-                "loadout": "<MECH//LOADOUT>",
-                "talents": "<PILOT//TALENTS>"
-            },
-            "core": {
-                "label": "CORE"
-            },
-            "actions": {
-                "label": "ACTIONS"
-            },
-            "macros": {
-                "label": "MACROS"
-            },
-            "system": {
-                "label": "LOADOUT [SP: {total} / {max} ]"
-            }
-        },
-        "npc-sheet": {
-            "header": {
-                "class": "CLASS:"
-            },
-            "class": {
-                "label": "CLASS",
-                "none": "NO CLASS FOUND"
-            },
-            "templates": {
-                "label": "TEMPLATES"
-            },
-            "features": {
-                "label": "FEATURES"
-            }
-        },
-        "pilot-sheet": {
-            "header": {
-                "ll": "LICENSE LEVEL:",
-                "cs": "CALLSIGN:",
-                "name": "NAME:",
-                "bg": "BACKGROUND:"
-            },
-            "tabs": {
-                "cloud": "<RM-4://SYNC>",
-                "dossier": "<PILOT//DOSSIER>",
-                "narrative": "<PILOT//NARRATIVE>",
-                "tactical": "<PILOT//TACTICAL>",
-                "loadout": "<EQUIP//LOADOUT>",
-                "mech": "<MECH//ACTIVE>"
-            },
-            "cloud-header": {
-                "label": "RM-4://(OMNINET UPLINK ID)",
-                "vaultID": "Load from your Comp/Con account (if logged in)",
-                "raw-placeholder": "or enter a code manually"
-            },
-            "cloud-download": {
-                "label": "DOWNLOAD",
-                "lastSync": "Last synced: {timestamp}"
-            },
-            "cloud-upload": {
-                "label": "UPLOAD",
-                "wip": "FEATURE IN PROGRESS"
-            },
-            "json-import": {
-                "label": "IMPORT"
-            },
-            "dossier": {
-                "cs": "CALLSIGN",
-                "name": "NAME"
-            },
-            "tactical": {
-                "armor": "ARMOR",
-                "weapons": "WEAPONS",
-                "gear": "GEAR",
-                "reserves": "RESERVES",
-                "licenses": "LICENSES",
-                "cores": "CORE BONUSES"
-            },
-            "abilities": {
-                "skills": "SKILL TRIGGERS",
-                "talents": "TALENTS"
-            }
-        },
-        "chat-card": {
-            "title": {
-                "attack": "// ATTACK //",
-                "damage":  "// DAMAGE //",
-                "crit-damage": "// CRIT DAMAGE //",
-                "defense-hit": "// HIT VS {defense}",
-                "e-defense-hit": "// HIT VS E-DEF",
-                "effect": "// EFFECT //",
-                "on-attack": "// ON ATTACK //",
-                "on-hit": "// ON HIT //",
-                "on-crit": "// ON CRIT //",
-                "charge-roll": "// CHARGE ROLL //",
-                "changes": "// CHANGES //",
-                "structure": "// STRUCTURE DAMAGE //",
-                "overheating": "// OVERHEATING //",
-                "check": "// CHECK :: {check} //",
-                "system": "// SYSTEM :: {system} //"
-            },
-            "label": {
-                "trigger": "TRIGGER",
-                "effect": "EFFECT"
-            },
-            "attack": {
-                "crit": "{total} - CRIT",
-                "hit": "{total} - HIT",
-                "miss": "{total} - MISS"
-            },
-            "exclamation": {
-                "overkill": "OVERKILL!"
-            },
-            "overcharge": {
-                "charged": "{target} + :: CHARGED",
-                "uncharged": "{target} + :: UNCHARGED"
-            },
-            "remaining": "{total} / {max} REMAINING"
-        },
-        "automation": {
-            "menu-name": "Automation",
-            "menu-label": "System Automation Settings",
-            "menu-hint": "Set up what system automation options are enabled, or turn them all off",
-            "master-switch": "Enabled",
-            "master-switch-desc": "Turn this off to do everything manually",
-            "attacks": "Attack rolls",
-            "attacks-desc": "Toggle for whether or not you want the system to auto-calculate hits, damage, and other attack related checks.",
-            "structure": "Structure/Stress",
-            "structure-desc": "Automatically prompt for a structure or stress roll when a mech reaches 0 hp or exceeds its heat cap.",
-            "overcharge_heat": "Apply Overcharge Heat",
-            "overcharge_heat-desc": "Automatically apply heat when rolling overcharge",
-            "attack_self_heat": "Self Heat from Attacks",
-            "attack_self_heat-desc": "When a weapon has the Overkill or Heat (self) tags, automatically apply any heat.",
-            "remove_templates": "Remove Templates Each Turn",
-            "remove_templates-desc": "When the turn changes, should measured templates from attacks be cleared?",
-            "limited_loading": "Manage Limited/Loading",
-            "limited_loading-desc": "When items are used, should their limited and loading status be automatically managed and tracked?"
-        },
-        "actionTracker": {
-            "menu-name": "Action Tracker",
-            "menu-label": "Action Tracker Settings",
-            "menu-hint": "Configure options related to action tracker HUD and automations.",
-            "showHotbar": "Show Hotbar",
-            "showHotbar-desc": "Toggles the display of the floating hotbar during combat.",
-            "allowPlayers": "Allow Players",
-            "allowPlayers-desc": "Allows players to modify their own actions.",
-            "printMessages": "Print Messages",
-            "printMessages-desc": "Prints chat messages for start and end of a token's turn."
-        },
-        "initiative": {
-            "sorttracker": "Sort the tracker",
-            "sorttracker-desc": "Moves the unit currently taking their turn to the top of the tracker and moves units that have taken their turn to the end of the tracker.",
-            "appearancesettingslabel": "Appearance Settings",
-            "appearancesettingsbutton": "Appearance",
-            "appearancesettings-desc": "Configure the colors and icon used in the tracker"
-        },
-        "squaregriddiagonals": {
-            "name": "Square Grid Diagonal Movement",
-            "hint": "How distances will be calculated when moving diagonally on a square grid.",
-            "111": "1-1-1: Diagonal moves cost 1 (default)",
-            "121": "1-2-1: Diagonal moves alternate cost from 1 to 2",
-            "222": "2-2-2: Manhattan distance. Diagonals cost 2",
-            "euc": "Euclidean: Euclidian distance rounded"
-        }
+  "lancer": {
+    "placeholder": {
+      "name": "Name"
     },
-    "LANCERINITIATIVE": {
-        "IconSettingsMenu": "Icon Settings",
-        "Icon": "Action Icon",
-        "IconDesc": "CSS classes to define the activation icon.",
-        "IconSize": "Icon Size",
-        "IconPreview": "Icon Preview",
-        "PCColor": "Player Color",
-        "PCColorDesc": "Default: #44abe0",
-        "FriendlyColor": "Friendly Color",
-        "FriendlyColorDesc": "Default: #44abe0",
-        "NeutralColor": "Neutral Color",
-        "NeutralColorDesc": "Default: #146464",
-        "EnemyColor": "Enemy Color",
-        "EnemyColorDesc": "Default: #d98f30",
-        "DoneColor": "Inactive Color",
-        "DoneColorDesc": "Default: #444444",
-        "ActivatedLast": "Activated Units Last",
-        "ActivatedLastDesc": "Moves units that have taken their turn to the end of the tracker.",
-        "SortTracker": "Sort the Tracker",
-        "SortTrackerDesc": "Moves the unit currently taking their turn to the top of the tracker and moves units that have taken their turn to the end of the tracker.",
-        "EnableInitiative": "Enable Initiative Rolling",
-        "EnableInitiativeDesc": "Adds a button to owned combatants for rolling initiative",
-        "AddActivation": "Add Activation",
-        "RemoveActivation": "Remove Activation",
-        "UndoActivation": "Undo Activation"
+    "deployable-sheet": {
+      "tabs": {
+        "status": "<STATUS>",
+        "config": "<CONFIG>"
+      },
+      "deployer": {
+        "label": "DEPLOYER"
+      },
+      "stats": {
+        "label": "BASE STATS"
+      }
+    },
+    "mech-sheet": {
+      "tabs": {
+        "stats": "<MECH//STATS>",
+        "loadout": "<MECH//LOADOUT>",
+        "talents": "<PILOT//TALENTS>"
+      },
+      "core": {
+        "label": "CORE"
+      },
+      "actions": {
+        "label": "ACTIONS"
+      },
+      "macros": {
+        "label": "MACROS"
+      },
+      "system": {
+        "label": "LOADOUT [SP: {total} / {max} ]"
+      }
+    },
+    "npc-sheet": {
+      "header": {
+        "class": "CLASS:"
+      },
+      "class": {
+        "label": "CLASS",
+        "none": "NO CLASS FOUND"
+      },
+      "templates": {
+        "label": "TEMPLATES"
+      },
+      "features": {
+        "label": "FEATURES"
+      }
+    },
+    "pilot-sheet": {
+      "header": {
+        "ll": "LICENSE LEVEL:",
+        "cs": "CALLSIGN:",
+        "name": "NAME:",
+        "bg": "BACKGROUND:"
+      },
+      "tabs": {
+        "cloud": "<RM-4://SYNC>",
+        "dossier": "<PILOT//DOSSIER>",
+        "narrative": "<PILOT//NARRATIVE>",
+        "tactical": "<PILOT//TACTICAL>",
+        "loadout": "<EQUIP//LOADOUT>",
+        "mech": "<MECH//ACTIVE>"
+      },
+      "cloud-header": {
+        "label": "RM-4://(OMNINET UPLINK ID)",
+        "vaultID": "Load from your Comp/Con account (if logged in)",
+        "raw-placeholder": "or enter a code manually"
+      },
+      "cloud-download": {
+        "label": "DOWNLOAD",
+        "lastSync": "Last synced: {timestamp}"
+      },
+      "cloud-upload": {
+        "label": "UPLOAD",
+        "wip": "FEATURE IN PROGRESS"
+      },
+      "json-import": {
+        "label": "IMPORT"
+      },
+      "dossier": {
+        "cs": "CALLSIGN",
+        "name": "NAME"
+      },
+      "tactical": {
+        "armor": "ARMOR",
+        "weapons": "WEAPONS",
+        "gear": "GEAR",
+        "reserves": "RESERVES",
+        "licenses": "LICENSES",
+        "cores": "CORE BONUSES"
+      },
+      "abilities": {
+        "skills": "SKILL TRIGGERS",
+        "talents": "TALENTS"
+      }
+    },
+    "chat-card": {
+      "title": {
+        "attack": "// ATTACK //",
+        "damage": "// DAMAGE //",
+        "crit-damage": "// CRIT DAMAGE //",
+        "defense-hit": "// HIT VS {defense}",
+        "e-defense-hit": "// HIT VS E-DEF",
+        "effect": "// EFFECT //",
+        "on-attack": "// ON ATTACK //",
+        "on-hit": "// ON HIT //",
+        "on-crit": "// ON CRIT //",
+        "charge-roll": "// CHARGE ROLL //",
+        "changes": "// CHANGES //",
+        "structure": "// STRUCTURE DAMAGE //",
+        "overheating": "// OVERHEATING //",
+        "check": "// CHECK :: {check} //",
+        "system": "// SYSTEM :: {system} //"
+      },
+      "label": {
+        "trigger": "TRIGGER",
+        "effect": "EFFECT"
+      },
+      "attack": {
+        "crit": "{total} - CRIT",
+        "hit": "{total} - HIT",
+        "miss": "{total} - MISS"
+      },
+      "exclamation": {
+        "overkill": "OVERKILL!"
+      },
+      "overcharge": {
+        "charged": "{target} + :: CHARGED",
+        "uncharged": "{target} + :: UNCHARGED"
+      },
+      "remaining": "{total} / {max} REMAINING"
+    },
+    "automation": {
+      "menu-name": "Automation",
+      "menu-label": "System Automation Settings",
+      "menu-hint": "Set up what system automation options are enabled, or turn them all off",
+      "master-switch": "Enabled",
+      "master-switch-desc": "Turn this off to do everything manually",
+      "attacks": "Attack rolls",
+      "attacks-desc": "Toggle for whether or not you want the system to auto-calculate hits, damage, and other attack related checks.",
+      "structure": "Structure/Stress",
+      "structure-desc": "Automatically prompt for a structure or stress roll when a mech reaches 0 hp or exceeds its heat cap.",
+      "overcharge_heat": "Apply Overcharge Heat",
+      "overcharge_heat-desc": "Automatically apply heat when rolling overcharge",
+      "attack_self_heat": "Self Heat from Attacks",
+      "attack_self_heat-desc": "When a weapon has the Overkill or Heat (self) tags, automatically apply any heat.",
+      "remove_templates": "Remove Templates Each Turn",
+      "remove_templates-desc": "When the turn changes, should measured templates from attacks be cleared?",
+      "limited_loading": "Manage Limited/Loading",
+      "limited_loading-desc": "When items are used, should their limited and loading status be automatically managed and tracked?"
+    },
+    "actionTracker": {
+      "menu-name": "Action Tracker",
+      "menu-label": "Action Tracker Settings",
+      "menu-hint": "Configure options related to action tracker HUD and automations.",
+      "showHotbar": "Show Hotbar",
+      "showHotbar-desc": "Toggles the display of the floating hotbar during combat.",
+      "allowPlayers": "Allow Players",
+      "allowPlayers-desc": "Allows players to modify their own actions.",
+      "printMessages": "Print Messages",
+      "printMessages-desc": "Prints chat messages for start and end of a token's turn."
+    },
+    "initiative": {
+      "sorttracker": "Sort the tracker",
+      "sorttracker-desc": "Moves the unit currently taking their turn to the top of the tracker and moves units that have taken their turn to the end of the tracker.",
+      "appearancesettingslabel": "Appearance Settings",
+      "appearancesettingsbutton": "Appearance",
+      "appearancesettings-desc": "Configure the colors and icon used in the tracker"
+    },
+    "squaregriddiagonals": {
+      "name": "Square Grid Diagonal Movement",
+      "hint": "How distances will be calculated when moving diagonally on a square grid.",
+      "111": "1-1-1: Diagonal moves cost 1 (default)",
+      "121": "1-2-1: Diagonal moves alternate cost from 1 to 2",
+      "222": "2-2-2: Manhattan distance. Diagonals cost 2",
+      "euc": "Euclidean: Euclidian distance rounded"
     }
+  },
+  "LANCERINITIATIVE": {
+    "IconSettingsMenu": "Icon Settings",
+    "Icon": "Action Icon",
+    "IconDesc": "CSS classes to define the activation icon.",
+    "IconSize": "Icon Size",
+    "IconPreview": "Icon Preview",
+    "PCColor": "Player Color",
+    "PCColorDesc": "Default: #44abe0",
+    "FriendlyColor": "Friendly Color",
+    "FriendlyColorDesc": "Default: #44abe0",
+    "NeutralColor": "Neutral Color",
+    "NeutralColorDesc": "Default: #146464",
+    "EnemyColor": "Enemy Color",
+    "EnemyColorDesc": "Default: #d98f30",
+    "DoneColor": "Inactive Color",
+    "DoneColorDesc": "Default: #444444",
+    "ActivatedLast": "Activated Units Last",
+    "ActivatedLastDesc": "Moves units that have taken their turn to the end of the tracker.",
+    "SortTracker": "Sort the Tracker",
+    "SortTrackerDesc": "Moves the unit currently taking their turn to the top of the tracker and moves units that have taken their turn to the end of the tracker.",
+    "EnableInitiative": "Enable Initiative Rolling",
+    "EnableInitiativeDesc": "Adds a button to owned combatants for rolling initiative",
+    "AddActivation": "Add Activation",
+    "RemoveActivation": "Remove Activation",
+    "UndoActivation": "Undo Activation"
+  }
 }
