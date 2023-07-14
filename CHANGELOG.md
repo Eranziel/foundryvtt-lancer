@@ -1,3 +1,9 @@
+# 1.5.5 (2023-07-13)
+## Features
+* Lancer Condition Icons is now integrated into the system. LCI settings are automatically migrated to the corresponding system settings.
+* Status icon setting changes are applied live.
+* Verified compatibility bump to 10.303.
+
 # 1.5.4 (2023-04-26)
 ## Bug Fixes
 * Fix a compatibility issue between CUB and the "consume lock on" feature.
