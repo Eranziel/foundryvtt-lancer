@@ -505,6 +505,21 @@ const hayleyNPC = [
     icon: "systems/lancer/assets/icons/alt-status/hayleynpc/echo-edge.webp",
   },
   {
+    id: "dispersal_shield_1",
+    label: "Dispersal Shield 1",
+    icon: "systems/lancer/assets/icons/alt-status/hayleynpc/dispersal-shield-1.webp",
+  },
+  {
+    id: "dispersal_shield_2",
+    label: "Dispersal Shield 2",
+    icon: "systems/lancer/assets/icons/alt-status/hayleynpc/dispersal-shield-2.webp",
+  },
+  {
+    id: "dispersal_shield_3",
+    label: "Dispersal Shield 3",
+    icon: "systems/lancer/assets/icons/alt-status/hayleynpc/dispersal-shield-3.webp",
+  },
+  {
     id: "focus_down",
     label: "Focus Down",
     icon: "systems/lancer/assets/icons/alt-status/hayleynpc/focus-down.webp",
