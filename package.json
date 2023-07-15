@@ -42,7 +42,7 @@
     "svelte-preprocess": "^4.9.4",
     "tslib": "^1.14.1",
     "typescript": "^4.4.3",
-    "vite": "^2.9.13",
+    "vite": "^2.9.16",
     "vite-plugin-checker": "https://github.com/SohumB/vite-plugin-checker/releases/download/vite-plugin-checker%400.3.5/vite-plugin-checker-0.3.5.tgz",
     "yargs": "^15.4.1"
   },
