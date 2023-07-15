@@ -1,5 +1,6 @@
-import type { LancerActorSheetData, LancerItemSheetData } from "../interfaces";
-import { Tag } from "../models/bits/tag";
+import type { HelperOptions } from "handlebars";
+import { Tag, TagData } from "../models/bits/tag";
+import { inc_if, resolve_helper_dotpath } from "./commons";
 
 // A small tag display containing just the label and value
 export function compact_tag(tag_path: string, tag: Tag): string {
@@ -12,8 +13,9 @@ export function compact_tag(tag_path: string, tag: Tag): string {
 }
 
 // The above, but on an array, filtering out hidden as appropriate
-export function compact_tag_list(tag_array_path: string, tags: Tag[], allow_drop: boolean): string {
+export function compact_tag_list(tag_array_path: string, options: HelperOptions): string {
   // Collect all of the tags, formatting them using `compact_tag`
+  let tags = resolve_helper_dotpath<Tag[]>(options, tag_array_path) ?? [];
   let processed_tags: string[] = [];
   for (let i = 0; i < tags.length; i++) {
     let tag = tags[i];
@@ -25,7 +27,7 @@ export function compact_tag_list(tag_array_path: string, tags: Tag[], allow_drop
   }
 
   // Combine into a row
-  if (allow_drop) {
+  if (resolve_helper_dotpath(options, "editable", false, true)) {
     return `<div class="compact-tag-row tag-list-append" data-path="${tag_array_path}">
       ${processed_tags.join("")}
     </div>`;
@@ -36,6 +38,21 @@ export function compact_tag_list(tag_array_path: string, tags: Tag[], allow_drop
   } else {
     return "";
   }
+}
+
+// A card with tags in it, that allows editing if appropriate
+export function itemEditTags(path: string, header: string, options: HelperOptions) {
+  return `
+  <div class="card full">
+    <div class="lancer-header major">
+      <span>${header}</span>
+      ${inc_if(
+        `<a class="gen-control fas fa-plus" data-action="append" data-path="${path}" data-action-value="(struct)tag"></a>`,
+        resolve_helper_dotpath(options, "editable", false, true)
+      )}
+    </div>
+    ${compact_tag_list(path, options)}
+  </div>`;
 }
 
 // Enables dropping of tags into open designated by .ref-list classed divs

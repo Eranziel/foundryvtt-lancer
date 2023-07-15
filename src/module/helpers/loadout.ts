@@ -1,7 +1,15 @@
 import type { HelperOptions } from "handlebars";
 import { ChipIcons, EntryType, SystemType } from "../enums";
 import { encodeMacroData } from "../macros";
-import { inc_if, resolve_helper_dotpath, array_path_edit, sp_display, effect_box, defaultPlaceholder } from "./commons";
+import {
+  inc_if,
+  resolve_helper_dotpath,
+  array_path_edit,
+  sp_display,
+  effect_box,
+  defaultPlaceholder,
+  spoofHelper,
+} from "./commons";
 import {
   mech_loadout_weapon_slot,
   buildActionHTML,
@@ -94,7 +102,7 @@ export function mech_system_view(system_path: string, options: HelperOptions): s
           ${eff ? eff : ""}
           ${actions ? actions : ""}
           ${deployables ? deployables : ""}
-          ${compact_tag_list(system_path + ".system.tags", doc.system.tags, false)}
+          ${compact_tag_list(system_path + ".system.tags", options)}
         </div>
         </li>`;
 }
@@ -261,9 +269,8 @@ export function frameView(frame_path: string, options: HelperOptions): string {
  */
 function buildCoreSysHTML(frame_path: string, options: HelperOptions): string {
   let frame = resolve_helper_dotpath<LancerFRAME>(options, frame_path)!;
-  let tags: string | undefined;
+  let tags = compact_tag_list(`${frame_path}.core_system.tags`, options);
   let core = frame.system.core_system;
-  tags = compact_tag_list("", core.tags, false);
 
   // Removing desc temporarily because of space constraints
   // <div class="frame-core-desc">${core.Description ? core.Description : ""}</div>
@@ -290,7 +297,7 @@ function buildCoreSysHTML(frame_path: string, options: HelperOptions): string {
       <div class="frame-active">${frame_active(frame_path, options)}</div>
       ${passive}
       ${deployables}
-      ${tags ? tags : ""}
+      ${tags}
     </div>
   </div>`;
 }

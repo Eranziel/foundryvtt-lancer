@@ -13,6 +13,7 @@ import {
 } from "./npc";
 import { compact_tag_list } from "./tags";
 import {
+  array_path_edit_changes,
   defaultPlaceholder,
   drilldownDocument,
   effect_box,
@@ -21,6 +22,7 @@ import {
   inc_if,
   resolve_dotpath,
   resolve_helper_dotpath,
+  spoofHelper,
   sp_display,
   std_enum_select,
   std_string_input,
@@ -406,7 +408,7 @@ export function pilot_armor_slot(armor_path: string, options: HelperOptions): st
             <div class="effect-text" style=" padding: 5px">
               ${armor.system.description}
             </div>
-            ${compact_tag_list(armor_path + ".system.tags", armor.system.tags, false)}
+            ${compact_tag_list(armor_path + ".system.tags", options)}
           </div>`;
 }
 
@@ -465,7 +467,7 @@ export function pilot_weapon_refview(weapon_path: string, options: HelperOptions
         ${inc_if(`</div>`, loading || limited)}
       </div>
 
-      ${compact_tag_list(weapon_path + ".system.tags", weapon.system.tags, false)}
+      ${compact_tag_list(weapon_path + ".system.tags", options)}
     </div>
   </div>`;
 }
@@ -511,7 +513,7 @@ export function pilot_gear_refview(gear_path: string, options: HelperOptions): s
         ${gear.system.description}
       </div>
 
-      ${compact_tag_list(gear_path + ".system.tags", gear.system.tags, false)}
+      ${compact_tag_list(gear_path + ".system.tags", options)}
     </div>
   </div>`;
 }
@@ -731,7 +733,7 @@ data-action="set" data-action-value="(int)${i}" data-path="${weapon_path}.system
           ${on_attack}
           ${on_hit}
           ${on_crit}
-          ${compact_tag_list(profile_path + ".tags", profile.tags, false)}
+          ${compact_tag_list(profile_path + ".tags", options)}
         </div>
         ${mod_text}
       </div>
@@ -783,11 +785,11 @@ export function weapon_mod_ref(mod_path: string, weapon_path: string | null, opt
     added_tags = `
     <div class="effect-box">
       <span class="effect-title clipped-bot">ADDED TAGS</span>
-      ${compact_tag_list(mod_path + ".system.added_tags", mod.system.added_tags, false)}
+      ${compact_tag_list(mod_path + ".system.added_tags", options)}
     </div>
     `;
   }
-  let tags = mod.system.tags.length ? compact_tag_list(`${mod_path}.system.tags`, mod.system.tags, false) : "";
+  let tags = mod.system.tags.length ? compact_tag_list(`${mod_path}.system.tags`, options) : "";
   let actions = "";
   if (mod.system.actions.length) {
     actions = buildActionArrayHTML(mod, "system.actions");
@@ -1020,7 +1022,7 @@ export function buildActionHTML(
   }
 
   if (options?.tags && doc instanceof LancerItem && doc.getTags()) {
-    tags = compact_tag_list("", doc.getTags()!, false);
+    tags = compact_tag_list("tags", spoofHelper({ tags: doc.getTags()! }));
   }
 
   return `
@@ -1190,7 +1192,7 @@ export function buildSystemHTML(system: LancerMECH_SYSTEM): string {
   ${eff ? eff : ""}
   ${actions ? actions : ""}
   ${deployables ? deployables : ""}
-  ${compact_tag_list("data.Tags", system.system.tags, false)}
+  ${compact_tag_list("tags", spoofHelper({ tags: system.getTags() }))}
 </div>`;
   return html;
 }
@@ -1515,16 +1517,25 @@ function _handleContextMenus(
     },
   };
 
-  // Remove an array item (e.x. a counter or weapon profile)
+  // Remove an array item (e.x. a counter, tag, or weapon profile)
   let array_remove: ContextMenuEntry = {
     name: "Remove",
     icon: '<i class="fas fa-fw fa-trash"></i>',
-    callback: (html: JQuery) => {
+    callback: html => {
       // Find the counter
-      // let change = array_path_edit_changes(dd.sub_doc, dd.sub_path, null, "delete");
-      // dd.sub_doc.update({ [change.path]: change.new_val });
+      let dd_ = dd(html);
+      if (dd_) {
+        let change = array_path_edit_changes(dd_.sub_doc, dd_.sub_path, null, "delete");
+        dd_.sub_doc.update({ [change.path]: change.new_val });
+      }
     },
-    condition: () => !view_only && false, // TODO - fix so counters etc an be removed
+    condition: html => {
+      let p = path(html);
+      return !!(
+        !view_only &&
+        (p?.includes("tags") || p?.includes("counters") || p?.substring(0, p.length - 2).endsWith("profiles"))
+      );
+    },
   };
 
   // Summon counter editor dialogue
