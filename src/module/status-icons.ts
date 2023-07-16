@@ -731,6 +731,22 @@ const tommyConditionsStatus = [
 export function configureStatusIcons(): void {
   const statusIconConfig = game.settings.get(game.system.id, LANCER.setting_status_icons) as StatusIconConfigOptions;
   let statuses: { id: string; label: string; icon: string }[] = [];
+  // If no sets are selected, enable the default set
+  if (
+    !statusIconConfig.defaultConditionsStatus &&
+    !statusIconConfig.cancerConditionsStatus &&
+    !statusIconConfig.cancerNPCTemplates &&
+    !statusIconConfig.hayleyConditionsStatus &&
+    !statusIconConfig.hayleyPC &&
+    !statusIconConfig.hayleyNPC &&
+    !statusIconConfig.hayleyUtility &&
+    !statusIconConfig.tommyConditionsStatus
+  ) {
+    statusIconConfig.defaultConditionsStatus = true;
+    if (game.ready) {
+      game.settings.set(game.system.id, LANCER.setting_status_icons, statusIconConfig);
+    }
+  }
   if (statusIconConfig.defaultConditionsStatus) {
     statuses = statuses.concat(defaultStatuses);
   }
