@@ -1,3 +1,7 @@
+# 1.6.1 (2023-07-16)
+## Bug Fixes
+* #570 - If no icon sets are selected, enable the default set.
+
 # 1.6.0 (2023-07-15)
 ## Features
 * Added status icons for dispersal shield to the "Hayley NPC" set.
