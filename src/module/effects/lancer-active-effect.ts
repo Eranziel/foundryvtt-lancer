@@ -139,6 +139,7 @@ export class LancerActiveEffect extends ActiveEffect {
     const statusIconConfig = game.settings.get(game.system.id, LANCER.setting_status_icons) as StatusIconConfigOptions;
     // If no sets are selected, enable the default set
     if (
+      game.ready &&
       !statusIconConfig.defaultConditionsStatus &&
       !statusIconConfig.cancerConditionsStatus &&
       !statusIconConfig.cancerNPCTemplates &&
