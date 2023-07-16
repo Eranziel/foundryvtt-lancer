@@ -141,6 +141,12 @@ async function packageBuild() {
     // Ensure there is a directory to hold all the packaged versions
     await fs.ensureDir("package");
 
+    // Copy the manifest file to the package directory
+    if (await fs.exists(path.join("package", manifest.name))) {
+      await fs.remove(path.join("package", manifest.name));
+    }
+    await fs.copy(path.join(manifest.root, manifest.name), path.join("package", manifest.name));
+
     // Initialize the zip file
     const zipName = `${manifest.file.id}-v${manifest.file.version}.zip`;
     const zipFile = fs.createWriteStream(path.join("package", zipName));
