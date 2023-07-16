@@ -48,7 +48,6 @@ export class EffectHelper {
   // Clear the expected effects for a given uuid
   // Kick off an update if update == true
   async clearEphemeralEffects() {
-    // @ts-expect-error v11
     let curr = this.actor.system.inherited_effects as InheritedEffectsState | null;
     if (curr) {
       await this.actor.update(
@@ -188,6 +187,19 @@ export class EffectHelper {
   async removeActiveEffect(effect: string) {
     const target_effect = this.findEffect(effect);
     target_effect?.delete();
+  }
+
+  /**
+   * Locates ActiveEffects on the Actor by names provided and removes them if present.
+   * @param effects Array of String names of the ActiveEffects to remove.
+   */
+  async removeActiveEffects(effects: string[]) {
+    const target_effects = effects.map(e => this.findEffect(e));
+    if (!target_effects || !target_effects.some(e => !!e)) return;
+    this.actor.deleteEmbeddedDocuments(
+      "ActiveEffect",
+      target_effects.map(e => e?.id || "")
+    );
   }
 
   findEffect(effect: string): LancerActiveEffect | null {

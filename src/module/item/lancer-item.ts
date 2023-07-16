@@ -93,6 +93,27 @@ declare global {
 }
 
 export class LancerItem extends Item {
+  // @ts-expect-error - Foundry initializes this.
+  system:
+    | SystemData.CoreBonus
+    | SystemData.Frame
+    | SystemData.License
+    | SystemData.MechSystem
+    | SystemData.MechWeapon
+    | SystemData.WeaponMod
+    | SystemData.NpcClass
+    | SystemData.NpcFeature
+    | SystemData.NpcTemplate
+    | SystemData.Organization
+    | SystemData.PilotArmor
+    | SystemData.PilotGear
+    | SystemData.PilotWeapon
+    | SystemData.Reserve
+    | SystemData.Skill
+    | SystemData.Status
+    | SystemData.Talent
+    | SystemData.Bond;
+
   /**
    * Returns all ranges for the item that match the provided range types
    */

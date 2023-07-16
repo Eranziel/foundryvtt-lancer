@@ -33,7 +33,7 @@ import { WeaponRangeTemplate } from "./module/pixi/weapon-range-template";
 // Import helpers
 import { preloadTemplates } from "./module/preload-templates";
 import { getAutomationOptions, registerSettings } from "./module/settings";
-import { compact_tag_list } from "./module/helpers/tags";
+import { compact_tag_list, itemEditTags } from "./module/helpers/tags";
 import * as migrations from "./module/world_migration";
 import { addLCPManager, updateCore, core_update } from "./module/apps/lcp-manager";
 
@@ -515,8 +515,8 @@ Hooks.once("init", async function () {
   // ------------------------------------------------------------------------
   // Tags
   // Handlebars.registerHelper("compact-tag", renderCompactTag);
-  // Handlebars.registerPartial("tag-list", compactTagList);
   Handlebars.registerHelper("tag-list", compact_tag_list);
+  Handlebars.registerHelper("item-edit-arrayed-tags", itemEditTags);
   // Handlebars.registerHelper("chunky-tag", renderChunkyTag);
   // Handlebars.registerHelper("full-tag", renderFullTag);
 

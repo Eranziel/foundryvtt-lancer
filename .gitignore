@@ -10,6 +10,7 @@ node_modules/**
 foundryconfig.json
 stats.html
 dist/**/*
+package/**
 debug.log
 foundry.js
 .vite-cache

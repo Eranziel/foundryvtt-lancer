@@ -680,6 +680,10 @@ tr.lcp-index-header {
     border-color: var(--tech-color);
   }
 
+  .npc-system > & {
+    border-color: var(--system-color);
+  }
+
   .npc-reaction > & {
     border-color: var(--reaction-color);
   }
@@ -857,7 +861,7 @@ textarea {
   * If this unbalances things, add an equal # of balancers to the other side
   */
   a,
-  i,
+  :not(a) i,
   img {
     flex: 0 0 auto;
     padding-left: 5px;

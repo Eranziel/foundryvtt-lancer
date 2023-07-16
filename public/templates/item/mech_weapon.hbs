@@ -80,10 +80,7 @@
           {{{item-edit-arrayed-actions (concat "system.profiles." prof_index ".actions") "ADDED ACTIONS"}}}
 
           {{!-- Tags --}}
-          <div class="card full">
-            <span class="lancer-header submajor">TAGS</span>
-            {{{tag-list (concat "system.profiles." prof_index ".tags") profile.tags ../editable}}}
-          </div>
+          {{{item-edit-arrayed-tags (concat "system.profiles." prof_index ".tags") "TAGS" }}}
         </div>
       </div>
       {{/each}}

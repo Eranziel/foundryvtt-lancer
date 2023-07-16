@@ -18,6 +18,7 @@ import { CounterData } from "../../models/bits/counter";
 import { SystemTemplates } from "../../system-template";
 import { PowerData } from "../../models/bits/power";
 import { BondQuestionData } from "../../models/bits/question";
+import { TagData } from "../../models/bits/tag";
 
 const DEFAULT_DESCRIPTION = "";
 
@@ -94,6 +95,13 @@ export function COUNTER(): CounterData {
     max: 6,
     default_value: 1,
     value: 1,
+  };
+}
+
+export function TAG(): TagData {
+  return {
+    lid: "tg_unknown",
+    val: "",
   };
 }
 

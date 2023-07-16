@@ -32,7 +32,7 @@ export namespace LancerFlowState {
     targeted: {
       target: Token;
       roll: string;
-      usedLockOn: { delete: () => void } | null;
+      usedLockOn: boolean | null;
     }[];
   };
 
