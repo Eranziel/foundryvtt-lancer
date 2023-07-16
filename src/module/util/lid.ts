@@ -54,7 +54,6 @@ const lookupLIDPluralCache = new RepentantFetcherCache<string, Array<LancerActor
 
     // Also dig through world items
     for (let item of game.items!.contents as LancerItem[]) {
-      // @ts-expect-error
       if (item.system.lid == lid && raw_types.includes(item.type)) {
         result.push(item);
       }

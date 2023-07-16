@@ -1,29 +1,13 @@
 import type { HelperOptions } from "handlebars";
 import { ChipIcons, EntryType, SystemType } from "../enums";
 import { encodeMacroData } from "../macros";
-import {
-  inc_if,
-  resolve_helper_dotpath,
-  array_path_edit,
-  sp_display,
-  effect_box,
-  defaultPlaceholder,
-  spoofHelper,
-} from "./commons";
-import {
-  mech_loadout_weapon_slot,
-  buildActionHTML,
-  buildDeployableHTML,
-  buildChipHTML,
-  buildDeployablesArray,
-  buildActionArrayHTML,
-} from "./item";
-import { item_preview, limited_uses_indicator, ref_params, simple_ref_slot } from "./refs";
+import { inc_if, resolve_helper_dotpath, sp_display, effect_box, defaultPlaceholder } from "./commons";
+import { mech_loadout_weapon_slot, buildChipHTML, buildDeployablesArray, buildActionArrayHTML } from "./item";
+import { limited_uses_indicator, ref_params, simple_ref_slot } from "./refs";
 import { compact_tag_list } from "./tags";
-import { LancerActor, LancerDEPLOYABLE, LancerMECH, LancerPILOT } from "../actor/lancer-actor";
-import { SystemData, SystemTemplates } from "../system-template";
-import { LancerCORE_BONUS, LancerFRAME, LancerMECH_SYSTEM } from "../item/lancer-item";
-import { ActionData } from "../models/bits/action";
+import { LancerMECH, LancerPILOT } from "../actor/lancer-actor";
+import { SystemData } from "../system-template";
+import { LancerFRAME, LancerMECH_SYSTEM } from "../item/lancer-item";
 import { collapseButton, collapseParam, CollapseRegistry } from "./collapse";
 import { LancerFlowState } from "../flows/interfaces";
 import { slugify } from "../util/lid";

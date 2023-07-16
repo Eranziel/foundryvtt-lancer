@@ -306,7 +306,6 @@ export function handleLIDListDropping<T>(html: JQuery, root_doc: LancerActor | L
       let dd = drilldownDocument(root_doc, path);
       let array = dd.terminus;
       if (Array.isArray(array)) {
-        // @ts-expect-error
         let lid = rdd.document.system.lid;
         let changes = array_path_edit_changes(dd.sub_doc, dd.sub_path + ".-1", lid, "insert");
         dd.sub_doc.update({ [changes.path]: changes.new_val });

@@ -563,8 +563,7 @@ Hooks.once("init", async function () {
   Handlebars.registerHelper("item-edit-arrayed-deployables", item_edit_arrayed_deployables);
   Handlebars.registerHelper("item-edit-arrayed-synergies", item_edit_arrayed_synergies);
   Handlebars.registerHelper("item-edit-arrayed-integrated", item_edit_arrayed_integrated);
-  // Generic handler for an array that can take a selectable enum
-  // And a single enum-based selector.
+  // A single enum-based selector.
   // Which is just a wrapper for std_enum_select but we can pass in a string and resolve it
   Handlebars.registerHelper("item-edit-enum", item_edit_enum);
   //   - Standalone items
