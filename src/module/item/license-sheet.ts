@@ -2,6 +2,7 @@ import { LancerItemSheet } from "./item-sheet";
 import { handleContextMenus } from "../helpers/item";
 import { EntryType } from "../enums";
 import { LancerItem, LancerLICENSE } from "./lancer-item";
+import { handleDocDropping } from "../helpers/dragdrop";
 
 /**
  * Extend the generic Lancer item sheet
@@ -32,13 +33,22 @@ export class LancerLicenseSheet extends LancerItemSheet<EntryType.LICENSE> {
     for (let et of [EntryType.FRAME, EntryType.MECH_SYSTEM, EntryType.MECH_WEAPON, EntryType.WEAPON_MOD]) {
       let pack = game.packs.get(`world.${et}`);
       if (pack) {
-        let docs = (await pack.getDocuments({ system: { license: license.system.key } })) as any;
-        for (let d of docs as LancerItem[]) {
-          let rank = (d as any).system.license_level as number;
+        let index = await pack.getIndex();
+        // @ts-expect-error
+        let key = this.item.system.key;
+        for (let [id, index_data] of index.entries()) {
+          // @ts-expect-error
+          let item_license = index_data.system.license as string | undefined;
+          if (item_license?.startsWith("mf")) item_license = item_license.slice(3).toUpperCase();
+          if (item_license != key) continue;
+
+          let doc = await pack.getDocument(id);
+          // @ts-expect-error
+          let rank = doc.system.license_level as number;
           while (unlocks.length <= rank) {
             unlocks.push([]);
           }
-          unlocks[rank].push(d);
+          unlocks[rank].push(doc as LancerItem);
         }
       }
     }
@@ -66,6 +76,20 @@ export class LancerLicenseSheet extends LancerItemSheet<EntryType.LICENSE> {
    */
   activateListeners(html: JQuery) {
     super.activateListeners(html);
+
+    // If an item is dropped on it, set its license & manufacturer to match the license
+    handleDocDropping(html, (doc, dest, evt) => {
+      if (doc.type == "Item") {
+        doc.document.update({
+          system: {
+            // @ts-expect-error
+            license: this.item.system.key,
+            // @ts-expect-error
+            manufacturer: this.item.system.manufacturer,
+          },
+        });
+      }
+    });
 
     // Everything below here is only needed if the sheet is editable
     if (!this.options.editable) return;

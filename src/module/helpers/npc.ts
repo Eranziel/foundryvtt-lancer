@@ -94,7 +94,8 @@ function npc_feature_scaffold(
 }
 
 export function npc_reaction_effect_preview(path: string, options: HelperOptions): string {
-  let npc_feature = resolve_helper_dotpath<LancerNPC_FEATURE>(options, path);
+  let npc_feature =
+    (options.hash["item"] as LancerNPC_FEATURE) ?? resolve_helper_dotpath<LancerNPC_FEATURE>(options, path);
   if (!npc_feature) return "";
   return npc_feature_scaffold(
     path,
@@ -115,7 +116,8 @@ export function npc_reaction_effect_preview(path: string, options: HelperOptions
 
 // The below 2 funcs just map to this one, because they all do the same thing
 function npc_system_trait_effect_preview(path: string, options: HelperOptions): string {
-  let npc_feature = resolve_helper_dotpath<LancerNPC_FEATURE>(options, path);
+  let npc_feature =
+    (options.hash["item"] as LancerNPC_FEATURE) ?? resolve_helper_dotpath<LancerNPC_FEATURE>(options, path);
   if (!npc_feature) return "";
   return npc_feature_scaffold(
     path,
@@ -144,7 +146,8 @@ export function npc_trait_effect_preview(path: string, options: HelperOptions) {
 
 export function npc_tech_effect_preview(path: string, options: HelperOptions) {
   // Get the feature
-  let npc_feature = resolve_helper_dotpath<LancerNPC_FEATURE>(options, path);
+  let npc_feature =
+    (options.hash["item"] as LancerNPC_FEATURE) ?? resolve_helper_dotpath<LancerNPC_FEATURE>(options, path);
   if (!npc_feature) return "";
   let feature_data = npc_feature.system as SystemTemplates.NPC.TechData;
 
@@ -195,7 +198,8 @@ export function npc_tech_effect_preview(path: string, options: HelperOptions) {
 
 export function npc_weapon_effect_preview(path: string, options: HelperOptions): string {
   // Get the feature
-  let npc_feature = resolve_helper_dotpath<LancerNPC_FEATURE>(options, path);
+  let npc_feature =
+    (options.hash["item"] as LancerNPC_FEATURE) ?? resolve_helper_dotpath<LancerNPC_FEATURE>(options, path);
   if (!npc_feature) return "";
   let feature_data = npc_feature.system as SystemTemplates.NPC.WeaponData;
 

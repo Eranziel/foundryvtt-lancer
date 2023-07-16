@@ -1,9 +1,7 @@
 import { LancerActor, LancerDEPLOYABLE } from "../actor/lancer-actor";
-import { FetcherCache, RepentantFetcherCache } from "./async";
+import { FetcherCache, PENDING, RepentantFetcherCache } from "./async";
 import { LancerItem } from "../item/lancer-item";
 import { EntryType } from "../enums";
-
-const CACHE_DURATION = 999_999_000; // Basically indefinitely. But on a miss, they regenerate
 
 // Converts the index into a map of LID -> index entry
 const indexFastCache = new FetcherCache<string, Map<string, any> | null>(async (pack: string) => {
@@ -20,7 +18,7 @@ const indexFastCache = new FetcherCache<string, Map<string, any> | null>(async (
     return map;
   }
   return null;
-}, CACHE_DURATION);
+}, 5000); // Only keep this once per second. It can't really miss, so best to
 
 /**
  * Lookup all documents with the associated lid in the given types.
@@ -37,6 +35,7 @@ const lookupLIDPluralCache = new RepentantFetcherCache<string, Array<LancerActor
     }
 
     let result: Array<LancerActor | LancerItem> = [];
+    // Dig through compendium
     for (let t of types) {
       let pack_name = `world.${t}`;
       let pack = game.packs.get(pack_name);
@@ -53,6 +52,14 @@ const lookupLIDPluralCache = new RepentantFetcherCache<string, Array<LancerActor
       }
     }
 
+    // Also dig through world items
+    for (let item of game.items!.contents as LancerItem[]) {
+      // @ts-expect-error
+      if (item.system.lid == lid && raw_types.includes(item.type)) {
+        result.push(item);
+      }
+    }
+
     if (result.length == 0) {
       ui.notifications?.error(`Error looking up LID '${lid}'. Ensure you have all required LCPs for this actor.`);
     }
@@ -60,7 +67,7 @@ const lookupLIDPluralCache = new RepentantFetcherCache<string, Array<LancerActor
     return result;
   },
   x => !!x,
-  CACHE_DURATION
+  999_999_000 // Since we are repentant, keep for a while
 );
 
 export async function lookupLIDPlural(
@@ -78,6 +85,25 @@ export async function lookupLID(
   types?: EntryType | EntryType[]
 ): Promise<LancerActor | LancerItem | null> {
   let res = await lookupLIDPlural(lid, types);
+  if (res.length) {
+    return res[0];
+  } else {
+    return null;
+  }
+}
+
+// As compendium_lookup_lid, but sync.
+export function lookupLIDPluralSync(lid: string, types?: EntryType | EntryType[]): Array<LancerActor | LancerItem> {
+  if (!types) types = [];
+  if (!Array.isArray(types)) types = [types];
+  let result = lookupLIDPluralCache.sync_fetch(`${lid}|${types.join("/")}`);
+  if (result != PENDING) return result;
+  return [];
+}
+
+// As compendium_lookup_lid, but just takes first result
+export function lookupLIDSync(lid: string, types?: EntryType | EntryType[]): LancerActor | LancerItem | null {
+  let res = lookupLIDPluralSync(lid, types);
   if (res.length) {
     return res[0];
   } else {

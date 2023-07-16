@@ -108,13 +108,14 @@ import {
   tech_flow_card,
   bond_answer_selector,
   bond_minor_ideal_selector,
+  npc_stat_array_clicker_card,
 } from "./module/helpers/actor";
 import type { HelperOptions } from "handlebars";
 import {
   item_preview,
   simple_ref_slot,
   ref_portrait,
-  item_preview_list,
+  lid_item_list,
   limited_uses_indicator,
   reserve_used_indicator,
 } from "./module/helpers/refs";
@@ -134,6 +135,7 @@ import {
   item_edit_uses,
   item_edit_arrayed_integrated,
   item_edit_enum,
+  item_edit_checkboxes_object,
 } from "./module/helpers/item-editors";
 import { applyCollapseListeners, initializeCollapses } from "./module/helpers/collapse";
 import { handleCombatUpdate } from "./module/helpers/automation/combat";
@@ -243,7 +245,7 @@ Hooks.once("init", async function () {
 
   // Configure indexes
   // @ts-expect-error
-  CONFIG.Item.compendiumIndexFields = ["system.lid"];
+  CONFIG.Item.compendiumIndexFields = ["system.lid", "system.license"];
   // @ts-expect-error
   CONFIG.Actor.compendiumIndexFields = ["system.lid"];
 
@@ -456,7 +458,7 @@ Hooks.once("init", async function () {
   Handlebars.registerHelper("stat-edit-max-card", stat_edit_card_max);
   Handlebars.registerHelper("clicker-stat-card", clicker_stat_card);
   Handlebars.registerHelper("npc-clicker-statblock-card", npc_stat_block_clicker_card);
-  Handlebars.registerHelper("npc-clicker-statarr-card", npc_stat_block_clicker_card);
+  Handlebars.registerHelper("npc-clicker-statarr-card", npc_stat_array_clicker_card);
   Handlebars.registerHelper("std-string-input", std_string_input);
   Handlebars.registerHelper("std-text-input", std_text_input);
   Handlebars.registerHelper("std-password-input", std_password_input);
@@ -485,7 +487,7 @@ Hooks.once("init", async function () {
   // Refs
   Handlebars.registerHelper("simple-ref", simple_ref_slot);
   Handlebars.registerHelper("item-preview", item_preview);
-  Handlebars.registerHelper("item-preview-list", item_preview_list);
+  Handlebars.registerHelper("lid-item-list", lid_item_list);
   Handlebars.registerHelper("pilot-slot", pilot_slot);
   Handlebars.registerHelper("deployer-slot", deployer_slot); // Can be pilot, npc, or mech. Preferably mech, lol
   Handlebars.registerHelper("ref-portrait-img", ref_portrait);
@@ -555,13 +557,13 @@ Hooks.once("init", async function () {
   Handlebars.registerHelper("item-edit-arrayed-damage", item_edit_arrayed_damage);
   Handlebars.registerHelper("item-edit-arrayed-range", item_edit_arrayed_range);
   Handlebars.registerHelper("item-edit-arrayed-enum", item_edit_arrayed_enum);
+  Handlebars.registerHelper("item-edit-checkboxes-object", item_edit_checkboxes_object);
   Handlebars.registerHelper("item-edit-arrayed-bonuses", item_edit_arrayed_bonuses);
   Handlebars.registerHelper("item-edit-arrayed-counters", item_edit_arrayed_counters);
   Handlebars.registerHelper("item-edit-arrayed-deployables", item_edit_arrayed_deployables);
   Handlebars.registerHelper("item-edit-arrayed-synergies", item_edit_arrayed_synergies);
   Handlebars.registerHelper("item-edit-arrayed-integrated", item_edit_arrayed_integrated);
   // Generic handler for an array that can take a selectable enum
-  Handlebars.registerHelper("item-edit-arrayed-enum", item_edit_arrayed_enum);
   // And a single enum-based selector.
   // Which is just a wrapper for std_enum_select but we can pass in a string and resolve it
   Handlebars.registerHelper("item-edit-enum", item_edit_enum);

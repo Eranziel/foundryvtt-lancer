@@ -9,9 +9,9 @@ import {
   handleDocListDropping,
   click_evt_open_ref,
   handleUsesInteraction,
+  handleLIDListDropping,
 } from "../helpers/refs";
 import { handleContextMenus } from "../helpers/item";
-import { handleTagDropping } from "../helpers/tags";
 import { applyCollapseListeners, CollapseHandler, initializeCollapses } from "../helpers/collapse";
 import { ActionEditDialog } from "../apps/action-editor";
 import { find_license_for } from "../util/doc";
@@ -118,6 +118,7 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet<ItemShe
 
     // Allow dragging items into lists
     handleDocListDropping(html, this.item);
+    handleLIDListDropping(html, this.item);
 
     // Allow set things by drop. Mostly we use this for manufacturer/license dragging
     handleRefSlotDropping(html, this.item, null); // Don't restrict what can be dropped past type, and don't take ownership or whatever
@@ -131,24 +132,10 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet<ItemShe
 
     // Enable general controls, so items can be deleted and such
     handleGenControls(html, this.item);
-
-    // Enable tag dropping
-    handleTagDropping(html, getfunc, commitfunc);
   }
 
   /* -------------------------------------------- */
 
-  _propagateMMData(formData: any): any {
-    // Pushes relevant field data from the form to other appropriate locations,
-    // (presently there aren't any but uhhh could be i guess. Just here to mirror actor-sheet)
-    // Get the basics
-    let new_top: any = {
-      img: formData.img,
-      name: formData.name,
-    };
-
-    return new_top;
-  }
   /**
    * Implement the _updateObject method as required by the parent class spec
    * This defines how to update the subject of the form when the form is submitted

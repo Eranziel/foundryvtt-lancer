@@ -10,7 +10,7 @@ import { DamageField, unpackDamage } from "../bits/damage";
 import { RangeField, unpackRange } from "../bits/range";
 import { SynergyField, unpackSynergy } from "../bits/synergy";
 import { TagField, unpackTag } from "../bits/tag";
-import { LancerDataModel, LIDField, UnpackContext } from "../shared";
+import { ControlledLengthArrayField, LancerDataModel, LIDField, UnpackContext } from "../shared";
 import { template_universal_item, template_destructible, template_licensed, template_uses } from "./shared";
 
 const fields: any = foundry.data.fields;
@@ -22,9 +22,9 @@ export class MechWeaponModel extends LancerDataModel {
       deployables: new fields.ArrayField(new LIDField()),
       integrated: new fields.ArrayField(new LIDField()),
       sp: new fields.NumberField({ nullable: false, initial: 0 }),
-      profiles: new fields.ArrayField(
+      profiles: new ControlledLengthArrayField(
         new fields.SchemaField({
-          name: new fields.StringField(),
+          name: new fields.StringField({ initial: "Base Profile" }),
           type: new fields.StringField({ choices: Object.values(WeaponType), initial: WeaponType.Rifle }),
           damage: new fields.ArrayField(new DamageField()),
           range: new fields.ArrayField(new RangeField()),
@@ -41,7 +41,8 @@ export class MechWeaponModel extends LancerDataModel {
           bonuses: new fields.ArrayField(new BonusField()),
           synergies: new fields.ArrayField(new SynergyField()),
           counters: new fields.ArrayField(new CounterField()),
-        })
+        }),
+        { length: 1, overflow: true }
       ),
       loaded: new fields.BooleanField(),
       selected_profile_index: new fields.NumberField({ nullable: false, initial: 0 }),

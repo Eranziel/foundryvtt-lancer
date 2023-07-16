@@ -2417,16 +2417,6 @@ a.action {
   }
 }
 
-/* 
-We will add the "dragging-_____" class to the document root whenever we're dragging a type.
-.For instance, dragging-mech_weapon
-This base class configuration will make all of these options invisible.
-See the .editable ".context-drop" class for how it gets changed
-*/
-.context-drop {
-  display: none;
-}
-
 /* By default, edit*/
 .locked {
   /* Only show edit button if not locked*/
@@ -2442,9 +2432,17 @@ Here, this means we want to allow for drag stuff etc to show contextually if:
 - the box is a context-drop of the appropriate corresponding type
 */
 @each $e-type in $document-types {
-  .dragging-#{$e-type} .editable .context-drop.#{$e-type} {
-    display: revert;
+  .drop-target-#{$e-type} {
+    display: none;
   }
+
+  .dragging-#{$e-type} .editable .drop-target-#{$e-type} {
+    display: revert !important;
+  }
+}
+
+.line-drop-target {
+  @include glow
 }
 
 .slot:not(.set) {

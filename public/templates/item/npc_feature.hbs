@@ -100,8 +100,8 @@
             {{/select}}
           </select>
         </div>
-        {{{npc-clicker-statarr-card "ATTACK BONUS" "system" "attack_bonus"}}}
-        {{{npc-clicker-statarr-card "ACCURACY" "system" "accuracy"}}}
+        {{{npc-clicker-statarr-card "ATTACK BONUS" "system.attack_bonus"}}}
+        {{{npc-clicker-statarr-card "ACCURACY" "system.accuracy"}}}
         {{{textarea-card "EFFECT" "system.effect"}}}
       </div>
     {{/if}}
@@ -135,9 +135,9 @@
           {{/each}}
         </div>
         {{! Attack Bonus }}
-        {{{npc-clicker-statarr-card "ATTACK BONUS" "system" "attack_bonus"}}}
+        {{{npc-clicker-statarr-card "ATTACK BONUS" "system.attack_bonus"}}}
         {{! Accuracy }}
-        {{{npc-clicker-statarr-card "ACCURACY" "system" "accuracy"}}}
+        {{{npc-clicker-statarr-card "ACCURACY" "system.accuracy"}}}
         {{! All Damages }}
         {{#each system.damage as |tier_damage_array tier_index|}}
           <div class="card clipped">
