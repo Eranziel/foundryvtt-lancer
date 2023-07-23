@@ -43,7 +43,7 @@ export function stat_edit_card_max(
   return `
     <div class="card clipped">
       <div class="lancer-header ">
-        <i class="${icon} i--m header-icon"> </i>
+        <i class="${icon} i--m i--light header-icon"> </i>
         <span class="major">${title}</span>
       </div>
       ${std_x_of_y(data_path, data_val, max_val, "lancer-stat")}
@@ -56,7 +56,7 @@ export function stat_edit_card(title: string, icon: string, data_path: string, o
   return `
     <div class="card clipped">
       <div class="lancer-header ">
-        <i class="${icon} i--m header-icon"> </i>
+        <i class="${icon} i--m i--light header-icon"> </i>
         <span class="major">${title}</span>
       </div>
       ${std_num_input(data_path, extendHelper(options, { classes: "lancer-stat" }))}

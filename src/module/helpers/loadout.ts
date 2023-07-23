@@ -214,7 +214,7 @@ export function pilot_slot(data_path: string, options: HelperOptions): string {
          ${ref_params(pilot, data_path)} 
          data-accept-types="${EntryType.PILOT}"
          style="height: 100%" src="${pilot.img}"/>
-    <div class="license-level">
+    <div class="lancer-header license-level">
       <span>LL${pilot.system.level}</span>
     </div>
 </div>`;

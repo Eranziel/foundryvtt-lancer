@@ -1261,11 +1261,11 @@ export function buildCounterArrayHTML(
 
   return `
   <div class="card clipped double">
-    <span class="lancer-header submajor ">
+    <div class="lancer-header submajor ">
       COUNTERS
       <a class="gen-control fas fa-plus" data-action="append" data-path="${path}"
        data-action-value="(struct)counter"></a>
-    </span>
+    </div>
     ${counter_detail}
   </div>`;
 }
