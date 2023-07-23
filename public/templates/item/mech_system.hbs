@@ -1,24 +1,30 @@
 <form class="{{cssClass}} lancer-sheet" autocomplete="off">
-  {{!-- Sheet Header --}}
+  {{! Sheet Header }}
   <header class="sheet-header card clipped-bot">
     <div class="flexcol grow">
-      <h1 class="charname"><input class="header-field" name="name" type="text" value="{{item.name}}" placeholder="{{localize "lancer.placeholder.name"}}"/></h1>
+      <h1 class="charname"><input
+          class="header-field"
+          name="name"
+          type="text"
+          value="{{item.name}}"
+          placeholder="{{localize 'lancer.placeholder.name'}}"
+        /></h1>
     </div>
-    {{{ ref-portrait-img item.img "img" item }}}
+    {{{ref-portrait-img item.img "img" item}}}
   </header>
 
   <div class="card">
     <div class="lancer-header lancer-primary stretch">
       <!-- Put all the system metadata up here -->
-      {{{item-edit-sp                   "system.sp"}}}
-      {{{item-edit-uses                 "system.uses.value" "system.uses.max"}}}
+      {{{item-edit-sp "system.sp"}}}
+      {{{item-edit-uses "system.uses.value" "system.uses.max"}}}
       <div>
         {{{sys-type-sel "system.type"}}}
       </div>
       {{{item-edit-license}}}
     </div>
 
-    {{!-- Status --}}
+    {{! Status }}
     <div class="card clipped">
       <div class="lancer-header lancer-primary major">STATUS</div>
       <div class="flexrow" style="align-self: center;">
@@ -31,14 +37,15 @@
     {{{textarea-card "DESCRIPTION" "system.description"}}}
     {{{textarea-card "EFFECT" "system.effect"}}}
 
-    {{!-- Bonuses --}}
-    {{{item-edit-arrayed-actions      "system.actions"       "ACTIONS"}}}
-    {{{item-edit-arrayed-bonuses      "system.bonuses"}}}
-    {{{counter-array system.counters      "system.counters"      true}}}
-    {{{item-edit-arrayed-deployables  "system.deployables"   "DEPLOYABLES"}}}
-    {{{item-edit-arrayed-synergies    "system.synergies"     "SYNERGIES"}}}
-    {{{item-edit-arrayed-integrated   "system.integrated"    "INTEGRATED ITEMS"}}}
-    <div class="flexrow">
+    {{! Bonuses }}
+    {{!-- prettier-ignore --}}
+    <div>
+      {{{item-edit-arrayed-actions      "system.actions"       "ACTIONS"}}}
+      {{{item-edit-arrayed-bonuses      "system.bonuses"}}}
+      {{{counter-array system.counters  "system.counters"      true}}}
+      {{{item-edit-arrayed-deployables  "system.deployables"   "DEPLOYABLES"}}}
+      {{{item-edit-arrayed-synergies    "system.synergies"     "SYNERGIES"}}}
+      {{{item-edit-arrayed-integrated   "system.integrated"    "INTEGRATED ITEMS"}}}
     </div>
 
     {{{item-edit-arrayed-tags "system.tags" "TAGS"}}}

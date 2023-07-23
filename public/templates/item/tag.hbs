@@ -1,5 +1,5 @@
 <form class="{{cssClass}} lancer-sheet" autocomplete="off">
-  {{!-- Sheet Header --}}
+  {{! Sheet Header }}
   <header class="sheet-header card clipped-bot">
     <div class="flexrow">
       <div class="header-fields">
@@ -9,22 +9,22 @@
             name="name"
             type="text"
             value="{{item.name}}"
-            placeholder="{{localize "lancer.placeholder.name"}}"
+            placeholder="{{localize 'lancer.placeholder.name'}}"
           />
         </h1>
       </div>
-      {{{ ref-portrait-img item.img "img" item }}}
+      {{{ref-portrait-img item.img "img" item}}}
     </div>
   </header>
 
-  {{!-- Sheet Body --}}
+  {{! Sheet Body }}
   <section class="sheet-body">
     {{{textarea-card "DESCRIPTION" "system.description"}}}
     <div class="card">
       <span class="lancer-header lancer-primary">TAG META INFO</span>
-      {{{ std-string-input "system.lid" label="ID:"  }}}
-      {{{ std-checkbox "system.hidden" label="Hidden:"  label_classes="self-left" }}}
-      {{{ std-checkbox "system.filterIgnore" label="Filter Ignore:"  label_classes="self-left" }}}
+      {{{std-string-input "system.lid" label="ID:"}}}
+      {{{std-checkbox "system.hidden" label="Hidden:" label_classes="self-left"}}}
+      {{{std-checkbox "system.filterIgnore" label="Filter Ignore:" label_classes="self-left"}}}
     </div>
   </section>
 </form>

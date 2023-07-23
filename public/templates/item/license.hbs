@@ -2,13 +2,18 @@
   {{! Sheet Header }}
   <header class="sheet-header card clipped-bot">
     <h1 class="charname grow">
-      <input class="header-field" name="name" type="text" value="{{item.name}}"
-             placeholder="{{localize "lancer.placeholder.name"}}" />
+      <input
+        class="header-field"
+        name="name"
+        type="text"
+        value="{{item.name}}"
+        placeholder="{{localize 'lancer.placeholder.name'}}"
+      />
     </h1>
     {{{ref-portrait-img item.img "img" item}}}
   </header>
   <div>
-    {{#if item.isOwned }}
+    {{#if item.isOwned}}
       <div class="flexrow" style="align-items:center;margin-right:8px;">
         <span style="text-align: right;padding: 4px;">
           RANK:
@@ -27,7 +32,7 @@
           </span>
         </div>
         {{#each unlock_array as |unlock unlock_index|}}
-          {{{item-preview (concat "unlocks." rank "." unlock_index) null  }}}
+          {{{item-preview (concat "unlocks." rank "." unlock_index) null}}}
         {{/each}}
       </div>
     {{/each}}
