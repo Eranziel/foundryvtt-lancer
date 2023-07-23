@@ -1,40 +1,55 @@
 <form class="{{cssClass}} lancer-sheet" autocomplete="off">
-  {{!-- Sheet Header --}}
+  {{! Sheet Header }}
   <header class="sheet-header card clipped-bot">
     <div class="flexcol grow">
-      <h1 class="charname"><input class="header-field" name="name" type="text" value="{{item.name}}" placeholder="{{localize "lancer.placeholder.name"}}"/></h1>
+      <h1 class="charname"><input
+          class="header-field"
+          name="name"
+          type="text"
+          value="{{item.name}}"
+          placeholder="{{localize 'lancer.placeholder.name'}}"
+        /></h1>
       <div class="flexrow">
         {{{item-edit-license}}}
       </div>
     </div>
-    {{{ ref-portrait-img item.img "img" item }}}
+    {{{ref-portrait-img item.img "img" item}}}
   </header>
 
-  {{!-- Sheet Tab Navigation --}}
+  {{! Sheet Tab Navigation }}
   <nav class="lancer-tabs" data-group="primary">
     {{#each system.profiles as |profile prof_index|}}
-      <a class="item lancer-tab medium weapon-profile-tab" data-tab="profile{{prof_index}}" data-path="system.profiles.{{prof_index}}" data-rename-subpath=".name"> 
+      <a
+        class="item lancer-tab medium weapon-profile-tab"
+        data-tab="profile{{prof_index}}"
+        data-path="system.profiles.{{prof_index}}"
+        data-rename-subpath=".name"
+      >
         &lt;{{profile.name}}&gt;
       </a>
     {{/each}}
 
-    {{!-- Fake tab to add new profiles --}}
-    <a class="item lancer-tab medium gen-control" data-action="append" data-action-value="(struct)weapon_profile" data-path="system.profiles">+</a>
+    {{! Fake tab to add new profiles }}
+    <a
+      class="item lancer-tab medium gen-control"
+      data-action="append"
+      data-action-value="(struct)weapon_profile"
+      data-path="system.profiles"
+    >+</a>
   </nav>
 
-
-  {{!-- Sheet Body --}}
+  {{! Sheet Body }}
   <section class="sheet-body">
     <div class="wraprow double">
-      {{!-- Size --}}
+      {{! Size }}
       <div class="card clipped">
-        <div class="lancer-header major ">SIZE</div>
+        <div class="lancer-header major">SIZE</div>
         {{{wpn-size-sel "system.size"}}}
       </div>
 
-      {{!-- Status --}}
+      {{! Status }}
       <div class="card clipped">
-        <div class="lancer-header major ">STATUS</div>
+        <div class="lancer-header major">STATUS</div>
         <div class="flexrow" style="align-self: center;">
           {{#if (is-loading item)}}
             {{{loading-indicator system.loaded "item"}}}
@@ -46,43 +61,43 @@
       </div>
 
       {{#each system.profiles as |profile prof_index|}}
-      <div class="tab profile{{prof_index}} double" data-group="primary" data-tab="profile{{prof_index}}">
-        <div class="wraprow quintuple">
+        <div class="tab profile{{prof_index}} double" data-group="primary" data-tab="profile{{prof_index}}">
+          <div class="wraprow quintuple">
 
-          {{!-- Type --}}
-          <div class="card clipped">
-            <span class="lancer-header submajor ">TYPE</span>
-            {{{wpn-type-sel (concat "system.profiles." prof_index ".type") }}}
+            {{! Type }}
+            <div class="card clipped">
+              <span class="lancer-header submajor">TYPE</span>
+              {{{wpn-type-sel (concat "system.profiles." prof_index ".type")}}}
+            </div>
+
+            {{! Range }}
+            {{{item-edit-arrayed-range (concat "system.profiles." prof_index ".range") "RANGE"}}}
+
+            {{! Damage }}
+            {{{item-edit-arrayed-damage (concat "system.profiles." prof_index ".damage") "DAMAGE"}}}
+
+            {{! Description }}
+            {{{textarea-card "DESCRIPTION" (concat "system.profiles." prof_index ".description")}}}
+
+            {{! Effect }}
+            {{{textarea-card "EFFECT" (concat "system.profiles." prof_index ".effect")}}}
+
+            {{! On Attack }}
+            {{{textarea-card "ON ATTACK" (concat "system.profiles." prof_index ".on_attack")}}}
+
+            {{! On Hit }}
+            {{{textarea-card "ON HIT" (concat "system.profiles." prof_index ".on_hit")}}}
+
+            {{! On Crit }}
+            {{{textarea-card "ON CRIT" (concat "system.profiles." prof_index ".on_crit")}}}
+
+            {{! Actions }}
+            {{{item-edit-arrayed-actions (concat "system.profiles." prof_index ".actions") "ADDED ACTIONS"}}}
+
+            {{! Tags }}
+            {{{item-edit-arrayed-tags (concat "system.profiles." prof_index ".tags") "TAGS"}}}
           </div>
-
-          {{!-- Range --}}
-          {{{item-edit-arrayed-range (concat "system.profiles." prof_index ".range") "RANGE"}}}
-
-          {{!-- Damage --}}
-          {{{item-edit-arrayed-damage (concat "system.profiles." prof_index ".damage") "DAMAGE"}}}
-
-          {{!-- Description --}}
-          {{{textarea-card "DESCRIPTION" (concat "system.profiles." prof_index ".description") }}}
-
-          {{!-- Effect --}}
-          {{{textarea-card "EFFECT" (concat "system.profiles." prof_index ".effect") }}}
-
-          {{!-- On Attack --}}
-          {{{textarea-card "ON ATTACK" (concat "system.profiles." prof_index ".on_attack") }}}
-
-          {{!-- On Hit --}}
-          {{{textarea-card "ON HIT" (concat "system.profiles." prof_index ".on_hit") }}}
-
-          {{!-- On Crit --}}
-          {{{textarea-card "ON CRIT" (concat "system.profiles." prof_index ".on_crit") }}}
-
-          {{!-- Actions --}}
-          {{{item-edit-arrayed-actions (concat "system.profiles." prof_index ".actions") "ADDED ACTIONS"}}}
-
-          {{!-- Tags --}}
-          {{{item-edit-arrayed-tags (concat "system.profiles." prof_index ".tags") "TAGS" }}}
         </div>
-      </div>
       {{/each}}
     </div>
   </section>
