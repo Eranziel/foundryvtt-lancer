@@ -58,6 +58,7 @@ export const LANCER = {
   setting_lcps: "installedLCPs" as const,
   setting_stock_icons: "keepStockIcons" as const,
   setting_welcome: "hideWelcome" as const,
+  setting_ui_theme: "uiTheme" as const,
   setting_compcon_login: "compconLogin" as const,
   setting_status_icons: "statusIconConfig" as const,
   setting_automation: "automationOptions" as const,

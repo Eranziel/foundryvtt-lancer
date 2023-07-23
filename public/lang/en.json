@@ -139,6 +139,13 @@
       },
       "remaining": "{total} / {max} REMAINING"
     },
+    "uiTheme": {
+      "name": "UI Theme",
+      "hint": "Colour scheme for the UI, echoing Comp/Con's themes.",
+      "gms": "GMS Red (default)",
+      "msmc": "MSMC Solarized",
+      "horus": "HORUS Dark"
+    },
     "statusIconsConfig": {
       "menu-name": "Status Icons",
       "menu-label": "Status Icon Configuration",

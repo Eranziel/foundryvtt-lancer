@@ -5,6 +5,7 @@ import { AutomationConfig } from "./apps/automation-settings";
 import CompconLoginForm from "./helpers/compcon-login-form";
 import { ActionTrackerConfig } from "./apps/action-tracker-settings";
 import { StatusIconConfig } from "./apps/status-icon-config";
+import { applyTheme } from "./themes";
 
 export const registerSettings = function () {
   /**
@@ -44,6 +45,24 @@ export const registerSettings = function () {
     // @ts-ignore There's probably a fix for this
     type: Object,
     default: {},
+  });
+
+  game.settings.register(game.system.id, LANCER.setting_ui_theme, {
+    name: "lancer.uiTheme.name",
+    hint: "lancer.uiTheme.hint",
+    scope: "user",
+    config: true,
+    type: String,
+    choices: {
+      gms: "lancer.uiTheme.gms",
+      msmc: "lancer.uiTheme.msmc",
+      horus: "lancer.uiTheme.horus",
+    },
+    default: "gms",
+    onChange: v => {
+      if (!["gms", "msmc", "horus"].includes(v as string)) applyTheme("gms");
+      applyTheme(v as any);
+    },
   });
 
   game.settings.registerMenu(game.system.id, LANCER.setting_compcon_login, {

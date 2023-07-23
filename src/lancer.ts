@@ -33,7 +33,8 @@ import { WeaponRangeTemplate } from "./module/pixi/weapon-range-template";
 
 // Import helpers
 import { preloadTemplates } from "./module/preload-templates";
-import { StatusIconConfigOptions, getAutomationOptions, registerSettings } from "./module/settings";
+import { getAutomationOptions, registerSettings } from "./module/settings";
+import { applyTheme } from "./module/themes";
 import { compact_tag_list, itemEditTags } from "./module/helpers/tags";
 import * as migrations from "./module/world_migration";
 import { addLCPManager, updateCore, core_update } from "./module/apps/lcp-manager";
@@ -252,6 +253,8 @@ Hooks.once("init", async function () {
 
   // Register custom system settings
   registerSettings();
+  // Apply theme colors
+  applyTheme(game.settings.get(game.system.id, LANCER.setting_ui_theme) as "gms" | "msmc" | "horus");
 
   // no need to block on amplify - logging into comp/con and populating the cache
   // it can happen in the background
