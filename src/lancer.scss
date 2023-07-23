@@ -11,11 +11,17 @@ $document-types: join($item-types, $actor-types);
 :root {
   --main-font-family: Helvetica, Arial, sans-serif;
 
-  --main-theme-color: #991e2a; /* I've configured calls to this to fall back on fuchsia when things go wrong */
-  --main-theme-text: #e8bcbe;
-  --secondary-theme-color: #121d21;
-  --secondary-theme-text: #ffffff;
-  --secondary-theme-highlight: #233f49;
+  /* Sheet theme vars */
+  --primary-color: #991e2a;
+  --primary-highlight: color-mix(in srgb, var(--primary-color), #fff 55%);
+  --light-text: #efefef;
+  --dark-text: #000000;
+  --bg-color: #ededed;
+  --secondary-color: #283593;
+  --secondary-highlight: color-mix(in srgb, var(--secondary-color), #fff 55%);
+  --secondary-text: #ffffff;
+  --tooltip-bg: #ffffff;
+  --tooltip-text: #000000;
   --loadout-color: #777f86;
   --ref-color: #ddc0b3;
   --gms-theme-color: #991e2a;
@@ -23,7 +29,6 @@ $document-types: join($item-types, $actor-types);
   --ssc-theme-color: #d1920a;
   --horus-theme-color: #00a256;
   --ha-theme-color: #6e4373;
-  /* Shouldn't there be some sort of "--current-theme"??? */
 
   /* Lancer initiative vars */
   --lancer-initiative-icon-size: 1rem;
@@ -57,7 +62,6 @@ $document-types: join($item-types, $actor-types);
   );
   --trait-color: #0a7674;
   --bonus-color: #5d8673;
-  --bonus-text: #051c1d;
   --bonus-list-color: #71a373;
   --system-color: #69be46;
   --error-color: #b4800e;
@@ -124,10 +128,44 @@ button {
 /* ---------- */
 
 /* Elements Layer */
-.lancer.sheet .window-content *:not(.fas, .mdi, .cci),
-#chat-log .message *:not(.fas, .mdi, .cci) {
+
+/* General-purpose theme color classes */
+$theme-types: primary secondary tooltip trait bonus system tech talent weapon reaction protocol;
+@each $theme-type in $theme-types {
+  /* Headers and buttons */
+  .lancer-header.lancer-#{$theme-type},
+  .lancer-#{$theme-type} .lancer-header,
+  button.lancer-#{$theme-type} {
+    background-color: var(--#{$theme-type}-color, fuschia);
+    color: var(--light-text, fuschia);
+  }
+
+  /* Text */
+  .lancer-#{$theme-type}-text {
+    color: var(--#{$theme-type}-color, fuschia);
+  }
+
+  /* Border */
+  .lancer-#{$theme-type}-border {
+    border-color: var(--#{$theme-type}-color, fuschia);
+  }
+}
+/* Highlights */
+.lancer-primary.highlight {
+  background-color: var(--primary-highlight, fuchsia);
+  color: var(--light-text, fuchsia);
+}
+.lancer-secondary.highlight {
+  background-color: var(--secondary-highlight, fuchsia);
+  color: var(--light-text, fuchsia);
+}
+
+/* Default font and color for sheets and chat messages. */
+.lancer.sheet .window-content,
+#chat-log .message {
   /* An exception for each icon font */
   font-family: var(--main-font-family);
+  color: var(--dark-text);
 }
 
 .lancer-sheet.editable {
@@ -144,14 +182,14 @@ button {
 }
 
 .lancer.sheet .mount-header select {
-  color: white;
+  color: var(--light-text);
   outline: 0;
   border: none;
 }
 
 .lancer.sheet .mount-header select option {
-  background-color: var(--main-theme-color, fuchsia);
-  color: white;
+  background-color: var(--primary-color, fuchsia);
+  color: var(--light-text);
 }
 
 .scroll-body {
@@ -178,7 +216,7 @@ button {
 
 /* Components Layer */
 .lancer.sheet .window-content {
-  background: #ededed; /* Overwrite the parchment background */
+  background: var(--bg-color); /* Sheet background */
 }
 
 .lancer.sheet header:not(.window-header) {
@@ -186,12 +224,13 @@ button {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  background-color: var(--main-theme-color, fuchsia);
+  background-color: var(--primary-color, fuchsia);
   margin: 10px;
-  color: white;
+  color: var(--light-text);
 
   &.inactive-mech {
-    background-color: var(--secondary-theme-color, fuchsia);
+    background-color: var(--secondary-color, fuchsia);
+    color: var(--secondary-text);
   }
 }
 
@@ -225,12 +264,12 @@ button {
 
 #chat-log .message-header {
   overflow: hidden;
-  background-color: var(--main-theme-color, fuchsia);
+  background-color: var(--primary-color, fuchsia);
   padding: 5px 10px;
 }
 
 #chat-log .message-header * {
-  color: white;
+  color: var(--light-text);
 }
 
 #chat-log .message-content {
@@ -296,8 +335,8 @@ button {
 
 .vsep {
   border: none;
-  border-left: 1px solid var(--secondary-theme-color, black);
-  border-right: 1px solid var(--secondary-theme-color, black);
+  border-left: 1px solid var(--secondary-color, black);
+  border-right: 1px solid var(--secondary-color, black);
   max-width: 3px;
   margin-left: 6px;
   margin-right: 6px;
@@ -305,7 +344,7 @@ button {
 
 .hsep {
   border: none;
-  border-top: 1px solid var(--secondary-theme-color, black);
+  border-top: 1px solid var(--secondary-color, black);
   max-height: 3px;
   margin-top: 6px;
   margin-bottom: 6px;
@@ -317,11 +356,11 @@ button {
   height: 20px;
   background: #d7b6b9;
   text-align: center;
-  border: solid var(--main-theme-color, fuchsia);
+  border: solid var(--primary-color, fuchsia);
   border-width: 1px;
   border-radius: 4px;
   font-weight: bold;
-  color: var(--main-theme-color, fuchsia);
+  color: var(--primary-color, fuchsia);
 }
 
 .remove-button {
@@ -348,8 +387,8 @@ button {
 }
 
 .simple-button {
-  color: white;
-  background-color: var(--main-theme-color, fuchsia);
+  color: var(--light-text);
+  background-color: var(--primary-color, fuchsia);
   max-width: max-content;
   min-width: max-content;
   align-items: center;
@@ -361,8 +400,8 @@ button {
 }
 
 .compact-tag {
-  color: white;
-  background-color: var(--main-theme-color, fuchsia);
+  color: var(--light-text);
+  background-color: var(--primary-color, fuchsia);
   max-height: 20px;
   align-items: center;
   border-radius: 5px;
@@ -416,8 +455,8 @@ button {
 
 .labeled-input > span {
   text-align: center;
-  color: white;
-  background-color: var(--main-theme-color, fuchsia);
+  color: var(--light-text);
+  background-color: var(--primary-color, fuchsia);
   max-height: 1.5em;
 }
 
@@ -507,16 +546,16 @@ ul.items-list {
   object-fit: cover;
 }
 
-.i--dark {
-  color: #2e2e2e;
+.faded {
+  opacity: 75%;
 }
 
-.i--faded {
-  color: #696969;
+.i--dark {
+  color: var(--dark-text);
 }
 
 .i--light {
-  color: #ededed;
+  color: var(--light-text);
 }
 
 .damage--kinetic {
@@ -601,8 +640,8 @@ tr.lcp-index-header {
   flex-direction: row;
   flex-wrap: nowrap;
   justify-content: flex-start;
-  background-color: var(--main-theme-color, fuchsia);
-  color: white;
+  background-color: var(--primary-color, fuchsia);
+  color: var(--light-text);
   padding: 3px 10px;
   min-height: max-content;
   align-items: center;
@@ -615,19 +654,19 @@ tr.lcp-index-header {
 }
 
 .lancer-tab.active {
-  color: var(--main-theme-color, fuchsia);
-  background-color: #f0f0f0;
+  color: var(--light-text, fuchsia);
+  background-color: var(--primary-highlight, fuchsia);
 }
 
 .tier-control {
   min-width: 100%;
   background-color: #991e2a;
-  color: white;
+  color: var(--light-text);
 }
 
 .tier-control option {
   background-color: #991e2a;
-  color: white;
+  color: var(--light-text);
 }
 
 /* The dashed-line border aesthetic found around certain items.
@@ -649,7 +688,7 @@ tr.lcp-index-header {
   border-width: 2px;
   border-style: solid;
   border-top-style: none;
-  border-color: var(--main-theme-color, fuchsia);
+  border-color: var(--primary-color, fuchsia);
 
   background-color: var(--darken-1);
 
@@ -777,11 +816,14 @@ textarea {
 .pilot-stats {
   clip-path: polygon(0 0, calc(100% - 30px) 0, 100% 100%, 0 100%);
   -webkit-clip-path: polygon(0 0, calc(100% - 30px) 0, 100% 100%, 0 100%);
-  background-color: #cccccc;
+  background-color: color-mix(in srgb, var(--bg-color), #888 50%);
   padding-left: 5px;
   padding-right: 5px;
   align-items: flex-start;
-  color: black;
+
+  .lancer-stat.minor {
+    color: var(--dark-text);
+  }
 }
 
 .compact-stat {
@@ -804,7 +846,7 @@ textarea {
   align-items: center;
   height: 8em;
   max-height: 8em;
-  background-color: var(--main-theme-color);
+  background-color: var(--primary-color);
 
   .img-bar {
     background-repeat: no-repeat;
@@ -853,9 +895,6 @@ textarea {
   justify-content: space-around;
   align-items: center;
   align-self: stretch;
-
-  color: white;
-  background-color: var(--main-theme-color, fuchsia);
 
   /* For buttons/icons, we want them to not grow but also not just get squashed into nothing 
   * If this unbalances things, add an equal # of balancers to the other side
@@ -918,52 +957,31 @@ textarea {
   .wep-mount &,
   .sys-mount &,
   .mount & {
-    background-color: var(--main-theme-color, fuchsia);
+    background-color: var(--primary-color, fuchsia);
   }
 
-  .trigger & {
-    color: var(--main-theme-color, fuchsia);
-    background-color: white;
-  }
-
-  .protocol & {
-    background-color: var(--protocol-color);
-  }
-
-  .npc-reaction & {
-    background-color: var(--reaction-color);
-  }
-
-  .tech &,
-  .npc-tech &,
-  &.tech,
-  &.npc-tech {
-    /* clip-path: var(--tech-clip-path);
-    -webkit-clip-path: var(--tech-clip-path); */
-    background-color: var(--tech-color);
-  }
-
+  // Legacy styling for old chat messages
   .mech-system &,
   .npc-system &,
   &.mech-system,
   &.npc-system {
     background-color: var(--system-color);
+    color: var(--light-text);
   }
 
+  // Legacy styling for old chat messages
   .mech_weapon &,
-  .npc-weapon &,
   .pilot_weapon &,
   &.mech_weapon,
-  &.npc-weapon,
   &.pilot_weapon {
     background-color: var(--weapon-color);
-  }
-
-  .weapon_mod & {
-    background-color: var(--trait-color);
+    color: var(--light-text);
   }
 
   &.struct-stress {
+    // legacy coloring fold old chat messages
+    background-color: var(--primary-color);
+    color: var(--light-text);
     padding-top: 1px;
     display: flex;
     flex-direction: row;
@@ -974,22 +992,6 @@ textarea {
     a {
       flex: 0 0;
     }
-  }
-
-  .pilot_gear & {
-    background-color: var(--system-color);
-  }
-
-  .pilot_armor & {
-    background-color: var(--main-theme-color);
-  }
-
-  .reserve & {
-    background-color: var(--main-theme-color);
-  }
-
-  .bond-power & {
-    background-color: var(--main-theme-color);
   }
 
   .mech_weapon:hover &,
@@ -1006,11 +1008,6 @@ textarea {
   .pilot_armor:hover &,
   .reserve:hover & {
     box-shadow: var(--hover-bright);
-  }
-
-  /* Less a card header, more just another thing */
-  &.loadout-category {
-    background-color: var(--loadout-color, fuchsia);
   }
 
   &.error {
@@ -1036,8 +1033,8 @@ textarea {
 
 .lancer-mini-header {
   align-items: center;
-  color: white;
-  background-color: var(--main-theme-color, fuchsia);
+  color: var(--light-text) !important;
+  background-color: var(--primary-color, fuchsia);
   max-height: fit-content;
 }
 
@@ -1049,7 +1046,7 @@ textarea {
   color: rgb(173, 6, 22);
 }
 .hex-white {
-  color: white;
+  color: var(--light-text);
 }
 
 .clipped.card.charged-box {
@@ -1059,8 +1056,8 @@ textarea {
   padding: 4px 8px;
   justify-content: space-between;
   align-items: center;
-  color: white;
-  background-color: var(--main-theme-color, fuchsia);
+  color: var(--light-text);
+  background-color: var(--primary-color, fuchsia);
   flex-grow: unset;
   min-width: 8em;
   max-height: 3em;
@@ -1117,10 +1114,10 @@ input[type="string"].lancer-input {
 }
 
 .size-icon {
-  color: var(--main-theme-color, fuchsia);
+  color: var(--primary-color, fuchsia);
 }
 .tier-icon {
-  color: white;
+  color: var(--light-text);
 }
 
 .header-name {
@@ -1130,7 +1127,7 @@ input[type="string"].lancer-input {
 
 .header-field,
 .header-fields > * {
-  color: white !important;
+  color: var(--light-text) !important;
 }
 
 .editor,
@@ -1182,8 +1179,8 @@ input[type="string"].lancer-input {
   margin-right: 10px;
   margin-top: 3px;
   margin-bottom: 3px;
-  color: white;
-  background-color: var(--main-theme-color, fuchsia);
+  color: var(--light-text);
+  background-color: var(--primary-color, fuchsia);
 }
 
 .bond-xp-item {
@@ -1238,8 +1235,8 @@ input[type="string"].lancer-input {
   position: relative;
   top: -8px;
   left: 8px;
-  background: var(--main-theme-color);
-  color: white;
+  background: var(--primary-color);
+  color: var(--light-text);
   //border-radius: 5px;
   padding-left: 5px;
   padding-right: 12px;
@@ -1260,7 +1257,7 @@ code.horus {
   font-size: 1.1em;
   background-color: rgba(0, 0, 0, 0.7) !important;
   box-shadow: none;
-  //color: white;
+  //color: var(--main-theme-text);
   font-style: normal;
   letter-spacing: 0.05em;
   border-radius: 0;
@@ -1620,8 +1617,8 @@ input.core-power-toggle:not(:checked)::before {
 .lancer-corebonus-header,
 .lancer-license-header,
 .lancer-weapon-header {
-  color: white;
-  background-color: var(--main-theme-color, fuchsia);
+  color: var(--light-text);
+  background-color: var(--primary-color, fuchsia);
   padding-left: 15px;
   padding-right: 15px;
   display: grid;
@@ -1636,20 +1633,15 @@ input.core-power-toggle:not(:checked)::before {
   text-overflow: ellipsis;
 }
 
-.lancer-corebonus-header {
-  background-color: var(--bonus-color);
-  color: var(--bonus-text);
-}
-
 .lancer-license-header {
   background-color: #ffffff;
-  color: var(--main-theme-color);
+  color: var(--primary-color);
   border: 1px dashed #656464;
 }
 
 .lancer-trigger-header {
-  color: var(--main-theme-color, fuchsia);
-  background-color: white;
+  color: var(--primary-color, fuchsia);
+  background-color: var(--light-text);
 }
 
 .skill-compact {
@@ -1759,7 +1751,7 @@ $activations-colors: rgb(204, 10, 10) rgb(98, 0, 255) #3949ab #3949ab #222222 #2
 
 .action-wrapper,
 .deployable-wrapper {
-  border-color: var(--secondary-theme-color);
+  border-color: var(--secondary-color);
   border-width: 1px;
   border-style: solid;
 }
@@ -1893,7 +1885,7 @@ a.activation-chip > i.mdi {
     font-size: 1.6em;
     width: 60%;
     clip-path: polygon(0 0, 100% 0, 100% 100%, 32% 100%);
-    background-color: var(--main-theme-color);
+    background-color: var(--primary-color);
   }
 
   img {
@@ -1922,23 +1914,23 @@ a.activation-chip > i.mdi {
 .loaded-hex {
   cursor: pointer;
   font-size: 2em;
-  color: white;
+  color: var(--light-text);
 }
 
 .counter-hex[data-available="true"] {
-  color: var(--main-theme-color);
+  color: var(--primary-color);
   filter: brightness(1.25);
 }
 
 .weapon-profile-wrapper {
   padding: 8px 8px 0px 5px;
-  background-color: var(--main-theme-color);
+  background-color: var(--primary-color);
   clip-path: polygon(0 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
 }
 
 .weapon-profile {
-  color: white;
-  background-color: var(--main-theme-color);
+  color: var(--light-text);
+  background-color: var(--primary-color);
   align-items: center;
   min-height: 2em;
   text-align: center;
@@ -1951,15 +1943,15 @@ a.activation-chip > i.mdi {
 }
 
 .weapon-profile.selected-profile {
-  color: var(--main-theme-color);
-  background-color: white;
+  color: var(--primary-color);
+  background-color: var(--light-text);
   /* font-weight: bold; */
 }
 
 .weapon-mod-addon {
   background-color: var(--trait-color);
   margin: 0px 3px 0.5em 3px;
-  color: white;
+  color: var(--light-text);
   align-items: center;
   min-height: 2em;
 }
@@ -1986,7 +1978,7 @@ a.activation-chip > i.mdi {
 .rank-wrapper {
   align-items: center;
   justify-content: center;
-  border-color: var(--loadout-color);
+  border-color: var(--secondary-highlight);
   border-width: 0px 1px 1px;
   border-style: solid;
   position: relative;
@@ -2093,8 +2085,8 @@ a.activation-chip > i.mdi {
 }
 
 .radio-label:checked + .button-label {
-  background-color: var(--main-theme-color);
-  color: var(--main-theme-text);
+  background-color: var(--primary-color);
+  color: var(--light-text);
 }
 
 .radio-label + .button-label:hover {
@@ -2130,7 +2122,7 @@ a.activation-chip > i.mdi {
 // Stabilize dialog
 
 .stabilize-wrapper .button-label {
-  background-color: var(--loadout-color);
+  background-color: var(--secondary-color);
   color: black;
   flex-basis: 45%;
 }
@@ -2176,7 +2168,7 @@ a.activation-chip > i.mdi {
   }
 
   &.active {
-    color: white;
+    color: var(--light-text);
     font-weight: bold;
   }
 }
@@ -2231,8 +2223,8 @@ a.activation-chip > i.mdi {
   display: inline-flex;
   padding-left: 12px;
   border-bottom: 1px solid black;
-  background-color: var(--main-theme-color);
-  color: white;
+  background-color: var(--primary-color);
+  color: var(--light-text);
   font-style: italic;
 }
 
@@ -2275,11 +2267,11 @@ a.action {
 }
 
 .tippy-box[data-theme~="lancer-large"] {
-  background: var(--secondary-theme-color) !important;
-  background-color: var(--secondary-theme-color) !important;
+  background: var(--tooltip-bg) !important;
+  background-color: var(--tooltip-bg) !important;
+  color: var(--tooltip-text);
   max-width: 50vw;
-  border: 1px var(--main-theme-color) solid;
-  color: var(--secondary-theme-text);
+  border: 1px var(--primary-color) solid;
   border-radius: 4px;
   font-size: 14px;
   line-height: 22px;
@@ -2289,13 +2281,14 @@ a.action {
     padding: 0.25rem;
     text-align: left;
     cursor: pointer;
+    border-radius: 4px;
 
     i {
       margin-right: 5px;
     }
 
     &:hover {
-      background: var(--secondary-theme-highlight);
+      background: var(--secondary-highlight);
     }
   }
 }
@@ -2355,17 +2348,19 @@ a.action {
   flex-direction: row;
   flex-wrap: nowrap;
   justify-content: flex-start;
-  color: white;
+  color: var(--light-text);
   padding: 3px 10px;
   min-height: max-content;
   align-items: center;
   margin-right: 5em;
 
   &.active {
-    background-color: var(--main-theme-color, fuchsia);
+    background-color: var(--primary-color, fuchsia);
+    color: var(--light-text);
   }
   &.inactive {
-    background-color: var(--secondary-theme-color, fuchsia);
+    background-color: var(--secondary-color, fuchsia);
+    color: var(--secondary-text);
   }
 }
 
@@ -2383,14 +2378,14 @@ a.action {
   margin: 3px;
   justify-content: space-between;
   align-items: center;
-  color: white;
+  color: var(--light-text);
   background-color: rgb(55, 55, 55);
 }
 
 .counter-name {
   max-width: 90%;
   width: fit-content !important;
-  color: white !important;
+  color: var(--light-text) !important;
 }
 
 .chat-flow-button {
@@ -2442,7 +2437,7 @@ Here, this means we want to allow for drag stuff etc to show contextually if:
 }
 
 .line-drop-target {
-  @include glow
+  @include glow;
 }
 
 .slot:not(.set) {

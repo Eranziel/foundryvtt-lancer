@@ -13,12 +13,12 @@ export interface LancerUITheme {
 
 export const themeGMS: LancerUITheme = {
   primaryColor: "#991e2a",
-  primaryHighlight: "color-mix(in srgb, var(--main-theme-color), #fff 55%)",
+  primaryHighlight: "color-mix(in srgb, var(--primary-color), #fff 55%)",
   lightText: "#efefef",
   darkText: "#000000",
   backgroundColor: "#ededed",
-  secondaryColor: "#424242",
-  secondaryHighlight: "#color-mix(in srgb, var(--secondary-theme-color), #fff 55%)",
+  secondaryColor: "#283593",
+  secondaryHighlight: "#color-mix(in srgb, var(--secondary-color), #fff 55%)",
   secondaryText: "#ffffff",
   tooltipBackground: "#ffffff", // todo
   tooltipText: "#000000", // todo
@@ -26,12 +26,12 @@ export const themeGMS: LancerUITheme = {
 
 export const themeMSMC: LancerUITheme = {
   primaryColor: "#146464",
-  primaryHighlight: "color-mix(in srgb, var(--main-theme-color), #fff 55%)",
+  primaryHighlight: "color-mix(in srgb, var(--primary-color), #fff 55%)",
   lightText: "#dbdbdb",
   darkText: "#dbdbdb",
   backgroundColor: "#263237",
   secondaryColor: "#d98f30",
-  secondaryHighlight: "#color-mix(in srgb, var(--secondary-theme-color), #fff 55%)",
+  secondaryHighlight: "#color-mix(in srgb, var(--secondary-color), #fff 55%)",
   secondaryText: "##dbdbdb", // todo
   tooltipBackground: "#121d21", // todo
   tooltipText: "#b3b9ba", // todo
@@ -39,12 +39,12 @@ export const themeMSMC: LancerUITheme = {
 
 export const themeHORUS: LancerUITheme = {
   primaryColor: "#121212", // todo
-  primaryHighlight: "color-mix(in srgb, var(--main-theme-color), #fff 55%)",
+  primaryHighlight: "color-mix(in srgb, var(--primary-color), #fff 55%)",
   lightText: "#ffffff", // todo
   darkText: "#efefef", // todo
   backgroundColor: "#000000", // todo
   secondaryColor: "#ff0000", // todo
-  secondaryHighlight: "#color-mix(in srgb, var(--secondary-theme-color), #fff 55%)",
+  secondaryHighlight: "#color-mix(in srgb, var(--secondary-color), #fff 55%)",
   secondaryText: "#ffffff", // todo
   tooltipBackground: "#ffffff", // todo
   tooltipText: "#000000", // todo
