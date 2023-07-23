@@ -179,7 +179,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
     });
 
     // Basic flow buttons
-    let actorFlows = html.find(".lancer-flow");
+    let actorFlows = html.find(".lancer-flow-button");
     actorFlows.on("click", ev => {
       if (!ev.currentTarget) return; // No target, let other handlers take care of it.
       ev.stopPropagation();

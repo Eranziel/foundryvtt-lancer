@@ -451,7 +451,7 @@ export function pilot_weapon_refview(weapon_path: string, options: HelperOptions
     </div>
     <div class="flexcol">
       <div class="flexrow">
-        <a class="flexrow roll-attack" style="max-width: min-content;">
+        <a class="flexrow roll-attack lancer-button" style="max-width: min-content;">
           <i class="fas fa-dice-d20 i--sm i--dark"></i>
           
         </a>
@@ -714,7 +714,7 @@ data-action="set" data-action-value="(int)${i}" data-path="${weapon_path}.system
         ${weapon.system.sp ? `<strong>${weapon.system.sp} SP</strong>` : ""}
         ${profiles}
         <div class="flexrow" style="text-align: left; white-space: nowrap;">
-          <a class="roll-attack"><i class="fas fa-dice-d20 i--m i--dark"></i></a>
+          <a class="roll-attack lancer-button"><i class="fas fa-dice-d20 i--m i--dark"></i></a>
           <hr class="vsep">
           ${show_range_array(profile.range, options)}
           <hr class="vsep">
@@ -1152,10 +1152,12 @@ export function buildChipHTML(
     } else {
       data = `data-uuid=${macroData.uuid} data-path="${macroData.path}"`;
     }
-    return `<a class="${macroData?.fullData ? "lancer-macro" : "activation-macro"} activation-chip activation-${slugify(
-      activation,
-      "-"
-    )}" ${data}>
+    const flowClass = macroData?.fullData ? "lancer-macro" : "activation-macro";
+    const activationClass = `activation-${slugify(activation, "-")}`;
+    const themeClass = `lancer-${slugify(activation, "-")}}`;
+    return `
+    <a
+      class="${flowClass} activation-chip lancer-button ${activationClass} ${themeClass}" ${data}>
             ${macroData.icon ? macroData.icon : ""}
             ${activation.toUpperCase()}
           </a>`;
@@ -1210,7 +1212,7 @@ export function buildCounterHTML(data: CounterData, path: string, can_delete?: b
   <div class="card clipped-bot counter-wrapper" data-path="${path}">
     ${buildCounterHeader(data, path, can_delete)}
     <div class="flexrow flex-center no-wrap">
-      <button class="clicker-minus-button hex" type="button">-</button>
+      <button class="clicker-minus-button hex" type="button">‒</button>
       ${hexes.join("")}
       <button class="clicker-plus-button hex" type="button">+</button>
     </div>

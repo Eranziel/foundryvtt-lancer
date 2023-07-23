@@ -155,7 +155,7 @@ export function npc_tech_effect_preview(path: string, options: HelperOptions) {
   let tier_index: number = (options.hash["tier"] ?? 1) - 1;
 
   let sep = `<hr class="vsep">`;
-  let subheader_items = [`<a class="roll-tech"><i class="fas fa-dice-d20 i--m"></i></a>`];
+  let subheader_items = [`<a class="roll-tech lancer-button"><i class="fas fa-dice-d20 i--m"></i></a>`];
 
   let attack_bonus = feature_data.attack_bonus[tier_index];
   let from_sys = false;
@@ -209,7 +209,9 @@ export function npc_weapon_effect_preview(path: string, options: HelperOptions):
   let tier_index: number = (options.hash["tier"] ?? 1) - 1;
 
   let sep = `<hr class="vsep">`;
-  let subheader_items = [`<a class="roll-attack no-grow"><i class="fas fa-dice-d20 i--m i--dark"></i></a>`];
+  let subheader_items = [
+    `<a class="roll-attack lancer-button no-grow"><i class="fas fa-dice-d20 i--m i--dark"></i></a>`,
+  ];
 
   // Weapon info
 

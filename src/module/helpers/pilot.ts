@@ -39,7 +39,9 @@ export function talent_view(talent_path: string, options: HelperOptions) {
     };
 
     retStr += `<li class="talent-rank-compact card clipped" style="padding: 5px">
-        <a class="cci cci-rank-${i + 1} i--l i--dark talent-macro lancer-macro" data-macro="${encodeMacroData(
+        <a class="cci cci-rank-${
+          i + 1
+        } i--l i--dark talent-macro lancer-macro lancer-button lancer-talent" data-macro="${encodeMacroData(
       macroData
     )}" style="grid-area: 1/1/2/2"></a>
         <span class="major" style="grid-area: 1/2/2/3">${talent.system.ranks[i]?.name}</span>

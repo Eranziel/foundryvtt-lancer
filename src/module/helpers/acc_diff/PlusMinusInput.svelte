@@ -4,7 +4,7 @@
 </script>
 
 <button class="clicker-minus-button dec-set" type="button" on:click={() => value = value - 1}>
-  -
+  ‒
 </button>
 <input id={id} class="difficulty lancer-invisible-input dec-set"
        style="max-width: 2em;text-align: center;font-size: 1.2em"

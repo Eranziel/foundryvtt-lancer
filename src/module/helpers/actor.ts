@@ -139,7 +139,7 @@ export function compact_stat_edit(icon: string, data_path: string, max_path: str
 // An editable field with +/- buttons
 export function clicker_num_input(data_path: string, options: HelperOptions) {
   return `<div class="flexrow arrow-input-container">
-      <button class="clicker-minus-button input-update" type="button">-</button>
+      <button class="clicker-minus-button input-update" type="button">‒</button>
       ${std_num_input(data_path, extendHelper(options, { classes: "lancer-stat minor", default: 0 }))}
       <button class="clicker-plus-button input-update" type="button">+</button>
     </div>`;
@@ -229,9 +229,9 @@ export function action_button(
   }
 
   return `
-    <button class="lancer-action-button${active ? ` active activation-${action}` : ""}${
-    enabled ? ` enabled` : ""
-  }" data-action="${action}" data-val="${action_val}">
+    <button class="lancer-action-button lancer-button lancer-${action ?? "quick"}${
+    active ? ` active activation-${action}` : ""
+  }${enabled ? ` enabled` : ""}" data-action="${action}" data-val="${action_val}">
       ${title}
     </button>
     `;
@@ -267,7 +267,7 @@ export function actor_flow_button(
   }
 
   return `
-      <button type="button" class="lancer-flow-button lancer-flow activation-quick" data-flow-type="${type}" data-flow-args=${args}>
+      <button type="button" class="lancer-flow-button lancer-button lancer-secondary" data-flow-type="${type}" data-flow-args=${args}>
         <i class="cci ${mIcon} i--m"></i> ${title}
       </button>
     `;

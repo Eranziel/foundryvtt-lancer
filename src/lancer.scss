@@ -93,6 +93,7 @@ $document-types: join($item-types, $actor-types);
   --darken-1: #00000016;
 
   --hover-bright: inset 0 0 0 10em rgba(255, 255, 255, 0.15);
+  --button-shadow: 1px 1px 1px 0.6px rgba(0, 0, 0, 0.7);
 
   $clip_in: 10px;
   --top-dogear-path: polygon(#{$clip_in} 0, 100% 0, 100% 100%, 0 100%, 0 #{$clip_in});
@@ -135,7 +136,8 @@ $theme-types: primary secondary tooltip trait bonus system tech talent weapon re
   /* Headers and buttons */
   .lancer-header.lancer-#{$theme-type},
   .lancer-#{$theme-type} .lancer-header,
-  button.lancer-#{$theme-type} {
+  button.lancer-#{$theme-type},
+  .lancer-button.lancer-#{$theme-type} {
     background-color: var(--#{$theme-type}-color, fuschia);
     color: var(--light-text, fuschia);
   }
@@ -1408,7 +1410,6 @@ code.horus:hover {
   margin: 3px 10px;
   min-width: 3em;
   height: 3em;
-  background: rgba(0, 0, 0, 0.25);
   border: 1px solid rgba(0, 0, 0, 0.25);
   border-radius: 5px;
   box-shadow: 1px 1px 1px 0.6px #000000b3;
@@ -1458,12 +1459,18 @@ code.horus:hover {
 .clicker-plus-button {
   cursor: pointer;
   width: 30px;
+  min-width: 30px;
   height: 30px;
-  background-color: #828282;
-  color: #fff;
+  font-weight: bold;
+  background-color: var(--secondary-color);
+  color: var(--secondary-text) !important;
   border: none;
   /* Don't ask me why, but this aligns it vertically nicely */
   line-height: 1px;
+
+  &:hover {
+    box-shadow: var(--hover-bright);
+  }
 }
 
 input[type="number"] {
@@ -2139,13 +2146,17 @@ a.activation-chip > i.mdi {
 .refresh-powers-button {
   margin: 4px;
   border-radius: 15px 0px;
-  color: white;
-  background-color: var(--main-theme-color);
 }
 
-.bond-xp-button,
-.refresh-powers-button {
-  background-color: var(--tech-color);
+.lancer-button {
+  border: 1px solid rgba(0, 0, 0, 0.25);
+  border-radius: 5px;
+  background: rgba(0, 0, 0, 0.25);
+  box-shadow: var(--button-shadow);
+
+  &:hover {
+    box-shadow: var(--button-shadow), var(--hover-bright);
+  }
 }
 
 .bond-xp-button {
