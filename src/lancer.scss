@@ -810,6 +810,15 @@ textarea {
   min-width: 30px;
 }
 
+input[type="text"],
+input[type="number"],
+input[type="password"],
+input[type="date"],
+input[type="time"],
+input[type="search"] {
+  color: var(--dark-text);
+}
+
 /* Some text area sizes */
 .lancer textarea {
   min-height: 200px;
@@ -1016,6 +1025,27 @@ textarea {
     background-color: var(--error-color);
   }
 
+  /* Destroyed gear */
+  &.destroyed {
+    background-color: var(--weapon-color);
+
+    span {
+      text-decoration: line-through;
+      color: #fb3535;
+    }
+
+    .cci {
+      color: #ff6a23;
+    }
+    .mdi {
+      color: #ff6a23;
+      margin-bottom: -2px;
+    }
+    .mdi-cog {
+      font-size: 28px;
+    }
+  }
+
   /* General font sizing options */
   &.major {
     font-size: 18px;
@@ -1030,6 +1060,10 @@ textarea {
   &.minor {
     font-size: 12px;
     font-weight: lighter;
+  }
+
+  & span.minor {
+    margin: 0 16px;
   }
 }
 
@@ -1063,30 +1097,6 @@ textarea {
   flex-grow: unset;
   min-width: 8em;
   max-height: 3em;
-}
-
-.lancer-header span.minor {
-  margin: 0 16px;
-}
-
-.lancer-header.destroyed {
-  background-color: #000;
-
-  span {
-    text-decoration: line-through;
-    color: #fb3535;
-  }
-
-  .cci {
-    color: #ff6a23;
-  }
-  .mdi {
-    color: #ff6a23;
-    margin-bottom: -2px;
-  }
-  .mdi-cog {
-    font-size: 28px;
-  }
 }
 
 .big-editor {
