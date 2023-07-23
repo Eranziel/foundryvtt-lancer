@@ -84,7 +84,7 @@ export function coreBonusView(item_path: string, options: HelperOptions) {
   if (!coreBonus) return "";
   return `
       <li class="card clipped ref set" ${ref_params(coreBonus)}>
-        <div class="lancer-corebonus-header medium clipped-top" style="grid-area: 1/1/2/3">
+        <div class="lancer-header lancer-bonus medium clipped-top" style="grid-area: 1/1/2/3">
           <i class="cci cci-corebonus i--m i--dark"> </i>
           <span class="major modifier-name">${coreBonus.name}</span>
           ${collapseButton(collapse, coreBonus)}

@@ -1,6 +1,6 @@
 <form class="{{cssClass}} lancer-sheet" onsubmit="event.preventDefault();">
     <div class="card flexcol">
-        <span class="lancer-header">Edit Bonus:</span>
+        <span class="lancer-header lancer-primary">Edit Bonus:</span>
         {{{ std-string-input "lid" label="ID" default=value.lid }}}
         {{{ std-string-input "val" label="Value" default=value.val }}}
         {{{ std-checkbox "overwrite" label="Overwrite" default=value.overwrite }}}
@@ -8,26 +8,26 @@
 
         <div class="wraprow double">
             <div class="flexcol">
-                <span class="lancer-header">DAMAGE TYPES</span>
+                <span class="lancer-header lancer-primary">DAMAGE TYPES</span>
                 {{#each damages as |dmg index|}}
                 {{{ std-checkbox dmg.key label=dmg.label default=dmg.val }}}
                 {{/each}}
             </div>
             <div class="flexcol">
-                <span class="lancer-header">RANGES TYPES</span>
+                <span class="lancer-header lancer-primary">RANGES TYPES</span>
                 {{#each ranges as |range index|}}
                 {{{ std-checkbox range.key label=range.label default=range.val }}}
                 {{/each}}
             </div>
 
             <div class="flexcol">
-                <span class="lancer-header">WEAPON TYPES</span>
+                <span class="lancer-header lancer-primary">WEAPON TYPES</span>
                 {{#each types as |type index|}}
                 {{{ std-checkbox type.key label=type.label default=type.val }}}
                 {{/each}}
             </div>
             <div class="flexcol">
-                <span class="lancer-header">WEAPON SIZES</span>
+                <span class="lancer-header lancer-primary">WEAPON SIZES</span>
                 {{#each sizes as |size index|}}
                 {{{ std-checkbox size.key label=size.label default=size.val }}}
                 {{/each}}

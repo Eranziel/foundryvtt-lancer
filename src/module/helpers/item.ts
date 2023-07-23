@@ -240,7 +240,7 @@ export function uses_control(uses_path: string, max_uses: number, options: Helpe
   const curr_uses = resolve_helper_dotpath(options, uses_path, 0);
   return `
     <div class="card clipped">
-      <span class="lancer-header"> USES </span>
+      <span class="lancer-header lancer-primary"> USES </span>
       ${std_x_of_y(uses_path, curr_uses, max_uses)}
     </div>
     `;
@@ -290,7 +290,7 @@ export function bonuses_display(bonuses_path: string, edit: boolean, options: He
 
   return `
     <div class="card bonus-list">
-      <div class="lancer-header">
+      <div class="lancer-header lancer-bonus">
         <span class="left">// Bonuses</span>
         ${inc_if(
           `<a class="gen-control fas fa-plus" data-action="append" data-path="${bonuses_path}" data-action-value="(struct)bonus"></a>`,
@@ -325,7 +325,7 @@ export function bond_power(bond_path: string, power_index: number, options: Help
   let body = `<span class="desc-text">${power.description}</span>`;
   return `
     <div class="card clipped bond-power" data-uuid="${bond.uuid}" data-power-index="${power_index}">
-      <div class="lancer-header medium clipped-top">
+      <div class="lancer-header lancer-primary medium clipped-top">
         <i class="cci cci-trait i--m"></i>
         <a class="bond-power-flow"><i class="mdi mdi-message"></i></a>
         <span>${power.name}</span>
@@ -376,7 +376,7 @@ export function pilot_armor_slot(armor_path: string, options: HelperOptions): st
                 ${ref_params(armor, armor_path)} 
                 data-accept-types="${EntryType.PILOT_ARMOR}"
                 >
-            <div class="lancer-header">
+            <div class="lancer-header lancer-primary">
               <i class="mdi mdi-shield-outline i--m i--light"> </i>
               <span class="minor">${armor.name}</span>
               <a class="lancer-context-menu" data-path="${armor_path}"">
@@ -442,7 +442,7 @@ export function pilot_weapon_refview(weapon_path: string, options: HelperOptions
   return `<div class="set ${EntryType.PILOT_WEAPON} ref drop-settable card clipped pilot-weapon-compact item"
                 ${ref_params(weapon, weapon_path)} 
                 data-accept-types="${EntryType.PILOT_WEAPON}">
-    <div class="lancer-header">
+    <div class="lancer-header lancer-weapon">
       <i class="cci cci-weapon i--m i--light"> </i>
       <span class="minor">${weapon.name}</span>
               <a class="lancer-context-menu" data-path="${weapon_path}"">
@@ -496,7 +496,7 @@ export function pilot_gear_refview(gear_path: string, options: HelperOptions): s
   return `<div class="set ${EntryType.PILOT_GEAR} ref drop-settable card clipped item"
                 ${ref_params(gear, gear_path)} 
                 data-accept-types="${EntryType.PILOT_GEAR}">
-    <div class="lancer-header">
+    <div class="lancer-header lancer-system">
       <i class="cci cci-generic-item i--m"> </i>
       <a class="gear-macro"><i class="mdi mdi-message"></i></a>
       <span class="minor">${gear.name!}</span>
@@ -589,7 +589,7 @@ export function reserve_refview(reserve_path: string, options: HelperOptions): s
 
   return `<div class="set ${EntryType.RESERVE} ref drop-settable card clipped item"
                 ${ref_params(reserve, reserve_path)} >
-    <div class="lancer-header">
+    <div class="lancer-header lancer-trait">
       <i class="${icon} i--m"> </i>
       <a class="reserve-macro"><i class="mdi mdi-message"></i></a>
       <span class="minor">${reserve.name}</span>
@@ -700,7 +700,7 @@ data-action="set" data-action-value="(int)${i}" data-path="${weapon_path}.system
                   ${ref_params(weapon, weapon_path)}
                   data-accept-types="${EntryType.MECH_WEAPON}"
                   style="max-height: fit-content;">
-      <div class="lancer-header ${weapon.system.destroyed ? "destroyed" : ""}">
+      <div class="lancer-header lancer-weapon ${weapon.system.destroyed ? "destroyed" : ""}">
         <i class="${weapon.system.destroyed ? "mdi mdi-cog" : "cci cci-weapon i--m i--light"}"> </i>
         <span class="minor" >
           ${weapon.name} // ${weapon.system.size.toUpperCase()} ${profile.type.toUpperCase()}
@@ -800,7 +800,7 @@ export function weapon_mod_ref(mod_path: string, weapon_path: string | null, opt
     mod,
     mod_path
   )} data-accept-types="${EntryType.WEAPON_MOD}">
-    <div class="lancer-header">
+    <div class="lancer-header lancer-trait">
       <i class="cci cci-weaponmod i--m i--light"> </i>
       <span class="minor">${mod.name}</span>
       <a class="lancer-context-menu" data-path="${mod_path}">
@@ -853,7 +853,7 @@ export function license_ref(item_path: string, options: HelperOptions): string {
   let license = resolve_helper_dotpath(options, item_path) as LancerLICENSE;
   return `
     <li class="card clipped ref set" ${ref_params(license)}>
-      <div class="lancer-header lancer-license-header medium clipped-top" style="grid-area: 1/1/2/3">
+      <div class="lancer-header lancer-primary lancer-license-header medium clipped-top" style="grid-area: 1/1/2/3">
         <i class="cci cci-license i--m i--dark"> </i>
         <div class="major modifier-name">${license.name} ${license.system.curr_rank}</div>
         <div class="ref-controls">
@@ -1188,7 +1188,7 @@ export function buildSystemHTML(system: LancerMECH_SYSTEM): string {
   }
 
   let html = `<div class="card clipped-bot system-wrapper" ${ref_params(system)} style="margin: 0px;">
-  <div class="lancer-header mech-system">// SYSTEM :: ${system.name} //</div>
+  <div class="lancer-header lancer-system">// SYSTEM :: ${system.name} //</div>
   ${eff ? eff : ""}
   ${actions ? actions : ""}
   ${deployables ? deployables : ""}
@@ -1223,7 +1223,7 @@ export function buildCounterHTML(data: CounterData, path: string, can_delete?: b
 export function buildCounterHeader(data: CounterData, path: string, can_delete?: boolean): string {
   //
   return `
-    <div class="lancer-header">
+    <div class="lancer-header lancer-primary">
       <span>// ${data.name} //</span>
       <a class="lancer-context-menu" data-path="${path}" data-can-delete="${can_delete ? can_delete : false}">
         <i class="fas fa-ellipsis-v"></i>
@@ -1261,7 +1261,7 @@ export function buildCounterArrayHTML(
 
   return `
   <div class="card clipped double">
-    <div class="lancer-header submajor ">
+    <div class="lancer-header lancer-primary submajor ">
       COUNTERS
       <a class="gen-control fas fa-plus" data-action="append" data-path="${path}"
        data-action-value="(struct)counter"></a>

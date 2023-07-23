@@ -344,7 +344,7 @@ export function pilot_counters(pilot: LancerPILOT, _options: HelperOptions): str
 
   return `
   <div class="card clipped double">
-    <span class="lancer-header submajor" style="padding-right: 5px">
+    <span class="lancer-header lancer-primary submajor" style="padding-right: 5px">
       <span>COUNTERS</span>
       <a class="gen-control fas fa-plus" data-action="append" data-path="system.custom_counters" data-action-value="(struct)counter"></a>
     </span>

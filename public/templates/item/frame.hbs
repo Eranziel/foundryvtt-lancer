@@ -58,13 +58,13 @@
 
   {{!-- Traits --}}
   <div class="card">
-    <div class="lancer-header">
+    <div class="lancer-header lancer-primary">
       <span class="major left">TRAITS</span>
       <a class="gen-control" data-action="append" data-path="system.traits" data-action-value="(struct)frame_trait" style="float: right">+</a>
     </div>
     {{#each system.traits as |trait trait_index|}}
-      <div class="card clipped frame_trait">
-        <div class="lancer-header major">
+      <div class="card clipped lancer-trait">
+        <div class="lancer-header lancer-trait major">
           <i class="cci cci-trait i--m i--light header-icon"> </i>
           <input class="lancer-invisible-input i--light" name="system.traits.{{trait_index}}.name" value="{{trait.name}}" data-dtype="String" />
           {{{popout-editor-button (concat "system.traits." trait_index ".description") }}}
@@ -81,7 +81,7 @@
   {{!-- Core System --}}
   <div class="card clipped frame-core">
     {{!-- General Description --}}
-    <div class="lancer-header frame_core medium">
+    <div class="lancer-header lancer-bonus frame_core medium">
       <i></i>
       <input class="lancer-invisible-input major i--light" name="system.core_system.name" value="{{system.core_system.name}}" data-dtype="String" />
       <div class="medium i--faded" style="justify-self: right;"> // CORE SYSTEM</div>
@@ -91,7 +91,7 @@
 
     {{!-- Integrated --}}
     <div class="integrated-wrapper card clipped flexcol">
-      <div class="lancer-header">INTEGRATED GEAR</div>
+      <div class="lancer-header lancer-primary">INTEGRATED GEAR</div>
       <ul>
       {{#each system.core_system.integrated as |integrated index|}}
         <li>
@@ -106,7 +106,7 @@
 
     {{!-- Passive Description + Bonuses --}}
     <div class="card clipped frame_core">
-      <div class="lancer-header">
+      <div class="lancer-header lancer-bonus">
         <i class="mdi mdi-circle-expand i--m i--light"> </i>
         <input class="lancer-invisible-input medium i--light" name="system.core_system.passive_name" value="{{system.core_system.passive_name}}" data-dtype="String" />
         <div class="medium i--faded" style="justify-self: right;"> // PASSIVE</div>
@@ -121,7 +121,7 @@
 
     {{!-- Active Description + Bonuses --}}
     <div class="card clipped frame_core">
-      <div class="lancer-header">
+      <div class="lancer-header lancer-bonus">
         <i class="cci cci-corebonus i--m i--light"> </i>
         <input class="lancer-invisible-input medium i--light" name="system.core_system.active_name" value="{{system.core_system.active_name}}" data-dtype="String" />
         <div class="i--faded" style="justify-self: right;"> // ACTIVE</div>

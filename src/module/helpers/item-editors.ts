@@ -30,7 +30,7 @@ export function item_edit_arrayed_actions(path: string, title: string, options: 
 
   return `
     <div class="card clipped double edi">
-      <span class="lancer-header submajor ">
+      <span class="lancer-header lancer-primary submajor ">
         ${title}
         <a class="gen-control fas fa-plus" data-action="append" data-path="${path}" data-action-value="(struct)action"></a>
       </span>
@@ -60,7 +60,7 @@ export function item_edit_arrayed_damage(path: string, title: string, options: H
 
   return `
     <div class="card clipped double edi">
-      <span class="lancer-header submajor ">
+      <span class="lancer-header lancer-primary submajor ">
         ${title}
         <a class="gen-control fas fa-plus" data-action="append" data-path="${path}" data-action-value="(struct)damage"></a>
       </span>
@@ -88,7 +88,7 @@ export function item_edit_arrayed_range(path: string, title: string, options: He
 
   return `
     <div class="card clipped double">
-      <span class="lancer-header submajor ">
+      <span class="lancer-header lancer-primary submajor ">
         ${title}
         <a class="gen-control fas fa-plus" data-action="append" data-path="${path}" data-action-value="(struct)range"></a>
       </span>
@@ -128,7 +128,7 @@ export function item_edit_arrayed_deployables(path: string, title: string, optio
 
   return `
     <div class="card clipped">
-      <span class="lancer-header submajor clipped-top">
+      <span class="lancer-header lancer-primary submajor clipped-top">
         ${title}
       </span>
       ${depHTML}
@@ -153,7 +153,7 @@ export function item_edit_arrayed_synergies(path: string, title: string, options
 
   return `
     <div class="card clipped">
-      <span class="lancer-header submajor clipped-top">
+      <span class="lancer-header lancer-primary submajor clipped-top">
         ${title}
       </span>
       ${synHTML}
@@ -191,7 +191,7 @@ export function item_edit_arrayed_enum(title: string, path: string, enum_name: s
 
   return `
     <div class="card clipped item-edit-arrayed">
-      <span class="lancer-header submajor ">
+      <span class="lancer-header lancer-primary submajor ">
         ${title}
         <a class="gen-control fas fa-plus" data-action="append" data-path="${path}" data-action-value="(struct)${enum_name}"></a>
       </span>
@@ -210,7 +210,7 @@ export function item_edit_checkboxes_object(title: string, path: string, options
 
   return `
     <div class="card clipped item-edit-arrayed">
-      <span class="lancer-header submajor ">
+      <span class="lancer-header lancer-primary submajor ">
         ${title}
       </span>
       ${selector_detail}
@@ -280,7 +280,7 @@ export function item_edit_arrayed_integrated(path: string, title: string, option
 
   return `
     <div class="card clipped item-edit-arrayed">
-      <span class="lancer-header submajor ">
+      <span class="lancer-header lancer-primary submajor ">
         INTEGRATED ITEMS
       </span>
         ${intHTML}
@@ -301,7 +301,7 @@ export function item_edit_license(options: HelperOptions): string {
   else {
     licenseInfo = license; // TODO - use a sync lookup to make this look nice
     /*
-      licenseInfo = `<div class="set ${EntryType.LICENSE} ref lancer-license-header medium clipped-top" ${ref_params(license)}>
+      licenseInfo = `<div class="set ${EntryType.LICENSE} ref lancer-header lancer-license medium clipped-top" ${ref_params(license)}>
       <i class="cci cci-license i--m i--dark"> </i>
       <span class="major modifier-name">${license.name}</span>
     </div>`;

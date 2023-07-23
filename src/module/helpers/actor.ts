@@ -42,7 +42,7 @@ export function stat_edit_card_max(
   let max_val = resolve_helper_dotpath(options, max_path, 0);
   return `
     <div class="card clipped">
-      <div class="lancer-header ">
+      <div class="lancer-header lancer-primary ">
         <i class="${icon} i--m i--light header-icon"> </i>
         <span class="major">${title}</span>
       </div>
@@ -55,7 +55,7 @@ export function stat_edit_card_max(
 export function stat_edit_card(title: string, icon: string, data_path: string, options: HelperOptions): string {
   return `
     <div class="card clipped">
-      <div class="lancer-header ">
+      <div class="lancer-header lancer-primary ">
         <i class="${icon} i--m i--light header-icon"> </i>
         <span class="major">${title}</span>
       </div>
@@ -83,7 +83,7 @@ export function stat_view_card(
 
   return `
     <div class="card clipped">
-      <div class="lancer-header ">
+      <div class="lancer-header lancer-primary ">
         ${inc_if(`<i class="${icon} i--m i--light header-icon"> </i>`, icon)}
         <span class="major">${title}</span>
       </div>
@@ -124,7 +124,7 @@ export function compact_stat_edit(icon: string, data_path: string, max_path: str
   let max_html = ``;
   if (max_path) {
     let max_val = resolve_helper_dotpath(options, max_path);
-    max_html = `<span class="minor" style="max-width: min-content;" > / </span>
+    max_html = `<span class="lancer-stat minor" style="max-width: min-content;" > / </span>
     <span class="lancer-stat minor">${max_val}</span>`;
   }
   return `        
@@ -164,7 +164,7 @@ export function clicker_stat_card(
   if (roller)
     button = `<a class="lancer-macro i--dark i--sm" data-macro="${macroData}"><i class="fas fa-dice-d20"></i></a>`;
   return `<div class="card clipped stat-container">
-      <div class="lancer-header ">
+      <div class="lancer-header lancer-primary ">
         <i class="${icon} i--m i--light header-icon"> </i>
         <span class="major">${title}</span>
       </div>
@@ -284,7 +284,7 @@ export function tech_flow_card(title: string, icon: string, data_path: string, o
 
   return `
     <div class="card clipped">
-      <div class="lancer-header ">
+      <div class="lancer-header lancer-primary">
         ${inc_if(`<i class="${icon} i--m i--light header-icon"> </i>`, icon)}
         <span class="major">${title}</span>
       </div>
@@ -316,8 +316,8 @@ export function npc_stat_block_clicker_card(
   }
   return `
     <div class="card clipped">
-      <div class="flexrow lancer-header major">
-        <span class="lancer-header major">${title}</span>
+      <div class="flexrow lancer-header lancer-primary major">
+        ${title}
       </div>
       ${tier_clickers.join("")}
     </div>`;
@@ -339,7 +339,7 @@ export function npc_stat_array_clicker_card(title: string, path: string, options
   return `
     <div class="card clipped">
       <div class="flexrow lancer-header major">
-        <span class="lancer-header major ">${title}</span>
+        ${title}
       </div>
       ${tier_clickers.join("")}
     </div>`;
@@ -360,7 +360,7 @@ export function overcharge_button(actor: LancerMECH, overcharge_path: string, op
   let over_val = overcharge_sequence[index];
   return `
     <div class="flexcol card clipped">
-      <div class="lancer-header clipped-top flexrow">
+      <div class="lancer-header lancer-primary clipped-top flexrow">
         <span class="major">OVERCHARGE</span>
       </div>
       <div class="overcharge-container">

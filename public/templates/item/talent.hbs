@@ -25,7 +25,7 @@
        style="align-self: flex-end;margin-right: 1em;" data-action-value="(struct)talent_rank"></a>
     {{#each system.ranks as |rank index|}}
       <div class="talent-level card clipped-bot flexcol">
-        <div class="lancer-header" style="flex-basis: auto;">
+        <div class="lancer-header lancer-talent" style="flex-basis: auto;">
           <i class="cci cci-rank-{{inc index}} i--xl i--dark"></i>
           <input class="lancer-invisible-input" name="system.ranks.{{index}}.name" value="{{rank.name}}"
                   data-dtype="String" style="color: white" />
@@ -50,7 +50,7 @@
           true
         }}}
         <div class="integrated-wrapper card clipped flexcol">
-          <div class="lancer-header" style="font-weight: bold">INTEGRATED GEAR</div>
+          <div class="lancer-header lancer-primary" style="font-weight: bold">INTEGRATED GEAR</div>
           <ul>
           {{#each rank.integrated as |integrated integ_index|}}
             <li>

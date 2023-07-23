@@ -34,7 +34,7 @@ export function effect_categories_view(
     // if(!cat.effects.length) continue;
     categories.push(`
       <div class="card clipped">
-        <span class="lancer-header submajor">${cat.label}</span>
+        <span class="lancer-header lancer-primary submajor">${cat.label}</span>
         <div class="flexcol">
           ${cat.effects.map(([index, effect]) => effect_view(actor, index, effect, options)).join("")}
         </div>

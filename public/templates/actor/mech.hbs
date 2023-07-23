@@ -48,7 +48,7 @@
         </div>
         {{{overcharge-button actor "system.overcharge"}}}
         <div class="flexcol card clipped">
-          <div class="lancer-header">
+          <div class="lancer-header lancer-primary">
             <span class="major">
               {{localize "lancer.mech-sheet.core.label"}}
             </span>
@@ -73,7 +73,7 @@
       </div>
       <div class="pilot-frame-wrapper flexrow">
         <div class="card">
-          <span class="lancer-header submajor clipped-top">
+          <span class="lancer-header lancer-primary submajor clipped-top">
             {{localize "lancer.mech-sheet.macros.label" }}
           </span>
           <div class="lancer-macro-grid">
@@ -86,7 +86,7 @@
         </div>
         {{#if (is-combatant actor)}}
         <div style="min-width:560px" class="card">
-          <span class="lancer-header submajor clipped-top">
+          <span class="lancer-header lancer-primary submajor clipped-top">
             {{localize "lancer.mech-sheet.actions.label"}}
           </span>
           <div class="lancer-action-grid">
@@ -104,14 +104,14 @@
     <div class="tab loadout" data-group="primary" data-tab="loadout">
       {{{mech-frame "system.loadout.frame.value"}}}
       <div class="card clipped">
-        <span class="lancer-header submajor">BASIC ATTACKS</span>
+        <span class="lancer-header lancer-primary submajor">BASIC ATTACKS</span>
         <div class="lancer-macro-grid">
           {{{flow-button "MELEE/RANGED" "BasicAttack" }}}
           {{{flow-button "TECH" "TechAttack" }}}
         </div>
       </div>
       <div class="card">
-        <span class="lancer-header major">
+        <span class="lancer-header lancer-primary major">
           {{localize "lancer.mech-sheet.system.label" total=system.loadout.sp.value max=system.loadout.sp.max}}
         </span>
         {{{mech-loadout}}}

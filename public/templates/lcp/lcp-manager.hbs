@@ -3,7 +3,7 @@
     {{!-- Update core data --}}
     {{#if core_update}}
     <div class="card clipped flexcol">
-      <div class="lancer-header major">LANCER Core Data</div>
+        <div class="lancer-header lancer-primary major">LANCER Core Data</div>
       <div class="form fields flexrow" style="align-items: center">
         <span class="medium" style="margin: 5px 10px">Core Data is at v{{core_version}}</span>
         {{#if (ne core_version core_update)}}
@@ -23,12 +23,12 @@
 
     {{!-- Import New LCP --}}
     <div class="lcp-importer card clipped">
-      <div class="lancer-header major" style="grid-area: 1/1/2/3;">Import/Update LCP</div>
+      <div class="lancer-header lancer-primary major" style="grid-area: 1/1/2/3;">Import/Update LCP</div>
       <input id="lcp-file" type="file" name="lcp-up" class="lcp-up" accept=".lcp">
       {{!-- New LCP Manifest --}}
       {{#if manifest}}
         <div class="card clipped flexcol" style="grid-column: 1/3;">
-          <div class="lancer-header major ">{{manifest.name}} v{{manifest.version}}</div>
+          <div class="lancer-header lancer-primary major">{{manifest.name}} v{{manifest.version}}</div>
           {{#if manifest.website}}
             <a href="{{manifest.website}}" class="medium" style="margin: 5px;">by {{manifest.author}}</a>
           {{else}}
@@ -52,7 +52,7 @@
 
     {{!-- List installed LCPs --}}
     <div class="card clipped-top">
-      <div class="lancer-header major">Imported LCPs</div>
+      <div class="lancer-header lancer-primary major">Imported LCPs</div>
       <div class="flexrow">
         <table class="lcp-index">
           <tr class="lcp-index-header">

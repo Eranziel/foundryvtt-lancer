@@ -44,7 +44,7 @@ export function compact_tag_list(tag_array_path: string, options: HelperOptions)
 export function itemEditTags(path: string, header: string, options: HelperOptions) {
   return `
   <div class="card full">
-    <div class="lancer-header major">
+    <div class="lancer-header lancer-primary major">
       <span>${header}</span>
       ${inc_if(
         `<a class="gen-control fas fa-plus" data-action="append" data-path="${path}" data-action-value="(struct)tag"></a>`,

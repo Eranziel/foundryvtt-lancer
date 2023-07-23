@@ -806,7 +806,7 @@ export function large_textbox_card(title: string, text_path: string, options: He
   let resolved = resolve_helper_dotpath(options, text_path, "");
   return `
   <div class="card full clipped">
-    <div class="lancer-header">
+    <div class="lancer-header lancer-primary">
       <span>${title}</span>
       ${popout_editor_button(text_path)}
     </div>

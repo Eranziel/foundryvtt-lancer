@@ -36,7 +36,7 @@
     dispatch("submit");
   }}
 >
-  <div class="lancer-header medium">
+  <div class="lancer-header lancer-primary medium">
     <i class="cci cci-{icon} i--m i--light" />
     <span>{title}</span>
   </div>

@@ -43,13 +43,13 @@
     <div class="wraprow double">
       {{! Size }}
       <div class="card clipped">
-        <div class="lancer-header major">SIZE</div>
+        <div class="lancer-header lancer-primary major">SIZE</div>
         {{{wpn-size-sel "system.size"}}}
       </div>
 
       {{! Status }}
       <div class="card clipped">
-        <div class="lancer-header major">STATUS</div>
+        <div class="lancer-header lancer-primary major">STATUS</div>
         <div class="flexrow" style="align-self: center;">
           {{#if (is-loading item)}}
             {{{loading-indicator system.loaded "item"}}}
@@ -66,7 +66,7 @@
 
             {{! Type }}
             <div class="card clipped">
-              <span class="lancer-header submajor">TYPE</span>
+              <span class="lancer-header lancer-primary submajor">TYPE</span>
               {{{wpn-type-sel (concat "system.profiles." prof_index ".type")}}}
             </div>
 

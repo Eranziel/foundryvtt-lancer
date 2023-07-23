@@ -72,7 +72,7 @@ function npc_feature_scaffold(
   body: string,
   options: HelperOptions
 ): string {
-  let feature_class = `npc-${slugify(npc_feature.system.type, "-")}`;
+  let feature_class = `lancer-${slugify(npc_feature.system.type, "-")}`;
   let icon = `cci-${slugify(npc_feature.system.type, "-")}`;
   if (npc_feature.system.type === NpcFeatureType.Tech) icon += "-quick";
   let macro_button = "";

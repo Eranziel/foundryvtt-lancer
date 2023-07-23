@@ -61,10 +61,12 @@ export function mech_system_view(system_path: string, options: HelperOptions): s
   if (doc.isLimited()) {
     limited = limited_uses_indicator(doc, system_path + ".value");
   }
-  return `<li class="ref set card clipped mech-system ${
+  return `<li class="ref set card clipped lancer-system ${
     doc.system.type === SystemType.Tech ? "tech-item" : ""
   }" ${ref_params(doc)} style="margin: 0;">
-        <div class="lancer-header ${doc.system.destroyed ? "destroyed" : ""}" style="grid-area: 1/1/2/3; display: flex">
+        <div class="lancer-header lancer-system ${
+          doc.system.destroyed ? "destroyed" : ""
+        }" style="grid-area: 1/1/2/3; display: flex">
           <i class="${doc.system.destroyed ? "mdi mdi-cog" : icon}"> </i>
           <a class="lancer-macro" data-macro="${encodeMacroData(macroData)}"><i class="mdi mdi-message"></i></a>
           <span class="minor grow">${doc.name}</span>
@@ -100,7 +102,7 @@ function weapon_mount(mount_path: string, options: HelperOptions): string {
   if (mount.bracing) {
     return ` 
     <div class="mount card" >
-      <div class="lancer-header mount-type-ctx-root" data-path="${mount_path}">
+      <div class="lancer-header lancer-primary mount-type-ctx-root" data-path="${mount_path}">
         <span>${mount.type} Weapon Mount</span>
         <a class="gen-control fas fa-trash" data-action="splice" data-path="${mount_path}"></a>
         <a class="reset-weapon-mount-button fas fa-redo" data-path="${mount_path}"></a>
@@ -130,12 +132,12 @@ function weapon_mount(mount_path: string, options: HelperOptions): string {
 
   return ` 
     <div class="mount card" >
-      <div class="lancer-header mount-type-ctx-root" data-path="${mount_path}">
+      <div class="lancer-header lancer-primary mount-type-ctx-root" data-path="${mount_path}">
         <span>${mount.type} Weapon Mount</span>
         <a class="gen-control fas fa-trash" data-action="splice" data-path="${mount_path}"></a>
         <a class="reset-weapon-mount-button fas fa-redo" data-path="${mount_path}"></a>
       </div>
-      ${inc_if(`<span class="lancer-header error">${err.toUpperCase()}</span>`, err)}
+      ${inc_if(`<span class="lancer-header lancer-primary error">${err.toUpperCase()}</span>`, err)}
       <div class="lancer-body">
         ${slots.join("")}
       </div>
@@ -150,7 +152,7 @@ function all_weapon_mount_view(loadout_path: string, options: HelperOptions) {
   );
 
   return `
-    <span class="lancer-header loadout-category submajor">
+    <span class="lancer-header lancer-secondary loadout-category submajor">
         <i class="mdi mdi-unfold-less-horizontal collapse-trigger collapse-icon" data-collapse-id="weapons"></i>   
         <span>MOUNTED WEAPONS</span>
         <a class="gen-control fas fa-plus" data-action="append" data-path="${loadout_path}.weapon_mounts" data-action-value="(struct)wep_mount"></a>
@@ -172,7 +174,7 @@ function all_system_view(loadout_path: string, options: HelperOptions) {
   // Archiving add button: <a class="gen-control fas fa-plus" data-action="append" data-path="${loadout_path}.SysMounts" data-action-value="(struct)sys_mount"></a>
 
   return `
-    <span class="lancer-header loadout-category submajor">
+    <span class="lancer-header lancer-secondary loadout-category submajor">
       <i class="mdi mdi-unfold-less-horizontal collapse-trigger collapse-icon" data-collapse-id="systems"></i>    
       <span>MOUNTED SYSTEMS</span>
       <span style="height:15px;width:48px;padding:0;"></span>
@@ -214,7 +216,7 @@ export function pilot_slot(data_path: string, options: HelperOptions): string {
          ${ref_params(pilot, data_path)} 
          data-accept-types="${EntryType.PILOT}"
          style="height: 100%" src="${pilot.img}"/>
-    <div class="lancer-header license-level">
+    <div class="lancer-header lancer-primary license-level">
       <span>LL${pilot.system.level}</span>
     </div>
 </div>`;
@@ -233,7 +235,7 @@ export function frameView(frame_path: string, options: HelperOptions): string {
 
   return `
     <div class="card mech-frame ${ref_params(frame)}">
-      <span class="lancer-header submajor clipped-top">
+      <span class="lancer-header lancer-primary submajor clipped-top">
        ${frame.name}
       </span>
       <div class="wraprow double">
@@ -303,7 +305,7 @@ function frameTraits(frame_path: string, options: HelperOptions): string {
         : null;
 
       return `<div class="frame-trait clipped-top">
-    <div class="lancer-header submajor frame-trait-header" style="display: flex">
+    <div class="lancer-header lancer-trait submajor frame-trait-header" style="display: flex">
       ${inc_if(
         `<a class="lancer-macro" data-macro="${encodeMacroData(macroData!)}"><i class="mdi mdi-message"></i></a>`,
         macroData
@@ -338,7 +340,7 @@ function frame_active(frame_path: string, options: HelperOptions): string {
 
   return `
   <div class="core-active-wrapper clipped-top">
-    <span class="lancer-header submajor">
+    <span class="lancer-header lancer-bonus submajor">
       ${core.active_name} // ACTIVE
     </span>
     <div class="lancer-body">
@@ -363,7 +365,7 @@ function frame_passive(frame: LancerFRAME): string {
 
   return `
   <div class="core-active-wrapper clipped-top">
-    <span class="lancer-header submajor">
+    <span class="lancer-header lancer-bonus submajor">
       ${core.passive_name ?? ""} // PASSIVE
     </span>
     <div class="lancer-body">

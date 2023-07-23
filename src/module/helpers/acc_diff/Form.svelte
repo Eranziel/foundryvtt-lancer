@@ -320,7 +320,7 @@
   }
 
   #accdiff :global(.container input:checked ~ .checkmark) {
-    background-color: var(--main-theme-color, fuchsia);
+    background-color: var(--primary-color, fuchsia);
   }
 
   #accdiff :global(.checkmark:after) {
@@ -413,16 +413,16 @@
       justify-content: center;
       margin: 0;
       border: none;
-      box-shadow: 1px 1px 1px var(--main-theme-color);
+      box-shadow: 1px 1px 1px var(--primary-color);
       &:hover, &:focus {
-        box-shadow: 1px 1px 1px var(--main-theme-color);
+        box-shadow: 1px 1px 1px var(--primary-color);
       }
       &:hover {
-        background-color: var(--main-theme-text);
+        background-color: var(--primary-highlight);
       }
       &:active {
         transform: translateX(2px) translateY(2px);
-        box-shadow: -1px -1px 1px var(--main-theme-color);
+        box-shadow: -1px -1px 1px var(--primary-color);
       }
       & i {
         text-shadow: none;
@@ -451,7 +451,8 @@
       margin-top: 5px;
       margin-bottom: 7px;
       padding: 0;
-      background-color: var(--main-theme-color);
+      background-color: var(--primary-color);
+      color: var(--light-text);
       &:hover, &:focus {
         box-shadow: 1px 1px 1px 0.6px rgba(0, 0, 0, 0.7);
       }
