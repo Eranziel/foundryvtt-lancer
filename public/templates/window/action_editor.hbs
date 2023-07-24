@@ -1,13 +1,13 @@
 <form>
     <div class="flexcol">
-        {{{std-string-input "action.name" label="ACTION NAME"}}}
-        {{{std-string-input "action.lid" label="ACTION ID"}}}
+        {{{std-text-input "action.name" label="ACTION NAME"}}}
+        {{{std-text-input "action.lid" label="ACTION ID"}}}
         {{{std-select "action.activation" activation_type label="TYPE"}}}
         {{{std-num-input "action.cost" label="COST"}}}
         {{{std-num-input "action.frequency" label="FREQUENCY"}}}
-        <!--{{{std-string-input "action.init" label="FREQUENCY"}}}-->
-        {{{std-string-input "action.trigger" label="TRIGGER"}}}
-        {{{std-string-input "action.terse" label="TERSE"}}} 
+        <!--{{{std-text-input "action.init" label="FREQUENCY"}}}-->
+        {{{std-text-input "action.trigger" label="TRIGGER"}}}
+        {{{std-text-input "action.terse" label="TERSE"}}} 
         {{{textarea-card "DETAILS" "action.detail"}}} 
         {{{std-num-input "action.heat_cost" label="HEAT COST"}}}
         <!-- TODO: Synergy --> 

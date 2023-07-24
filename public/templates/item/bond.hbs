@@ -21,7 +21,7 @@
         {{#each system.major_ideals}}
           <li>
             <div class="bond-ideal-row">
-              {{{std-string-input (concat "system.major_ideals." @index) classes="lancer-text-field bond-ideal"}}}
+              {{{std-text-input (concat "system.major_ideals." @index) classes="lancer-text-field bond-ideal"}}}
               <a class="gen-control" data-action="splice" data-path="system.major_ideals.{{@index}}">
                 <i class="fas fa-trash"></i>
               </a>
@@ -41,7 +41,7 @@
         {{#each system.minor_ideals}}
           <li>
             <div class="bond-ideal-row">
-              {{{std-string-input (concat "system.minor_ideals." @index) classes="lancer-text-field"}}}
+              {{{std-text-input (concat "system.minor_ideals." @index) classes="lancer-text-field"}}}
               <a class="gen-control" data-action="splice" data-path="system.minor_ideals.{{@index}}">
                 <i class="fas fa-trash"></i>
               </a>
@@ -60,7 +60,7 @@
       {{#each system.questions as |question|}}
         <div class="bond-question">
           <div class="bond-question-row">
-            {{{std-string-input (concat "system.questions." (concat @index ".question")) classes="lancer-text-field"}}}
+            {{{std-text-input (concat "system.questions." (concat @index ".question")) classes="lancer-text-field"}}}
             <a class="gen-control" data-action="splice" data-path="system.questions.{{@index}}">
               <i class="fas fa-trash"></i>
             </a>
@@ -69,7 +69,7 @@
             {{#each question.options as |option|}}
               <li>
                 <div class="bond-question-option-row">
-                  {{{std-string-input (concat "system.questions." (concat @../index (concat ".options." @index))) classes="lancer-text-field"}}}
+                  {{{std-text-input (concat "system.questions." (concat @../index (concat ".options." @index))) classes="lancer-text-field"}}}
                   <a class="gen-control" data-action="splice" data-path="system.questions.{{@../index}}.options.{{@index}}">
                     <i class="fas fa-trash"></i>
                   </a>
@@ -99,7 +99,7 @@
             {{{std-checkbox (concat "system.powers." (concat power_index ".unlocked")) label="" classes=""}}}
             {{!-- TODO: bond icon? --}}
             <i class="cci cci-trait i--m i--light header-icon"> </i> 
-            {{{std-string-input (concat "system.powers." (concat power_index ".name")) classes="lancer-text-field"}}}
+            {{{std-text-input (concat "system.powers." (concat power_index ".name")) classes="lancer-text-field"}}}
             <a class="gen-control" data-action="splice" data-path="system.powers.{{power_index}}">
               <i class="fas fa-trash"></i>
             </a>

@@ -659,12 +659,6 @@ function std_input(path: string, type: string, options: HelperOptions) {
   }
 }
 
-// input type="string" isn't styled by foundry, but input type="text" is
-// that's not a great reason to keep both of them, but it is the reason we have
-export function std_string_input(path: string, options: HelperOptions) {
-  return std_input(path, "String", options);
-}
-
 export function std_text_input(path: string, options: HelperOptions) {
   return std_input(path, "Text", options);
 }

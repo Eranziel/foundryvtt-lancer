@@ -25,7 +25,7 @@ import {
   spoofHelper,
   sp_display,
   std_enum_select,
-  std_string_input,
+  std_text_input,
   std_x_of_y,
   tippyContextMenu,
 } from "./commons";
@@ -116,7 +116,7 @@ export function range_editor(path: string, options: HelperOptions): string {
   let range_type_selector = std_enum_select(path + ".type", RangeType, type_options);
 
   let value_options = extendHelper(options, { value: range.val });
-  let value_input = std_string_input(path + ".val", value_options);
+  let value_input = std_text_input(path + ".val", value_options);
 
   let delete_button = `<a class="gen-control" data-action="splice" data-path="${path}" style="margin: 4px;"><i class="fas fa-trash"></i></a>`;
 
@@ -144,7 +144,7 @@ export function damage_editor(path: string, options: HelperOptions): string {
   let damage_type_selector = std_enum_select(path + ".type", DamageType, type_options);
 
   let value_options = extendHelper(options, { value: damage.val });
-  let value_input = std_string_input(path + ".val", value_options);
+  let value_input = std_text_input(path + ".val", value_options);
 
   let delete_button = `<a class="gen-control" data-action="splice" data-path="${path}" style="margin: 4px;"><i class="fas fa-trash"></i></a>`;
 
@@ -307,8 +307,8 @@ export function bonuses_display(bonuses_path: string, edit: boolean, options: He
  */
 export function single_action_editor(path: string, options: HelperOptions) {
   // Make inputs for each important field
-  let id_input = std_string_input(`${path}.LID`, extendHelper(options, { label: "ID" }));
-  let name_input = std_string_input(`${path}.Name`, extendHelper(options, { label: "Name" }));
+  let id_input = std_text_input(`${path}.LID`, extendHelper(options, { label: "ID" }));
+  let name_input = std_text_input(`${path}.Name`, extendHelper(options, { label: "Name" }));
 
   // Consolidate them into rows
   return `<div class="card" style="align-content: flex-start">

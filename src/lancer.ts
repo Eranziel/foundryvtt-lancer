@@ -57,7 +57,6 @@ import {
   popout_editor_button,
   safe_html_helper,
   large_textbox_card,
-  std_string_input,
   std_text_input,
   std_password_input,
   std_num_input,
@@ -463,7 +462,6 @@ Hooks.once("init", async function () {
   Handlebars.registerHelper("clicker-stat-card", clicker_stat_card);
   Handlebars.registerHelper("npc-clicker-statblock-card", npc_stat_block_clicker_card);
   Handlebars.registerHelper("npc-clicker-statarr-card", npc_stat_array_clicker_card);
-  Handlebars.registerHelper("std-string-input", std_string_input);
   Handlebars.registerHelper("std-text-input", std_text_input);
   Handlebars.registerHelper("std-password-input", std_password_input);
   Handlebars.registerHelper("std-num-input", std_num_input);

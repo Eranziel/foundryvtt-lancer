@@ -1,8 +1,8 @@
 <form class="{{cssClass}} lancer-sheet" onsubmit="event.preventDefault();">
     <div class="card flexcol">
         <span class="lancer-header lancer-primary">Edit Bonus:</span>
-        {{{ std-string-input "lid" label="ID" default=value.lid }}}
-        {{{ std-string-input "val" label="Value" default=value.val }}}
+        {{{ std-text-input "lid" label="ID" default=value.lid }}}
+        {{{ std-text-input "val" label="Value" default=value.val }}}
         {{{ std-checkbox "overwrite" label="Overwrite" default=value.overwrite }}}
         {{{ std-checkbox "replace" label="Replace" default=value.replace }}}
 
