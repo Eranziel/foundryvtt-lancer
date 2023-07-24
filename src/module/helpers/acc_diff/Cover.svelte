@@ -68,7 +68,7 @@
     position: absolute;
     right: 98%;
     top: calc(50% - 4px);
-    background-color: var(--main-theme-color);
+    background-color: var(--primary-color);
     width: 8px;
     height: 8px;
     clip-path: polygon(0 0, 0 100%, 100% 50%);

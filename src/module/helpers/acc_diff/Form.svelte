@@ -78,9 +78,14 @@
   }
 </script>
 
-<form id="accdiff" class="accdiff window-content" use:escToCancel on:submit|preventDefault={() => dispatch("submit")}>
+<form
+  id="accdiff"
+  class="lancer accdiff window-content"
+  use:escToCancel
+  on:submit|preventDefault={() => dispatch("submit")}
+>
   {#if title != ""}
-    <div class="lancer-header mech-weapon medium">
+    <div class="lancer-header lancer-weapon medium">
       {#if kind == "attack"}
         <i class="cci cci-weapon i--m i--light" />
         {#if lancerItem}
@@ -417,7 +422,7 @@
     background-color: #00000000;
   }
 
-  #accdiff .mech-weapon {
+  #accdiff .lancer-weapon {
     span {
       margin-right: 1em;
       margin-left: 1em;

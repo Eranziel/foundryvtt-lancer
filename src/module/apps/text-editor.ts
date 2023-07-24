@@ -41,7 +41,7 @@ export class HTMLEditDialog extends FormApplication {
       width: 650,
       height: "auto" as const,
       resizable: true,
-      classes: ["lancer"],
+      classes: ["lancer", "lancer-text-editor"],
       submitOnChange: false,
       submitOnClose: true,
       closeOnSubmit: true,

@@ -14,6 +14,7 @@ export class StatusIconConfig extends FormApplication<FormApplication.Options, S
       title: "lancer.statusIconsConfig.menu-label",
       id: "lancer-statusIconsConfig-settings",
       template: `systems/${game.system.id}/templates/window/statusicons-config.hbs`,
+      classes: ["lancer", "status-icon-config"],
       width: 350,
     };
   }

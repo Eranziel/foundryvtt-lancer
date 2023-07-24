@@ -13,6 +13,7 @@ export class CounterEditForm extends TargetedEditForm<CounterData> {
     return {
       ...super.defaultOptions,
       template: `systems/${game.system.id}/templates/window/counter.hbs`,
+      classes: ["lancer", "counter-editor"],
       title: "Counter Editing",
     };
   }

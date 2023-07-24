@@ -152,7 +152,7 @@ function all_weapon_mount_view(loadout_path: string, options: HelperOptions) {
   );
 
   return `
-    <span class="lancer-header lancer-secondary loadout-category submajor">
+    <span class="lancer-header lancer-gray loadout-category submajor">
         <i class="mdi mdi-unfold-less-horizontal collapse-trigger collapse-icon" data-collapse-id="weapons"></i>   
         <span>MOUNTED WEAPONS</span>
         <a class="gen-control fas fa-plus" data-action="append" data-path="${loadout_path}.weapon_mounts" data-action-value="(struct)wep_mount"></a>
@@ -174,7 +174,7 @@ function all_system_view(loadout_path: string, options: HelperOptions) {
   // Archiving add button: <a class="gen-control fas fa-plus" data-action="append" data-path="${loadout_path}.SysMounts" data-action-value="(struct)sys_mount"></a>
 
   return `
-    <span class="lancer-header lancer-secondary loadout-category submajor">
+    <span class="lancer-header lancer-gray loadout-category submajor">
       <i class="mdi mdi-unfold-less-horizontal collapse-trigger collapse-icon" data-collapse-id="systems"></i>    
       <span>MOUNTED SYSTEMS</span>
       <span style="height:15px;width:48px;padding:0;"></span>

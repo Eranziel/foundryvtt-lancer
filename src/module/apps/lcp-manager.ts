@@ -80,6 +80,7 @@ class LCPManager extends Application {
     return mergeObject(super.defaultOptions, {
       template: `systems/${game.system.id}/templates/lcp/lcp-manager.hbs`,
       title: "LANCER Compendium Manager",
+      classes: ["lancer", "lcp-manager"],
       width: 800,
       height: 800,
     });

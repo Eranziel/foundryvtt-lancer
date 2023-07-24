@@ -33,7 +33,7 @@ export class InventoryDialog extends Dialog {
       template: `systems/${game.system.id}/templates/window/inventory.hbs`,
       width: 600,
       height: "auto",
-      classes: ["lancer"],
+      classes: ["lancer", "inventory-editor"],
     });
   }
 

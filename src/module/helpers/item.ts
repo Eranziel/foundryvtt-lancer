@@ -1154,7 +1154,7 @@ export function buildChipHTML(
     }
     const flowClass = macroData?.fullData ? "lancer-macro" : "activation-macro";
     const activationClass = `activation-${slugify(activation, "-")}`;
-    const themeClass = `lancer-${slugify(activation, "-")}}`;
+    const themeClass = `lancer-${slugify(activation, "-")}`;
     return `
     <a
       class="${flowClass} activation-chip lancer-button ${activationClass} ${themeClass}" ${data}>
