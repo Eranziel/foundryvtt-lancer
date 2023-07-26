@@ -222,6 +222,14 @@ export function pilot_slot(data_path: string, options: HelperOptions): string {
 </div>`;
 }
 
+function manufacturerStyle(mfr: string): string {
+  let manufacturer = slugify(mfr, "-");
+  if (!["gms", "ipsn", "ssc", "horus", "ha"].includes(manufacturer)) {
+    manufacturer = "primary";
+  }
+  return `lancer-${manufacturer}`;
+}
+
 /**
  * Builds HTML for a frame reference. Either an empty ref to give a drop target, or a preview
  * with traits and core system.
@@ -235,7 +243,7 @@ export function frameView(frame_path: string, options: HelperOptions): string {
 
   return `
     <div class="card mech-frame ${ref_params(frame)}">
-      <span class="lancer-header lancer-primary submajor clipped-top">
+      <span class="lancer-header ${manufacturerStyle(frame.system.manufacturer)} submajor clipped-top">
        ${frame.name}
       </span>
       <div class="wraprow double">
@@ -272,7 +280,7 @@ function buildCoreSysHTML(frame_path: string, options: HelperOptions): string {
   }
 
   return `<div class="core-wrapper frame-coresys clipped-top" style="padding: 0;">
-    <div class="lancer-title coresys-title clipped-top">
+    <div class="lancer-header ${manufacturerStyle(frame.system.manufacturer)} coresys-title clipped-top">
       <span>${core.name}</span> // CORE
       <i 
         class="mdi mdi-unfold-less-horizontal collapse-trigger collapse-icon" 
@@ -305,7 +313,9 @@ function frameTraits(frame_path: string, options: HelperOptions): string {
         : null;
 
       return `<div class="frame-trait clipped-top">
-    <div class="lancer-header lancer-trait submajor frame-trait-header" style="display: flex">
+    <div class="lancer-header ${manufacturerStyle(
+      frame.system.manufacturer
+    )} submajor frame-trait-header" style="display: flex">
       ${inc_if(
         `<a class="lancer-macro" data-macro="${encodeMacroData(macroData!)}"><i class="mdi mdi-message"></i></a>`,
         macroData

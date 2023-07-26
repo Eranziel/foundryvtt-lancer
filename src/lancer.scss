@@ -28,11 +28,11 @@ $document-types: join($item-types, $actor-types);
   --ref-color: color-mix(in srgb, var(--primary-color), #fff 90%);
 
   /* Manufacturer theme vars */
-  --gms-theme-color: #991e2a;
-  --ipsn-theme-color: #1662b8;
-  --ssc-theme-color: #d1920a;
-  --horus-theme-color: #00a256;
-  --ha-theme-color: #6e4373;
+  --gms-color: #991e2a;
+  --ipsn-color: #1662b8;
+  --ssc-color: #d1920a;
+  --horus-color: #00a256;
+  --ha-color: #6e4373;
 
   /* Lancer initiative vars */
   --lancer-initiative-icon-size: 1rem;
