@@ -8,33 +8,30 @@ export interface LancerUITheme {
   secondaryColor: string;
   secondaryHighlight: string;
   secondaryText: string;
-  grayColor?: string;
+  darkGrayColor: string;
+  lightGrayColor: string;
   tooltipBackground: string;
   tooltipText: string;
   // TODO: gear types, actions, hits, etc
 }
 
-const themeCommon: Partial<LancerUITheme> = {
-  grayColor: "#b3b9ba",
-};
-
 export const themeGMS: LancerUITheme = {
-  ...themeCommon,
   primaryColor: "#991e2a",
   primaryHighlight: "color-mix(in srgb, var(--primary-color), #fff 55%)",
   primaryShadow: "#d52a3b",
   lightText: "#efefef",
   darkText: "#000000",
   backgroundColor: "#ededed",
-  secondaryColor: "#283593",
+  secondaryColor: "#9e541f",
   secondaryHighlight: "#color-mix(in srgb, var(--secondary-color), #fff 55%)",
   secondaryText: "#ffffff",
-  tooltipBackground: "#ffffff", // todo
-  tooltipText: "#000000", // todo
+  darkGrayColor: "#4d4d4d",
+  lightGrayColor: "#b3b9ba",
+  tooltipBackground: "#dbdbdb",
+  tooltipText: "#000000",
 };
 
 export const themeMSMC: LancerUITheme = {
-  ...themeCommon,
   primaryColor: "#146464",
   primaryHighlight: "color-mix(in srgb, var(--primary-color), #fff 55%)",
   primaryShadow: "#2bd4d4",
@@ -43,14 +40,14 @@ export const themeMSMC: LancerUITheme = {
   backgroundColor: "#263237",
   secondaryColor: "#cb8225",
   secondaryHighlight: "#color-mix(in srgb, var(--secondary-color), #fff 55%)",
-  secondaryText: "#dbdbdb", // todo
-  grayColor: "#3a4040",
-  tooltipBackground: "#121d21", // todo
-  tooltipText: "#b3b9ba", // todo
+  secondaryText: "#dbdbdb",
+  darkGrayColor: "#2e2e2e",
+  lightGrayColor: "#666666",
+  tooltipBackground: "#121d21",
+  tooltipText: "#b3b9ba",
 };
 
 export const themeHORUS: LancerUITheme = {
-  ...themeCommon,
   primaryColor: "#121212", // todo
   primaryHighlight: "color-mix(in srgb, var(--primary-color), #fff 55%)",
   primaryShadow: "",
@@ -60,7 +57,8 @@ export const themeHORUS: LancerUITheme = {
   secondaryColor: "#ff0000", // todo
   secondaryHighlight: "#color-mix(in srgb, var(--secondary-color), #fff 55%)",
   secondaryText: "#ffffff", // todo
-  grayColor: "#505758", // todo
+  darkGrayColor: "#505758", // todo
+  lightGrayColor: "#dbdbdb", // todo
   tooltipBackground: "#ffffff", // todo
   tooltipText: "#000000", // todo
 };
@@ -90,7 +88,6 @@ export function applyTheme(theme: "gms" | "msmc" | "horus") {
   document.documentElement.style.setProperty("--secondary-text", selectedTheme.secondaryText);
   document.documentElement.style.setProperty("--tooltip-bg", selectedTheme.tooltipBackground);
   document.documentElement.style.setProperty("--tooltip-text", selectedTheme.tooltipText);
-  if (selectedTheme.grayColor) {
-    document.documentElement.style.setProperty("--gray-color", selectedTheme.grayColor);
-  }
+  document.documentElement.style.setProperty("--dark-gray-color", selectedTheme.darkGrayColor);
+  document.documentElement.style.setProperty("--light-gray-color", selectedTheme.lightGrayColor);
 }

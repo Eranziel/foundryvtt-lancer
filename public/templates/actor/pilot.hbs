@@ -182,7 +182,7 @@
       <div class="flexrow">
         {{!-- Skill Triggers --}}
         <div class="card clipped">
-          <h2 class="lancer-title clipped">{{localize "lancer.pilot-sheet.abilities.skills"}}</h2>
+          <h2 class="lancer-header lancer-primary submajor clipped">{{localize "lancer.pilot-sheet.abilities.skills"}}</h2>
           {{#each itemTypes.skill as |skill index|}} 
             {{{item-preview (concat "itemTypes.skill." index) "delete" }}}
           {{/each}}
@@ -236,7 +236,7 @@
       <div class="flexrow">
         {{!-- Gear --}}
         <div class="card clipped">
-          <h2 class="lancer-title clipped-top">{{localize "lancer.pilot-sheet.tactical.gear"}}</h2>
+          <h2 class="lancer-header lancer-primary major clipped-top">{{localize "lancer.pilot-sheet.tactical.gear"}}</h2>
           {{#each system.loadout.gear as |gear key|}} {{{pilot-gear-slot (concat "system.loadout.gear." key ".value")}}} {{/each}}
         </div>
       </div>
@@ -245,7 +245,7 @@
       <div class="flexrow">
         {{!-- Reserves --}}
         <div class="card clipped">
-          <h2 class="lancer-title clipped-top">{{localize "lancer.pilot-sheet.tactical.reserves"}}</h2>
+          <h2 class="lancer-header lancer-primary major clipped-top">{{localize "lancer.pilot-sheet.tactical.reserves"}}</h2>
           {{#each itemTypes.reserve as |reserve index|}} {{{reserve-slot (concat "itemTypes.reserve." index)}}} {{/each}}
         </div>
       </div>
@@ -267,7 +267,7 @@
 
       {{!-- Talents --}}
       <div class="card clipped">
-        <h2 class="lancer-title clipped">{{localize "lancer.pilot-sheet.abilities.talents"}}</h2>
+        <h2 class="lancer-header lancer-primary major clipped">{{localize "lancer.pilot-sheet.abilities.talents"}}</h2>
         {{#each itemTypes.talent as |talent index|}} {{{item-preview (concat "itemTypes.talent." index) "delete" }}}
         {{/each}}
       </div>
@@ -276,13 +276,13 @@
       <div class="flexrow">
         {{!-- Licenses --}}
         <div class="card clipped">
-          <h2 class="lancer-title clipped-top">{{localize "lancer.pilot-sheet.tactical.licenses"}}</h2>
+          <h2 class="lancer-header lancer-primary major clipped-top">{{localize "lancer.pilot-sheet.tactical.licenses"}}</h2>
           {{#each itemTypes.license as |license index|}} {{{ref-license (concat "itemTypes.license." index) }}} {{/each}}
         </div>
 
         {{!-- Core Bonuses --}}
         <div class="card clipped">
-          <h2 class="lancer-title clipped-top">{{localize "lancer.pilot-sheet.tactical.cores"}}</h2>
+          <h2 class="lancer-header lancer-primary major clipped-top">{{localize "lancer.pilot-sheet.tactical.cores"}}</h2>
           {{#each itemTypes.core_bonus as |core_bonus index|}} {{{item-preview (concat "itemTypes.core_bonus." index) "delete" }}} {{/each}}
         </div>
       </div>

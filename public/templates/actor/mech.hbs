@@ -122,7 +122,7 @@
       {{!-- Talents --}}
       {{#if system.pilot.value}}
       <div class="card clipped">
-        <h2 class="lancer-title clipped">{{localize "lancer.pilot-sheet.abilities.talents"}}</h2>
+        <h2 class="lancer-header lancer-primary major clipped">{{localize "lancer.pilot-sheet.abilities.talents"}}</h2>
         {{#each system.pilot.value.itemTypes.talent as |talent index|}}
           {{{item-preview (concat "system.pilot.value.itemTypes.talent." index) null }}}
         {{/each}}

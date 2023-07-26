@@ -18,10 +18,11 @@ $document-types: join($item-types, $actor-types);
   --light-text: #efefef;
   --dark-text: #000000;
   --bg-color: #ededed;
-  --secondary-color: #283593;
+  --secondary-color: #9e541f;
   --secondary-highlight: color-mix(in srgb, var(--secondary-color), #fff 55%);
   --secondary-text: #ffffff;
-  --gray-color: #373737;
+  --dark-gray-color: #4d4d4d;
+  --light-gray-color: #b3b9ba;
   --tooltip-bg: #ffffff;
   --tooltip-text: #000000;
   --ref-color: color-mix(in srgb, var(--primary-color), #fff 90%);
@@ -69,6 +70,10 @@ $document-types: join($item-types, $actor-types);
 
   /* Darkens tone by a small increment. For some themes should probably lighten instead, somehow? */
   --darken-1: #00000016;
+  --darken-2: #00000047;
+  --darken-3: #0000008a;
+  --darken-4: #000000d9;
+  --darken-5: #000000f9;
 
   /* box-shadow values for hover glow and buttons */
   --hover-bright: inset 0 0 0 10em rgba(255, 255, 255, 0.15);
@@ -157,8 +162,11 @@ button {
 /* Elements Layer */
 
 /* General-purpose theme color classes */
-$theme-types: "primary" "secondary" "gray" "tooltip" "trait" "bonus" "system" "tech" "talent" "weapon" "reaction"
-  "protocol" "quick" "full" "move" "free";
+/* prettier-ignore */
+$theme-types: "primary" "secondary" "dark-gray" "light-gray" "tooltip"    // General themes
+  "gms" "ipsn" "ssc" "horus" "ha"                       // Manufacturers
+  "trait" "bonus" "system" "tech" "talent" "weapon"     // Gear types
+  "reaction" "protocol" "quick" "full" "move" "free"; // Action types
 @each $theme-type in $theme-types {
   /* Headers and buttons */
   .lancer-header.lancer-#{$theme-type},
@@ -310,29 +318,32 @@ $theme-types: "primary" "secondary" "gray" "tooltip" "trait" "bonus" "system" "t
 
 /* Chat Styles */
 
-#chat-log .message {
-  background: rgba(237, 237, 237);
-  border-radius: 25px 5px;
-  padding: 0;
-  overflow: hidden;
-}
+#chat-log {
+  & .message {
+    background: rgba(237, 237, 237);
+    border-radius: 25px 5px;
+    padding: 0;
+    // overflow: hidden;
+  }
 
-#chat-log .message-header {
-  overflow: hidden;
-  background-color: var(--primary-color, fuchsia);
-  padding: 5px 10px;
-}
+  & .message-header {
+    overflow: hidden;
+    border-radius: 22px 1px 0 0;
+    background-color: var(--primary-color, fuchsia);
+    padding: 5px 10px;
+  }
 
-#chat-log .message-header * {
-  color: var(--light-text);
-}
+  & .message-header * {
+    color: var(--light-text);
+  }
 
-#chat-log .message-content {
-  padding: 5px 10px;
-}
+  & .message-content {
+    padding: 5px 10px;
+  }
 
-#chat-log .message.whisper {
-  border: 2px solid #fdcb28;
+  & .message.whisper {
+    border: 2px solid #fdcb28;
+  }
 }
 
 .lancer-hit {
@@ -377,7 +388,7 @@ $theme-types: "primary" "secondary" "gray" "tooltip" "trait" "bonus" "system" "t
 
 .card.lancer-charge-chip {
   color: var(--light-text);
-  background-color: var(--gray-color);
+  background-color: var(--dark-gray-color);
 }
 .card.lancer-charge-chip.charged {
   color: var(--light-text);
@@ -1025,7 +1036,7 @@ textarea {
   }
 
   &.struct-stress {
-    // legacy coloring fold old chat messages
+    // legacy coloring for old chat messages
     background-color: var(--primary-color);
     color: var(--light-text);
     padding-top: 1px;
@@ -1218,16 +1229,6 @@ input[type="string"].lancer-input {
   padding: 0;
   opacity: 0;
   overflow: hidden;
-}
-
-.lancer-title {
-  text-align: center;
-  margin-left: 10px;
-  margin-right: 10px;
-  margin-top: 3px;
-  margin-bottom: 3px;
-  color: var(--light-text);
-  background-color: var(--primary-color, fuchsia);
 }
 
 .bond-xp-item {
@@ -1500,6 +1501,7 @@ code.horus:hover {
   clip-path: polygon(100% 0%, 80% 50%, 100% 100%, 25% 100%, 0% 50%, 25% 0%);
 }
 
+/* Several of these styles require !important to override the standard button styling */
 .clicker-minus-button,
 .clicker-plus-button {
   cursor: pointer;
@@ -1507,14 +1509,16 @@ code.horus:hover {
   min-width: 30px;
   height: 30px;
   font-weight: bold;
-  background-color: var(--secondary-color);
+  background-color: var(--secondary-color) !important;
   color: var(--secondary-text) !important;
-  border: none;
+  /* The box shadow and border styling for buttons looks bad with the clip path */
+  box-shadow: none !important;
+  border: none !important;
   /* Don't ask me why, but this aligns it vertically nicely */
   line-height: 1px;
 
   &:hover {
-    box-shadow: var(--hover-bright);
+    box-shadow: var(--hover-bright) !important;
   }
 }
 
@@ -1709,6 +1713,10 @@ a.flexrow.skill-macro {
 
 .lancer-talent-header {
   background-color: var(--talent-color);
+}
+
+ul.talent-ranks {
+  padding: 0;
 }
 
 .talent-rank-compact {
@@ -2179,7 +2187,7 @@ a.activation-chip > i.mdi {
 .lancer-button {
   border: 1px solid rgba(0, 0, 0, 0.25);
   border-radius: 5px;
-  background: var(--gray-color);
+  background: var(--light-gray-color);
   color: var(--dark-text);
   box-shadow: var(--button-shadow);
 
@@ -2419,7 +2427,7 @@ a.action {
   justify-content: space-between;
   align-items: center;
   color: var(--light-text);
-  background-color: var(--gray-color);
+  background-color: var(--dark-gray-color);
 }
 
 .counter-name {
