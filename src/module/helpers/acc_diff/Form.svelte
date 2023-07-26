@@ -103,8 +103,11 @@
   {/if}
   <div id="{kind}-accdiff-dialog" style="padding:4px">
     <div class="accdiff-grid">
-      <div style="width:100%;padding:4px;border-right: 1px dashed #782e22;min-width:180px">
-        <h3>
+      <div
+        class="lancer-border-primary"
+        style="width:100%;padding:4px;border-right-width: 1px;border-right-style: dashed;min-width:180px"
+      >
+        <h3 class="lancer-border-primary">
           <i class="cci cci-accuracy i--m i--dark" style="vertical-align:middle;border:none" />
           Accuracy
         </h3>
@@ -122,7 +125,10 @@
         {/if}
         {#if kind == "attack" && (Object.values(weapon.plugins).length > 0 || targets.length == 1)}
           <div transition:slide>
-            <h3 style="border-top: 1px dashed #782e22; padding-right: 4px; padding-top: 16px; margin-top: 16px;">
+            <h3
+              class="lancer-border-primary"
+              style="border-top-width: 1px;border-top-style: dashed; padding-right: 4px; padding-top: 16px; margin-top: 16px;"
+            >
               <i class="cci cci-reticule i--m i--dark" style="vertical-align:middle;border:none" />
               &nbsp;Misc
             </h3>
@@ -143,7 +149,7 @@
         {/if}
       </div>
       <div style="width:100%;padding:4px;min-width:180px">
-        <h3>
+        <h3 class="lancer-border-primary">
           <i class="cci cci-difficulty i--m i--dark" style="vertical-align:middle;border:none" />
           Difficulty
         </h3>
@@ -172,16 +178,18 @@
         {/if}
       </div>
     </div>
-    <label class="flexrow accdiff-footer accdiff-weight" for="accdiff-other-sources"> Other Sources </label>
+    <label class="flexrow accdiff-footer accdiff-weight lancer-border-primary" for="accdiff-other-sources">
+      Other Sources
+    </label>
     <div id="accdiff-other-sources" class="accdiff-grid">
-      <div class="accdiff-other-grid" style="border-right: 1px dashed #782e22;">
+      <div class="accdiff-other-grid lancer-border-primary" style="border-right-width: 1px;border-right-style: dashed;">
         <PlusMinusInput bind:value={base.accuracy} id="accdiff-other-acc" />
       </div>
       <div class="accdiff-other-grid">
         <PlusMinusInput bind:value={base.difficulty} id="accdiff-other-diff" />
       </div>
     </div>
-    <div class="grid-enforcement accdiff-footer">
+    <div class="grid-enforcement accdiff-footer lancer-border-primary">
       <div class="accdiff-total">
         {#if targets.length < 2}
           {#key targets.length}
@@ -331,7 +339,8 @@
     padding-top: 8px;
     padding-bottom: 4px;
     margin-top: 12px;
-    border-top: 1px solid #782e22;
+    border-top-width: 1px;
+    border-top-style: solid;
   }
 
   .accdiff-grid :global(.accdiff-base-cover) {

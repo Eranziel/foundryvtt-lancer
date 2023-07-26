@@ -11,8 +11,8 @@ export function talent_view(talent_path: string, options: HelperOptions) {
   let collapse = resolve_helper_dotpath<CollapseRegistry>(options, "collapse");
   let talent = resolve_helper_dotpath<LancerTALENT>(options, talent_path);
   if (!talent) return "";
-  let retStr = `<li class="card clipped talent-compact ref set" ${ref_params(talent)}>
-        <div class="lancer-talent-header medium clipped-top" style="grid-area: 1/1/2/4">
+  let retStr = `<li class="card clipped-top lancer-border-talent talent-compact ref set" ${ref_params(talent)}>
+        <div class="lancer-talent-header medium" style="grid-area: 1/1/2/4">
           <i class="cci cci-talent i--m"></i>
           <span class="major">${talent.name}</span>
           ${collapseButton(collapse, talent)}
@@ -22,7 +22,7 @@ export function talent_view(talent_path: string, options: HelperOptions) {
             </a>
           </div>
         </div>
-      <ul class="collapse" ${collapseParam(collapse, talent, true)} style="grid-area: 2/1/3/3">`;
+      <ul class="collapse talent-ranks" ${collapseParam(collapse, talent, true)} style="grid-area: 2/1/3/3">`;
 
   for (var i = 0; i < talent.system.curr_rank; i++) {
     let talent_actions = "";

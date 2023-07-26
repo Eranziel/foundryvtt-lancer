@@ -339,7 +339,7 @@ function frame_active(frame_path: string, options: HelperOptions): string {
     : null;
 
   return `
-  <div class="core-active-wrapper clipped-top">
+  <div class="core-active-wrapper clipped-top lancer-border-bonus">
     <span class="lancer-header lancer-bonus submajor">
       ${core.active_name} // ACTIVE
     </span>
@@ -364,7 +364,7 @@ function frame_passive(frame: LancerFRAME): string {
     .join("");
 
   return `
-  <div class="core-active-wrapper clipped-top">
+  <div class="core-active-wrapper clipped-top lancer-border-bonus">
     <span class="lancer-header lancer-bonus submajor">
       ${core.passive_name ?? ""} // PASSIVE
     </span>

@@ -183,8 +183,20 @@ $theme-types: "primary" "secondary" "dark-gray" "light-gray" "tooltip"    // Gen
   }
 
   /* Border */
-  // TODO: apply border classes to elements
   .lancer-border-#{$theme-type} {
+    border-color: var(--#{$theme-type}-color, fuschia);
+
+    &.card {
+      border-width: 2px;
+      border-style: solid;
+    }
+  }
+
+  /* Foundry adds a bottom border to header elements. That's fine, but make it match. */
+  h1.lancer-#{$theme-type},
+  h2.lancer-#{$theme-type},
+  h3.lancer-#{$theme-type},
+  h4.lancer-#{$theme-type} {
     border-color: var(--#{$theme-type}-color, fuschia);
   }
 }
@@ -733,8 +745,8 @@ tr.lcp-index-header {
   color: var(--light-text);
 }
 
-/* The dashed-line border aesthetic found around certain items.
- * Should be used on an inner div of a card
+/* Used on some item cards to add a border and consistent spacing.
+ * Should be used on an inner div of a card.
  */
 .lancer-body {
   min-height: 15px;
@@ -752,7 +764,6 @@ tr.lcp-index-header {
   border-width: 2px;
   border-style: solid;
   border-top-style: none;
-  border-color: var(--primary-color, fuchsia);
 
   background-color: var(--darken-1);
 
@@ -762,33 +773,11 @@ tr.lcp-index-header {
     margin-top: 0;
   }
 
-  .talent > & {
-    border-color: #3a81c3;
-    background-color: #3a81c333;
-    clip-path: polygon(0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%);
-    -webkit-clip-path: polygon(0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%);
-  }
-
-  .mech_weapon > &,
-  .npc-weapon > & {
-    border-color: #000000;
-  }
-
-  .weapon_mod > & {
-    border-color: var(--trait-color);
-  }
-
-  .tech > &,
-  .npc-tech > & {
-    border-color: var(--tech-color);
-  }
-
-  .npc-system > & {
-    border-color: var(--system-color);
-  }
-
-  .npc-reaction > & {
-    border-color: var(--reaction-color);
+  @each $theme-type in $theme-types {
+    .lancer-#{$theme-type} > &,
+    .lancer-#{$theme-type} ~ & {
+      border-color: var(--#{$theme-type}-color);
+    }
   }
 
   .mount > & {
@@ -1271,7 +1260,7 @@ input[type="string"].lancer-input {
   flex-direction: column;
   border-width: 1px;
   border-radius: 8px;
-  border-color: black;
+  border-color: var(--secondary-color);
   border-style: solid;
   margin-top: 10px;
 }
