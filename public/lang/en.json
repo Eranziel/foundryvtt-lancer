@@ -143,6 +143,7 @@
       "name": "UI Theme",
       "hint": "Colour scheme for the UI, echoing Comp/Con's themes.",
       "gms": "GMS Red (default)",
+      "gmsDark": "GMS Dark",
       "msmc": "MSMC Solarized",
       "horus": "HORUS Dark"
     },

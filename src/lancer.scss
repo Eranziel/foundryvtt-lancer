@@ -17,13 +17,13 @@ $document-types: join($item-types, $actor-types);
   --color-shadow-primary: #991e2a;
   --light-text: #efefef;
   --dark-text: #000000;
-  --bg-color: #ededed;
+  --background-color: #ededed;
   --secondary-color: #9e541f;
   --secondary-highlight: color-mix(in srgb, var(--secondary-color), #fff 55%);
   --secondary-text: #ffffff;
   --dark-gray-color: #4d4d4d;
   --light-gray-color: #b3b9ba;
-  --tooltip-bg: #ffffff;
+  --tooltip-background: #ffffff;
   --tooltip-text: #000000;
   --ref-color: color-mix(in srgb, var(--primary-color), #fff 90%);
 
@@ -43,7 +43,7 @@ $document-types: join($item-types, $actor-types);
   --lancer-initiative-done-color: #000000;
 
   /* Gear and type color vars */
-  --system-color: #69be46;
+  --system-color: #58b434;
   --weapon-color: #111111;
   --trait-color: #0a7674;
   --bonus-color: #5d8673;
@@ -154,7 +154,7 @@ button {
 }
 
 .window-app.lancer .window-content {
-  background-color: var(--bg-color);
+  background-color: var(--background-color);
   color: var(--dark-text);
 }
 /* ---------- */
@@ -219,7 +219,7 @@ $theme-types: "primary" "secondary" "dark-gray" "light-gray" "tooltip"    // Gen
 /* Default text and background color for sheets */
 .lancer.sheet .window-content {
   color: var(--dark-text);
-  background: var(--bg-color);
+  background: var(--background-color);
 }
 
 .lancer-sheet {
@@ -237,10 +237,10 @@ $theme-types: "primary" "secondary" "dark-gray" "light-gray" "tooltip"    // Gen
   }
 
   & select {
-    background-color: var(--tooltip-bg);
+    background-color: var(--tooltip-background);
     color: var(--dark-text);
     & option {
-      background-color: var(--tooltip-bg);
+      background-color: var(--tooltip-background);
       color: var(--tooltip-text);
     }
   }
@@ -868,7 +868,7 @@ textarea {
 .pilot-stats {
   clip-path: polygon(0 0, calc(100% - 30px) 0, 100% 100%, 0 100%);
   -webkit-clip-path: polygon(0 0, calc(100% - 30px) 0, 100% 100%, 0 100%);
-  background-color: color-mix(in srgb, var(--bg-color), #888 50%);
+  background-color: color-mix(in srgb, var(--background-color), #888 50%);
   padding-left: 5px;
   padding-right: 5px;
   align-items: flex-start;
@@ -2304,8 +2304,8 @@ a.action {
 }
 
 .tippy-box[data-theme~="lancer-large"] {
-  background: var(--tooltip-bg) !important;
-  background-color: var(--tooltip-bg) !important;
+  background: var(--tooltip-background) !important;
+  background-color: var(--tooltip-background) !important;
   color: var(--tooltip-text);
   max-width: 50vw;
   border: 1px var(--primary-color) solid;
@@ -2396,8 +2396,8 @@ a.action {
     color: var(--light-text);
   }
   &.inactive {
-    background-color: var(--secondary-color, fuchsia);
-    color: var(--secondary-text);
+    background-color: var(--dark-gray-color, fuchsia);
+    color: var(--light-text);
   }
 }
 
