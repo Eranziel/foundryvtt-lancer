@@ -111,9 +111,15 @@
         </div>
       </div>
       <div class="card">
-        <span class="lancer-header lancer-primary major">
-          {{localize "lancer.mech-sheet.system.label" total=system.loadout.sp.value max=system.loadout.sp.max}}
-        </span>
+        <div class="lancer-header lancer-primary major">
+          <span>
+          {{{localize "lancer.mech-sheet.system.label"}}}
+          </span>
+          <span style="flex-grow: 0">
+            <i class="cci cci-system-point i--m"></i>
+            {{system.loadout.sp.value}} / {{system.loadout.sp.max}} {{localize "lancer.mech-sheet.system.sp-used"}}
+          </span>
+        </div>
         {{{mech-loadout}}}
       </div>
     </div>

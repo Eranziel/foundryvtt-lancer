@@ -61,9 +61,9 @@ export function mech_system_view(system_path: string, options: HelperOptions): s
   if (doc.isLimited()) {
     limited = limited_uses_indicator(doc, system_path + ".value");
   }
-  return `<li class="ref set card clipped lancer-system ${
+  return `<li class="ref set card clipped-top lancer-system lancer-border-system ${
     doc.system.type === SystemType.Tech ? "tech-item" : ""
-  }" ${ref_params(doc)} style="margin: 0;">
+  }" ${ref_params(doc)} style="margin: 0.3em;">
         <div class="lancer-header lancer-system ${
           doc.system.destroyed ? "destroyed" : ""
         }" style="grid-area: 1/1/2/3; display: flex">
@@ -152,13 +152,13 @@ function all_weapon_mount_view(loadout_path: string, options: HelperOptions) {
   );
 
   return `
-    <span class="lancer-header lancer-dark-gray loadout-category submajor">
-        <i class="mdi mdi-unfold-less-horizontal collapse-trigger collapse-icon" data-collapse-id="weapons"></i>   
-        <span>MOUNTED WEAPONS</span>
-        <a class="gen-control fas fa-plus" data-action="append" data-path="${loadout_path}.weapon_mounts" data-action-value="(struct)wep_mount"></a>
-        <a class="reset-all-weapon-mounts-button fas fa-redo" data-path="${loadout_path}.weapon_mounts"></a>
-    </span>
-    <div class="wraprow double collapse" data-collapse-id="weapons">
+    <div class="lancer-header lancer-dark-gray loadout-category submajor">
+      <i class="mdi mdi-unfold-less-horizontal collapse-trigger collapse-icon" data-collapse-id="weapons"></i>   
+      <span>MOUNTED WEAPONS</span>
+      <a class="gen-control fas fa-plus" data-action="append" data-path="${loadout_path}.weapon_mounts" data-action-value="(struct)wep_mount"></a>
+      <a class="reset-all-weapon-mounts-button fas fa-redo" data-path="${loadout_path}.weapon_mounts"></a>
+    </div>
+    <div class="wraprow double collapse" data-collapse-id="weapons" style="margin-bottom: 0.75em">
       ${weapon_mounts.join("")}
     </div>
     `;
@@ -174,11 +174,14 @@ function all_system_view(loadout_path: string, options: HelperOptions) {
   // Archiving add button: <a class="gen-control fas fa-plus" data-action="append" data-path="${loadout_path}.SysMounts" data-action-value="(struct)sys_mount"></a>
 
   return `
-    <span class="lancer-header lancer-dark-gray loadout-category submajor">
+    <div class="lancer-header lancer-dark-gray loadout-category submajor">
       <i class="mdi mdi-unfold-less-horizontal collapse-trigger collapse-icon" data-collapse-id="systems"></i>    
       <span>MOUNTED SYSTEMS</span>
-      <span style="height:15px;width:48px;padding:0;"></span>
-    </span>
+      <span style="flex-grow: 0">
+        <i class="cci cci-system-point i--m"></i>
+        ${loadout.sp.value} / ${loadout.sp.max} SP USED
+      </span>
+    </div>
     <div class="flexcol collapse" data-collapse-id="systems">
       ${system_views.join("")}
     </div>

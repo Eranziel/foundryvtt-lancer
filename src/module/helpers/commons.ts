@@ -210,7 +210,7 @@ export function sp_display(sp: number | string) {
   const sp_num = parseInt(sp.toString());
   if (isNaN(sp_num)) return "";
   let icons = "";
-  for (let i = 0; i < sp_num; i++) icons += `<i class="cci cci-system-point i--m i--dark"> </i>`;
+  for (let i = 0; i < sp_num; i++) icons += `<i class="cci cci-system-point i--s i--dark"> </i>`;
   return `<div style="float: left; align-items: center; display: inherit;">
             ${icons}
             <span class="medium" style="padding: 5px;">${sp} SYSTEM POINTS</span>

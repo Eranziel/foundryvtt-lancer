@@ -32,7 +32,8 @@
         "label": "MACROS"
       },
       "system": {
-        "label": "LOADOUT [SP: {total} / {max} ]"
+        "label": "LOADOUT",
+        "sp-used": "SP USED"
       }
     },
     "npc-sheet": {
