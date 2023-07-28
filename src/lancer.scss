@@ -992,41 +992,39 @@ textarea {
     padding-right: 10px;
   }
 
-  .bonus-list & {
+  // Legacy styling for old chat messages
+  #chat-log .bonus-list & {
     background-color: var(--bonus-list-color, fuchsia);
   }
 
-  .bonus & {
+  // Legacy styling for old chat messages
+  #chat-log .bonus & {
     background-color: var(--bonus-color, fuchsia);
   }
 
-  .wep-mount &,
-  .sys-mount &,
-  .mount & {
-    background-color: var(--primary-color, fuchsia);
-  }
-
   // Legacy styling for old chat messages
-  .mech-system &,
-  .npc-system &,
-  &.mech-system,
-  &.npc-system {
+  #chat-log .mech-system &,
+  #chat-log .npc-system &,
+  #chat-log &.mech-system,
+  #chat-log &.npc-system {
     background-color: var(--system-color);
     color: var(--light-text);
   }
 
   // Legacy styling for old chat messages
-  .mech_weapon &,
-  .pilot_weapon &,
-  &.mech_weapon,
-  &.pilot_weapon {
+  #chat-log .mech_weapon &,
+  #chat-log .pilot_weapon &,
+  #chat-log &.mech_weapon,
+  #chat-log &.pilot_weapon {
     background-color: var(--weapon-color);
     color: var(--light-text);
   }
 
   &.struct-stress {
     // legacy coloring for old chat messages
-    background-color: var(--primary-color);
+    #chat-log & {
+      background-color: var(--primary-color);
+    }
     color: var(--light-text);
     padding-top: 1px;
     display: flex;
@@ -1650,16 +1648,10 @@ input.core-power-toggle:not(:checked)::before {
   }
 }
 
-.lancer-mech-trait-header,
-.lancer-core-sys-header,
+// TODO: consolidate with .lancer-header
 .lancer-talent-header,
-.lancer-system-header,
 .lancer-trait-header,
 .lancer-trigger-header,
-.lancer-protocol-header,
-.lancer-reaction-header,
-.lancer-tech-header,
-.lancer-corebonus-header,
 .lancer-license-header,
 .lancer-weapon-header {
   color: var(--light-text);
@@ -2369,11 +2361,11 @@ a.action {
     height: 1em;
     margin-right: 0.4em;
   }
-}
 
-.mech-preview img {
-  grid-row: 2 / -1;
-  height: 100%;
+  & img {
+    grid-row: 2 / -1;
+    height: 100%;
+  }
 }
 
 .mech-preview-titlebar {
