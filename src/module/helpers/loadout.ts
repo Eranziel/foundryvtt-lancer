@@ -222,12 +222,12 @@ export function pilot_slot(data_path: string, options: HelperOptions): string {
 </div>`;
 }
 
-function manufacturerStyle(mfr: string): string {
+function manufacturerStyle(mfr: string, border?: boolean): string {
   let manufacturer = slugify(mfr, "-");
   if (!["gms", "ipsn", "ssc", "horus", "ha"].includes(manufacturer)) {
     manufacturer = "primary";
   }
-  return `lancer-${manufacturer}`;
+  return `lancer${border ? "-border" : ""}-${manufacturer}`;
 }
 
 /**
@@ -244,7 +244,7 @@ export function frameView(frame_path: string, options: HelperOptions): string {
   return `
     <div class="card mech-frame ${ref_params(frame)}">
       <span class="lancer-header ${manufacturerStyle(frame.system.manufacturer)} submajor clipped-top">
-       ${frame.name}
+        ${frame.system.manufacturer} ${frame.name}
       </span>
       <div class="wraprow double">
         <div class="frame-traits flexcol">
@@ -278,9 +278,11 @@ function buildCoreSysHTML(frame_path: string, options: HelperOptions): string {
   if (core.deployables.length) {
     deployables = buildDeployablesArray(frame, "system.core_system.deployables", options);
   }
+  const mfrBorder = manufacturerStyle(frame.system.manufacturer, true);
+  const mfrStyle = manufacturerStyle(frame.system.manufacturer);
 
-  return `<div class="core-wrapper frame-coresys clipped-top" style="padding: 0;">
-    <div class="lancer-header ${manufacturerStyle(frame.system.manufacturer)} coresys-title clipped-top">
+  return `<div class="core-wrapper ${mfrBorder} frame-coresys card clipped-top" style="padding: 0;">
+    <div class="lancer-header ${mfrStyle} coresys-title">
       <span>${core.name}</span> // CORE
       <i 
         class="mdi mdi-unfold-less-horizontal collapse-trigger collapse-icon" 
@@ -350,7 +352,7 @@ function frame_active(frame_path: string, options: HelperOptions): string {
 
   return `
   <div class="core-active-wrapper clipped-top lancer-border-bonus">
-    <span class="lancer-header lancer-bonus submajor">
+    <span class="lancer-header ${manufacturerStyle(frame.system.manufacturer)} clipped-top submajor">
       ${core.active_name} // ACTIVE
     </span>
     <div class="lancer-body">
@@ -375,7 +377,7 @@ function frame_passive(frame: LancerFRAME): string {
 
   return `
   <div class="core-active-wrapper clipped-top lancer-border-bonus">
-    <span class="lancer-header lancer-bonus submajor">
+    <span class="lancer-header ${manufacturerStyle(frame.system.manufacturer)} clipped-top submajor">
       ${core.passive_name ?? ""} // PASSIVE
     </span>
     <div class="lancer-body">
