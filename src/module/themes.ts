@@ -92,7 +92,7 @@ export const themeGMSDark: LancerUITheme = {
   tooltipBackground: "#050505",
   tooltipText: "#efefef",
   systemColor: "#4a962b",
-  darkenColor: "255, 255, 255",
+  darkenColor: "0, 0, 0",
 };
 
 export const themeMSMC: LancerUITheme = {
@@ -112,24 +112,27 @@ export const themeMSMC: LancerUITheme = {
   tooltipText: "#b3b9ba",
   systemColor: "#4a962b",
   traitColor: "#009e89",
+  darkenColor: "0, 0, 0",
 };
 
 export const themeHORUS: LancerUITheme = {
   ...themeGMS,
-  primaryColor: "#121212", // todo
+  primaryColor: "#126127",
   primaryHighlight: "color-mix(in srgb, var(--primary-color), #fff 55%)",
-  primaryShadow: "",
-  lightText: "#ffffff", // todo
-  darkText: "#efefef", // todo
-  backgroundColor: "#000000", // todo
-  secondaryColor: "#ff0000", // todo
+  primaryShadow: "#97e308",
+  lightText: "#ffffff",
+  darkText: "#efefef",
+  backgroundColor: "#000000",
+  secondaryColor: "#084661",
   secondaryHighlight: "#color-mix(in srgb, var(--secondary-color), #fff 55%)",
-  secondaryText: "#ffffff", // todo
-  darkGrayColor: "#505758", // todo
-  lightGrayColor: "#dbdbdb", // todo
-  tooltipBackground: "#ffffff", // todo
-  tooltipText: "#000000", // todo
+  secondaryText: "#ffffff",
+  darkGrayColor: "#3c443e",
+  lightGrayColor: "#657268",
+  tooltipBackground: "#141414",
+  tooltipText: "#d3d3d3",
   systemColor: "#4a962b",
+  talentColor: "#2f689d",
+  darkenColor: "125, 125, 125",
 };
 
 function varName(key: string) {

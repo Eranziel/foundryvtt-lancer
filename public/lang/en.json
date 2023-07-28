@@ -146,7 +146,7 @@
       "gms": "GMS Red (default)",
       "gmsDark": "GMS Dark",
       "msmc": "MSMC Solarized",
-      "horus": "HORUS Dark"
+      "horus": "HORUS Terminal"
     },
     "statusIconsConfig": {
       "menu-name": "Status Icons",

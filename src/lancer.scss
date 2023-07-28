@@ -69,15 +69,16 @@ $document-types: join($item-types, $actor-types);
   --error-color: #b4800e;
 
   /* Darkens tone by a small increment. For some themes should probably lighten instead, somehow? */
-  --darken-1: #00000016;
-  --darken-2: #00000047;
-  --darken-3: #0000008a;
-  --darken-4: #000000d9;
-  --darken-5: #000000f9;
+  --darken-color: 0, 0, 0;
+  --darken-1: rgba(var(--darken-color), 0.1);
+  --darken-2: rgba(var(--darken-color), 0.2);
+  --darken-3: rgba(var(--darken-color), 0.3);
+  --darken-4: rgba(var(--darken-color), 0.4);
+  --darken-5: rgba(var(--darken-color), 0.5);
 
   /* box-shadow values for hover glow and buttons */
   --hover-bright: inset 0 0 0 10em rgba(255, 255, 255, 0.15);
-  --button-shadow: 1px 1px 1px 0.6px rgba(0, 0, 0, 0.7);
+  --button-shadow: 1px 1px 1px 0.6px var(--darken-5);
 
   /* Clip paths */
   $clip_in: 10px;
@@ -136,7 +137,7 @@ $document-types: join($item-types, $actor-types);
 
 code {
   padding: 0px 5px !important;
-  background-color: rgba(0, 0, 0, 0.1);
+  background-color: var(--darken-1);
   border-radius: 5px;
 }
 
@@ -319,7 +320,6 @@ $theme-types: "primary" "secondary" "dark-gray" "light-gray" "tooltip"    // Gen
 
 .header-icon {
   float: left;
-  padding-left: 10px;
 }
 
 .pilot-callsign {
@@ -705,8 +705,7 @@ td.lcp-index {
 
 tr.lcp-index-header {
   height: 2em;
-  background-color: rgba(0, 0, 0, 0.1);
-  /* border: 1px solid #7a7971; */
+  background-color: var(--darken-1);
 }
 
 .lancer-tabs {
@@ -1151,7 +1150,7 @@ input[type="number"].lancer-stat {
 }
 
 .lancer-text-field,
-input[type="string"].lancer-input {
+input[type="text"].lancer-input {
   align-self: center;
   text-align: left;
   width: calc(100% - 20px);
@@ -1182,7 +1181,7 @@ input[type="string"].lancer-input {
 }
 
 .card {
-  background-color: rgba(0, 0, 0, 0.07);
+  background-color: var(--darken-1);
   margin: 3px 10px;
   text-align: center;
   padding-bottom: 1px;
@@ -1248,7 +1247,7 @@ input[type="string"].lancer-input {
   border: 1px solid #999;
   border-radius: 5px;
   margin: 5px;
-  background: rgba(0, 0, 0, 0.2);
+  background: var(--darken-1);
 }
 
 .effect-box {
@@ -1290,7 +1289,7 @@ code {
 
 code.horus {
   font-size: 1.1em;
-  background-color: rgba(0, 0, 0, 0.7) !important;
+  background-color: var(--darken-5) !important;
   box-shadow: none;
   //color: var(--main-theme-text);
   font-style: normal;
@@ -1443,7 +1442,7 @@ code.horus:hover {
   margin: 3px 10px;
   min-width: 3em;
   height: 3em;
-  border: 1px solid rgba(0, 0, 0, 0.25);
+  border: 1px solid var(--darken-2);
   border-radius: 5px;
   box-shadow: 1px 1px 1px 0.6px #000000b3;
 }
@@ -1461,7 +1460,7 @@ code.horus:hover {
   margin: 5px;
   align-items: center;
   text-align: center;
-  background: rgba(0, 0, 0, 0.1);
+  background: var(--darken-1);
   border: 1px solid #999;
   border-radius: 3px;
   box-shadow: 0 0 2px #fff inset;
@@ -1751,7 +1750,7 @@ ul.talent-ranks {
 .core-passive-wrapper,
 .core-wrapper {
   border-radius: 10px;
-  background-color: rgba(0, 0, 0, 0.07);
+  background-color: var(--darken-1);
   margin-top: 6px;
   padding-top: 4px;
   margin-bottom: 4px;
@@ -2033,12 +2032,12 @@ a.activation-chip > i.mdi {
 .uses-editor > span {
   padding: inherit;
   text-align: center;
-  background-color: var(--darken-1);
+  background-color: var(--darken-2);
   margin-bottom: 4px;
 }
 
 .uses-editor {
-  background-color: var(--darken-1);
+  background-color: var(--darken-2);
   padding-bottom: 0.5em;
   margin-bottom: auto;
 }
@@ -2051,7 +2050,7 @@ a.activation-chip > i.mdi {
 .gen-control.add-question {
   float: left;
   margin-left: 10px;
-  border: 1px solid rgba(0, 0, 0, 0.5);
+  border: 1px solid var(--darken-5);
   border-radius: 4px;
   padding: 3px;
 }
@@ -2128,7 +2127,7 @@ a.activation-chip > i.mdi {
   margin: 0.5em;
   cursor: pointer;
   border-radius: 0.25em;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 3px 10px var(--darken-2);
   user-select: none;
 }
 
@@ -2172,7 +2171,7 @@ a.activation-chip > i.mdi {
 
 .lancer button,
 .lancer-button {
-  border: 1px solid rgba(0, 0, 0, 0.25);
+  border: 1px solid var(--darken-3);
   border-radius: 5px;
   background: var(--light-gray-color);
   color: var(--dark-text);
