@@ -2355,6 +2355,11 @@ a.action {
   display: grid;
   grid-template-rows: 2em 3em 3em 3em 3em 3em;
   grid-template-columns: 14em 1fr 1fr;
+  margin-top: 0.5em;
+  margin-bottom: 1em;
+  border-width: 2px;
+  border-style: solid;
+  background-color: var(--darken-2);
 
   .activate-mech {
     flex-grow: unset;
@@ -2384,6 +2389,8 @@ a.action {
   flex-wrap: nowrap;
   justify-content: flex-start;
   color: var(--light-text);
+  font-size: 1.2em;
+  font-weight: bold;
   padding: 3px 10px;
   min-height: max-content;
   align-items: center;
