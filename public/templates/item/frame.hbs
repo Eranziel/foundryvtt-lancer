@@ -66,7 +66,7 @@
       <div class="card clipped lancer-trait">
         <div class="lancer-header lancer-trait major">
           <i class="cci cci-trait i--m i--light header-icon"> </i>
-          <input class="lancer-invisible-input i--light" name="system.traits.{{trait_index}}.name" value="{{trait.name}}" data-dtype="String" />
+          <input class="lancer-invisible-input i--light" name="system.traits.{{trait_index}}.name" value="{{trait.name}}" type="text" data-dtype="String" />
           {{{popout-editor-button (concat "system.traits." trait_index ".description") }}}
           <a class="gen-control" data-action="splice" data-path="system.traits.{{trait_index}}">
             <i class="fas fa-trash"></i>

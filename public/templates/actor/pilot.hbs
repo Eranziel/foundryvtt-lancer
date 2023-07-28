@@ -52,7 +52,7 @@
         <div class="card clipped" style="grid-area: 1/1/2/3;">
           <span class="lancer-header lancer-primary major">{{localize "lancer.pilot-sheet.cloud-header.label"}}</span>
           <select class="lancer-input major lancer-text-field" style="text-align: center;" name="selectCloudId"
-            data-type="String"  >
+            data-type="text"  >
             {{#select system.cloud_id}}
             <option value="">{{localize "lancer.pilot-sheet.cloud-header.vaultID"}}</option>
             {{#each pilotCache}}
@@ -60,7 +60,7 @@
             {{/each}}
             {{/select}}
           </select>
-          <input class="lancer-input major" style="text-align: center;" type="string" name="system.cloud_id" value="{{system.cloud_id}}"
+          <input class="lancer-input major" style="text-align: center;" type="text" name="system.cloud_id" value="{{system.cloud_id}}"
             data-dtype="String" placeholder="{{localize "lancer.pilot-sheet.cloud-header.raw-placeholder"}}" />
         </div>
 
@@ -91,11 +91,11 @@
       <div class="wraprow double">
         <div class="card clipped">
           <span class="lancer-header lancer-primary major">{{localize "lancer.pilot-sheet.dossier.cs"}}</span>
-          <input class="lancer-input major" {{{getset "system.callsign" }}} data-dtype="String" />
+          <input class="lancer-input major" {{{getset "system.callsign" }}} type="text" data-dtype="String" />
         </div>
         <div class="card clipped">
           <span class="lancer-header lancer-primary major">{{localize "lancer.pilot-sheet.dossier.name"}}</span>
-          <input class="lancer-input major" name="name" value="{{actor.name}}" data-dtype="String" />
+          <input class="lancer-input major" name="name" value="{{actor.name}}" type="text" data-dtype="String" />
         </div>
 
         {{{textarea-card "BACKGROUND" "system.background"}}} {{{textarea-card "HISTORY" "system.history"}}} {{{textarea-card

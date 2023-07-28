@@ -35,6 +35,8 @@ export interface LancerUITheme {
   hitColor: string;
   missColor: string;
   errorColor: string;
+  // Darken - for card backgrounds, etc...
+  darkenColor: string;
 }
 
 // This theme includes all colors, and is then used to populate the others with defaults.
@@ -76,6 +78,8 @@ export const themeGMS: LancerUITheme = {
   hitColor: "#1a4015",
   missColor: "#3c3c3c",
   errorColor: "#b4800e",
+  // Darken - for card backgrounds, etc...
+  darkenColor: "0, 0, 0",
 };
 
 export const themeGMSDark: LancerUITheme = {
@@ -88,6 +92,7 @@ export const themeGMSDark: LancerUITheme = {
   tooltipBackground: "#050505",
   tooltipText: "#efefef",
   systemColor: "#4a962b",
+  darkenColor: "255, 255, 255",
 };
 
 export const themeMSMC: LancerUITheme = {
