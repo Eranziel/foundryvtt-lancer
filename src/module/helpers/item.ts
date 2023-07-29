@@ -28,6 +28,7 @@ import {
   std_text_input,
   std_x_of_y,
   tippyContextMenu,
+  manufacturerStyle,
 } from "./commons";
 import { limited_uses_indicator, ref_params, reserve_used_indicator } from "./refs";
 import {
@@ -851,9 +852,11 @@ export function manufacturer_ref(source_path: string, options: HelperOptions): s
 // This if for display purposes and does not provide editable fields
 export function license_ref(item_path: string, options: HelperOptions): string {
   let license = resolve_helper_dotpath(options, item_path) as LancerLICENSE;
+  console.log("license mfr", license.system.manufacturer);
+  const mfr = manufacturerStyle(license.system.manufacturer);
   return `
     <li class="card clipped ref set" ${ref_params(license)}>
-      <div class="lancer-header lancer-primary lancer-license-header medium clipped-top" style="grid-area: 1/1/2/3">
+      <div class="lancer-header ${mfr} medium clipped-top" style="grid-area: 1/1/2/3">
         <i class="cci cci-license i--m i--dark"> </i>
         <div class="major modifier-name">${license.name} ${license.system.curr_rank}</div>
         <div class="ref-controls">

@@ -1,7 +1,14 @@
 import type { HelperOptions } from "handlebars";
 import { ChipIcons, EntryType, SystemType } from "../enums";
 import { encodeMacroData } from "../macros";
-import { inc_if, resolve_helper_dotpath, sp_display, effect_box, defaultPlaceholder } from "./commons";
+import {
+  inc_if,
+  resolve_helper_dotpath,
+  sp_display,
+  effect_box,
+  defaultPlaceholder,
+  manufacturerStyle,
+} from "./commons";
 import { mech_loadout_weapon_slot, buildChipHTML, buildDeployablesArray, buildActionArrayHTML } from "./item";
 import { limited_uses_indicator, ref_params, simple_ref_slot } from "./refs";
 import { compact_tag_list } from "./tags";
@@ -223,14 +230,6 @@ export function pilot_slot(data_path: string, options: HelperOptions): string {
       <span>LL${pilot.system.level}</span>
     </div>
 </div>`;
-}
-
-function manufacturerStyle(mfr: string, border?: boolean): string {
-  let manufacturer = slugify(mfr, "-");
-  if (!["gms", "ipsn", "ssc", "horus", "ha"].includes(manufacturer)) {
-    manufacturer = "primary";
-  }
-  return `lancer${border ? "-border" : ""}-${manufacturer}`;
 }
 
 /**
