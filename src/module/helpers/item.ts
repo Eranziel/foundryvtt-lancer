@@ -373,7 +373,7 @@ export function pilot_armor_slot(armor_path: string, options: HelperOptions): st
   let eva_val = bonuses.find(b => b.lid == "pilot_evasion")?.val ?? "0";
   let hp_val = bonuses.find(b => b.lid == "pilot_hp")?.val ?? "0";
 
-  return `<div class="set ref drop-settable card clipped pilot-armor-compact item" 
+  return `<div class="set ref drop-settable card clipped-top pilot-armor-compact item lancer-border-primary" 
                 ${ref_params(armor, armor_path)} 
                 data-accept-types="${EntryType.PILOT_ARMOR}"
                 >
@@ -440,9 +440,12 @@ export function pilot_weapon_refview(weapon_path: string, options: HelperOptions
     limited_uses_indicator(weapon, weapon_path);
   }
 
-  return `<div class="set ${EntryType.PILOT_WEAPON} ref drop-settable card clipped pilot-weapon-compact item"
-                ${ref_params(weapon, weapon_path)} 
-                data-accept-types="${EntryType.PILOT_WEAPON}">
+  return `<div class="set ${
+    EntryType.PILOT_WEAPON
+  } ref drop-settable card clipped-top pilot-weapon-compact item lancer-border-weapon"
+    ${ref_params(weapon, weapon_path)} 
+    data-accept-types="${EntryType.PILOT_WEAPON}"
+  >
     <div class="lancer-header lancer-weapon">
       <i class="cci cci-weapon i--m i--light"> </i>
       <span class="minor">${weapon.name}</span>
@@ -494,9 +497,10 @@ export function pilot_gear_refview(gear_path: string, options: HelperOptions): s
     uses = limited_uses_indicator(gear, gear_path);
   }
 
-  return `<div class="set ${EntryType.PILOT_GEAR} ref drop-settable card clipped item"
-                ${ref_params(gear, gear_path)} 
-                data-accept-types="${EntryType.PILOT_GEAR}">
+  return `<div class="set ${EntryType.PILOT_GEAR} ref drop-settable card clipped-top item lancer-border-system"
+    ${ref_params(gear, gear_path)} 
+    data-accept-types="${EntryType.PILOT_GEAR}"
+  >
     <div class="lancer-header lancer-system">
       <i class="cci cci-generic-item i--m"> </i>
       <a class="gear-macro"><i class="mdi mdi-message"></i></a>
@@ -588,7 +592,7 @@ export function reserve_refview(reserve_path: string, options: HelperOptions): s
     uses = reserve_used_indicator(reserve_path, options);
   }
 
-  return `<div class="set ${EntryType.RESERVE} ref drop-settable card clipped item"
+  return `<div class="set ${EntryType.RESERVE} ref drop-settable card clipped-top item lancer-border-trait"
                 ${ref_params(reserve, reserve_path)} >
     <div class="lancer-header lancer-trait">
       <i class="${icon} i--m"> </i>
