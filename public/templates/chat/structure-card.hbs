@@ -6,7 +6,11 @@
       <span style="align-self: center;">{{localize "lancer.chat-card.remaining" total=val max=max}}</span>
     </div>
     {{#if rerollMacroData}}
-      <a class="chat-button roll-structure lancer-macro" data-macro="{{rerollMacroData}}" title="Reroll this result">
+      <a
+        class="chat-button roll-structure lancer-macro lancer-button"
+        data-macro="{{rerollMacroData}}"
+        title="Reroll this result"
+      >
         <i class="fas fa-dice-d20 i--m i--light"></i>
       </a>
     {{/if}}

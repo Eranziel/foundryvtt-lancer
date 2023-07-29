@@ -1805,6 +1805,11 @@ a.activation-chip > i.mdi {
   margin-right: 6px;
 }
 
+.stat-card {
+  display: grid;
+  grid-template: 1fr 1fr / 1fr;
+}
+
 .stat-macro-container {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
@@ -1847,7 +1852,7 @@ a.activation-chip > i.mdi {
   /* The main, top region */
   .stat-grid {
     display: grid;
-    grid-template: repeat(5, 4.5em) / repeat(5, 1fr);
+    grid-template: repeat(5, 5em) / repeat(5, 1fr);
 
     /* Most things auto-layout just fine */
 
@@ -1878,21 +1883,8 @@ a.activation-chip > i.mdi {
       margin: 0px 7px;
       flex-grow: unset;
 
-      /* Reroll buttons */
-      a.lancer-macro {
-        font-size: 20px;
-        max-width: 20px;
-        max-height: 20px;
-        min-width: 20px;
-        max-height: 20px;
-        position: relative;
-        top: 3px;
-      }
-
       .stat-macro-container {
-        padding-left: 0.25em;
-        padding-right: 0.5em;
-        grid-template-columns: 1fr 1fr;
+        grid-template: auto / fit-content(75%) auto;
       }
     }
   }
@@ -2173,6 +2165,7 @@ a.activation-chip > i.mdi {
 .lancer-button {
   border: 1px solid var(--darken-3);
   border-radius: 5px;
+  padding: 0.25em;
   background: var(--light-gray-color);
   color: var(--dark-text);
   box-shadow: var(--button-shadow);

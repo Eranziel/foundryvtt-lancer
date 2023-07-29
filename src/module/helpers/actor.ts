@@ -19,8 +19,8 @@ interface ButtonOverrides {
 }
 
 function _rollable_macro_button(macroData: string, overrides: ButtonOverrides = {}): string {
-  return `<a class="i--dark i--sm ${overrides.classes ?? ""} lancer-macro" data-macro="${macroData}">
-    <i class="fas ${overrides.icon ?? "fa-dice-d20"}"></i>
+  return `<a class="lancer-macro lancer-button ${overrides.classes ?? ""}" data-macro="${macroData}">
+    <i class="fas ${overrides.icon ?? "fa-dice-d20"} i--dark i--s"></i>
   </a>`;
 }
 
@@ -41,7 +41,7 @@ export function stat_edit_card_max(
   let data_val = resolve_helper_dotpath(options, data_path, 0);
   let max_val = resolve_helper_dotpath(options, max_path, 0);
   return `
-    <div class="card clipped">
+    <div class="stat-card card clipped">
       <div class="lancer-header lancer-primary ">
         <i class="${icon} i--m i--light header-icon"> </i>
         <span class="major">${title}</span>
@@ -82,19 +82,19 @@ export function stat_view_card(
   if (options.rollable) macro_button = _rollable_macro_button(macroData);
 
   return `
-    <div class="card clipped">
+    <div class="stat-card card clipped">
       <div class="lancer-header lancer-primary ">
         ${inc_if(`<i class="${icon} i--m i--light header-icon"> </i>`, icon)}
         <span class="major">${title}</span>
       </div>
-      <div class="flexrow ${macro_button ? "stat-macro-container" : ""}">
+      <div class="${macro_button ? "stat-macro-container" : "flexrow flex-center"}">
         ${macro_button ? macro_button : ""}
         <span class="lancer-stat major" data-path="${data_path}">${data_val}</span>
         ${
           macro_button
             ? data_path == "system.grit" || data_path === "system.tier"
               ? _rollable_macro_button(macroBasicData, { icon: "cci cci-weapon" })
-              : "<div></div>"
+              : ""
             : ""
         }
       </div>
@@ -162,7 +162,7 @@ export function clicker_stat_card(
   });
   let macroBasicData = encodeMacroData({ title: "BASIC ATTACK", fn: "prepareAttackMacro", args: [] });
   if (roller)
-    button = `<a class="lancer-macro i--dark i--sm" data-macro="${macroData}"><i class="fas fa-dice-d20"></i></a>`;
+    button = `<a class="lancer-macro lancer-button" data-macro="${macroData}"><i class="fas fa-dice-d20 i--dark i--s"></i></a>`;
   return `<div class="card clipped stat-container">
       <div class="lancer-header lancer-primary ">
         <i class="${icon} i--m i--light header-icon"> </i>
@@ -283,15 +283,14 @@ export function tech_flow_card(title: string, icon: string, data_path: string, o
   });
 
   return `
-    <div class="card clipped">
+    <div class="stat-card card clipped">
       <div class="lancer-header lancer-primary">
         ${inc_if(`<i class="${icon} i--m i--light header-icon"> </i>`, icon)}
         <span class="major">${title}</span>
       </div>
-      <div class="flexrow stat-macro-container">
-      ${_rollable_macro_button(macroData)}
+      <div class="stat-macro-container">
+        ${_rollable_macro_button(macroData)}
         <span class="lancer-stat major" data-path="${data_path}">${data_val}</span>
-        <div></div>
       </div>
     </div>
     `;

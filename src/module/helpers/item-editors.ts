@@ -347,7 +347,7 @@ export function item_edit_uses(cur_uses_path: string, max_uses_path: string, opt
     <div class="flexcol uses-editor clipped-top">
         <span class="major">Uses</span>
         <div class="flexrow flex-center no-wrap">
-            <input class="lancer-stat lancer-stat" type="number" name="${cur_uses_path}" value="${cur_uses}" data-dtype="Number" style="justify-content: left"/>
+            <input class="lancer-stat" type="number" name="${cur_uses_path}" value="${cur_uses}" data-dtype="Number" style="justify-content: left"/>
             <span>/</span>
             <span class="lancer-stat" style="justify-content: left">${max_uses}</span>
         </div>

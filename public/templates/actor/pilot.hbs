@@ -66,8 +66,8 @@
 
         <div class="card clipped" style="grid-area: 2/1/3/2;">
           <span class="lancer-header lancer-primary major">{{localize "lancer.pilot-sheet.cloud-download.label"}}</span>
-          <a class="cloud-control i--dark i--l" style="align-self: center;" data-action="download">
-            <i class="cci cci-tech-quick"></i>
+          <a class="cloud-control lancer-button" style="align-self: center;" data-action="download">
+            <i class="cci cci-tech-quick i--dark i--l"></i>
           </a>
           <span class="minor desc-text" style="text-align: center;">
             {{localize "lancer.pilot-sheet.cloud-download.lastSync" timestamp=system.last_cloud_update}}
@@ -107,7 +107,7 @@
     <div class="tab pilot flexcol" data-group="primary" data-tab="narrative">
       <div class="card clipped">
         <div class="flexrow">
-          {{{clicker-stat-card "LEVEL" "mdi mdi-shield-outline" "system.level" false }}}
+          {{{clicker-stat-card "LICENSE LEVEL" "mdi mdi-shield-outline" "system.level" false }}}
           {{{stat-rollable-card "GRIT" "cci cci-armor" "system.grit" }}}
         </div>
       </div>

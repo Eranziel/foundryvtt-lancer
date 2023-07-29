@@ -63,7 +63,7 @@ export function skillView(skill_path: string, options: HelperOptions) {
   if (!skill) return "";
   return `
       <li class="card clipped skill-compact ref set" ${ref_params(skill)}>
-        <div class="lancer-trigger-header medium clipped-top" style="grid-area: 1/1/2/3">
+        <div class="lancer-header lancer-trait medium clipped-top" style="grid-area: 1/1/2/3">
           <i class="cci cci-skill i--m i--dark"> </i>
           <span class="major modifier-name">${skill.name}</span>
           <div class="ref-controls">
@@ -72,7 +72,7 @@ export function skillView(skill_path: string, options: HelperOptions) {
             </a>
           </div>
         </div>
-        <a class="flexrow skill-macro" style="grid-area: 2/1/3/2;">
+        <a class="flexrow skill-macro lancer-button" style="grid-area: 2/1/3/2;">
           <i class="fas fa-dice-d20 i--sm i--dark"></i>
           <div class="major roll-modifier" style="align-self: center">+${skill.system.curr_rank * 2}</div>
         </a>
