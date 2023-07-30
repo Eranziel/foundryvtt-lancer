@@ -58,6 +58,10 @@
     "tippy.js": "^6.3.1"
   },
   "lint-staged": {
-    "*.ts": "prettier --write"
+    "*.ts": "prettier --write",
+    "*.svelte": "prettier --write",
+    "*.hbs": "prettier --write",
+    "*.scss": "prettier --write",
+    "*.css": "prettier --write"
   }
 }
