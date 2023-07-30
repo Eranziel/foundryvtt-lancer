@@ -22,7 +22,7 @@ $document-types: join($item-types, $actor-types);
   --secondary-highlight: color-mix(in srgb, var(--secondary-color), #fff 55%);
   --secondary-text: #ffffff;
   --dark-gray-color: #4d4d4d;
-  --light-gray-color: #b3b9ba;
+  --light-gray-color: #919a9b;
   --tooltip-background: #ffffff;
   --tooltip-text: #000000;
   --ref-color: color-mix(in srgb, var(--primary-color), #fff 90%);
@@ -841,8 +841,8 @@ tr.lcp-index-header {
 
 /* Re-allow clicking in these damn things */
 .lancer input,
-.input,
-textarea {
+.lancer .input,
+.lancer textarea {
   -webkit-user-select: auto;
   -moz-user-select: auto;
   -ms-user-select: auto;

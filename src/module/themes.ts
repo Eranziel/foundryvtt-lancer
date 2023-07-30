@@ -52,7 +52,7 @@ export const themeGMS: LancerUITheme = {
   secondaryHighlight: "#color-mix(in srgb, var(--secondary-color), #fff 55%)",
   secondaryText: "#ffffff",
   darkGrayColor: "#4d4d4d",
-  lightGrayColor: "#b3b9ba",
+  lightGrayColor: "#919a9b",
   tooltipBackground: "#dbdbdb",
   tooltipText: "#000000",
   // Gear type colors
