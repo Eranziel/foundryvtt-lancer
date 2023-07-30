@@ -4,10 +4,10 @@
   "title": "LANCER",
   "description": "<p>A Foundry VTT game system for <a href=\"https://massif-press.itch.io/corebook-pdf\">Lancer</a> by <a href=\"https://massif-press.itch.io/\">Massif Press</a>, a mud-and-lasers tactical mech RPG.</p><p>\"Lancer for FoundryVTT\" is not an official <i>Lancer</i> product; it is a third party work, and is not affiliated with Massif Press. \"Lancer for FoundryVTT\" is published via the <i>Lancer</i> Third Party License.</p><p><i>Lancer</i> is copyright Massif Press.</p>",
   "version": "2.0.0-rc1",
-  "minimumCoreVersion": "10",
+  "minimumCoreVersion": "11",
   "compatibility": {
     "minimum": 11,
-    "verified": "11.303",
+    "verified": "11.306",
     "maximum": 11
   },
   "authors": [
