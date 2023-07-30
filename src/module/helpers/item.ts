@@ -510,14 +510,12 @@ export function pilot_gear_refview(gear_path: string, options: HelperOptions): s
       </a>
     </div>
     <div class="flexcol">
-      <div class="uses-wrapper">
+      <div class="flexrow">
+        <div class="effect-text" style=" padding: 5px">
+          ${gear.system.description}
+        </div>
         ${uses}
       </div>
-
-      <div class="effect-text" style=" padding: 5px">
-        ${gear.system.description}
-      </div>
-
       ${compact_tag_list(gear_path + ".system.tags", options)}
     </div>
   </div>`;

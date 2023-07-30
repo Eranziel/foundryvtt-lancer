@@ -5,6 +5,7 @@ import { unpackDeployable } from "../actors/deployable";
 import { unpackAction } from "../bits/action";
 import { unpackBonus } from "../bits/bonus";
 import { unpackSynergy } from "../bits/synergy";
+import { unpackTag } from "../bits/tag";
 import { LancerDataModel, UnpackContext } from "../shared";
 import { template_universal_item, template_bascdt, template_uses } from "./shared";
 
@@ -41,7 +42,7 @@ export function unpackPilotGear(
       deployables: data.deployables?.map(d => unpackDeployable(d, context)) ?? [],
       description: data.description,
       lid: data.id,
-      tags: [],
+      tags: (data.tags ?? []).map(unpackTag),
     },
   };
 }
