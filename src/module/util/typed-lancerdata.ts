@@ -22,7 +22,8 @@ import {
   tags as _tags,
   talents as _talents,
   weapons as _weapons,
-} from "lancer-data";
+  // @ts-expect-error
+} from "@massif/lancer-data";
 import {
   PackedActionData,
   PackedCoreBonusData,

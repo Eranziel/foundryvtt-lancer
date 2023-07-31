@@ -28,7 +28,7 @@ const config: UserConfig = {
     ],
   },
   optimizeDeps: {
-    include: ["lancer-data", "jszip" /* "axios" */], // machine-mind's cjs dependencies
+    include: ["@massif/lancer-data", "jszip" /* "axios" */], // machine-mind's cjs dependencies
   },
   build: {
     outDir: path.resolve(__dirname, "dist"),
