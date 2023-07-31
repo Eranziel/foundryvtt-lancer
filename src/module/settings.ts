@@ -25,8 +25,7 @@ export const registerSettings = function () {
     config: false,
     type: String,
     // Toggle for dev swapping to test import.
-    default: "0.0.0",
-    // default: "3.0.21",
+    default: "",
   });
 
   game.settings.register(game.system.id, LANCER.setting_lcps, {

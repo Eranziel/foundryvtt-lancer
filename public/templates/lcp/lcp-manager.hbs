@@ -1,12 +1,18 @@
 <form autocomplete="off" class="prototype">
   <div class="flexcol">
     {{! Update core data }}
-    {{#if core_update}}
+    {{#if coreUpdate}}
       <div class="card clipped flexcol">
         <div class="lancer-header lancer-primary major">LANCER Core Data</div>
         <div class="form fields flexrow" style="align-items: center">
-          <span class="medium" style="margin: 5px 10px">Core Data is at v{{core_version}}</span>
-          {{#if (ne core_version core_update)}}
+          <span style="margin: 5px 10px">
+            {{#if coreVersion}}
+              Core Data is at v{{coreVersion}}
+            {{else}}
+              Core Data has not been built yet
+            {{/if}}
+          </span>
+          {{#if (ne coreVersion coreUpdate)}}
             <button
               type="button"
               class="lcp-core-update"
@@ -15,7 +21,7 @@
               style="margin: 5px 10px"
             >
               <i class="cci cci-content-manager i--m"></i>
-              Update to v{{core_update}}
+              Update to v{{coreUpdate}}
             </button>
           {{else}}
             <button
