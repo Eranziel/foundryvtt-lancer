@@ -39,7 +39,6 @@ export class LancerLicenseSheet extends LancerItemSheet<EntryType.LICENSE> {
         for (let [id, index_data] of index.entries()) {
           // @ts-expect-error
           let item_license = index_data.system.license as string | undefined;
-          if (item_license?.startsWith("mf")) item_license = item_license.slice(3).toUpperCase();
           if (item_license != key) continue;
 
           let doc = await pack.getDocument(id);

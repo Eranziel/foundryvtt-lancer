@@ -64,7 +64,7 @@ export function unpackWeaponMod(
       destroyed: undefined,
       effect: data.effect,
       integrated: data.integrated,
-      license: data.license_id ?? data.license,
+      license: data.license_id || data.license,
       license_level: data.license_level,
       manufacturer: data.source,
       sp: data.sp,

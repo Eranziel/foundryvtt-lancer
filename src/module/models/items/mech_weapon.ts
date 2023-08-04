@@ -140,7 +140,7 @@ export function unpackMechWeapon(
       deployables: data.deployables?.map(d => unpackDeployable(d, context)),
       destroyed: undefined,
       integrated: data.integrated,
-      license: data.license_id ?? data.license,
+      license: data.license_id || data.license,
       license_level: data.license_level,
       lid: data.id,
       loaded: undefined,

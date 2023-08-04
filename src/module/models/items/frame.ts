@@ -118,7 +118,7 @@ export function unpackFrame(
         use: restrict_enum(FrameEffectUse, FrameEffectUse.Unknown, cs.use),
       },
       description: data.description,
-      license: data.license_id ?? data.id,
+      license: data.license_id || data.id,
       license_level: data.license_level ?? 2,
       lid: data.id,
       manufacturer: data.source,
