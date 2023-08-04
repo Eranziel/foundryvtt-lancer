@@ -665,20 +665,7 @@ data-action="set" data-action-value="(int)${i}" data-path="${weapon_path}.system
 
   // What profile are we using?
   let profile = weapon.system.active_profile;
-  let profile_path = `${weapon_path}.profiles.${weapon.system.selected_profile_index}`;
-
-  // Augment ranges
-  /*
-  if (mech) {
-    ranges = Range.CalcTotalRangeWithBonuses(weapon, weapon.system.selected_profile_index, mech, mod ?? undefined);
-  }
-
-  // Augment tags
-  let tags = profile.tags;
-  if (mod) {
-    tags = Tag.MergeTags(tags, mod.system.added_tags);
-  }
-  */
+  let profile_path = `${weapon_path}.system.profiles.${weapon.system.selected_profile_index}`;
 
   // Generate loading segment as needed
   let loading = "";
@@ -719,9 +706,9 @@ data-action="set" data-action-value="(int)${i}" data-path="${weapon_path}.system
         <div class="flexrow" style="text-align: left; white-space: nowrap;">
           <a class="roll-attack lancer-button"><i class="fas fa-dice-d20 i--m i--dark"></i></a>
           <hr class="vsep">
-          ${show_range_array(profile.range, options)}
+          ${show_range_array(profile.all_range, options)}
           <hr class="vsep">
-          ${show_damage_array(profile.damage, options)}
+          ${show_damage_array(profile.all_damage, options)}
 
           ${inc_if(`<hr class="vsep"><div class="uses-wrapper">`, loading || limited)}
           <!-- Loading toggle, if we are loading-->
@@ -736,7 +723,7 @@ data-action="set" data-action-value="(int)${i}" data-path="${weapon_path}.system
           ${on_attack}
           ${on_hit}
           ${on_crit}
-          ${compact_tag_list(profile_path + ".tags", options)}
+          ${compact_tag_list(profile_path + ".all_tags", options)}
         </div>
         ${mod_text}
       </div>

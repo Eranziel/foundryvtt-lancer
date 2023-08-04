@@ -188,7 +188,7 @@ export async function initAttackData(
       // TODO: check bonuses for flat attack bonus
       state.data.acc_diff = options?.acc_diff
         ? AccDiffData.fromObject(options.acc_diff)
-        : AccDiffData.fromParams(state.item, profile.tags, state.data.title, Array.from(game.user!.targets));
+        : AccDiffData.fromParams(state.item, profile.all_tags, state.data.title, Array.from(game.user!.targets));
       return true;
     } else if (state.item.is_mech_system()) {
       // Tech attack system
@@ -359,7 +359,7 @@ export async function setAttackTags(
   let success = false;
   if (state.item.is_mech_weapon()) {
     let profile = state.item.system.active_profile;
-    state.data.tags = [...(profile.tags ?? []), ...(profile.bonus_tags ?? [])];
+    state.data.tags = profile.all_tags;
     success = true;
   } else if (state.item.is_mech_system()) {
     state.data.tags = state.item.system.tags;

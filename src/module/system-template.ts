@@ -403,10 +403,13 @@ export namespace SystemData {
       synergies: SynergyData[];
       counters: CounterData[];
 
-      // Derived, crudely for now
+      // Derived
       bonus_damage: Damage[];
       bonus_tags: Tag[];
       bonus_range: Range[];
+      all_damage: Damage[];
+      all_tags: Tag[];
+      all_range: Range[];
     }>;
     loaded: false;
     selected_profile_index: number;
@@ -417,7 +420,9 @@ export namespace SystemData {
     no_synergies: boolean;
     no_attack: boolean;
 
-    // Derived - all tags across all profiles
+    // Derived - all base tags across all profiles
+    all_base_tags: Tag[];
+    // All tags, inncluding bonus tags
     all_tags: Tag[];
     // The current profile
     active_profile: this["profiles"][0];

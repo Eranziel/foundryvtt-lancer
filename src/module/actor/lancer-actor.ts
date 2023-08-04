@@ -260,6 +260,9 @@ export class LancerActor extends Actor {
           }
           if (slot.mod?.status == "resolved") {
             equipped_ai += slot.mod.value.system.tags.some(t => t.is_ai) ? 1 : 0;
+            if (slot.weapon?.value) {
+              slot.weapon.value.system.mod = slot.mod.value;
+            }
           }
         }
       }

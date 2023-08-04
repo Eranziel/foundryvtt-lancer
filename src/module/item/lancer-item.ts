@@ -173,8 +173,17 @@ export class LancerItem extends Item {
 
     // Collect all tags on mech weapons
     if (this.is_mech_weapon()) {
-      this.system.all_tags = this.system.profiles.flatMap(p => p.tags);
+      this.system.all_base_tags = this.system.profiles.flatMap(p => p.tags);
+      this.system.all_tags = [];
       this.system.active_profile = this.system.profiles[this.system.selected_profile_index] ?? this.system.profiles[0];
+      for (let p of this.system.profiles) {
+        p.bonus_tags = [];
+        p.bonus_range = [];
+        p.bonus_damage = [];
+        p.all_tags = [];
+        p.all_range = [];
+        p.all_damage = [];
+      }
     } else if (this.is_talent()) {
       // Talent apply unlocked items
       let unlocked_ranks = this.system.ranks.slice(0, this.system.curr_rank);
@@ -194,13 +203,18 @@ export class LancerItem extends Item {
     if (lim_tag && this._hasUses()) {
       this.system.uses.max = lim_tag.num_val ?? 0; // We will apply bonuses later
     }
+
+    if (!this.actor) {
+      // This would ordinarily be called by our parent actor. We must do it ourselves.
+      this.prepareFinalAttributes(null);
+    }
   }
 
   /**
    * Method used by mech weapons (and perhaps some other miscellaneous items???) to prepare their individual stats
    * using the bonuses described in the provided synthetic actor.
    */
-  prepareFinalAttributes(system: SystemData.Mech | SystemData.Pilot): void {
+  prepareFinalAttributes(system: SystemData.Mech | SystemData.Pilot | null): void {
     // At the very least, we can apply limited bonuses from our parent
     if (this.actor?.is_mech()) {
       if (this._hasUses() && this.system.uses.max) {
@@ -210,14 +224,20 @@ export class LancerItem extends Item {
 
     if (this.is_mech_weapon()) {
       // Add mod bonuses
-      if (this.system.mod) {
-        this.system.active_profile.bonus_damage = [...this.system.mod.system.added_damage];
-        this.system.active_profile.bonus_range = [...this.system.mod.system.added_range];
-        this.system.active_profile.bonus_tags = [...this.system.mod.system.added_tags];
+      for (let profile of this.system.profiles) {
+        if (this.system.mod) {
+          profile.bonus_damage.push(...this.system.mod.system.added_damage);
+          profile.bonus_range.push(...this.system.mod.system.added_range);
+          profile.bonus_tags.push(...this.system.mod.system.added_tags);
+        }
+        profile.all_damage = Damage.CombineLists(profile.damage, profile.bonus_damage);
+        profile.all_range = Range.CombineLists(profile.range, profile.bonus_range);
+        profile.all_tags = Tag.MergeTags(profile.tags, profile.bonus_tags);
+        this.system.all_tags.push(...profile.all_tags);
       }
 
       // Add all bonuses
-      let bonuses = (system as SystemData.Mech).all_bonuses;
+      let bonuses = (system as SystemData.Mech)?.all_bonuses ?? [];
       for (let b of bonuses) {
         if (b.lid == "damage") {
           if (!bonusAffectsWeapon(this, b)) continue;
