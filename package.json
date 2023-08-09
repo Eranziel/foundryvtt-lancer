@@ -48,7 +48,7 @@
   },
   "dependencies": {
     "@types/marked": "^1.2.1",
-    "aws-amplify": "^4.2.9",
+    "aws-amplify": "^5.3.4",
     "fp-ts": "^2.11.2",
     "io-ts": "^2.2.16",
     "lancer-initiative": "^3.1.0",
