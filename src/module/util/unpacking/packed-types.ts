@@ -407,7 +407,6 @@ export interface IContentPackData {
   reserves?: PackedReserveData[];
   environments?: PackedEnvironmentData[];
   sitreps?: PackedSitrepData[];
-  quirks?: string[];
 }
 
 export interface IContentPack {

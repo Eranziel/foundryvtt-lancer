@@ -154,7 +154,6 @@ export function getBaseContentPack(): IContentPack {
       talents: lancerData.talents.filter(m => m.id != "missing_frame"),
       weapons: lancerData.weapons.filter(m => m.id != "missing_mechweapon"),
 
-      quirks: lancerData.quirks,
       environments: lancerData.environments,
       reserves: lancerData.reserves,
       sitreps: lancerData.sitreps,
