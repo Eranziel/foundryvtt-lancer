@@ -1,0 +1,39 @@
+name: Ruin Tokens
+permission:
+  default: 0
+  taXAFvhByAtu8MoU: 3
+type: script
+flags:
+  core:
+    sourceId: Macro.UIUpsTwS6c4oYRn9
+  combat-utility-belt:
+    macroTrigger: ''
+scope: global
+command: |-
+  game.user.targets.forEach(t => {
+    // CONFIG BELOW:
+    // Number of images per size, going from S1 to S3.
+    let IMAGES_PER_SIZE = [2, 1, 1];
+    // Data path where your images are stored. Image files should be named like 'wreck-s2-1.png'. Last digit should be contiguous (don't have a 'wreck-s1-3.png' if there isn't a 'wreck-s1-2.png')
+    let IMAGE_PATH = "wrecks/";
+
+    // Script:
+    let size = t.actor.data.data.derived.mm.Size;
+    // Get random number between 1 and N, where n is number of images stored for mech size.
+    let rand = Math.ceil(Math.random() * IMAGES_PER_SIZE[size- 1]);
+    
+    let imgString = `${IMAGE_PATH}wreck-s${size}-${rand}.png`;
+    console.log(`Picked ${imgString} for ${t.name}`);
+
+    let data = {
+      img: imgString
+    };
+    t.document.update(data);
+    t.refresh();
+    game.combat.getCombatantByToken(t.id).delete();
+  });
+author: taXAFvhByAtu8MoU
+img: systems/lancer/assets/icons/macro-icons/generic_item.svg
+actorIds: []
+_id: 3qY1JO4MK6uK2znP
+_key: '!macros!3qY1JO4MK6uK2znP'

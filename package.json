@@ -47,6 +47,7 @@
     "yargs": "^15.4.1"
   },
   "dependencies": {
+    "@foundryvtt/foundryvtt-cli": "^0.0.7",
     "@massif/lancer-data": "^3.1.5",
     "@types/marked": "^1.2.1",
     "aws-amplify": "^4.2.9",
