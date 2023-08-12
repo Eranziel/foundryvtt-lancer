@@ -1,5 +1,5 @@
-import { getTrackerAppearance, setAppearance } from "lancer-initiative";
-import type { LancerCombat, LancerCombatant } from "lancer-initiative";
+import { getTrackerAppearance, setAppearance } from "./combat/lancer-combat-tracker";
+import type { LancerCombat, LancerCombatant } from "./combat/lancer-combat";
 import { LANCER } from "./config";
 import { AutomationConfig } from "./apps/automation-settings";
 import CompconLoginForm from "./helpers/compcon-login-form";

@@ -146,7 +146,8 @@ import { LancerToken, LancerTokenDocument } from "./module/token";
 import { applyGlobalDragListeners } from "./module/helpers/dragdrop";
 import { gridDist } from "./module/helpers/automation/targeting";
 import CompconLoginForm from "./module/helpers/compcon-login-form";
-import { LancerCombat, LancerCombatant, LancerCombatTracker } from "lancer-initiative";
+import { LancerCombat, LancerCombatant } from "./module/combat/lancer-combat";
+import { LancerCombatTracker } from "./module/combat/lancer-combat-tracker";
 import { LancerCombatTrackerConfig } from "./module/helpers/lancer-initiative-config-form";
 import { MechModel } from "./module/models/actors/mech";
 import { MechSystemModel } from "./module/models/items/mech_system";
@@ -313,7 +314,6 @@ Hooks.once("init", async function () {
   CONFIG.Token.objectClass = LancerToken;
   CONFIG.Combat.documentClass = LancerCombat;
   CONFIG.Combatant.documentClass = LancerCombatant;
-  // @ts-expect-error TODO: fix up Options vs ApplicationOptions once we have more modern types
   CONFIG.ui.combat = LancerCombatTracker;
 
   // Set up default system status icons
