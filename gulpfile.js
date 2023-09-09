@@ -43,27 +43,45 @@ function build() {
   return cp.spawn("npx", ["vite", "build"], { stdio: "inherit", shell: true });
 }
 
-function rebuild_pack(name) {
-  cp.spawnSync("rm", ["-r", `./dist/packs/${name}`], {stdio: "inherit"});
-  cp.spawnSync("mkdir", ["-p", `./dist/packs/${name}`], {stdio: "inherit"});
-  cp.spawnSync("cp", ["-r", `./src/packs/${name}`, `./dist/packs/${name}/_source`], {stdio: "inherit"});
-  cp.spawnSync("npx", ["fvtt", "package", "workon", "lancer", "--type", "System"], {stdio: "inherit"});
-  cp.spawnSync("npx", ["fvtt", "package", "pack", "-n", name], {stdio: "inherit"});
-  cp.spawnSync("rm", ["-r", `./dist/packs/${name}/_source`], {stdio: "inherit"});
+async function rebuild_pack(name) {
+  console.log(chalk.green(`Rebuilding ${chalk.blueBright(name)}`));
+  const packPath = path.resolve(".", "dist", "packs", name);
+  if (await fs.exists(packPath)) {
+    await fs.remove(packPath);
+  }
+  await fs.ensureDir(packPath);
+  await fs.copy(path.resolve(".", "src", "packs", name), path.resolve(packPath, "_source"));
+  cp.spawnSync("npx", ["fvtt", "package", "workon", "lancer", "--type", "System"], { stdio: "inherit", shell: true });
+  cp.spawnSync("npx", ["fvtt", "package", "pack", "-n", name], { stdio: "inherit", shell: true });
+  await fs.remove(path.resolve(packPath, "_source"));
+  return Promise.resolve();
 }
 
-function build_packs() {
-  rebuild_pack("core_macros");
-  rebuild_pack("aoe_templates");
-  return new Promise((r) => r()); // Silence gulp alarm
+async function configure_fvtt_cli() {
+  const config = await fs.readJSON("foundryconfig.json");
+  console.log(
+    chalk.green(`Configuring foundryvtt-cli to use ${chalk.blueBright(config.dataPath)} as Foundry data directory`)
+  );
+  cp.spawnSync("npx", ["fvtt", "configure", "set", "dataPath", config.dataPath], {
+    stdio: "inherit",
+    shell: true,
+  });
+  return Promise.resolve();
+}
+
+async function build_packs() {
+  await configure_fvtt_cli();
+  await rebuild_pack("core_macros");
+  await rebuild_pack("aoe_templates");
+  return Promise.resolve();
 }
 
 function _distWatcher() {
   const publicDirPath = path.resolve(process.cwd(), "public");
   const watcher = gulp.watch(["public/**/*.hbs"], { ignoreInitial: false });
-  watcher.on('change', async function(file, stats) {
+  watcher.on("change", async function (file, stats) {
     console.log(`File ${file} was changed`);
-    const partial_file = path.relative(publicDirPath, file)
+    const partial_file = path.relative(publicDirPath, file);
     await fs.copy(path.join("public", partial_file), path.join("dist", partial_file));
   });
 }
@@ -129,6 +147,7 @@ async function linkUserData() {
       console.log(chalk.green(`Copying build to ${chalk.blueBright(linkDir)}`));
       await fs.symlink(path.resolve("./dist"), linkDir, "junction");
     }
+    await configure_fvtt_cli();
     return Promise.resolve();
   } catch (err) {
     Promise.reject(err);
