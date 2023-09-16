@@ -64,7 +64,7 @@ export function unpackMechSystem(
       synergies: data.synergies?.map(unpackSynergy),
       tags: data.tags?.map(unpackTag),
       type: data.type,
-      uses: 0,
+      uses: { value: 0, max: 0 },
     },
   };
 }

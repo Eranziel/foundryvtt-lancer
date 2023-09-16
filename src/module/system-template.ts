@@ -175,7 +175,10 @@ export namespace SystemTemplates {
     export interface NullableStatBlock extends SourceTemplates.NPC.NullableStatBlock {}
 
     // This small helper type is just used to repair npc types "tags" field
-    type NPCFixup<T extends { tags: TagData[]; uses: number }> = Omit<T, "tags" | "uses" | "range" | "damage"> & {
+    type NPCFixup<T extends { tags: TagData[]; uses: FullBoundedNum }> = Omit<
+      T,
+      "tags" | "uses" | "range" | "damage"
+    > & {
       tags: Tag[];
       uses: FullBoundedNum;
     };

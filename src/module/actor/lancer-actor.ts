@@ -149,7 +149,7 @@ export class LancerActor extends Actor {
 
     // Only set heat on items that have it
     if (this.hasHeatcap()) {
-      changes["system.heat"] = this.system.heat.value + damage.Heat;
+      changes["system.heat.value"] = this.system.heat.value + damage.Heat;
     }
 
     const armor_damage = Math.ceil(damage.Kinetic + damage.Energy + damage.Explosive + damage.Variable);
@@ -159,12 +159,12 @@ export class LancerActor extends Actor {
     if (this.system.overshield.value) {
       const leftover_overshield = Math.max(this.system.overshield.value - total_damage, 0);
       total_damage = Math.max(total_damage - this.system.overshield.value, 0);
-      changes["system.overshield"] = leftover_overshield;
+      changes["system.overshield.value"] = leftover_overshield;
     }
 
     // Finally reduce HP by remaining damage
     if (total_damage) {
-      changes["system.hp"] = this.system.hp.value - total_damage;
+      changes["system.hp.value"] = this.system.hp.value - total_damage;
     }
 
     // Add to Burn stat
@@ -423,10 +423,10 @@ export class LancerActor extends Actor {
     let updates;
     if (isBar) {
       if (isDelta) value = Number(current.value) + value;
-      updates = { [`data.${attribute}.value`]: value };
+      updates = { [`system.${attribute}.value`]: value };
     } else {
       if (isDelta) value = Number(current) + value;
-      updates = { [`data.${attribute}`]: value };
+      updates = { [`system.${attribute}`]: value };
     }
 
     // Call a hook to handle token resource bar updates
@@ -510,10 +510,10 @@ export class LancerActor extends Actor {
       (this.is_mech() || this.is_npc())
     ) {
       const data = changed as any; // DeepPartial<RegMechData | RegNpcData>;
-      if ((data.system?.heat ?? 0) > this.system.heat.max && this.system.stress.value > 0) {
+      if ((data.system?.heat?.value ?? 0) > this.system.heat.max && this.system.stress.value > 0) {
         prepareOverheatMacro(this);
       }
-      if ((data.system?.hp ?? 1) <= 0 && this.system.structure.value > 0) {
+      if ((data.system?.hp?.value ?? 1) <= 0 && this.system.structure.value > 0) {
         prepareStructureMacro(this);
       }
     }

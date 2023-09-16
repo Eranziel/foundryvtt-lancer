@@ -3,7 +3,7 @@ import { DamageType, EntryType, RangeType, SystemType, WeaponSize, WeaponType } 
 import { format_dotpath } from "../helpers/commons";
 import { LancerItem } from "../item/lancer-item";
 import { regRefToId, regRefToLid, regRefToUuid } from "../util/migrations";
-import { SourceData } from "../source-template";
+import { FullBoundedNum, SourceData } from "../source-template";
 import { SystemTemplates } from "../system-template";
 
 // @ts-ignore
@@ -325,6 +325,47 @@ export class FakeBoundedNumberField extends fields.NumberField {
     if (typeof value == "object") {
       value = value.value ?? 0;
     }
+    return super._cast(value);
+  }
+}
+
+export class FullBoundedNumberField extends fields.SchemaField {
+  defaultValue: number = 10;
+  defaultMax: number = 10;
+
+  constructor(options: { min?: number; max?: number; initialValue?: number } = {}) {
+    super(
+      {
+        min: new fields.NumberField({ integer: true, nullable: false, initial: options?.min ?? 0 }),
+        max: new fields.NumberField({
+          integer: true,
+          nullable: false,
+          initial: options?.max ?? FullBoundedNumberField.defaultMax,
+        }),
+        value: new fields.NumberField({ integer: true, nullable: false, initial: options?.initialValue ?? 0 }),
+      },
+      options
+    );
+  }
+
+  /** @override */
+  initialize(value: FullBoundedNum, model: any) {
+    // Expand to a somewhat reasonable range. `prepareData` functions should handle the rest
+    return {
+      min: value.min ?? this.options?.min ?? 0,
+      max: value.max ?? this.options?.max ?? value.value ?? FullBoundedNumberField.defaultMax,
+      value: value.value ?? this.options?.initial ?? 0,
+    };
+  }
+
+  /** @override */
+  _cast(value: FullBoundedNum) {
+    if (typeof value == "number") {
+      value = { value, min: this.options?.min ?? 0, max: this.options?.max ?? FullBoundedNumberField.defaultValue };
+    }
+    if (value.min == null || value.min == undefined) value.min = this.options?.min ?? 0;
+    if (value.max == null || value.max == undefined)
+      value.max = this.options?.max ?? value.value ?? FullBoundedNumberField.defaultMax;
     return super._cast(value);
   }
 }

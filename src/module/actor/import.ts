@@ -254,8 +254,8 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
         text_appearance: data.text_appearance,
         bond_state: bond
           ? {
-              xp: data.xp,
-              stress: data.stress,
+              "xp.value": data.xp,
+              "stress.value": data.stress,
               answers: data.bondAnswers,
               minor_ideal: data.minorIdeal,
               burdens: data.burdens.map(b => ({
@@ -402,7 +402,7 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
           // Universal stuff
           lid: cloud_mech.id,
           "hp.value": cloud_mech.current_hp,
-          overshield: cloud_mech.overshield,
+          "overshield.value": cloud_mech.overshield,
           burn: cloud_mech.burn,
           activations: cloud_mech.activations,
           // custom_counters: cloud_mech. - CC Doesn't have these except on pilots

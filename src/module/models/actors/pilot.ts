@@ -1,5 +1,5 @@
 import { template_action_tracking, template_statuses, template_universal_actor } from "./shared";
-import { LancerDataModel, EmbeddedRefField, SyncUUIDRefField, FakeBoundedNumberField } from "../shared";
+import { LancerDataModel, EmbeddedRefField, SyncUUIDRefField, FullBoundedNumberField } from "../shared";
 import { EntryType } from "../../enums";
 import { regRefToUuid } from "../../util/migrations";
 import { CounterField } from "../bits/counter";
@@ -33,8 +33,8 @@ const pilot_schema = {
   text_appearance: new fields.HTMLField(),
 
   bond_state: new fields.SchemaField({
-    xp: new FakeBoundedNumberField({ min: 0, max: 8, integer: true }),
-    stress: new FakeBoundedNumberField({ min: 0, max: 8, integer: true }),
+    xp: new FullBoundedNumberField({ min: 0, max: 8 }),
+    stress: new FullBoundedNumberField({ min: 0, max: 8 }),
     xp_checklist: new fields.SchemaField({
       major_ideals: new fields.ArrayField(new fields.BooleanField(), { initial: [false, false, false] }),
       minor_ideal: new fields.BooleanField({ initial: false }),

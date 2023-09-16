@@ -70,7 +70,7 @@ export function unpackWeaponMod(
       sp: data.sp,
       synergies: data.synergies?.map(unpackSynergy),
       tags: data.tags?.map(unpackTag),
-      uses: 0,
+      uses: { value: 0, max: 0 },
       added_damage: data.added_damage?.map(unpackDamage),
       added_range: data.added_range?.map(unpackRange),
       added_tags: data.added_tags?.map(unpackTag),

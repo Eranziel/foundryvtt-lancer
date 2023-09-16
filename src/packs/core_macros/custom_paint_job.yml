@@ -17,7 +17,7 @@ command: >-
 
 
   async function scratchedThePaint(cpjId) {
-      await cpjActor.update({data: {hp: 1}});
+      await cpjActor.update({data: {"hp.value": 1}});
       //console.log(cpjActor)
       await cpjActor.updateEmbeddedDocuments("Item",[{_id: cpjId, 'system.destroyed':true}])
       return "Done.";
@@ -64,4 +64,4 @@ permission:
   default: 0
   2a2IgZ2kiAqXSGqu: 3
 flags: {}
-_key: '!macros!angOaW77n9ZZZqgq'
+_key: "!macros!angOaW77n9ZZZqgq"

@@ -66,23 +66,24 @@ export function regRefToLid(rr: any): null | string {
 // Used for fixing old derived.* attrs
 export function correctLegacyBarAttribute(attr_name: string | null): string {
   attr_name = attr_name || ""; // sanity
-  if (attr_name.includes("heat")) {
-    return "heat";
-  } else if (attr_name.includes("hp")) {
-    return "hp";
-  } else if (attr_name.includes("shield")) {
-    return "overshield";
-  } else if (attr_name.includes("burn")) {
-    return "burn";
-  } else if (attr_name.includes("struct")) {
-    return "structure";
-  } else if (attr_name.includes("stress")) {
-    return "stress";
-  } else if (attr_name.includes("rep")) {
-    return "repairs";
-  } else {
-    return "hp"; // a safe alternative
-  }
+  // if (attr_name.includes("heat")) {
+  //   return "heat";
+  // } else if (attr_name.includes("hp")) {
+  //   return "hp";
+  // } else if (attr_name.includes("shield")) {
+  //   return "overshield";
+  // } else if (attr_name.includes("burn")) {
+  //   return "burn";
+  // } else if (attr_name.includes("struct")) {
+  //   return "structure";
+  // } else if (attr_name.includes("stress")) {
+  //   return "stress";
+  // } else if (attr_name.includes("rep")) {
+  //   return "repairs";
+  // } else {
+  //   return "hp"; // a safe alternative
+  // }
+  return attr_name;
 }
 
 /** Converts a stat array from compcon/old lancer standard to modern standards */

@@ -159,9 +159,9 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
     if (needs_refresh) {
       // Update this, to re-populate arrays etc to reflect new item
       await this.actor.update({
-        "system.hp": this.actor.system.hp.max,
-        "system.stress": this.actor.system.stress.max,
-        "system.structure": this.actor.system.structure.max,
+        "system.hp.value": this.actor.system.hp.max,
+        "system.stress.value": this.actor.system.stress.max,
+        "system.structure.value": this.actor.system.structure.max,
       });
     }
 

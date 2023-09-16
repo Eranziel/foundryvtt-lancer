@@ -1,5 +1,5 @@
 import { CounterField } from "../bits/counter";
-import { FakeBoundedNumberField, LIDField } from "../shared";
+import { FullBoundedNumberField, LIDField } from "../shared";
 const fields: any = foundry.data.fields;
 
 /**
@@ -35,8 +35,8 @@ export function template_universal_actor() {
     activations: new fields.NumberField({ min: 0, integer: true, nullable: false, initial: 1 }),
     custom_counters: new fields.ArrayField(new CounterField()),
 
-    hp: new FakeBoundedNumberField({ integer: true, nullable: false, initial: 0 }),
-    overshield: new FakeBoundedNumberField({ integer: true, nullable: false, initial: 0 }),
+    hp: new FullBoundedNumberField({ initialValue: 10, max: 10 }),
+    overshield: new FullBoundedNumberField({ initialValue: 0, max: 14 }),
     inherited_effects: new fields.SchemaField(
       {
         from_uuid: new fields.StringField(),
@@ -66,14 +66,14 @@ export function template_action_tracking() {
 
 export function template_heat() {
   return {
-    heat: new FakeBoundedNumberField({ integer: true, nullable: false, initial: 0 }),
+    heat: new FullBoundedNumberField({ initialValue: 0, max: 6 }),
   };
 }
 
 export function template_struss() {
   return {
-    stress: new FakeBoundedNumberField({ integer: true, nullable: false, initial: 0 }),
-    structure: new FakeBoundedNumberField({ integer: true, nullable: false, initial: 0 }),
+    stress: new FullBoundedNumberField({ initialValue: 0, max: 1 }),
+    structure: new FullBoundedNumberField({ initialValue: 0, max: 1 }),
   };
 }
 

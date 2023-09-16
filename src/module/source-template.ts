@@ -51,8 +51,8 @@ export type LIDRef = string; // A LID reference to a document.
 export namespace SourceTemplates {
   export interface actor_universal {
     lid: string;
-    hp: number;
-    overshield: number;
+    hp: FullBoundedNum;
+    overshield: FullBoundedNum;
     burn: number;
     activations: number;
     custom_counters: CounterData[];
@@ -92,16 +92,16 @@ export namespace SourceTemplates {
   }
 
   export interface heat {
-    heat: number;
+    heat: FullBoundedNum;
   }
 
   export interface uses {
-    uses: number;
+    uses: FullBoundedNum;
   }
 
   export interface struss {
-    stress: number;
-    structure: number;
+    stress: FullBoundedNum;
+    structure: FullBoundedNum;
   }
 
   export namespace NPC {
@@ -285,7 +285,7 @@ export namespace SourceData {
       SourceTemplates.heat,
       SourceTemplates.struss {
     overcharge: number;
-    repairs: number;
+    repairs: FullBoundedNum;
     core_active: boolean;
     core_energy: number;
     loadout: {
@@ -423,8 +423,8 @@ export namespace SourceData {
     status: string;
     text_appearance: string;
     bond_state: {
-      xp: number;
-      stress: number;
+      xp: FullBoundedNum;
+      stress: FullBoundedNum;
       xp_checklist: {
         major_ideals: Array<boolean>;
         minor_ideal: boolean;

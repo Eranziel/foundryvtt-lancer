@@ -154,7 +154,7 @@ export function unpackMechWeapon(
       selected_profile_index: 0,
       size: data.mount,
       sp: data.sp,
-      uses: 0,
+      uses: { value: 0, max: 0 },
     },
   };
 }

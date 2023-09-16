@@ -158,8 +158,8 @@ export class StrussHelper {
       let structure = this.actor.system.structure;
       if (hp.value < 1 && structure.value > 0) {
         await this.actor.update({
-          "system.structure": structure.value - 1,
-          "system.hp": hp.value + hp.max,
+          "system.structure.value": structure.value - 1,
+          "system.hp.value": hp.value + hp.max,
         });
       } else {
         return;
@@ -310,7 +310,7 @@ export class StrussHelper {
 
     if (o1 === StabOptions1.Cool) {
       return_text = return_text.concat("Mech is cooling itself. @Compendium[world.status.EXPOSED] cleared.<br>");
-      await this.actor.update({ "system.heat": 0 });
+      await this.actor.update({ "system.heat.value": 0 });
       this.actor.effectHelper.removeActiveEffect("exposed");
     } else if (o1 === StabOptions1.Repair) {
       if (this.actor.is_mech()) {

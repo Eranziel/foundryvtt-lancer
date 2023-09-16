@@ -613,7 +613,7 @@ export async function updateItemAfterAttack(
   if (state.item && getAutomationOptions().limited_loading && getAutomationOptions().attacks) {
     let item_changes: DeepPartial<SourceData.MechWeapon | SourceData.NpcFeature | SourceData.PilotWeapon> = {};
     if (state.item.isLoading()) item_changes.loaded = false;
-    if (state.item.isLimited()) item_changes.uses = Math.max(state.item.system.uses.value - 1, 0);
+    if (state.item.isLimited()) item_changes.uses!.value = Math.max(state.item.system.uses.value - 1, 0);
     if (state.item.is_npc_feature() && state.item.isRecharge())
       (item_changes as DeepPartial<SourceData.NpcFeature>).charged = false;
     await state.item.update({ system: item_changes });
