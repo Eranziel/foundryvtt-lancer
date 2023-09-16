@@ -300,6 +300,7 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
         mech = (await LancerActor.create({
           name: cloud_mech.name,
           type: EntryType.MECH,
+          folder: pilot.folder?.id,
         })) as unknown as LancerMECH;
       }
 
@@ -487,16 +488,13 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
     await pilot.update({
       "system.active_mech": active_mech_uuid,
     });
+    pilot.effectHelper.propagateEffects(true);
 
     // Reset curr data and render all
     pilot.render();
     ui.notifications!.info("Successfully loaded pilot new state.");
   } catch (e) {
     console.warn(e);
-    if (e instanceof Error) {
-      ui.notifications!.warn(`Failed to update pilot, likely due to missing LCP data: ${e.message}`);
-    } else {
-      ui.notifications!.warn(`Failed to update pilot, likely due to missing LCP data: ${e}`);
-    }
+    ui.notifications!.warn(`Failed to update pilot: ${e instanceof Error ? e.message : e}`);
   }
 }

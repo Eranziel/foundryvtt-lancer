@@ -1,7 +1,9 @@
+import { LANCER } from "../config";
 import { LancerActor, LancerMECH } from "../actor/lancer-actor";
 import { EntryType } from "../enums";
 import { ChangeWatchHelper } from "../util/misc";
 import { LancerActiveEffect, LancerActiveEffectConstructorData } from "./lancer-active-effect";
+const lp = LANCER.log_prefix;
 
 export interface InheritedEffectsState {
   from_uuid: string; // Who's giving it? We only inherit one at a time
@@ -65,6 +67,7 @@ export class EffectHelper {
   inheritedEffects(): LancerActiveEffect[] {
     let results: LancerActiveEffect[] = [];
     let inherited_effects = (this.actor as LancerMECH).system.inherited_effects;
+    console.debug(`${lp} Actor ${this.actor.name} has inherited effects:`, inherited_effects);
     if (inherited_effects) {
       for (let effect of inherited_effects.data) {
         results.push(new LancerActiveEffect(effect, { parent: this.actor }));
