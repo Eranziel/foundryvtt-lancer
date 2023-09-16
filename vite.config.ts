@@ -32,14 +32,9 @@ const config: UserConfig = {
   },
   build: {
     outDir: path.resolve(__dirname, "dist"),
-    emptyOutDir: true,
+    emptyOutDir: false,
     sourcemap: true,
     brotliSize: true,
-    terserOptions: {
-      mangle: false,
-      keep_classnames: true,
-      keep_fnames: true,
-    },
     lib: {
       name: "lancer",
       entry: path.resolve(__dirname, "src/lancer.ts"),
