@@ -15,6 +15,7 @@ import {
   hayleyUtility,
   tommyConditionsStatus,
 } from "../status-icons";
+import { LancerSTATUS } from "../item/lancer-item";
 
 // Chassis = mech or standard npc
 export type LancerEffectTarget =
@@ -153,56 +154,58 @@ export class LancerActiveEffect extends ActiveEffect {
       await game.settings.set(game.system.id, LANCER.setting_status_icons, statusIconConfig);
     }
     // @ts-expect-error TODO: Remove this expect when have v9 types
-    let statuses: StatusEffect[] = [];
-    if (from_compendium) {
+    let configStatuses: StatusEffect[] = [];
+    // Pull the default statuses from the compendium if it exists
+    if (statusIconConfig.defaultConditionsStatus) {
       let pack = game.packs.get(`world.${EntryType.STATUS}`);
-      let all_statuses = await pack?.getDocuments();
-      if (all_statuses?.length) {
-        // @ts-expect-error
-        statuses = statuses.concat(all_statuses.map(statusConfigEffect));
-      } else {
-        if (statusIconConfig.defaultConditionsStatus) {
-          statuses = statuses.concat(defaultStatuses);
-        }
-        if (statusIconConfig.cancerConditionsStatus) {
-          statuses = statuses.concat(cancerConditionsStatus);
-        }
-        if (statusIconConfig.hayleyConditionsStatus) {
-          statuses = statuses.concat(hayleyConditionsStatus);
-        }
-        if (statusIconConfig.tommyConditionsStatus) {
-          statuses = statuses.concat(tommyConditionsStatus);
-        }
+      let pack_statuses: LancerSTATUS[] = [];
+      if (from_compendium) {
+        pack_statuses = ((await pack?.getDocuments()) || []) as unknown as LancerSTATUS[];
       }
-    } else {
-      if (statusIconConfig.defaultConditionsStatus) {
-        statuses = statuses.concat(defaultStatuses);
+      if (pack_statuses.length) {
+        configStatuses = configStatuses.concat(pack_statuses.map(statusConfigEffect));
       }
-      if (statusIconConfig.cancerConditionsStatus) {
-        statuses = statuses.concat(cancerConditionsStatus);
-      }
-      if (statusIconConfig.hayleyConditionsStatus) {
-        statuses = statuses.concat(hayleyConditionsStatus);
-      }
-      if (statusIconConfig.tommyConditionsStatus) {
-        statuses = statuses.concat(tommyConditionsStatus);
-      }
+      // Add any of the default status set which aren't in the compendium
+      configStatuses = configStatuses.concat(
+        defaultStatuses.filter(s => !configStatuses.find(stat => stat.id === s.id))
+      );
+    }
+    if (statusIconConfig.cancerConditionsStatus) {
+      configStatuses = configStatuses.concat(cancerConditionsStatus);
+    }
+    if (statusIconConfig.hayleyConditionsStatus) {
+      configStatuses = configStatuses.concat(hayleyConditionsStatus);
+    }
+    if (statusIconConfig.tommyConditionsStatus) {
+      configStatuses = configStatuses.concat(tommyConditionsStatus);
+    }
+    if (statusIconConfig.defaultConditionsStatus) {
+      configStatuses = configStatuses.concat(defaultStatuses);
+    }
+    if (statusIconConfig.cancerConditionsStatus) {
+      configStatuses = configStatuses.concat(cancerConditionsStatus);
+    }
+    if (statusIconConfig.hayleyConditionsStatus) {
+      configStatuses = configStatuses.concat(hayleyConditionsStatus);
+    }
+    if (statusIconConfig.tommyConditionsStatus) {
+      configStatuses = configStatuses.concat(tommyConditionsStatus);
     }
     // Icons for other things which aren't mechanical condition/status
     if (statusIconConfig.cancerNPCTemplates) {
-      statuses = statuses.concat(cancerNPCTemplates);
+      configStatuses = configStatuses.concat(cancerNPCTemplates);
     }
     if (statusIconConfig.hayleyPC) {
-      statuses = statuses.concat(hayleyPC);
+      configStatuses = configStatuses.concat(hayleyPC);
     }
     if (statusIconConfig.hayleyNPC) {
-      statuses = statuses.concat(hayleyNPC);
+      configStatuses = configStatuses.concat(hayleyNPC);
     }
     if (statusIconConfig.hayleyUtility) {
-      statuses = statuses.concat(hayleyUtility);
+      configStatuses = configStatuses.concat(hayleyUtility);
     }
-    console.log(`Lancer | ${statuses.length} status icons configured`);
-    CONFIG.statusEffects = statuses;
+    console.log(`Lancer | ${configStatuses.length} status icons configured`);
+    CONFIG.statusEffects = configStatuses;
   }
 }
 

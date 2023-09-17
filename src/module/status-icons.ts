@@ -30,7 +30,7 @@ export const defaultStatuses = [
     icon: `systems/lancer/assets/icons/white/condition_shredded.svg`,
   },
   {
-    id: "slowed",
+    id: "slow",
     label: "Slowed",
     icon: `systems/lancer/assets/icons/white/condition_slow.svg`,
   },
@@ -178,7 +178,7 @@ export const cancerConditionsStatus = [
     icon: "systems/lancer/assets/icons/alt-status/cancercondstat/shutdown.svg",
   },
   {
-    id: "slowed",
+    id: "slow",
     label: "Slowed",
     icon: "systems/lancer/assets/icons/alt-status/cancercondstat/slowed.svg",
   },
@@ -319,7 +319,7 @@ export const hayleyConditionsStatus = [
     icon: "systems/lancer/assets/icons/alt-status/hayleycondstat/shutdown.webp",
   },
   {
-    id: "slowed",
+    id: "slow",
     label: "Slowed",
     icon: "systems/lancer/assets/icons/alt-status/hayleycondstat/slowed.webp",
   },
@@ -696,7 +696,7 @@ export const tommyConditionsStatus = [
     icon: "systems/lancer/assets/icons/alt-status/tommystat/Shut Down.webp",
   },
   {
-    id: "slowed",
+    id: "slow",
     label: "Slowed",
     icon: "systems/lancer/assets/icons/alt-status/tommystat/Slowed.webp",
   },
