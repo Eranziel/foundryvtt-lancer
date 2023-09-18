@@ -649,7 +649,7 @@ export class LancerActor extends Actor {
    * @returns         The newFrame if any updates were performed
    */
   async swapFrameImage(newFrame: LancerFRAME | LancerNPC_CLASS): Promise<void> {
-    if (!(this.is_mech() || this.is_deployable())) return;
+    if (!(this.is_mech() || this.is_npc())) return;
 
     let new_frame_path = frameToPath(newFrame?.name);
     let default_img = this.is_mech()

@@ -4,6 +4,7 @@ import { SourceData } from "../../source-template";
 import { PackedNpcClassData } from "../../util/unpacking/packed-types";
 import { ControlledLengthArrayField, LancerDataModel, LIDField, NpcStatBlockField, UnpackContext } from "../shared";
 import { template_universal_item } from "./shared";
+import { frameToPath } from "../../actor/retrograde-map";
 
 const fields: any = foundry.data.fields;
 
@@ -47,11 +48,14 @@ export function unpackNpcClass(
 ): {
   name: string;
   type: EntryType.NPC_CLASS;
+  img: string | undefined;
   system: DeepPartial<SourceData.NpcClass>;
 } {
+  const frameImg = frameToPath(data.name);
   return {
     name: data.name,
     type: EntryType.NPC_CLASS,
+    img: frameImg ?? undefined,
     system: {
       lid: data.id,
       role: data.role,

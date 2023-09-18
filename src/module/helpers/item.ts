@@ -841,7 +841,6 @@ export function manufacturer_ref(source_path: string, options: HelperOptions): s
 // This if for display purposes and does not provide editable fields
 export function license_ref(item_path: string, options: HelperOptions): string {
   let license = resolve_helper_dotpath(options, item_path) as LancerLICENSE;
-  console.log("license mfr", license.system.manufacturer);
   const mfr = manufacturerStyle(license.system.manufacturer);
   return `
     <li class="card clipped ref set" ${ref_params(license)}>
@@ -882,7 +881,7 @@ export function npc_class_ref(npc_class: LancerNPC_CLASS | null, item_path?: str
   if (!npc_class) {
     return "";
   } else {
-    let frame_img = encodeURI(frameToPath(npc_class.name) ?? "systems/lancer/assets/icons/npc_class.svg");
+    let frame_img = encodeURI(npc_class.img ?? "systems/lancer/assets/icons/npc_class.svg");
     return `
     <div class="card clipped ref set click-open" ${ref_params(npc_class)}>
       <div class="compact-class medium flexrow">
