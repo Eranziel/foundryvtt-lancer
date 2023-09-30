@@ -384,7 +384,7 @@ export namespace SourceData {
     actions: string;
     description: string;
     efficiency: number;
-    influence: 0;
+    influence: number;
     purpose: OrgType;
   }
   export interface PilotArmor extends SourceTemplates.item_universal, SourceTemplates.bascdt, SourceTemplates.uses {

@@ -180,6 +180,7 @@ import { NpcFeatureModel } from "./module/models/items/npc_feature";
 import { LancerNPCClassSheet } from "./module/item/npc-class-sheet";
 import { WeaponModModel } from "./module/models/items/weapon_mod";
 import { ReserveModel } from "./module/models/items/reserve";
+import { OrganizationModel } from "./module/models/items/organization";
 import { StatusModel } from "./module/models/items/status";
 import { BondModel } from "./module/models/items/bond";
 
@@ -221,6 +222,8 @@ Hooks.once("init", async function () {
   CONFIG.Item.dataModels[EntryType.WEAPON_MOD] = WeaponModModel;
   // @ts-expect-error
   CONFIG.Item.dataModels[EntryType.RESERVE] = ReserveModel;
+  // @ts-expect-error
+  CONFIG.Item.dataModels[EntryType.ORGANIZATION] = OrganizationModel;
   // @ts-expect-error
   CONFIG.Item.dataModels[EntryType.SKILL] = SkillModel;
   // @ts-expect-error

@@ -20,12 +20,14 @@
   {{! Sheet Body }}
   <section class="sheet-body">
     {{{textarea-card "DESCRIPTION" "system.description"}}}
-    {{{textarea-card "ACTIONS" "system.actions"}}}
+    {{! Comp/Con model has actions, but no way to edit them. Plain string doesn't make much sense
+          so we'll hide it too. }}
+    {{!-- {{{textarea-card "ACTIONS" "system.actions"}}} --}}
     {{!-- prettier-ignore --}}
     <div class="flexrow">
-      {{{std-num-input             "system.efficiency"    label="EFFICIENCY"}}}
-      {{{std-num-input             "system.influence"    label="INFLUENCE"}}}
-      {{{std-text-input          "system.purpose"    label="PURPOSE"}}}
+      {{{std-select       "system.purpose" org_types label="PURPOSE"}}}
+      {{{std-num-input    "system.efficiency"   label="EFFICIENCY"}}}
+      {{{std-num-input    "system.influence"    label="INFLUENCE"}}}
     </div>
   </section>
 </form>

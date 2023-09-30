@@ -814,7 +814,7 @@ export function large_textbox_card(title: string, text_path: string, options: He
       ${popout_editor_button(text_path)}
     </div>
     <div class="desc-text">
-      ${safe_html_helper(resolved.trim() || defaultPlaceholder)}
+      ${safe_html_helper(resolved?.trim() || defaultPlaceholder)}
     </div>
   </div>
   `;

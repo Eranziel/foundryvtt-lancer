@@ -19,6 +19,7 @@ import { lookupOwnedDeployables } from "../util/lid";
 import { EntryType } from "../enums";
 import { LancerDEPLOYABLE } from "../actor/lancer-actor";
 import { BonusEditDialog } from "../apps/bonus-editor";
+import { OrgType } from "../enums";
 
 const lp = LANCER.log_prefix;
 
@@ -176,6 +177,11 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet<ItemShe
       data.license = await find_license_for(this.item, this.actor!);
     } else {
       data.license = await find_license_for(this.item);
+    }
+
+    if (this.item.is_organization()) {
+      // console.log(OrgType);
+      data.org_types = Object.keys(OrgType);
     }
 
     console.log(`${lp} Rendering with following item ctx: `, data);
