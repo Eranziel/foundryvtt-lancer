@@ -59,6 +59,9 @@ async function rebuild_pack(name) {
 
 async function configure_fvtt_cli() {
   const config = await fs.readJSON("foundryconfig.json");
+  if (config.dataPath === "/path/to/foundry/data") {
+    throw Error("Please configure foundryconfig.json to point to your Foundry data directory");
+  }
   console.log(
     chalk.green(`Configuring foundryvtt-cli to use ${chalk.blueBright(config.dataPath)} as Foundry data directory`)
   );
@@ -110,8 +113,10 @@ function serve() {
  * Link build to User Data folder
  */
 async function linkUserData() {
-  const name = path.basename(path.resolve("."));
   const config = fs.readJSONSync("foundryconfig.json");
+  if (config.dataPath === "/path/to/foundry/data") {
+    throw Error("Please configure foundryconfig.json to point to your Foundry data directory");
+  }
 
   let destDir;
   try {
