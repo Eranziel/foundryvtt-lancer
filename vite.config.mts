@@ -1,8 +1,9 @@
 import type { UserConfig } from "vite";
 import { svelte } from "@sveltejs/vite-plugin-svelte";
 import { visualizer } from "rollup-plugin-visualizer";
+import preprocess from "svelte-preprocess";
 import checker from "vite-plugin-checker";
-const path = require("path");
+import path from "path";
 
 const config: UserConfig = {
   root: "src/",
@@ -34,7 +35,6 @@ const config: UserConfig = {
     outDir: path.resolve(__dirname, "dist"),
     emptyOutDir: false,
     sourcemap: true,
-    brotliSize: true,
     lib: {
       name: "lancer",
       entry: path.resolve(__dirname, "src/lancer.ts"),
@@ -44,7 +44,7 @@ const config: UserConfig = {
   },
   plugins: [
     svelte({
-      configFile: "../svelte.config.cjs", // relative to src/
+      preprocess: preprocess(),
     }),
     checker({
       typescript: true,
