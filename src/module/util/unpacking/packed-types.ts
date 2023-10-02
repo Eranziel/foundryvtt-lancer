@@ -154,9 +154,9 @@ export interface PackedReserveData {
   name?: string;
   label?: string;
   description?: string;
-  resource_name: string;
-  resource_note: string;
-  resource_cost: string;
+  resource_name?: string; // Seems vestigial, unused by lancer-data
+  resource_note?: string; // Seems vestigial, unused by lancer-data
+  resource_cost?: string; // Seems vestigial, unused by lancer-data
   used: boolean;
   consumable: boolean;
   synergies?: PackedSynergyData[];

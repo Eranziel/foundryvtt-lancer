@@ -439,9 +439,10 @@ export namespace SourceData {
   export interface Reserve extends SourceTemplates.item_universal, SourceTemplates.bascdt {
     consumable: boolean;
     label: string;
-    resource_name: string;
-    resource_note: string;
-    resource_cost: string;
+    // These attributes are in the lancer-data spec, but seem to be unused.
+    // resource_name: string;
+    // resource_note: string;
+    // resource_cost: string;
     type: ReserveType;
     used: boolean;
     description: string;

@@ -587,7 +587,7 @@ export function reserve_refview(reserve_path: string, options: HelperOptions): s
   }
   let uses = "";
   if (reserve.system.consumable) {
-    uses = reserve_used_indicator(reserve_path, options);
+    uses = reserve_used_indicator(`${reserve_path}.system.used`, options);
   }
 
   return `<div class="set ${EntryType.RESERVE} ref drop-settable card clipped-top item lancer-border-trait"

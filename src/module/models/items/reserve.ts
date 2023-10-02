@@ -18,9 +18,10 @@ export class ReserveModel extends LancerDataModel {
     return {
       consumable: new fields.BooleanField(),
       label: new fields.StringField(),
-      resource_name: new fields.StringField(),
-      resource_note: new fields.StringField(),
-      resource_cost: new fields.StringField(),
+      // resource_name, resource_note, and resource_cost are in the lancer-data spec but not used currently
+      // resource_name: new fields.StringField(),
+      // resource_note: new fields.StringField(),
+      // resource_cost: new fields.StringField(),
       // type: new fields.StringField({ choices: Object.values(ReserveType), initial: ReserveType.Tactical }),
       type: new fields.StringField({ initial: ReserveType.Tactical }), // ^ Strictness here isn't really super useful
       used: new fields.BooleanField(),
@@ -53,9 +54,10 @@ export function unpackReserve(
       deployables: data.deployables?.map(d => unpackDeployable(d, context)),
       integrated: data.integrated,
       label: data.label,
-      resource_cost: data.resource_cost,
-      resource_name: data.resource_name,
-      resource_note: data.resource_note,
+      // These three attributes are in the lancer-data spec, but seem to be unused.
+      // resource_cost: data.resource_cost,
+      // resource_name: data.resource_name,
+      // resource_note: data.resource_note,
       synergies: data.synergies?.map(unpackSynergy),
       tags: undefined,
       type: restrict_enum(ReserveType, ReserveType.Tactical, data.type),

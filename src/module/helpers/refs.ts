@@ -227,10 +227,10 @@ export function limited_uses_indicator(
 }
 
 export function reserve_used_indicator(path: string, options: HelperOptions): string {
-  let item = resolve_helper_dotpath(options, path) as LancerRESERVE;
-  const hexes = hex_array(item.system.used ? 0 : 1, 1, path);
+  let used = resolve_helper_dotpath(options, path) as LancerRESERVE;
+  const hexes = hex_array(used ? 0 : 1, 1, path, "uses-hex");
 
-  return `<div class="clipped card limited-card">USED ${hexes.join("")}</div>`;
+  return `<div class="clipped card limited-card">USES ${hexes.join("")}</div>`;
 }
 
 // Put this at the end of ref lists to have a place to drop things. Supports both native and non-native drops
@@ -322,13 +322,18 @@ export function handleUsesInteraction<T>(html: JQuery, doc: LancerActor | Lancer
     const params = ev.currentTarget.dataset;
     if (params.path) {
       const dd = drilldownDocument(doc, params.path);
-      const item = dd.sub_doc as LancerMECH_SYSTEM | LancerMECH_WEAPON | LancerPILOT_GEAR | LancerNPC_FEATURE;
+      const item = dd.sub_doc as
+        | LancerMECH_SYSTEM
+        | LancerMECH_WEAPON
+        | LancerPILOT_GEAR
+        | LancerRESERVE
+        | LancerNPC_FEATURE;
       const available = params.available === "true";
 
-      let newUses = item.system.uses.value;
       if (item.is_reserve()) {
-        item.update({ "system.used": true });
+        item.update({ "system.used": available });
       } else {
+        let newUses = item.system.uses.value;
         if (available) {
           // Deduct uses.
           newUses = Math.max(newUses - 1, item.system.uses.min);

@@ -414,9 +414,6 @@
       "templates": ["universal", "bascdt"],
       "consumable": true,
       "label": "",
-      "resource_name": "",
-      "resource_note": "",
-      "resource_cost": "",
       "type": "Resources",
       "used": false,
       "description": ""
