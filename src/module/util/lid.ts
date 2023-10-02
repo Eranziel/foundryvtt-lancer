@@ -30,7 +30,8 @@ const lookupLIDPluralCache = new RepentantFetcherCache<string, Array<LancerActor
     let types = raw_types.split("/") as EntryType[];
 
     // If no types, all types
-    if (types.length == 0) {
+    // @ts-expect-error We need to check for empty string, even though it's not in EntryType
+    if (types.length == 0 || (types.length == 1 && types[0] == "")) {
       types = Object.values(EntryType);
     }
 
