@@ -1,5 +1,5 @@
 import type { EffectChangeDataConstructorData } from "@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/data/data.mjs/effectChangeData";
-import { LancerNPC, LancerPILOT } from "../actor/lancer-actor";
+import { LancerActor, LancerNPC, LancerPILOT } from "../actor/lancer-actor";
 import { EntryType } from "../enums";
 import { LancerFRAME, LancerMECH_WEAPON, LancerNPC_CLASS, LancerNPC_FEATURE, LancerSTATUS } from "../item/lancer-item";
 import { BonusData } from "../models/bits/bonus";
@@ -95,10 +95,13 @@ export function frameInnateEffect(frame: LancerFRAME): LancerActiveEffectConstru
 /**
  * Creates the "innate" ActiveEffect of a pilot, essentially just the buff supplied by being piloted by this mech
  */
-export function pilotInnateEffect(pilot: LancerPILOT): LancerActiveEffect {
+export function pilotInnateEffect(pilot: LancerActor): LancerActiveEffect {
+  // This guard is mostly just to keep TS happy
+  if (!pilot.is_pilot()) throw new Error("Cannot create pilot innate effect for non-pilot actor");
   // Bake GRIT+HASE into an active effect
   return new LancerActiveEffect(
     {
+      // @ts-expect-error types are missing `name`
       name: "Pilot Stats",
       changes: [
         // HASE
@@ -106,106 +109,91 @@ export function pilotInnateEffect(pilot: LancerPILOT): LancerActiveEffect {
           mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
           key: "system.hull",
           priority: PILOT_STAT_PRIORITY,
-          // @ts-expect-error
-          value: pilot.system.hull,
+          value: pilot.system.hull.toString(),
         },
         {
           mode: CONST.ACTIVE_EFFECT_MODES.ADD,
           key: "system.hp.max",
           priority: PILOT_STAT_PRIORITY,
-          // @ts-expect-error
-          value: 2 * pilot.system.hull + pilot.system.grit,
+          value: (2 * pilot.system.hull + pilot.system.grit).toString(),
         },
         {
           mode: CONST.ACTIVE_EFFECT_MODES.ADD,
           key: "system.repairs.max",
           priority: PILOT_STAT_PRIORITY,
-          // @ts-expect-error
-          value: Math.floor(pilot.system.hull / 2),
+          value: Math.floor(pilot.system.hull / 2).toString(),
         },
         {
           mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
           key: "system.agi",
           priority: PILOT_STAT_PRIORITY,
-          // @ts-expect-error
-          value: pilot.system.agi,
+          value: pilot.system.agi.toString(),
         },
         {
           mode: CONST.ACTIVE_EFFECT_MODES.ADD,
           key: "system.evasion",
           priority: PILOT_STAT_PRIORITY,
-          // @ts-expect-error
-          value: pilot.system.agi,
+          value: pilot.system.agi.toString(),
         },
         {
           mode: CONST.ACTIVE_EFFECT_MODES.ADD,
           key: "system.speed",
           priority: PILOT_STAT_PRIORITY,
-          // @ts-expect-error
-          value: Math.floor(pilot.system.agi / 2),
+          value: Math.floor(pilot.system.agi / 2).toString(),
         },
         {
           mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
           key: "system.sys",
           priority: PILOT_STAT_PRIORITY,
-          // @ts-expect-error
-          value: pilot.system.sys,
+          value: pilot.system.sys.toString(),
         },
         {
           mode: CONST.ACTIVE_EFFECT_MODES.ADD,
           key: "system.edef",
           priority: PILOT_STAT_PRIORITY,
-          // @ts-expect-error
-          value: pilot.system.sys,
+          value: pilot.system.sys.toString(),
         },
         {
           mode: CONST.ACTIVE_EFFECT_MODES.ADD,
           key: "system.tech_attack",
           priority: PILOT_STAT_PRIORITY,
-          // @ts-expect-error
-          value: pilot.system.sys,
+          value: pilot.system.sys.toString(),
         },
         {
           mode: CONST.ACTIVE_EFFECT_MODES.ADD,
           key: "system.save",
           priority: PILOT_STAT_PRIORITY,
-          // @ts-expect-error
-          value: pilot.system.grit,
+          value: pilot.system.grit.toString(),
         },
         {
           mode: CONST.ACTIVE_EFFECT_MODES.ADD,
           key: "system.loadout.sp.max",
           priority: PILOT_STAT_PRIORITY,
-          // @ts-expect-error
-          value: Math.floor(pilot.system.sys / 2) + pilot.system.grit,
+          value: (Math.floor(pilot.system.sys / 2) + pilot.system.grit).toString(),
         },
         {
           mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
           key: "system.eng",
           priority: PILOT_STAT_PRIORITY,
-          // @ts-expect-error
-          value: pilot.system.eng,
+          value: pilot.system.eng.toString(),
         },
         {
           mode: CONST.ACTIVE_EFFECT_MODES.ADD,
           key: "system.heat.max",
           priority: PILOT_STAT_PRIORITY,
-          // @ts-expect-error
-          value: pilot.system.eng,
+          value: pilot.system.eng.toString(),
         },
         {
           mode: CONST.ACTIVE_EFFECT_MODES.ADD,
           key: "system.loadout.limited_bonus",
           priority: PILOT_STAT_PRIORITY,
-          // @ts-expect-error
-          value: Math.floor(pilot.system.eng / 2),
+          value: Math.floor(pilot.system.eng / 2).toString(),
         },
         {
           mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
           key: "system.grit",
           priority: PILOT_STAT_PRIORITY,
-          // @ts-expect-error
-          value: pilot.system.grit,
+          value: pilot.system.grit.toString(),
         },
         // Bake the rest of the pilot source data into an active effect - TODO: Isolate to just counters or something
         /*{
