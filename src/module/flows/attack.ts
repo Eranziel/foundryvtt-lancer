@@ -155,7 +155,7 @@ export async function initAttackData(
   if (!state.data) throw new TypeError(`Attack flow state missing!`);
   // If we only have an actor, it's a basic attack
   if (!state.item) {
-    const isTech = state.data.type === "tech";
+    const isTech = LancerFlowState.isTechRoll(state.data);
     const defaultTitle = isTech ? "TECH ATTACK" : "BASIC ATTACK";
     state.data.title = options?.title ?? defaultTitle;
     state.data.attack_type = isTech ? AttackType.Tech : AttackType.Melee; // Virtually all basic attacks are melee, so it's a good default

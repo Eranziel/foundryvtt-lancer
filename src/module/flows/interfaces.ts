@@ -163,4 +163,22 @@ export namespace LancerFlowState {
     iconPath?: string;
     title: string;
   }
+
+  // Type narrowers for state data
+  type RollData = BaseRollData | StatRollData | AttackRollData | WeaponRollData | TechAttackRollData | ActionUseData;
+  export function isStatRoll(data: RollData): data is StatRollData {
+    return data.type === "stat";
+  }
+  export function isAttackRoll(data: RollData): data is AttackRollData {
+    return data.type === "attack";
+  }
+  export function isWeaponRoll(data: RollData): data is WeaponRollData {
+    return data.type === "weapon";
+  }
+  export function isTechRoll(data: RollData): data is TechAttackRollData {
+    return data.type === "tech";
+  }
+  export function isActionRoll(data: RollData): data is ActionUseData {
+    return data.type === "action";
+  }
 }
