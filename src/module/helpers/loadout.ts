@@ -33,9 +33,15 @@ export function mech_system_view(system_path: string, options: HelperOptions): s
   let eff: string | undefined;
 
   const icon_types = [SystemType.Deployable, SystemType.Drone, SystemType.Mod, SystemType.System, SystemType.Tech];
-  icon = icon_types.includes(doc.system.type)
-    ? `cci cci-${slugify(doc.system.type, "-")} i--m i--click`
-    : `cci cci-system i--m i--click`;
+  if (icon_types.includes(doc.system.type)) {
+    if (doc.system.type === SystemType.Tech) {
+      icon = `cci cci-${slugify(doc.system.type, "-")}-quick i--m i--click`;
+    } else {
+      icon = `cci cci-${slugify(doc.system.type, "-")} i--m i--click`;
+    }
+  } else {
+    icon = `cci cci-system i--m i--click`;
+  }
 
   sp = sp_display(doc.system.sp ?? 0);
 
