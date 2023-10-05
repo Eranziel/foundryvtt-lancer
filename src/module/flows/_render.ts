@@ -17,13 +17,13 @@ export async function renderTemplateStep(actor: LancerActor, template: string, t
   if (templateData.roll) {
     aggregate.push(templateData.roll);
   }
-  if ((templateData.attacks?.length ?? 0) > 0) {
-    aggregate.push(...templateData.attacks.map((a: { roll: Roll }) => a.roll));
+  if ((templateData.attack_results?.length ?? 0) > 0) {
+    aggregate.push(...templateData.attack_results.map((a: { roll: Roll }) => a.roll));
   }
-  if ((templateData.crit_damages?.length ?? 0) > 0) {
-    aggregate.push(...templateData.crit_damages.map((d: { roll: Roll }) => d.roll));
-  } else if ((templateData.damages?.length ?? 0) > 0) {
-    aggregate.push(...templateData.damages.map((d: { roll: Roll }) => d.roll));
+  if ((templateData.crit_damage_results?.length ?? 0) > 0) {
+    aggregate.push(...templateData.crit_damage_results.map((d: { roll: Roll }) => d.roll));
+  } else if ((templateData.damage_results?.length ?? 0) > 0) {
+    aggregate.push(...templateData.damage_results.map((d: { roll: Roll }) => d.roll));
   }
   const roll = Roll.fromTerms([PoolTerm.fromRolls(aggregate)]);
 
