@@ -3,18 +3,7 @@ import { LANCER } from "../config";
 import { LancerActor, LancerMECH, LancerNPC } from "../actor/lancer-actor";
 import { AccDiffData, AccDiffDataSerialized } from "../helpers/acc_diff";
 import { renderTemplateStep } from "./_render";
-import {
-  applySelfHeat,
-  checkItemCharged,
-  checkItemDestroyed,
-  checkItemLimited,
-  rollAttacks,
-  setAttackEffects,
-  setAttackTags,
-  setAttackTargets,
-  showAttackHUD,
-  updateItemAfterAttack,
-} from "./attack";
+import { rollAttacks, setAttackEffects, setAttackTags, setAttackTargets, showAttackHUD } from "./attack";
 import { SystemTemplates } from "../system-template";
 import { LancerFlowState } from "./interfaces";
 import { LancerItem } from "../item/lancer-item";
@@ -23,6 +12,13 @@ import { resolve_dotpath } from "../helpers/commons";
 import { ActivationType, AttackType } from "../enums";
 import { Flow, FlowState } from "./flow";
 import { UUIDRef } from "../source-template";
+import {
+  applySelfHeat,
+  checkItemCharged,
+  checkItemDestroyed,
+  checkItemLimited,
+  updateItemAfterAction,
+} from "./item-utils";
 
 const lp = LANCER.log_prefix;
 
@@ -57,12 +53,12 @@ export class TechAttackFlow extends Flow<LancerFlowState.TechAttackRollData> {
     this.steps.set("setAttackTargets", setAttackTargets);
     this.steps.set("showAttackHUD", showAttackHUD);
     this.steps.set("rollAttacks", rollAttacks);
-    // TODO: do we need a damage step for tech attacks?
+    // TODO: heat, and special tech attacks which do normal damage
     // this.steps.set("rollDamages", rollDamages);
-    // TODO: pick invade option for each hit?
+    // TODO: pick invade option for each hit
     // this.steps.set("pickInvades", pickInvades);
     this.steps.set("applySelfHeat", applySelfHeat);
-    this.steps.set("updateItemAfterAttack", updateItemAfterAttack);
+    this.steps.set("updateItemAfterAction", updateItemAfterAction);
     this.steps.set("printTechAttackCard", printTechAttackCard);
   }
 }

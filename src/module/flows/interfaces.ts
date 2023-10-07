@@ -78,6 +78,7 @@ export namespace LancerFlowState {
     attack_rolls: AttackRolls;
     attack_results: AttackResult[];
     hit_results: HitResult[];
+    // TODO: move damage and crit results to damage roll data
     damage_results: DamageResult[];
     crit_damage_results: DamageResult[];
     overkill_heat?: number;
