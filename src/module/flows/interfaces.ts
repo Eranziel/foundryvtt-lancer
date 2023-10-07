@@ -1,6 +1,7 @@
 import { ActionType } from "../action";
 import { ActivationType, AttackType, DamageType } from "../enums";
 import { AccDiffData, AccDiffDataSerialized } from "../helpers/acc_diff";
+import { ActionData } from "../models/bits/action";
 import { DamageData } from "../models/bits/damage";
 import { Tag, TagData } from "../models/bits/tag";
 
@@ -107,7 +108,8 @@ export namespace LancerFlowState {
   export interface ActionUseData extends Omit<BaseRollData, "type"> {
     type: "action";
     acc: number;
-    actionName: string;
+    action: ActionData | null;
+    self_heat?: string;
     detail: string;
     tags: TagData[];
   }

@@ -2,8 +2,7 @@
 import { LANCER } from "../config";
 import { getAutomationOptions } from "../settings";
 import { LancerItem } from "../item/lancer-item";
-import type { LancerDEPLOYABLE } from "../actor/lancer-actor";
-import type { AccDiffDataSerialized } from "../helpers/acc_diff";
+import type { LancerActor } from "../actor/lancer-actor";
 import { buildActionHTML, buildDeployableHTML } from "../helpers/item";
 import { ActivationOptions, ActivationType } from "../enums";
 import { createChatMessageStep, renderTemplateStep } from "./_render";
@@ -12,8 +11,50 @@ import { ActionData } from "../models/bits/action";
 import { lookupOwnedDeployables } from "../util/lid";
 import { LancerFlowState } from "./interfaces";
 import { prepareTextMacro } from "./text";
+import { Flow, FlowState } from "./flow";
+import { UUIDRef } from "../source-template";
+import {
+  applySelfHeat,
+  checkItemCharged,
+  checkItemDestroyed,
+  checkItemLimited,
+  updateItemAfterAction,
+} from "./item-utils";
 
 const lp = LANCER.log_prefix;
+
+export class ActivationFlow extends Flow<LancerFlowState.ActionUseData> {
+  constructor(uuid: UUIDRef | LancerItem | LancerActor, data?: Partial<LancerFlowState.ActionUseData>) {
+    // Initialize data if not provided
+    const initialData: LancerFlowState.ActionUseData = {
+      type: "action",
+      title: data?.title || "",
+      roll_str: data?.roll_str || "",
+      acc: data?.acc || 0,
+      action: data?.action || null,
+      self_heat: data?.self_heat || undefined,
+      detail: data?.detail || "",
+      tags: data?.tags || [],
+    };
+
+    super("ActivationFlow", uuid, initialData);
+
+    // TODO: if a system or action is not provided, prompt the user to select one?
+    // Or would it be better to have a separate UI for that before the flow starts?
+    this.steps.set("initActivationData", dummyStep);
+    this.steps.set("checkItemDestroyed", checkItemDestroyed);
+    this.steps.set("checkItemLimited", checkItemLimited);
+    this.steps.set("checkItemCharged", checkItemCharged);
+    // Does anything need to be done here?
+    this.steps.set("applySelfHeat", applySelfHeat);
+    this.steps.set("updateItemAfterAction", updateItemAfterAction);
+    this.steps.set("printActionUseCard", dummyStep);
+  }
+}
+
+export async function dummyStep(state: FlowState<LancerFlowState.ActionUseData>, options?: {}): Promise<boolean> {
+  return true;
+}
 
 /**
  * Dispatch wrapper for the "action chips" on the bottom of many items, traits, systems, and so on.
