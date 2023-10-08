@@ -108,6 +108,7 @@ export namespace LancerFlowState {
   export interface ActionUseData extends Omit<BaseRollData, "type"> {
     type: "action";
     acc: number;
+    action_path: string;
     action: ActionData | null;
     self_heat?: string;
     detail: string;
