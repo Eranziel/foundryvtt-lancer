@@ -16,6 +16,24 @@ export function inc_if(val: string, test: any) {
   return test ? val : "";
 }
 
+// Generic template for dice roll results in chat
+export function lancerDiceRoll(roll: Roll, tooltip?: string, icon?: string): string {
+  const iconHTML = icon ? `<i class="${icon}"></i>` : "";
+  const tooltipHTML = tooltip ? `<div style="text-align: left;">${tooltip}</div>` : "";
+  console.log("iconHTML\n", iconHTML);
+  return `
+<div class="dice-roll lancer-dice-roll collapse">
+  <div class="dice-result">
+    <div class="dice-formula lancer-dice-formula flexrow">
+      <span style="text-align: left; margin-left: 5px;">${roll.formula}</span>
+      <span class="dice-total lancer-dice-total major">${roll.total}</span>${iconHTML}
+    </div>
+    ${tooltipHTML}
+  </div>
+</div>
+  `;
+}
+
 // Simple helper to simplify mapping truthy values to "checked"
 export function checked(truthytest: any): string {
   return truthytest ? "checked" : "";

@@ -3,6 +3,7 @@ import { LANCER } from "../config";
 import { LancerActor } from "../actor/lancer-actor";
 import { getAutomationOptions } from "../settings";
 import { prepareTextMacro } from "./text";
+import { lancerDiceRoll } from "../helpers/commons";
 
 const lp = LANCER.log_prefix;
 
@@ -52,14 +53,7 @@ export function prepareStructureSecondaryRollMacro(actor: string | LancerActor) 
       actor,
       "Destroy Weapons",
       `
-<div class="dice-roll lancer-dice-roll">
-  <div class="dice-result">
-    <div class="dice-formula lancer-dice-formula flexrow">
-      <span style="text-align: left; margin-left: 5px;">${roll.formula}</span>
-      <span class="dice-total lancer-dice-total major">${result}</span>
-    </div>
-  </div>
-</div>
+${lancerDiceRoll(roll)}
 <span>On a 1–3, all weapons on one mount of your choice are destroyed</span>`
     );
   } else {
@@ -67,14 +61,7 @@ export function prepareStructureSecondaryRollMacro(actor: string | LancerActor) 
       actor,
       "Destroy Systems",
       `
-<div class="dice-roll lancer-dice-roll">
-  <div class="dice-result">
-    <div class="dice-formula lancer-dice-formula flexrow">
-      <span style="text-align: left; margin-left: 5px;">${roll.formula}</span>
-      <span class="dice-total lancer-dice-total major">${result}</span>
-    </div>
-  </div>
-</div>
+${lancerDiceRoll(roll)}
 <span>On a 4–6, a system of your choice is destroyed</span>`
     );
   }

@@ -11,21 +11,7 @@
       {{localize "lancer.chat-card.title.attack"}}
     </div>
     {{#each attack_results as |attack key|}}
-    <div
-      class="dice-roll lancer-dice-roll collapse"
-      data-collapse-id="{{../_uuid}}-attacks"
-    >
-      <div class="dice-result">
-        <div class="dice-formula lancer-dice-formula flexrow">
-          <span style="text-align: left; margin-left: 5px;">{{ attack.roll.formula }}</span>
-          <span class="dice-total lancer-dice-total major">{{ attack.roll.total }}</span>
-          <i class="cci cci-reticule i--m i--dark"> </i>
-        </div>
-        <div style="text-align: left;">
-          {{{ attack.tt }}}
-        </div>
-      </div>
-    </div>
+      {{{lancer-dice-roll attack.roll attack.tt "cci cci-reticule i--m i--dark"}}}
     {{/each}}
   </div>
   {{#if hit_results}}

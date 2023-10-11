@@ -63,6 +63,7 @@ import {
   std_checkbox,
   std_enum_select,
   saveCancelButtons,
+  lancerDiceRoll,
 } from "./module/helpers/commons";
 import {
   weapon_size_selector,
@@ -437,6 +438,7 @@ Hooks.once("init", async function () {
 
   // ------------------------------------------------------------------------
   // Generic components
+  Handlebars.registerHelper("lancer-dice-roll", lancerDiceRoll);
   Handlebars.registerHelper("l-num-input", clicker_num_input);
 
   Handlebars.registerPartial("dialog-save-buttons", saveCancelButtons());

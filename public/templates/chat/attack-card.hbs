@@ -10,18 +10,7 @@
     <div class="lancer-mini-header collapse-trigger" data-collapse-id="{{_uuid}}-attacks">{{localize "lancer.chat-card.title.attack"}}</div>
     <div class="collapse" data-collapse-id="{{_uuid}}-attacks">
       {{#each attack_results as |attack key|}}
-      <div class="dice-roll lancer-dice-roll">
-        <div class="dice-result">
-          <div class="dice-formula lancer-dice-formula flexrow">
-            <span style="text-align: left; margin-left: 5px;">{{ attack.roll.formula }}</span>
-            <span class="dice-total lancer-dice-total major">{{ attack.roll.total }}</span>
-            <i class="cci cci-reticule i--m i--dark"> </i>
-          </div>
-          <div style="text-align: left;">
-            {{{ attack.tt }}}
-          </div>
-        </div>
-      </div>
+      {{{lancer-dice-roll attack.roll attack.tt "cci cci-reticule i--m i--dark"}}}
       {{/each}}
     </div>
   </div>
@@ -52,18 +41,7 @@
   <div class="card clipped">
     <div class="lancer-mini-header collapse-trigger" data-collapse-id="{{_uuid}}-damage">{{localize "lancer.chat-card.title.damage"}}</div>
     {{#each damage_results as |damage key|}}
-    <div class="dice-roll lancer-dice-roll collapse" data-collapse-id="{{../_uuid}}-damage">
-      <div class="dice-result">
-        <div class="dice-formula lancer-dice-formula flexrow">
-          <span style="text-align: left; margin-left: 5px;">{{ damage.roll.formula }}</span>
-          <span class="dice-total lancer-dice-total major">{{ damage.roll.total }}</span>
-          <i class="cci cci-{{lower-case damage.d_type}} i--m damage--{{lower-case damage.d_type}}"> </i>
-        </div>
-        <div style="text-align: left;">
-          {{{ damage.tt }}}
-        </div>
-      </div>
-    </div>
+      {{{lancer-dice-roll damage.roll damage.tt (concat "cci cci-" (lower-case damage.d_type) " i--m damage--" (lower-case damage.d_type))}}}
     {{/each}} {{#if overkill_heat}}
     <div class="lancer-dice-total flexrow">
       <span style="text-align: left; margin-left: 5px;">{{localize "lancer.chat-card.exclamation.overkill"}}</span>
@@ -76,18 +54,7 @@
   <div class="card clipped">
     <div class="lancer-mini-header collapse-trigger" data-collapse-id="{{_uuid}}-damage">{{localize "lancer.chat-card.title.crit-damage"}}</div>
     {{#each crit_damage_results as |damage key|}}
-    <div class="dice-roll lancer-dice-roll collapse" data-collapse-id="{{../_uuid}}-damage">
-      <div class="dice-result">
-        <div class="dice-formula lancer-dice-formula flexrow">
-          <span style="text-align: left; margin-left: 5px;">{{ damage.roll.formula }}</span>
-          <span class="dice-total lancer-dice-total major">{{ damage.roll.total }}</span>
-          <i class="cci cci-{{lower-case damage.d_type}} i--m damage--{{lower-case damage.d_type}}"> </i>
-        </div>
-        <div style="text-align: left;">
-          {{{ damage.tt }}}
-        </div>
-      </div>
-    </div>
+      {{{lancer-dice-roll damage.roll damage.tt (concat "cci cci-" (lower-case damage.d_type) "i--m damage--" (lower-case damage.d_type))}}}
     {{/each}} {{#if overkill_heat}}
     <div class="lancer-dice-total flexrow">
       <span style="text-align: left; margin-left: 5px;">{{localize "lancer.chat-card.exclamation.overkill"}}</span>
