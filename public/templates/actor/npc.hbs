@@ -81,8 +81,11 @@
 
       <div class="card clipped">
         <div class="lancer-header lancer-primary submajor">
-          <span style="padding-left: 41px;">{{localize "lancer.npc-sheet.features.label"}}</span>
-          <a style="margin-top: 2px; font-size: 1.4em;" class="charge-macro"><i class="mdi mdi-dice-6"></i></a>
+          <div style="width: 120px;"></div>
+          <span>{{localize "lancer.npc-sheet.features.label"}}</span>
+          <div class="lancer-button charge-macro" style="margin-top: 2px; margin-bottom: 2px; font-size: 0.75rem;">
+            <i class="mdi mdi-refresh i--sm"></i> Recharge
+          </div>
         </div>
         <div class="wraprow double">
           {{#each itemTypes.npc_feature as |feature index|}} {{{npc-feat-preview (concat "itemTypes.npc_feature." index)
