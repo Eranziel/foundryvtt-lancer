@@ -705,13 +705,11 @@ export class LancerActor extends Actor {
   }
 
   async beginBasicAttackFlow(title?: string): Promise<boolean> {
-    if (this.type === EntryType.DEPLOYABLE) {
-      // @ts-expect-error System's broken
+    if (this.is_deployable()) {
       if (!this.system.owner) {
         ui.notifications!.warn(`Deployable ${this.id} has no deployer so cannot attack!`);
         return false;
       }
-      // @ts-expect-error System's broken
       const owner = await LancerActor.fromUuid(this.system.owner.id);
       return await owner.beginBasicAttackFlow(title);
     }

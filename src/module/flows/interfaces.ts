@@ -48,6 +48,11 @@ export namespace LancerFlowState {
     d_type: DamageType;
   };
 
+  export type SelfHeatResult = {
+    roll: Roll;
+    tt: string | HTMLElement | JQuery<HTMLElement>; // Tooltip
+  };
+
   export type HitResult = {
     token: { name: string; img: string };
     total: string;
@@ -62,13 +67,15 @@ export namespace LancerFlowState {
     acc_diff?: AccDiffData;
 
     attack_type: AttackType; // Melee, Ranged, Quick Tech, Full Tech
+    action: ActionData | null;
     effect?: string;
     on_attack?: string;
     on_hit?: string;
     on_crit?: string;
 
     tags?: Tag[];
-    self_heat?: string; // The self heat roll if present
+    self_heat?: string; // The self heat roll string if present
+    self_heat_result?: SelfHeatResult;
     overkill?: boolean;
 
     scene_uuid?: string;
@@ -110,9 +117,10 @@ export namespace LancerFlowState {
     acc: number;
     action_path: string;
     action: ActionData | null;
-    self_heat?: string;
+    self_heat?: string; // The self heat roll string if present
+    self_heat_result?: SelfHeatResult;
     detail: string;
-    tags: TagData[];
+    tags: Tag[];
   }
 
   // Configuration passed to initiate the printing of a talent

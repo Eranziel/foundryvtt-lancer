@@ -4,6 +4,9 @@
     <div class="effect-text" style="grid-area: 2/1/3/3">
       {{{description}}}
     </div>
+    {{#if roll}}
+      {{{lancer-dice-roll roll roll_tt roll_icon}}}
+    {{/if}}
     {{{tag-list "tags"}}}
   </div>
 </div>

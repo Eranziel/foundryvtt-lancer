@@ -1,3 +1,4 @@
+import { friendly_entrytype_name } from "../config";
 import { NpcFeatureType } from "../enums";
 import { getAutomationOptions } from "../settings";
 import { SourceData } from "../source-template";
@@ -13,10 +14,14 @@ export async function checkItemDestroyed(
     !state.item ||
     (!state.item.is_mech_weapon() &&
       !state.item.is_mech_system() &&
+      !state.item.is_frame() &&
       !state.item.is_pilot_weapon() &&
       !state.item.is_npc_feature())
   ) {
     return false;
+  }
+  if (state.item.is_frame()) {
+    return true; // Frames can't be destroyed
   }
   if (state.item.is_pilot_weapon()) {
     return true; // Pilot weapons can't be destroyed
@@ -44,20 +49,27 @@ export async function checkItemLimited(
     !state.item ||
     (!state.item.is_mech_weapon() &&
       !state.item.is_mech_system() &&
+      !state.item.is_frame() &&
+      !state.item.is_weapon_mod() &&
       !state.item.is_pilot_weapon() &&
+      !state.item.is_pilot_gear() &&
+      !state.item.is_pilot_armor() &&
       !state.item.is_npc_feature())
   ) {
     return false;
   }
-  if (state.item.isLimited() && state.item.system.uses.value <= 0) {
-    if (
-      state.item.is_mech_system() ||
-      (state.item.is_npc_feature() && state.item.system.type !== NpcFeatureType.Weapon)
-    ) {
-      ui.notifications!.warn(`System ${state.item.name} has no remaining uses!`);
-    } else {
-      ui.notifications!.warn(`Weapon ${state.item.name} has no remaining uses!`);
+  if (state.item.is_frame()) {
+    // Frames are special, we need to check for limited on the core system.
+    if ((state.item.system.core_system.tags ?? []).some(t => t.is_loading)) {
+      // No frames use tags, so none of them track liimited uses.
+      return true;
     }
+    // The frame is not limited, so we're good.
+    return true;
+  }
+  if (state.item.isLimited() && state.item.system.uses.value <= 0) {
+    let iType = friendly_entrytype_name(state.item.type);
+    ui.notifications!.warn(`${iType} ${state.item.name} has no remaining uses!`);
     return false;
   }
   return true;
@@ -72,6 +84,7 @@ export async function checkItemCharged(
     !state.item ||
     (!state.item.is_mech_weapon() &&
       !state.item.is_mech_system() &&
+      !state.item.is_frame() &&
       !state.item.is_pilot_weapon() &&
       !state.item.is_npc_feature())
   ) {
@@ -103,7 +116,12 @@ export async function applySelfHeat(
   let self_heat = 0;
 
   if (state.data.self_heat) {
-    self_heat = (await new Roll(state.data.self_heat).roll({ async: true })).total!;
+    const roll = await new Roll(state.data.self_heat).roll({ async: true });
+    self_heat = roll.total!;
+    state.data.self_heat_result = {
+      roll,
+      tt: await roll.getTooltip(),
+    };
   }
 
   if (getAutomationOptions().attack_self_heat) {
@@ -127,7 +145,7 @@ export async function updateItemAfterAction(
   if (state.item && getAutomationOptions().limited_loading && getAutomationOptions().attacks) {
     let item_changes: DeepPartial<SourceData.MechWeapon | SourceData.NpcFeature | SourceData.PilotWeapon> = {};
     if (state.item.isLoading()) item_changes.loaded = false;
-    if (state.item.isLimited()) item_changes.uses!.value = Math.max(state.item.system.uses.value - 1, 0);
+    if (state.item.isLimited()) item_changes.uses = { value: Math.max(state.item.system.uses.value - 1, 0) };
     if (state.item.is_npc_feature() && state.item.isRecharge())
       (item_changes as DeepPartial<SourceData.NpcFeature>).charged = false;
     await state.item.update({ system: item_changes });

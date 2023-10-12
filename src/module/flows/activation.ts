@@ -79,12 +79,20 @@ export async function initActivationData(
     state.data.title =
       options?.title || state.data.title || state.data.action?.name || state.item.name || "UNKNOWN ACTION";
 
+    // Deal with tags
+    state.data.tags = state.item.getTags() ?? [];
+    // Check for self-heat
+    const selfHeatTags = state.data.tags.filter(t => t.is_selfheat);
+    if (!!(selfHeatTags && selfHeatTags.length)) state.data.self_heat = selfHeatTags[0].val;
+
     // If it's a tech attack or invade, switch to a tech attack flow
     if (state.data.action.tech_attack || state.data.action.activation == ActivationType.Invade) {
       let tech_flow = new TechAttackFlow(state.item, {
         title: state.data.title,
         invade: state.data.action.activation == ActivationType.Invade,
         attack_type: AttackType.Tech,
+        action: state.data.action,
+        effect: state.data.action.detail,
         tags:
           state.item.is_mech_system() || state.item.is_mech_system() || state.item.is_npc_feature()
             ? state.item.system.tags
@@ -113,14 +121,21 @@ export async function printActionUseCard(
       action: state.data.action,
     },
   };
-  let data: string = "";
+  let data = {
+    title: state.data.title,
+    description: "",
+    roll: state.data.self_heat_result?.roll,
+    roll_tt: state.data.self_heat_result?.tt,
+    roll_icon: "cci cci-heat i--m damage--heat",
+    tags: state.data.tags,
+  };
   if (state.item && state.data.action_path) {
-    data = buildActionHTML(state.item, state.data.action_path, { editable: false, full: false });
+    data.description = buildActionHTML(state.item, state.data.action_path, { editable: false, full: false });
     // } else if (false) {
     // TODO: how to detect/trigger deployables?
     // data = buildDeployableHTML(state.data.action, { editable: false, full: false });
   } else {
-    data = state.data.detail;
+    data.description = state.data.detail;
   }
   await renderTemplateStep(state.actor, template, data, flags);
   return true;

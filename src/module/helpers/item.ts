@@ -1119,12 +1119,12 @@ export function buildDeployableHTML(
  * If trying to use a deployable, you should still provide the item uuid & the path to the deployable within it
  *
  * @param activation The type of activation.
- * @param macroData More substantive information about it
+ * @param flowData More substantive information about it
  * @returns
  */
 export function buildChipHTML(
   activation: ActivationType,
-  macroData?: {
+  flowData?: {
     icon?: ChipIcons;
 
     // These must be provided together
@@ -1135,21 +1135,21 @@ export function buildChipHTML(
     fullData?: LancerFlowState.InvocationData | null;
   }
 ): string {
-  if (macroData && (macroData.fullData || (macroData.uuid && macroData.path !== undefined))) {
-    if (!macroData.icon) macroData.icon = ChipIcons.Chat;
+  if (flowData && (flowData.fullData || (flowData.uuid && flowData.path !== undefined))) {
+    if (!flowData.icon) flowData.icon = ChipIcons.Chat;
     let data: string | undefined;
-    if (macroData?.fullData) {
-      data = `data-macro=${encodeMacroData(macroData.fullData)}`;
+    if (flowData?.fullData) {
+      data = `data-macro=${encodeMacroData(flowData.fullData)}`;
     } else {
-      data = `data-uuid=${macroData.uuid} data-path="${macroData.path}"`;
+      data = `data-uuid=${flowData.uuid} data-path="${flowData.path}"`;
     }
-    const flowClass = macroData?.fullData ? "lancer-macro" : "activation-macro";
+    const flowClass = flowData?.fullData ? "lancer-macro" : "activation-flow";
     const activationClass = `activation-${slugify(activation, "-")}`;
     const themeClass = `lancer-${slugify(activation, "-")}`;
     return `
     <a
       class="${flowClass} activation-chip lancer-button ${activationClass} ${themeClass}" ${data}>
-            ${macroData.icon ? macroData.icon : ""}
+            ${flowData.icon ? flowData.icon : ""}
             ${activation.toUpperCase()}
           </a>`;
   } else return `<div class="activation-chip activation-${activation.toLowerCase()}">${activation.toUpperCase()}</div>`;

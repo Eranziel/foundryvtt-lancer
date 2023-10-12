@@ -6,7 +6,7 @@ import { handleRefDragging, handleRefSlotDropping, click_evt_open_ref, handleUse
 import type { LancerActorSheetData } from "../interfaces";
 import { LancerItem } from "../item/lancer-item";
 import { LancerActor, LancerActorType } from "./lancer-actor";
-import { prepareActivationMacro, prepareChargeMacro, prepareItemMacro, runEncodedMacro } from "../macros";
+import { prepareChargeMacro, prepareItemMacro, runEncodedMacro } from "../macros";
 import { ActivationOptions } from "../enums";
 import { applyCollapseListeners, CollapseHandler, initializeCollapses } from "../helpers/collapse";
 import { addExportButton } from "../helpers/io";
@@ -213,7 +213,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
 
       const weaponElement = $(ev.currentTarget).closest("[data-uuid]")[0] as HTMLElement;
       const weaponId = weaponElement.dataset.uuid;
-      const weapon = LancerItem.fromUuidSync(weaponId ?? "", "Error rolling macro");
+      const weapon = LancerItem.fromUuidSync(weaponId ?? "", `Invalid weapon ID: ${weaponId}`);
       weapon.beginWeaponAttackFlow();
     });
 
@@ -244,7 +244,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
 
       const powerElement = $(ev.currentTarget).closest("[data-uuid]")[0] as HTMLElement;
       const bondId = powerElement.dataset.uuid;
-      const bond = LancerItem.fromUuidSync(bondId ?? "", "Error rolling macro");
+      const bond = LancerItem.fromUuidSync(bondId ?? "", `Invalid bond ID: ${bondId}`);
       const powerIndex = parseInt(powerElement.dataset.powerIndex ?? "-1");
       bond.beginBondPowerFlow(powerIndex);
     });
@@ -272,24 +272,25 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
     });
 
     // Action-chip (system? Or broader?) macros
-    html.find(".activation-macro").on("click", ev => {
+    html.find(".activation-flow").on("click", ev => {
       ev.stopPropagation();
 
       const el = ev.currentTarget;
 
-      const item = el.dataset.uuid;
+      const itemId = el.dataset.uuid;
       const path = el.dataset.path;
-      if (!item || !path) throw Error("No item ID from activation chip");
+      if (!itemId || !path) throw Error("No item ID from activation chip");
 
       let is_action = path.includes("action");
       let is_deployable = path.includes("deployable");
 
       if (is_action) {
-        prepareActivationMacro(item, ActivationOptions.ACTION, path);
+        const item = LancerItem.fromUuidSync(itemId ?? "", `Invalid item ID: ${itemId}`);
+        item.beginActivationFlow(path);
       } else if (is_deployable) {
         prepareActivationMacro(item, ActivationOptions.DEPLOYABLE, path);
       } else {
-        ui.notifications?.error("Could not infer action type");
+        ui.notifications!.error("Could not infer action type");
       }
     });
 

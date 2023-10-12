@@ -25,6 +25,9 @@ export async function renderTemplateStep(actor: LancerActor, template: string, t
   } else if ((templateData.damage_results?.length ?? 0) > 0) {
     aggregate.push(...templateData.damage_results.map((d: { roll: Roll }) => d.roll));
   }
+  if (templateData.self_heat_result) {
+    aggregate.push(templateData.self_heat_result.roll);
+  }
   const roll = Roll.fromTerms([PoolTerm.fromRolls(aggregate)]);
 
   return createChatMessageStep(actor, html, roll, flags);

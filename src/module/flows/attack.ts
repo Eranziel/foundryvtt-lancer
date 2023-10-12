@@ -71,6 +71,7 @@ export class BasicAttackFlow extends Flow<LancerFlowState.AttackRollData> {
       roll_str: data?.roll_str || "",
       flat_bonus: data?.flat_bonus || 0,
       attack_type: data?.attack_type || AttackType.Melee,
+      action: data?.action || null,
       is_smart: data?.is_smart || false,
       attack_rolls: data?.attack_rolls || { roll: "", targeted: [] },
       attack_results: data?.attack_results || [],
@@ -110,6 +111,7 @@ export class WeaponAttackFlow extends Flow<LancerFlowState.WeaponRollData> {
       roll_str: data?.roll_str || "",
       flat_bonus: data?.flat_bonus || 0,
       attack_type: data?.attack_type || AttackType.Melee,
+      action: data?.action || null,
       is_smart: data?.is_smart || false,
       attack_rolls: data?.attack_rolls || { roll: "", targeted: [] },
       attack_results: data?.attack_results || [],
@@ -179,7 +181,7 @@ export async function initAttackData(
     return true;
   } else {
     // This title works for everything
-    state.data.title = options?.title ?? state.item.name!;
+    state.data.title = options?.title ?? state.data.title ?? state.item.name!;
     if (state.item.is_mech_weapon()) {
       if (!state.actor.is_mech()) {
         ui.notifications?.warn("Non-mech cannot fire a mech weapon!");
@@ -282,15 +284,8 @@ export async function setAttackTags(
     let profile = state.item.system.active_profile;
     state.data.tags = profile.all_tags;
     success = true;
-  } else if (state.item.is_mech_system()) {
-    state.data.tags = state.item.system.tags;
-    success = true;
-  } else if (state.item.is_npc_feature()) {
-    let asWeapon = state.item.system as SystemTemplates.NPC.WeaponData;
-    state.data.tags = asWeapon.tags;
-    success = true;
-  } else if (state.item.is_pilot_weapon()) {
-    state.data.tags = state.item.system.tags;
+  } else {
+    state.data.tags = state.item.getTags() ?? [];
     success = true;
   }
   if (success && state.data.tags) {
@@ -324,7 +319,11 @@ export async function setAttackEffects(
     state.data.on_crit = profile.on_crit;
     return true;
   } else if (state.item.is_mech_system()) {
-    state.data.effect = state.item.system.effect;
+    state.data.effect = state.data.action?.detail ?? state.item.system.effect;
+    return true;
+  } else if (state.item.is_frame()) {
+    // Frame attacks should only be tech attacks from core systems
+    state.data.effect = state.data.action?.detail ?? state.item.system.core_system.active_effect;
     return true;
   } else if (state.item.is_npc_feature()) {
     let asWeapon = state.item.system as SystemTemplates.NPC.WeaponData;

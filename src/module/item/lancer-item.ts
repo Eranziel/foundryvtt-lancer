@@ -21,6 +21,7 @@ import { WeaponAttackFlow } from "../flows/attack";
 import { TechAttackFlow } from "../flows/tech";
 import { fixupPowerUses } from "../models/bits/power";
 import { BondPowerFlow } from "../flows/bond";
+import { ActivationFlow } from "../flows/activation";
 
 const lp = LANCER.log_prefix;
 
@@ -581,6 +582,20 @@ export class LancerItem extends Item {
     const flow = new TechAttackFlow(this);
     await flow.begin();
     console.log("Finished tech attack flow");
+  }
+
+  async beginActivationFlow(path?: string) {
+    if (!path) {
+      // If no path is provided, default to the first action
+      // @ts-ignore We know it doesn't exist on all types, that's why we're checking
+      if (!this.system.actions || this.system.actions.length < 1) {
+        ui.notifications!.error(`Item ${this.id} has no actions!`);
+        return;
+      }
+      path = "system.actions.0";
+    }
+    const flow = new ActivationFlow(this, { action_path: path });
+    await flow.begin();
   }
 
   async beginBondPowerFlow(powerIndex: number) {

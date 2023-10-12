@@ -295,7 +295,7 @@ Hooks.once("init", async function () {
     prepareOverchargeMacro: macros.prepareOverchargeMacro,
     prepareOverheatMacro: macros.prepareOverheatMacro,
     prepareStructureMacro: macros.prepareStructureMacro,
-    prepareActivationMacro: macros.prepareActivationMacro,
+    // prepareActivationMacro: macros.prepareActivationMacro,
     // prepareAttackMacro: macros.prepareAttackMacro,
     prepareStructureSecondaryRollMacro: macros.prepareStructureSecondaryRollMacro,
     // rollTechMacro: macros.rollTechMacro,

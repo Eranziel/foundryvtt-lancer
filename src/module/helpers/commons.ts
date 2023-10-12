@@ -20,7 +20,6 @@ export function inc_if(val: string, test: any) {
 export function lancerDiceRoll(roll: Roll, tooltip?: string, icon?: string): string {
   const iconHTML = icon ? `<i class="${icon}"></i>` : "";
   const tooltipHTML = tooltip ? `<div style="text-align: left;">${tooltip}</div>` : "";
-  console.log("iconHTML\n", iconHTML);
   return `
 <div class="dice-roll lancer-dice-roll collapse">
   <div class="dice-result">

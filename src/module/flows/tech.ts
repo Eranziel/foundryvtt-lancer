@@ -31,8 +31,10 @@ export class TechAttackFlow extends Flow<LancerFlowState.TechAttackRollData> {
       roll_str: data?.roll_str || "",
       flat_bonus: data?.flat_bonus || 0,
       attack_type: data?.attack_type || AttackType.Tech,
+      action: data?.action || null,
       is_smart: true, // Tech attacks always target e-def
       invade: data?.invade || false,
+      effect: data?.effect || "",
       attack_rolls: data?.attack_rolls || { roll: "", targeted: [] },
       attack_results: data?.attack_results || [],
       hit_results: data?.hit_results || [],
@@ -91,7 +93,7 @@ export async function initTechAttackData(
     return true;
   } else {
     // This title works for everything
-    state.data.title = options?.title ?? state.item.name!;
+    state.data.title = options?.title || state.data.title || state.item.name!;
     // All of these are tech attacks by definition
     state.data.attack_type = AttackType.Tech;
     if (state.item.is_npc_feature()) {
@@ -107,7 +109,7 @@ export async function initTechAttackData(
         ? AccDiffData.fromObject(options.acc_diff)
         : AccDiffData.fromParams(state.item, asTech.tags, state.data.title, Array.from(game.user!.targets), acc);
       return true;
-    } else if (state.item.is_mech_system()) {
+    } else if (state.item.is_mech_system() || state.item.is_frame()) {
       // Tech attack system
       if (!state.actor.is_mech()) {
         ui.notifications?.warn("Non-mech cannot use a mech system!");
@@ -119,20 +121,21 @@ export async function initTechAttackData(
       }
 
       // Get the action if possible
-      let action: ActionData | null = null;
       if (options?.action_path) {
-        action = resolve_dotpath(state.item, options.action_path);
+        state.data.action = resolve_dotpath(state.item, options.action_path);
       }
       state.data.flat_bonus = state.actor.system.tech_attack;
       state.data.tags = state.item.getTags() ?? undefined;
-      if (action) {
+      if (state.data.action) {
         // Use the action data
-        state.data.title = action.name == ActivationType.Invade ? `INVADE // ${action.name}` : action.name;
-        state.data.effect = action.detail;
-      } else {
-        // Use the system effect as a fallback
-        state.data.title = state.item.name!;
-        state.data.effect = state.item.system.effect;
+        state.data.title =
+          state.data.action.name == ActivationType.Invade
+            ? `INVADE // ${state.data.action.name}`
+            : state.data.action.name;
+        state.data.effect = state.data.action.detail;
+      } else if (!state.data.effect) {
+        if (state.item.is_mech_system()) state.data.effect = state.item.system.effect;
+        else state.data.effect = state.item.system.core_system.active_effect;
       }
 
       // TODO: check bonuses for flat attack bonus
@@ -140,7 +143,7 @@ export async function initTechAttackData(
         ? AccDiffData.fromObject(options.acc_diff)
         : AccDiffData.fromParams(
             state.item,
-            state.item.system.tags,
+            state.item.getTags() ?? [],
             state.data.title,
             Array.from(game.user!.targets),
             acc

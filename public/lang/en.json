@@ -109,6 +109,7 @@
         "attack": "// ATTACK //",
         "damage": "// DAMAGE //",
         "crit-damage": "// CRIT DAMAGE //",
+        "self-heat": "// SELF HEAT //",
         "defense-hit": "// HIT VS {defense}",
         "e-defense-hit": "// HIT VS E-DEF",
         "effect": "// EFFECT //",
