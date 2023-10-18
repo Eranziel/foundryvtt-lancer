@@ -25,26 +25,28 @@
       <div class="lancer-mini-header collapse-trigger" data-collapse-id="{{_uuid}}-hits">
         {{localize "lancer.chat-card.title.e-defense-hit"}}
       </div>
-      <div class="lancer-hit collapse" data-collapse-id="{{_uuid}}-hits">
+      <div class="collapse" data-collapse-id="{{_uuid}}-hits">
         {{#each hit_results as |hit key|}}
-          <div>
-            <img class="lancer-hit-thumb" src="{{hit.token.img}}" />
-          </div>
-          <div class="lancer-hit-text">
-            <span class="lancer-hit-text-name">{{hit.token.name}}</span>
-            {{#if hit.crit}}
-              <span class="card clipped lancer-hit-chip crit">
-                {{localize "lancer.chat-card.attack.crit" total=hit.total}}
-              </span>
-            {{else if hit.hit}}
-              <span class="card clipped lancer-hit-chip hit">
-                {{localize "lancer.chat-card.attack.hit" total=hit.total}}
-              </span>
-            {{else}}
-              <span class="card clipped lancer-hit-chip miss">
-                {{localize "lancer.chat-card.attack.miss" total=hit.total}}
-              </span>
-            {{/if}}
+          <div class="lancer-hit">
+            <div>
+              <img class="lancer-hit-thumb" src="{{hit.token.img}}" />
+            </div>
+            <div class="lancer-hit-text">
+              <span class="lancer-hit-text-name">{{hit.token.name}}</span>
+              {{#if hit.crit}}
+                <span class="card clipped lancer-hit-chip crit">
+                  {{localize "lancer.chat-card.attack.crit" total=hit.total}}
+                </span>
+              {{else if hit.hit}}
+                <span class="card clipped lancer-hit-chip hit">
+                  {{localize "lancer.chat-card.attack.hit" total=hit.total}}
+                </span>
+              {{else}}
+                <span class="card clipped lancer-hit-chip miss">
+                  {{localize "lancer.chat-card.attack.miss" total=hit.total}}
+                </span>
+              {{/if}}
+            </div>
           </div>
         {{/each}}
       </div>
