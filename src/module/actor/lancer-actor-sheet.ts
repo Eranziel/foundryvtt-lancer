@@ -200,7 +200,8 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
         case "BasicAttack":
           this.actor.beginBasicAttackFlow(flowArgs);
           break;
-        case "Tech":
+        case "TechAttack":
+          this.actor.beginBasicTechAttackFlow(flowArgs);
           break;
       }
     });

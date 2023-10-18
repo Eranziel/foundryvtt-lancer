@@ -10,13 +10,13 @@ export async function checkItemDestroyed(
 ): Promise<boolean> {
   // If this automation option is not enabled, skip the check.
   if (!getAutomationOptions().limited_loading && getAutomationOptions().attacks) return true;
+  if (!state.item) return true; // This flow is actor-based, so there is no item to be destroyed.
   if (
-    !state.item ||
-    (!state.item.is_mech_weapon() &&
-      !state.item.is_mech_system() &&
-      !state.item.is_frame() &&
-      !state.item.is_pilot_weapon() &&
-      !state.item.is_npc_feature())
+    !state.item.is_mech_weapon() &&
+    !state.item.is_mech_system() &&
+    !state.item.is_frame() &&
+    !state.item.is_pilot_weapon() &&
+    !state.item.is_npc_feature()
   ) {
     return false;
   }
@@ -45,16 +45,16 @@ export async function checkItemLimited(
 ): Promise<boolean> {
   // If this automation option is not enabled, skip the check.
   if (!getAutomationOptions().limited_loading && getAutomationOptions().attacks) return true;
+  if (!state.item) return true; // This flow is actor-based, so there is no item to be destroyed.
   if (
-    !state.item ||
-    (!state.item.is_mech_weapon() &&
-      !state.item.is_mech_system() &&
-      !state.item.is_frame() &&
-      !state.item.is_weapon_mod() &&
-      !state.item.is_pilot_weapon() &&
-      !state.item.is_pilot_gear() &&
-      !state.item.is_pilot_armor() &&
-      !state.item.is_npc_feature())
+    !state.item.is_mech_weapon() &&
+    !state.item.is_mech_system() &&
+    !state.item.is_frame() &&
+    !state.item.is_weapon_mod() &&
+    !state.item.is_pilot_weapon() &&
+    !state.item.is_pilot_gear() &&
+    !state.item.is_pilot_armor() &&
+    !state.item.is_npc_feature()
   ) {
     return false;
   }
@@ -80,13 +80,13 @@ export async function checkItemCharged(
 ): Promise<boolean> {
   // If this automation option is not enabled, skip the check.
   if (!getAutomationOptions().limited_loading && getAutomationOptions().attacks) return true;
+  if (!state.item) return true; // This flow is actor-based, so there is no item to be destroyed.
   if (
-    !state.item ||
-    (!state.item.is_mech_weapon() &&
-      !state.item.is_mech_system() &&
-      !state.item.is_frame() &&
-      !state.item.is_pilot_weapon() &&
-      !state.item.is_npc_feature())
+    !state.item.is_mech_weapon() &&
+    !state.item.is_mech_system() &&
+    !state.item.is_frame() &&
+    !state.item.is_pilot_weapon() &&
+    !state.item.is_npc_feature()
   ) {
     return false;
   }

@@ -14,6 +14,7 @@ import { LoadoutHelper } from "./loadout-util";
 import { StrussHelper } from "./struss-util";
 import { BasicAttackFlow } from "../flows/attack";
 import { pilotInnateEffect } from "../effects/converter";
+import { TechAttackFlow } from "../flows/tech";
 const lp = LANCER.log_prefix;
 
 const DEFAULT_OVERCHARGE_SEQUENCE = ["+1", "+1d3", "+1d6", "+1d6+4"];
@@ -714,6 +715,15 @@ export class LancerActor extends Actor {
       return await owner.beginBasicAttackFlow(title);
     }
     const flow = new BasicAttackFlow(this, title ? { title } : undefined);
+    return await flow.begin();
+  }
+
+  async beginBasicTechAttackFlow(title?: string): Promise<boolean> {
+    if (!this.is_mech() && !this.is_npc()) {
+      ui.notifications!.warn(`Only mechs and NPCs can tech attack!`);
+      return false;
+    }
+    const flow = new TechAttackFlow(this, title ? { title } : undefined);
     return await flow.begin();
   }
 
