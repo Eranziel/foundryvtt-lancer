@@ -210,6 +210,11 @@ export enum WeaponType {
 
 export type WeaponTypeChecklist = { [key in WeaponType]: boolean };
 
+export enum DefenseType {
+  EDef = "E-Defense",
+  Evasion = "Evasion",
+}
+
 export enum SystemType {
   System = "System",
   AI = "AI",

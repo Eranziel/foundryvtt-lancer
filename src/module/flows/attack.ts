@@ -181,7 +181,7 @@ export async function initAttackData(
     return true;
   } else {
     // This title works for everything
-    state.data.title = options?.title ?? state.data.title ?? state.item.name!;
+    state.data.title = options?.title || state.data.title || state.item.name!;
     if (state.item.is_mech_weapon()) {
       if (!state.actor.is_mech()) {
         ui.notifications?.warn("Non-mech cannot fire a mech weapon!");
@@ -514,6 +514,7 @@ export async function printAttackCard(
       }),
     },
   };
+  state.data.defense = state.data.is_smart ? "E-DEF" : "EVASION";
   await renderTemplateStep(state.actor, template, state.data, flags);
   return true;
 }

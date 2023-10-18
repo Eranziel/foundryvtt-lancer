@@ -83,6 +83,7 @@ export namespace LancerFlowState {
     target_spaces?: [number, number][];
     // Data for output chat template
     is_smart: boolean;
+    defense?: string;
     attack_rolls: AttackRolls;
     attack_results: AttackResult[];
     hit_results: HitResult[];
