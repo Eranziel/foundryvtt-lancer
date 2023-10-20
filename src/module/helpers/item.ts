@@ -1051,14 +1051,10 @@ export function buildDeployablesArray(item: LancerItem, array_path: string, opti
     let dep = resolve_helper_dotpath<LancerDEPLOYABLE>(options, `deployables.${lid}`);
     if (dep) {
       cards.push(
-        buildDeployableHTML(
-          dep,
-          {
-            item,
-            path: array_path,
-          },
-          options.hash["full"] ?? false
-        )
+        buildDeployableHTML(dep, {
+          item,
+          path: array_path,
+        })
       );
     } else {
       cards.push(`<span>Unresolved deployabled LID "${lid}". Re-import + Set yourself as its owner</span>`);
@@ -1078,15 +1074,12 @@ export function buildDeployableHTML(
   source: {
     item: LancerItem;
     path: string;
-  } | null,
-  full: boolean
+  } | null
 ): string {
   let detailText: string | undefined;
   let chip: string;
 
-  detailText = "";
-  if (full)
-    detailText = `
+  detailText = `
     <div class="deployable-detail">
       <hr class="hsep">
       ${dep.system.detail}

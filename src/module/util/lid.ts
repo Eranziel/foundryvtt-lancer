@@ -121,11 +121,6 @@ export async function lookupDeployables(lids: string[]) {
 export function lookupOwnedDeployables(owner: LancerActor): Record<string, LancerDEPLOYABLE> {
   if (owner.is_deployable()) return {};
   if (owner.isToken) return {}; // This might be possible if we could recover the original actor somehow?
-  if (owner.is_mech() && owner.system.pilot?.value) {
-    owner = owner.system.pilot.value;
-  } else if (owner.is_mech()) {
-    return {};
-  }
   let foundDeployables = game.actors!.filter(a => !!(a.is_deployable() && a.system.owner?.value == owner));
   let result: Record<string, LancerDEPLOYABLE> = {};
   for (let dep of foundDeployables as unknown as LancerDEPLOYABLE[]) {
