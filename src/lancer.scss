@@ -1717,11 +1717,15 @@ ul.talent-ranks {
   border-radius: 10px;
   background-color: var(--darken-1);
   margin-top: 6px;
-  padding-top: 4px;
   margin-bottom: 4px;
+  padding: 4px;
 
   .title-wrapper {
     text-align: left;
+
+    .activation-chip {
+      max-width: fit-content;
+    }
   }
 }
 
@@ -1741,10 +1745,18 @@ ul.talent-ranks {
 .deployable-wrapper {
   display: grid;
   grid-template-columns: 48px 1fr auto;
-  grid-template-rows: 20px 1fr;
+  grid-template-rows: auto auto auto;
   grid-template-areas:
     "img title title"
-    "img desc chip";
+    "img desc chip"
+    "img action action";
+
+  .activation-chip {
+    width: 100%;
+    max-height: 20px;
+    display: flex;
+    justify-content: center;
+  }
 }
 
 .action-wrapper,

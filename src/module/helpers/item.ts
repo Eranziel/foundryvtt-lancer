@@ -29,6 +29,7 @@ import {
   std_x_of_y,
   tippyContextMenu,
   manufacturerStyle,
+  activationStyle,
 } from "./commons";
 import { limited_uses_indicator, ref_params, reserve_used_indicator } from "./refs";
 import {
@@ -1023,10 +1024,10 @@ export function buildActionHTML(
       <span class="action-title collapse-trigger">
         ${action.name?.toUpperCase() ?? doc.name}
       </span>
+      ${chip}
       ${editor ?? ""}
     </div>
     ${detailText ?? ""}
-    ${chip}
     ${tags ?? ""}
   </div>
   `;
@@ -1077,21 +1078,36 @@ export function buildDeployableHTML(
   } | null
 ): string {
   let detailText: string | undefined;
-  let chip: string;
+  let chips: string[] = [];
+  let actionText: string | undefined;
+  let actionChips: string[] = [];
 
   detailText = `
     <div class="deployable-detail">
-      <hr class="hsep">
       ${dep.system.detail}
     </div>`;
 
-  // All places we could get our activation, in preferred order
-  let activation = dep.system.activation;
-
-  if (source) {
-    chip = buildChipHTML(activation, { icon: ChipIcons.Deployable, uuid: source.item.uuid, path: source.path });
-  } else {
-    chip = buildChipHTML(activation, { icon: ChipIcons.Deployable });
+  let standardActions = [
+    { label: "ACTIVATE", action: dep.system.activation },
+    { label: "DEACTIVATE", action: dep.system.deactivation },
+    { label: "RECALL", action: dep.system.recall },
+    { label: "REDEPLOY", action: dep.system.redeploy },
+  ].filter(a => !!a.action);
+  standardActions.forEach(a => {
+    chips.push(
+      buildChipHTML(a.action, {
+        icon: ChipIcons.Deployable,
+        label: a.label,
+        uuid: source ? source.item.uuid : undefined,
+        path: source ? source.path : undefined, // TODO: specific paths for each action?
+      })
+    );
+  });
+  if (dep.system.actions.length) {
+    actionText = `<hr class="hsep">`;
+    dep.system.actions.forEach((_, i) => {
+      actionText += buildActionHTML(dep, `system.actions.${i}`, { full: true });
+    });
   }
 
   return `
@@ -1101,9 +1117,18 @@ export function buildDeployableHTML(
       <span class="deployable-title">
         ${dep.name ? dep.name.toUpperCase() : ""}
       </span>
+      <hr class="hsep">
     </div>
     <div style="grid-area: desc">${detailText ? detailText : ""}</div>
-    <div style="grid-area: chip">${chip}</div>
+    <div style="grid-area: chip; justify-content: flex-end;" class="flexcol">${chips.join("\n")}</div>
+    ${
+      actionText
+        ? `
+          <div style="grid-area: action">${actionText}</div>
+          <div style="grid-area: action-chip">${actionChips.join("\n")}</div>
+          `
+        : ""
+    }
   </div>
   `;
 }
@@ -1119,6 +1144,7 @@ export function buildChipHTML(
   activation: ActivationType,
   flowData?: {
     icon?: ChipIcons;
+    label?: string;
 
     // These must be provided together
     uuid?: string;
@@ -1138,11 +1164,12 @@ export function buildChipHTML(
     }
     const flowClass = flowData?.fullData ? "lancer-macro" : "activation-flow";
     const activationClass = `activation-${slugify(activation, "-")}`;
-    const themeClass = `lancer-${slugify(activation, "-")}`;
+    const themeClass = activationStyle(activation);
     return `
     <a
       class="${flowClass} activation-chip lancer-button ${activationClass} ${themeClass}" ${data}>
             ${flowData.icon ? flowData.icon : ""}
+            ${flowData.label ? flowData.label.toUpperCase() + " - " : ""}
             ${activation.toUpperCase()}
           </a>`;
   } else return `<div class="activation-chip activation-${activation.toLowerCase()}">${activation.toUpperCase()}</div>`;

@@ -245,6 +245,28 @@ export function charged_box(charged: boolean, path: string) {
           </div>`;
 }
 
+export function activationStyle(activation: ActivationType): string {
+  switch (activation) {
+    case ActivationType.Quick:
+      return "lancer-quick";
+    case ActivationType.Full:
+      return "lancer-full";
+    case ActivationType.Invade:
+    case ActivationType.QuickTech:
+    case ActivationType.FullTech:
+      return "lancer-tech";
+    case ActivationType.Reaction:
+      return "lancer-reaction";
+    case ActivationType.Protocol:
+      return "lancer-protocol";
+    case ActivationType.Free:
+      return "lancer-free";
+    case ActivationType.Passive:
+    default:
+      return "lancer-secondary";
+  }
+}
+
 export function manufacturerStyle(mfr: string, border?: boolean): string {
   let manufacturer = slugify(mfr, "-");
   if (!["gms", "ipsn", "ssc", "horus", "ha"].includes(manufacturer)) {

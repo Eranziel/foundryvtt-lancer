@@ -285,11 +285,11 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
       let is_action = path.includes("action");
       let is_deployable = path.includes("deployable");
 
+      const item = LancerItem.fromUuidSync(itemId ?? "", `Invalid item ID: ${itemId}`);
       if (is_action) {
-        const item = LancerItem.fromUuidSync(itemId ?? "", `Invalid item ID: ${itemId}`);
         item.beginActivationFlow(path);
       } else if (is_deployable) {
-        prepareActivationMacro(item, ActivationOptions.DEPLOYABLE, path);
+        item.beginActivationFlow(path);
       } else {
         ui.notifications!.error("Could not infer action type");
       }
