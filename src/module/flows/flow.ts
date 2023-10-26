@@ -93,28 +93,49 @@ export class Flow<StateData> {
 
   /**
    * Insert a step into the map, to be executed before an existing step
-   * @param key Existing step key
+   * @param key Existing step key to insert newKey before
+   * @param newKey New step key
    * @param step New step to insert
    */
-  insertStepBefore(key: string, step: Step<StateData, any> | Flow<any>) {
-    // TODO
+  insertStepBefore(key: string, newKey: string, step: Step<StateData, any> | Flow<any>) {
+    const newSteps: Map<string, Step<StateData, any> | Flow<any>> = new Map();
+    for (const [k, s] of this.steps.entries()) {
+      if (k === key) {
+        newSteps.set(newKey, step);
+        newSteps.set(k, s);
+      } else {
+        newSteps.set(k, s);
+      }
+    }
+    this.steps = newSteps;
   }
 
   /**
    * Insert a step into the map, to be executed after an existing step
-   * @param key Existing step key
+   * @param key Existing step key to insert newKey after
+   * @param newKey New step key
    * @param step New step to insert
    */
-  insertStepAfter(key: string, step: Step<StateData, any> | Flow<any>) {
-    // TODO
+  insertStepAfter(key: string, newKey: string, step: Step<StateData, any> | Flow<any>) {
+    const newSteps: Map<string, Step<StateData, any> | Flow<any>> = new Map();
+    for (const [k, s] of this.steps.entries()) {
+      if (k === key) {
+        newSteps.set(k, s);
+        newSteps.set(newKey, step);
+        return;
+      } else {
+        newSteps.set(k, s);
+      }
+    }
+    this.steps = newSteps;
   }
 
   /**
    * Remove the given step from the steps to execute
-   * @param key Existing step key
+   * @param key Existing step key to delete
    */
   removeStep(key: string) {
-    // TODO
+    this.steps.delete(key);
   }
 
   /**
