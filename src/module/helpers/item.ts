@@ -1154,6 +1154,8 @@ export function buildChipHTML(
     fullData?: LancerFlowState.InvocationData | null;
   }
 ): string {
+  const activationClass = `activation-${slugify(activation, "-")}`;
+  const themeClass = activationStyle(activation);
   if (flowData && (flowData.fullData || (flowData.uuid && flowData.path !== undefined))) {
     if (!flowData.icon) flowData.icon = ChipIcons.Chat;
     let data: string | undefined;
@@ -1163,16 +1165,18 @@ export function buildChipHTML(
       data = `data-uuid=${flowData.uuid} data-path="${flowData.path}"`;
     }
     const flowClass = flowData?.fullData ? "lancer-macro" : "activation-flow";
-    const activationClass = `activation-${slugify(activation, "-")}`;
-    const themeClass = activationStyle(activation);
     return `
-    <a
-      class="${flowClass} activation-chip lancer-button ${activationClass} ${themeClass}" ${data}>
-            ${flowData.icon ? flowData.icon : ""}
-            ${flowData.label ? flowData.label.toUpperCase() + " - " : ""}
-            ${activation.toUpperCase()}
-          </a>`;
-  } else return `<div class="activation-chip activation-${activation.toLowerCase()}">${activation.toUpperCase()}</div>`;
+    <a class="${flowClass} activation-chip lancer-button ${activationClass} ${themeClass}" ${data}>
+      ${flowData.icon ? flowData.icon : ""}
+      ${flowData.label ? flowData.label.toUpperCase() + " - " : ""}
+      ${activation.toUpperCase()}
+    </a>`;
+  } else {
+    return `
+    <div class="activation-chip ${activationClass} lancer-chip ${themeClass}">
+      ${activation.toUpperCase()}
+    </div>`;
+  }
 }
 
 export function buildSystemHTML(system: LancerMECH_SYSTEM): string {

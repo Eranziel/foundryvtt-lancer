@@ -169,11 +169,12 @@ $theme-types: "primary" "secondary" "dark-gray" "light-gray" "tooltip"    // Gen
   "trait" "bonus" "system" "tech" "talent" "weapon"     // Gear types
   "reaction" "protocol" "quick" "full" "move" "free"; // Action types
 @each $theme-type in $theme-types {
-  /* Headers and buttons */
+  /* Headers, buttons, and chips */
   .lancer-header.lancer-#{$theme-type},
   .lancer-#{$theme-type} .lancer-header,
   button.lancer-#{$theme-type},
-  .lancer-button.lancer-#{$theme-type} {
+  .lancer-button.lancer-#{$theme-type},
+  .lancer-chip.lancer-#{$theme-type} {
     background-color: var(--#{$theme-type}-color, fuschia);
     color: var(--light-text, fuschia);
   }

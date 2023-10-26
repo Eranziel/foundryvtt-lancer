@@ -1,6 +1,6 @@
 import { LANCER, TypeIcon } from "../config";
 import { SystemData, SystemDataType, SystemTemplates } from "../system-template";
-import { SourceData, SourceDataType } from "../source-template";
+import { SourceDataType } from "../source-template";
 import { DamageType, EntryType, NpcFeatureType, RangeType, WeaponType } from "../enums";
 import { ActionData } from "../models/bits/action";
 import { RangeData, Range } from "../models/bits/range";
@@ -594,7 +594,34 @@ export class LancerItem extends Item {
       }
       path = "system.actions.0";
     }
-    const flow = new ActivationFlow(this, { action_path: path });
+    let flow;
+    // If this is a Core System activation without a specific action
+    if (this.is_frame() && path === "system.core_system") {
+      console.log("Core system activation flow on path", path);
+      // Construct a fake "action" for the frame's core system
+      const action: ActionData = {
+        lid: this.system.lid + "_core_system",
+        name: this.system.core_system.active_name,
+        activation: this.system.core_system.activation,
+        detail: this.system.core_system.active_effect,
+        // The rest doesn't matter, give it some defaults
+        cost: 0,
+        frequency: "",
+        init: "",
+        trigger: "",
+        terse: "",
+        pilot: false,
+        mech: true,
+        tech_attack: false,
+        heat_cost: 0,
+        synergy_locations: [],
+        damage: [],
+        range: [],
+      };
+      flow = new ActivationFlow(this, { action, action_path: path });
+    } else {
+      flow = new ActivationFlow(this, { action_path: path });
+    }
     await flow.begin();
   }
 

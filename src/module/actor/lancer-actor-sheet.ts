@@ -282,14 +282,16 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
       const path = el.dataset.path;
       if (!itemId || !path) throw Error("No item ID from activation chip");
 
-      let is_action = path.includes("action");
-      let is_deployable = path.includes("deployable");
+      let isDeployable = path.includes("deployable");
+      let isAction = !isDeployable && path.includes("action");
+      let isCoreSystem = !isDeployable && path.includes("core_system");
 
       const item = LancerItem.fromUuidSync(itemId ?? "", `Invalid item ID: ${itemId}`);
-      if (is_action) {
+      if (isAction) {
         item.beginActivationFlow(path);
-      } else if (is_deployable) {
+      } else if (isCoreSystem) {
         item.beginActivationFlow(path);
+      } else if (isDeployable) {
       } else {
         ui.notifications!.error("Could not infer action type");
       }

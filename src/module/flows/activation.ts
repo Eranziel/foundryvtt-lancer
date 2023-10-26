@@ -2,7 +2,7 @@
 import { LANCER } from "../config";
 import { LancerItem } from "../item/lancer-item";
 import type { LancerActor } from "../actor/lancer-actor";
-import { buildActionHTML } from "../helpers/item";
+import { buildActionHTML, buildChipHTML } from "../helpers/item";
 import { ActivationType, AttackType } from "../enums";
 import { renderTemplateStep } from "./_render";
 import { resolve_dotpath } from "../helpers/commons";
@@ -78,6 +78,7 @@ export async function initActivationData(
     }
     state.data.title =
       options?.title || state.data.title || state.data.action?.name || state.item.name || "UNKNOWN ACTION";
+    state.data.detail = state.data.detail || state.data.action?.detail || "";
 
     // Deal with tags
     state.data.tags = state.item.getTags() ?? [];
@@ -113,7 +114,7 @@ export async function printActionUseCard(
   options?: { template?: string }
 ): Promise<boolean> {
   if (!state.data) throw new TypeError(`Activation flow state missing!`);
-  const template = options?.template || `systems/${game.system.id}/templates/chat/generic-card.hbs`;
+  const template = options?.template || `systems/${game.system.id}/templates/chat/activation-card.hbs`;
   const flags = {
     actionData: {
       actor: state.actor.id,
@@ -121,22 +122,16 @@ export async function printActionUseCard(
       action: state.data.action,
     },
   };
+
   let data = {
     title: state.data.title,
-    description: "",
+    action_chip: state.data.action ? buildChipHTML(state.data.action.activation, {}) : "",
+    description: state.data.detail,
     roll: state.data.self_heat_result?.roll,
     roll_tt: state.data.self_heat_result?.tt,
     roll_icon: "cci cci-heat i--m damage--heat",
     tags: state.data.tags,
   };
-  if (state.item && state.data.action_path) {
-    data.description = buildActionHTML(state.item, state.data.action_path, { editable: false, full: false });
-    // } else if (false) {
-    // TODO: how to detect/trigger deployables?
-    // data = buildDeployableHTML(state.data.action, { editable: false, full: false });
-  } else {
-    data.description = state.data.detail;
-  }
   await renderTemplateStep(state.actor, template, data, flags);
   return true;
 }
