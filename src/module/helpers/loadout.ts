@@ -348,16 +348,7 @@ function frame_active(frame_path: string, options: HelperOptions): string {
   let actionHTML = buildActionArrayHTML(frame, `system.core_system.active_actions`);
   let depHTML = buildDeployablesArray(frame, "system.core.deployables", options);
 
-  // Should find a better way to do this...
-  let coreMacroData: LancerFlowState.InvocationData | null = frame.actor
-    ? {
-        title: `${frame.actor.name} | CORE POWER`,
-        iconPath: `systems/${game.system.id}/assets/icons/macro-icons/corebonus.svg`,
-        fn: "prepareCoreActiveMacro",
-        args: [frame.actor.uuid],
-      }
-    : null;
-
+  // TODO: core active should have a big fat button that looks cool
   return `
   <div class="core-active-wrapper clipped-top lancer-border-bonus">
     <span class="lancer-header ${manufacturerStyle(frame.system.manufacturer)} clipped-top submajor">
@@ -369,7 +360,7 @@ function frame_active(frame_path: string, options: HelperOptions): string {
       </div>
       ${actionHTML ? actionHTML : ""}
       ${depHTML ? depHTML : ""}
-      ${buildChipHTML(core.activation, { icon: ChipIcons.Core, fullData: coreMacroData })}
+      ${buildChipHTML(core.activation, { icon: ChipIcons.Core, uuid: frame.uuid, path: "system.core_system" })}
     </div>
   </div>
   `;

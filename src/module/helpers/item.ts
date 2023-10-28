@@ -1137,7 +1137,11 @@ export function buildDeployableHTML(
  * If trying to use a deployable, you should still provide the item uuid & the path to the deployable within it
  *
  * @param activation The type of activation.
- * @param flowData More substantive information about it
+ * @param flowData Options to configure the chip.
+ * @param flowData.icon The icon to use. Defaults to chat icon if not provided.
+ * @param flowData.label Optional label to prepend to the action type text.
+ * @param flowData.uuid The uuid of the item to activate. Must be provided with path.
+ * @param flowData.path The path to the action within the item. Must be provided with uuid.
  * @returns
  */
 export function buildChipHTML(
@@ -1145,28 +1149,18 @@ export function buildChipHTML(
   flowData?: {
     icon?: ChipIcons;
     label?: string;
-
-    // These must be provided together
+    // These must both be provided in order to use a flow
     uuid?: string;
     path?: string;
-
-    // Or just provide a prebuilt invocation
-    fullData?: LancerFlowState.InvocationData | null;
   }
 ): string {
   const activationClass = `activation-${slugify(activation, "-")}`;
   const themeClass = activationStyle(activation);
-  if (flowData && (flowData.fullData || (flowData.uuid && flowData.path !== undefined))) {
+  if (flowData && flowData.uuid && flowData.path !== undefined) {
     if (!flowData.icon) flowData.icon = ChipIcons.Chat;
-    let data: string | undefined;
-    if (flowData?.fullData) {
-      data = `data-macro=${encodeMacroData(flowData.fullData)}`;
-    } else {
-      data = `data-uuid=${flowData.uuid} data-path="${flowData.path}"`;
-    }
-    const flowClass = flowData?.fullData ? "lancer-macro" : "activation-flow";
+    let data = `data-uuid=${flowData.uuid} data-path="${flowData.path}"`;
     return `
-    <a class="${flowClass} activation-chip lancer-button ${activationClass} ${themeClass}" ${data}>
+    <a class=""activation-flow" activation-chip lancer-button ${activationClass} ${themeClass}" ${data}>
       ${flowData.icon ? flowData.icon : ""}
       ${flowData.label ? flowData.label.toUpperCase() + " - " : ""}
       ${activation.toUpperCase()}
