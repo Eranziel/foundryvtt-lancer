@@ -300,7 +300,7 @@ Hooks.once("init", async function () {
     prepareStructureSecondaryRollMacro: macros.prepareStructureSecondaryRollMacro,
     // rollTechMacro: macros.rollTechMacro,
     // rollAttackMacro: macros.rollAttackMacro,
-    fullRepairMacro: macros.fullRepairMacro,
+    // fullRepairMacro: macros.fullRepairMacro,
     stabilizeMacro: macros.stabilizeMacro,
     importActor: fulfillImportActor,
     targetsFromTemplate: macros.targetsFromTemplate,

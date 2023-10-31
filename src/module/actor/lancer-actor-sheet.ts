@@ -190,7 +190,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
       const flowArgs = flowElement.dataset.flowArgs;
       switch (flowType) {
         case "FullRepair":
-          break;
+          this.actor.beginFullRepairFlow(flowArgs);
         case "Stabilize":
           break;
         case "Overheat":

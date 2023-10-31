@@ -1,27 +1,49 @@
 // Import TypeScript modules
-import { prepareTextMacro } from "./text";
-import { LancerActor } from "../actor/lancer-actor";
+import { LANCER } from "../config";
+import { LancerItem } from "../item/lancer-item";
+import type { LancerActor } from "../actor/lancer-actor";
+import { renderTemplateStep } from "./_render";
+import { LancerFlowState } from "./interfaces";
+import { Flow, FlowState } from "./flow";
+import { UUIDRef } from "../source-template";
 
-export function prepareFullRepairMacro(actor_: string | LancerActor) {
-  // Determine which Actor to speak as
-  let actor = LancerActor.fromUuidSync(actor_);
+const lp = LANCER.log_prefix;
+
+export class FullRepairFlow extends Flow<LancerFlowState.TextRollData> {
+  constructor(uuid: UUIDRef | LancerItem | LancerActor, data?: Partial<LancerFlowState.TextRollData>) {
+    // Initialize data if not provided
+    const initialData: LancerFlowState.TextRollData = {
+      title: data?.title || "",
+      description: data?.description || "",
+      tags: data?.tags || [],
+    };
+
+    super("FullRepairFlow", uuid, initialData);
+    this.steps.set("displayFullRepairDialog", displayFullRepairDialog);
+    this.steps.set("executeFullRepair", executeFullRepair);
+  }
+}
+
+export async function dummyStep(state: FlowState<LancerFlowState.TextRollData>, options?: {}): Promise<boolean> {
+  return true;
+}
+
+export async function displayFullRepairDialog(state: FlowState<LancerFlowState.TextRollData>): Promise<boolean> {
+  if (!state.data) throw new TypeError(`Full Repair flow state missing!`);
 
   return new Promise<boolean>((resolve, reject) => {
     new Dialog({
-      title: `FULL REPAIR - ${actor.name}`,
-      content: `<h3>Are you sure you want to fully repair the ${actor?.type} ${actor?.name}?`,
+      title: `FULL REPAIR - ${state.actor.name}`,
+      content: `<h3>Are you sure you want to fully repair the ${state.actor?.type} "${state.actor?.name}"?`,
       buttons: {
         submit: {
           icon: '<i class="fas fa-check"></i>',
           label: "Yes",
           callback: async _dlg => {
             // Gotta typeguard the actor again
-            if (!actor) {
+            if (!state.actor) {
               return reject();
             }
-
-            await actor.loadoutHelper.fullRepair();
-            prepareTextMacro(actor, "REPAIRED", `Notice: ${actor.name} has been fully repaired.`);
             resolve(true);
           },
         },
@@ -35,4 +57,22 @@ export function prepareFullRepairMacro(actor_: string | LancerActor) {
       close: () => resolve(false),
     }).render(true);
   });
+}
+
+export async function executeFullRepair(state: FlowState<LancerFlowState.TextRollData>): Promise<boolean> {
+  if (!state.data) throw new TypeError(`Full Repair flow state missing!`);
+
+  const template = `systems/${game.system.id}/templates/chat/generic-card.hbs`;
+  const flags = {};
+  let data = {
+    title: state.data.title,
+    description: state.data.description,
+    tags: state.data.tags,
+  };
+  await state.actor.loadoutHelper.fullRepair();
+  data.title = "FULL REPAIR";
+  data.description = `Notice: ${state.actor.name} has been fully repaired.`;
+  await renderTemplateStep(state.actor, template, data, flags);
+
+  return true;
 }
