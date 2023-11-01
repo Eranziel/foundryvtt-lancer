@@ -28,6 +28,25 @@ export function registerTechAttackSteps(flowSteps: Map<string, Step<any, any> | 
 }
 
 export class TechAttackFlow extends Flow<LancerFlowState.TechAttackRollData> {
+  steps = [
+    "initTechAttackData",
+    "checkItemDestroyed",
+    "checkItemLimited",
+    "checkItemCharged",
+    "setAttackTags",
+    "setAttackEffects",
+    "setAttackTargets",
+    "showAttackHUD",
+    "rollAttacks",
+    // TODO: heat, and special tech attacks which do normal damage
+    // "rollDamages"
+    // TODO: pick invade option for each hit
+    // "pickInvades",
+    "applySelfHeat",
+    "updateItemAfterAction",
+    "printTechAttackCard",
+  ];
+
   constructor(uuid: UUIDRef | LancerItem | LancerActor, data?: Partial<LancerFlowState.TechAttackRollData>) {
     // Initialize data if not provided
     const initialData: LancerFlowState.TechAttackRollData = {
@@ -50,23 +69,6 @@ export class TechAttackFlow extends Flow<LancerFlowState.TechAttackRollData> {
     };
 
     super("TechAttackFlow", uuid, initialData);
-
-    this.steps.set("initTechAttackData", initTechAttackData);
-    this.steps.set("checkItemDestroyed", checkItemDestroyed);
-    this.steps.set("checkItemLimited", checkItemLimited);
-    this.steps.set("checkItemCharged", checkItemCharged);
-    this.steps.set("setAttackTags", setAttackTags);
-    this.steps.set("setAttackEffects", setAttackEffects);
-    this.steps.set("setAttackTargets", setAttackTargets);
-    this.steps.set("showAttackHUD", showAttackHUD);
-    this.steps.set("rollAttacks", rollAttacks);
-    // TODO: heat, and special tech attacks which do normal damage
-    // this.steps.set("rollDamages", rollDamages);
-    // TODO: pick invade option for each hit
-    // this.steps.set("pickInvades", pickInvades);
-    this.steps.set("applySelfHeat", applySelfHeat);
-    this.steps.set("updateItemAfterAction", updateItemAfterAction);
-    this.steps.set("printTechAttackCard", printTechAttackCard);
   }
 }
 

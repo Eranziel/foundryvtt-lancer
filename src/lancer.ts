@@ -188,6 +188,8 @@ import { Flow, FlowState, Step } from "./module/flows/flow";
 import { registerAttackSteps } from "./module/flows/attack";
 import { registerTechAttackSteps } from "./module/flows/tech";
 import { registerActivationSteps } from "./module/flows/activation";
+import { registerItemUtilSteps } from "./module/flows/item-utils";
+import { registerBondPowerSteps } from "./module/flows/bond";
 
 const lp = LANCER.log_prefix;
 
@@ -271,9 +273,11 @@ Hooks.once("init", async function () {
   const flowSteps: Map<string, Step<any, any> | Flow<any>> = new Map();
   // Register flow steps
   flowSteps.set("dummyStep", async (state: FlowState<any>) => !!state);
+  registerItemUtilSteps(flowSteps);
   registerAttackSteps(flowSteps);
   registerTechAttackSteps(flowSteps);
   registerActivationSteps(flowSteps);
+  registerBondPowerSteps(flowSteps);
   // Assign custom classes and constants here
   // Create a Lancer namespace within the game global
   game.lancer = {

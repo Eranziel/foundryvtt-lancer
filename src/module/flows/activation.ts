@@ -2,7 +2,7 @@
 import { LANCER } from "../config";
 import { LancerItem } from "../item/lancer-item";
 import type { LancerActor } from "../actor/lancer-actor";
-import { buildActionHTML, buildChipHTML } from "../helpers/item";
+import { buildChipHTML } from "../helpers/item";
 import { ActivationType, AttackType } from "../enums";
 import { renderTemplateStep } from "./_render";
 import { resolve_dotpath } from "../helpers/commons";
@@ -27,6 +27,23 @@ export function registerActivationSteps(flowSteps: Map<string, Step<any, any> | 
 }
 
 export class ActivationFlow extends Flow<LancerFlowState.ActionUseData> {
+  steps = [
+    // TODO: if a system or action is not provided, prompt the user to select one?
+    // Or would it be better to have a separate UI for that before the flow starts?
+    "initActivationData",
+    "checkItemDestroyed",
+    "checkItemLimited",
+    "checkItemCharged",
+    // Does anything need to be done here?
+    // TODO: template placer for grenades?
+    // TODO: damage roller for grenades and mines?
+    // TODO: parse detail for save prompts?
+    "applySelfHeat",
+    "updateItemAfterAction",
+    // TODO: deduct action from actor's action tracker
+    "printActionUseCard",
+  ];
+
   constructor(uuid: UUIDRef | LancerItem | LancerActor, data?: Partial<LancerFlowState.ActionUseData>) {
     // Initialize data if not provided
     const initialData: LancerFlowState.ActionUseData = {
@@ -42,20 +59,6 @@ export class ActivationFlow extends Flow<LancerFlowState.ActionUseData> {
     };
 
     super("ActivationFlow", uuid, initialData);
-
-    // TODO: if a system or action is not provided, prompt the user to select one?
-    // Or would it be better to have a separate UI for that before the flow starts?
-    this.steps.set("initActivationData", initActivationData);
-    this.steps.set("checkItemDestroyed", checkItemDestroyed);
-    this.steps.set("checkItemLimited", checkItemLimited);
-    this.steps.set("checkItemCharged", checkItemCharged);
-    // Does anything need to be done here?
-    // TODO: template placer for grenades?
-    // TODO: damage roller for grenades and mines?
-    // TODO: parse detail for save prompts?
-    this.steps.set("applySelfHeat", applySelfHeat);
-    this.steps.set("updateItemAfterAction", updateItemAfterAction);
-    this.steps.set("printActionUseCard", printActionUseCard);
   }
 }
 

@@ -39,13 +39,13 @@ export interface FlowState<T> {
  * application).
  */
 export class Flow<StateData> {
-  // The Steps involved in this flow. Steps are resolved in the order of insertion.
-  steps: Map<string, Step<StateData, any> | Flow<any>>;
+  // The Steps involved in this flow, signified by key name in game.lancer.flowSteps.
+  // Steps are fetched from the registry and resolved in the order they appear in the array.
+  steps: Array<string> = ["dummyStep"];
   // State tracking object. Passed to each step for it to modify and then return.
   state: FlowState<StateData>;
 
   constructor(name: string, uuid: UUIDRef | LancerItem | LancerActor, data?: StateData) {
-    this.steps = new Map();
     let item: LancerItem | null = null;
     let actor: LancerActor | null = null;
     // If a string uuid is provided, look it up to see what it points to
@@ -111,42 +111,31 @@ export class Flow<StateData> {
   }
 
   /**
-   * Insert a step into the map, to be executed before an existing step
+   * Insert a step into the step array, to be executed before an existing step
    * @param key Existing step key to insert newKey before
    * @param newKey New step key
-   * @param step New step to insert
    */
-  insertStepBefore(key: string, newKey: string, step: Step<StateData, any> | Flow<any>) {
-    const newSteps: Map<string, Step<StateData, any> | Flow<any>> = new Map();
-    for (const [k, s] of this.steps.entries()) {
-      if (k === key) {
-        newSteps.set(newKey, step);
-        newSteps.set(k, s);
-      } else {
-        newSteps.set(k, s);
-      }
+  insertStepBefore(key: string, newKey: string) {
+    const keyIndex = this.steps.indexOf(key);
+    if (keyIndex == -1) {
+      // If the key doesn't exist, add the new step at the end.
+      this.steps.push(newKey);
     }
-    this.steps = newSteps;
+    this.steps.splice(keyIndex, 0, newKey);
   }
 
   /**
-   * Insert a step into the map, to be executed after an existing step
+   * Insert a step into the step array, to be executed after an existing step
    * @param key Existing step key to insert newKey after
    * @param newKey New step key
-   * @param step New step to insert
    */
-  insertStepAfter(key: string, newKey: string, step: Step<StateData, any> | Flow<any>) {
-    const newSteps: Map<string, Step<StateData, any> | Flow<any>> = new Map();
-    for (const [k, s] of this.steps.entries()) {
-      if (k === key) {
-        newSteps.set(k, s);
-        newSteps.set(newKey, step);
-        return;
-      } else {
-        newSteps.set(k, s);
-      }
+  insertStepAfter(key: string, newKey: string) {
+    const keyIndex = this.steps.indexOf(key);
+    if (keyIndex == -1) {
+      // If the key doesn't exist, add the new step at the end.
+      this.steps.push(newKey);
     }
-    this.steps = newSteps;
+    this.steps.splice(keyIndex + 1, 0, newKey);
   }
 
   /**
@@ -154,7 +143,8 @@ export class Flow<StateData> {
    * @param key Existing step key to delete
    */
   removeStep(key: string) {
-    this.steps.delete(key);
+    const keyIndex = this.steps.indexOf(key);
+    this.steps.splice(keyIndex, 1);
   }
 
   /**
@@ -163,9 +153,15 @@ export class Flow<StateData> {
    */
   async begin(data?: StateData): Promise<boolean> {
     this.state.data = data || this.state.data;
-    for (const [key, step] of this.steps.entries()) {
+    for (const key of this.steps) {
       console.log(`${lp} running flow step ${key}`);
       this.state.currentStep = key;
+      const step = this.getStep(key);
+      if (!step) {
+        ui.notifications!.error(`Lancer flow error: ${key} is not a valid step`);
+        console.log(`${lp} Flow aborted when ${key} was not found. All steps in this flow:`, this.steps);
+        return false;
+      }
       if (step instanceof Flow) {
         // Start the sub-flow
         if ((await step.begin()) === false) {

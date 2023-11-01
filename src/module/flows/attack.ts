@@ -75,6 +75,19 @@ export function registerAttackSteps(flowSteps: Map<string, Step<any, any> | Flow
 }
 
 export class BasicAttackFlow extends Flow<LancerFlowState.AttackRollData> {
+  steps = [
+    "initAttackData",
+    "setAttackTags",
+    "setAttackEffects",
+    "setAttackTargets",
+    "showAttackHUD",
+    "rollAttacks",
+    // TODO: think about whether/how basic attacks should be able to do damage (siege ram, I'm lookin' at you)
+    // "rollDamages",
+    "applySelfHeat",
+    "printAttackCard",
+  ];
+
   constructor(uuid: UUIDRef | LancerItem | LancerActor, data?: Partial<LancerFlowState.AttackRollData>) {
     // Initialize data if not provided
     const initialData: LancerFlowState.AttackRollData = {
@@ -95,17 +108,6 @@ export class BasicAttackFlow extends Flow<LancerFlowState.AttackRollData> {
     };
 
     super("BasicAttackFlow", uuid, initialData);
-
-    this.steps.set("initAttackData", initAttackData);
-    this.steps.set("setAttackTags", setAttackTags);
-    this.steps.set("setAttackEffects", setAttackEffects);
-    this.steps.set("setAttackTargets", setAttackTargets);
-    this.steps.set("showAttackHUD", showAttackHUD);
-    this.steps.set("rollAttacks", rollAttacks);
-    // TODO: think about whether/how basic attacks should be able to do damage (siege ram, I'm lookin' at you)
-    // this.steps.set("rollDamages", rollDamages);
-    this.steps.set("applySelfHeat", applySelfHeat);
-    this.steps.set("printAttackCard", printAttackCard);
   }
 }
 
@@ -115,6 +117,26 @@ export class BasicAttackFlow extends Flow<LancerFlowState.AttackRollData> {
  * Flow for rolling weapon attacks against one or more targets
  */
 export class WeaponAttackFlow extends Flow<LancerFlowState.WeaponRollData> {
+  steps = [
+    "initAttackData",
+    "checkItemDestroyed",
+    "checkWeaponLoaded",
+    "checkItemLimited",
+    "checkItemCharged",
+    "setAttackTags",
+    "setAttackEffects",
+    "setAttackTargets",
+    "showAttackHUD",
+    "rollAttacks",
+    // TODO: move damage rolling to damage flow
+    "rollDamages",
+    "applySelfHeat",
+    "updateItemAfterAction",
+    "printAttackCard",
+    // TODO: Start damage flow after attack
+    // "applyDamage"
+  ];
+
   constructor(uuid: UUIDRef | LancerItem | LancerActor, data?: Partial<LancerFlowState.WeaponRollData>) {
     // Initialize data if not provided
     const initialData: LancerFlowState.WeaponRollData = {
@@ -138,24 +160,6 @@ export class WeaponAttackFlow extends Flow<LancerFlowState.WeaponRollData> {
     if (!this.state.item) {
       throw new TypeError(`WeaponAttackFlow requires an Item, but none was provided`);
     }
-
-    this.steps.set("initAttackData", initAttackData);
-    this.steps.set("checkItemDestroyed", checkItemDestroyed);
-    this.steps.set("checkWeaponLoaded", checkWeaponLoaded);
-    this.steps.set("checkItemLimited", checkItemLimited);
-    this.steps.set("checkItemCharged", checkItemCharged);
-    this.steps.set("setAttackTags", setAttackTags);
-    this.steps.set("setAttackEffects", setAttackEffects);
-    this.steps.set("setAttackTargets", setAttackTargets);
-    this.steps.set("showAttackHUD", showAttackHUD);
-    this.steps.set("rollAttacks", rollAttacks);
-    // TODO: move damage rolling to damage flow
-    this.steps.set("rollDamages", rollDamages);
-    this.steps.set("applySelfHeat", applySelfHeat);
-    this.steps.set("updateItemAfterAction", updateItemAfterAction);
-    this.steps.set("printAttackCard", printAttackCard);
-    // TODO: Start damage flow after attack
-    // this.steps.set("applyDamage", DamageApplyFlow)
   }
 
   async begin(data?: LancerFlowState.WeaponRollData): Promise<boolean> {
