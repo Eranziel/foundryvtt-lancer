@@ -10,7 +10,7 @@ import { LancerItem } from "../item/lancer-item";
 import { ActionData } from "../models/bits/action";
 import { resolve_dotpath } from "../helpers/commons";
 import { ActivationType, AttackType } from "../enums";
-import { Flow, FlowState } from "./flow";
+import { Flow, FlowState, Step } from "./flow";
 import { UUIDRef } from "../source-template";
 import {
   applySelfHeat,
@@ -21,6 +21,11 @@ import {
 } from "./item-utils";
 
 const lp = LANCER.log_prefix;
+
+export function registerTechAttackSteps(flowSteps: Map<string, Step<any, any> | Flow<any>>) {
+  flowSteps.set("initTechAttackData", initTechAttackData);
+  flowSteps.set("printTechAttackCard", printTechAttackCard);
+}
 
 export class TechAttackFlow extends Flow<LancerFlowState.TechAttackRollData> {
   constructor(uuid: UUIDRef | LancerItem | LancerActor, data?: Partial<LancerFlowState.TechAttackRollData>) {

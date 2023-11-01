@@ -8,7 +8,7 @@ import { renderTemplateStep } from "./_render";
 import { resolve_dotpath } from "../helpers/commons";
 import { ActionData } from "../models/bits/action";
 import { LancerFlowState } from "./interfaces";
-import { Flow, FlowState } from "./flow";
+import { Flow, FlowState, Step } from "./flow";
 import { UUIDRef } from "../source-template";
 import {
   applySelfHeat,
@@ -20,6 +20,11 @@ import {
 import { TechAttackFlow } from "./tech";
 
 const lp = LANCER.log_prefix;
+
+export function registerActivationSteps(flowSteps: Map<string, Step<any, any> | Flow<any>>) {
+  flowSteps.set("initActivationData", initActivationData);
+  flowSteps.set("printActionUseCard", printActionUseCard);
+}
 
 export class ActivationFlow extends Flow<LancerFlowState.ActionUseData> {
   constructor(uuid: UUIDRef | LancerItem | LancerActor, data?: Partial<LancerFlowState.ActionUseData>) {
@@ -52,10 +57,6 @@ export class ActivationFlow extends Flow<LancerFlowState.ActionUseData> {
     this.steps.set("updateItemAfterAction", updateItemAfterAction);
     this.steps.set("printActionUseCard", printActionUseCard);
   }
-}
-
-export async function dummyStep(state: FlowState<LancerFlowState.ActionUseData>, options?: {}): Promise<boolean> {
-  return true;
 }
 
 export async function initActivationData(

@@ -10,7 +10,7 @@ import { SystemTemplates } from "../system-template";
 import { SourceData, UUIDRef } from "../source-template";
 import { LancerFlowState } from "./interfaces";
 import { openSlidingHud } from "../helpers/slidinghud";
-import { Flow, FlowState } from "./flow";
+import { Flow, FlowState, Step } from "./flow";
 import { AttackType, NpcFeatureType, RangeType, WeaponType } from "../enums";
 import {
   applySelfHeat,
@@ -61,6 +61,18 @@ type AttackFlag = {
     setConditions?: object; // keys are statusEffect ids, values are boolean to indicate whether to apply or remove
   }[];
 };
+
+export function registerAttackSteps(flowSteps: Map<string, Step<any, any> | Flow<any>>) {
+  flowSteps.set("initAttackData", initAttackData);
+  flowSteps.set("checkWeaponLoaded", checkWeaponLoaded);
+  flowSteps.set("setAttackTags", setAttackTags);
+  flowSteps.set("setAttackEffects", setAttackEffects);
+  flowSteps.set("setAttackTargets", setAttackTargets);
+  flowSteps.set("showAttackHUD", showAttackHUD);
+  flowSteps.set("rollAttacks", rollAttacks);
+  flowSteps.set("rollDamages", rollDamages);
+  flowSteps.set("printAttackCard", printAttackCard);
+}
 
 export class BasicAttackFlow extends Flow<LancerFlowState.AttackRollData> {
   constructor(uuid: UUIDRef | LancerItem | LancerActor, data?: Partial<LancerFlowState.AttackRollData>) {

@@ -2,8 +2,16 @@ import { friendly_entrytype_name } from "../config";
 import { NpcFeatureType } from "../enums";
 import { getAutomationOptions } from "../settings";
 import { SourceData } from "../source-template";
-import { FlowState } from "./flow";
+import { Flow, FlowState, Step } from "./flow";
 import { LancerFlowState } from "./interfaces";
+
+export function registerItemUtilSteps(flowSteps: Map<string, Step<any, any> | Flow<any>>) {
+  flowSteps.set("checkItemDestroyed", checkItemDestroyed);
+  flowSteps.set("checkItemLimited", checkItemLimited);
+  flowSteps.set("checkItemCharged", checkItemCharged);
+  flowSteps.set("applySelfHeat", applySelfHeat);
+  flowSteps.set("updateItemAfterAction", updateItemAfterAction);
+}
 
 export async function checkItemDestroyed(
   state: FlowState<LancerFlowState.WeaponRollData | LancerFlowState.TechAttackRollData | LancerFlowState.ActionUseData>

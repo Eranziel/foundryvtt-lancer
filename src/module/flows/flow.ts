@@ -92,6 +92,25 @@ export class Flow<StateData> {
   }
 
   /**
+   * Retrieve a step function from the global registry in game.lancer.flowSteps.
+   * @param stepKey The key of the step to retrieve
+   * @returns The step with the given key, or null if no such step exists.
+   */
+  static getStep(stepKey: string): Step<any, any> | Flow<any> | null {
+    return (game.lancer.flowSteps as Map<string, Step<any, any> | Flow<any>>).get(stepKey) ?? null;
+  }
+
+  /**
+   * Retrieve a step function from the global registry in game.lancer.flowSteps.
+   * Convenience access to the static method.
+   * @param stepKey The key of the step to retrieve
+   * @returns The step with the given key, or null if no such step exists.
+   */
+  getStep(stepKey: string): Step<any, any> | Flow<any> | null {
+    return Flow.getStep(stepKey);
+  }
+
+  /**
    * Insert a step into the map, to be executed before an existing step
    * @param key Existing step key to insert newKey before
    * @param newKey New step key
