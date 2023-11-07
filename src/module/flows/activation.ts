@@ -10,13 +10,6 @@ import { ActionData } from "../models/bits/action";
 import { LancerFlowState } from "./interfaces";
 import { Flow, FlowState, Step } from "./flow";
 import { UUIDRef } from "../source-template";
-import {
-  applySelfHeat,
-  checkItemCharged,
-  checkItemDestroyed,
-  checkItemLimited,
-  updateItemAfterAction,
-} from "./item-utils";
 import { TechAttackFlow } from "./tech";
 
 const lp = LANCER.log_prefix;

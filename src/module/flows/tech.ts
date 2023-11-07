@@ -1,24 +1,15 @@
 // Import TypeScript modules
 import { LANCER } from "../config";
-import { LancerActor, LancerMECH, LancerNPC } from "../actor/lancer-actor";
+import { LancerActor } from "../actor/lancer-actor";
 import { AccDiffData, AccDiffDataSerialized } from "../helpers/acc_diff";
 import { renderTemplateStep } from "./_render";
-import { rollAttacks, setAttackEffects, setAttackTags, setAttackTargets, showAttackHUD } from "./attack";
 import { SystemTemplates } from "../system-template";
 import { LancerFlowState } from "./interfaces";
 import { LancerItem } from "../item/lancer-item";
-import { ActionData } from "../models/bits/action";
 import { resolve_dotpath } from "../helpers/commons";
 import { ActivationType, AttackType } from "../enums";
 import { Flow, FlowState, Step } from "./flow";
 import { UUIDRef } from "../source-template";
-import {
-  applySelfHeat,
-  checkItemCharged,
-  checkItemDestroyed,
-  checkItemLimited,
-  updateItemAfterAction,
-} from "./item-utils";
 
 const lp = LANCER.log_prefix;
 

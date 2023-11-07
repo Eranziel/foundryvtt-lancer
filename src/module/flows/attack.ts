@@ -7,18 +7,11 @@ import { checkForHit } from "../helpers/automation/targeting";
 import { AccDiffData, AccDiffDataSerialized, RollModifier } from "../helpers/acc_diff";
 import { renderTemplateStep } from "./_render";
 import { SystemTemplates } from "../system-template";
-import { SourceData, UUIDRef } from "../source-template";
+import { UUIDRef } from "../source-template";
 import { LancerFlowState } from "./interfaces";
 import { openSlidingHud } from "../helpers/slidinghud";
 import { Flow, FlowState, Step } from "./flow";
-import { AttackType, NpcFeatureType, RangeType, WeaponType } from "../enums";
-import {
-  applySelfHeat,
-  checkItemCharged,
-  checkItemDestroyed,
-  checkItemLimited,
-  updateItemAfterAction,
-} from "./item-utils";
+import { AttackType, RangeType, WeaponType } from "../enums";
 
 const lp = LANCER.log_prefix;
 
