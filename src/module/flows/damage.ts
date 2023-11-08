@@ -8,6 +8,7 @@ import { LancerFlowState } from "./interfaces";
  * Flow for rolling and applying damage to a token, typically from a weapon attack
  */
 export class DamageApplyFlow extends Flow<LancerFlowState.WeaponRollData> {
+  name = "DamageApplyFlow";
   steps = [
     "dummyStep",
     // this.steps.set("getDamages", dummyDamageStep);
@@ -19,6 +20,6 @@ export class DamageApplyFlow extends Flow<LancerFlowState.WeaponRollData> {
     // this.steps.set("applyDamages", dummyDamageStep);
   ];
   constructor(uuid: UUIDRef | LancerItem | LancerActor, data?: LancerFlowState.WeaponRollData) {
-    super("DamageApplyFlow", uuid, data);
+    super(uuid, data);
   }
 }

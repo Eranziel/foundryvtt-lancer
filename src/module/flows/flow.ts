@@ -39,13 +39,15 @@ export interface FlowState<T> {
  * application).
  */
 export class Flow<StateData> {
+  // The name of this flow. Used for logging and debugging.
+  name: string = "UnnamedFlow";
   // The Steps involved in this flow, signified by key name in game.lancer.flowSteps.
   // Steps are fetched from the registry and resolved in the order they appear in the array.
   steps: Array<string> = ["dummyStep"];
   // State tracking object. Passed to each step for it to modify and then return.
   state: FlowState<StateData>;
 
-  constructor(name: string, uuid: UUIDRef | LancerItem | LancerActor, data?: StateData) {
+  constructor(uuid: UUIDRef | LancerItem | LancerActor, data?: StateData) {
     let item: LancerItem | null = null;
     let actor: LancerActor | null = null;
     // If a string uuid is provided, look it up to see what it points to
@@ -83,7 +85,7 @@ export class Flow<StateData> {
     }
 
     this.state = {
-      name,
+      name: this.name,
       actor,
       item,
       currentStep: "",
@@ -184,6 +186,7 @@ export class Flow<StateData> {
    * This is a generic implementation, some Flows will reimplement as needed.
    * @returns JSON string representing this Flow instance.
    */
+  // TODO: is this used for anything?
   serialize(): string {
     return JSON.stringify({
       name: this.state.name,
@@ -198,8 +201,9 @@ export class Flow<StateData> {
    * @param json Serialized JSON string of the flow.
    * @returns A new Flow constructed from the JSON data.
    */
+  // TODO: is this used for anything?
   static deserialize(json: string): Flow<any> {
     const hydrated = JSON.parse(json);
-    return new Flow(hydrated.name, hydrated.uuid, hydrated.data);
+    return new Flow(hydrated.uuid, hydrated.data);
   }
 }

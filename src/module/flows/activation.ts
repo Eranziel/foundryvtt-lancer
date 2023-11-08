@@ -20,6 +20,7 @@ export function registerActivationSteps(flowSteps: Map<string, Step<any, any> | 
 }
 
 export class ActivationFlow extends Flow<LancerFlowState.ActionUseData> {
+  name = "ActivationFlow";
   steps = [
     // TODO: if a system or action is not provided, prompt the user to select one?
     // Or would it be better to have a separate UI for that before the flow starts?
@@ -51,7 +52,7 @@ export class ActivationFlow extends Flow<LancerFlowState.ActionUseData> {
       tags: data?.tags || [],
     };
 
-    super("ActivationFlow", uuid, initialData);
+    super(uuid, initialData);
   }
 }
 

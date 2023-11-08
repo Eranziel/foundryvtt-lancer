@@ -68,6 +68,7 @@ export function registerAttackSteps(flowSteps: Map<string, Step<any, any> | Flow
 }
 
 export class BasicAttackFlow extends Flow<LancerFlowState.AttackRollData> {
+  name = "BasicAttackFlow";
   steps = [
     "initAttackData",
     "setAttackTags",
@@ -100,7 +101,7 @@ export class BasicAttackFlow extends Flow<LancerFlowState.AttackRollData> {
       tags: data?.tags || [],
     };
 
-    super("BasicAttackFlow", uuid, initialData);
+    super(uuid, initialData);
   }
 }
 
@@ -110,6 +111,7 @@ export class BasicAttackFlow extends Flow<LancerFlowState.AttackRollData> {
  * Flow for rolling weapon attacks against one or more targets
  */
 export class WeaponAttackFlow extends Flow<LancerFlowState.WeaponRollData> {
+  name = "WeaponAttackFlow";
   steps = [
     "initAttackData",
     "checkItemDestroyed",
@@ -149,7 +151,7 @@ export class WeaponAttackFlow extends Flow<LancerFlowState.WeaponRollData> {
       tags: data?.tags || [],
     };
 
-    super("WeaponAttackFlow", uuid, initialData);
+    super(uuid, initialData);
     if (!this.state.item) {
       throw new TypeError(`WeaponAttackFlow requires an Item, but none was provided`);
     }
