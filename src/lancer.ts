@@ -190,6 +190,7 @@ import { registerTechAttackSteps } from "./module/flows/tech";
 import { registerActivationSteps } from "./module/flows/activation";
 import { registerItemUtilSteps } from "./module/flows/item-utils";
 import { registerBondPowerSteps } from "./module/flows/bond";
+import { registerCoreActiveSteps } from "./module/flows/frame";
 
 const lp = LANCER.log_prefix;
 
@@ -277,6 +278,7 @@ Hooks.once("init", async function () {
   registerAttackSteps(flowSteps);
   registerTechAttackSteps(flowSteps);
   registerActivationSteps(flowSteps);
+  registerCoreActiveSteps(flowSteps);
   registerBondPowerSteps(flowSteps);
   // Assign custom classes and constants here
   // Create a Lancer namespace within the game global
@@ -304,7 +306,7 @@ Hooks.once("init", async function () {
     prepareTalentMacro: macros.prepareTalentMacro,
     prepareTextMacro: macros.prepareTextMacro,
     // prepareTechMacro: macros.prepareTechMacro,
-    prepareCoreActiveMacro: macros.prepareCoreActiveMacro,
+    // prepareCoreActiveMacro: macros.prepareCoreActiveMacro,
     prepareCorePassiveMacro: macros.prepareCorePassiveMacro,
     prepareFrameTraitMacro: macros.prepareFrameTraitMacro,
     prepareOverchargeMacro: macros.prepareOverchargeMacro,
