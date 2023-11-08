@@ -933,7 +933,6 @@ tr.lcp-index-header {
   }
 
   text-overflow: ellipsis;
-  /* overflow: hidden; */ /* Disabled this to get context menus working */
   font-weight: normal;
   text-transform: uppercase;
 
@@ -1092,6 +1091,12 @@ tr.lcp-index-header {
 
   & span.minor {
     margin: 0 16px;
+  }
+
+  .activation-chip {
+    overflow: unset;
+    margin-left: 0.1em;
+    align-self: center;
   }
 }
 
@@ -1734,6 +1739,34 @@ ul.talent-ranks {
   border-radius: 0px;
   border-width: 2px;
   border-style: solid;
+
+  .core-active-activate {
+    margin: 0 0.2em;
+    align-items: center;
+
+    .active-label {
+      flex-grow: 0;
+      min-width: fit-content;
+      margin-right: 0.5em;
+    }
+
+    .activation-chip {
+      width: 100%;
+      height: auto;
+      left: 0px;
+      right: 0px;
+      font-size: 1.1em;
+      justify-content: space-between;
+
+      .flexcol {
+        align-items: center;
+      }
+      b {
+        white-space: normal;
+        text-align: center;
+      }
+    }
+  }
 }
 
 .action-wrapper,
@@ -1816,8 +1849,10 @@ a.activation-chip > i.mdi {
     flex-grow: unset;
   }
 
-  .frame-traits {
+  .frame-traits,
+  .core-wrapper {
     width: 50%;
+    max-width: calc(50% - 6px);
   }
 
   .frame-active,

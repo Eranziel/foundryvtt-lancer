@@ -8,6 +8,8 @@ import {
   effect_box,
   defaultPlaceholder,
   manufacturerStyle,
+  activationStyle,
+  activationIcon,
 } from "./commons";
 import { mech_loadout_weapon_slot, buildChipHTML, buildDeployablesArray, buildActionArrayHTML } from "./item";
 import { limited_uses_indicator, ref_params, simple_ref_slot } from "./refs";
@@ -245,7 +247,7 @@ export function pilot_slot(data_path: string, options: HelperOptions): string {
  * @param options      Standard helper options.
  * @return            HTML for the frame reference, typically for inclusion in a mech sheet.
  */
-export function frameView(frame_path: string, options: HelperOptions): string {
+export function frameView(frame_path: string, core_energy: number, options: HelperOptions): string {
   let frame = resolve_helper_dotpath<LancerFRAME | null>(options, frame_path);
   if (!frame) return simple_ref_slot(frame_path, [EntryType.FRAME], options);
 
@@ -258,7 +260,7 @@ export function frameView(frame_path: string, options: HelperOptions): string {
         <div class="frame-traits flexcol">
           ${frameTraits(frame_path, options)}
         </div>
-        ${inc_if(buildCoreSysHTML(frame_path, options), frame.system.core_system)}
+        ${frame.system.core_system ? buildCoreSysHTML(frame_path, core_energy, options) : ""}
       </div>
     </div>
     `;
@@ -269,7 +271,7 @@ export function frameView(frame_path: string, options: HelperOptions): string {
  * @param frame   The frame
  * @return        HTML for the core system, typically for inclusion in a mech sheet.
  */
-function buildCoreSysHTML(frame_path: string, options: HelperOptions): string {
+function buildCoreSysHTML(frame_path: string, core_energy: number, options: HelperOptions): string {
   let frame = resolve_helper_dotpath<LancerFRAME>(options, frame_path)!;
   let tags = compact_tag_list(`${frame_path}.core_system.tags`, options);
   let core = frame.system.core_system;
@@ -298,7 +300,7 @@ function buildCoreSysHTML(frame_path: string, options: HelperOptions): string {
       </i>
     </div>
     <div class="collapse" data-collapse-id="${frame.id}_core">
-      <div class="frame-active">${frame_active(frame_path, options)}</div>
+      <div class="frame-active">${frame_active(frame_path, core_energy, options)}</div>
       ${passive}
       ${deployables}
       ${tags}
@@ -342,16 +344,23 @@ function frameTraits(frame_path: string, options: HelperOptions): string {
     .join("");
 }
 
-function frame_active(frame_path: string, options: HelperOptions): string {
-  let frame = resolve_helper_dotpath<LancerFRAME>(options, frame_path)!;
-  let core = frame.system.core_system;
-  let actionHTML = buildActionArrayHTML(frame, `system.core_system.active_actions`);
-  let depHTML = buildDeployablesArray(frame, "system.core.deployables", options);
+function frame_active(frame_path: string, core_energy: number, options: HelperOptions): string {
+  const frame = resolve_helper_dotpath<LancerFRAME>(options, frame_path)!;
+  const core = frame.system.core_system;
+  const activeName = core.active_actions.length ? core.active_actions[0].name : core.name;
+  const actionHTML = buildActionArrayHTML(frame, `system.core_system.active_actions`, {
+    hideChip: core.active_actions.length <= 1,
+  });
+  const depHTML = buildDeployablesArray(frame, "system.core.deployables", options);
 
-  // TODO: core active should have a big fat button that looks cool
+  // If core energy is spent, "gray out" the core active
+  const theme = core_energy ? manufacturerStyle(frame.system.manufacturer) : "lancer-light-gray";
+  const activationClass = `activation-${slugify(core.activation, "-")}`;
+  const activationThemeClass = core_energy ? activationStyle(core.activation) : "lancer-light-gray";
+
   return `
   <div class="core-active-wrapper clipped-top lancer-border-bonus">
-    <span class="lancer-header ${manufacturerStyle(frame.system.manufacturer)} clipped-top submajor">
+    <span class="lancer-header ${theme} clipped-top submajor">
       ${core.active_name} // ACTIVE
     </span>
     <div class="lancer-body">
@@ -360,7 +369,16 @@ function frame_active(frame_path: string, options: HelperOptions): string {
       </div>
       ${actionHTML ? actionHTML : ""}
       ${depHTML ? depHTML : ""}
-      ${buildChipHTML(core.activation, { icon: ChipIcons.Core, uuid: frame.uuid, path: "system.core_system" })}
+      <div class="core-active-activate">
+        <a
+          class="activation-chip activation-flow lancer-button ${activationClass} ${activationThemeClass}"
+          data-uuid="${frame.uuid}" data-path="system.core_system"
+        >
+          <i class="cci cci-corebonus i--l"></i>
+          <b class="active-name">${activeName.toUpperCase()}</b>
+          <i class="${activationIcon(core.activation)} i--l"></i>
+        </a>
+      </div>
     </div>
   </div>
   `;
@@ -368,11 +386,7 @@ function frame_active(frame_path: string, options: HelperOptions): string {
 
 function frame_passive(frame: LancerFRAME): string {
   let core = frame.system.core_system;
-  let actionHTML = core.passive_actions
-    .map((_, i) => {
-      return buildActionArrayHTML(frame, "system.core_system.passive_actions");
-    })
-    .join("");
+  let actionHTML = buildActionArrayHTML(frame, "system.core_system.passive_actions");
 
   return `
   <div class="core-active-wrapper clipped-top lancer-border-bonus">

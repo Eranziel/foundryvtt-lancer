@@ -959,7 +959,7 @@ export function action_type_icon(a_type: string) {
 export function buildActionHTML(
   doc: LancerItem | LancerActor,
   path: string,
-  options?: { editable?: boolean; full?: boolean; tags?: boolean }
+  options?: { hideChip?: boolean; editable?: boolean; full?: boolean; tags?: boolean }
 ): string {
   let action = resolve_dotpath<ActionData>(doc, path);
   if (!action) return "";
@@ -1002,7 +1002,7 @@ export function buildActionHTML(
       break;
   }
 
-  chip = buildChipHTML(action.activation, { icon: icon, uuid: doc.uuid, path: path });
+  chip = !!options?.hideChip ? "" : buildChipHTML(action.activation, { icon: icon, uuid: doc.uuid, path: path });
 
   if (options?.editable) {
     // If it's editable, it's deletable
@@ -1033,9 +1033,13 @@ export function buildActionHTML(
   `;
 }
 
-export function buildActionArrayHTML(doc: LancerActor | LancerItem, path: string): string {
+export function buildActionArrayHTML(
+  doc: LancerActor | LancerItem,
+  path: string,
+  options?: { hideChip?: boolean }
+): string {
   let actions = resolve_dotpath<Array<ActionData>>(doc, path, []);
-  let cards = actions.map((_, i) => buildActionHTML(doc, `${path}.${i}`));
+  let cards = actions.map((_, i) => buildActionHTML(doc, `${path}.${i}`, options));
   return cards.join("");
 }
 
@@ -1160,7 +1164,7 @@ export function buildChipHTML(
     if (!flowData.icon) flowData.icon = ChipIcons.Chat;
     let data = `data-uuid=${flowData.uuid} data-path="${flowData.path}"`;
     return `
-    <a class=""activation-flow" activation-chip lancer-button ${activationClass} ${themeClass}" ${data}>
+    <a class="activation-flow activation-chip lancer-button ${activationClass} ${themeClass}" ${data}>
       ${flowData.icon ? flowData.icon : ""}
       ${flowData.label ? flowData.label.toUpperCase() + " - " : ""}
       ${activation.toUpperCase()}
