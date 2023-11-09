@@ -4,12 +4,20 @@ import { LancerItem } from "../item/lancer-item";
 import type { LancerActor } from "../actor/lancer-actor";
 import { renderTemplateStep } from "./_render";
 import { LancerFlowState } from "./interfaces";
-import { Flow, FlowState } from "./flow";
+import { Flow, FlowState, Step } from "./flow";
 import { UUIDRef } from "../source-template";
 
 const lp = LANCER.log_prefix;
 
+export function registerFullRepairSteps(flowSteps: Map<string, Step<any, any> | Flow<any>>) {
+  flowSteps.set("displayFullRepairDialog", displayFullRepairDialog);
+  flowSteps.set("executeFullRepair", executeFullRepair);
+}
+
 export class FullRepairFlow extends Flow<LancerFlowState.TextRollData> {
+  name = "FullRepairFlow";
+  steps = ["displayFullRepairDialog", "executeFullRepair"];
+
   constructor(uuid: UUIDRef | LancerItem | LancerActor, data?: Partial<LancerFlowState.TextRollData>) {
     // Initialize data if not provided
     const initialData: LancerFlowState.TextRollData = {
@@ -18,14 +26,8 @@ export class FullRepairFlow extends Flow<LancerFlowState.TextRollData> {
       tags: data?.tags || [],
     };
 
-    super("FullRepairFlow", uuid, initialData);
-    this.steps.set("displayFullRepairDialog", displayFullRepairDialog);
-    this.steps.set("executeFullRepair", executeFullRepair);
+    super(uuid, initialData);
   }
-}
-
-export async function dummyStep(state: FlowState<LancerFlowState.TextRollData>, options?: {}): Promise<boolean> {
-  return true;
 }
 
 export async function displayFullRepairDialog(state: FlowState<LancerFlowState.TextRollData>): Promise<boolean> {
