@@ -290,7 +290,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
       if (isAction) {
         item.beginActivationFlow(path);
       } else if (isCoreSystem) {
-        item.beginActivationFlow(path);
+        item.beginCoreActiveFlow(path);
       } else if (isDeployable) {
       } else {
         ui.notifications!.error("Could not infer action type");

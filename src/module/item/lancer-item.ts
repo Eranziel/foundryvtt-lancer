@@ -22,6 +22,7 @@ import { TechAttackFlow } from "../flows/tech";
 import { fixupPowerUses } from "../models/bits/power";
 import { BondPowerFlow } from "../flows/bond";
 import { ActivationFlow } from "../flows/activation";
+import { CoreActiveFlow } from "../flows/frame";
 
 const lp = LANCER.log_prefix;
 
@@ -581,7 +582,6 @@ export class LancerItem extends Item {
     }
     const flow = new TechAttackFlow(this);
     await flow.begin();
-    console.log("Finished tech attack flow");
   }
 
   async beginActivationFlow(path?: string) {
@@ -589,7 +589,7 @@ export class LancerItem extends Item {
       // If no path is provided, default to the first action
       // @ts-ignore We know it doesn't exist on all types, that's why we're checking
       if (!this.system.actions || this.system.actions.length < 1) {
-        ui.notifications!.error(`Item ${this.id} has no actions!`);
+        ui.notifications!.error(`Item ${this.id} has no actions, how did you even get here!`);
         return;
       }
       path = "system.actions.0";
@@ -597,31 +597,44 @@ export class LancerItem extends Item {
     let flow;
     // If this is a Core System activation without a specific action
     if (this.is_frame() && path === "system.core_system") {
-      console.log("Core system activation flow on path", path);
-      // Construct a fake "action" for the frame's core system
-      const action: ActionData = {
-        lid: this.system.lid + "_core_system",
-        name: this.system.core_system.active_name,
-        activation: this.system.core_system.activation,
-        detail: this.system.core_system.active_effect,
-        // The rest doesn't matter, give it some defaults
-        cost: 0,
-        frequency: "",
-        init: "",
-        trigger: "",
-        terse: "",
-        pilot: false,
-        mech: true,
-        tech_attack: false,
-        heat_cost: 0,
-        synergy_locations: [],
-        damage: [],
-        range: [],
-      };
-      flow = new ActivationFlow(this, { action, action_path: path });
+      this.beginCoreActiveFlow(path);
+      return;
     } else {
       flow = new ActivationFlow(this, { action_path: path });
     }
+    await flow.begin();
+    console.log("Finished activation flow");
+  }
+
+  async beginCoreActiveFlow(path?: string) {
+    if (!this.is_frame()) {
+      ui.notifications!.error(`Item ${this.id} is not a mech frame!`);
+      return;
+    }
+    path = path ?? "system.core_system";
+    console.log("Core system activation flow on path", path);
+    const actionName = this.system.core_system.active_actions[0]?.name ?? this.system.core_system.active_name;
+    // Construct a fake "action" for the frame's core system
+    const action: ActionData = {
+      lid: this.system.lid + "_core_system",
+      name: `CORE ACTIVATION :: ${actionName}`,
+      activation: this.system.core_system.activation,
+      detail: this.system.core_system.active_effect,
+      // The rest doesn't matter, give it some defaults
+      cost: 0,
+      frequency: "",
+      init: "",
+      trigger: "",
+      terse: "",
+      pilot: false,
+      mech: true,
+      tech_attack: false,
+      heat_cost: 0,
+      synergy_locations: [],
+      damage: [],
+      range: [],
+    };
+    const flow = new CoreActiveFlow(this, { action, action_path: path });
     await flow.begin();
   }
 
@@ -632,7 +645,6 @@ export class LancerItem extends Item {
     }
     const flow = new BondPowerFlow(this, { powerIndex });
     await flow.begin();
-    console.log("Finished bond power flow");
   }
 
   async refreshPowers() {

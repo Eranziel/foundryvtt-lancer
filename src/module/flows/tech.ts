@@ -1,28 +1,44 @@
 // Import TypeScript modules
 import { LANCER } from "../config";
-import { LancerActor, LancerMECH, LancerNPC } from "../actor/lancer-actor";
+import { LancerActor } from "../actor/lancer-actor";
 import { AccDiffData, AccDiffDataSerialized } from "../helpers/acc_diff";
 import { renderTemplateStep } from "./_render";
-import { rollAttacks, setAttackEffects, setAttackTags, setAttackTargets, showAttackHUD } from "./attack";
 import { SystemTemplates } from "../system-template";
 import { LancerFlowState } from "./interfaces";
 import { LancerItem } from "../item/lancer-item";
-import { ActionData } from "../models/bits/action";
 import { resolve_dotpath } from "../helpers/commons";
 import { ActivationType, AttackType } from "../enums";
-import { Flow, FlowState } from "./flow";
+import { Flow, FlowState, Step } from "./flow";
 import { UUIDRef } from "../source-template";
-import {
-  applySelfHeat,
-  checkItemCharged,
-  checkItemDestroyed,
-  checkItemLimited,
-  updateItemAfterAction,
-} from "./item-utils";
 
 const lp = LANCER.log_prefix;
 
+export function registerTechAttackSteps(flowSteps: Map<string, Step<any, any> | Flow<any>>) {
+  flowSteps.set("initTechAttackData", initTechAttackData);
+  flowSteps.set("printTechAttackCard", printTechAttackCard);
+}
+
 export class TechAttackFlow extends Flow<LancerFlowState.TechAttackRollData> {
+  name = "TechAttackFlow";
+  steps = [
+    "initTechAttackData",
+    "checkItemDestroyed",
+    "checkItemLimited",
+    "checkItemCharged",
+    "setAttackTags",
+    "setAttackEffects",
+    "setAttackTargets",
+    "showAttackHUD",
+    "rollAttacks",
+    // TODO: heat, and special tech attacks which do normal damage
+    // "rollDamages"
+    // TODO: pick invade option for each hit
+    // "pickInvades",
+    "applySelfHeat",
+    "updateItemAfterAction",
+    "printTechAttackCard",
+  ];
+
   constructor(uuid: UUIDRef | LancerItem | LancerActor, data?: Partial<LancerFlowState.TechAttackRollData>) {
     // Initialize data if not provided
     const initialData: LancerFlowState.TechAttackRollData = {
@@ -44,24 +60,7 @@ export class TechAttackFlow extends Flow<LancerFlowState.TechAttackRollData> {
       tags: data?.tags || [],
     };
 
-    super("TechAttackFlow", uuid, initialData);
-
-    this.steps.set("initTechAttackData", initTechAttackData);
-    this.steps.set("checkItemDestroyed", checkItemDestroyed);
-    this.steps.set("checkItemLimited", checkItemLimited);
-    this.steps.set("checkItemCharged", checkItemCharged);
-    this.steps.set("setAttackTags", setAttackTags);
-    this.steps.set("setAttackEffects", setAttackEffects);
-    this.steps.set("setAttackTargets", setAttackTargets);
-    this.steps.set("showAttackHUD", showAttackHUD);
-    this.steps.set("rollAttacks", rollAttacks);
-    // TODO: heat, and special tech attacks which do normal damage
-    // this.steps.set("rollDamages", rollDamages);
-    // TODO: pick invade option for each hit
-    // this.steps.set("pickInvades", pickInvades);
-    this.steps.set("applySelfHeat", applySelfHeat);
-    this.steps.set("updateItemAfterAction", updateItemAfterAction);
-    this.steps.set("printTechAttackCard", printTechAttackCard);
+    super(uuid, initialData);
   }
 }
 

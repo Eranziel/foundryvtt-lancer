@@ -184,6 +184,13 @@ import { ReserveModel } from "./module/models/items/reserve";
 import { OrganizationModel } from "./module/models/items/organization";
 import { StatusModel } from "./module/models/items/status";
 import { BondModel } from "./module/models/items/bond";
+import { Flow, FlowState, Step } from "./module/flows/flow";
+import { registerAttackSteps } from "./module/flows/attack";
+import { registerTechAttackSteps } from "./module/flows/tech";
+import { registerActivationSteps } from "./module/flows/activation";
+import { registerItemUtilSteps } from "./module/flows/item-utils";
+import { registerBondPowerSteps } from "./module/flows/bond";
+import { registerCoreActiveSteps } from "./module/flows/frame";
 
 const lp = LANCER.log_prefix;
 
@@ -264,6 +271,15 @@ Hooks.once("init", async function () {
   // it can happen in the background
   configureAmplify();
 
+  const flowSteps: Map<string, Step<any, any> | Flow<any>> = new Map();
+  // Register flow steps
+  flowSteps.set("dummyStep", async (state: FlowState<any>) => !!state);
+  registerItemUtilSteps(flowSteps);
+  registerAttackSteps(flowSteps);
+  registerTechAttackSteps(flowSteps);
+  registerActivationSteps(flowSteps);
+  registerCoreActiveSteps(flowSteps);
+  registerBondPowerSteps(flowSteps);
   // Assign custom classes and constants here
   // Create a Lancer namespace within the game global
   game.lancer = {
@@ -284,12 +300,13 @@ Hooks.once("init", async function () {
       gridDist,
       lookupOwnedDeployables,
     },
+    flowSteps,
     prepareItemMacro: macros.prepareItemMacro,
     prepareStatMacro: macros.prepareStatMacro,
     prepareTalentMacro: macros.prepareTalentMacro,
     prepareTextMacro: macros.prepareTextMacro,
     // prepareTechMacro: macros.prepareTechMacro,
-    prepareCoreActiveMacro: macros.prepareCoreActiveMacro,
+    // prepareCoreActiveMacro: macros.prepareCoreActiveMacro,
     prepareCorePassiveMacro: macros.prepareCorePassiveMacro,
     prepareFrameTraitMacro: macros.prepareFrameTraitMacro,
     prepareOverchargeMacro: macros.prepareOverchargeMacro,

@@ -2,7 +2,7 @@ import { LANCER } from "../config";
 import { LancerActor } from "../actor/lancer-actor";
 import { LancerItem } from "../item/lancer-item";
 import { SourceData, UUIDRef } from "../source-template";
-import { Flow, FlowState } from "./flow";
+import { Flow, FlowState, Step } from "./flow";
 import { LancerFlowState } from "./interfaces";
 import { getAutomationOptions } from "../settings";
 import { PowerData } from "../models/bits/power";
@@ -10,7 +10,16 @@ import { renderTemplateStep } from "./_render";
 
 const lp = LANCER.log_prefix;
 
+export function registerBondPowerSteps(flowSteps: Map<string, Step<any, any> | Flow<any>>) {
+  flowSteps.set("initPowerData", initPowerData);
+  flowSteps.set("updatePowerUses", updatePowerUses);
+  flowSteps.set("printPowerCard", printPowerCard);
+}
+
 export class BondPowerFlow extends Flow<LancerFlowState.BondPowerUseData> {
+  name = "BondPowerFlow";
+  steps = ["initPowerData", "updatePowerUses", "printPowerCard"];
+
   constructor(uuid: UUIDRef | LancerItem | LancerActor, data?: Partial<LancerFlowState.BondPowerUseData>) {
     if (!data?.powerIndex || typeof data?.powerIndex != "number" || data?.powerIndex < 0) {
       throw new Error(`Bond Power Flow requires a valid power index to be provided in data!`);
@@ -21,11 +30,7 @@ export class BondPowerFlow extends Flow<LancerFlowState.BondPowerUseData> {
       description: data?.description ?? "",
     };
 
-    super("BondPowerFlow", uuid, initialData);
-
-    this.steps.set("initPowerData", initPowerData);
-    this.steps.set("updatePowerUses", updatePowerUses);
-    this.steps.set("printPowerCard", printPowerCard);
+    super(uuid, initialData);
   }
 
   async begin(data?: LancerFlowState.BondPowerUseData): Promise<boolean> {

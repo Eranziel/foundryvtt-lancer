@@ -245,6 +245,28 @@ export function charged_box(charged: boolean, path: string) {
           </div>`;
 }
 
+export function activationIcon(activation: ActivationType): string {
+  switch (activation) {
+    case ActivationType.Full:
+      return "cci cci-activation-full";
+    case ActivationType.Invade:
+    case ActivationType.QuickTech:
+      return "cci cci-tech-quick";
+    case ActivationType.FullTech:
+      return "cci cci-tech-full";
+    case ActivationType.Reaction:
+      return "cci cci-reaction";
+    case ActivationType.Protocol:
+      return "cci cci-protocol";
+    case ActivationType.Free:
+    case ActivationType.Passive:
+      return "cci cci-free-action";
+    case ActivationType.Quick:
+    default:
+      return "cci cci-activation-quick";
+  }
+}
+
 export function activationStyle(activation: ActivationType): string {
   switch (activation) {
     case ActivationType.Quick:
