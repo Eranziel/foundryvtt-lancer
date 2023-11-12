@@ -121,7 +121,7 @@ import {
   limited_uses_indicator,
   reserve_used_indicator,
 } from "./module/helpers/refs";
-import { mech_loadout, pilot_slot, frameView } from "./module/helpers/loadout";
+import { mechLoadout, pilotSlot, frameView } from "./module/helpers/loadout";
 import {
   item_edit_arrayed_actions,
   item_edit_arrayed_damage,
@@ -512,7 +512,7 @@ Hooks.once("init", async function () {
   Handlebars.registerHelper("simple-ref", simple_ref_slot);
   Handlebars.registerHelper("item-preview", item_preview);
   Handlebars.registerHelper("lid-item-list", lid_item_list);
-  Handlebars.registerHelper("pilot-slot", pilot_slot);
+  Handlebars.registerHelper("pilot-slot", pilotSlot);
   Handlebars.registerHelper("deployer-slot", deployer_slot); // Can be pilot, npc, or mech. Preferably mech, lol
   Handlebars.registerHelper("ref-portrait-img", ref_portrait);
 
@@ -609,7 +609,7 @@ Hooks.once("init", async function () {
 
   // ------------------------------------------------------------------------
   // Mech components
-  Handlebars.registerHelper("mech-loadout", mech_loadout);
+  Handlebars.registerHelper("mech-loadout", mechLoadout);
   Handlebars.registerHelper("mech-frame", frameView);
 
   // ------------------------------------------------------------------------

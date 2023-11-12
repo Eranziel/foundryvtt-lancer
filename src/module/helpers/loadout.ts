@@ -1,5 +1,5 @@
 import type { HelperOptions } from "handlebars";
-import { ChipIcons, EntryType, SystemType } from "../enums";
+import { EntryType, SystemType } from "../enums";
 import { encodeMacroData } from "../macros";
 import {
   inc_if,
@@ -11,7 +11,7 @@ import {
   activationStyle,
   activationIcon,
 } from "./commons";
-import { mech_loadout_weapon_slot, buildChipHTML, buildDeployablesArray, buildActionArrayHTML } from "./item";
+import { mech_loadout_weapon_slot, buildDeployablesArray, buildActionArrayHTML } from "./item";
 import { limited_uses_indicator, ref_params, simple_ref_slot } from "./refs";
 import { compact_tag_list } from "./tags";
 import { LancerMECH, LancerPILOT } from "../actor/lancer-actor";
@@ -22,7 +22,7 @@ import { LancerFlowState } from "../flows/interfaces";
 import { slugify } from "../util/lid";
 
 // A drag-drop slot for a system mount.
-export function mech_system_view(system_path: string, options: HelperOptions): string {
+export function mechSystemView(system_path: string, options: HelperOptions): string {
   let collapse = resolve_helper_dotpath<CollapseRegistry>(options, "collapse");
   let doc = resolve_helper_dotpath<LancerMECH_SYSTEM>(options, system_path);
   if (!doc) return ""; // Hide our shame
@@ -109,7 +109,7 @@ export function mech_system_view(system_path: string, options: HelperOptions): s
 }
 
 // A drag-drop slot for a weapon mount. TODO: delete button, clear button
-function weapon_mount(mount_path: string, options: HelperOptions): string {
+function weaponMount(mount_path: string, options: HelperOptions): string {
   let mech = resolve_helper_dotpath(options, "actor") as LancerMECH;
   let mount = resolve_helper_dotpath(options, mount_path) as SystemData.Mech["loadout"]["weapon_mounts"][0];
 
@@ -160,10 +160,10 @@ function weapon_mount(mount_path: string, options: HelperOptions): string {
 }
 
 // Helper to display all weapon mounts on a mech loadout
-function all_weapon_mount_view(loadout_path: string, options: HelperOptions) {
+function allWeaponMountView(loadout_path: string, options: HelperOptions) {
   let loadout = resolve_helper_dotpath(options, loadout_path) as SystemData.Mech["loadout"];
   const weapon_mounts = loadout.weapon_mounts.map((_wep, index) =>
-    weapon_mount(`${loadout_path}.weapon_mounts.${index}`, options)
+    weaponMount(`${loadout_path}.weapon_mounts.${index}`, options)
   );
 
   return `
@@ -183,7 +183,7 @@ function all_weapon_mount_view(loadout_path: string, options: HelperOptions) {
 function all_system_view(loadout_path: string, options: HelperOptions) {
   let loadout = resolve_helper_dotpath(options, loadout_path) as LancerMECH["system"]["loadout"];
   const system_views = loadout.systems.map((_sys, index) =>
-    mech_system_view(`${loadout_path}.systems.${index}.value`, options)
+    mechSystemView(`${loadout_path}.systems.${index}.value`, options)
   );
 
   // Archiving add button: <a class="gen-control fas fa-plus" data-action="append" data-path="${loadout_path}.SysMounts" data-action-value="(struct)sys_mount"></a>
@@ -207,17 +207,17 @@ function all_system_view(loadout_path: string, options: HelperOptions) {
  * - Weapon mods
  * - .... system mods :)
  */
-export function mech_loadout(options: HelperOptions): string {
+export function mechLoadout(options: HelperOptions): string {
   const loadout_path = `system.loadout`;
   return `
     <div class="flexcol">
-        ${all_weapon_mount_view(loadout_path, options)}
+        ${allWeaponMountView(loadout_path, options)}
         ${all_system_view(loadout_path, options)}
     </div>`;
 }
 
 // Create a div with flags for dropping native pilots
-export function pilot_slot(data_path: string, options: HelperOptions): string {
+export function pilotSlot(data_path: string, options: HelperOptions): string {
   // get the existing
   let pilot: LancerPILOT;
   if (options.hash.value) {
@@ -282,7 +282,7 @@ function buildCoreSysHTML(frame_path: string, core_energy: number, options: Help
   // Generate core passive HTML only if it has one
   let passive = "";
   if (core.passive_effect !== "" || core.passive_actions.length > 0 || core.passive_bonuses.length > 0) {
-    passive = `<div class="frame-passive">${frame_passive(frame)}</div>`;
+    passive = `<div class="frame-passive">${framePassive(frame)}</div>`;
   }
   let deployables = "";
   if (core.deployables.length) {
@@ -300,7 +300,7 @@ function buildCoreSysHTML(frame_path: string, core_energy: number, options: Help
       </i>
     </div>
     <div class="collapse" data-collapse-id="${frame.id}_core">
-      <div class="frame-active">${frame_active(frame_path, core_energy, options)}</div>
+      <div class="frame-active">${frameActive(frame_path, core_energy, options)}</div>
       ${passive}
       ${deployables}
       ${tags}
@@ -344,7 +344,7 @@ function frameTraits(frame_path: string, options: HelperOptions): string {
     .join("");
 }
 
-function frame_active(frame_path: string, core_energy: number, options: HelperOptions): string {
+function frameActive(frame_path: string, core_energy: number, options: HelperOptions): string {
   const frame = resolve_helper_dotpath<LancerFRAME>(options, frame_path)!;
   const core = frame.system.core_system;
   const activeName = core.active_actions.length ? core.active_actions[0].name : core.name;
@@ -384,7 +384,7 @@ function frame_active(frame_path: string, core_energy: number, options: HelperOp
   `;
 }
 
-function frame_passive(frame: LancerFRAME): string {
+function framePassive(frame: LancerFRAME): string {
   let core = frame.system.core_system;
   let actionHTML = buildActionArrayHTML(frame, "system.core_system.passive_actions");
 

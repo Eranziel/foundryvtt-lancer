@@ -14,7 +14,7 @@ import {
 import { array_path_edit_changes, drilldownDocument, extendHelper, hex_array, resolve_helper_dotpath } from "./commons";
 import { FoundryDropData, handleDocDropping, handleDragging, ResolvedDropData } from "./dragdrop";
 import { framePreview, license_ref, mech_weapon_display as mechWeaponView, npc_feature_preview } from "./item";
-import { mech_system_view as mechSystemView } from "./loadout";
+import { mechSystemView as mechSystemView } from "./loadout";
 import { LancerDoc } from "../util/doc";
 import { EntryType } from "../enums";
 import { LancerActor } from "../actor/lancer-actor";
