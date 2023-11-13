@@ -191,6 +191,7 @@ import { registerActivationSteps } from "./module/flows/activation";
 import { registerItemUtilSteps } from "./module/flows/item-utils";
 import { registerBondPowerSteps } from "./module/flows/bond";
 import { registerCoreActiveSteps } from "./module/flows/frame";
+import { registerTextSteps } from "./module/flows/text";
 
 const lp = LANCER.log_prefix;
 
@@ -274,6 +275,7 @@ Hooks.once("init", async function () {
   const flowSteps: Map<string, Step<any, any> | Flow<any>> = new Map();
   // Register flow steps
   flowSteps.set("dummyStep", async (state: FlowState<any>) => !!state);
+  registerTextSteps(flowSteps);
   registerItemUtilSteps(flowSteps);
   registerAttackSteps(flowSteps);
   registerTechAttackSteps(flowSteps);

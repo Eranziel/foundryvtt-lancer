@@ -4,9 +4,44 @@ import { LancerActor } from "../actor/lancer-actor";
 import { renderTemplateStep } from "./_render";
 import { Tag } from "../models/bits/tag";
 import { LancerFlowState } from "./interfaces";
-import { resolveItemOrActor } from "./util";
+import { Flow, FlowState, Step } from "./flow";
+import { UUIDRef } from "../source-template";
+import { LancerItem } from "../item/lancer-item";
 
 const lp = LANCER.log_prefix;
+
+export function registerTextSteps(flowSteps: Map<string, Step<any, any> | Flow<any>>) {
+  flowSteps.set("printGenericCard", printGenericCard);
+}
+
+export class SimpleTextFlow extends Flow<LancerFlowState.TextRollData> {
+  name = "TextFlow";
+  steps = ["printGenericCard"];
+
+  constructor(uuid: UUIDRef | LancerItem | LancerActor, data: Partial<LancerFlowState.TextRollData>) {
+    const state: LancerFlowState.TextRollData = {
+      title: data?.title ?? "",
+      description: data?.description ?? "",
+      tags: data?.tags ?? [],
+    };
+    if (!state.title && uuid instanceof LancerItem) state.title = uuid.name!;
+
+    super(uuid, state);
+  }
+}
+
+export async function printGenericCard(
+  state: FlowState<LancerFlowState.TextRollData>,
+  options?: { template?: string }
+): Promise<boolean> {
+  if (!state.data) throw new TypeError(`Flow state missing!`);
+  renderTemplateStep(
+    state.actor,
+    options?.template || `systems/${game.system.id}/templates/chat/generic-card.hbs`,
+    state.data
+  );
+  return true;
+}
 
 /**
  * Given basic information, prepares a generic text-only macro to display descriptions etc
