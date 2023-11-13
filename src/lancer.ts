@@ -309,7 +309,7 @@ Hooks.once("init", async function () {
     prepareTextMacro: macros.prepareTextMacro,
     // prepareTechMacro: macros.prepareTechMacro,
     // prepareCoreActiveMacro: macros.prepareCoreActiveMacro,
-    prepareCorePassiveMacro: macros.prepareCorePassiveMacro,
+    // prepareCorePassiveMacro: macros.prepareCorePassiveMacro,
     // prepareFrameTraitMacro: macros.prepareFrameTraitMacro,
     prepareOverchargeMacro: macros.prepareOverchargeMacro,
     prepareOverheatMacro: macros.prepareOverheatMacro,

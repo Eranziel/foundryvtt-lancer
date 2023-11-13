@@ -293,7 +293,7 @@ function buildCoreSysHTML(frame_path: string, core_energy: number, options: Help
 
   return `<div class="core-wrapper ${mfrBorder} frame-coresys card clipped-top" style="padding: 0;">
     <div class="lancer-header ${mfrStyle} coresys-title">
-      <span>${core.name}</span> // CORE
+      <span>${core.name}</span><span> // </span><span>CORE</span>
       <i 
         class="mdi mdi-unfold-less-horizontal collapse-trigger collapse-icon" 
         data-collapse-id="${frame.id}_core" > 
@@ -317,7 +317,6 @@ function frameTraits(frame_path: string, options: HelperOptions): string {
       return `<div class="frame-trait clipped-top">
     <div
       class="lancer-header ${manufacturerStyle(frame.system.manufacturer)} submajor frame-trait-header"
-      style="display: flex"
     >
       <a class="item-flow-button" data-uuid="${frame.uuid}" data-type="trait" data-index="${index}">
         <i class="mdi mdi-message"></i>
@@ -350,9 +349,11 @@ function frameActive(frame_path: string, core_energy: number, options: HelperOpt
 
   return `
   <div class="core-active-wrapper clipped-top lancer-border-bonus">
-    <span class="lancer-header ${theme} clipped-top submajor">
-      ${core.active_name} // ACTIVE
-    </span>
+    <div class="lancer-header ${theme} clipped-top submajor">
+      <div class="grow">
+        <span>${core.active_name}</span><span> // </span><span>ACTIVE</span>
+      </div>
+    </div>
     <div class="lancer-body">
       <div class="effect-text">
         ${core.active_effect ?? ""}
@@ -379,10 +380,15 @@ function framePassive(frame: LancerFRAME): string {
   let actionHTML = buildActionArrayHTML(frame, "system.core_system.passive_actions");
 
   return `
-  <div class="core-active-wrapper clipped-top lancer-border-bonus">
-    <span class="lancer-header ${manufacturerStyle(frame.system.manufacturer)} clipped-top submajor">
-      ${core.passive_name ?? ""} // PASSIVE
-    </span>
+  <div class="core-passive-wrapper clipped-top lancer-border-bonus">
+    <div class="lancer-header ${manufacturerStyle(frame.system.manufacturer)} clipped-top submajor">
+      <a class="item-flow-button" data-uuid="${frame.uuid}" data-type="passive">
+        <i class="mdi mdi-message"></i>
+      </a>
+      <div class="grow">
+        <span>${core.passive_name ?? ""}</span><span> // </span><span>PASSIVE</span>
+      </div>
+    </div>
     <div class="lancer-body">
       <div class="effect-text">
         ${core.passive_effect ?? ""}
