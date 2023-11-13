@@ -303,7 +303,7 @@ Hooks.once("init", async function () {
       lookupOwnedDeployables,
     },
     flowSteps,
-    prepareItemMacro: macros.prepareItemMacro,
+    // prepareItemMacro: macros.prepareItemMacro,
     prepareStatMacro: macros.prepareStatMacro,
     prepareTalentMacro: macros.prepareTalentMacro,
     prepareTextMacro: macros.prepareTextMacro,

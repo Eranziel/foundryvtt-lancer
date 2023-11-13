@@ -6,7 +6,7 @@ import { handleRefDragging, handleRefSlotDropping, click_evt_open_ref, handleUse
 import type { LancerActorSheetData } from "../interfaces";
 import { LancerItem } from "../item/lancer-item";
 import { LancerActor, LancerActorType } from "./lancer-actor";
-import { prepareChargeMacro, prepareItemMacro, runEncodedMacro } from "../macros";
+import { prepareChargeMacro, runEncodedMacro } from "../macros";
 import { ActivationOptions } from "../enums";
 import { applyCollapseListeners, CollapseHandler, initializeCollapses } from "../helpers/collapse";
 import { addExportButton } from "../helpers/io";
@@ -20,6 +20,7 @@ import { PrototypeTokenData } from "@league-of-foundry-developers/foundry-vtt-ty
 import { LancerActiveEffect } from "../effects/lancer-active-effect";
 import { LancerFlowState } from "../flows/interfaces";
 import { lookupOwnedDeployables } from "../util/lid";
+import { beginItemFlow } from "../flows/item";
 const lp = LANCER.log_prefix;
 
 /**
@@ -225,7 +226,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
       if (!el || !el.dataset.uuid) throw Error(`No item UUID found!`);
       const item = await LancerItem.fromUuid(el.dataset.uuid);
       if (!item) throw Error(`UUID "${el.dataset.uuid}" does not resolve to an item!`);
-      item.beginItemFlow(el.dataset);
+      beginItemFlow(item, el.dataset);
     });
     // TODO: For sanity's sake, merge these into a single "macro" handler
     // Trigger rollers

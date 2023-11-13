@@ -639,29 +639,6 @@ export class LancerItem extends Item {
     await flow.begin();
   }
 
-  async beginItemFlow(data: any) {
-    console.log("Selecting item flow with data and item: ", data, this);
-    if (this.is_frame()) {
-      // Trait and core passive flows require a type
-      if (!data.type) throw new TypeError(`No type provided for frame flow!`);
-      if (data.type === "trait") {
-        if (!data.index) throw new TypeError(`No index provided for trait flow!`);
-        const trait = this.system.traits[data.index];
-        if (!trait) throw new TypeError(`No trait found at path ${data.path}!`);
-        const flow = new SimpleTextFlow(this, { title: trait.name, description: trait.description });
-        return await flow.begin();
-      }
-      if (data.type === "passive") {
-        const core = this.system.core_system;
-        const flow = new SimpleTextFlow(this, { title: core.passive_name, description: core.passive_effect });
-        return await flow.begin();
-      }
-      throw new TypeError(`Invalid path provided for frame flow!`);
-    } else {
-      throw new TypeError(`Invalid item type for flow!`);
-    }
-  }
-
   async beginBondPowerFlow(powerIndex: number) {
     if (!this.is_bond()) {
       ui.notifications!.error(`Item ${this.id} has no bond powers!`);

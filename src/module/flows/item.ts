@@ -1,55 +1,57 @@
-// Import TypeScript modules
-// import { prepareAttackMacro } from "./attack";
-import { prepareSystemMacro } from "./system";
-import { prepareTalentMacro } from "./talent";
-import { EntryType } from "../enums";
 import { LancerItem } from "../item/lancer-item";
-import { prepareSkillMacro, rollStatMacro } from "./stat";
-import { prepareCoreBonusMacro, preparePilotGearMacro, prepareReserveMacro } from "./gear";
-import { prepareNPCFeatureMacro } from "./npc";
+import { SimpleTextFlow } from "./text";
 
-/**
- * Generic macro preparer for any item.
- * Given an item, will prepare data for the macro then roll it.
- * @param item The item/uuid that is being rolled
- * @param options Ability to pass through various options to the item.
- *      Talents can use rank: value.
- */
-export async function prepareItemMacro(
-  item: string | LancerItem,
-  options?: {
-    rank?: number; // Rank override for talents
-    title?: string; // TODO - more wide support. Use this as a title
-    display?: boolean; // TODO - more wide support. Print this item instead of rolling it
-  }
-) {
-  item = LancerItem.fromUuidSync(item);
-  if (!item.actor) return;
-
-  // Make a macro depending on the type
-  switch (item.type) {
-    case EntryType.SKILL:
-      return prepareSkillMacro(item);
-    // Pilot OR Mech weapon
-    case EntryType.PILOT_WEAPON:
-    case EntryType.MECH_WEAPON:
-      // TODO refactor to trigger appropriate flow
-      // return prepareAttackMacro(item, options);
-      return;
-    case EntryType.MECH_SYSTEM:
-      return prepareSystemMacro(item);
-    case EntryType.TALENT:
-      return prepareTalentMacro(item, options);
-    case EntryType.PILOT_GEAR:
-      return preparePilotGearMacro(item);
-    case EntryType.CORE_BONUS:
-      return prepareCoreBonusMacro(item);
-    case EntryType.RESERVE:
-      return prepareReserveMacro(item);
-    case EntryType.NPC_FEATURE:
-      return prepareNPCFeatureMacro(item, options);
-    default:
-      console.log("No macro exists for that item type");
-      return ui.notifications!.error(`Error - No macro exists for that item type`);
+export async function beginItemFlow(item: LancerItem, data: any) {
+  console.log("Selecting item flow with data and item: ", data, item);
+  if (item.is_skill()) {
+    // TODO
+    // return prepareSkillMacro(item);
+  } else if (item.is_mech_weapon() || item.is_pilot_weapon()) {
+    // TODO
+    // return prepareAttackMacro(item, options);
+  } else if (item.is_mech_system()) {
+    // TODO
+    // return prepareSystemMacro(item);
+  } else if (item.is_talent()) {
+    // TODO
+    // return prepareTalentMacro(item, options);
+  } else if (item.is_frame()) {
+    // Trait and core passive flows require a type
+    if (!data.type) throw new TypeError(`No type provided for frame flow!`);
+    if (data.type === "trait") {
+      if (!data.index) throw new TypeError(`No index provided for trait flow!`);
+      const trait = item.system.traits[data.index];
+      if (!trait) throw new TypeError(`No trait found at path ${data.path}!`);
+      const flow = new SimpleTextFlow(item, { title: trait.name, description: trait.description });
+      return await flow.begin();
+    }
+    if (data.type === "passive") {
+      const core = item.system.core_system;
+      const flow = new SimpleTextFlow(item, { title: core.passive_name, description: core.passive_effect });
+      return await flow.begin();
+    }
+    throw new TypeError(`Invalid path provided for frame flow!`);
+  } else if (item.is_pilot_gear()) {
+    const flow = new SimpleTextFlow(item, {
+      title: item.name!,
+      description: item.system.description,
+      tags: item.system.tags,
+    });
+    return await flow.begin();
+  } else if (item.is_core_bonus()) {
+    const flow = new SimpleTextFlow(item, { title: item.name!, description: item.system.effect });
+    return await flow.begin();
+  } else if (item.is_reserve()) {
+    const flow = new SimpleTextFlow(item, {
+      title: `RESERVE :: ${item.name}`,
+      description: (item.system.label ? `<b>${item.system.label}</b></br>` : "") + item.system.description,
+    });
+    return await flow.begin();
+  } else if (item.is_npc_feature()) {
+    // TODO
+    // return prepareNPCFeatureMacro(item, options);
+  } else {
+    console.log("No macro exists for that item type");
+    return ui.notifications!.error(`Error - No macro exists for item type "${item.type}"`);
   }
 }

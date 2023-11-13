@@ -7,7 +7,7 @@ export { renderTemplateStep as renderMacroTemplate, createChatMessageStep as ren
 // export { prepareActivationMacro } from "./flows/activation";
 // export { prepareAttackMacro, rollAttackMacro } from "./flows/attack";
 // export { prepareCoreActiveMacro, prepareCorePassiveMacro, prepareFrameTraitMacro } from "./flows/frame";
-export { prepareItemMacro } from "./flows/item";
+// export { prepareItemMacro } from "./flows/item";
 export { prepareChargeMacro } from "./flows/npc";
 export { prepareOverchargeMacro } from "./flows/overcharge";
 export { prepareStatMacro } from "./flows/stat";

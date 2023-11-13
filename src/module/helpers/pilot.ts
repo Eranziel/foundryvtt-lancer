@@ -91,6 +91,9 @@ export function coreBonusView(item_path: string, options: HelperOptions) {
       <li class="card clipped-top lancer-border-bonus ref set" ${ref_params(coreBonus)}>
         <div class="lancer-header lancer-bonus medium" style="grid-area: 1/1/2/3">
           <i class="cci cci-corebonus i--m i--dark"> </i>
+          <a class="item-flow-button">
+            <i class="mdi mdi-message"></i>
+          </a>
           <span class="major modifier-name">${coreBonus.name}</span>
           ${collapseButton(collapse, coreBonus)}
           <div class="ref-controls">
