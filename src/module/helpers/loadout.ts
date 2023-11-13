@@ -314,24 +314,14 @@ function frameTraits(frame_path: string, options: HelperOptions): string {
     .map((trait, index) => {
       let actionHTML = buildActionArrayHTML(frame, `frame.system.traits.${index}.actions`);
       let depHTML = buildDeployablesArray(frame, `system.traits.${index}.deployables`, options);
-
-      let macroData: LancerFlowState.InvocationData | null = frame.actor
-        ? {
-            title: trait.name,
-            iconPath: `systems/${game.system.id}/assets/icons/macro-icons/trait.svg`,
-            fn: "prepareFrameTraitMacro",
-            args: [frame.actor.uuid, index],
-          }
-        : null;
-
       return `<div class="frame-trait clipped-top">
-    <div class="lancer-header ${manufacturerStyle(
-      frame.system.manufacturer
-    )} submajor frame-trait-header" style="display: flex">
-      ${inc_if(
-        `<a class="lancer-macro" data-macro="${encodeMacroData(macroData!)}"><i class="mdi mdi-message"></i></a>`,
-        macroData
-      )}
+    <div
+      class="lancer-header ${manufacturerStyle(frame.system.manufacturer)} submajor frame-trait-header"
+      style="display: flex"
+    >
+      <a class="item-flow-button" data-uuid="${frame.uuid}" data-type="trait" data-index="${index}">
+        <i class="mdi mdi-message"></i>
+      </a>
       <span class="minor grow">${trait.name}</span>
     </div>
     <div class="lancer-body">

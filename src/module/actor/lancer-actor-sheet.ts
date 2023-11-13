@@ -218,24 +218,33 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
       weapon.beginWeaponAttackFlow();
     });
 
+    let itemFlows = html.find(".item-flow-button");
+    itemFlows.on("click", async ev => {
+      ev.stopPropagation(); // Avoids triggering parent event handlers
+      const el = $(ev.currentTarget).closest("[data-uuid]")[0] as HTMLElement;
+      if (!el || !el.dataset.uuid) throw Error(`No item UUID found!`);
+      const item = await LancerItem.fromUuid(el.dataset.uuid);
+      if (!item) throw Error(`UUID "${el.dataset.uuid}" does not resolve to an item!`);
+      item.beginItemFlow(el.dataset);
+    });
     // TODO: For sanity's sake, merge these into a single "macro" handler
     // Trigger rollers
-    let itemMacros = html
-      .find(".skill-macro")
-      // System rollers
-      .add(html.find(".system-macro"))
-      // Gear rollers
-      .add(html.find(".gear-macro"))
-      // Core bonus
-      .add(html.find(".cb-macro"))
-      // Reserve
-      .add(html.find(".reserve-macro"));
-    itemMacros.on("click", (ev: any) => {
-      ev.stopPropagation(); // Avoids triggering parent event handlers
+    // let itemMacros = html
+    //   .find(".skill-macro")
+    //   // System rollers
+    //   .add(html.find(".system-macro"))
+    //   // Gear rollers
+    //   .add(html.find(".gear-macro"))
+    //   // Core bonus
+    //   .add(html.find(".cb-macro"))
+    //   // Reserve
+    //   .add(html.find(".reserve-macro"));
+    // itemMacros.on("click", (ev: any) => {
+    //   ev.stopPropagation(); // Avoids triggering parent event handlers
 
-      const el = $(ev.currentTarget).closest("[data-uuid]")[0] as HTMLElement;
-      prepareItemMacro(el.dataset.uuid!);
-    });
+    //   const el = $(ev.currentTarget).closest("[data-uuid]")[0] as HTMLElement;
+    //   prepareItemMacro(el.dataset.uuid!);
+    // });
 
     // Bond Power flow
     let powerFlows = html.find(".bond-power-flow");
@@ -272,7 +281,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
       actor.system.bond.refreshPowers();
     });
 
-    // Action-chip (system? Or broader?) macros
+    // Action-chip flows
     html.find(".activation-flow").on("click", ev => {
       ev.stopPropagation();
 
