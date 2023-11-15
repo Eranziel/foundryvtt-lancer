@@ -126,8 +126,9 @@ export namespace LancerFlowState {
 
   // Configuration passed to initiate the printing of a talent
   export interface TalentUseData {
-    talent: unknown;
-    rank: number;
+    title: string;
+    lvl: number;
+    rank: { name: string; description: string };
   }
 
   export interface BondPowerUseData {

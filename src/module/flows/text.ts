@@ -30,10 +30,7 @@ export class SimpleTextFlow extends Flow<LancerFlowState.TextRollData> {
   }
 }
 
-export async function printGenericCard(
-  state: FlowState<LancerFlowState.TextRollData>,
-  options?: { template?: string }
-): Promise<boolean> {
+export async function printGenericCard(state: FlowState<any>, options?: { template?: string }): Promise<boolean> {
   if (!state.data) throw new TypeError(`Flow state missing!`);
   renderTemplateStep(
     state.actor,

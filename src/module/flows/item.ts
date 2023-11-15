@@ -1,4 +1,6 @@
 import { LancerItem } from "../item/lancer-item";
+import { LancerFlowState } from "./interfaces";
+import { TalentFlow } from "./talent";
 import { SimpleTextFlow } from "./text";
 
 export async function beginItemFlow(item: LancerItem, data: any) {
@@ -13,8 +15,13 @@ export async function beginItemFlow(item: LancerItem, data: any) {
     // TODO
     // return prepareSystemMacro(item);
   } else if (item.is_talent()) {
-    // TODO
-    // return prepareTalentMacro(item, options);
+    const lvl = data.rank ?? item.system.curr_rank;
+    const flow = new TalentFlow(item, {
+      title: item.name!,
+      rank: item.system.ranks[lvl],
+      lvl,
+    });
+    return await flow.begin();
   } else if (item.is_frame()) {
     // Trait and core passive flows require a type
     if (!data.type) throw new TypeError(`No type provided for frame flow!`);

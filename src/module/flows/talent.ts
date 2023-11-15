@@ -2,30 +2,37 @@
 import { LANCER } from "../config";
 import { renderTemplateStep } from "./_render";
 import { LancerItem } from "../item/lancer-item";
+import { Flow, FlowState, Step } from "./flow";
+import { LancerFlowState } from "./interfaces";
+import { printGenericCard } from "./text";
 
 const lp = LANCER.log_prefix;
 
-/**
- * Generic macro preparer for a talent
- * @param itemUUID The item id that is being rolled
- * @param rank The rank of the talent to roll
- */
-export async function prepareTalentMacro(
-  itemUUID: string | LancerItem,
-  options?: {
-    rank?: number;
-  }
-) {
-  // Determine which Actor to speak as
-  const item = LancerItem.fromUuidSync(itemUUID);
-  if (!item || !item.actor || !item.is_talent()) return;
+export function registerTalentSteps(flowSteps: Map<string, Step<any, any> | Flow<any>>) {
+  flowSteps.set("printTalentCard", printTalentCard);
+}
 
-  // Construct the template
-  const templateData = {
-    title: item.name,
-    rank: item.system.ranks[options?.rank ?? item.system.curr_rank],
-    lvl: item.system.curr_rank,
-  };
-  const template = `systems/${game.system.id}/templates/chat/talent-card.hbs`;
-  return renderTemplateStep(item.actor!, template, templateData);
+export class TalentFlow extends Flow<LancerFlowState.TalentUseData> {
+  name = "TalentFlow";
+  steps = ["printTalentCard"];
+
+  constructor(uuid: string | LancerItem, data: Partial<LancerFlowState.TalentUseData>) {
+    const state: LancerFlowState.TalentUseData = {
+      title: data?.title ?? "",
+      rank: data?.rank ?? { name: "", description: "" },
+      lvl: data?.lvl ?? 0,
+    };
+    if (!state.title && uuid instanceof LancerItem) state.title = uuid.name!;
+
+    super(uuid, state);
+  }
+}
+
+/**
+ * Simple wrapper for printGenericCard to override the HBS template used
+ * @param state Flow state to print
+ * @returns true if successful
+ */
+export function printTalentCard(state: FlowState<LancerFlowState.TalentUseData>): Promise<boolean> {
+  return printGenericCard(state, { template: `systems/${game.system.id}/templates/chat/talent-card.hbs` });
 }

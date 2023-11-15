@@ -32,22 +32,18 @@ export function talent_view(talent_path: string, options: HelperOptions) {
       talent_actions = buildActionArrayHTML(talent, `system.ranks.${i}.actions`);
     }
 
-    let macroData: LancerFlowState.InvocationData = {
-      iconPath: `systems/${game.system.id}/assets/icons/macro-icons/talent.svg`,
-      title: talent.system.ranks[i]?.name,
-      fn: "prepareTalentMacro",
-      args: [talent.uuid, i],
-    };
-
     let sepBorder = i < talent.system.curr_rank - 1 ? "lancer-border-talent talent-rank-sep-border" : "";
 
     retStr += `<li class="talent-rank-compact card clipped ${sepBorder}" style="padding: 5px;">
-        <a class="talent-macro lancer-macro lancer-button lancer-talent" data-macro="${encodeMacroData(
-          macroData
-        )}" style="grid-area: 1/1/2/2; padding: 0;">
+        <a
+          class="item-flow-button lancer-button lancer-talent"
+          data-uuid="${talent.uuid}"
+          data-rank="${i}"
+          style="grid-area: 1/1/2/2; padding: 0;"
+        >
           <i class="cci cci-rank-${i + 1} i--l i--dark"></i>
         </a>
-        <span class="major" style="grid-area: 1/1/2/3">${talent.system.ranks[i]?.name}</span>
+        <span class="major" style="grid-area: 1/2/2/3">${talent.system.ranks[i]?.name}</span>
         <div class="effect-text" style="grid-area: 2/1/3/3">
         ${talent.system.ranks[i]?.description}
         ${talent_actions}
