@@ -20,11 +20,19 @@ export namespace LancerFlowState {
     roll_str: string;
   }
 
+  export interface StatRollResult {
+    roll: Roll;
+    tt: string | HTMLElement | JQuery<HTMLElement>; // Tooltip
+  }
+
   // Configuration passed to initiate a stat roll
   export interface StatRollData extends Omit<BaseRollData, "type"> {
     type: "stat";
+    path: string; // The dotpath to the stat in the item or actor
     bonus: string | number;
-    acc_diff: AccDiffDataSerialized;
+    // TODO: refactor to use hydrated AccDiffData
+    acc_diff?: AccDiffDataSerialized;
+    result?: StatRollResult;
     effect?: string;
   }
 

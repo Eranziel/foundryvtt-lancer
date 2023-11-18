@@ -1,13 +1,14 @@
 import { LancerItem } from "../item/lancer-item";
 import { LancerFlowState } from "./interfaces";
+import { StatRollFlow } from "./stat";
 import { TalentFlow } from "./talent";
 import { SimpleTextFlow } from "./text";
 
 export async function beginItemFlow(item: LancerItem, data: any) {
   console.log("Selecting item flow with data and item: ", data, item);
   if (item.is_skill()) {
-    // TODO
-    // return prepareSkillMacro(item);
+    const flow = new StatRollFlow(item, { path: "system.curr_rank" });
+    return await flow.begin();
   } else if (item.is_mech_weapon() || item.is_pilot_weapon()) {
     // TODO
     // return prepareAttackMacro(item, options);

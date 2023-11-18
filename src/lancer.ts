@@ -193,6 +193,7 @@ import { registerBondPowerSteps } from "./module/flows/bond";
 import { registerCoreActiveSteps } from "./module/flows/frame";
 import { registerTextSteps } from "./module/flows/text";
 import { registerTalentSteps } from "./module/flows/talent";
+import { registerStatSteps } from "./module/flows/stat";
 
 const lp = LANCER.log_prefix;
 
@@ -282,6 +283,7 @@ Hooks.once("init", async function () {
   registerTechAttackSteps(flowSteps);
   registerActivationSteps(flowSteps);
   registerCoreActiveSteps(flowSteps);
+  registerStatSteps(flowSteps);
   registerTalentSteps(flowSteps);
   registerBondPowerSteps(flowSteps);
   // Assign custom classes and constants here
@@ -306,7 +308,7 @@ Hooks.once("init", async function () {
     },
     flowSteps,
     // prepareItemMacro: macros.prepareItemMacro,
-    prepareStatMacro: macros.prepareStatMacro,
+    // prepareStatMacro: macros.prepareStatMacro,
     // prepareTalentMacro: macros.prepareTalentMacro,
     prepareTextMacro: macros.prepareTextMacro,
     // prepareTechMacro: macros.prepareTechMacro,

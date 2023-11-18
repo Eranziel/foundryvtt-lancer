@@ -71,7 +71,7 @@ export function skillView(skill_path: string, options: HelperOptions) {
             </a>
           </div>
         </div>
-        <a class="flexrow skill-macro lancer-button" style="grid-area: 2/1/3/2;">
+        <a class="flexrow item-flow-button lancer-button" style="grid-area: 2/1/3/2;">
           <i class="fas fa-dice-d20 i--sm i--dark"></i>
           <div class="major roll-modifier" style="align-self: center">+${skill.system.curr_rank * 2}</div>
         </a>

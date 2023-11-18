@@ -1653,10 +1653,9 @@ input.core-power-toggle:not(:checked)::before {
   grid-template: 2em 1fr / 100px 1fr;
   align-items: center;
   margin-right: 25px;
-}
-
-a.flexrow.skill-macro {
-  margin-inline: 1.2em;
+  a.flexrow.item-flow-button {
+    margin-inline: 1.2em;
+  }
 }
 
 ul.talent-ranks {

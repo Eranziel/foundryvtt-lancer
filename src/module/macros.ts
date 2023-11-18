@@ -10,7 +10,7 @@ export { renderTemplateStep as renderMacroTemplate, createChatMessageStep as ren
 // export { prepareItemMacro } from "./flows/item";
 export { prepareChargeMacro } from "./flows/npc";
 export { prepareOverchargeMacro } from "./flows/overcharge";
-export { prepareStatMacro } from "./flows/stat";
+// export { prepareStatMacro } from "./flows/stat";
 // export { prepareTalentMacro } from "./flows/talent";
 // export { prepareTechMacro, rollTechMacro } from "./flows/tech";
 export { prepareTextMacro } from "./flows/text";
