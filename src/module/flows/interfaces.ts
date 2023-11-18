@@ -30,8 +30,7 @@ export namespace LancerFlowState {
     type: "stat";
     path: string; // The dotpath to the stat in the item or actor
     bonus: string | number;
-    // TODO: refactor to use hydrated AccDiffData
-    acc_diff?: AccDiffDataSerialized;
+    acc_diff?: AccDiffData;
     result?: StatRollResult;
     effect?: string;
   }

@@ -49,8 +49,9 @@ async function initStatRollData(
     let pathParts = state.data.path.split(".");
     state.data.title = options?.title || state.data.title || pathParts[pathParts.length - 1].toUpperCase();
     state.data.bonus = resolve_dotpath(state.actor, state.data.path) as number;
-    state.data.acc_diff =
-      options?.acc_diff ?? AccDiffData.fromParams(state.actor, undefined, state.data.title).toObject();
+    state.data.acc_diff = options?.acc_diff
+      ? AccDiffData.fromObject(options.acc_diff)
+      : AccDiffData.fromParams(state.actor, undefined, state.data.title);
     state.data.effect = undefined; // HASE rolls don't have effects
     return true;
   } else {
@@ -60,8 +61,9 @@ async function initStatRollData(
     state.data.title = options?.title || state.data.title || state.item.name!;
     state.data.path = "system.curr_rank";
     state.data.bonus = state.item.system.curr_rank * 2;
-    state.data.acc_diff =
-      options?.acc_diff ?? AccDiffData.fromParams(state.item, undefined, state.data.title).toObject();
+    state.data.acc_diff = options?.acc_diff
+      ? AccDiffData.fromObject(options.acc_diff)
+      : AccDiffData.fromParams(state.actor, undefined, state.data.title);
     // I guess we don't show skill descriptions in the chat cards.
     // state.data.effect = state.item.system.description;
     return true;
@@ -70,12 +72,9 @@ async function initStatRollData(
 
 async function showStatRollHUD(state: FlowState<LancerFlowState.StatRollData>): Promise<boolean> {
   if (!state.data) throw new TypeError(`Stat roll flow state missing!`);
-
-  // Get accuracy/difficulty with a prompt
-  let acc_diff = AccDiffData.fromObject(state.data.acc_diff!);
-  acc_diff = await openSlidingHud("hase", acc_diff);
-
-  state.data.acc_diff = acc_diff.toObject();
+  state.data.acc_diff = await openSlidingHud("hase", state.data.acc_diff!);
+  let acc_str = state.data.acc_diff.base.total != 0 ? ` + ${state.data.acc_diff.base.total}d6kh1` : "";
+  state.data.roll_str = `1d20+${state.data.bonus || 0}${acc_str}`;
   return true;
 }
 
@@ -83,84 +82,17 @@ async function rollCheck(state: FlowState<LancerFlowState.StatRollData>): Promis
   if (!state.data) throw new TypeError(`Stat roll flow state missing!`);
   if (!state.data.acc_diff) throw new TypeError(`Stat roll acc/diff data missing!`);
   // Do the roll
-  // let acc_str = state.data.acc_diff.base.total != 0 ? ` + ${acc_diff.base.total}d6kh1` : "";
-  // let roll = await new Roll(`1d20+${data.bonus || 0}${acc_str}`).evaluate({ async: true });
+  let roll = await new Roll(state.data.roll_str).evaluate({ async: true });
+  state.data.result = {
+    roll,
+    tt: await roll.getTooltip(),
+  };
   return true;
 }
 
 async function printStatRollCard(state: FlowState<LancerFlowState.StatRollData>): Promise<boolean> {
   if (!state.data) throw new TypeError(`Stat roll flow state missing!`);
-  // TODO - print the card
-  return true;
-}
-
-export async function prepareStatMacro(actor: string | LancerActor, statKey: string) {
-  // Determine which Actor to speak as
-  actor = LancerActor.fromUuidSync(actor);
-
-  const statPath = statKey.split(".");
-
-  let bonus = resolve_dotpath(actor, statKey) as number;
-  let acc_diff = AccDiffData.fromParams(actor, undefined, statPath[statPath.length - 1].toUpperCase());
-  acc_diff = await openSlidingHud("hase", acc_diff);
-
-  let mData: LancerFlowState.StatRollData = {
-    type: "stat",
-    path: statKey,
-    title: statPath[statPath.length - 1].toUpperCase(),
-    // docUUID: actor.uuid,
-    bonus,
-    acc_diff: acc_diff.toObject(),
-    roll_str: "1d20",
-  };
-
-  rollStatMacro(mData);
-}
-
-/**
- * Generic macro preparer for a skill
- * @param item The item id that is being rolled
- */
-export async function prepareSkillMacro(item: string | LancerItem) {
-  // Determine which Actor to speak as
-  item = LancerItem.fromUuidSync(item);
-  let acc_diff = AccDiffData.fromParams(item, undefined, item.name!);
-  acc_diff = await openSlidingHud("hase", acc_diff);
-  let skillData: LancerFlowState.StatRollData = {
-    type: "stat",
-    path: "system.curr_rank",
-    title: item.name!,
-    bonus: (item as LancerSKILL).system.curr_rank * 2,
-    // docUUID: item.uuid,
-    acc_diff: acc_diff.toObject(),
-    roll_str: "1d20",
-  };
-  await rollStatMacro(skillData);
-}
-
-// Rollers
-
-export async function rollStatMacro(data: LancerFlowState.StatRollData) {
-  // let { actor } = resolveItemOrActor(data.docUUID);
-  let actor;
-  if (!actor) return;
-
-  // Get accuracy/difficulty with a prompt
-  let acc_diff = AccDiffData.fromObject(data.acc_diff!);
-
-  // Do the roll
-  let acc_str = acc_diff.base.total != 0 ? ` + ${acc_diff.base.total}d6kh1` : "";
-  let roll = await new Roll(`1d20+${data.bonus || 0}${acc_str}`).evaluate({ async: true });
-
-  const roll_tt = await roll.getTooltip();
-
-  // Construct the template
-  const templateData = {
-    title: data.title,
-    roll: roll,
-    roll_tooltip: roll_tt,
-    effect: data.effect ? data.effect : null,
-  };
   const template = `systems/${game.system.id}/templates/chat/stat-roll-card.hbs`;
-  return renderTemplateStep(actor, template, templateData);
+  await renderTemplateStep(state.actor, template, state.data);
+  return true;
 }
