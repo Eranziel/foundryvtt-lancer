@@ -113,37 +113,37 @@ Non-Flow steps are simply functions which take the flow's current state and (opt
   - [ ] `prepareActionTrackMacro(actor: string | LancerActor, start: boolean)`
   - [ ] `condensedActionButtonHTML(actor: LancerActor, actions: ActionTrackingData)` (actor is unused?)
 - [ ] `activations.ts`
-  - [ ] `prepareActivationMacro(item: string | LancerItem, type: ActivationOptions, path: string)`
+  - [x] `prepareActivationMacro(item: string | LancerItem, type: ActivationOptions, path: string)`
   - [ ] `prepareTechActionMacro(item: LancerItem, path: string)` (unused)
   - [ ] `prepareDeployableMacro(item: LancerItem, path: string)`
-- [ ] `attacks.ts`
-  - [ ] file-local `rollStr(bonus: number, total: number): string`
-  - [ ] file-local `applyPluginsToRoll(str: string, plugins: RollModifier[]): string`
-  - [ ] `function attackRolls(flat_bonus: number, acc_diff: AccDiffData): AttackRolls`
-  - [ ] `prepareAttackMacro(doc: string | LancerActor | LancerItem, options?: {flat_bonus?: number, title?: string,})`
-  - [ ] `checkTargets(atkRolls: AttackRolls, isSmart: boolean): Promise<{attacks: AttackResult[]; hits: HitResult[]}>`
-  - [ ] `rollAttackMacro(data: LancerMacro.WeaponRoll, reroll: boolean = false)`
-  - [ ] `getCritRoll(normal: Roll)`
-  - [ ] types:
-    - [ ] `AttackRolls`
-    - [ ] `AttackResult`
-    - [ ] `DamageResult`
-    - [ ] `HitResult`
+- [x] `attacks.ts`
+  - [x] file-local `rollStr(bonus: number, total: number): string`
+  - [x] file-local `applyPluginsToRoll(str: string, plugins: RollModifier[]): string`
+  - [x] `function attackRolls(flat_bonus: number, acc_diff: AccDiffData): AttackRolls`
+  - [x] `prepareAttackMacro(doc: string | LancerActor | LancerItem, options?: {flat_bonus?: number, title?: string,})`
+  - [x] `checkTargets(atkRolls: AttackRolls, isSmart: boolean): Promise<{attacks: AttackResult[]; hits: HitResult[]}>`
+  - [x] `rollAttackMacro(data: LancerMacro.WeaponRoll, reroll: boolean = false)`
+  - [x] `getCritRoll(normal: Roll)`
+  - [x] types:
+    - [x] `AttackRolls`
+    - [x] `AttackResult`
+    - [x] `DamageResult`
+    - [x] `HitResult`
 - [ ] `encode.ts` - try to deprecate
   - [ ] `isValidEncodedMacro(data: LancerMacro.Invocation): boolean`
   - [ ] `encodeMacroData(data: LancerMacro.Invocation): string`
   - [ ] `decodeMacroData(encoded: string): LancerMacro.Invocation`
   - [ ] `function runEncodedMacro(el: HTMLElement)`
-- [ ] `frame.ts`
-  - [ ] `prepareCoreActiveMacro(actor: string | LancerActor)`
-  - [ ] `prepareCorePassiveMacro(actor: string | LancerActor)`
-  - [ ] `prepareFrameTraitMacro(actor: string | LancerActor, index: number)`
+- [x] `frame.ts`
+  - [x] `prepareCoreActiveMacro(actor: string | LancerActor)`
+  - [x] `prepareCorePassiveMacro(actor: string | LancerActor)`
+  - [x] `prepareFrameTraitMacro(actor: string | LancerActor, index: number)`
 - [ ] `full-repair.ts`
   - [ ] `prepareFullRepairMacro(actor_: string | LancerActor)`
-- [ ] `gear.ts`
-  - [ ] `preparePilotGearMacro(item: string | LancerItem)`
-  - [ ] `prepareCoreBonusMacro(item: string | LancerItem)`
-  - [ ] `prepareReserveMacro(item: string | LancerItem)`
+- [x] `gear.ts`
+  - [x] `preparePilotGearMacro(item: string | LancerItem)`
+  - [x] `prepareCoreBonusMacro(item: string | LancerItem)`
+  - [x] `prepareReserveMacro(item: string | LancerItem)`
 - [ ] `hotbar.ts`
   - [ ] `_chooseItemImage(data: any): string` (unused?)
   - [ ] `onHotbarDrop(_bar: any, data: any, slot: number)`
@@ -173,11 +173,11 @@ Non-Flow steps are simply functions which take the flow's current state and (opt
   - [ ] `prepareStructureSecondaryRollMacro(actor: string | LancerActor)`
 - [ ] `system.ts`
   - [ ] `prepareSystemMacro(item: string | LancerItem)`
-- [ ] `talent.ts`
-  - [ ] `prepareTalentMacro(itemUUID: string | LancerItem, options?: {rank?: number;})`
-- [ ] `tech.ts`
-  - [ ] `prepareTechMacro(docUUID: string | LancerActor | LancerItem, options?: {action_path?: string;})`
-  - [ ] `rollTechMacro(data: LancerMacro.AttackRoll, reroll: boolean = false)`
+- [x] `talent.ts`
+  - [x] `prepareTalentMacro(itemUUID: string | LancerItem, options?: {rank?: number;})`
+- [x] `tech.ts`
+  - [x] `prepareTechMacro(docUUID: string | LancerActor | LancerItem, options?: {action_path?: string;})`
+  - [x] `rollTechMacro(data: LancerMacro.AttackRoll, reroll: boolean = false)`
 - [ ] `text.ts`
   - [ ] `prepareTextMacro(actor: string | LancerActor, title: string, text: string, tags?: Tag[]): Promise<void>`
   - [ ] `rollTextMacro(data: LancerMacro.TextRoll)`
