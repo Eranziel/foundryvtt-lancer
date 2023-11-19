@@ -1,47 +1,47 @@
 <form class="{{cssClass}} lancer-sheet" autocomplete="off">
-    {{!-- Sheet Header --}}
-    <header class="sheet-header card clipped-bot">
+  {{! Sheet Header }}
+  <header class="sheet-header card clipped-bot">
+    <div class="flexrow">
+      <div class="header-fields">
+        <h1 class="charname">
+          <input
+            class="header-field"
+            name="name"
+            type="text"
+            value="{{item.name}}"
+            placeholder="{{localize 'lancer.placeholder.name'}}"
+          />
+        </h1>
+      </div>
+      {{{ref-portrait-img item.img "img" item}}}
+    </div>
+  </header>
+
+  {{! Sheet Body }}
+  <section class="sheet-body flexrow sheet-weapon-mod">
+    <div class="flexcol" style="flex-basis: 66%">
+      {{{item-edit-effect "system.effect"}}}
+      {{{item-edit-arrayed-actions "system.actions" "ADDED ACTIONS"}}}
+      {{{item-edit-arrayed-damage "system.added_damage" "ADDED DAMAGE"}}}
+      {{{item-edit-arrayed-range "system.added_range" "ADDED RANGE"}}}
+      {{{item-edit-arrayed-tags "system.added_tags" "ADDED TAGS"}}}
+      {{{item-edit-arrayed-bonuses "system.bonuses"}}}
       <div class="flexrow">
-        <div class="header-fields">
-          <h1 class="charname">
-            <input
-              class="header-field"
-              name="name"
-              type="text"
-              value="{{item.name}}"
-              placeholder="{{localize "lancer.placeholder.name"}}"
-            />
-          </h1>
-        </div>
-        {{{ ref-portrait-img item.img "img" item }}}
+        {{{counter-array system.counters "system.counters" true}}}
       </div>
-    </header>
-  
-    {{!-- Sheet Body --}}
-    <section class="sheet-body flexrow sheet-weapon-mod">
-      <div class="flexcol" style="flex-basis: 66%">
-        {{{item-edit-effect               "system.effect"}}}
-        {{{item-edit-arrayed-actions      "system.actions"          "ADDED ACTIONS"}}}
-        {{{item-edit-arrayed-damage       "system.added_damage"     "ADDED DAMAGE"}}}
-        {{{item-edit-arrayed-range        "system.added_range"      "ADDED RANGE"}}}
-        {{{item-edit-arrayed-tags         "system.added_tags"       "ADDED TAGS"}}}
-        {{{item-edit-arrayed-bonuses      "system.bonuses"}}}
-        <div class="flexrow">
-          {{{counter-array system.counters "system.counters" true}}}
-        </div>
-        {{{item-edit-arrayed-deployables  "system.deployables"      "ADDED DEPLOYABLES"}}}
-        {{{item-edit-arrayed-synergies    "system.synergies"        "SYNERGIES"}}}
-        {{{item-edit-arrayed-integrated   "system.integrated"       "INTEGRATED ITEMS"}}}
-        {{{item-edit-arrayed-tags         "system.tags"             "TAGS"}}}
-      </div>
-      <div class="flexcol" style="flex-basis: 33%;">
-        {{{item-edit-license}}}
-        {{{item-edit-sp                   "system.sp"}}}
-        {{#if (is-limited item)}}
-          {{{limited-uses-indicator "item"}}}
-        {{/if}}
-        {{{item-edit-checkboxes-object         "Allowed Sizes"         "system.allowed_sizes"}}}
-        {{{item-edit-checkboxes-object         "Allowed Types"         "system.allowed_types"}}}
-      </div>
-    </section>
-  </form>
+      {{{item-edit-arrayed-deployables "system.deployables" "ADDED DEPLOYABLES"}}}
+      {{{item-edit-arrayed-synergies "system.synergies" "SYNERGIES"}}}
+      {{{item-edit-arrayed-integrated "system.integrated" "INTEGRATED ITEMS"}}}
+      {{{item-edit-arrayed-tags "system.tags" "TAGS"}}}
+    </div>
+    <div class="flexcol" style="flex-basis: 33%;">
+      {{{item-edit-license}}}
+      {{{item-edit-sp "system.sp"}}}
+      {{#if (is-limited item)}}
+        {{{limited-uses-indicator item "item"}}}
+      {{/if}}
+      {{{item-edit-checkboxes-object "Allowed Sizes" "system.allowed_sizes"}}}
+      {{{item-edit-checkboxes-object "Allowed Types" "system.allowed_types"}}}
+    </div>
+  </section>
+</form>
