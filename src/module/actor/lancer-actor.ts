@@ -705,6 +705,11 @@ export class LancerActor extends Actor {
     return x;
   }
 
+  async beginStatFlow(path: string, title?: string): Promise<boolean> {
+    const flow = new StatRollFlow(this, { path, title });
+    return await flow.begin();
+  }
+
   async beginBasicAttackFlow(title?: string): Promise<boolean> {
     if (this.is_deployable()) {
       if (!this.system.owner) {

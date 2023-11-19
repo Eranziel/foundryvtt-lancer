@@ -207,6 +207,19 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
       }
     });
 
+    // Stat rollers
+    let statRollers = html.find(".roll-stat");
+    statRollers.on("click", ev => {
+      ev.stopPropagation(); // Avoids triggering parent event handlers
+      const el = $(ev.currentTarget).closest("[data-uuid]")[0] as HTMLElement;
+
+      const statPath = el.dataset.path;
+      if (!statPath) throw Error("No stat path found!");
+
+      const actor = this.actor as LancerActor;
+      actor.beginStatFlow(statPath);
+    });
+
     // Weapon rollers
     let weaponRollers = html.find(".roll-attack");
     weaponRollers.on("click", ev => {
