@@ -198,6 +198,9 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
           break;
         case "Structure":
           break;
+        case "Overcharge":
+          this.actor.beginOverchargeFlow();
+          break;
         case "BasicAttack":
           this.actor.beginBasicAttackFlow(flowArgs);
           break;

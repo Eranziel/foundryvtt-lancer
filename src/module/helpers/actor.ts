@@ -1,14 +1,10 @@
 import type { HelperOptions } from "handlebars";
 import { extendHelper, inc_if, resolve_helper_dotpath, selected, std_num_input, std_x_of_y } from "./commons";
 import { ref_params, simple_ref_slot } from "./refs";
-import { encodeMacroData } from "../macros";
-import { encodeOverchargeMacroData } from "../flows/overcharge";
 import type { ActionType } from "../action";
 import type { LancerActor, LancerMECH, LancerNPC, LancerPILOT } from "../actor/lancer-actor";
 import { getActionTrackerOptions } from "../settings";
 import { EntryType } from "../enums";
-import { SystemTemplates } from "../system-template";
-import { LancerBOND } from "../item/lancer-item";
 
 // ---------------------------------------
 // Some simple stat editing thingies
@@ -348,20 +344,21 @@ export function npc_stat_array_clicker_card(title: string, path: string, options
  * @param overcharge_path Path to current overcharge level, from 0 to 3
  * @param options Options object to pass to resolve_helper_dotpath
  */
-export function overcharge_button(actor: LancerMECH, overcharge_path: string, options: HelperOptions): string {
-  const overcharge_sequence = actor.system.overcharge_sequence;
+export function overchargeButton(actor: LancerMECH, overcharge_path: string, options: HelperOptions): string {
+  const sequence = actor.system.overcharge_sequence;
 
   let index = resolve_helper_dotpath(options, overcharge_path) as number;
-  index = Math.max(0, Math.min(overcharge_sequence.length - 1, index));
-  let over_val = overcharge_sequence[index];
+  index = Math.max(0, Math.min(sequence.length - 1, index));
+  let overchargeValue = sequence[index];
+  let flowButton = _basic_flow_button(actor.uuid, "Overcharge");
   return `
     <div class="flexcol card clipped">
       <div class="lancer-header lancer-primary clipped-top flexrow">
         <span class="major">OVERCHARGE</span>
       </div>
       <div class="overcharge-container">
-        ${_rollable_macro_button(encodeOverchargeMacroData(actor.uuid!), { classes: "overcharge-macro" })}
-        <a class="overcharge-text">${over_val}</a>
+        ${flowButton}
+        <a class="overcharge-text">${overchargeValue}</a>
         <a class="overcharge-reset mdi mdi-restore"></a>
       </div>
     </div>`;

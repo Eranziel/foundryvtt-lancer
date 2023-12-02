@@ -1546,23 +1546,27 @@ input.core-power-toggle:not(:checked)::before {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   align-items: center;
+
+  .lancer-flow-button {
+    justify-self: center;
+  }
+
+  .overcharge-text {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    line-height: 0.8em;
+  }
 }
 
-.overcharge-text {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  line-height: 0.8em;
-}
+.overcharge-heat-wrapper {
+  justify-content: flex-end;
 
-.overcharge-macro {
-  justify-self: center;
-}
-
-.overcharge-heat {
-  color: #fc3e0f;
-  flex-grow: unset;
-  width: 1.5em;
+  .overcharge-heat {
+    color: #fc3e0f;
+    flex-grow: unset;
+    width: 1.5em;
+  }
 }
 
 /* Some flex helpers */

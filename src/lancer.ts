@@ -102,7 +102,7 @@ import {
   actor_flow_button,
   npc_stat_block_clicker_card,
   npc_tier_selector,
-  overcharge_button,
+  overchargeButton,
   stat_edit_card,
   stat_edit_card_max,
   stat_rollable_card,
@@ -194,6 +194,7 @@ import { registerCoreActiveSteps } from "./module/flows/frame";
 import { registerTextSteps } from "./module/flows/text";
 import { registerTalentSteps } from "./module/flows/talent";
 import { registerStatSteps } from "./module/flows/stat";
+import { registerOverchargeSteps } from "./module/flows/overcharge";
 
 const lp = LANCER.log_prefix;
 
@@ -284,6 +285,7 @@ Hooks.once("init", async function () {
   registerActivationSteps(flowSteps);
   registerCoreActiveSteps(flowSteps);
   registerStatSteps(flowSteps);
+  registerOverchargeSteps(flowSteps);
   registerTalentSteps(flowSteps);
   registerBondPowerSteps(flowSteps);
   // Assign custom classes and constants here
@@ -315,7 +317,7 @@ Hooks.once("init", async function () {
     // prepareCoreActiveMacro: macros.prepareCoreActiveMacro,
     // prepareCorePassiveMacro: macros.prepareCorePassiveMacro,
     // prepareFrameTraitMacro: macros.prepareFrameTraitMacro,
-    prepareOverchargeMacro: macros.prepareOverchargeMacro,
+    // prepareOverchargeMacro: macros.prepareOverchargeMacro,
     prepareOverheatMacro: macros.prepareOverheatMacro,
     prepareStructureMacro: macros.prepareStructureMacro,
     // prepareActivationMacro: macros.prepareActivationMacro,
@@ -611,7 +613,7 @@ Hooks.once("init", async function () {
 
   // ------------------------------------------------------------------------
   // Pilot components
-  Handlebars.registerHelper("overcharge-button", overcharge_button);
+  Handlebars.registerHelper("overcharge-button", overchargeButton);
 
   // ------------------------------------------------------------------------
   // Mech components

@@ -18,9 +18,10 @@ export namespace LancerFlowState {
     type: "base";
     title: string;
     roll_str: string;
+    result?: RollResult;
   }
 
-  export interface StatRollResult {
+  export interface RollResult {
     roll: Roll;
     tt: string | HTMLElement | JQuery<HTMLElement>; // Tooltip
   }
@@ -31,7 +32,6 @@ export namespace LancerFlowState {
     path: string; // The dotpath to the stat in the item or actor
     bonus: string | number;
     acc_diff?: AccDiffData;
-    result?: StatRollResult;
     effect?: string;
   }
 
@@ -165,9 +165,9 @@ export namespace LancerFlowState {
   }
 
   // Configuration passed to show an overcharge roll
-  export interface OverchargeRollData {
+  export interface OverchargeRollData extends Omit<BaseRollData, "type"> {
+    type: "overcharge";
     level: number;
-    roll: string;
   }
 
   // export interface StructureRollData {
