@@ -14,26 +14,20 @@ interface ButtonOverrides {
   classes?: string;
 }
 
-function _flow_button(button_class: string, html_data: string, overrides: ButtonOverrides = {}): string {
+function _flowButton(button_class: string, html_data: string, overrides: ButtonOverrides = {}): string {
   return `<a class="${button_class} lancer-button ${overrides.classes ?? ""}" ${html_data}>
     <i class="fas ${overrides.icon ?? "fa-dice-d20"} i--dark i--s"></i>
   </a>`;
 }
 
-function _stat_flow_button(uuid: string, path: string, overrides: ButtonOverrides = {}): string {
+function _statFlowButton(uuid: string, path: string, overrides: ButtonOverrides = {}): string {
   const data = `data-uuid="${uuid}" data-path="${path}" data-flow-args="${""}"`;
-  return _flow_button("roll-stat", data, overrides);
+  return _flowButton("roll-stat", data, overrides);
 }
 
-function _basic_flow_button(uuid: string, type = "BasicAttack", overrides: ButtonOverrides = {}): string {
+function _basicFlowButton(uuid: string, type = "BasicAttack", overrides: ButtonOverrides = {}): string {
   const data = `data-uuid="${uuid}" data-flow-type="${type}" data-flow-args="${""}"`;
-  return _flow_button("lancer-flow-button", data, overrides);
-}
-
-function _rollable_macro_button(macroData: string, overrides: ButtonOverrides = {}): string {
-  return `<a class="lancer-macro lancer-button ${overrides.classes ?? ""}" data-macro="${macroData}">
-    <i class="fas ${overrides.icon ?? "fa-dice-d20"} i--dark i--s"></i>
-  </a>`;
+  return _flowButton("lancer-flow-button", data, overrides);
 }
 
 export function getActorUUID(options: HelperOptions): string | null {
@@ -87,9 +81,9 @@ export function stat_view_card(
   let flowButton: string = "";
   let attackFlowButton: string = "";
   if (options.rollable) {
-    flowButton = _stat_flow_button(getActorUUID(options)!, data_path);
+    flowButton = _statFlowButton(getActorUUID(options)!, data_path);
     if (data_path === "system.grit" || data_path === "system.tier") {
-      attackFlowButton = _basic_flow_button(getActorUUID(options)!, "BasicAttack", { icon: "cci cci-weapon" });
+      attackFlowButton = _basicFlowButton(getActorUUID(options)!, "BasicAttack", { icon: "cci cci-weapon" });
     }
   }
   return `
@@ -164,7 +158,7 @@ export function clicker_stat_card(
   if (roller) {
     statButton = `<a class="roll-stat lancer-button" data-uuid="${uuid}" data-path="${data_path}"><i class="fas fa-dice-d20 i--dark i--s"></i></a>`;
     if (data_path === "system.grit" || data_path === "system.tier") {
-      attackButton = _basic_flow_button(uuid, "BasicAttack", { icon: "cci cci-weapon" });
+      attackButton = _basicFlowButton(uuid, "BasicAttack", { icon: "cci cci-weapon" });
     }
   }
   return `<div class="card clipped stat-container">
@@ -282,7 +276,7 @@ export function tech_flow_card(title: string, icon: string, data_path: string, o
         <span class="major">${title}</span>
       </div>
       <div class="stat-macro-container">
-        ${_basic_flow_button(uuid, "TechAttack", { icon: "cci cci-tech-quick" })}
+        ${_basicFlowButton(uuid, "TechAttack", { icon: "cci cci-tech-quick" })}
         <span class="lancer-stat major" data-path="${data_path}">${data_val}</span>
       </div>
     </div>
@@ -350,7 +344,7 @@ export function overchargeButton(actor: LancerMECH, overcharge_path: string, opt
   let index = resolve_helper_dotpath(options, overcharge_path) as number;
   index = Math.max(0, Math.min(sequence.length - 1, index));
   let overchargeValue = sequence[index];
-  let flowButton = _basic_flow_button(actor.uuid, "Overcharge");
+  let flowButton = _basicFlowButton(actor.uuid, "Overcharge");
   return `
     <div class="flexcol card clipped">
       <div class="lancer-header lancer-primary clipped-top flexrow">
