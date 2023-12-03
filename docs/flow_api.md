@@ -154,18 +154,18 @@ Non-Flow steps are simply functions which take the flow's current state and (opt
 - [ ] `npc.ts`
   - [ ] `prepareNPCFeatureMacro(item: string | LancerItem, options?: {display?: boolean;})`
   - [ ] `prepareChargeMacro(actor: string | LancerActor)`
-- [ ] `overcharge.ts`
-  - [ ] `encodeOverchargeMacroData(actor_uuid: string): string`
-  - [ ] `prepareOverchargeMacro(actor: LancerActor | string)`
-  - [ ] `rollOverchargeMacro(actor: LancerActor, data: LancerMacro.OverchargeRoll)`
+- [x] `overcharge.ts`
+  - [x] `encodeOverchargeMacroData(actor_uuid: string): string`
+  - [x] `prepareOverchargeMacro(actor: LancerActor | string)`
+  - [x] `rollOverchargeMacro(actor: LancerActor, data: LancerMacro.OverchargeRoll)`
 - [ ] `reaction.ts`
   - [ ] `rollReactionMacro(data: LancerMacro.ReactionRoll)`
 - [ ] `stabilize.ts`
   - [ ] `prepareStabilizeMacro(actor_: string | LancerActor)`
-- [ ] `stat.ts`
-  - [ ] `prepareStatMacro(actor: string | LancerActor, statKey: string)`
-  - [ ] `prepareSkillMacro(item: string | LancerItem)`
-  - [ ] `rollStatMacro(data: LancerMacro.StatRoll)`
+- [x] `stat.ts`
+  - [x] `prepareStatMacro(actor: string | LancerActor, statKey: string)`
+  - [x] `prepareSkillMacro(item: string | LancerItem)`
+  - [x] `rollStatMacro(data: LancerMacro.StatRoll)`
 - [ ] `stress.ts`
   - [ ] `prepareOverheatMacro(actor: string | LancerActor, reroll_data?: { stress: number }): Promise<void>`
 - [ ] `structure.ts`
