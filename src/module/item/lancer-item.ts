@@ -24,6 +24,7 @@ import { BondPowerFlow } from "../flows/bond";
 import { ActivationFlow } from "../flows/activation";
 import { CoreActiveFlow } from "../flows/frame";
 import { SimpleTextFlow } from "../flows/text";
+import { StatRollFlow } from "../flows/stat";
 
 const lp = LANCER.log_prefix;
 
@@ -636,6 +637,15 @@ export class LancerItem extends Item {
       range: [],
     };
     const flow = new CoreActiveFlow(this, { action, action_path: path });
+    await flow.begin();
+  }
+
+  async beginSkillFlow() {
+    if (!this.is_skill()) {
+      ui.notifications!.error(`Item ${this.id} is not a skill!`);
+      return;
+    }
+    const flow = new StatRollFlow(this, { path: "system.curr_rank" });
     await flow.begin();
   }
 

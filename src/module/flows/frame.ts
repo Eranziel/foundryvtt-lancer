@@ -1,7 +1,6 @@
 // Import TypeScript modules
 import { LANCER } from "../config";
-import { rollTextMacro } from "./text";
-import { LancerActor, LancerMECH } from "../actor/lancer-actor";
+import { LancerActor } from "../actor/lancer-actor";
 import { LancerFlowState } from "./interfaces";
 import { ActivationFlow } from "./activation";
 import { FlowState } from "./flow";

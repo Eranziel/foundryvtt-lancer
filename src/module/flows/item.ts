@@ -1,20 +1,24 @@
+import { buildSystemHTML } from "../helpers/item";
 import { LancerItem } from "../item/lancer-item";
-import { LancerFlowState } from "./interfaces";
-import { StatRollFlow } from "./stat";
 import { TalentFlow } from "./talent";
-import { SimpleTextFlow } from "./text";
+import { SimpleHTMLFlow, SimpleTextFlow } from "./text";
 
-export async function beginItemFlow(item: LancerItem, data: any) {
+// TODO: refactor these to be "print to chat" flows instead of "use the item" flows
+// Then we can attach this to all of the chat bubble buttons.
+export async function beginItemChatFlow(item: LancerItem, data: any) {
   console.log("Selecting item flow with data and item: ", data, item);
   if (item.is_skill()) {
-    const flow = new StatRollFlow(item, { path: "system.curr_rank" });
+    const flow = new SimpleHTMLFlow(item, {});
     return await flow.begin();
   } else if (item.is_mech_weapon() || item.is_pilot_weapon()) {
-    // TODO
-    // return prepareAttackMacro(item, options);
+    // TODO: build weapon card HTML, but non-interactive
+    const flow = new SimpleHTMLFlow(item, {});
+    return await flow.begin();
   } else if (item.is_mech_system()) {
-    // TODO
-    // return prepareSystemMacro(item);
+    // TODO: build regular system card HTML, but non-interactive
+    const html = buildSystemHTML(item);
+    const flow = new SimpleHTMLFlow(item, { html });
+    return await flow.begin();
   } else if (item.is_talent()) {
     const lvl = data.rank ?? item.system.curr_rank;
     const flow = new TalentFlow(item, {

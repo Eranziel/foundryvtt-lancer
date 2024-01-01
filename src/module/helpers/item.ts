@@ -504,7 +504,7 @@ export function pilot_gear_refview(gear_path: string, options: HelperOptions): s
   >
     <div class="lancer-header lancer-system">
       <i class="cci cci-generic-item i--m"> </i>
-      <a class="item-flow-button"><i class="mdi mdi-message"></i></a>
+      <a class="chat-flow-button"><i class="mdi mdi-message"></i></a>
       <span class="minor">${gear.name!}</span>
       <a class="lancer-context-menu" data-path="${gear_path}"">
         <i class="fas fa-ellipsis-v"></i>
@@ -595,7 +595,7 @@ export function reserve_refview(reserve_path: string, options: HelperOptions): s
                 ${ref_params(reserve, reserve_path)} >
     <div class="lancer-header lancer-trait">
       <i class="${icon} i--m"> </i>
-      <a class="item-flow-button"><i class="mdi mdi-message"></i></a>
+      <a class="chat-flow-button"><i class="mdi mdi-message"></i></a>
       <span class="minor">${reserve.name}</span>
       <a class="lancer-context-menu" data-path="${reserve_path}"">
         <i class="fas fa-ellipsis-v"></i>
@@ -693,6 +693,7 @@ data-action="set" data-action-value="(int)${i}" data-path="${weapon_path}.system
                   style="max-height: fit-content;">
       <div class="lancer-header lancer-weapon ${weapon.system.destroyed ? "destroyed" : ""}">
         <i class="${weapon.system.destroyed ? "mdi mdi-cog" : "cci cci-weapon i--m i--light"}"> </i>
+        <a class="chat-flow-button"><i class="mdi mdi-message"></i></a>
         <span class="minor" >
           ${weapon.name} // ${weapon.system.size.toUpperCase()} ${profile.type.toUpperCase()}
         </span>

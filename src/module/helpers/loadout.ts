@@ -318,7 +318,7 @@ function frameTraits(frame_path: string, options: HelperOptions): string {
     <div
       class="lancer-header ${manufacturerStyle(frame.system.manufacturer)} submajor frame-trait-header"
     >
-      <a class="item-flow-button" data-uuid="${frame.uuid}" data-type="trait" data-index="${index}">
+      <a class="chat-flow-button" data-uuid="${frame.uuid}" data-type="trait" data-index="${index}">
         <i class="mdi mdi-message"></i>
       </a>
       <span class="minor grow">${trait.name}</span>
@@ -382,7 +382,7 @@ function framePassive(frame: LancerFRAME): string {
   return `
   <div class="core-passive-wrapper clipped-top lancer-border-bonus">
     <div class="lancer-header ${manufacturerStyle(frame.system.manufacturer)} clipped-top submajor">
-      <a class="item-flow-button" data-uuid="${frame.uuid}" data-type="passive">
+      <a class="chat-flow-button" data-uuid="${frame.uuid}" data-type="passive">
         <i class="mdi mdi-message"></i>
       </a>
       <div class="grow">

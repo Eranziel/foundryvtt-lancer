@@ -1,6 +1,5 @@
 // Import TypeScript modules
 import { LANCER } from "../config";
-import { renderTemplateStep } from "./_render";
 import { LancerItem } from "../item/lancer-item";
 import { Flow, FlowState, Step } from "./flow";
 import { LancerFlowState } from "./interfaces";

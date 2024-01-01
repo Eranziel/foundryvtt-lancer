@@ -164,6 +164,10 @@ export namespace LancerFlowState {
     tags?: TagData[];
   }
 
+  export interface HTMLToChatData {
+    html: string;
+  }
+
   // Configuration passed to show an overcharge roll
   export interface OverchargeRollData extends Omit<BaseRollData, "type"> {
     type: "overcharge";

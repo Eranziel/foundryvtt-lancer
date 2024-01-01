@@ -1657,7 +1657,7 @@ input.core-power-toggle:not(:checked)::before {
   grid-template: 2em 1fr / 100px 1fr;
   align-items: center;
   margin-right: 25px;
-  a.flexrow.item-flow-button {
+  a.flexrow.skill-flow {
     margin-inline: 1.2em;
   }
 }
@@ -1668,7 +1668,10 @@ ul.talent-ranks {
 
 .talent-rank-compact {
   display: grid;
-  grid-template: auto 1fr / auto 1fr;
+  grid-template: auto 1fr / auto auto 1fr;
+  grid-template-areas:
+    "rank chat title"
+    "desc desc desc";
 }
 
 .card.lancer-border-talent.talent-rank-sep-border {
@@ -2436,12 +2439,6 @@ a.action {
   max-width: 90%;
   width: fit-content !important;
   color: var(--light-text) !important;
-}
-
-.chat-flow-button {
-  max-width: 60%;
-  align-self: center;
-  cursor: pointer;
 }
 
 // needed to override a builtin that removes all shadows from the sidebar

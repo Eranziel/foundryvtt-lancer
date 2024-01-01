@@ -20,7 +20,7 @@ import { PrototypeTokenData } from "@league-of-foundry-developers/foundry-vtt-ty
 import { LancerActiveEffect } from "../effects/lancer-active-effect";
 import { LancerFlowState } from "../flows/interfaces";
 import { lookupOwnedDeployables } from "../util/lid";
-import { beginItemFlow } from "../flows/item";
+import { beginItemChatFlow } from "../flows/item";
 const lp = LANCER.log_prefix;
 
 /**
@@ -235,14 +235,14 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
       weapon.beginWeaponAttackFlow();
     });
 
-    let itemFlows = html.find(".item-flow-button");
+    let itemFlows = html.find(".chat-flow-button");
     itemFlows.on("click", async ev => {
       ev.stopPropagation(); // Avoids triggering parent event handlers
       const el = $(ev.currentTarget).closest("[data-uuid]")[0] as HTMLElement;
       if (!el || !el.dataset.uuid) throw Error(`No item UUID found!`);
       const item = await LancerItem.fromUuid(el.dataset.uuid);
       if (!item) throw Error(`UUID "${el.dataset.uuid}" does not resolve to an item!`);
-      beginItemFlow(item, el.dataset);
+      beginItemChatFlow(item, el.dataset);
     });
     // TODO: For sanity's sake, merge these into a single "macro" handler
     // Trigger rollers
@@ -262,6 +262,16 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
     //   const el = $(ev.currentTarget).closest("[data-uuid]")[0] as HTMLElement;
     //   prepareItemMacro(el.dataset.uuid!);
     // });
+
+    let skillFlows = html.find(".skill-flow");
+    skillFlows.on("click", ev => {
+      ev.stopPropagation(); // Avoids triggering parent event handlers
+
+      const el = $(ev.currentTarget).closest("[data-uuid]")[0] as HTMLElement;
+      const skillId = el.dataset.uuid;
+      const skill = LancerItem.fromUuidSync(skillId ?? "", `Invalid skill ID: ${skillId}`);
+      skill.beginSkillFlow();
+    });
 
     // Bond Power flow
     let powerFlows = html.find(".bond-power-flow");

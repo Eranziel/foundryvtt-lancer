@@ -195,6 +195,7 @@ import { registerTextSteps } from "./module/flows/text";
 import { registerTalentSteps } from "./module/flows/talent";
 import { registerStatSteps } from "./module/flows/stat";
 import { registerOverchargeSteps } from "./module/flows/overcharge";
+import { registerSystemSteps } from "./module/flows/system";
 
 const lp = LANCER.log_prefix;
 
@@ -279,6 +280,7 @@ Hooks.once("init", async function () {
   // Register flow steps
   flowSteps.set("dummyStep", async (state: FlowState<any>) => !!state);
   registerTextSteps(flowSteps);
+  registerSystemSteps(flowSteps);
   registerItemUtilSteps(flowSteps);
   registerAttackSteps(flowSteps);
   registerTechAttackSteps(flowSteps);

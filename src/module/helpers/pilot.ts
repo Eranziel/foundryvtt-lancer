@@ -35,16 +35,17 @@ export function talent_view(talent_path: string, options: HelperOptions) {
     let sepBorder = i < talent.system.curr_rank - 1 ? "lancer-border-talent talent-rank-sep-border" : "";
 
     retStr += `<li class="talent-rank-compact card clipped ${sepBorder}" style="padding: 5px;">
+        <i class="cci cci-rank-${i + 1} i--l i--dark" style="grid-area: rank; padding: 0;"></i>
         <a
-          class="item-flow-button lancer-button lancer-talent"
+          class="chat-flow-button lancer-button lancer-talent"
           data-uuid="${talent.uuid}"
           data-rank="${i}"
-          style="grid-area: 1/1/2/2; padding: 0;"
+          style="grid-area: chat; height: fit-content; align-self: center;"
         >
-          <i class="cci cci-rank-${i + 1} i--l i--dark"></i>
+          <i class="mdi mdi-message"></i>
         </a>
-        <span class="major" style="grid-area: 1/2/2/3">${talent.system.ranks[i]?.name}</span>
-        <div class="effect-text" style="grid-area: 2/1/3/3">
+        <span class="major" style="grid-area: title">${talent.system.ranks[i]?.name}</span>
+        <div class="effect-text" style="grid-area: desc">
         ${talent.system.ranks[i]?.description}
         ${talent_actions}
         </div>
@@ -64,6 +65,7 @@ export function skillView(skill_path: string, options: HelperOptions) {
       <li class="card clipped skill-compact ref set" ${ref_params(skill)}>
         <div class="lancer-header lancer-trait medium clipped-top" style="grid-area: 1/1/2/3">
           <i class="cci cci-skill i--m i--dark"> </i>
+          <a class="chat-flow-button"><i class="mdi mdi-message"></i></a>
           <span class="major modifier-name">${skill.name}</span>
           <div class="ref-controls">
             <a class="lancer-context-menu" data-path="${skill_path}">
@@ -71,7 +73,7 @@ export function skillView(skill_path: string, options: HelperOptions) {
             </a>
           </div>
         </div>
-        <a class="flexrow item-flow-button lancer-button" style="grid-area: 2/1/3/2;">
+        <a class="flexrow skill-flow lancer-button" style="grid-area: 2/1/3/2;">
           <i class="fas fa-dice-d20 i--sm i--dark"></i>
           <div class="major roll-modifier" style="align-self: center">+${skill.system.curr_rank * 2}</div>
         </a>
@@ -87,7 +89,7 @@ export function coreBonusView(item_path: string, options: HelperOptions) {
       <li class="card clipped-top lancer-border-bonus ref set" ${ref_params(coreBonus)}>
         <div class="lancer-header lancer-bonus medium" style="grid-area: 1/1/2/3">
           <i class="cci cci-corebonus i--m i--dark"> </i>
-          <a class="item-flow-button">
+          <a class="chat-flow-button">
             <i class="mdi mdi-message"></i>
           </a>
           <span class="major modifier-name">${coreBonus.name}</span>
