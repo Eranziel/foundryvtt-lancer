@@ -95,7 +95,7 @@ export function simple_ref_slot(path: string = "", accept_types: string | EntryT
 export async function click_evt_open_ref(event: any) {
   event.preventDefault();
   event.stopPropagation();
-  const elt = event.currentTarget;
+  const elt = event.currentTarget.closest(".ref") as HTMLElement;
   const doc = await resolve_ref_element(elt);
   if (doc) {
     doc.sheet?.render(true, { focus: true });

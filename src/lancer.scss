@@ -819,6 +819,10 @@ tr.lcp-index-header {
 
 .click-open {
   cursor: pointer;
+
+  &:hover {
+    text-shadow: 0 0 8px var(--color-shadow-primary);
+  }
 }
 
 .ref-icon {
@@ -1788,8 +1792,38 @@ ul.talent-ranks {
   grid-template-rows: auto auto auto;
   grid-template-areas:
     "img title title"
-    "img desc chip"
-    "img action action";
+    "desc desc chip"
+    "action action action";
+
+  &.vertical {
+    grid-template-columns: 48px 1fr;
+    grid-template-rows: auto auto auto;
+    grid-template-areas:
+      "img title"
+      "chip chip"
+      "desc desc"
+      "action action";
+
+    .flexrow {
+      padding-left: 0.5em;
+    }
+
+    .activation-chip {
+      flex: 1 0 41%;
+      margin: 1px 2px;
+    }
+  }
+
+  img.deployable-thumbnail {
+    padding: 0.25em 0.5em;
+    grid-area: img;
+    border: none;
+    align-self: center;
+  }
+
+  .deployable-title {
+    padding-left: 0.5em;
+  }
 
   .activation-chip {
     width: 100%;

@@ -1139,16 +1139,21 @@ export function buildDeployableHTML(
   }
 
   return `
-  <div class="deployable-wrapper ref set click-open" ${ref_params(dep)}>
-    <img style="grid-area: img; border: none" src="${encodeURI(dep.img!)}">
+  <div class="deployable-wrapper ref set ${options?.vertical ? "vertical" : ""}" ${ref_params(dep)}>
+    <img class="deployable-thumbnail" src="${encodeURI(dep.img!)}">
     <div style="grid-area: title" class="title-wrapper">
-      <span class="deployable-title">
+      <span class="deployable-title click-open">
         ${dep.name ? dep.name.toUpperCase() : ""}
       </span>
       <hr class="hsep">
     </div>
     <div style="grid-area: desc">${detailText ? detailText : ""}</div>
-    <div style="grid-area: chip; justify-content: flex-end;" class="flexcol">${chips.join("\n")}</div>
+    <div
+      style="grid-area: chip; justify-content: flex-end;"
+      class="${options?.vertical ? "flexrow" : "flexcol"}"
+    >
+      ${chips.join("\n")}
+    </div>
     ${
       actionText
         ? `

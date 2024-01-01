@@ -56,7 +56,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
     this._activateActionGridListeners(html);
 
     // Make generic refs clickable to open the item
-    $(html).find(".ref.set.click-open").on("click", click_evt_open_ref);
+    $(html).find(".ref.set.click-open, .ref.set .click-open").on("click", click_evt_open_ref);
 
     // Enable ref dragging
     handleRefDragging(html);

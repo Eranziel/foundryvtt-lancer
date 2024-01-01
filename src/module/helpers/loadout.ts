@@ -286,7 +286,7 @@ function buildCoreSysHTML(frame_path: string, core_energy: number, options: Help
   }
   let deployables = "";
   if (core.deployables.length) {
-    deployables = buildDeployablesArray(frame, "system.core_system.deployables", options);
+    deployables = buildDeployablesArray(frame, "system.core_system.deployables", options, { vertical: true });
   }
   const mfrBorder = manufacturerStyle(frame.system.manufacturer, true);
   const mfrStyle = manufacturerStyle(frame.system.manufacturer);
@@ -313,7 +313,7 @@ function frameTraits(frame_path: string, options: HelperOptions): string {
   return frame.system.traits
     .map((trait, index) => {
       let actionHTML = buildActionArrayHTML(frame, `frame.system.traits.${index}.actions`);
-      let depHTML = buildDeployablesArray(frame, `system.traits.${index}.deployables`, options);
+      let depHTML = buildDeployablesArray(frame, `system.traits.${index}.deployables`, options, { vertical: true });
       return `<div class="frame-trait clipped-top">
     <div
       class="lancer-header ${manufacturerStyle(frame.system.manufacturer)} submajor frame-trait-header"
@@ -340,7 +340,7 @@ function frameActive(frame_path: string, core_energy: number, options: HelperOpt
   const actionHTML = buildActionArrayHTML(frame, `system.core_system.active_actions`, {
     hideChip: core.active_actions.length <= 1,
   });
-  const depHTML = buildDeployablesArray(frame, "system.core.deployables", options);
+  const depHTML = buildDeployablesArray(frame, "system.core.deployables", options, { vertical: true });
 
   // If core energy is spent, "gray out" the core active
   const theme = core_energy ? manufacturerStyle(frame.system.manufacturer) : "lancer-light-gray";
