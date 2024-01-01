@@ -2192,6 +2192,12 @@ a.activation-chip > i.mdi {
   &:hover {
     box-shadow: var(--button-shadow), var(--hover-bright);
   }
+
+  &.noninteractive {
+    cursor: default;
+    text-shadow: none;
+    box-shadow: none;
+  }
 }
 
 .bond-xp-button {

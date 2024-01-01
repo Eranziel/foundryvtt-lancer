@@ -71,7 +71,7 @@ import {
 import { ActionData } from "../models/bits/action";
 import { LancerActor, LancerDEPLOYABLE } from "../actor/lancer-actor";
 import { CounterData } from "../models/bits/counter";
-import { slugify } from "../util/lid";
+import { lookupOwnedDeployables, slugify } from "../util/lid";
 import { LancerFlowState } from "../flows/interfaces";
 import { TagEditForm } from "../apps/tag-editor";
 import { FullBoundedNum } from "../source-template";
@@ -960,7 +960,7 @@ export function action_type_icon(a_type: string) {
 export function buildActionHTML(
   doc: LancerItem | LancerActor,
   path: string,
-  options?: { hideChip?: boolean; editable?: boolean; full?: boolean; tags?: boolean }
+  options?: { hideChip?: boolean; nonInteractive?: boolean; editable?: boolean; full?: boolean; tags?: boolean }
 ): string {
   let action = resolve_dotpath<ActionData>(doc, path);
   if (!action) return "";
@@ -1003,7 +1003,13 @@ export function buildActionHTML(
       break;
   }
 
-  chip = !!options?.hideChip ? "" : buildChipHTML(action.activation, { icon: icon, uuid: doc.uuid, path: path });
+  chip = !!options?.hideChip
+    ? ""
+    : buildChipHTML(
+        action.activation,
+        { icon: icon, uuid: doc.uuid, path: path },
+        { nonInteractive: options?.nonInteractive }
+      );
 
   if (options?.editable) {
     // If it's editable, it's deletable
@@ -1037,7 +1043,7 @@ export function buildActionHTML(
 export function buildActionArrayHTML(
   doc: LancerActor | LancerItem,
   path: string,
-  options?: { hideChip?: boolean }
+  options?: { hideChip?: boolean; nonInteractive?: boolean }
 ): string {
   let actions = resolve_dotpath<Array<ActionData>>(doc, path, []);
   let cards = actions.map((_, i) => buildActionHTML(doc, `${path}.${i}`, options));
@@ -1050,17 +1056,26 @@ export function buildActionArrayHTML(
  * @param array_path  Path to this deployables (LID) location relative to item
  * @returns Activation HTML in string form
  */
-export function buildDeployablesArray(item: LancerItem, array_path: string, options: HelperOptions): string {
+export function buildDeployablesArray(
+  item: LancerItem,
+  array_path: string,
+  helperOptions: HelperOptions,
+  options?: { vertical?: boolean; nonInteractive?: boolean }
+): string {
   let cards = [] as string[];
   let lids = resolve_dotpath<Array<string>>(item, array_path, []);
   for (let lid of lids) {
-    let dep = resolve_helper_dotpath<LancerDEPLOYABLE>(options, `deployables.${lid}`);
+    let dep = resolve_helper_dotpath<LancerDEPLOYABLE>(helperOptions, `deployables.${lid}`);
     if (dep) {
       cards.push(
-        buildDeployableHTML(dep, {
-          item,
-          path: array_path,
-        })
+        buildDeployableHTML(
+          dep,
+          {
+            item,
+            path: `deployables.${lid}`,
+          },
+          options
+        )
       );
     } else {
       cards.push(`<span>Unresolved deployabled LID "${lid}". Re-import + Set yourself as its owner</span>`);
@@ -1080,7 +1095,8 @@ export function buildDeployableHTML(
   source: {
     item: LancerItem;
     path: string;
-  } | null
+  } | null,
+  options?: { vertical?: boolean; nonInteractive?: boolean }
 ): string {
   let detailText: string | undefined;
   let chips: string[] = [];
@@ -1100,18 +1116,25 @@ export function buildDeployableHTML(
   ].filter(a => !!a.action);
   standardActions.forEach(a => {
     chips.push(
-      buildChipHTML(a.action, {
-        icon: ChipIcons.Deployable,
-        label: a.label,
-        uuid: source ? source.item.uuid : undefined,
-        path: source ? source.path : undefined, // TODO: specific paths for each action?
-      })
+      buildChipHTML(
+        a.action,
+        {
+          icon: ChipIcons.Deployable,
+          label: a.label,
+          uuid: source ? source.item.uuid : undefined,
+          path: a.path,
+        },
+        options
+      )
     );
   });
   if (dep.system.actions.length) {
     actionText = `<hr class="hsep">`;
     dep.system.actions.forEach((_, i) => {
-      actionText += buildActionHTML(dep, `system.actions.${i}`, { full: true });
+      actionText += buildActionHTML(dep, `system.actions.${i}`, {
+        full: true,
+        nonInteractive: options?.nonInteractive,
+      });
     });
   }
 
@@ -1157,22 +1180,29 @@ export function buildChipHTML(
     // These must both be provided in order to use a flow
     uuid?: string;
     path?: string;
-  }
+  },
+  options?: { nonInteractive?: boolean }
 ): string {
   const activationClass = `activation-${slugify(activation, "-")}`;
   const themeClass = activationStyle(activation);
+  const interactiveClass = options?.nonInteractive ? "noninteractive" : "";
   if (flowData && flowData.uuid && flowData.path !== undefined) {
     if (!flowData.icon) flowData.icon = ChipIcons.Chat;
     let data = `data-uuid=${flowData.uuid} data-path="${flowData.path}"`;
     return `
-    <a class="activation-flow activation-chip lancer-button ${activationClass} ${themeClass}" ${data}>
+    <a
+      class="activation-flow activation-chip lancer-button ${activationClass} ${themeClass} ${interactiveClass}"
+      ${data}
+    >
       ${flowData.icon ? flowData.icon : ""}
-      ${flowData.label ? flowData.label.toUpperCase() + " - " : ""}
+      ${flowData.label ? `${flowData.label.toUpperCase()} - ` : ""}
       ${activation.toUpperCase()}
     </a>`;
   } else {
     return `
     <div class="activation-chip ${activationClass} lancer-chip ${themeClass}">
+      ${flowData?.icon ? flowData.icon : ""}
+      ${flowData?.label ? `${flowData.label.toUpperCase()} - ` : ""}
       ${activation.toUpperCase()}
     </div>`;
   }
@@ -1182,25 +1212,21 @@ export function buildSystemHTML(system: LancerMECH_SYSTEM): string {
   let eff: string | undefined;
   let actions: string | undefined;
   let deployables: string | undefined;
-  let useFirstActivation = false;
 
-  if (system.system.effect) eff = system.system.effect;
-  else {
-    // If our first action doesn't have a name & we don't have an effect then first action is our "effect"
-    // Always first action? Or a better way?
-    useFirstActivation = system.system.actions.length ? !system.system.actions[0].name : false;
+  if (system.system.effect) {
+    eff = `<div class="effect-text">${system.system.effect}</div>`;
   }
 
   if (system.system.actions) {
-    actions = buildActionArrayHTML(system, "system.action");
+    actions = buildActionArrayHTML(system, "system.actions", { nonInteractive: true });
   }
 
-  if (system.system.deployables) {
-    deployables = ""; /* system.system.deployables
-      .map((d, i) => {
-        return d.status == "resolved" ? buildDeployableHTML(d.value, false) : d.status;
-      })
-      .join("");*/
+  if (system.system.deployables && system.actor) {
+    let ownedDeployables = lookupOwnedDeployables(system.actor);
+    deployables = system.system.deployables.reduce((total, d) => {
+      const dep = ownedDeployables[d];
+      return (total += buildDeployableHTML(dep, null, { vertical: true, nonInteractive: true }));
+    }, "");
   }
 
   let html = `<div class="card clipped-bot system-wrapper" ${ref_params(system)} style="margin: 0px;">
