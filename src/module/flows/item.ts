@@ -1,4 +1,4 @@
-import { buildSystemHTML } from "../helpers/item";
+import { mechSystemView } from "../helpers/loadout";
 import { LancerItem } from "../item/lancer-item";
 import { TalentFlow } from "./talent";
 import { SimpleHTMLFlow, SimpleTextFlow } from "./text";
@@ -15,8 +15,7 @@ export async function beginItemChatFlow(item: LancerItem, data: any) {
     const flow = new SimpleHTMLFlow(item, {});
     return await flow.begin();
   } else if (item.is_mech_system()) {
-    // TODO: build regular system card HTML, but non-interactive
-    const html = buildSystemHTML(item);
+    const html = mechSystemView(item, null, { div: true, vertical: true, nonInteractive: true });
     const flow = new SimpleHTMLFlow(item, { html });
     return await flow.begin();
   } else if (item.is_talent()) {

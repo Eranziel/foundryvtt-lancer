@@ -118,13 +118,15 @@ export async function lookupDeployables(lids: string[]) {
 }
 
 // Lookup deployables that have the provided actor set as their owner, keyed by lid
-export function lookupOwnedDeployables(owner: LancerActor): Record<string, LancerDEPLOYABLE> {
+export function lookupOwnedDeployables(owner: LancerActor, filter?: string[]): Record<string, LancerDEPLOYABLE> {
   if (owner.is_deployable()) return {};
   if (owner.isToken) return {}; // This might be possible if we could recover the original actor somehow?
   let foundDeployables = game.actors!.filter(a => !!(a.is_deployable() && a.system.owner?.value == owner));
   let result: Record<string, LancerDEPLOYABLE> = {};
   for (let dep of foundDeployables as unknown as LancerDEPLOYABLE[]) {
-    result[dep.system.lid] = dep;
+    if (!filter || filter.includes(dep.system.lid)) {
+      result[dep.system.lid] = dep;
+    }
   }
   return result;
 }

@@ -1701,7 +1701,6 @@ ul.talent-ranks {
 
 .activation-chip {
   align-self: flex-end;
-  right: 5px;
   margin-top: 5px;
   font-size: 12px;
   height: 24px;
@@ -1714,8 +1713,7 @@ ul.talent-ranks {
   max-width: 100%;
   outline: none;
   overflow: hidden;
-  padding: 0 12px;
-  position: relative;
+  padding: 0 12px 0px 5px;
   text-decoration: none;
   transition-duration: 0.28s;
   transition-property: box-shadow, opacity;
@@ -1723,6 +1721,7 @@ ul.talent-ranks {
   vertical-align: middle;
   white-space: nowrap;
   margin-bottom: 5px;
+  margin-right: 5px;
 }
 
 .action-wrapper,
@@ -1804,12 +1803,11 @@ ul.talent-ranks {
       "desc desc"
       "action action";
 
-    .flexrow {
+    .flexcol {
       padding-left: 0.5em;
     }
 
     .activation-chip {
-      flex: 1 0 41%;
       margin: 1px 2px;
     }
   }
@@ -1821,7 +1819,7 @@ ul.talent-ranks {
     align-self: center;
   }
 
-  .deployable-title {
+  .title-wrapper {
     padding-left: 0.5em;
   }
 
@@ -1830,6 +1828,8 @@ ul.talent-ranks {
     max-height: 20px;
     display: flex;
     justify-content: center;
+    margin-top: 0.1em;
+    margin-bottom: 0.1em;
   }
 }
 
@@ -2473,6 +2473,13 @@ a.action {
   align-items: center;
   color: var(--light-text);
   background-color: var(--dark-gray-color);
+
+  &.non-interactive a,
+  &.non-interactive .uses-hex {
+    cursor: default;
+    text-shadow: none;
+    box-shadow: none;
+  }
 }
 
 .counter-name {

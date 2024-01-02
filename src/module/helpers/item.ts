@@ -11,7 +11,7 @@ import {
   npc_trait_effect_preview,
   npc_weapon_effect_preview,
 } from "./npc";
-import { compact_tag_list } from "./tags";
+import { compactTagListHBS } from "./tags";
 import {
   array_path_edit_changes,
   defaultPlaceholder,
@@ -31,7 +31,7 @@ import {
   manufacturerStyle,
   activationStyle,
 } from "./commons";
-import { limited_uses_indicator, ref_params, reserve_used_indicator } from "./refs";
+import { limitedUsesIndicator, ref_params, reserve_used_indicator } from "./refs";
 import {
   ActivationType,
   ChipIcons,
@@ -410,7 +410,7 @@ export function pilot_armor_slot(armor_path: string, options: HelperOptions): st
             <div class="effect-text" style=" padding: 5px">
               ${armor.system.description}
             </div>
-            ${compact_tag_list(armor_path + ".system.tags", options)}
+            ${compactTagListHBS(armor_path + ".system.tags", options)}
           </div>`;
 }
 
@@ -438,7 +438,7 @@ export function pilot_weapon_refview(weapon_path: string, options: HelperOptions
   // Generate limited segment as needed
   let limited = "";
   if (weapon.system.tags.some(t => t.is_limited)) {
-    limited_uses_indicator(weapon, weapon_path);
+    limitedUsesIndicator(weapon, weapon_path);
   }
 
   return `<div class="set ${
@@ -472,7 +472,7 @@ export function pilot_weapon_refview(weapon_path: string, options: HelperOptions
         ${inc_if(`</div>`, loading || limited)}
       </div>
 
-      ${compact_tag_list(weapon_path + ".system.tags", options)}
+      ${compactTagListHBS(weapon_path + ".system.tags", options)}
     </div>
   </div>`;
 }
@@ -495,7 +495,7 @@ export function pilot_gear_refview(gear_path: string, options: HelperOptions): s
   // Conditionally show uses
   let uses = "";
   if (gear.getLimitedBase()) {
-    uses = limited_uses_indicator(gear, gear_path);
+    uses = limitedUsesIndicator(gear, gear_path);
   }
 
   return `<div class="set ${EntryType.PILOT_GEAR} ref drop-settable card clipped-top item lancer-border-system"
@@ -517,7 +517,7 @@ export function pilot_gear_refview(gear_path: string, options: HelperOptions): s
         </div>
         ${uses}
       </div>
-      ${compact_tag_list(gear_path + ".system.tags", options)}
+      ${compactTagListHBS(gear_path + ".system.tags", options)}
     </div>
   </div>`;
 }
@@ -682,7 +682,7 @@ data-action="set" data-action-value="(int)${i}" data-path="${weapon_path}.system
 
   let limited = "";
   if (weapon.system.all_tags.some(t => t.is_limited)) {
-    limited = limited_uses_indicator(weapon, weapon_path);
+    limited = limitedUsesIndicator(weapon, weapon_path);
   }
 
   return `
@@ -725,7 +725,7 @@ data-action="set" data-action-value="(int)${i}" data-path="${weapon_path}.system
           ${on_attack}
           ${on_hit}
           ${on_crit}
-          ${compact_tag_list(profile_path + ".all_tags", options)}
+          ${compactTagListHBS(profile_path + ".all_tags", options)}
         </div>
         ${mod_text}
       </div>
@@ -753,7 +753,7 @@ export function weapon_mod_ref(mod_path: string, weapon_path: string | null, opt
   }
 
   let sp = mod.system.sp ? sp_display(mod.system.sp) : "";
-  let limited = mod.system.tags.some(t => t.is_limited) ? limited_uses_indicator(mod, mod_path) : "";
+  let limited = mod.system.tags.some(t => t.is_limited) ? limitedUsesIndicator(mod, mod_path) : "";
   let added_range = "";
   if (mod.system.added_range.length) {
     added_range = `
@@ -777,11 +777,11 @@ export function weapon_mod_ref(mod_path: string, weapon_path: string | null, opt
     added_tags = `
     <div class="effect-box">
       <span class="effect-title clipped-bot">ADDED TAGS</span>
-      ${compact_tag_list(mod_path + ".system.added_tags", options)}
+      ${compactTagListHBS(mod_path + ".system.added_tags", options)}
     </div>
     `;
   }
-  let tags = mod.system.tags.length ? compact_tag_list(`${mod_path}.system.tags`, options) : "";
+  let tags = mod.system.tags.length ? compactTagListHBS(`${mod_path}.system.tags`, options) : "";
   let actions = "";
   if (mod.system.actions.length) {
     actions = buildActionArrayHTML(mod, "system.actions");
@@ -1021,7 +1021,7 @@ export function buildActionHTML(
   }
 
   if (options?.tags && doc instanceof LancerItem && doc.getTags()) {
-    tags = compact_tag_list("tags", spoofHelper({ tags: doc.getTags()! }));
+    tags = compactTagListHBS("tags", spoofHelper({ tags: doc.getTags()! }));
   }
 
   return `
@@ -1051,21 +1051,46 @@ export function buildActionArrayHTML(
 }
 
 /**
- * Builds the HTML for a given in-system deployable.
+ * Handlebars helper to build the HTML for an array of deployable references in another item.
  * @param item  Path to this item
  * @param array_path  Path to this deployables (LID) location relative to item
- * @returns Activation HTML in string form
+ * @param options.vertical If true, will use a vertical layout more suitable to narrow views
+ * @param options.nonInteractive If true, will disable or hide any interactive elements
+ * @returns Deployable HTML in string form
  */
-export function buildDeployablesArray(
+export function buildDeployablesArrayHBS(
   item: LancerItem,
   array_path: string,
   helperOptions: HelperOptions,
   options?: { vertical?: boolean; nonInteractive?: boolean }
 ): string {
-  let cards = [] as string[];
   let lids = resolve_dotpath<Array<string>>(item, array_path, []);
-  for (let lid of lids) {
+  let deps: Record<string, LancerDEPLOYABLE> = {};
+  lids.forEach(lid => {
     let dep = resolve_helper_dotpath<LancerDEPLOYABLE>(helperOptions, `deployables.${lid}`);
+    if (dep) {
+      deps[lid] = dep;
+    }
+  });
+  return buildDeployablesArray(item, deps, options);
+}
+
+/**
+ * Build the HTML for an array of deployable actors
+ * @param item The item which the deployables belong to
+ * @param deployables Map of deployable actors, indexed by the owner's LID string
+ * @param options Options to configure the resulting HTML:
+ * @param options.vertical If true, will use a vertical layout more suitable to narrow views
+ * @param options.nonInteractive If true, will disable or hide any interactive elements
+ * @returns Deployable card HTML string
+ */
+export function buildDeployablesArray(
+  item: LancerItem,
+  deployables: Record<string, LancerDEPLOYABLE>,
+  options?: { vertical?: boolean; nonInteractive?: boolean }
+): string {
+  let cards = [] as string[];
+  for (const [lid, dep] of Object.entries(deployables)) {
     if (dep) {
       cards.push(
         buildDeployableHTML(
@@ -1150,7 +1175,7 @@ export function buildDeployableHTML(
     <div style="grid-area: desc">${detailText ? detailText : ""}</div>
     <div
       style="grid-area: chip; justify-content: flex-end;"
-      class="${options?.vertical ? "flexrow" : "flexcol"}"
+      class="flexcol"
     >
       ${chips.join("\n")}
     </div>
@@ -1239,7 +1264,7 @@ export function buildSystemHTML(system: LancerMECH_SYSTEM): string {
   ${eff ? eff : ""}
   ${actions ? actions : ""}
   ${deployables ? deployables : ""}
-  ${compact_tag_list("tags", spoofHelper({ tags: system.getTags() }))}
+  ${compactTagListHBS("tags", spoofHelper({ tags: system.getTags() }))}
 </div>`;
   return html;
 }

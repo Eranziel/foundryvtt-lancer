@@ -1,6 +1,5 @@
 import type { HelperOptions } from "handlebars";
 import { EntryType, SystemType } from "../enums";
-import { encodeMacroData } from "../macros";
 import {
   inc_if,
   resolve_helper_dotpath,
@@ -11,25 +10,41 @@ import {
   activationStyle,
   activationIcon,
 } from "./commons";
-import { mech_loadout_weapon_slot, buildDeployablesArray, buildActionArrayHTML } from "./item";
-import { limited_uses_indicator, ref_params, simple_ref_slot } from "./refs";
-import { compact_tag_list } from "./tags";
+import {
+  mech_loadout_weapon_slot,
+  buildDeployablesArrayHBS,
+  buildDeployablesArray,
+  buildActionArrayHTML,
+} from "./item";
+import { limitedUsesIndicator, ref_params, simple_ref_slot } from "./refs";
+import { compactTagListHBS, compactTagList } from "./tags";
 import { LancerMECH, LancerPILOT } from "../actor/lancer-actor";
 import { SystemData } from "../system-template";
 import { LancerFRAME, LancerMECH_SYSTEM } from "../item/lancer-item";
 import { collapseButton, collapseParam, CollapseRegistry } from "./collapse";
-import { LancerFlowState } from "../flows/interfaces";
-import { slugify } from "../util/lid";
+import { lookupOwnedDeployables, slugify } from "../util/lid";
 
-// A drag-drop slot for a system mount.
-export function mechSystemView(system_path: string, options: HelperOptions): string {
-  let collapse = resolve_helper_dotpath<CollapseRegistry>(options, "collapse");
-  let doc = resolve_helper_dotpath<LancerMECH_SYSTEM>(options, system_path);
+// Render the HTML for a mech system card.
+export function mechSystemViewHBS(
+  system_path: string,
+  helperOptions: HelperOptions,
+  options?: { nonInteractive?: boolean }
+): string {
+  let collapse = resolve_helper_dotpath<CollapseRegistry>(helperOptions, "collapse");
+  let doc = resolve_helper_dotpath<LancerMECH_SYSTEM>(helperOptions, system_path);
   if (!doc) return ""; // Hide our shame
+  return mechSystemView(doc, system_path, options);
+}
 
+export function mechSystemView(
+  doc: LancerMECH_SYSTEM,
+  system_path: string | null,
+  options?: { div?: boolean; nonInteractive?: boolean; vertical?: boolean }
+): string {
+  system_path = system_path ?? `system.systems.${doc.uuid}`;
   let icon: string;
   let sp: string;
-  let desc: string | undefined;
+  let contextMenu: string;
   let actions: string | undefined;
   let deployables: string | undefined;
   let eff: string | undefined;
@@ -37,75 +52,74 @@ export function mechSystemView(system_path: string, options: HelperOptions): str
   const icon_types = [SystemType.Deployable, SystemType.Drone, SystemType.Mod, SystemType.System, SystemType.Tech];
   if (icon_types.includes(doc.system.type)) {
     if (doc.system.type === SystemType.Tech) {
-      icon = `cci cci-${slugify(doc.system.type, "-")}-quick i--m i--click`;
+      icon = `cci cci-${slugify(doc.system.type, "-")}-quick i--m`;
     } else {
-      icon = `cci cci-${slugify(doc.system.type, "-")} i--m i--click`;
+      icon = `cci cci-${slugify(doc.system.type, "-")} i--m`;
     }
   } else {
-    icon = `cci cci-system i--m i--click`;
+    icon = `cci cci-system i--m`;
   }
 
   sp = sp_display(doc.system.sp ?? 0);
 
-  if (doc.system.description && doc.system.description !== "No description") {
-    desc = `<div class="desc-text" style="padding: 5px">
-          ${doc.system.description}
-        </div>`;
-  }
+  contextMenu = `<a class="lancer-context-menu" data-path="${system_path}"">
+    <i class="fas fa-ellipsis-v"></i>
+  </a>`;
+
+  // if (doc.system.description && doc.system.description !== "No description") {
+  //   desc = `<div class="desc-text" style="padding: 5px">
+  //         ${doc.system.description}
+  //       </div>`;
+  // }
 
   if (doc.system.effect) {
     eff = effect_box("EFFECT", doc.system.effect);
   }
 
   if (doc.system.actions.length) {
-    actions = buildActionArrayHTML(doc, "system.actions");
+    actions = buildActionArrayHTML(doc, "system.actions", options);
   }
 
-  if (doc.system.deployables.length) {
-    deployables = buildDeployablesArray(doc, "system.deployables", options);
+  if (doc.system.deployables.length && doc.actor) {
+    const deployablesMap = lookupOwnedDeployables(doc.actor, doc.system.deployables);
+    deployables = buildDeployablesArray(doc, deployablesMap, options);
   }
-
-  let macroData: LancerFlowState.InvocationData = {
-    iconPath: `systems/${game.system.id}/assets/icons/macro-icons/mech_system.svg`,
-    title: doc.name!,
-    fn: "prepareItemMacro",
-    args: [doc.uuid],
-  };
 
   let limited = "";
   if (doc.isLimited()) {
-    limited = limited_uses_indicator(doc, system_path + ".value");
+    limited = `<div class="uses-wrapper">${limitedUsesIndicator(doc, system_path + ".value", options)}</div>`;
   }
-  return `<li class="ref set card clipped-top lancer-system lancer-border-system ${
-    doc.system.type === SystemType.Tech ? "tech-item" : ""
-  }" ${ref_params(doc)} style="margin: 0.3em;">
-        <div class="lancer-header lancer-system ${
-          doc.system.destroyed ? "destroyed" : ""
-        }" style="grid-area: 1/1/2/3; display: flex">
-          <i class="${doc.system.destroyed ? "mdi mdi-cog" : icon}"> </i>
-          <a class="lancer-macro" data-macro="${encodeMacroData(macroData)}"><i class="mdi mdi-message"></i></a>
-          <span class="minor grow">${doc.name}</span>
-          ${collapseButton(collapse, doc)}
-          <div class="ref-controls">
-            <a class="lancer-context-menu" data-path="${system_path}"">
-              <i class="fas fa-ellipsis-v"></i>
-            </a>
-          </div>
-        </div>
-        <div class="collapse" ${collapseParam(collapse, doc, true)} style="padding: 0.5em">
-          <div class="flexrow">
-            ${sp}
-            <div class="uses-wrapper">
-              ${limited}
-            </div>
-          </div>
-<!--          ${desc ? desc : ""}-->
-          ${eff ? eff : ""}
-          ${actions ? actions : ""}
-          ${deployables ? deployables : ""}
-          ${compact_tag_list(system_path + ".system.tags", options)}
-        </div>
-        </li>`;
+  return `<${options?.div ? "div" : "li"}
+    class="ref set card clipped-top lancer-system lancer-border-system ${
+      doc.system.type === SystemType.Tech ? "tech-item" : ""
+    }"
+    ${ref_params(doc)}
+    style="margin: 0.3em;"
+  >
+    <div class="lancer-header lancer-system ${
+      doc.system.destroyed ? "destroyed" : ""
+    }" style="grid-area: 1/1/2/3; display: flex">
+      <i class="${doc.system.destroyed ? "mdi mdi-cog" : icon}"> </i>
+      ${options?.nonInteractive ? "" : '<a class="chat-flow-button"><i class="mdi mdi-message"></i></a>'}
+      <span class="minor grow">${doc.name}</span>
+      ${options?.nonInteractive ? "" : collapseButton(null /*collapse*/, doc)}
+      <div class="ref-controls">
+        ${options?.nonInteractive ? "" : contextMenu}
+      </div>
+    </div>
+    <div class="collapse" ${collapseParam(null /*collapse*/, doc, true)} style="padding: 0.5em">
+      <div class="${options?.vertical ? "flexcol" : "flexrow"}">
+        ${sp}
+        ${limited}
+      </div>
+      ${eff ? eff : ""}
+      ${actions ? actions : ""}
+      ${deployables ? deployables : ""}
+      ${compactTagList(doc.system.tags, system_path + ".system.tags", {
+        editable: !(options?.nonInteractive ?? false),
+      })}
+    </div>
+  </${options?.div ? "div" : "li"}>`;
 }
 
 // A drag-drop slot for a weapon mount. TODO: delete button, clear button
@@ -183,7 +197,7 @@ function allWeaponMountView(loadout_path: string, options: HelperOptions) {
 function all_system_view(loadout_path: string, options: HelperOptions) {
   let loadout = resolve_helper_dotpath(options, loadout_path) as LancerMECH["system"]["loadout"];
   const system_views = loadout.systems.map((_sys, index) =>
-    mechSystemView(`${loadout_path}.systems.${index}.value`, options)
+    mechSystemViewHBS(`${loadout_path}.systems.${index}.value`, options)
   );
 
   // Archiving add button: <a class="gen-control fas fa-plus" data-action="append" data-path="${loadout_path}.SysMounts" data-action-value="(struct)sys_mount"></a>
@@ -273,7 +287,7 @@ export function frameView(frame_path: string, core_energy: number, options: Help
  */
 function buildCoreSysHTML(frame_path: string, core_energy: number, options: HelperOptions): string {
   let frame = resolve_helper_dotpath<LancerFRAME>(options, frame_path)!;
-  let tags = compact_tag_list(`${frame_path}.core_system.tags`, options);
+  let tags = compactTagListHBS(`${frame_path}.core_system.tags`, options);
   let core = frame.system.core_system;
 
   // Removing desc temporarily because of space constraints
@@ -286,7 +300,7 @@ function buildCoreSysHTML(frame_path: string, core_energy: number, options: Help
   }
   let deployables = "";
   if (core.deployables.length) {
-    deployables = buildDeployablesArray(frame, "system.core_system.deployables", options, { vertical: true });
+    deployables = buildDeployablesArrayHBS(frame, "system.core_system.deployables", options, { vertical: true });
   }
   const mfrBorder = manufacturerStyle(frame.system.manufacturer, true);
   const mfrStyle = manufacturerStyle(frame.system.manufacturer);
@@ -313,7 +327,7 @@ function frameTraits(frame_path: string, options: HelperOptions): string {
   return frame.system.traits
     .map((trait, index) => {
       let actionHTML = buildActionArrayHTML(frame, `frame.system.traits.${index}.actions`);
-      let depHTML = buildDeployablesArray(frame, `system.traits.${index}.deployables`, options, { vertical: true });
+      let depHTML = buildDeployablesArrayHBS(frame, `system.traits.${index}.deployables`, options, { vertical: true });
       return `<div class="frame-trait clipped-top">
     <div
       class="lancer-header ${manufacturerStyle(frame.system.manufacturer)} submajor frame-trait-header"
@@ -340,7 +354,7 @@ function frameActive(frame_path: string, core_energy: number, options: HelperOpt
   const actionHTML = buildActionArrayHTML(frame, `system.core_system.active_actions`, {
     hideChip: core.active_actions.length <= 1,
   });
-  const depHTML = buildDeployablesArray(frame, "system.core.deployables", options, { vertical: true });
+  const depHTML = buildDeployablesArrayHBS(frame, "system.core.deployables", options, { vertical: true });
 
   // If core energy is spent, "gray out" the core active
   const theme = core_energy ? manufacturerStyle(frame.system.manufacturer) : "lancer-light-gray";

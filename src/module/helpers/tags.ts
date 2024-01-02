@@ -13,9 +13,13 @@ export function compact_tag(tag_path: string, tag: Tag): string {
 }
 
 // The above, but on an array, filtering out hidden as appropriate
-export function compact_tag_list(tag_array_path: string, options: HelperOptions): string {
+export function compactTagListHBS(tag_array_path: string, options: HelperOptions): string {
   // Collect all of the tags, formatting them using `compact_tag`
   let tags = resolve_helper_dotpath<Tag[]>(options, tag_array_path) ?? [];
+  return compactTagList(tags, tag_array_path, { editable: resolve_helper_dotpath(options, "editable", false, true) });
+}
+
+export function compactTagList(tags: Tag[], tag_array_path: string, options?: { editable?: boolean }) {
   let processed_tags: string[] = [];
   for (let i = 0; i < tags.length; i++) {
     let tag = tags[i];
@@ -27,7 +31,7 @@ export function compact_tag_list(tag_array_path: string, options: HelperOptions)
   }
 
   // Combine into a row
-  if (resolve_helper_dotpath(options, "editable", false, true)) {
+  if (options?.editable) {
     return `<div class="compact-tag-row tag-list-append" data-path="${tag_array_path}">
       ${processed_tags.join("")}
     </div>`;
@@ -51,6 +55,6 @@ export function itemEditTags(path: string, header: string, options: HelperOption
         resolve_helper_dotpath(options, "editable", false, true)
       )}
     </div>
-    ${compact_tag_list(path, options)}
+    ${compactTagListHBS(path, options)}
   </div>`;
 }

@@ -1,5 +1,5 @@
 import type { HelperOptions } from "handlebars";
-import { bonuses_display, damage_editor, range_editor, buildActionArrayHTML, buildDeployablesArray } from "./item";
+import { bonuses_display, damage_editor, range_editor, buildActionArrayHTML, buildDeployablesArrayHBS } from "./item";
 import {
   drilldownDocument,
   extendHelper as extendHelper,
@@ -124,7 +124,7 @@ export function item_edit_arrayed_deployables(path: string, title: string, optio
   let dd = drilldownDocument(root, path);
 
   if (!(dd.sub_doc instanceof LancerItem)) return "";
-  let depHTML = buildDeployablesArray(dd.sub_doc, dd.sub_path, extendHelper(options, { full: true }));
+  let depHTML = buildDeployablesArrayHBS(dd.sub_doc, dd.sub_path, extendHelper(options, { full: true }));
 
   return `
     <div class="card clipped">

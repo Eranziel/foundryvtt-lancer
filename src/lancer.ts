@@ -35,7 +35,7 @@ import { WeaponRangeTemplate } from "./module/pixi/weapon-range-template";
 import { preloadTemplates } from "./module/preload-templates";
 import { getAutomationOptions, registerSettings } from "./module/settings";
 import { applyTheme } from "./module/themes";
-import { compact_tag_list, itemEditTags } from "./module/helpers/tags";
+import { compactTagListHBS, itemEditTags } from "./module/helpers/tags";
 import * as migrations from "./module/world_migration";
 import { addLCPManager, updateCore, core_update } from "./module/apps/lcp-manager";
 
@@ -118,8 +118,9 @@ import {
   simple_ref_slot,
   ref_portrait,
   lid_item_list,
-  limited_uses_indicator,
+  limitedUsesIndicator,
   reserve_used_indicator,
+  handleRefClickOpen,
 } from "./module/helpers/refs";
 import { mechLoadout, pilotSlot, frameView } from "./module/helpers/loadout";
 import {
@@ -549,7 +550,7 @@ Hooks.once("init", async function () {
   // ------------------------------------------------------------------------
   // Tags
   // Handlebars.registerHelper("compact-tag", renderCompactTag);
-  Handlebars.registerHelper("tag-list", compact_tag_list);
+  Handlebars.registerHelper("tag-list", compactTagListHBS);
   Handlebars.registerHelper("item-edit-arrayed-tags", itemEditTags);
   // Handlebars.registerHelper("chunky-tag", renderChunkyTag);
   // Handlebars.registerHelper("full-tag", renderFullTag);
@@ -605,7 +606,7 @@ Hooks.once("init", async function () {
   Handlebars.registerHelper("item-edit-license", item_edit_license);
   Handlebars.registerHelper("item-edit-sp", item_edit_sp);
   Handlebars.registerHelper("item-edit-uses", item_edit_uses);
-  Handlebars.registerHelper("limited-uses-indicator", limited_uses_indicator);
+  Handlebars.registerHelper("limited-uses-indicator", limitedUsesIndicator);
   Handlebars.registerHelper("reserve-used-indicator", reserve_used_indicator);
   Handlebars.registerHelper("loading-indicator", loading_indicator);
 
@@ -806,6 +807,8 @@ Hooks.on("renderChatMessage", async (cm: ChatMessage, html: JQuery, data: any) =
     }
     return false;
   });
+
+  handleRefClickOpen(html);
 });
 
 Hooks.on("hotbarDrop", (_bar: any, data: any, slot: number) => {

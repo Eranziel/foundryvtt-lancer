@@ -12,8 +12,8 @@ import {
   show_damage_array,
   show_range_array,
 } from "./item";
-import { limited_uses_indicator, ref_params } from "./refs";
-import { compact_tag_list } from "./tags";
+import { limitedUsesIndicator, ref_params } from "./refs";
+import { compactTagListHBS } from "./tags";
 
 export const EffectIcons = {
   Generic: `systems/lancer/assets/icons/generic_item.svg`,
@@ -108,7 +108,7 @@ export function npc_reaction_effect_preview(path: string, options: HelperOptions
       }
       ${effect_box("TRIGGER", (npc_feature.system as SystemTemplates.NPC.ReactionData).trigger)}
       ${effect_box("EFFECT", npc_feature.system.effect)}
-      ${compact_tag_list(path + ".system.tags", options)}
+      ${compactTagListHBS(path + ".system.tags", options)}
     </div>`,
     options
   );
@@ -123,14 +123,14 @@ function npc_system_trait_effect_preview(path: string, options: HelperOptions): 
     path,
     npc_feature,
     `<div class="flexcol lancer-body">
-      ${npc_feature.system.tags.find(tag => tag.lid === "tg_limited") ? limited_uses_indicator(npc_feature, path) : ""}
+      ${npc_feature.system.tags.find(tag => tag.lid === "tg_limited") ? limitedUsesIndicator(npc_feature, path) : ""}
       ${
         npc_feature.system.tags.find(tag => tag.lid === "tg_recharge")
           ? charged_box(npc_feature.system.charged, path)
           : ""
       }
       ${effect_box("EFFECT", npc_feature.system.effect)}
-      ${compact_tag_list(path + ".system.tags", options)}
+      ${compactTagListHBS(path + ".system.tags", options)}
     </div>`,
     options
   );
@@ -188,7 +188,7 @@ export function npc_tech_effect_preview(path: string, options: HelperOptions) {
       </div>
       <div class="flexcol" style="padding: 0 10px;">
         ${effect_box("EFFECT", feature_data.effect)}
-        ${compact_tag_list(path + ".system.tags", options)}
+        ${compactTagListHBS(path + ".system.tags", options)}
       </div>
     </div>
     `,
@@ -253,7 +253,7 @@ export function npc_weapon_effect_preview(path: string, options: HelperOptions):
       </div>
       ${effect_box("ON HIT", feature_data.on_hit)}
       ${effect_box("EFFECT", feature_data.effect)}
-      ${compact_tag_list(path + ".system.tags", options)}
+      ${compactTagListHBS(path + ".system.tags", options)}
     </div>
     `,
     options

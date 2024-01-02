@@ -2,7 +2,7 @@ import { LANCER } from "../config";
 import { handleGenControls, handlePopoutTextEditor } from "../helpers/commons";
 import { handleDocDropping, ResolvedDropData } from "../helpers/dragdrop";
 import { handleCounterInteraction, handleInputPlusMinusButtons, handlePowerUsesInteraction } from "../helpers/item";
-import { handleRefDragging, handleRefSlotDropping, click_evt_open_ref, handleUsesInteraction } from "../helpers/refs";
+import { handleRefDragging, handleRefSlotDropping, handleRefClickOpen, handleUsesInteraction } from "../helpers/refs";
 import type { LancerActorSheetData } from "../interfaces";
 import { LancerItem } from "../item/lancer-item";
 import { LancerActor, LancerActorType } from "./lancer-actor";
@@ -56,7 +56,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
     this._activateActionGridListeners(html);
 
     // Make generic refs clickable to open the item
-    $(html).find(".ref.set.click-open, .ref.set .click-open").on("click", click_evt_open_ref);
+    handleRefClickOpen(html);
 
     // Enable ref dragging
     handleRefDragging(html);
