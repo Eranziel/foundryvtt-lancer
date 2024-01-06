@@ -114,12 +114,12 @@ import {
 } from "./module/helpers/actor";
 import type { HelperOptions } from "handlebars";
 import {
-  item_preview,
+  itemPreview,
   simple_ref_slot,
-  ref_portrait,
+  refPortrait,
   lid_item_list,
   limitedUsesIndicator,
-  reserve_used_indicator,
+  reserveUsesIndicator,
   handleRefClickOpen,
 } from "./module/helpers/refs";
 import { mechLoadout, pilotSlot, frameView } from "./module/helpers/loadout";
@@ -521,11 +521,11 @@ Hooks.once("init", async function () {
   // ------------------------------------------------------------------------
   // Refs
   Handlebars.registerHelper("simple-ref", simple_ref_slot);
-  Handlebars.registerHelper("item-preview", item_preview);
+  Handlebars.registerHelper("item-preview", itemPreview);
   Handlebars.registerHelper("lid-item-list", lid_item_list);
   Handlebars.registerHelper("pilot-slot", pilotSlot);
   Handlebars.registerHelper("deployer-slot", deployer_slot); // Can be pilot, npc, or mech. Preferably mech, lol
-  Handlebars.registerHelper("ref-portrait-img", ref_portrait);
+  Handlebars.registerHelper("ref-portrait-img", refPortrait);
 
   // ------------------------------------------------------------------------
   // Pilot stuff
@@ -607,7 +607,7 @@ Hooks.once("init", async function () {
   Handlebars.registerHelper("item-edit-sp", item_edit_sp);
   Handlebars.registerHelper("item-edit-uses", item_edit_uses);
   Handlebars.registerHelper("limited-uses-indicator", limitedUsesIndicator);
-  Handlebars.registerHelper("reserve-used-indicator", reserve_used_indicator);
+  Handlebars.registerHelper("reserve-used-indicator", reserveUsesIndicator);
   Handlebars.registerHelper("loading-indicator", loading_indicator);
 
   // ------------------------------------------------------------------------

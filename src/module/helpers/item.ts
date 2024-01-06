@@ -31,7 +31,7 @@ import {
   manufacturerStyle,
   activationStyle,
 } from "./commons";
-import { limitedUsesIndicator, ref_params, reserve_used_indicator } from "./refs";
+import { limitedUsesIndicator, ref_params, reserveUsesIndicator } from "./refs";
 import {
   ActivationType,
   ChipIcons,
@@ -588,7 +588,7 @@ export function reserve_refview(reserve_path: string, options: HelperOptions): s
   }
   let uses = "";
   if (reserve.system.consumable) {
-    uses = reserve_used_indicator(`${reserve_path}.system.used`, options);
+    uses = reserveUsesIndicator(`${reserve_path}.system.used`, options);
   }
 
   return `<div class="set ${EntryType.RESERVE} ref drop-settable card clipped-top item lancer-border-trait"

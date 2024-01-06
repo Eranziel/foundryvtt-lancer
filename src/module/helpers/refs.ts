@@ -142,7 +142,7 @@ export async function resolve_ref_element(
  * @param img_path The path to read/edit said image
  * @param item The reffable item/actor itself
  */
-export function ref_portrait<T extends EntryType>(
+export function refPortrait<T extends EntryType>(
   img: string,
   img_path: string,
   item: LancerDoc<T>,
@@ -157,7 +157,7 @@ export function ref_portrait<T extends EntryType>(
 // A helper suitable for showing a small preview of a ref (slot)
 // In general, any preview here is less for "use" (e.x. don't tend to have elaborate macros) and more just to show something is there
 // trash_actions controls what happens when the trashcan is clicked. Delete destroys an item, splice removes it from the array it is found in, and null replaces with null
-export function item_preview<T extends LancerItemType>(
+export function itemPreview<T extends LancerItemType>(
   item_path: string,
   trash_action: "delete" | "splice" | "null" | null,
   options: HelperOptions
@@ -227,7 +227,7 @@ export function limitedUsesIndicator(
   return `<div class="clipped card limited-card ${nonInteractive}">USES ${hexes.join("")}</div>`;
 }
 
-export function reserve_used_indicator(path: string, options: HelperOptions): string {
+export function reserveUsesIndicator(path: string, options: HelperOptions): string {
   let used = resolve_helper_dotpath(options, path) as LancerRESERVE;
   const hexes = hex_array(used ? 0 : 1, 1, path, "uses-hex");
 
@@ -245,7 +245,7 @@ export function lid_item_list(
   let lids = resolve_helper_dotpath<Array<any>>(options, item_array_path, []);
   let trash = options.hash["trash"] ?? null;
   let previews = lids.map((_, i) =>
-    item_preview(`${item_array_path}.${i}`, trash, extendHelper(options, { item: values[i] }))
+    itemPreview(`${item_array_path}.${i}`, trash, extendHelper(options, { item: values[i] }))
   );
   return `
     <div class="flexcol lid-list" 
