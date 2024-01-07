@@ -171,8 +171,8 @@ Non-Flow steps are simply functions which take the flow's current state and (opt
 - [ ] `structure.ts`
   - [ ] `prepareStructureMacro(actor: string | LancerActor, reroll_data?: { structure: number }): Promise<void>`
   - [ ] `prepareStructureSecondaryRollMacro(actor: string | LancerActor)`
-- [ ] `system.ts`
-  - [ ] `prepareSystemMacro(item: string | LancerItem)`
+- [x] `system.ts`
+  - [x] `prepareSystemMacro(item: string | LancerItem)`
 - [x] `talent.ts`
   - [x] `prepareTalentMacro(itemUUID: string | LancerItem, options?: {rank?: number;})`
 - [x] `tech.ts`
