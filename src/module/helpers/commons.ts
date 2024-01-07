@@ -256,6 +256,8 @@ export function chargedBox(charged: boolean, path: string) {
 
 export function activationIcon(activation: ActivationType): string {
   switch (activation) {
+    case ActivationType.Quick:
+      return "cci cci-activation-quick";
     case ActivationType.Full:
       return "cci cci-activation-full";
     case ActivationType.Invade:
@@ -269,8 +271,6 @@ export function activationIcon(activation: ActivationType): string {
       return "cci cci-protocol";
     case ActivationType.Free:
     case ActivationType.Passive:
-      return "cci cci-free-action";
-    case ActivationType.Quick:
     default:
       return "cci cci-free-action";
   }

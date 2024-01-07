@@ -996,11 +996,15 @@ export function buildActionHTML(
     detailText = `
       <div class="action-detail ${options?.full ? "" : "collapsed"}">
         <hr class="hsep">
-        ${chip}
-        <div class="overline">${game.i18n.localize("lancer.chat-card.label.trigger")}</div> 
-        <div>${action.trigger || defaultPlaceholder}</div>
-        <div class="overline">${game.i18n.localize("lancer.chat-card.label.effect")}</div> 
-        <div>${action.detail || defaultPlaceholder}</div>
+        <div>
+          ${chip}
+          <div>
+            <div class="overline">${game.i18n.localize("lancer.chat-card.label.trigger")}</div> 
+            ${action.trigger || defaultPlaceholder}
+            <div class="overline">${game.i18n.localize("lancer.chat-card.label.effect")}</div>
+            ${action.detail || defaultPlaceholder}
+          </div>
+        </div>
       </div>`;
   }
 
@@ -1136,7 +1140,6 @@ export function buildDeployableHTML(
       buildChipHTML(
         a.action,
         {
-          icon: ChipIcons.Deployable,
           label: a.label,
           uuid: source ? source.item.uuid : undefined,
           path: a.path,
@@ -1164,13 +1167,15 @@ export function buildDeployableHTML(
       </span>
       <hr class="hsep">
     </div>
-    <div style="grid-area: desc">${detailText ? detailText : ""}</div>
-    <div
-      style="grid-area: chip; justify-content: flex-end;"
-      class="flexcol"
-    >
-      ${chips.join("\n")}
+    <div class="deployable-activations">
+      <div class="flexcol">
+        <div class="flexrow">
+          ${chips.join(`</div>\n<div class="flexrow">`)}
+        </div>
+      </div>
+      ${options?.vertical ? "" : `<hr class="vsep">`}
     </div>
+    <div style="grid-area: desc">${detailText ? detailText : ""}</div>
     ${
       actionText
         ? `
@@ -1208,6 +1213,9 @@ export function buildChipHTML(
   const activationClass = `activation-${slugify(activation, "-")}`;
   const themeClass = activationStyle(activation);
   const interactiveClass = options?.nonInteractive ? "noninteractive" : "";
+  const label = `${
+    flowData?.label ? `${flowData.label.toUpperCase()} - ` : `${!options?.nonInteractive ? "USE " : ""}`
+  }${activation.toUpperCase()}`;
   if (flowData && flowData.uuid && flowData.path !== undefined) {
     if (!flowData.icon) flowData.icon = `<i class="${activationIcon(activation)} i--sm"></i>`;
     let data = `data-uuid=${flowData.uuid} data-path="${flowData.path}"`;
@@ -1217,15 +1225,13 @@ export function buildChipHTML(
       ${data}
     >
       ${flowData.icon ? flowData.icon : ""}
-      ${flowData.label ? `${flowData.label.toUpperCase()} - ` : ""}
-      ${activation.toUpperCase()}
+      ${label}
     </a>`;
   } else {
     return `
     <div class="activation-chip ${activationClass} lancer-chip ${themeClass}">
       ${flowData?.icon ? flowData.icon : ""}
-      ${flowData?.label ? `${flowData.label.toUpperCase()} - ` : ""}
-      ${activation.toUpperCase()}
+      ${label}
     </div>`;
   }
 }

@@ -409,6 +409,7 @@ $theme-types: "primary" "secondary" "dark-gray" "light-gray" "tooltip"    // Gen
   border: none;
   border-left: 1px solid var(--secondary-color, black);
   border-right: 1px solid var(--secondary-color, black);
+  min-width: 3px;
   max-width: 3px;
   margin-left: 6px;
   margin-right: 6px;
@@ -1696,8 +1697,8 @@ ul.talent-ranks {
 .core-active-detail,
 .core-passive-detail {
   text-align: left;
-  margin-left: 8px;
-  margin-right: 8px;
+  margin-left: 0.5em;
+  margin-right: 0.5em;
 }
 
 .activation-chip,
@@ -1763,7 +1764,6 @@ ul.talent-ranks {
   }
 
   .vsep {
-    min-width: 3px;
     margin: 0.1em 0.7em;
   }
 }
@@ -1810,15 +1810,15 @@ ul.talent-ranks {
 
 .deployable-wrapper {
   display: grid;
-  grid-template-columns: 48px 1fr auto;
+  grid-template-columns: 48px auto auto;
   grid-template-rows: auto auto auto;
   grid-template-areas:
     "img title title"
-    "desc desc chip"
+    "chip chip desc"
     "action action action";
 
   &.vertical {
-    grid-template-columns: 48px 1fr;
+    grid-template-columns: 48px auto;
     grid-template-rows: auto auto auto auto;
     grid-template-areas:
       "img title"
@@ -1827,7 +1827,11 @@ ul.talent-ranks {
       "action action";
 
     .flexcol {
-      padding-left: 0.5em;
+      flex-grow: 1;
+    }
+
+    .deployable-activations {
+      margin-left: 0;
     }
 
     .activation-chip {
@@ -1846,13 +1850,20 @@ ul.talent-ranks {
     padding-left: 0.5em;
   }
 
-  .activation-chip {
-    width: 100%;
-    max-height: 20px;
+  .deployable-activations {
+    grid-area: chip;
+    justify-content: flex-end;
     display: flex;
-    justify-content: center;
-    margin-top: 0.1em;
-    margin-bottom: 0.1em;
+    flex-direction: row;
+    margin-left: 0.5em;
+
+    .activation-chip {
+      max-height: 20px;
+      display: flex;
+      justify-content: center;
+      margin-top: 0.1em;
+      margin-bottom: 0.1em;
+    }
   }
 }
 
@@ -2025,7 +2036,8 @@ a.activation-chip > i.mdi {
 
 .sp-wrapper {
   display: flex;
-  justify-content: flex-end;
+  width: fit-content;
+  max-width: fit-content;
   align-items: center;
 }
 

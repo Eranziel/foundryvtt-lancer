@@ -103,16 +103,16 @@ export function mechSystemView(
       </div>
     </div>
     <div class="collapse" ${collapseParam(null /*collapse*/, doc, true)} style="padding: 0.5em">
-      <div class="${options?.vertical ? "flexcol" : "flexrow"}">
-        ${limited}
-        ${sp}
-      </div>
+      ${limited}
       ${eff ? eff : ""}
       ${actions ? actions : ""}
       ${deployables ? deployables : ""}
-      ${compactTagList(doc.system.tags, system_path + ".system.tags", {
-        editable: !(options?.nonInteractive ?? false),
-      })}
+      <div class="${options?.vertical ? "flexcol" : "flexrow"}">
+        ${sp}
+        ${compactTagList(doc.system.tags, system_path + ".system.tags", {
+          editable: !(options?.nonInteractive ?? false),
+        })}
+      </div>
     </div>
   </${options?.div ? "div" : "li"}>`;
 }
