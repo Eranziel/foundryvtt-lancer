@@ -211,12 +211,21 @@ export class IconFactory {
 }
 
 // Common to many feature/weapon/system previews. Auto-omits on empty body
-export function effect_box(title: string, text: string, add_classes: string = ""): string {
+export function effectBox(title: string, text: string, options?: { add_classes?: string; flow?: boolean }): string {
   if (text) {
+    const flowButton = options?.flow
+      ? `<div class="action-flow-container flexrow">
+        <a class="effect-flow lancer-button"><i class="cci cci-free-action i--sm"></i><span>USE</span></a>
+        <hr class="vsep">
+      </div>`
+      : "";
     return `
-      <div class="effect-box ${add_classes}">
+      <div class="effect-box ${options?.add_classes || ""}">
         <span class="effect-title clipped-bot">${title}</span>
-        <span class="effect-text" style="padding: 0 0.5em 0.5em 0.5em;">${text}</span>
+        <span class="effect-text" style="padding: 0 0.5em 0.5em 0.5em;">
+          ${flowButton}
+          ${text}
+        </span>
       </div>
       `;
   } else {
@@ -224,18 +233,18 @@ export function effect_box(title: string, text: string, add_classes: string = ""
   }
 }
 
-export function sp_display(sp: number | string) {
+export function spDisplay(sp: number | string) {
   const sp_num = parseInt(sp.toString());
   if (isNaN(sp_num)) return "";
   let icons = "";
   for (let i = 0; i < sp_num; i++) icons += `<i class="cci cci-system-point i--s"> </i>`;
-  return `<div style="float: left; align-items: center; display: inherit;">
+  return `<div class="sp-wrapper">
             ${icons}
             <span class="medium" style="padding: 5px;">${sp} SYSTEM POINTS</span>
           </div>`;
 }
 
-export function charged_box(charged: boolean, path: string) {
+export function chargedBox(charged: boolean, path: string) {
   return `<div class="clipped card charged-box ${inc_if("charged", charged)}">
             <span style="margin:4px;">Charged:</span>
             <a style="margin-top:2px;" class="gen-control" data-action="set" data-action-value="(bool)${!charged}" data-path="${path}.system.charged">
@@ -263,7 +272,7 @@ export function activationIcon(activation: ActivationType): string {
       return "cci cci-free-action";
     case ActivationType.Quick:
     default:
-      return "cci cci-activation-quick";
+      return "cci cci-free-action";
   }
 }
 

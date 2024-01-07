@@ -3,7 +3,7 @@ import { ActivationType, EntryType, NpcFeatureType } from "../enums";
 import { LancerNPC_FEATURE } from "../item/lancer-item";
 import { SystemData, SystemTemplates } from "../system-template";
 import { slugify } from "../util/lid";
-import { charged_box, effect_box, resolve_helper_dotpath } from "./commons";
+import { chargedBox, effectBox, resolve_helper_dotpath } from "./commons";
 import {
   action_type_icon,
   loading_indicator,
@@ -103,11 +103,11 @@ export function npc_reaction_effect_preview(path: string, options: HelperOptions
     `<div class="flexcol lancer-body">
       ${
         npc_feature.system.tags.find(tag => tag.lid === "tg_recharge")
-          ? charged_box(npc_feature.system.charged, path)
+          ? chargedBox(npc_feature.system.charged, path)
           : ""
       }
-      ${effect_box("TRIGGER", (npc_feature.system as SystemTemplates.NPC.ReactionData).trigger)}
-      ${effect_box("EFFECT", npc_feature.system.effect)}
+      ${effectBox("TRIGGER", (npc_feature.system as SystemTemplates.NPC.ReactionData).trigger)}
+      ${effectBox("EFFECT", npc_feature.system.effect)}
       ${compactTagListHBS(path + ".system.tags", options)}
     </div>`,
     options
@@ -126,10 +126,10 @@ function npc_system_trait_effect_preview(path: string, options: HelperOptions): 
       ${npc_feature.system.tags.find(tag => tag.lid === "tg_limited") ? limitedUsesIndicator(npc_feature, path) : ""}
       ${
         npc_feature.system.tags.find(tag => tag.lid === "tg_recharge")
-          ? charged_box(npc_feature.system.charged, path)
+          ? chargedBox(npc_feature.system.charged, path)
           : ""
       }
-      ${effect_box("EFFECT", npc_feature.system.effect)}
+      ${effectBox("EFFECT", npc_feature.system.effect, { flow: true })}
       ${compactTagListHBS(path + ".system.tags", options)}
     </div>`,
     options
@@ -175,7 +175,7 @@ export function npc_tech_effect_preview(path: string, options: HelperOptions) {
   }
 
   if (feature_data.tags.find(tag => tag.is_recharge)) {
-    subheader_items.push(charged_box(feature_data.charged, path));
+    subheader_items.push(chargedBox(feature_data.charged, path));
   }
 
   return npc_feature_scaffold(
@@ -187,7 +187,7 @@ export function npc_tech_effect_preview(path: string, options: HelperOptions) {
         ${subheader_items.join(sep)}
       </div>
       <div class="flexcol" style="padding: 0 10px;">
-        ${effect_box("EFFECT", feature_data.effect)}
+        ${effectBox("EFFECT", feature_data.effect)}
         ${compactTagListHBS(path + ".system.tags", options)}
       </div>
     </div>
@@ -232,7 +232,7 @@ export function npc_weapon_effect_preview(path: string, options: HelperOptions):
   }
 
   if (feature_data.tags.find(tag => tag.lid === "tg_recharge")) {
-    subheader_items.push(charged_box(feature_data.charged, path));
+    subheader_items.push(chargedBox(feature_data.charged, path));
   }
 
   if (npc_feature.system.tags.some(t => t.is_loading))
@@ -251,8 +251,8 @@ export function npc_weapon_effect_preview(path: string, options: HelperOptions):
       npc_feature.system.origin.type
     } Feature (TODO ORIGIN)</span>
       </div>
-      ${effect_box("ON HIT", feature_data.on_hit)}
-      ${effect_box("EFFECT", feature_data.effect)}
+      ${effectBox("ON HIT", feature_data.on_hit)}
+      ${effectBox("EFFECT", feature_data.effect)}
       ${compactTagListHBS(path + ".system.tags", options)}
     </div>
     `,

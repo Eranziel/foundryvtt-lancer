@@ -3,8 +3,8 @@ import { EntryType, SystemType } from "../enums";
 import {
   inc_if,
   resolve_helper_dotpath,
-  sp_display,
-  effect_box,
+  spDisplay,
+  effectBox,
   defaultPlaceholder,
   manufacturerStyle,
   activationStyle,
@@ -60,7 +60,7 @@ export function mechSystemView(
     icon = `cci cci-system i--m`;
   }
 
-  sp = sp_display(doc.system.sp ?? 0);
+  sp = spDisplay(doc.system.sp ?? 0);
 
   contextMenu = `<a class="lancer-context-menu" data-path="${system_path}"">
     <i class="fas fa-ellipsis-v"></i>
@@ -73,7 +73,7 @@ export function mechSystemView(
   // }
 
   if (doc.system.effect) {
-    eff = effect_box("EFFECT", doc.system.effect);
+    eff = effectBox("EFFECT", doc.system.effect, { flow: !options?.nonInteractive || false });
   }
 
   if (doc.system.actions.length) {
@@ -109,8 +109,8 @@ export function mechSystemView(
     </div>
     <div class="collapse" ${collapseParam(null /*collapse*/, doc, true)} style="padding: 0.5em">
       <div class="${options?.vertical ? "flexcol" : "flexrow"}">
-        ${sp}
         ${limited}
+        ${sp}
       </div>
       ${eff ? eff : ""}
       ${actions ? actions : ""}

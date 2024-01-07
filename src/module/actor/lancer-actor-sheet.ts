@@ -308,6 +308,15 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
       actor.system.bond.refreshPowers();
     });
 
+    // Non-action system use flows
+    html.find(".effect-flow").on("click", ev => {
+      ev.stopPropagation();
+      const el = ev.currentTarget.closest("[data-uuid]") as HTMLElement;
+      const itemId = el.dataset.uuid;
+      const item = LancerItem.fromUuidSync(itemId ?? "", `Invalid item ID: ${itemId}`);
+      item.beginSystemFlow();
+    });
+
     // Action-chip flows
     html.find(".activation-flow").on("click", ev => {
       ev.stopPropagation();

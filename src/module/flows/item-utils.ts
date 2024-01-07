@@ -108,10 +108,11 @@ export async function applySelfHeat(
     | LancerFlowState.WeaponRollData
     | LancerFlowState.TechAttackRollData
     | LancerFlowState.ActionUseData
+    | LancerFlowState.SystemUseData
   >,
   options?: {}
 ): Promise<boolean> {
-  if (!state.data) throw new TypeError(`Attack flow state missing!`);
+  if (!state.data) throw new TypeError(`Flow state missing!`);
   let self_heat = 0;
 
   if (state.data.self_heat) {
@@ -137,10 +138,15 @@ export async function applySelfHeat(
 }
 
 export async function updateItemAfterAction(
-  state: FlowState<LancerFlowState.WeaponRollData | LancerFlowState.TechAttackRollData | LancerFlowState.ActionUseData>,
+  state: FlowState<
+    | LancerFlowState.WeaponRollData
+    | LancerFlowState.TechAttackRollData
+    | LancerFlowState.ActionUseData
+    | LancerFlowState.SystemUseData
+  >,
   options?: {}
 ): Promise<boolean> {
-  if (!state.data) throw new TypeError(`Attack flow state missing!`);
+  if (!state.data) throw new TypeError(`Flow state missing!`);
   if (state.item && getAutomationOptions().limited_loading && getAutomationOptions().attacks) {
     let item_changes: DeepPartial<SourceData.MechWeapon | SourceData.NpcFeature | SourceData.PilotWeapon> = {};
     if (state.item.isLoading()) item_changes.loaded = false;

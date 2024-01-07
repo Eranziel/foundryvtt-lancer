@@ -3,7 +3,7 @@ import { LancerCORE_BONUS, LancerSKILL, LancerTALENT } from "../item/lancer-item
 import { encodeMacroData } from "../macros";
 import { LancerFlowState } from "../flows/interfaces";
 import { collapseButton, collapseParam, CollapseRegistry } from "./collapse";
-import { effect_box, resolve_helper_dotpath } from "./commons";
+import { effectBox, resolve_helper_dotpath } from "./commons";
 import { buildActionArrayHTML } from "./item";
 import { ref_params } from "./refs";
 
@@ -102,7 +102,7 @@ export function coreBonusView(item_path: string, options: HelperOptions) {
         </div>
         <div class="collapse" ${collapseParam(collapse, coreBonus, true)} style="padding: 0.5em">
           <div class="desc-text" style="grid-area: 2/2/3/3">${coreBonus.system.description}</div>
-          ${effect_box("Effect", coreBonus.system.effect)}
+          ${effectBox("Effect", coreBonus.system.effect)}
         </div>
       </li>`;
 }

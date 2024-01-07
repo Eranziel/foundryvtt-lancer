@@ -16,20 +16,21 @@ import {
   array_path_edit_changes,
   defaultPlaceholder,
   drilldownDocument,
-  effect_box,
+  effectBox,
   extendHelper,
   hex_array,
   inc_if,
   resolve_dotpath,
   resolve_helper_dotpath,
   spoofHelper,
-  sp_display,
+  spDisplay,
   std_enum_select,
   std_text_input,
   std_x_of_y,
   tippyContextMenu,
   manufacturerStyle,
   activationStyle,
+  activationIcon,
 } from "./commons";
 import { limitedUsesIndicator, ref_params, reserveUsesIndicator } from "./refs";
 import {
@@ -284,7 +285,7 @@ export function bonuses_display(bonuses_path: string, edit: boolean, options: He
     let title = `<span class="grow">${bonus.lid}</span> ${inc_if(delete_button, edit)}`; // Todo: maybe return to
     let boxed = `
       <div class="bonus ${inc_if("editable", edit)}" data-path="${bonuses_path}.${i}">
-        ${effect_box(title, bonus.val)}
+        ${effectBox(title, bonus.val)}
       </div>
     `;
     items.push(boxed);
@@ -662,7 +663,7 @@ data-action="set" data-action-value="(int)${i}" data-path="${weapon_path}.system
     profiles += `</div>`;
   }
 
-  let sp = sp_display(weapon.system.sp ?? 0);
+  let sp = spDisplay(weapon.system.sp ?? 0);
 
   // What profile are we using?
   let profile = weapon.system.active_profile;
@@ -675,10 +676,10 @@ data-action="set" data-action-value="(int)${i}" data-path="${weapon_path}.system
   }
 
   // Generate effects
-  let effect = profile.effect ? effect_box("Effect", profile.effect) : "";
-  let on_attack = profile.on_attack ? effect_box("On Attack", profile.on_attack) : "";
-  let on_hit = profile.on_hit ? effect_box("On Hit", profile.on_hit) : "";
-  let on_crit = profile.on_crit ? effect_box("On Crit", profile.on_crit) : "";
+  let effect = profile.effect ? effectBox("Effect", profile.effect) : "";
+  let on_attack = profile.on_attack ? effectBox("On Attack", profile.on_attack) : "";
+  let on_hit = profile.on_hit ? effectBox("On Hit", profile.on_hit) : "";
+  let on_crit = profile.on_crit ? effectBox("On Crit", profile.on_crit) : "";
 
   let limited = "";
   if (weapon.system.all_tags.some(t => t.is_limited)) {
@@ -752,7 +753,7 @@ export function weapon_mod_ref(mod_path: string, weapon_path: string | null, opt
     </div>`;
   }
 
-  let sp = mod.system.sp ? sp_display(mod.system.sp) : "";
+  let sp = mod.system.sp ? spDisplay(mod.system.sp) : "";
   let limited = mod.system.tags.some(t => t.is_limited) ? limitedUsesIndicator(mod, mod_path) : "";
   let added_range = "";
   if (mod.system.added_range.length) {
@@ -770,7 +771,7 @@ export function weapon_mod_ref(mod_path: string, weapon_path: string | null, opt
         ${show_damage_array(mod.system.added_damage, options)}
       </div>`;
   }
-  let effect = mod.system.effect ? effect_box("Effect", mod.system.effect) : "";
+  let effect = mod.system.effect ? effectBox("Effect", mod.system.effect, { flow: true }) : "";
   let bonuses = mod.system.bonuses.length > 0 ? bonuses_display(`${mod_path}.system.bonuses`, false, options) : "";
   let added_tags = "";
   if (mod.system.added_tags.length) {
@@ -800,7 +801,10 @@ export function weapon_mod_ref(mod_path: string, weapon_path: string | null, opt
       </a>
     </div>
     <div class="lancer-body">
-      <div class="flexrow">${sp} ${limited}</div>
+      <div class="flexrow">
+        ${limited}
+        ${sp}
+      </div>
       <div class="flexrow">
         ${added_range}
         ${added_damage}
@@ -969,14 +973,23 @@ export function buildActionHTML(
   let tags: string | undefined;
   let editor: string | undefined;
 
-  // Not using type yet but let's plan forward a bit
-  let icon: ChipIcons | undefined;
+  if (!options?.hideChip) {
+    chip = buildChipHTML(
+      action.activation,
+      { uuid: doc.uuid, path: path },
+      { nonInteractive: options?.nonInteractive }
+    );
+    chip = `<div class="action-flow-container">${chip}<hr class="vsep"></div>`;
+  } else {
+    chip = "";
+  }
 
   // If we don't have a trigger do a simple detail
   if (!action.trigger)
     detailText = `
       <div class="action-detail">
         <hr class="hsep">
+        ${chip}
         ${action.detail || defaultPlaceholder}
       </div>`;
   // Otherwise, look to be explicit about which is which
@@ -984,32 +997,13 @@ export function buildActionHTML(
     detailText = `
       <div class="action-detail ${options?.full ? "" : "collapsed"}">
         <hr class="hsep">
+        ${chip}
         <div class="overline">${game.i18n.localize("lancer.chat-card.label.trigger")}</div> 
         <div>${action.trigger || defaultPlaceholder}</div>
         <div class="overline">${game.i18n.localize("lancer.chat-card.label.effect")}</div> 
-        <div>${action.detail || defaultPlaceholder}</div> 
+        <div>${action.detail || defaultPlaceholder}</div>
       </div>`;
   }
-
-  // Deduce what type of action it is broadly. Tech? Deployable? Normal? It wouldn't be a weapon, not here anyways
-  switch (action.activation) {
-    case ActivationType.QuickTech:
-    case ActivationType.FullTech:
-    case ActivationType.Invade:
-      icon = ChipIcons.Roll;
-      break;
-    default:
-      icon = ChipIcons.Chat;
-      break;
-  }
-
-  chip = !!options?.hideChip
-    ? ""
-    : buildChipHTML(
-        action.activation,
-        { icon: icon, uuid: doc.uuid, path: path },
-        { nonInteractive: options?.nonInteractive }
-      );
 
   if (options?.editable) {
     // If it's editable, it's deletable
@@ -1031,7 +1025,6 @@ export function buildActionHTML(
       <span class="action-title collapse-trigger">
         ${action.name?.toUpperCase() ?? doc.name}
       </span>
-      ${chip}
       ${editor ?? ""}
     </div>
     ${detailText ?? ""}
@@ -1191,9 +1184,9 @@ export function buildDeployableHTML(
   `;
 }
 
-/** Build a little clickable chip to activate an item.
+/**
+ * Build a little clickable chip to activate an item.
  * If trying to use a deployable, you should still provide the item uuid & the path to the deployable within it
- *
  * @param activation The type of activation.
  * @param flowData Options to configure the chip.
  * @param flowData.icon The icon to use. Defaults to chat icon if not provided.
@@ -1205,7 +1198,7 @@ export function buildDeployableHTML(
 export function buildChipHTML(
   activation: ActivationType,
   flowData?: {
-    icon?: ChipIcons;
+    icon?: ChipIcons | string;
     label?: string;
     // These must both be provided in order to use a flow
     uuid?: string;
@@ -1217,11 +1210,11 @@ export function buildChipHTML(
   const themeClass = activationStyle(activation);
   const interactiveClass = options?.nonInteractive ? "noninteractive" : "";
   if (flowData && flowData.uuid && flowData.path !== undefined) {
-    if (!flowData.icon) flowData.icon = ChipIcons.Chat;
+    if (!flowData.icon) flowData.icon = `<i class="${activationIcon(activation)} i--sm"></i>`;
     let data = `data-uuid=${flowData.uuid} data-path="${flowData.path}"`;
     return `
     <a
-      class="activation-flow activation-chip lancer-button ${activationClass} ${themeClass} ${interactiveClass}"
+      class="activation-flow lancer-button activation-chip ${activationClass} ${themeClass} ${interactiveClass}"
       ${data}
     >
       ${flowData.icon ? flowData.icon : ""}
@@ -1236,37 +1229,6 @@ export function buildChipHTML(
       ${activation.toUpperCase()}
     </div>`;
   }
-}
-
-export function buildSystemHTML(system: LancerMECH_SYSTEM): string {
-  let eff: string | undefined;
-  let actions: string | undefined;
-  let deployables: string | undefined;
-
-  if (system.system.effect) {
-    eff = `<div class="effect-text">${system.system.effect}</div>`;
-  }
-
-  if (system.system.actions) {
-    actions = buildActionArrayHTML(system, "system.actions", { nonInteractive: true });
-  }
-
-  if (system.system.deployables && system.actor) {
-    let ownedDeployables = lookupOwnedDeployables(system.actor);
-    deployables = system.system.deployables.reduce((total, d) => {
-      const dep = ownedDeployables[d];
-      return (total += buildDeployableHTML(dep, null, { vertical: true, nonInteractive: true }));
-    }, "");
-  }
-
-  let html = `<div class="card clipped-bot system-wrapper" ${ref_params(system)} style="margin: 0px;">
-  <div class="lancer-header lancer-system">// SYSTEM :: ${system.name} //</div>
-  ${eff ? eff : ""}
-  ${actions ? actions : ""}
-  ${deployables ? deployables : ""}
-  ${compactTagListHBS("tags", spoofHelper({ tags: system.getTags() }))}
-</div>`;
-  return html;
 }
 
 // This has gotten very messy to account for the pilots, should refactor - TODO

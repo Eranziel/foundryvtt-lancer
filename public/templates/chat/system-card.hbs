@@ -2,10 +2,25 @@
   <div class="lancer-header lancer-system">
     {{localize "lancer.chat-card.title.system" system=title}}
   </div>
-  {{#if effect.effect_type}}
-    {{{eff-preview effect}}}
-  {{else}}
-    {{> generic-eff-preview effect=effect}}
+  {{! Effect }}
+  <div class="effect-text">
+    {{{effect}}}
+  </div>
+  {{! Self heat results }}
+  {{#if self_heat_result}}
+    <div class="card clipped">
+      <div class="lancer-mini-header collapse-trigger" data-collapse-id="{{_uuid}}-self-heat">
+        {{localize "lancer.chat-card.title.self-heat"}}
+      </div>
+      <div class="collapse" data-collapse-id="{{_uuid}}-self-heat">
+        {{{lancer-dice-roll self_heat_result.roll self_heat_result.tt "cci cci-heat i--m damage--heat"}}}
+      </div>
+    </div>
+  {{/if}}
+  {{! Tags }}
+  {{#if tags}}
+    <div class="flexrow" style="justify-content: flex-end; flex-wrap: wrap;">
+      {{{tag-list "tags"}}}
+    </div>
   {{/if}}
 </div>
-

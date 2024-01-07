@@ -25,6 +25,7 @@ import { ActivationFlow } from "../flows/activation";
 import { CoreActiveFlow } from "../flows/frame";
 import { SimpleTextFlow } from "../flows/text";
 import { StatRollFlow } from "../flows/stat";
+import { SystemFlow } from "../flows/system";
 
 const lp = LANCER.log_prefix;
 
@@ -586,12 +587,21 @@ export class LancerItem extends Item {
     await flow.begin();
   }
 
+  async beginSystemFlow() {
+    if (!this.is_mech_system()) {
+      ui.notifications!.error(`Item ${this.id} cannot attack is not a mech system!`);
+      return;
+    }
+    const flow = new SystemFlow(this);
+    await flow.begin();
+  }
+
   async beginActivationFlow(path?: string) {
     if (!path) {
       // If no path is provided, default to the first action
       // @ts-ignore We know it doesn't exist on all types, that's why we're checking
       if (!this.system.actions || this.system.actions.length < 1) {
-        ui.notifications!.error(`Item ${this.id} has no actions, how did you even get here!`);
+        ui.notifications!.error(`Item ${this.id} has no actions, how did you even get here?`);
         return;
       }
       path = "system.actions.0";

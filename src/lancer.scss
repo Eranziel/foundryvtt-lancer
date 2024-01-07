@@ -1100,6 +1100,7 @@ tr.lcp-index-header {
   .activation-chip {
     overflow: unset;
     margin-left: 0.1em;
+    padding: 0 0.5em 0 0.5em;
     align-self: center;
   }
 }
@@ -1699,7 +1700,8 @@ ul.talent-ranks {
   margin-right: 8px;
 }
 
-.activation-chip {
+.activation-chip,
+.activation-chip.lancer-button {
   align-self: flex-end;
   margin-top: 5px;
   font-size: 12px;
@@ -1744,6 +1746,27 @@ ul.talent-ranks {
   }
 }
 
+.action-flow-container {
+  float: left;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+
+  .activation-chip,
+  .lancer-button {
+    height: 100%;
+    margin: 0;
+
+    span {
+      padding-right: 0.2em;
+    }
+  }
+
+  .vsep {
+    min-width: 3px;
+    margin: 0.1em 0.7em;
+  }
+}
 .core-wrapper {
   border-radius: 0px;
   border-width: 2px;
@@ -1796,7 +1819,7 @@ ul.talent-ranks {
 
   &.vertical {
     grid-template-columns: 48px 1fr;
-    grid-template-rows: auto auto auto;
+    grid-template-rows: auto auto auto auto;
     grid-template-areas:
       "img title"
       "chip chip"
@@ -1980,7 +2003,7 @@ a.activation-chip > i.mdi {
 
 .uses-wrapper {
   display: flex;
-  justify-content: flex-end;
+  justify-content: flex-start;
   align-items: center;
   margin-right: 4px;
   margin-top: 4px;
@@ -1998,6 +2021,12 @@ a.activation-chip > i.mdi {
 .counter-hex[data-available="true"] {
   color: var(--primary-color);
   filter: brightness(1.25);
+}
+
+.sp-wrapper {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
 }
 
 .weapon-profile-wrapper {
