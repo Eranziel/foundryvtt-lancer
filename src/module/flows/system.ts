@@ -19,6 +19,7 @@ export class SystemFlow extends Flow<LancerFlowState.SystemUseData> {
     "initSystemUseData",
     "checkItemDestroyed",
     "checkItemLimited",
+    "checkItemCharged",
     // TODO: check for targets and prompt for saves
     // "setSaveTargets",
     // "rollSaves",
@@ -40,7 +41,8 @@ export class SystemFlow extends Flow<LancerFlowState.SystemUseData> {
 
 async function initSystemUseData(state: FlowState<LancerFlowState.SystemUseData>): Promise<boolean> {
   if (!state.data) throw new TypeError(`Flow state missing!`);
-  if (!state.item || !state.item.is_mech_system()) throw new TypeError(`Only mech systems can do system flows!`);
+  if (!state.item || (!state.item.is_mech_system() && !state.item.is_npc_feature()))
+    throw new TypeError(`Only mech systems and NPC features can do system flows!`);
   state.data.title = state.data.title || state.item.name!;
   state.data.effect = state.data.effect || state.item.system.effect;
   state.data.tags = state.data.tags || state.item.system.tags;
@@ -57,7 +59,8 @@ async function printSystemCard(
   options?: { template: string }
 ): Promise<boolean> {
   if (!state.data) throw new TypeError(`Flow state missing!`);
-  if (!state.item || !state.item.is_mech_system()) throw new TypeError(`Only mech systems can do system flows!`);
+  if (!state.item || (!state.item.is_mech_system() && !state.item.is_npc_feature()))
+    throw new TypeError(`Only mech systems and NPC features can do system flows!`);
   const template = options?.template || `systems/${game.system.id}/templates/chat/system-card.hbs`;
   const flags = {
     // TODO: forced save data here

@@ -65,7 +65,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
     if (!this.options.editable) return;
 
     // All-actor macros
-    this._activateMacroListeners(html);
+    this._activateFlowListeners(html);
 
     // All-actor macro dragging
     this._activateMacroDragging(html);
@@ -171,7 +171,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
     });
   }
 
-  _activateMacroListeners(html: JQuery) {
+  _activateFlowListeners(html: JQuery) {
     // Encoded macros
     let encMacros = html.find(".lancer-macro");
     encMacros.on("click", ev => {

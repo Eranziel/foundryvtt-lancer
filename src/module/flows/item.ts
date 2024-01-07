@@ -59,8 +59,12 @@ export async function beginItemChatFlow(item: LancerItem, data: any) {
     });
     return await flow.begin();
   } else if (item.is_npc_feature()) {
-    // TODO
-    // return prepareNPCFeatureMacro(item, options);
+    const flow = new SimpleTextFlow(item, {
+      title: item.name!,
+      description: item.system.effect,
+      tags: item.system.tags,
+    });
+    return await flow.begin();
   } else {
     console.log("No macro exists for that item type");
     return ui.notifications!.error(`Error - No macro exists for item type "${item.type}"`);
