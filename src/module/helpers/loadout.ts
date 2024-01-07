@@ -10,12 +10,7 @@ import {
   activationStyle,
   activationIcon,
 } from "./commons";
-import {
-  mech_loadout_weapon_slot,
-  buildDeployablesArrayHBS,
-  buildDeployablesArray,
-  buildActionArrayHTML,
-} from "./item";
+import { mechLoadoutWeaponSlot, buildDeployablesArrayHBS, buildDeployablesArray, buildActionArrayHTML } from "./item";
 import { limitedUsesIndicator, ref_params, simple_ref_slot } from "./refs";
 import { compactTagListHBS, compactTagList } from "./tags";
 import { LancerMECH, LancerPILOT } from "../actor/lancer-actor";
@@ -143,7 +138,7 @@ function weaponMount(mount_path: string, options: HelperOptions): string {
   }
 
   let slots = mount.slots.map((slot, index) =>
-    mech_loadout_weapon_slot(
+    mechLoadoutWeaponSlot(
       `${mount_path}.slots.${index}.weapon.value`,
       `${mount_path}.slots.${index}.mod.value`,
       slot.size,

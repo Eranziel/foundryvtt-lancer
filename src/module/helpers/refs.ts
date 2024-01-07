@@ -13,7 +13,7 @@ import {
 } from "../item/lancer-item";
 import { array_path_edit_changes, drilldownDocument, extendHelper, hex_array, resolve_helper_dotpath } from "./commons";
 import { FoundryDropData, handleDocDropping, handleDragging, ResolvedDropData } from "./dragdrop";
-import { framePreview, license_ref, mech_weapon_display as mechWeaponView, npc_feature_preview } from "./item";
+import { framePreview, licenseRefView, mechWeaponDisplay as mechWeaponView, npcFeatureView } from "./item";
 import { mechSystemViewHBS } from "./loadout";
 import { LancerDoc } from "../util/doc";
 import { EntryType } from "../enums";
@@ -187,9 +187,9 @@ export function itemPreview<T extends LancerItemType>(
   } else if (doc.is_core_bonus()) {
     return coreBonusView(item_path, options);
   } else if (doc.is_license()) {
-    return license_ref(item_path, options);
+    return licenseRefView(item_path, options);
   } else if (doc.is_npc_feature()) {
-    return npc_feature_preview(item_path, options);
+    return npcFeatureView(item_path, options);
   } else if (doc.is_frame()) {
     return framePreview(item_path, options);
   } else {

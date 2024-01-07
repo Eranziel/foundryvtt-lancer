@@ -5,12 +5,12 @@ import { SystemData, SystemTemplates } from "../system-template";
 import { slugify } from "../util/lid";
 import { chargedBox, effectBox, resolve_helper_dotpath } from "./commons";
 import {
-  action_type_icon,
-  loading_indicator,
-  npc_accuracy_preview,
-  npc_attack_bonus_preview,
-  show_damage_array,
-  show_range_array,
+  actionTypeIcon,
+  loadingIndicator,
+  npcAccuracyView,
+  npcAttackBonusView,
+  damageArrayView,
+  rangeArrayView,
 } from "./item";
 import { limitedUsesIndicator, ref_params } from "./refs";
 import { compactTagListHBS } from "./tags";
@@ -40,7 +40,7 @@ export const EffectIcons = {
 export function action_type_selector(a_type: string, data_target: string): string {
   const a = a_type ? a_type.toLowerCase() : ActivationType.None.toLowerCase();
   let html = '<div class="flexrow flex-center" style="padding: 5px; flex-wrap: nowrap;">';
-  html += action_type_icon(a_type);
+  html += actionTypeIcon(a_type);
   html += `<select name="${data_target}" data-type="String" style="height: 2em;float: right" >
     <option value="${ActivationType.None}" ${a === ActivationType.None.toLowerCase() ? "selected" : ""}>NONE</option>
     <option value="${ActivationType.Full}" ${a === ActivationType.Full.toLowerCase() ? "selected" : ""}>FULL</option>
@@ -166,12 +166,12 @@ export function npc_tech_effect_preview(path: string, options: HelperOptions) {
     from_sys = true;
   }
   if (attack_bonus) {
-    subheader_items.push(npc_attack_bonus_preview(attack_bonus, from_sys ? "ATK (SYS)" : "ATTACK"));
+    subheader_items.push(npcAttackBonusView(attack_bonus, from_sys ? "ATK (SYS)" : "ATTACK"));
   }
 
   // Accuracy much simpler. If we got it, we got it
   if (feature_data.accuracy[tier_index]) {
-    subheader_items.push(npc_accuracy_preview(feature_data.accuracy[tier_index]));
+    subheader_items.push(npcAccuracyView(feature_data.accuracy[tier_index]));
   }
 
   if (feature_data.tags.find(tag => tag.is_recharge)) {
@@ -217,18 +217,18 @@ export function npc_weapon_effect_preview(path: string, options: HelperOptions):
 
   // Topline stuff
   if (feature_data.attack_bonus[tier_index]) {
-    subheader_items.push(npc_attack_bonus_preview(feature_data.attack_bonus[tier_index]));
+    subheader_items.push(npcAttackBonusView(feature_data.attack_bonus[tier_index]));
   }
   if (feature_data.accuracy[tier_index]) {
-    subheader_items.push(npc_accuracy_preview(feature_data.accuracy[tier_index]));
+    subheader_items.push(npcAccuracyView(feature_data.accuracy[tier_index]));
   }
 
   // Get the mid-body stuff. Real meat and potatos of a weapon
   if (feature_data.range.length) {
-    subheader_items.push(show_range_array(feature_data.range, options));
+    subheader_items.push(rangeArrayView(feature_data.range, options));
   }
   if (feature_data.damage[tier_index] && feature_data.damage[tier_index].length) {
-    subheader_items.push(show_damage_array(feature_data.damage[tier_index], options));
+    subheader_items.push(damageArrayView(feature_data.damage[tier_index], options));
   }
 
   if (feature_data.tags.find(tag => tag.lid === "tg_recharge")) {
@@ -236,7 +236,7 @@ export function npc_weapon_effect_preview(path: string, options: HelperOptions):
   }
 
   if (npc_feature.system.tags.some(t => t.is_loading))
-    subheader_items.push(loading_indicator(feature_data.loaded, path));
+    subheader_items.push(loadingIndicator(feature_data.loaded, path));
 
   return npc_feature_scaffold(
     path,

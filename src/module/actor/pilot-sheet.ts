@@ -321,7 +321,7 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
   }
 }
 
-export function pilot_counters(pilot: LancerPILOT, _options: HelperOptions): string {
+export function pilotCounters(pilot: LancerPILOT, _options: HelperOptions): string {
   let counter_detail = "";
 
   let counter_arr = pilot.system.custom_counters;
@@ -354,7 +354,7 @@ export function pilot_counters(pilot: LancerPILOT, _options: HelperOptions): str
   </div>`;
 }
 
-export function all_mech_preview(_options: HelperOptions): string {
+export function allMechPreview(_options: HelperOptions): string {
   let active_mech: LancerMECH | null = _options.data.root.system.active_mech?.value;
 
   /// I still feel like this is pretty inefficient... but it's probably the best we can do for now

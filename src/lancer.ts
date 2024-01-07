@@ -22,7 +22,7 @@ import { action_type_selector } from "./module/helpers/npc";
 import { LancerActionManager } from "./module/action/action-manager";
 
 // Import applications
-import { LancerPilotSheet, pilot_counters, all_mech_preview } from "./module/actor/pilot-sheet";
+import { LancerPilotSheet, pilotCounters, allMechPreview } from "./module/actor/pilot-sheet";
 import { LancerNPCSheet } from "./module/actor/npc-sheet";
 import { LancerDeployableSheet } from "./module/actor/deployable-sheet";
 import { LancerMechSheet } from "./module/actor/mech-sheet";
@@ -66,29 +66,29 @@ import {
   lancerDiceRoll,
 } from "./module/helpers/commons";
 import {
-  weapon_size_selector,
-  weapon_type_selector,
-  range_editor,
-  npc_attack_bonus_preview,
-  npc_accuracy_preview,
-  mech_loadout_weapon_slot,
-  system_type_selector,
-  npc_feature_preview,
-  damage_editor,
-  bonuses_display,
-  pilot_armor_slot,
-  pilot_weapon_refview,
-  pilot_gear_refview,
-  reserve_refview,
-  license_ref,
-  uses_control,
+  weaponSizeSelector,
+  weaponTypeSelector,
+  rangeEditor,
+  npcAttackBonusView,
+  npcAccuracyView,
+  mechLoadoutWeaponSlot,
+  systemTypeSelector,
+  npcFeatureView,
+  damageEditor,
+  bonusesDisplay,
+  pilotArmorSlot,
+  pilotWeaponRefview,
+  pilotGearRefview,
+  reserveRefView,
+  licenseRefView,
+  usesControl,
   buildCounterArrayHTML,
-  loading_indicator,
-  action_type_icon,
-  npc_class_ref,
-  npc_template_ref,
-  generic_counter,
-  bond_power,
+  loadingIndicator,
+  actionTypeIcon,
+  npcClassRefView,
+  npcTemplateRefView,
+  genericCounter,
+  bondPower,
   buildCounterHTML,
 } from "./module/helpers/item";
 import {
@@ -529,18 +529,18 @@ Hooks.once("init", async function () {
 
   // ------------------------------------------------------------------------
   // Pilot stuff
-  Handlebars.registerHelper("pilot-armor-slot", pilot_armor_slot);
-  Handlebars.registerHelper("pilot-weapon-slot", pilot_weapon_refview);
-  Handlebars.registerHelper("pilot-gear-slot", pilot_gear_refview);
-  Handlebars.registerHelper("reserve-slot", reserve_refview);
-  Handlebars.registerHelper("generic-counter", generic_counter);
+  Handlebars.registerHelper("pilot-armor-slot", pilotArmorSlot);
+  Handlebars.registerHelper("pilot-weapon-slot", pilotWeaponRefview);
+  Handlebars.registerHelper("pilot-gear-slot", pilotGearRefview);
+  Handlebars.registerHelper("reserve-slot", reserveRefView);
+  Handlebars.registerHelper("generic-counter", genericCounter);
   Handlebars.registerHelper("bond-answer-selector", bond_answer_selector);
   Handlebars.registerHelper("bond-ideal-selector", bond_minor_ideal_selector);
-  Handlebars.registerHelper("bond-power", bond_power);
+  Handlebars.registerHelper("bond-power", bondPower);
   Handlebars.registerHelper("counter", buildCounterHTML);
   Handlebars.registerHelper("counter-array", buildCounterArrayHTML);
-  Handlebars.registerHelper("pilot-counters", pilot_counters);
-  Handlebars.registerHelper("all-mech-preview", all_mech_preview);
+  Handlebars.registerHelper("pilot-counters", pilotCounters);
+  Handlebars.registerHelper("all-mech-preview", allMechPreview);
 
   // ------------------------------------------------------------------------
   // Effects
@@ -549,40 +549,37 @@ Hooks.once("init", async function () {
 
   // ------------------------------------------------------------------------
   // Tags
-  // Handlebars.registerHelper("compact-tag", renderCompactTag);
   Handlebars.registerHelper("tag-list", compactTagListHBS);
   Handlebars.registerHelper("item-edit-arrayed-tags", itemEditTags);
-  // Handlebars.registerHelper("chunky-tag", renderChunkyTag);
-  // Handlebars.registerHelper("full-tag", renderFullTag);
 
   // ------------------------------------------------------------------------
   // License data
   // Handlebars.registerHelper("ref-manufacturer", manufacturer_ref);
-  Handlebars.registerHelper("ref-license", license_ref);
+  Handlebars.registerHelper("ref-license", licenseRefView);
 
   // ------------------------------------------------------------------------
   // Frame/Class/Template data
 
   // ------------------------------------------------------------------------
   // Bonuses
-  Handlebars.registerHelper("bonuses-view", bonuses_display);
+  Handlebars.registerHelper("bonuses-view", bonusesDisplay);
   Handlebars.registerHelper("popout-editor-button", popout_editor_button);
 
   // ------------------------------------------------------------------------
   // Weapons
-  Handlebars.registerHelper("wpn-size-sel", weapon_size_selector);
-  Handlebars.registerHelper("wpn-type-sel", weapon_type_selector);
-  Handlebars.registerHelper("wpn-range-sel", range_editor);
-  Handlebars.registerHelper("wpn-damage-sel", damage_editor);
-  Handlebars.registerHelper("npcf-atk", npc_attack_bonus_preview);
-  Handlebars.registerHelper("npcf-acc", npc_accuracy_preview);
-  Handlebars.registerHelper("mech-weapon-preview", mech_loadout_weapon_slot);
+  Handlebars.registerHelper("wpn-size-sel", weaponSizeSelector);
+  Handlebars.registerHelper("wpn-type-sel", weaponTypeSelector);
+  Handlebars.registerHelper("wpn-range-sel", rangeEditor);
+  Handlebars.registerHelper("wpn-damage-sel", damageEditor);
+  Handlebars.registerHelper("npcf-atk", npcAttackBonusView);
+  Handlebars.registerHelper("npcf-acc", npcAccuracyView);
+  Handlebars.registerHelper("mech-weapon-preview", mechLoadoutWeaponSlot);
 
   // ------------------------------------------------------------------------
   // Systems
-  Handlebars.registerHelper("sys-type-sel", system_type_selector);
-  Handlebars.registerHelper("uses-ctrl", uses_control);
-  Handlebars.registerHelper("act-icon", action_type_icon);
+  Handlebars.registerHelper("sys-type-sel", systemTypeSelector);
+  Handlebars.registerHelper("uses-ctrl", usesControl);
+  Handlebars.registerHelper("act-icon", actionTypeIcon);
   Handlebars.registerHelper("act-type-sel", action_type_selector);
 
   // ------------------------------------------------------------------------
@@ -608,7 +605,7 @@ Hooks.once("init", async function () {
   Handlebars.registerHelper("item-edit-uses", item_edit_uses);
   Handlebars.registerHelper("limited-uses-indicator", limitedUsesIndicator);
   Handlebars.registerHelper("reserve-used-indicator", reserveUsesIndicator);
-  Handlebars.registerHelper("loading-indicator", loading_indicator);
+  Handlebars.registerHelper("loading-indicator", loadingIndicator);
 
   // ------------------------------------------------------------------------
   // Frames
@@ -626,9 +623,9 @@ Hooks.once("init", async function () {
   // ------------------------------------------------------------------------
   // NPC components
   Handlebars.registerHelper("tier-selector", npc_tier_selector);
-  Handlebars.registerHelper("npc-feat-preview", npc_feature_preview);
-  Handlebars.registerHelper("ref-npc-class", npc_class_ref);
-  Handlebars.registerHelper("ref-npc-template", npc_template_ref);
+  Handlebars.registerHelper("npc-feat-preview", npcFeatureView);
+  Handlebars.registerHelper("ref-npc-class", npcClassRefView);
+  Handlebars.registerHelper("ref-npc-template", npcTemplateRefView);
 
   // Stat rollers
 

@@ -45,7 +45,6 @@ import {
   WeaponSize,
   WeaponType,
 } from "../enums";
-import { encodeMacroData } from "../macros";
 import { collapseButton, collapseParam, CollapseRegistry } from "./collapse";
 import { promptText } from "../apps/simple-prompt";
 import { CounterEditForm } from "../apps/counter-editor";
@@ -80,7 +79,7 @@ import { FullBoundedNum } from "../source-template";
 /**
  * Handlebars helper for weapon size selector
  */
-export function weapon_size_selector(path: string, options: HelperOptions) {
+export function weaponSizeSelector(path: string, options: HelperOptions) {
   if (!options.hash["default"]) {
     options.hash["default"] = WeaponSize.Main;
   }
@@ -90,7 +89,7 @@ export function weapon_size_selector(path: string, options: HelperOptions) {
 /**
  * Handlebars helper for weapon type selector. First parameter is the existing selection.
  */
-export function weapon_type_selector(path: string, options: HelperOptions) {
+export function weaponTypeSelector(path: string, options: HelperOptions) {
   if (!options.hash["default"]) {
     options.hash["default"] = WeaponType.Rifle;
   }
@@ -101,7 +100,7 @@ export function weapon_type_selector(path: string, options: HelperOptions) {
  * Handlebars helper for range type/value editing
  * Supply with path to Range, and any args that you'd like passed down to the standard input editors, as well as
  */
-export function range_editor(path: string, options: HelperOptions): string {
+export function rangeEditor(path: string, options: HelperOptions): string {
   // Lookup the range so we can draw icon.
   let range = resolve_helper_dotpath<Range>(options, path);
   if (!range) return "";
@@ -136,7 +135,7 @@ export function range_editor(path: string, options: HelperOptions): string {
  * Handlebars helper for weapon damage type/value editing.
  * Supply with path to Damage, and any args that you'd like passed down to the standard input editors
  */
-export function damage_editor(path: string, options: HelperOptions): string {
+export function damageEditor(path: string, options: HelperOptions): string {
   // Lookup the damage so we can draw icon.
   let damage = resolve_helper_dotpath<Damage>(options, path);
   if (!damage) return "";
@@ -165,7 +164,7 @@ export function damage_editor(path: string, options: HelperOptions): string {
  * Supply with the array of Damage[], as well as:
  * - classes: Any additional classes to put on the div holding them
  */
-export function show_damage_array(damages: Damage[], options: HelperOptions): string {
+export function damageArrayView(damages: Damage[], options: HelperOptions): string {
   // Get the classes
   let classes = options.hash["classes"] || "";
   let results: string[] = [];
@@ -181,7 +180,7 @@ export function show_damage_array(damages: Damage[], options: HelperOptions): st
 /**
  * Handlebars helper for showing range values
  */
-export function show_range_array(ranges: Range[], options: HelperOptions): string {
+export function rangeArrayView(ranges: Range[], options: HelperOptions): string {
   // Get the classes
   let classes = options.hash["classes"] || "";
 
@@ -198,7 +197,7 @@ export function show_range_array(ranges: Range[], options: HelperOptions): strin
  * Handlebars helper for an NPC feature preview attack bonus stat
  * @param atk {number} Attack bonus to render
  */
-export function npc_attack_bonus_preview(atk: number, txt: string = "ATTACK") {
+export function npcAttackBonusView(atk: number, txt: string = "ATTACK") {
   return `<div class="compact-acc">
     <i style="margin-right: 5px;" class="cci cci-reticule i--m"></i>
     <span class="medium"> ${atk < 0 ? "-" : "+"}${atk} ${txt}</span>
@@ -209,7 +208,7 @@ export function npc_attack_bonus_preview(atk: number, txt: string = "ATTACK") {
  * Handlebars helper for an NPC feature preview accuracy stat
  * @param acc {number} Accuracy bonus to render
  */
-export function npc_accuracy_preview(acc: number) {
+export function npcAccuracyView(acc: number) {
   let icon: string;
   let text: string;
   if (acc > 0) {
@@ -231,7 +230,7 @@ export function npc_accuracy_preview(acc: number) {
 /**
  * Handlebars partial for weapon type selector
  */
-export function system_type_selector(path: string, options: HelperOptions) {
+export function systemTypeSelector(path: string, options: HelperOptions) {
   return std_enum_select(path, SystemType, extendHelper(options, {}, { default: SystemType.System }));
 }
 
@@ -239,7 +238,7 @@ export function system_type_selector(path: string, options: HelperOptions) {
  * Handlebars partial for limited uses remaining
  * TODO: make look more like compcon
  */
-export function uses_control(uses_path: string, max_uses: number, options: HelperOptions): string {
+export function usesControl(uses_path: string, max_uses: number, options: HelperOptions): string {
   const curr_uses = resolve_helper_dotpath(options, uses_path, 0);
   return `
     <div class="card clipped">
@@ -249,7 +248,7 @@ export function uses_control(uses_path: string, max_uses: number, options: Helpe
     `;
 }
 
-export function npc_feature_preview(npc_feature_path: string, options: HelperOptions): string {
+export function npcFeatureView(npc_feature_path: string, options: HelperOptions): string {
   let feature = options.hash["item"] ?? resolve_helper_dotpath<LancerNPC_FEATURE>(options, npc_feature_path);
   if (!feature) return "";
 
@@ -274,7 +273,7 @@ export function npc_feature_preview(npc_feature_path: string, options: HelperOpt
  * - bonuses=<bonus array to pre-populate with>.
  * Displays a list of bonuses, with buttons to add/delete (if edit true)
  */
-export function bonuses_display(bonuses_path: string, edit: boolean, options: HelperOptions) {
+export function bonusesDisplay(bonuses_path: string, edit: boolean, options: HelperOptions) {
   let bonuses_array = resolve_helper_dotpath<BonusData[]>(options, bonuses_path, []);
   let items: string[] = [];
 
@@ -308,7 +307,7 @@ export function bonuses_display(bonuses_path: string, edit: boolean, options: He
  * - bonus_path=<string path to the individual bonus item>,  ex: ="doc.system.actions.3"
  * - bonus=<bonus object to pre-populate with>
  */
-export function single_action_editor(path: string, options: HelperOptions) {
+export function singleActionEditor(path: string, options: HelperOptions) {
   // Make inputs for each important field
   let id_input = std_text_input(`${path}.LID`, extendHelper(options, { label: "ID" }));
   let name_input = std_text_input(`${path}.Name`, extendHelper(options, { label: "Name" }));
@@ -321,7 +320,7 @@ export function single_action_editor(path: string, options: HelperOptions) {
     </div>`;
 }
 
-export function bond_power(bond_path: string, power_index: number, options: HelperOptions): string {
+export function bondPower(bond_path: string, power_index: number, options: HelperOptions): string {
   let bond = resolve_helper_dotpath<LancerBOND>(options, bond_path);
   let power = bond?.system.powers[power_index];
   if (!bond || !power) return "";
@@ -341,7 +340,7 @@ export function bond_power(bond_path: string, power_index: number, options: Help
             ${body}
             ${
               power.uses && power.uses.max
-                ? bond_power_uses_indicator(bond, power_index, `${bond_path}.system.powers.${power_index}`)
+                ? bondPowerUsesIndicator(bond, power_index, `${bond_path}.system.powers.${power_index}`)
                 : ""
             }
           </div>`
@@ -352,7 +351,7 @@ export function bond_power(bond_path: string, power_index: number, options: Help
 }
 
 // Helper for showing a piece of armor, or a slot to hold it (if path is provided)
-export function pilot_armor_slot(armor_path: string, options: HelperOptions): string {
+export function pilotArmorSlot(armor_path: string, options: HelperOptions): string {
   // Fetch the item
   let armor: LancerPILOT_ARMOR | null = resolve_helper_dotpath(options, armor_path);
 
@@ -416,7 +415,7 @@ export function pilot_armor_slot(armor_path: string, options: HelperOptions): st
 }
 
 // Helper for showing a pilot weapon, or a slot to hold it (if path is provided)
-export function pilot_weapon_refview(weapon_path: string, options: HelperOptions): string {
+export function pilotWeaponRefview(weapon_path: string, options: HelperOptions): string {
   // Fetch the item
   let weapon: LancerPILOT_WEAPON | null = resolve_helper_dotpath(options, weapon_path);
 
@@ -434,7 +433,7 @@ export function pilot_weapon_refview(weapon_path: string, options: HelperOptions
   let loading = "";
   // Generate loading segment as needed
   if (weapon.system.tags.some(t => t.is_loading)) {
-    loading = loading_indicator(weapon.system.loaded, weapon_path);
+    loading = loadingIndicator(weapon.system.loaded, weapon_path);
   }
   // Generate limited segment as needed
   let limited = "";
@@ -461,9 +460,9 @@ export function pilot_weapon_refview(weapon_path: string, options: HelperOptions
           <i class="fas fa-dice-d20 i--sm i--dark"></i>
           
         </a>
-        ${show_range_array(weapon.system.range, options)}
+        ${rangeArrayView(weapon.system.range, options)}
         <hr class="vsep">
-        ${show_damage_array(weapon.system.damage, options)}
+        ${damageArrayView(weapon.system.damage, options)}
         
         ${inc_if(`<hr class="vsep"><div class="uses-wrapper">`, loading || limited)}
         <!-- Loading toggle, if we are loading-->
@@ -479,7 +478,7 @@ export function pilot_weapon_refview(weapon_path: string, options: HelperOptions
 }
 
 // Helper for showing a pilot gear, or a slot to hold it (if path is provided)
-export function pilot_gear_refview(gear_path: string, options: HelperOptions): string {
+export function pilotGearRefview(gear_path: string, options: HelperOptions): string {
   // Fetch the item
   let gear = resolve_dotpath(options.data?.root, gear_path) as LancerPILOT_GEAR | null;
 
@@ -523,7 +522,7 @@ export function pilot_gear_refview(gear_path: string, options: HelperOptions): s
   </div>`;
 }
 
-export function bond_power_uses_indicator(item: LancerBOND, power_index: number, path: string): string {
+export function bondPowerUsesIndicator(item: LancerBOND, power_index: number, path: string): string {
   const power = item.system.powers[power_index];
   if (!power.uses) return "";
   const hexes = hex_array(power.uses.value, power.uses.max, path, "power-uses-hex");
@@ -533,7 +532,7 @@ export function bond_power_uses_indicator(item: LancerBOND, power_index: number,
 }
 
 // Helper for showing a reserve, or a slot to hold it (if path is provided)
-export function reserve_refview(reserve_path: string, options: HelperOptions): string {
+export function reserveRefView(reserve_path: string, options: HelperOptions): string {
   // Fetch the item
   let reserve = resolve_helper_dotpath(options, reserve_path) as LancerRESERVE | null;
 
@@ -617,7 +616,7 @@ export function reserve_refview(reserve_path: string, options: HelperOptions): s
  * Handlebars helper for a mech weapon preview card. Doubles as a slot. Mech path needed for bonuses
  * SPECIFICALLY for loadout - expects things to be slot based
  */
-export function mech_loadout_weapon_slot(
+export function mechLoadoutWeaponSlot(
   weapon_path: string,
   mod_path: string,
   size: FittingSize, // Needed if slot is empty
@@ -635,14 +634,14 @@ export function mech_loadout_weapon_slot(
         <span class="major">Insert ${size ? size : "any"} weapon</span>
       </div>`;
   } else {
-    return mech_weapon_display(weapon_path, mod_path, options);
+    return mechWeaponDisplay(weapon_path, mod_path, options);
   }
 }
 
-export function mech_weapon_display(weapon_path: string, mod_path: string | null, options: HelperOptions): string {
+export function mechWeaponDisplay(weapon_path: string, mod_path: string | null, options: HelperOptions): string {
   let actor: LancerActor | null = resolve_helper_dotpath(options, "actor");
   let weapon = resolve_helper_dotpath<LancerMECH_WEAPON>(options, weapon_path);
-  let mod_text = mod_path ? weapon_mod_ref(mod_path, weapon_path, options) : "";
+  let mod_text = mod_path ? weaponModRef(mod_path, weapon_path, options) : "";
   let collapse = resolve_helper_dotpath<CollapseRegistry>(options, "collapse");
 
   if (!weapon) return "";
@@ -672,7 +671,7 @@ data-action="set" data-action-value="(int)${i}" data-path="${weapon_path}.system
   // Generate loading segment as needed
   let loading = "";
   if (weapon.system.all_tags.some(t => t.is_loading)) {
-    loading = loading_indicator(weapon.system.loaded, weapon_path);
+    loading = loadingIndicator(weapon.system.loaded, weapon_path);
   }
 
   // Generate effects
@@ -709,9 +708,9 @@ data-action="set" data-action-value="(int)${i}" data-path="${weapon_path}.system
         <div class="flexrow" style="text-align: left; white-space: nowrap;">
           <a class="roll-attack lancer-button"><i class="fas fa-dice-d20 i--m i--dark"></i></a>
           <hr class="vsep">
-          ${show_range_array(profile.all_range, options)}
+          ${rangeArrayView(profile.all_range, options)}
           <hr class="vsep">
-          ${show_damage_array(profile.all_damage, options)}
+          ${damageArrayView(profile.all_damage, options)}
 
           ${inc_if(`<hr class="vsep"><div class="uses-wrapper">`, loading || limited)}
           <!-- Loading toggle, if we are loading-->
@@ -734,14 +733,14 @@ data-action="set" data-action-value="(int)${i}" data-path="${weapon_path}.system
   </div>`;
 }
 
-export function loading_indicator(loaded: boolean, weapon_path: string): string {
+export function loadingIndicator(loaded: boolean, weapon_path: string): string {
   let loading_icon = `mdi ${loaded ? "mdi-hexagon-slice-6" : "mdi-hexagon-outline"} loaded-hex`;
   let indicator = `<a class="gen-control" data-action="set" data-action-value="(bool)${!loaded}" data-path="${weapon_path}.system.loaded"><i class="${loading_icon} i--m"></i></a>`;
   return `<div class="clipped card limited-card">LOADED ${indicator}</div>`;
 }
 
 // Renders a weapon mod slot
-export function weapon_mod_ref(mod_path: string, weapon_path: string | null, options: HelperOptions): string {
+export function weaponModRef(mod_path: string, weapon_path: string | null, options: HelperOptions): string {
   let mod: LancerWEAPON_MOD | null = resolve_helper_dotpath(options, mod_path);
   let weapon: LancerMECH_WEAPON | null = weapon_path ? resolve_helper_dotpath(options, weapon_path) : null;
   if (!mod) {
@@ -760,7 +759,7 @@ export function weapon_mod_ref(mod_path: string, weapon_path: string | null, opt
     added_range = `
       <div class="effect-box">
         <div class="effect-title clipped-bot">ADDED RANGE</div>
-        ${show_range_array(mod.system.added_range, options)}
+        ${rangeArrayView(mod.system.added_range, options)}
       </div>`;
   }
   let added_damage = "";
@@ -768,11 +767,11 @@ export function weapon_mod_ref(mod_path: string, weapon_path: string | null, opt
     added_damage = `
       <div class="effect-box">
         <div class="effect-title clipped-bot">ADDED DAMAGE</div>
-        ${show_damage_array(mod.system.added_damage, options)}
+        ${damageArrayView(mod.system.added_damage, options)}
       </div>`;
   }
   let effect = mod.system.effect ? effectBox("Effect", mod.system.effect, { flow: true }) : "";
-  let bonuses = mod.system.bonuses.length > 0 ? bonuses_display(`${mod_path}.system.bonuses`, false, options) : "";
+  let bonuses = mod.system.bonuses.length > 0 ? bonusesDisplay(`${mod_path}.system.bonuses`, false, options) : "";
   let added_tags = "";
   if (mod.system.added_tags.length) {
     added_tags = `
@@ -845,7 +844,7 @@ export function manufacturer_ref(source_path: string, options: HelperOptions): s
 
 // A specific ref helper focused on displaying license info.
 // This if for display purposes and does not provide editable fields
-export function license_ref(item_path: string, options: HelperOptions): string {
+export function licenseRefView(item_path: string, options: HelperOptions): string {
   let license = resolve_helper_dotpath(options, item_path) as LancerLICENSE;
   const mfr = manufacturerStyle(license.system.manufacturer);
   return `
@@ -883,7 +882,7 @@ export function framePreview(path: string, options: HelperOptions): string {
   }
 }
 
-export function npc_class_ref(npc_class: LancerNPC_CLASS | null, item_path?: string): string {
+export function npcClassRefView(npc_class: LancerNPC_CLASS | null, item_path?: string): string {
   if (!npc_class) {
     return "";
   } else {
@@ -903,7 +902,7 @@ export function npc_class_ref(npc_class: LancerNPC_CLASS | null, item_path?: str
   }
 }
 
-export function npc_template_ref(template: LancerNPC_TEMPLATE | null, item_path?: string): string {
+export function npcTemplateRefView(template: LancerNPC_TEMPLATE | null, item_path?: string): string {
   if (!template) {
     return "";
   } else {
@@ -922,7 +921,7 @@ export function npc_template_ref(template: LancerNPC_TEMPLATE | null, item_path?
   }
 }
 
-export function action_type_icon(a_type: string) {
+export function actionTypeIcon(a_type: string) {
   const a = a_type ? a_type.toLowerCase() : ActivationType.None.toLowerCase();
   let html = "";
   switch (a) {
@@ -1021,7 +1020,7 @@ export function buildActionHTML(
   return `
   <div class="action-wrapper">
     <div class="title-wrapper flexrow">
-      ${action_type_icon(action.activation)}
+      ${actionTypeIcon(action.activation)}
       <span class="action-title collapse-trigger">
         ${action.name?.toUpperCase() ?? doc.name}
       </span>
@@ -1304,7 +1303,7 @@ export function buildCounterArrayHTML(
   </div>`;
 }
 
-export function generic_counter(name: string, data: FullBoundedNum, path: string): string {
+export function genericCounter(name: string, data: FullBoundedNum, path: string): string {
   const counterData: CounterData = {
     name,
     min: data.min,
