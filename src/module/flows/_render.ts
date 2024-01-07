@@ -17,6 +17,9 @@ export async function renderTemplateStep(actor: LancerActor, template: string, t
   if (templateData.roll) {
     aggregate.push(templateData.roll);
   }
+  if (templateData.result) {
+    aggregate.push(templateData.result.roll);
+  }
   if ((templateData.attack_results?.length ?? 0) > 0) {
     aggregate.push(...templateData.attack_results.map((a: { roll: Roll }) => a.roll));
   }
