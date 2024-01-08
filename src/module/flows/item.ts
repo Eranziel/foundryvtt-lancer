@@ -3,10 +3,13 @@ import { LancerItem } from "../item/lancer-item";
 import { TalentFlow } from "./talent";
 import { SimpleHTMLFlow, SimpleTextFlow } from "./text";
 
-// TODO: refactor these to be "print to chat" flows instead of "use the item" flows
-// Then we can attach this to all of the chat bubble buttons.
+/**
+ * Select and begin a chat flow for the given item.
+ * @param item The item to print to chat
+ * @param data Additional data required by some flows
+ * @returns Promise<boolean> Whether the flow completed successfully
+ */
 export async function beginItemChatFlow(item: LancerItem, data: any) {
-  console.log("Selecting item flow with data and item: ", data, item);
   if (item.is_skill()) {
     const flow = new SimpleHTMLFlow(item, {});
     return await flow.begin();
@@ -67,6 +70,7 @@ export async function beginItemChatFlow(item: LancerItem, data: any) {
     return await flow.begin();
   } else {
     console.log("No macro exists for that item type");
-    return ui.notifications!.error(`Error - No macro exists for item type "${item.type}"`);
+    ui.notifications!.error(`Error - No macro exists for item type "${item.type}"`);
+    return false;
   }
 }
