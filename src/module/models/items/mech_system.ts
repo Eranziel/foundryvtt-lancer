@@ -57,14 +57,14 @@ export function unpackMechSystem(
       destroyed: undefined,
       effect: data.effect,
       integrated: data.integrated,
-      license: data.license_id ?? data.license,
+      license: data.license_id || data.license,
       license_level: data.license_level,
       manufacturer: data.source,
       sp: data.sp,
       synergies: data.synergies?.map(unpackSynergy),
       tags: data.tags?.map(unpackTag),
       type: data.type,
-      uses: 0,
+      uses: { value: 0, max: 0 },
     },
   };
 }

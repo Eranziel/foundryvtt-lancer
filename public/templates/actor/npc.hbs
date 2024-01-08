@@ -53,7 +53,7 @@
       {{!-- Equipment et all --}}
       <div class="card clipped flexrow">
         <div style="padding-right: 5px;">
-          <div class="lancer-header submajor" style="height: 30px;">{{localize "lancer.npc-sheet.class.label"}}</div>
+          <div class="lancer-header lancer-primary submajor" style="height: 30px;">{{localize "lancer.npc-sheet.class.label"}}</div>
           <div class="flexcol">
             {{#if system.class}}
               {{{ref-npc-class system.class "system.class" }}}
@@ -64,7 +64,7 @@
         </div>
 
         <div class="flexcol" style="padding-left: 5px;">
-          <span class="lancer-header submajor clipped-top">{{localize "lancer.npc-sheet.templates.label"}}</span>
+          <span class="lancer-header lancer-primary submajor clipped-top">{{localize "lancer.npc-sheet.templates.label"}}</span>
           {{#each itemTypes.npc_template as |template index|}}
             {{{ref-npc-template template (concat "itemTypes.npc_template." index) }}}
           {{/each}}
@@ -72,7 +72,7 @@
       </div>
 
       <div class="card clipped">
-        <span class="lancer-header submajor">BASIC ATTACKS</span>
+        <span class="lancer-header lancer-primary submajor">BASIC ATTACKS</span>
         <div class="lancer-macro-grid">
           {{{flow-button "MELEE/RANGED" "BasicAttack" }}}
           {{{flow-button "TECH" "TechAttack" }}}
@@ -80,9 +80,12 @@
       </div>
 
       <div class="card clipped">
-        <div class="lancer-header submajor">
-          <span style="padding-left: 41px;">{{localize "lancer.npc-sheet.features.label"}}</span>
-          <a style="margin-top: 2px; font-size: 1.4em;" class="charge-macro"><i class="mdi mdi-dice-6"></i></a>
+        <div class="lancer-header lancer-primary submajor">
+          <div style="width: 120px;"></div>
+          <span>{{localize "lancer.npc-sheet.features.label"}}</span>
+          <div class="lancer-button charge-macro" style="margin-top: 2px; margin-bottom: 2px; font-size: 0.75rem;">
+            <i class="mdi mdi-refresh i--sm"></i> Recharge
+          </div>
         </div>
         <div class="wraprow double">
           {{#each itemTypes.npc_feature as |feature index|}} {{{npc-feat-preview (concat "itemTypes.npc_feature." index)

@@ -12,7 +12,7 @@ import {
 import { DamageData, DamageField, unpackDamage } from "../bits/damage";
 import { RangeField, unpackRange } from "../bits/range";
 import { TagField, unpackTag } from "../bits/tag";
-import { LancerDataModel, NpcStatBlockField, UnpackContext } from "../shared";
+import { ControlledLengthArrayField, LancerDataModel, NpcStatBlockField, UnpackContext } from "../shared";
 import { template_destructible, template_universal_item, template_uses } from "./shared";
 
 const fields: any = foundry.data.fields;
@@ -36,8 +36,10 @@ export class NpcFeatureModel extends LancerDataModel<"NpcFeatureModel"> {
       damage: new fields.ArrayField(new fields.ArrayField(new DamageField())),
       range: new fields.ArrayField(new RangeField()),
       on_hit: new fields.StringField(),
-      accuracy: new fields.ArrayField(new fields.NumberField({ integer: true })),
-      attack_bonus: new fields.ArrayField(new fields.NumberField({ integer: true })),
+      accuracy: new ControlledLengthArrayField(new fields.NumberField({ integer: true, initial: 0 }), { length: 3 }),
+      attack_bonus: new ControlledLengthArrayField(new fields.NumberField({ integer: true, initial: 0 }), {
+        length: 3,
+      }),
 
       // Trait - N/A
 

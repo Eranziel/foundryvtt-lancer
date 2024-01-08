@@ -11,17 +11,18 @@
 import "./lancer.scss";
 
 // Import TypeScript modules
-import { LANCER, STATUSES, WELCOME } from "./module/config";
+import { LANCER, WELCOME } from "./module/config";
+import { migrateLancerConditions } from "./module/status-icons";
 import { LancerActor } from "./module/actor/lancer-actor";
 import { LancerItem } from "./module/item/lancer-item";
 import { populatePilotCache } from "./module/util/compcon";
 
-import { action_type_selector } from "./module/helpers/npc";
+import { actionTypeSelector } from "./module/helpers/npc";
 
 import { LancerActionManager } from "./module/action/action-manager";
 
 // Import applications
-import { LancerPilotSheet, pilot_counters, all_mech_preview } from "./module/actor/pilot-sheet";
+import { LancerPilotSheet, pilotCounters, allMechPreview } from "./module/actor/pilot-sheet";
 import { LancerNPCSheet } from "./module/actor/npc-sheet";
 import { LancerDeployableSheet } from "./module/actor/deployable-sheet";
 import { LancerMechSheet } from "./module/actor/mech-sheet";
@@ -33,7 +34,8 @@ import { WeaponRangeTemplate } from "./module/pixi/weapon-range-template";
 // Import helpers
 import { preloadTemplates } from "./module/preload-templates";
 import { getAutomationOptions, registerSettings } from "./module/settings";
-import { compact_tag_list } from "./module/helpers/tags";
+import { applyTheme } from "./module/themes";
+import { compactTagListHBS, itemEditTags } from "./module/helpers/tags";
 import * as migrations from "./module/world_migration";
 import { addLCPManager, updateCore, core_update } from "./module/apps/lcp-manager";
 
@@ -55,38 +57,38 @@ import {
   popout_editor_button,
   safe_html_helper,
   large_textbox_card,
-  std_string_input,
   std_text_input,
   std_password_input,
   std_num_input,
   std_checkbox,
   std_enum_select,
   saveCancelButtons,
+  lancerDiceRoll,
 } from "./module/helpers/commons";
 import {
-  weapon_size_selector,
-  weapon_type_selector,
-  range_editor,
-  npc_attack_bonus_preview,
-  npc_accuracy_preview,
-  mech_loadout_weapon_slot,
-  system_type_selector,
-  npc_feature_preview,
-  damage_editor,
-  bonuses_display,
-  pilot_armor_slot,
-  pilot_weapon_refview,
-  pilot_gear_refview,
-  reserve_refview,
-  license_ref,
-  uses_control,
+  weaponSizeSelector,
+  weaponTypeSelector,
+  rangeEditor,
+  npcAttackBonusView,
+  npcAccuracyView,
+  mechLoadoutWeaponSlot,
+  systemTypeSelector,
+  npcFeatureView,
+  damageEditor,
+  bonusesDisplay,
+  pilotArmorSlot,
+  pilotWeaponRefview,
+  pilotGearRefview,
+  reserveRefView,
+  licenseRefView,
+  usesControl,
   buildCounterArrayHTML,
-  loading_indicator,
-  action_type_icon,
-  npc_class_ref,
-  npc_template_ref,
-  generic_counter,
-  bond_power,
+  loadingIndicator,
+  actionTypeIcon,
+  npcClassRefView,
+  npcTemplateRefView,
+  genericCounter,
+  bondPower,
   buildCounterHTML,
 } from "./module/helpers/item";
 import {
@@ -100,7 +102,7 @@ import {
   actor_flow_button,
   npc_stat_block_clicker_card,
   npc_tier_selector,
-  overcharge_button,
+  overchargeButton,
   stat_edit_card,
   stat_edit_card_max,
   stat_rollable_card,
@@ -108,17 +110,19 @@ import {
   tech_flow_card,
   bond_answer_selector,
   bond_minor_ideal_selector,
+  npc_stat_array_clicker_card,
 } from "./module/helpers/actor";
 import type { HelperOptions } from "handlebars";
 import {
-  item_preview,
+  itemPreview,
   simple_ref_slot,
-  ref_portrait,
-  item_preview_list,
-  limited_uses_indicator,
-  reserve_used_indicator,
+  refPortrait,
+  lid_item_list,
+  limitedUsesIndicator,
+  reserveUsesIndicator,
+  handleRefClickOpen,
 } from "./module/helpers/refs";
-import { mech_loadout, pilot_slot, frameView } from "./module/helpers/loadout";
+import { mechLoadout, pilotSlot, frameView } from "./module/helpers/loadout";
 import {
   item_edit_arrayed_actions,
   item_edit_arrayed_damage,
@@ -134,6 +138,7 @@ import {
   item_edit_uses,
   item_edit_arrayed_integrated,
   item_edit_enum,
+  item_edit_checkboxes_object,
 } from "./module/helpers/item-editors";
 import { applyCollapseListeners, initializeCollapses } from "./module/helpers/collapse";
 import { handleCombatUpdate } from "./module/helpers/automation/combat";
@@ -143,7 +148,8 @@ import { LancerToken, LancerTokenDocument } from "./module/token";
 import { applyGlobalDragListeners } from "./module/helpers/dragdrop";
 import { gridDist } from "./module/helpers/automation/targeting";
 import CompconLoginForm from "./module/helpers/compcon-login-form";
-import { LancerCombat, LancerCombatant, LancerCombatTracker } from "lancer-initiative";
+import { LancerCombat, LancerCombatant } from "./module/combat/lancer-combat";
+import { LancerCombatTracker } from "./module/combat/lancer-combat-tracker";
 import { LancerCombatTrackerConfig } from "./module/helpers/lancer-initiative-config-form";
 import { MechModel } from "./module/models/actors/mech";
 import { MechSystemModel } from "./module/models/items/mech_system";
@@ -176,8 +182,21 @@ import { NpcFeatureModel } from "./module/models/items/npc_feature";
 import { LancerNPCClassSheet } from "./module/item/npc-class-sheet";
 import { WeaponModModel } from "./module/models/items/weapon_mod";
 import { ReserveModel } from "./module/models/items/reserve";
+import { OrganizationModel } from "./module/models/items/organization";
 import { StatusModel } from "./module/models/items/status";
 import { BondModel } from "./module/models/items/bond";
+import { Flow, FlowState, Step } from "./module/flows/flow";
+import { registerAttackSteps } from "./module/flows/attack";
+import { registerTechAttackSteps } from "./module/flows/tech";
+import { registerActivationSteps } from "./module/flows/activation";
+import { registerItemUtilSteps } from "./module/flows/item-utils";
+import { registerBondPowerSteps } from "./module/flows/bond";
+import { registerCoreActiveSteps } from "./module/flows/frame";
+import { registerTextSteps } from "./module/flows/text";
+import { registerTalentSteps } from "./module/flows/talent";
+import { registerStatSteps } from "./module/flows/stat";
+import { registerOverchargeSteps } from "./module/flows/overcharge";
+import { registerSystemSteps } from "./module/flows/system";
 
 const lp = LANCER.log_prefix;
 
@@ -218,6 +237,8 @@ Hooks.once("init", async function () {
   // @ts-expect-error
   CONFIG.Item.dataModels[EntryType.RESERVE] = ReserveModel;
   // @ts-expect-error
+  CONFIG.Item.dataModels[EntryType.ORGANIZATION] = OrganizationModel;
+  // @ts-expect-error
   CONFIG.Item.dataModels[EntryType.SKILL] = SkillModel;
   // @ts-expect-error
   CONFIG.Item.dataModels[EntryType.STATUS] = StatusModel;
@@ -243,17 +264,33 @@ Hooks.once("init", async function () {
 
   // Configure indexes
   // @ts-expect-error
-  CONFIG.Item.compendiumIndexFields = ["system.lid"];
+  CONFIG.Item.compendiumIndexFields = ["system.lid", "system.license"];
   // @ts-expect-error
   CONFIG.Actor.compendiumIndexFields = ["system.lid"];
 
   // Register custom system settings
   registerSettings();
+  // Apply theme colors
+  applyTheme(game.settings.get(game.system.id, LANCER.setting_ui_theme) as "gms" | "msmc" | "horus");
 
   // no need to block on amplify - logging into comp/con and populating the cache
   // it can happen in the background
   configureAmplify();
 
+  const flowSteps: Map<string, Step<any, any> | Flow<any>> = new Map();
+  // Register flow steps
+  flowSteps.set("dummyStep", async (state: FlowState<any>) => !!state);
+  registerTextSteps(flowSteps);
+  registerSystemSteps(flowSteps);
+  registerItemUtilSteps(flowSteps);
+  registerAttackSteps(flowSteps);
+  registerTechAttackSteps(flowSteps);
+  registerActivationSteps(flowSteps);
+  registerCoreActiveSteps(flowSteps);
+  registerStatSteps(flowSteps);
+  registerOverchargeSteps(flowSteps);
+  registerTalentSteps(flowSteps);
+  registerBondPowerSteps(flowSteps);
   // Assign custom classes and constants here
   // Create a Lancer namespace within the game global
   game.lancer = {
@@ -274,18 +311,19 @@ Hooks.once("init", async function () {
       gridDist,
       lookupOwnedDeployables,
     },
-    prepareItemMacro: macros.prepareItemMacro,
-    prepareStatMacro: macros.prepareStatMacro,
-    prepareTalentMacro: macros.prepareTalentMacro,
+    flowSteps,
+    // prepareItemMacro: macros.prepareItemMacro,
+    // prepareStatMacro: macros.prepareStatMacro,
+    // prepareTalentMacro: macros.prepareTalentMacro,
     prepareTextMacro: macros.prepareTextMacro,
     // prepareTechMacro: macros.prepareTechMacro,
-    prepareCoreActiveMacro: macros.prepareCoreActiveMacro,
-    prepareCorePassiveMacro: macros.prepareCorePassiveMacro,
-    prepareFrameTraitMacro: macros.prepareFrameTraitMacro,
-    prepareOverchargeMacro: macros.prepareOverchargeMacro,
+    // prepareCoreActiveMacro: macros.prepareCoreActiveMacro,
+    // prepareCorePassiveMacro: macros.prepareCorePassiveMacro,
+    // prepareFrameTraitMacro: macros.prepareFrameTraitMacro,
+    // prepareOverchargeMacro: macros.prepareOverchargeMacro,
     prepareOverheatMacro: macros.prepareOverheatMacro,
     beginStructureFlow: macros.beginStructureFlow,
-    prepareActivationMacro: macros.prepareActivationMacro,
+    // prepareActivationMacro: macros.prepareActivationMacro,
     // prepareAttackMacro: macros.prepareAttackMacro,
     beginSecondaryStructureFlow: macros.beginSecondaryStructureFlow,
     // rollTechMacro: macros.rollTechMacro,
@@ -308,7 +346,6 @@ Hooks.once("init", async function () {
   CONFIG.Token.objectClass = LancerToken;
   CONFIG.Combat.documentClass = LancerCombat;
   CONFIG.Combatant.documentClass = LancerCombatant;
-  // @ts-expect-error TODO: fix up Options vs ApplicationOptions once we have more modern types
   CONFIG.ui.combat = LancerCombatTracker;
 
   // Set up default system status icons
@@ -429,6 +466,7 @@ Hooks.once("init", async function () {
 
   // ------------------------------------------------------------------------
   // Generic components
+  Handlebars.registerHelper("lancer-dice-roll", lancerDiceRoll);
   Handlebars.registerHelper("l-num-input", clicker_num_input);
 
   Handlebars.registerPartial("dialog-save-buttons", saveCancelButtons());
@@ -456,8 +494,7 @@ Hooks.once("init", async function () {
   Handlebars.registerHelper("stat-edit-max-card", stat_edit_card_max);
   Handlebars.registerHelper("clicker-stat-card", clicker_stat_card);
   Handlebars.registerHelper("npc-clicker-statblock-card", npc_stat_block_clicker_card);
-  Handlebars.registerHelper("npc-clicker-statarr-card", npc_stat_block_clicker_card);
-  Handlebars.registerHelper("std-string-input", std_string_input);
+  Handlebars.registerHelper("npc-clicker-statarr-card", npc_stat_array_clicker_card);
   Handlebars.registerHelper("std-text-input", std_text_input);
   Handlebars.registerHelper("std-password-input", std_password_input);
   Handlebars.registerHelper("std-num-input", std_num_input);
@@ -484,26 +521,26 @@ Hooks.once("init", async function () {
   // ------------------------------------------------------------------------
   // Refs
   Handlebars.registerHelper("simple-ref", simple_ref_slot);
-  Handlebars.registerHelper("item-preview", item_preview);
-  Handlebars.registerHelper("item-preview-list", item_preview_list);
-  Handlebars.registerHelper("pilot-slot", pilot_slot);
+  Handlebars.registerHelper("item-preview", itemPreview);
+  Handlebars.registerHelper("lid-item-list", lid_item_list);
+  Handlebars.registerHelper("pilot-slot", pilotSlot);
   Handlebars.registerHelper("deployer-slot", deployer_slot); // Can be pilot, npc, or mech. Preferably mech, lol
-  Handlebars.registerHelper("ref-portrait-img", ref_portrait);
+  Handlebars.registerHelper("ref-portrait-img", refPortrait);
 
   // ------------------------------------------------------------------------
   // Pilot stuff
-  Handlebars.registerHelper("pilot-armor-slot", pilot_armor_slot);
-  Handlebars.registerHelper("pilot-weapon-slot", pilot_weapon_refview);
-  Handlebars.registerHelper("pilot-gear-slot", pilot_gear_refview);
-  Handlebars.registerHelper("reserve-slot", reserve_refview);
-  Handlebars.registerHelper("generic-counter", generic_counter);
+  Handlebars.registerHelper("pilot-armor-slot", pilotArmorSlot);
+  Handlebars.registerHelper("pilot-weapon-slot", pilotWeaponRefview);
+  Handlebars.registerHelper("pilot-gear-slot", pilotGearRefview);
+  Handlebars.registerHelper("reserve-slot", reserveRefView);
+  Handlebars.registerHelper("generic-counter", genericCounter);
   Handlebars.registerHelper("bond-answer-selector", bond_answer_selector);
   Handlebars.registerHelper("bond-ideal-selector", bond_minor_ideal_selector);
-  Handlebars.registerHelper("bond-power", bond_power);
+  Handlebars.registerHelper("bond-power", bondPower);
   Handlebars.registerHelper("counter", buildCounterHTML);
   Handlebars.registerHelper("counter-array", buildCounterArrayHTML);
-  Handlebars.registerHelper("pilot-counters", pilot_counters);
-  Handlebars.registerHelper("all-mech-preview", all_mech_preview);
+  Handlebars.registerHelper("pilot-counters", pilotCounters);
+  Handlebars.registerHelper("all-mech-preview", allMechPreview);
 
   // ------------------------------------------------------------------------
   // Effects
@@ -512,41 +549,38 @@ Hooks.once("init", async function () {
 
   // ------------------------------------------------------------------------
   // Tags
-  // Handlebars.registerHelper("compact-tag", renderCompactTag);
-  // Handlebars.registerPartial("tag-list", compactTagList);
-  Handlebars.registerHelper("tag-list", compact_tag_list);
-  // Handlebars.registerHelper("chunky-tag", renderChunkyTag);
-  // Handlebars.registerHelper("full-tag", renderFullTag);
+  Handlebars.registerHelper("tag-list", compactTagListHBS);
+  Handlebars.registerHelper("item-edit-arrayed-tags", itemEditTags);
 
   // ------------------------------------------------------------------------
   // License data
   // Handlebars.registerHelper("ref-manufacturer", manufacturer_ref);
-  Handlebars.registerHelper("ref-license", license_ref);
+  Handlebars.registerHelper("ref-license", licenseRefView);
 
   // ------------------------------------------------------------------------
   // Frame/Class/Template data
 
   // ------------------------------------------------------------------------
   // Bonuses
-  Handlebars.registerHelper("bonuses-view", bonuses_display);
+  Handlebars.registerHelper("bonuses-view", bonusesDisplay);
   Handlebars.registerHelper("popout-editor-button", popout_editor_button);
 
   // ------------------------------------------------------------------------
   // Weapons
-  Handlebars.registerHelper("wpn-size-sel", weapon_size_selector);
-  Handlebars.registerHelper("wpn-type-sel", weapon_type_selector);
-  Handlebars.registerHelper("wpn-range-sel", range_editor);
-  Handlebars.registerHelper("wpn-damage-sel", damage_editor);
-  Handlebars.registerHelper("npcf-atk", npc_attack_bonus_preview);
-  Handlebars.registerHelper("npcf-acc", npc_accuracy_preview);
-  Handlebars.registerHelper("mech-weapon-preview", mech_loadout_weapon_slot);
+  Handlebars.registerHelper("wpn-size-sel", weaponSizeSelector);
+  Handlebars.registerHelper("wpn-type-sel", weaponTypeSelector);
+  Handlebars.registerHelper("wpn-range-sel", rangeEditor);
+  Handlebars.registerHelper("wpn-damage-sel", damageEditor);
+  Handlebars.registerHelper("npcf-atk", npcAttackBonusView);
+  Handlebars.registerHelper("npcf-acc", npcAccuracyView);
+  Handlebars.registerHelper("mech-weapon-preview", mechLoadoutWeaponSlot);
 
   // ------------------------------------------------------------------------
   // Systems
-  Handlebars.registerHelper("sys-type-sel", system_type_selector);
-  Handlebars.registerHelper("uses-ctrl", uses_control);
-  Handlebars.registerHelper("act-icon", action_type_icon);
-  Handlebars.registerHelper("act-type-sel", action_type_selector);
+  Handlebars.registerHelper("sys-type-sel", systemTypeSelector);
+  Handlebars.registerHelper("uses-ctrl", usesControl);
+  Handlebars.registerHelper("act-icon", actionTypeIcon);
+  Handlebars.registerHelper("act-type-sel", actionTypeSelector);
 
   // ------------------------------------------------------------------------
   // Item-level helpers for editing
@@ -555,14 +589,13 @@ Hooks.once("init", async function () {
   Handlebars.registerHelper("item-edit-arrayed-damage", item_edit_arrayed_damage);
   Handlebars.registerHelper("item-edit-arrayed-range", item_edit_arrayed_range);
   Handlebars.registerHelper("item-edit-arrayed-enum", item_edit_arrayed_enum);
+  Handlebars.registerHelper("item-edit-checkboxes-object", item_edit_checkboxes_object);
   Handlebars.registerHelper("item-edit-arrayed-bonuses", item_edit_arrayed_bonuses);
   Handlebars.registerHelper("item-edit-arrayed-counters", item_edit_arrayed_counters);
   Handlebars.registerHelper("item-edit-arrayed-deployables", item_edit_arrayed_deployables);
   Handlebars.registerHelper("item-edit-arrayed-synergies", item_edit_arrayed_synergies);
   Handlebars.registerHelper("item-edit-arrayed-integrated", item_edit_arrayed_integrated);
-  // Generic handler for an array that can take a selectable enum
-  Handlebars.registerHelper("item-edit-arrayed-enum", item_edit_arrayed_enum);
-  // And a single enum-based selector.
+  // A single enum-based selector.
   // Which is just a wrapper for std_enum_select but we can pass in a string and resolve it
   Handlebars.registerHelper("item-edit-enum", item_edit_enum);
   //   - Standalone items
@@ -570,9 +603,9 @@ Hooks.once("init", async function () {
   Handlebars.registerHelper("item-edit-license", item_edit_license);
   Handlebars.registerHelper("item-edit-sp", item_edit_sp);
   Handlebars.registerHelper("item-edit-uses", item_edit_uses);
-  Handlebars.registerHelper("limited-uses-indicator", limited_uses_indicator);
-  Handlebars.registerHelper("reserve-used-indicator", reserve_used_indicator);
-  Handlebars.registerHelper("loading-indicator", loading_indicator);
+  Handlebars.registerHelper("limited-uses-indicator", limitedUsesIndicator);
+  Handlebars.registerHelper("reserve-used-indicator", reserveUsesIndicator);
+  Handlebars.registerHelper("loading-indicator", loadingIndicator);
 
   // ------------------------------------------------------------------------
   // Frames
@@ -580,19 +613,19 @@ Hooks.once("init", async function () {
 
   // ------------------------------------------------------------------------
   // Pilot components
-  Handlebars.registerHelper("overcharge-button", overcharge_button);
+  Handlebars.registerHelper("overcharge-button", overchargeButton);
 
   // ------------------------------------------------------------------------
   // Mech components
-  Handlebars.registerHelper("mech-loadout", mech_loadout);
+  Handlebars.registerHelper("mech-loadout", mechLoadout);
   Handlebars.registerHelper("mech-frame", frameView);
 
   // ------------------------------------------------------------------------
   // NPC components
   Handlebars.registerHelper("tier-selector", npc_tier_selector);
-  Handlebars.registerHelper("npc-feat-preview", npc_feature_preview);
-  Handlebars.registerHelper("ref-npc-class", npc_class_ref);
-  Handlebars.registerHelper("ref-npc-template", npc_template_ref);
+  Handlebars.registerHelper("npc-feat-preview", npcFeatureView);
+  Handlebars.registerHelper("ref-npc-class", npcClassRefView);
+  Handlebars.registerHelper("ref-npc-template", npcTemplateRefView);
 
   // Stat rollers
 
@@ -653,6 +686,9 @@ Hooks.once("ready", () => {
     game.settings.set(game.system.id, LANCER.setting_dsn_setup, true);
   }
 });
+
+// Migrate settings from Lancer Condition Icons and disable the module
+Hooks.once("ready", migrateLancerConditions);
 
 Hooks.once("canvasInit", () => {
   SquareGrid.prototype.measureDistances = measureDistances;
@@ -768,6 +804,8 @@ Hooks.on("renderChatMessage", async (cm: ChatMessage, html: JQuery, data: any) =
     }
     return false;
   });
+
+  handleRefClickOpen(html);
 });
 
 Hooks.on("hotbarDrop", (_bar: any, data: any, slot: number) => {
@@ -861,7 +899,7 @@ async function versionCheck(): Promise<"yes" | "no" | "too_old"> {
   }
 
   // Check if its before new rolling migration system was integrated
-  if (foundry.utils.isNewerVersion("1.5.0", currentVersion)) {
+  if (foundry.utils.isNewerVersion("1.0.0", currentVersion)) {
     return "too_old";
   }
 

@@ -51,8 +51,8 @@ export type LIDRef = string; // A LID reference to a document.
 export namespace SourceTemplates {
   export interface actor_universal {
     lid: string;
-    hp: number;
-    overshield: number;
+    hp: FullBoundedNum;
+    overshield: FullBoundedNum;
     burn: number;
     activations: number;
     custom_counters: CounterData[];
@@ -92,16 +92,16 @@ export namespace SourceTemplates {
   }
 
   export interface heat {
-    heat: number;
+    heat: FullBoundedNum;
   }
 
   export interface uses {
-    uses: number;
+    uses: FullBoundedNum;
   }
 
   export interface struss {
-    stress: number;
-    structure: number;
+    stress: FullBoundedNum;
+    structure: FullBoundedNum;
   }
 
   export namespace NPC {
@@ -285,7 +285,7 @@ export namespace SourceData {
       SourceTemplates.heat,
       SourceTemplates.struss {
     overcharge: number;
-    repairs: number;
+    repairs: FullBoundedNum;
     core_active: boolean;
     core_energy: number;
     loadout: {
@@ -384,7 +384,7 @@ export namespace SourceData {
     actions: string;
     description: string;
     efficiency: number;
-    influence: 0;
+    influence: number;
     purpose: OrgType;
   }
   export interface PilotArmor extends SourceTemplates.item_universal, SourceTemplates.bascdt, SourceTemplates.uses {
@@ -423,15 +423,15 @@ export namespace SourceData {
     status: string;
     text_appearance: string;
     bond_state: {
-      xp: number;
-      stress: number;
+      xp: FullBoundedNum;
+      stress: FullBoundedNum;
       xp_checklist: {
         major_ideals: Array<boolean>;
         minor_ideal: boolean;
         veteran_power: boolean;
       };
-      answers: Array<number>;
-      minor_ideal: number;
+      answers: Array<string>;
+      minor_ideal: string;
       burdens: Array<CounterData>;
       clocks: Array<CounterData>;
     };
@@ -439,9 +439,10 @@ export namespace SourceData {
   export interface Reserve extends SourceTemplates.item_universal, SourceTemplates.bascdt {
     consumable: boolean;
     label: string;
-    resource_name: string;
-    resource_note: string;
-    resource_cost: string;
+    // These attributes are in the lancer-data spec, but seem to be unused.
+    // resource_name: string;
+    // resource_note: string;
+    // resource_cost: string;
     type: ReserveType;
     used: boolean;
     description: string;

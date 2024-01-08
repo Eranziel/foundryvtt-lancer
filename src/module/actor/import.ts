@@ -1,6 +1,7 @@
 import { replaceDefaultResource } from "../config";
 import { EntryType, FittingSize, MountType } from "../enums";
 import {
+  LancerBOND,
   LancerCORE_BONUS,
   LancerFRAME,
   LancerItem,
@@ -14,6 +15,7 @@ import {
   LancerTALENT,
   LancerWEAPON_MOD,
 } from "../item/lancer-item";
+import { PowerData } from "../models/bits/power";
 import { SourceData } from "../source-template";
 import { insinuate } from "../util/doc";
 import { lookupLID } from "../util/lid";
@@ -38,6 +40,11 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
       await m.deleteEmbeddedDocuments("Item", Array.from(m.items.keys()));
     }
   }
+
+  // Immediately fix the name, so deployables get named properly
+  await pilot.update({
+    name: data.name,
+  });
 
   try {
     let unit_folder = pilot.folder;
@@ -66,6 +73,7 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
     let populatedGear: string[] = [];
     let populatedArmor: string[] = [];
     let populatedWeapons: string[] = [];
+    let bond: LancerBOND | null = null;
     if (data.loadout) {
       // Make a helper to get (a unique copy of) a given lid item, importing if necessary
       let pilot_item_pool = [...pilot.items.contents];
@@ -146,6 +154,55 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
         }
       }
 
+      // Populate bond data
+      bond = (data.bondId ? await getPilotItemByLid(data.bondId, EntryType.BOND) : null) as LancerBOND | null;
+      if (bond && data.bondPowers) {
+        // Disable all powers, in case the pilot already had this bond
+        bond.system.powers.forEach(p => {
+          p.unlocked = false;
+        });
+
+        const bondPack = game.packs.get(`world.${EntryType.BOND}`);
+        await bondPack?.getIndex();
+        const bonds: LancerItem[] | null = ((await bondPack?.getDocuments({})) as unknown as LancerItem[]) ?? null;
+        const unlockAndRefill = function (power: PowerData) {
+          power.unlocked = true;
+          if (power.uses) {
+            power.uses.value = power.uses.max;
+          }
+        };
+        data.bondPowers.forEach(p => {
+          // Find and unlock the power on the bond
+          let i = bond!.system.powers.findIndex(x => x.name == p.name);
+          if (i != undefined && i != -1) {
+            const power = bond!.system.powers[i];
+            unlockAndRefill(power);
+            return;
+          }
+          // The power isn't from this bond - look for it in the compendium
+          let found = false;
+          for (const b of bonds) {
+            if (found || !b.is_bond()) return;
+            const newPower = b.system.powers.find(x => x.name == p.name);
+            if (newPower) {
+              found = true;
+              unlockAndRefill(newPower);
+              bond!.system.powers.push(newPower);
+
+              // The pilot has a power from another bond - unlock the veteran power
+              i = bond!.system.powers.findIndex(x => x.veteran);
+              if (i != undefined && i != -1) {
+                const power = bond!.system.powers[i];
+                unlockAndRefill(power);
+              }
+              break;
+            }
+          }
+        });
+        // Commit the updates
+        await bond.update({ "system.powers": bond.system.powers });
+      }
+
       // Do licenses
       for (let license of data.licenses) {
         let t = (await getPilotItemByLid(license.id.replace("mf", "lic"), EntryType.LICENSE)) as LancerLICENSE | null;
@@ -195,6 +252,30 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
         player_name: data.player_name,
         status: data.status,
         text_appearance: data.text_appearance,
+        bond_state: bond
+          ? {
+              "xp.value": data.xp,
+              "stress.value": data.stress,
+              answers: data.bondAnswers,
+              minor_ideal: data.minorIdeal,
+              burdens: data.burdens.map(b => ({
+                lid: b.id,
+                name: b.title,
+                min: 0,
+                max: b.segments,
+                value: b.progress,
+                default_value: 0,
+              })),
+              clocks: data.clocks.map(c => ({
+                lid: c.id,
+                name: c.title,
+                min: 0,
+                max: c.segments,
+                value: c.progress,
+                default_value: 0,
+              })),
+            }
+          : undefined,
       },
       prototypeToken: {
         name: data.name,
@@ -219,6 +300,7 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
         mech = (await LancerActor.create({
           name: cloud_mech.name,
           type: EntryType.MECH,
+          folder: pilot.folder?.id,
         })) as unknown as LancerMECH;
       }
 
@@ -321,7 +403,7 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
           // Universal stuff
           lid: cloud_mech.id,
           "hp.value": cloud_mech.current_hp,
-          overshield: cloud_mech.overshield,
+          "overshield.value": cloud_mech.overshield,
           burn: cloud_mech.burn,
           activations: cloud_mech.activations,
           // custom_counters: cloud_mech. - CC Doesn't have these except on pilots
@@ -406,16 +488,13 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
     await pilot.update({
       "system.active_mech": active_mech_uuid,
     });
+    pilot.effectHelper.propagateEffects(true);
 
     // Reset curr data and render all
     pilot.render();
     ui.notifications!.info("Successfully loaded pilot new state.");
   } catch (e) {
     console.warn(e);
-    if (e instanceof Error) {
-      ui.notifications!.warn(`Failed to update pilot, likely due to missing LCP data: ${e.message}`);
-    } else {
-      ui.notifications!.warn(`Failed to update pilot, likely due to missing LCP data: ${e}`);
-    }
+    ui.notifications!.warn(`Failed to update pilot: ${e instanceof Error ? e.message : e}`);
   }
 }

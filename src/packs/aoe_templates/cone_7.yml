@@ -1,0 +1,24 @@
+_id: SNtUHejVtmF2lU7g
+name: Cone 7
+type: script
+author: EezUQWe7dZJO5vje
+img: systems/lancer/assets/icons/macro-icons/aoe_cone.svg
+scope: global
+command: |-
+  game.lancer.canvas.WeaponRangeTemplate.fromRange({
+      type: "Cone",
+      val: 7,
+  }).placeTemplate()
+      .then(t => {
+          if (t) game.lancer.targetsFromTemplate(t.id);
+      }
+  );
+folder: null
+sort: 0
+permission:
+  default: 0
+  EezUQWe7dZJO5vje: 3
+flags:
+  core:
+    sourceId: Macro.ygDDlW5ivDvVwrvL
+_key: '!macros!SNtUHejVtmF2lU7g'

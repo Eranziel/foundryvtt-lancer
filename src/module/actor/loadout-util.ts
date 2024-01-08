@@ -74,20 +74,19 @@ export class LoadoutHelper {
     await this.deleteUnequippedItems();
 
     let changes: Record<string, any> = {
-      // @ts-expect-error System's broken unless narrowed
-      "system.hp": this.actor.system.hp.max,
+      "system.hp.value": this.actor.system.hp.max,
       "system.burn": 0,
-      "system.overshield": 0,
+      "system.overshield.value": 0,
     };
 
     // Things for heat-havers
     if (this.actor.is_mech() || this.actor.is_npc() || this.actor.is_deployable()) {
-      changes["system.heat"] = 0;
+      changes["system.heat.value"] = 0;
     }
 
     if (this.actor.is_mech() || this.actor.is_npc()) {
-      changes["system.structure"] = this.actor.system.structure.max;
-      changes["system.stress"] = this.actor.system.stress.max;
+      changes["system.structure.value"] = this.actor.system.structure.max;
+      changes["system.stress.value"] = this.actor.system.stress.max;
     }
 
     // Things just for mechs
@@ -95,7 +94,7 @@ export class LoadoutHelper {
       changes["system.core_energy"] = 1;
       changes["system.core_active"] = false;
       changes["system.overcharge"] = 0;
-      changes["system.repairs"] = this.actor.system.repairs.max;
+      changes["system.repairs.value"] = this.actor.system.repairs.max;
       changes["system.meltdown_timer"] = null;
     }
 
@@ -328,7 +327,6 @@ export class LoadoutHelper {
       let baseMounts = frame.system.mounts;
 
       let pilot = this.actor.system.pilot?.value;
-      // @ts-expect-error
       const get_cb = (lid: string) => pilot?.itemTypes.core_bonus.find(cb => cb.system.lid == lid);
       let retrofitting = get_cb("cb_mount_retrofitting");
       let improved_armament = get_cb("cb_improved_armament");
@@ -353,7 +351,6 @@ export class LoadoutHelper {
 
       // If frame has an integrated weapon, insert that (or those) as our first weapon(s)
       for (let integrated_lid of frame.system.core_system.integrated) {
-        // @ts-expect-error
         let corr_item = this.actor.items.find(x => x.system.lid == integrated_lid);
         if (corr_item && corr_item.is_mech_weapon()) {
           newMounts.push({

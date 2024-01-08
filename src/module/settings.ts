@@ -1,9 +1,11 @@
-import { getTrackerAppearance, setAppearance } from "lancer-initiative";
-import type { LancerCombat, LancerCombatant } from "lancer-initiative";
+import { getTrackerAppearance, setAppearance } from "./combat/lancer-combat-tracker";
+import type { LancerCombat, LancerCombatant } from "./combat/lancer-combat";
 import { LANCER } from "./config";
 import { AutomationConfig } from "./apps/automation-settings";
 import CompconLoginForm from "./helpers/compcon-login-form";
 import { ActionTrackerConfig } from "./apps/action-tracker-settings";
+import { StatusIconConfig } from "./apps/status-icon-config";
+import { applyTheme } from "./themes";
 
 export const registerSettings = function () {
   /**
@@ -23,8 +25,7 @@ export const registerSettings = function () {
     config: false,
     type: String,
     // Toggle for dev swapping to test import.
-    default: "0.0.0",
-    // default: "3.0.21",
+    default: "",
   });
 
   game.settings.register(game.system.id, LANCER.setting_lcps, {
@@ -45,6 +46,25 @@ export const registerSettings = function () {
     default: {},
   });
 
+  game.settings.register(game.system.id, LANCER.setting_ui_theme, {
+    name: "lancer.uiTheme.name",
+    hint: "lancer.uiTheme.hint",
+    scope: "user",
+    config: true,
+    type: String,
+    choices: {
+      gms: "lancer.uiTheme.gms",
+      gmsDark: "lancer.uiTheme.gmsDark",
+      msmc: "lancer.uiTheme.msmc",
+      horus: "lancer.uiTheme.horus",
+    },
+    default: "gms",
+    onChange: v => {
+      if (!["gms", "gmsDark", "msmc", "horus"].includes(v as string)) applyTheme("gms");
+      applyTheme(v as any);
+    },
+  });
+
   game.settings.registerMenu(game.system.id, LANCER.setting_compcon_login, {
     name: "Comp/Con Login",
     label: "Log in to Comp/Con",
@@ -52,6 +72,15 @@ export const registerSettings = function () {
     icon: "fas fa-bars",
     type: CompconLoginForm,
     restricted: false,
+  });
+
+  game.settings.registerMenu(game.system.id, "StatusIconConfig", {
+    name: "lancer.statusIconsConfig.menu-name",
+    label: "lancer.statusIconsConfig.menu-label",
+    hint: "lancer.statusIconsConfig.menu-hint",
+    icon: "cci cci-difficulty i--s",
+    type: StatusIconConfig,
+    restricted: true,
   });
 
   game.settings.registerMenu(game.system.id, "AutomationMenu", {
@@ -70,14 +99,6 @@ export const registerSettings = function () {
     icon: "mdi mdi-state-machine",
     type: ActionTrackerConfig,
     restricted: true,
-  });
-
-  game.settings.register(game.system.id, LANCER.setting_stock_icons, {
-    name: "Keep Stock Icons",
-    scope: "world",
-    config: true,
-    type: Boolean,
-    default: false,
   });
 
   game.settings.register(game.system.id, LANCER.setting_welcome, {
@@ -102,6 +123,13 @@ export const registerSettings = function () {
       euc: "lancer.squaregriddiagonals.euc",
     },
     default: "111",
+  });
+
+  game.settings.register(game.system.id, LANCER.setting_status_icons, {
+    scope: "world",
+    config: false,
+    type: Object,
+    default: {},
   });
 
   game.settings.register(game.system.id, LANCER.setting_automation, {
@@ -285,6 +313,79 @@ export interface ActionTrackerOptions {
    */
   printMessages: boolean;
 }
+
+//
+// > STATUS ICON CONFIGURATION
+/**
+ * Retrieve the status icon configuration for the system.
+ * @param useDefault - Control if the returned value is the default.
+ *                     (default: `false`)
+ */
+export function getStatusIconConfigOptions(useDefault = false): StatusIconConfigOptions {
+  const def: StatusIconConfigOptions = {
+    defaultConditionsStatus: true,
+    cancerConditionsStatus: false,
+    cancerNPCTemplates: false,
+    hayleyConditionsStatus: false,
+    hayleyPC: false,
+    hayleyNPC: false,
+    hayleyUtility: false,
+    tommyConditionsStatus: false,
+  };
+  if (useDefault) return def;
+  const set = game.settings.get(game.system.id, LANCER.setting_status_icons) as Partial<StatusIconConfigOptions>;
+  return {
+    ...def,
+    ...set,
+  };
+}
+
+/**
+ * Object for the various automation settings in the system
+ */
+export interface StatusIconConfigOptions {
+  /**
+   * Enable the default icon set for conditions & status
+   * @defaultValue `true`
+   */
+  defaultConditionsStatus: boolean;
+  /**
+   * Enable Cancermantis' icon set for conditions & status
+   * @defaultValue `false`
+   */
+  cancerConditionsStatus: boolean;
+  /**
+   * Enable Cancermantis' icon set for NPC templates
+   * @defaultValue `false`
+   */
+  cancerNPCTemplates: boolean;
+  /**
+   * Enable Hayley's icon set for conditions & status.
+   * @defaultValue `false`
+   */
+  hayleyConditionsStatus: boolean;
+  /**
+   * Enable Hayley's icon set for PC system effects.
+   * @defaultValue `false`
+   */
+  hayleyPC: boolean;
+  /**
+   * Enable Hayley's icon set for NPC system effects.
+   * @defaultValue `false`
+   */
+  hayleyNPC: boolean;
+  /**
+   * Enable Hayley's icon set for utility indicators.
+   * @defaultValue `false`
+   */
+  hayleyUtility: boolean;
+  /**
+   * Enable Tommy's icon set for conditions & status.
+   * @defaultValue `false`
+   */
+  tommyConditionsStatus: boolean;
+}
+
 //
 // > GLOBALS
 declare global {

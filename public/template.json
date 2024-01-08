@@ -4,8 +4,16 @@
     "templates": {
       "universal": {
         "lid": "",
-        "hp": 5,
-        "overshield": 0,
+        "hp": {
+          "min": 0,
+          "max": 10,
+          "value": 5
+        },
+        "overshield": {
+          "min": 0,
+          "max": 14,
+          "value": 0
+        },
         "burn": 0,
 
         "resistances": {
@@ -32,11 +40,23 @@
         }
       },
       "heat": {
-        "heat": 0
+        "heat": {
+          "min": 0,
+          "max": 6,
+          "value": 0
+        }
       },
       "struss": {
-        "stress": 1,
-        "structure": 1
+        "stress": {
+          "min": 0,
+          "max": 1,
+          "value": 1
+        },
+        "structure": {
+          "min": 0,
+          "max": 1,
+          "value": 1
+        }
       }
     },
     "pilot": {
@@ -63,13 +83,21 @@
       "status": "",
       "text_appearance": "",
       "bond_state": {
-        "xp": 0,
+        "xp": {
+          "min": 0,
+          "max": 8,
+          "value": 0
+        },
         "xp_checklist": {
           "major_ideals": [false, false, false],
           "minor_ideal": false,
           "veteran_power": false
         },
-        "stress": 0,
+        "stress": {
+          "min": 0,
+          "max": 8,
+          "value": 0
+        },
         "answers": [],
         "minor_ideal": "",
         "burdens": [],
@@ -281,7 +309,11 @@
       "type": "Trait",
       "charged": true,
       "loaded": true,
-      "uses": 0,
+      "uses": {
+        "min": 0,
+        "max": 0,
+        "value": 0
+      },
       "weapon_type": "",
       "damage": [[], [], []],
       "range": [],
@@ -298,7 +330,11 @@
       "added_damage": [],
       "effect": "",
       "sp": 0,
-      "uses": 0,
+      "uses": {
+        "min": 0,
+        "max": 0,
+        "value": 0
+      },
       "allowed_sizes": [],
       "allowed_types": [],
       "added_range": []
@@ -307,7 +343,11 @@
       "templates": ["universal", "bascdt", "destructible", "licensed"],
       "effect": "",
       "sp": 0,
-      "uses": 0,
+      "uses": {
+        "min": 0,
+        "max": 0,
+        "value": 0
+      },
       "description": "",
       "type": ""
     },
@@ -316,7 +356,11 @@
       "deployables": [],
       "integrated": [],
       "sp": 0,
-      "uses": 0,
+      "uses": {
+        "min": 0,
+        "max": 0,
+        "value": 0
+      },
       "profiles": [],
       "loaded": false,
       "selected_profile_index": 0,
@@ -338,12 +382,20 @@
     "pilot_armor": {
       "templates": ["universal", "bascdt"],
       "description": "",
-      "uses": 0
+      "uses": {
+        "min": 0,
+        "max": 0,
+        "value": 0
+      }
     },
     "pilot_gear": {
       "templates": ["universal", "bascdt"],
       "description": "",
-      "uses": 0
+      "uses": {
+        "min": 0,
+        "max": 0,
+        "value": 0
+      }
     },
     "pilot_weapon": {
       "templates": ["universal", "bascdt"],
@@ -352,15 +404,16 @@
       "damage": [],
       "effect": "",
       "loaded": true,
-      "uses": 0
+      "uses": {
+        "min": 0,
+        "max": 0,
+        "value": 0
+      }
     },
     "reserve": {
       "templates": ["universal", "bascdt"],
       "consumable": true,
       "label": "",
-      "resource_name": "",
-      "resource_note": "",
-      "resource_cost": "",
       "type": "Resources",
       "used": false,
       "description": ""

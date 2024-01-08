@@ -21,8 +21,9 @@
   "author": "",
   "license": "",
   "devDependencies": {
+    "@foundryvtt/foundryvtt-cli": "^1.0.0-rc.4",
     "@league-of-foundry-developers/foundry-vtt-types": "0.8.9-10",
-    "@sveltejs/vite-plugin-svelte": "^1.0.0-next.23",
+    "@sveltejs/vite-plugin-svelte": "^2.4.6",
     "@tsconfig/svelte": "^2.0.1",
     "archiver": "^3.1.1",
     "chalk": "^3.0.0",
@@ -34,30 +35,33 @@
     "lint-staged": "^13.0.3",
     "nanoid": "^3.1.31",
     "prettier": "^2.7.1",
-    "rollup-plugin-visualizer": "^5.5.2",
+    "rollup-plugin-visualizer": "^5.9.2",
     "sass": "^1.40.0",
     "svelte": "^3.49.0",
     "svelte-check": "^2.2.6",
     "svelte-language-server": "^0.14.8",
-    "svelte-preprocess": "^4.9.4",
+    "svelte-preprocess": "^5.0.4",
     "tslib": "^1.14.1",
     "typescript": "^4.7.3",
-    "vite": "^2.9.13",
-    "vite-plugin-checker": "https://github.com/SohumB/vite-plugin-checker/releases/download/vite-plugin-checker%400.3.5/vite-plugin-checker-0.3.5.tgz",
+    "vite": "^4.4.9",
+    "vite-plugin-checker": "^0.6.2",
     "yargs": "^15.4.1"
   },
   "dependencies": {
+    "@massif/lancer-data": "^3.1.5",
     "@types/marked": "^1.2.1",
     "aws-amplify": "^4.2.9",
     "fp-ts": "^2.11.2",
     "io-ts": "^2.2.16",
-    "lancer-initiative": "^3.1.0",
+    "jszip": "^3.10.1",
     "marked": "^4.0.10",
-    "lancer-data": "^3.0.47",
-    "tippy.js": "^6.3.1",
-    "jszip": "^3.10.1"
+    "tippy.js": "^6.3.1"
   },
   "lint-staged": {
-    "*.ts": "prettier --write"
+    "*.ts": "prettier --write",
+    "*.svelte": "prettier --write",
+    "*.hbs": "prettier --write",
+    "*.scss": "prettier --write",
+    "*.css": "prettier --write"
   }
 }

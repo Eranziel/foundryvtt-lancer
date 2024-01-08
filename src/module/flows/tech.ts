@@ -1,32 +1,44 @@
 // Import TypeScript modules
 import { LANCER } from "../config";
-import { LancerActor, LancerMECH, LancerNPC } from "../actor/lancer-actor";
+import { LancerActor } from "../actor/lancer-actor";
 import { AccDiffData, AccDiffDataSerialized } from "../helpers/acc_diff";
 import { renderTemplateStep } from "./_render";
-import {
-  applySelfHeat,
-  checkItemCharged,
-  checkItemDestroyed,
-  checkItemLimited,
-  rollAttacks,
-  setAttackEffects,
-  setAttackTags,
-  setAttackTargets,
-  showAttackHUD,
-  updateItemAfterAttack,
-} from "./attack";
 import { SystemTemplates } from "../system-template";
 import { LancerFlowState } from "./interfaces";
 import { LancerItem } from "../item/lancer-item";
-import { ActionData } from "../models/bits/action";
 import { resolve_dotpath } from "../helpers/commons";
 import { ActivationType, AttackType } from "../enums";
-import { Flow, FlowState } from "./flow";
+import { Flow, FlowState, Step } from "./flow";
 import { UUIDRef } from "../source-template";
 
 const lp = LANCER.log_prefix;
 
+export function registerTechAttackSteps(flowSteps: Map<string, Step<any, any> | Flow<any>>) {
+  flowSteps.set("initTechAttackData", initTechAttackData);
+  flowSteps.set("printTechAttackCard", printTechAttackCard);
+}
+
 export class TechAttackFlow extends Flow<LancerFlowState.TechAttackRollData> {
+  name = "TechAttackFlow";
+  steps = [
+    "initTechAttackData",
+    "checkItemDestroyed",
+    "checkItemLimited",
+    "checkItemCharged",
+    "setAttackTags",
+    "setAttackEffects",
+    "setAttackTargets",
+    "showAttackHUD",
+    "rollAttacks",
+    // TODO: heat, and special tech attacks which do normal damage
+    // "rollDamages"
+    // TODO: pick invade option for each hit
+    // "pickInvades",
+    "applySelfHeat",
+    "updateItemAfterAction",
+    "printTechAttackCard",
+  ];
+
   constructor(uuid: UUIDRef | LancerItem | LancerActor, data?: Partial<LancerFlowState.TechAttackRollData>) {
     // Initialize data if not provided
     const initialData: LancerFlowState.TechAttackRollData = {
@@ -35,8 +47,10 @@ export class TechAttackFlow extends Flow<LancerFlowState.TechAttackRollData> {
       roll_str: data?.roll_str || "",
       flat_bonus: data?.flat_bonus || 0,
       attack_type: data?.attack_type || AttackType.Tech,
+      action: data?.action || null,
       is_smart: true, // Tech attacks always target e-def
       invade: data?.invade || false,
+      effect: data?.effect || "",
       attack_rolls: data?.attack_rolls || { roll: "", targeted: [] },
       attack_results: data?.attack_results || [],
       hit_results: data?.hit_results || [],
@@ -46,24 +60,7 @@ export class TechAttackFlow extends Flow<LancerFlowState.TechAttackRollData> {
       tags: data?.tags || [],
     };
 
-    super("TechAttackFlow", uuid, initialData);
-
-    this.steps.set("initTechAttackData", initTechAttackData);
-    this.steps.set("checkItemDestroyed", checkItemDestroyed);
-    this.steps.set("checkItemLimited", checkItemLimited);
-    this.steps.set("checkItemCharged", checkItemCharged);
-    this.steps.set("setAttackTags", setAttackTags);
-    this.steps.set("setAttackEffects", setAttackEffects);
-    this.steps.set("setAttackTargets", setAttackTargets);
-    this.steps.set("showAttackHUD", showAttackHUD);
-    this.steps.set("rollAttacks", rollAttacks);
-    // TODO: do we need a damage step for tech attacks?
-    // this.steps.set("rollDamages", rollDamages);
-    // TODO: pick invade option for each hit?
-    // this.steps.set("pickInvades", pickInvades);
-    this.steps.set("applySelfHeat", applySelfHeat);
-    this.steps.set("updateItemAfterAttack", updateItemAfterAttack);
-    this.steps.set("printTechAttackCard", printTechAttackCard);
+    super(uuid, initialData);
   }
 }
 
@@ -95,7 +92,7 @@ export async function initTechAttackData(
     return true;
   } else {
     // This title works for everything
-    state.data.title = options?.title ?? state.item.name!;
+    state.data.title = options?.title || state.data.title || state.item.name!;
     // All of these are tech attacks by definition
     state.data.attack_type = AttackType.Tech;
     if (state.item.is_npc_feature()) {
@@ -111,7 +108,7 @@ export async function initTechAttackData(
         ? AccDiffData.fromObject(options.acc_diff)
         : AccDiffData.fromParams(state.item, asTech.tags, state.data.title, Array.from(game.user!.targets), acc);
       return true;
-    } else if (state.item.is_mech_system()) {
+    } else if (state.item.is_mech_system() || state.item.is_frame()) {
       // Tech attack system
       if (!state.actor.is_mech()) {
         ui.notifications?.warn("Non-mech cannot use a mech system!");
@@ -123,20 +120,21 @@ export async function initTechAttackData(
       }
 
       // Get the action if possible
-      let action: ActionData | null = null;
       if (options?.action_path) {
-        action = resolve_dotpath(state.item, options.action_path);
+        state.data.action = resolve_dotpath(state.item, options.action_path);
       }
       state.data.flat_bonus = state.actor.system.tech_attack;
       state.data.tags = state.item.getTags() ?? undefined;
-      if (action) {
+      if (state.data.action) {
         // Use the action data
-        state.data.title = action.name == ActivationType.Invade ? `INVADE // ${action.name}` : action.name;
-        state.data.effect = action.detail;
-      } else {
-        // Use the system effect as a fallback
-        state.data.title = state.item.name!;
-        state.data.effect = state.item.system.effect;
+        state.data.title =
+          state.data.action.name == ActivationType.Invade
+            ? `INVADE // ${state.data.action.name}`
+            : state.data.action.name;
+        state.data.effect = state.data.action.detail;
+      } else if (!state.data.effect) {
+        if (state.item.is_mech_system()) state.data.effect = state.item.system.effect;
+        else state.data.effect = state.item.system.core_system.active_effect;
       }
 
       // TODO: check bonuses for flat attack bonus
@@ -144,7 +142,7 @@ export async function initTechAttackData(
         ? AccDiffData.fromObject(options.acc_diff)
         : AccDiffData.fromParams(
             state.item,
-            state.item.system.tags,
+            state.item.getTags() ?? [],
             state.data.title,
             Array.from(game.user!.targets),
             acc

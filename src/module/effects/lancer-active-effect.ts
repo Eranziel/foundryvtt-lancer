@@ -1,17 +1,21 @@
 import { ActiveEffectDataConstructorData } from "@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/data/data.mjs/activeEffectData";
 import { EffectChangeData } from "@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/data/data.mjs/effectChangeData";
 import { LancerActor } from "../actor/lancer-actor";
-import { LANCER, STATUSES } from "../config";
-import {
-  DamageTypeChecklist,
-  DeployableType,
-  EntryType,
-  RangeTypeChecklist,
-  WeaponSizeChecklist,
-  WeaponTypeChecklist,
-} from "../enums";
-import { LancerItem, LancerMECH_WEAPON } from "../item/lancer-item";
+import { LANCER } from "../config";
+import { DeployableType, EntryType } from "../enums";
 import { statusConfigEffect } from "./converter";
+import { StatusIconConfigOptions } from "../settings";
+import {
+  defaultStatuses,
+  cancerConditionsStatus,
+  cancerNPCTemplates,
+  hayleyConditionsStatus,
+  hayleyPC,
+  hayleyNPC,
+  hayleyUtility,
+  tommyConditionsStatus,
+} from "../status-icons";
+import { LancerSTATUS } from "../item/lancer-item";
 
 // Chassis = mech or standard npc
 export type LancerEffectTarget =
@@ -133,24 +137,75 @@ export class LancerActiveEffect extends ActiveEffect {
 
   // Populate config with our static/compendium statuses instead of the builtin ones
   static async populateConfig(from_compendium: boolean) {
-    const keepStock = game.settings.get(game.system.id, LANCER.setting_stock_icons);
-
-    // @ts-expect-error TODO: Remove this expect when have v9 types
-    let statuses: StatusEffect[] = [];
-    if (keepStock) statuses = statuses.concat(CONFIG.statusEffects);
-    if (from_compendium) {
-      let pack = game.packs.get(`world.${EntryType.STATUS}`);
-      let all_statuses = await pack?.getDocuments();
-      if (all_statuses?.length) {
-        // @ts-expect-error
-        statuses = statuses.concat(all_statuses.map(statusConfigEffect));
-      } else {
-        statuses = statuses.concat(STATUSES);
-      }
-    } else {
-      statuses = statuses.concat(STATUSES);
+    const statusIconConfig = game.settings.get(game.system.id, LANCER.setting_status_icons) as StatusIconConfigOptions;
+    // If no sets are selected, enable the default set
+    if (
+      game.ready &&
+      !statusIconConfig.defaultConditionsStatus &&
+      !statusIconConfig.cancerConditionsStatus &&
+      !statusIconConfig.cancerNPCTemplates &&
+      !statusIconConfig.hayleyConditionsStatus &&
+      !statusIconConfig.hayleyPC &&
+      !statusIconConfig.hayleyNPC &&
+      !statusIconConfig.hayleyUtility &&
+      !statusIconConfig.tommyConditionsStatus
+    ) {
+      statusIconConfig.defaultConditionsStatus = true;
+      await game.settings.set(game.system.id, LANCER.setting_status_icons, statusIconConfig);
     }
-    CONFIG.statusEffects = statuses;
+    // @ts-expect-error TODO: Remove this expect when have v9 types
+    let configStatuses: StatusEffect[] = [];
+    // Pull the default statuses from the compendium if it exists
+    if (statusIconConfig.defaultConditionsStatus) {
+      let pack = game.packs.get(`world.${EntryType.STATUS}`);
+      let pack_statuses: LancerSTATUS[] = [];
+      if (from_compendium) {
+        pack_statuses = ((await pack?.getDocuments()) || []) as unknown as LancerSTATUS[];
+      }
+      if (pack_statuses.length) {
+        configStatuses = configStatuses.concat(pack_statuses.map(statusConfigEffect));
+      }
+      // Add any of the default status set which aren't in the compendium
+      configStatuses = configStatuses.concat(
+        defaultStatuses.filter(s => !configStatuses.find(stat => stat.id === s.id))
+      );
+    }
+    if (statusIconConfig.cancerConditionsStatus) {
+      configStatuses = configStatuses.concat(cancerConditionsStatus);
+    }
+    if (statusIconConfig.hayleyConditionsStatus) {
+      configStatuses = configStatuses.concat(hayleyConditionsStatus);
+    }
+    if (statusIconConfig.tommyConditionsStatus) {
+      configStatuses = configStatuses.concat(tommyConditionsStatus);
+    }
+    if (statusIconConfig.defaultConditionsStatus) {
+      configStatuses = configStatuses.concat(defaultStatuses);
+    }
+    if (statusIconConfig.cancerConditionsStatus) {
+      configStatuses = configStatuses.concat(cancerConditionsStatus);
+    }
+    if (statusIconConfig.hayleyConditionsStatus) {
+      configStatuses = configStatuses.concat(hayleyConditionsStatus);
+    }
+    if (statusIconConfig.tommyConditionsStatus) {
+      configStatuses = configStatuses.concat(tommyConditionsStatus);
+    }
+    // Icons for other things which aren't mechanical condition/status
+    if (statusIconConfig.cancerNPCTemplates) {
+      configStatuses = configStatuses.concat(cancerNPCTemplates);
+    }
+    if (statusIconConfig.hayleyPC) {
+      configStatuses = configStatuses.concat(hayleyPC);
+    }
+    if (statusIconConfig.hayleyNPC) {
+      configStatuses = configStatuses.concat(hayleyNPC);
+    }
+    if (statusIconConfig.hayleyUtility) {
+      configStatuses = configStatuses.concat(hayleyUtility);
+    }
+    console.log(`Lancer | ${configStatuses.length} status icons configured`);
+    CONFIG.statusEffects = configStatuses;
   }
 }
 

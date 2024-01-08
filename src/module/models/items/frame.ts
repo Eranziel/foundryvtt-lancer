@@ -10,6 +10,7 @@ import { SynergyField, unpackSynergy } from "../bits/synergy";
 import { TagField, unpackTag } from "../bits/tag";
 import { LancerDataModel, LIDField, UnpackContext } from "../shared";
 import { template_universal_item, template_licensed } from "./shared";
+import { frameToPath } from "../../actor/retrograde-map";
 
 // @ts-ignore
 const fields: any = foundry.data.fields;
@@ -89,12 +90,15 @@ export function unpackFrame(
 ): {
   name: string;
   type: EntryType.FRAME;
+  img: string | undefined;
   system: DeepPartial<SourceData.Frame>;
 } {
   let cs = data.core_system;
+  const frameImg = frameToPath(data.name);
   return {
     name: data.name,
     type: EntryType.FRAME,
+    img: frameImg ?? undefined,
     system: {
       core_system: {
         activation: cs.activation,
@@ -118,7 +122,7 @@ export function unpackFrame(
         use: restrict_enum(FrameEffectUse, FrameEffectUse.Unknown, cs.use),
       },
       description: data.description,
-      license: data.license_id ?? data.id,
+      license: data.license_id || data.id,
       license_level: data.license_level ?? 2,
       lid: data.id,
       manufacturer: data.source,

@@ -3,7 +3,7 @@ import { DamageType, EntryType, RangeType, SystemType, WeaponSize, WeaponType } 
 import { format_dotpath } from "../helpers/commons";
 import { LancerItem } from "../item/lancer-item";
 import { regRefToId, regRefToLid, regRefToUuid } from "../util/migrations";
-import { SourceData } from "../source-template";
+import { FullBoundedNum, SourceData } from "../source-template";
 import { SystemTemplates } from "../system-template";
 
 // @ts-ignore
@@ -17,7 +17,7 @@ export class LancerDataModel<T> extends foundry.abstract.DataModel<T> {
    */
   full_update_data(update_data: object): object {
     // @ts-expect-error
-    let system = this.toObject();
+    let system = foundry.utils.duplicate(this._source);
     return fancy_merge_data({ system }, update_data);
   }
 
@@ -306,16 +306,16 @@ export class SyncUUIDRefField extends fields.StringField {
 // Use this to represent a field that is effectively just a number, but should present as a min/max/value field in expanded `system` data
 // This is 10% so we can show them with bars, and 90% because usually the max is computed and we don't want to confuse anyone
 export class FakeBoundedNumberField extends fields.NumberField {
-  constructor(a: any = undefined) {
-    super(a);
+  constructor(options: object = {}) {
+    super(options);
   }
 
   /** @override */
-  initialize(value: string, model: any) {
+  initialize(value: number, model: any) {
     // Expand to a somewhat reasonable range. `prepareData` functions should handle the rest
     return {
-      min: 0,
-      max: 0,
+      min: this.options?.min ?? 0,
+      max: this.options?.max ?? 0,
       value,
     };
   }
@@ -325,6 +325,47 @@ export class FakeBoundedNumberField extends fields.NumberField {
     if (typeof value == "object") {
       value = value.value ?? 0;
     }
+    return super._cast(value);
+  }
+}
+
+export class FullBoundedNumberField extends fields.SchemaField {
+  defaultValue: number = 10;
+  defaultMax: number = 10;
+
+  constructor(options: { min?: number; max?: number; initialValue?: number } = {}) {
+    super(
+      {
+        min: new fields.NumberField({ integer: true, nullable: false, initial: options?.min ?? 0 }),
+        max: new fields.NumberField({
+          integer: true,
+          nullable: false,
+          initial: options?.max ?? FullBoundedNumberField.defaultMax,
+        }),
+        value: new fields.NumberField({ integer: true, nullable: false, initial: options?.initialValue ?? 0 }),
+      },
+      options
+    );
+  }
+
+  /** @override */
+  initialize(value: FullBoundedNum, model: any) {
+    // Expand to a somewhat reasonable range. `prepareData` functions should handle the rest
+    return {
+      min: value.min ?? this.options?.min ?? 0,
+      max: value.max ?? this.options?.max ?? value.value ?? FullBoundedNumberField.defaultMax,
+      value: value.value ?? this.options?.initial ?? 0,
+    };
+  }
+
+  /** @override */
+  _cast(value: FullBoundedNum) {
+    if (typeof value == "number") {
+      value = { value, min: this.options?.min ?? 0, max: this.options?.max ?? FullBoundedNumberField.defaultValue };
+    }
+    if (value.min == null || value.min == undefined) value.min = this.options?.min ?? 0;
+    if (value.max == null || value.max == undefined)
+      value.max = this.options?.max ?? value.value ?? FullBoundedNumberField.defaultMax;
     return super._cast(value);
   }
 }
@@ -394,6 +435,30 @@ export class NpcStatBlockField extends fields.SchemaField {
       },
       options
     );
+  }
+}
+
+// Handles an additional "length" option, and mandates that it remain at that length
+// If "overflow" option = truthy, then just forces there to be AT LEAST length
+export class ControlledLengthArrayField extends fields.ArrayField {
+  // Constructor demands options
+  constructor(element: any, options: any) {
+    super(element, options);
+    if (!Number.isInteger(options.length))
+      throw new TypeError("ControlledLengthArrayField requires an integer 'length' option!");
+  }
+
+  /** @override */
+  _cast(value: any) {
+    value = super._cast(value);
+    if (!Array.isArray(value)) return value; // Give up early
+    // Extend or contract as appropriate
+    while (value.length < this.options.length) {
+      let new_elt = typeof this.element.initial == "function" ? this.element.initial() : this.element.initial;
+      value.push(foundry.utils.duplicate(new_elt));
+    }
+    if (!this.options.overflow && value.length > this.options.length) value = value.slice(0, this.options.length);
+    return value;
   }
 }
 

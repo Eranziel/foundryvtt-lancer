@@ -2,13 +2,18 @@
   {{! Sheet Header }}
   <header class="sheet-header card clipped-bot">
     <h1 class="charname grow">
-      <input class="header-field" name="name" type="text" value="{{item.name}}"
-             placeholder="{{localize "lancer.placeholder.name"}}" />
+      <input
+        class="header-field"
+        name="name"
+        type="text"
+        value="{{item.name}}"
+        placeholder="{{localize 'lancer.placeholder.name'}}"
+      />
     </h1>
     {{{ref-portrait-img item.img "img" item}}}
   </header>
   <div>
-    {{#if item.isOwned }}
+    {{#if item.isOwned}}
       <div class="flexrow" style="align-items:center;margin-right:8px;">
         <span style="text-align: right;padding: 4px;">
           RANK:
@@ -18,18 +23,24 @@
     {{/if}}
   </div>
   <div class="flexcol">
+    {{{std-num-input "system.curr_rank" label="RANK"}}}
     {{#each unlocks as |unlock_array rank|}}
       <div class="card">
-        <div class="lancer-header">
+        <div class="lancer-header lancer-primary">
           <span class="left">
             //RANK
             {{rank}}
           </span>
         </div>
         {{#each unlock_array as |unlock unlock_index|}}
-          {{{item-preview (concat "unlocks." rank "." unlock_index) null  }}}
+          {{{item-preview (concat "unlocks." rank "." unlock_index) null}}}
         {{/each}}
       </div>
     {{/each}}
+  </div>
+  <div class="flexcol">
+    {{{std-text-input "system.manufacturer" label="Manufacturer"}}}
+    {{{std-text-input "system.lid" label="LID:"}}}
+    {{{std-text-input "system.key" label="Key:"}}}
   </div>
 </form>

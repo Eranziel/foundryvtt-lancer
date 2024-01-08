@@ -15,6 +15,13 @@ export class LicenseModel extends LancerDataModel {
       ...template_universal_item(),
     };
   }
+
+  static migrateData(data: any) {
+    if (typeof data.manufacturer == "object") {
+      data.manufacturer = data.manufacturer.fallback_lid;
+    }
+    return data;
+  }
 }
 
 // Converts an lcp bonus into our expected format

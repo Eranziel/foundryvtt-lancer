@@ -1,5 +1,6 @@
-import type { LancerActorSheetData, LancerItemSheetData } from "../interfaces";
-import { Tag } from "../models/bits/tag";
+import type { HelperOptions } from "handlebars";
+import { Tag, TagData } from "../models/bits/tag";
+import { inc_if, resolve_helper_dotpath } from "./commons";
 
 // A small tag display containing just the label and value
 export function compact_tag(tag_path: string, tag: Tag): string {
@@ -12,8 +13,13 @@ export function compact_tag(tag_path: string, tag: Tag): string {
 }
 
 // The above, but on an array, filtering out hidden as appropriate
-export function compact_tag_list(tag_array_path: string, tags: Tag[], allow_drop: boolean): string {
+export function compactTagListHBS(tag_array_path: string, options: HelperOptions): string {
   // Collect all of the tags, formatting them using `compact_tag`
+  let tags = resolve_helper_dotpath<Tag[]>(options, tag_array_path) ?? [];
+  return compactTagList(tags, tag_array_path, { editable: resolve_helper_dotpath(options, "editable", false, true) });
+}
+
+export function compactTagList(tags: Tag[], tag_array_path: string, options?: { editable?: boolean }) {
   let processed_tags: string[] = [];
   for (let i = 0; i < tags.length; i++) {
     let tag = tags[i];
@@ -25,7 +31,7 @@ export function compact_tag_list(tag_array_path: string, tags: Tag[], allow_drop
   }
 
   // Combine into a row
-  if (allow_drop) {
+  if (options?.editable) {
     return `<div class="compact-tag-row tag-list-append" data-path="${tag_array_path}">
       ${processed_tags.join("")}
     </div>`;
@@ -38,45 +44,17 @@ export function compact_tag_list(tag_array_path: string, tags: Tag[], allow_drop
   }
 }
 
-// Enables dropping of tags into open designated by .ref-list classed divs
-// Explicitly designed to handle natives. Generates a tag instance corresponding to that native, with a default value of 1
-// Follows conventional HANDLER design patterns
-export function handleTagDropping<T>(
-  html: JQuery,
-  // Retrieves the data that we will operate on
-  data_getter: () => Promise<T> | T,
-  commit_func: (data: T) => void | Promise<void>
-) {
-  /* TODO
-  HANDLER_enable_doc_dropping(
-    html.find(".tag-list-append"),
-    resolver,
-    ent => ent.type == "Item" && ent.document.type == EntryType.TAG, // Ensure its a tag instance
-    async (tag_ent, dest, _evt) => {
-      // Well, we got a drop!
-      let path = dest[0].dataset.path!;
-      if (path) {
-        // Make an instance of the tag
-        let tag_instance = new Tag(tag_ent.Registry, tag_ent.OpCtx, {
-          tag: (tag_ent as TagTemplate).as_ref(),
-          val: 1,
-        });
-        await tag_instance.load_done();
-
-        // Append it and re-commit
-        let data = await data_getter();
-        array_path_edit(data, path + "[-1]", tag_instance, "insert");
-        await commit_func(data);
-      }
-    },
-    (mode, _data, target) => {
-      // Make it glow I guess
-      if (mode == "enter") {
-        $(target).addClass("highlight-can-drop");
-      } else {
-        $(target).removeClass("highlight-can-drop");
-      }
-    }
-  );
-  */
+// A card with tags in it, that allows editing if appropriate
+export function itemEditTags(path: string, header: string, options: HelperOptions) {
+  return `
+  <div class="card full">
+    <div class="lancer-header lancer-primary major">
+      <span>${header}</span>
+      ${inc_if(
+        `<a class="gen-control fas fa-plus" data-action="append" data-path="${path}" data-action-value="(struct)tag"></a>`,
+        resolve_helper_dotpath(options, "editable", false, true)
+      )}
+    </div>
+    ${compactTagListHBS(path, options)}
+  </div>`;
 }

@@ -1,6 +1,6 @@
 import { LANCER, TypeIcon } from "../config";
 import { SystemData, SystemDataType, SystemTemplates } from "../system-template";
-import { SourceData, SourceDataType } from "../source-template";
+import { SourceDataType } from "../source-template";
 import { DamageType, EntryType, NpcFeatureType, RangeType, WeaponType } from "../enums";
 import { ActionData } from "../models/bits/action";
 import { RangeData, Range } from "../models/bits/range";
@@ -21,6 +21,11 @@ import { WeaponAttackFlow } from "../flows/attack";
 import { TechAttackFlow } from "../flows/tech";
 import { fixupPowerUses } from "../models/bits/power";
 import { BondPowerFlow } from "../flows/bond";
+import { ActivationFlow } from "../flows/activation";
+import { CoreActiveFlow } from "../flows/frame";
+import { SimpleTextFlow } from "../flows/text";
+import { StatRollFlow } from "../flows/stat";
+import { SystemFlow } from "../flows/system";
 
 const lp = LANCER.log_prefix;
 
@@ -93,6 +98,27 @@ declare global {
 }
 
 export class LancerItem extends Item {
+  // @ts-expect-error - Foundry initializes this.
+  system:
+    | SystemData.CoreBonus
+    | SystemData.Frame
+    | SystemData.License
+    | SystemData.MechSystem
+    | SystemData.MechWeapon
+    | SystemData.WeaponMod
+    | SystemData.NpcClass
+    | SystemData.NpcFeature
+    | SystemData.NpcTemplate
+    | SystemData.Organization
+    | SystemData.PilotArmor
+    | SystemData.PilotGear
+    | SystemData.PilotWeapon
+    | SystemData.Reserve
+    | SystemData.Skill
+    | SystemData.Status
+    | SystemData.Talent
+    | SystemData.Bond;
+
   /**
    * Returns all ranges for the item that match the provided range types
    */
@@ -152,8 +178,17 @@ export class LancerItem extends Item {
 
     // Collect all tags on mech weapons
     if (this.is_mech_weapon()) {
-      this.system.all_tags = this.system.profiles.flatMap(p => p.tags);
+      this.system.all_base_tags = this.system.profiles.flatMap(p => p.tags);
+      this.system.all_tags = [];
       this.system.active_profile = this.system.profiles[this.system.selected_profile_index] ?? this.system.profiles[0];
+      for (let p of this.system.profiles) {
+        p.bonus_tags = [];
+        p.bonus_range = [];
+        p.bonus_damage = [];
+        p.all_tags = [];
+        p.all_range = [];
+        p.all_damage = [];
+      }
     } else if (this.is_talent()) {
       // Talent apply unlocked items
       let unlocked_ranks = this.system.ranks.slice(0, this.system.curr_rank);
@@ -173,13 +208,18 @@ export class LancerItem extends Item {
     if (lim_tag && this._hasUses()) {
       this.system.uses.max = lim_tag.num_val ?? 0; // We will apply bonuses later
     }
+
+    if (!this.actor) {
+      // This would ordinarily be called by our parent actor. We must do it ourselves.
+      this.prepareFinalAttributes(null);
+    }
   }
 
   /**
    * Method used by mech weapons (and perhaps some other miscellaneous items???) to prepare their individual stats
    * using the bonuses described in the provided synthetic actor.
    */
-  prepareFinalAttributes(system: SystemData.Mech | SystemData.Pilot): void {
+  prepareFinalAttributes(system: SystemData.Mech | SystemData.Pilot | null): void {
     // At the very least, we can apply limited bonuses from our parent
     if (this.actor?.is_mech()) {
       if (this._hasUses() && this.system.uses.max) {
@@ -189,14 +229,20 @@ export class LancerItem extends Item {
 
     if (this.is_mech_weapon()) {
       // Add mod bonuses
-      if (this.system.mod) {
-        this.system.active_profile.bonus_damage = [...this.system.mod.system.added_damage];
-        this.system.active_profile.bonus_range = [...this.system.mod.system.added_range];
-        this.system.active_profile.bonus_tags = [...this.system.mod.system.added_tags];
+      for (let profile of this.system.profiles) {
+        if (this.system.mod) {
+          profile.bonus_damage.push(...this.system.mod.system.added_damage);
+          profile.bonus_range.push(...this.system.mod.system.added_range);
+          profile.bonus_tags.push(...this.system.mod.system.added_tags);
+        }
+        profile.all_damage = Damage.CombineLists(profile.damage, profile.bonus_damage);
+        profile.all_range = Range.CombineLists(profile.range, profile.bonus_range);
+        profile.all_tags = Tag.MergeTags(profile.tags, profile.bonus_tags);
+        this.system.all_tags.push(...profile.all_tags);
       }
 
       // Add all bonuses
-      let bonuses = (system as SystemData.Mech).all_bonuses;
+      let bonuses = (system as SystemData.Mech)?.all_bonuses ?? [];
       for (let b of bonuses) {
         if (b.lid == "damage") {
           if (!bonusAffectsWeapon(this, b)) continue;
@@ -539,7 +585,78 @@ export class LancerItem extends Item {
     }
     const flow = new TechAttackFlow(this);
     await flow.begin();
-    console.log("Finished tech attack flow");
+  }
+
+  async beginSystemFlow() {
+    if (!this.is_mech_system() && !this.is_npc_feature()) {
+      ui.notifications!.error(`Item ${this.id} is not a mech system or NPC feature!`);
+      return;
+    }
+    const flow = new SystemFlow(this);
+    await flow.begin();
+  }
+
+  async beginActivationFlow(path?: string) {
+    if (!path) {
+      // If no path is provided, default to the first action
+      // @ts-ignore We know it doesn't exist on all types, that's why we're checking
+      if (!this.system.actions || this.system.actions.length < 1) {
+        ui.notifications!.error(`Item ${this.id} has no actions, how did you even get here?`);
+        return;
+      }
+      path = "system.actions.0";
+    }
+    let flow;
+    // If this is a Core System activation without a specific action
+    if (this.is_frame() && path === "system.core_system") {
+      this.beginCoreActiveFlow(path);
+      return;
+    } else {
+      flow = new ActivationFlow(this, { action_path: path });
+    }
+    await flow.begin();
+    console.log("Finished activation flow");
+  }
+
+  async beginCoreActiveFlow(path?: string) {
+    if (!this.is_frame()) {
+      ui.notifications!.error(`Item ${this.id} is not a mech frame!`);
+      return;
+    }
+    path = path ?? "system.core_system";
+    console.log("Core system activation flow on path", path);
+    const actionName = this.system.core_system.active_actions[0]?.name ?? this.system.core_system.active_name;
+    // Construct a fake "action" for the frame's core system
+    const action: ActionData = {
+      lid: this.system.lid + "_core_system",
+      name: `CORE ACTIVATION :: ${actionName}`,
+      activation: this.system.core_system.activation,
+      detail: this.system.core_system.active_effect,
+      // The rest doesn't matter, give it some defaults
+      cost: 0,
+      frequency: "",
+      init: "",
+      trigger: "",
+      terse: "",
+      pilot: false,
+      mech: true,
+      tech_attack: false,
+      heat_cost: 0,
+      synergy_locations: [],
+      damage: [],
+      range: [],
+    };
+    const flow = new CoreActiveFlow(this, { action, action_path: path });
+    await flow.begin();
+  }
+
+  async beginSkillFlow() {
+    if (!this.is_skill()) {
+      ui.notifications!.error(`Item ${this.id} is not a skill!`);
+      return;
+    }
+    const flow = new StatRollFlow(this, { path: "system.curr_rank" });
+    await flow.begin();
   }
 
   async beginBondPowerFlow(powerIndex: number) {
@@ -549,7 +666,6 @@ export class LancerItem extends Item {
     }
     const flow = new BondPowerFlow(this, { powerIndex });
     await flow.begin();
-    console.log("Finished bond power flow");
   }
 
   async refreshPowers() {

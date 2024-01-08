@@ -7,10 +7,30 @@ import tippy from "tippy.js";
 import { ActivationType, MountType, WeaponSize, WeaponType } from "../enums";
 import { LancerActor } from "../actor/lancer-actor";
 import { LancerItem } from "../item/lancer-item";
+import { slugify } from "../util/lid";
+
+export const defaultPlaceholder = "// MISSING ENTRY //";
 
 // A shorthand for only including the first string if the second value is truthy
 export function inc_if(val: string, test: any) {
   return test ? val : "";
+}
+
+// Generic template for dice roll results in chat
+export function lancerDiceRoll(roll: Roll, tooltip?: string, icon?: string): string {
+  const iconHTML = icon ? `<i class="${icon}"></i>` : "";
+  const tooltipHTML = tooltip ? `<div style="text-align: left;">${tooltip}</div>` : "";
+  return `
+<div class="dice-roll lancer-dice-roll collapse">
+  <div class="dice-result">
+    <div class="dice-formula lancer-dice-formula flexrow">
+      <span style="text-align: left; margin-left: 5px;">${roll.formula}</span>
+      <span class="dice-total lancer-dice-total major">${roll.total}</span>${iconHTML}
+    </div>
+    ${tooltipHTML}
+  </div>
+</div>
+  `;
 }
 
 // Simple helper to simplify mapping truthy values to "checked"
@@ -191,12 +211,21 @@ export class IconFactory {
 }
 
 // Common to many feature/weapon/system previews. Auto-omits on empty body
-export function effect_box(title: string, text: string, add_classes: string = ""): string {
+export function effectBox(title: string, text: string, options?: { add_classes?: string; flow?: boolean }): string {
   if (text) {
+    const flowButton = options?.flow
+      ? `<div class="action-flow-container flexrow">
+        <a class="effect-flow lancer-button"><i class="cci cci-free-action i--sm"></i><span>USE</span></a>
+        <hr class="vsep">
+      </div>`
+      : "";
     return `
-      <div class="effect-box ${add_classes}">
+      <div class="effect-box ${options?.add_classes || ""}">
         <span class="effect-title clipped-bot">${title}</span>
-        <span class="effect-text" style="padding: 0 0.5em 0.5em 0.5em;">${text}</span>
+        <span class="effect-text" style="padding: 0 0.5em 0.5em 0.5em;">
+          ${flowButton}
+          ${text}
+        </span>
       </div>
       `;
   } else {
@@ -204,18 +233,18 @@ export function effect_box(title: string, text: string, add_classes: string = ""
   }
 }
 
-export function sp_display(sp: number | string) {
+export function spDisplay(sp: number | string) {
   const sp_num = parseInt(sp.toString());
   if (isNaN(sp_num)) return "";
   let icons = "";
-  for (let i = 0; i < sp_num; i++) icons += `<i class="cci cci-system-point i--m i--dark"> </i>`;
-  return `<div style="float: left; align-items: center; display: inherit;">
+  for (let i = 0; i < sp_num; i++) icons += `<i class="cci cci-system-point i--s"> </i>`;
+  return `<div class="sp-wrapper">
             ${icons}
             <span class="medium" style="padding: 5px;">${sp} SYSTEM POINTS</span>
           </div>`;
 }
 
-export function charged_box(charged: boolean, path: string) {
+export function chargedBox(charged: boolean, path: string) {
   return `<div class="clipped card charged-box ${inc_if("charged", charged)}">
             <span style="margin:4px;">Charged:</span>
             <a style="margin-top:2px;" class="gen-control" data-action="set" data-action-value="(bool)${!charged}" data-path="${path}.system.charged">
@@ -223,6 +252,58 @@ export function charged_box(charged: boolean, path: string) {
               </i>
             </a>
           </div>`;
+}
+
+export function activationIcon(activation: ActivationType): string {
+  switch (activation) {
+    case ActivationType.Quick:
+      return "cci cci-activation-quick";
+    case ActivationType.Full:
+      return "cci cci-activation-full";
+    case ActivationType.Invade:
+    case ActivationType.QuickTech:
+      return "cci cci-tech-quick";
+    case ActivationType.FullTech:
+      return "cci cci-tech-full";
+    case ActivationType.Reaction:
+      return "cci cci-reaction";
+    case ActivationType.Protocol:
+      return "cci cci-protocol";
+    case ActivationType.Free:
+    case ActivationType.Passive:
+    default:
+      return "cci cci-free-action";
+  }
+}
+
+export function activationStyle(activation: ActivationType): string {
+  switch (activation) {
+    case ActivationType.Quick:
+      return "lancer-quick";
+    case ActivationType.Full:
+      return "lancer-full";
+    case ActivationType.Invade:
+    case ActivationType.QuickTech:
+    case ActivationType.FullTech:
+      return "lancer-tech";
+    case ActivationType.Reaction:
+      return "lancer-reaction";
+    case ActivationType.Protocol:
+      return "lancer-protocol";
+    case ActivationType.Free:
+      return "lancer-free";
+    case ActivationType.Passive:
+    default:
+      return "lancer-secondary";
+  }
+}
+
+export function manufacturerStyle(mfr: string, border?: boolean): string {
+  let manufacturer = slugify(mfr, "-");
+  if (!["gms", "ipsn", "ssc", "horus", "ha"].includes(manufacturer)) {
+    manufacturer = "primary";
+  }
+  return `lancer${border ? "-border" : ""}-${manufacturer}`;
 }
 
 // JSON parses a string, returning null instead of an exception on a failed parse
@@ -387,6 +468,23 @@ export function extendHelper(
   };
 }
 
+/**
+ * Use this when invoking a helper from outside a helper.
+ * A shitty hack that will break if handlebars partials are invoked
+ * @argument fake_data Will be used as the "data" for the hash
+ */
+export function spoofHelper(fake_data: any): HelperOptions {
+  let fail_callback = () => {
+    throw new Error("spoofHelper is not sufficient here.");
+  };
+  return {
+    fn: fail_callback,
+    inverse: fail_callback,
+    hash: {},
+    data: fake_data,
+  };
+}
+
 /** Enables controls that can (as specified by action):
  * - "delete": delete() the item located at data-path
  * - "null": set as null the value at the specified path
@@ -517,6 +615,9 @@ async function parse_control_val(raw_val: string): Promise<{ success: boolean; v
     let type = match[1];
     let val = match[2];
     switch (type) {
+      case "string":
+        // Just pass val as-is
+        return { success: true, val };
       case "int":
         let parsed_int = parseInt(val);
         if (!Number.isNaN(parsed_int)) {
@@ -564,6 +665,12 @@ async function control_structs(key: string): Promise<{ success: boolean; val: an
       return { success: true, val: defaults.ACTION() };
     case "counter":
       return { success: true, val: defaults.COUNTER() };
+    case "tag":
+      return { success: true, val: defaults.TAG() };
+    case "bond_question":
+      return { success: true, val: defaults.BOND_QUESTION() };
+    case "power":
+      return { success: true, val: defaults.POWER() };
     case "mount_type":
       return { success: true, val: MountType.Main };
     case "range":
@@ -616,8 +723,9 @@ function std_input(path: string, type: string, options: HelperOptions) {
 
   let html_type = type.toLowerCase();
   let data_type = type == "Password" || type == "Text" ? "String" : type;
+  let placeholder = type == "Text" || type == "String" ? `placeholder="${defaultPlaceholder}"` : "";
 
-  let input = `<input class="grow ${input_classes}" name="${path}" value="${value}" type="${html_type}" data-dtype="${data_type}" />`;
+  let input = `<input class="grow ${input_classes}" name="${path}" value="${value}" type="${html_type}" data-dtype="${data_type}" ${placeholder}/>`;
 
   if (label) {
     return `
@@ -628,12 +736,6 @@ function std_input(path: string, type: string, options: HelperOptions) {
   } else {
     return input;
   }
-}
-
-// input type="string" isn't styled by foundry, but input type="text" is
-// that's not a great reason to keep both of them, but it is the reason we have
-export function std_string_input(path: string, options: HelperOptions) {
-  return std_input(path, "String", options);
 }
 
 export function std_text_input(path: string, options: HelperOptions) {
@@ -651,7 +753,7 @@ export function std_num_input(path: string, options: HelperOptions) {
 // Shows a [X] / Y display, where X is an editable value and Y is some total (e.x. max hp)
 export function std_x_of_y(x_path: string, x: number, y: number, add_classes: string = "") {
   return ` <div class="flexrow flex-center no-wrap ${add_classes}">
-              <input class="lancer-stat lancer-stat" type="number" name="${x_path}" value="${x}" data-dtype="Number" style="justify-content: left"/>
+              <input class="lancer-stat" type="number" name="${x_path}" value="${x}" data-dtype="Number" style="justify-content: left"/>
               <span>/</span>
               <span class="lancer-stat" style="justify-content: left"> ${y}</span>
             </div>`;
@@ -733,7 +835,7 @@ export function std_enum_select<T extends string>(path: string, enum_: { [key: s
         ${choices.join("")}
       </select>`;
   if (options.hash["label"]) {
-    return `<label class="flexrow no-wrap ${label_classes}">
+    return `<label class="flexrow flex-center no-wrap ${label_classes}">
       ${options.hash["label"]}
       ${select}
     </label>`;
@@ -769,7 +871,7 @@ export function safe_html_helper(orig: string) {
   // then kill all on<event>. Technically this will hit attrs, we don't really care
   let bad = /on[a-zA-Z\-]+=".*?"/g;
   orig = orig.replace(bad, "");
-  return orig;
+  return orig || defaultPlaceholder;
 }
 
 // These typically are the exact same so we made a helper for 'em
@@ -777,12 +879,12 @@ export function large_textbox_card(title: string, text_path: string, options: He
   let resolved = resolve_helper_dotpath(options, text_path, "");
   return `
   <div class="card full clipped">
-    <div class="lancer-header">
+    <div class="lancer-header lancer-primary">
       <span>${title}</span>
       ${popout_editor_button(text_path)}
     </div>
     <div class="desc-text">
-      ${safe_html_helper(resolved.trim() || "// MISSING ENTRY //")}
+      ${safe_html_helper(resolved?.trim() || defaultPlaceholder)}
     </div>
   </div>
   `;
@@ -909,7 +1011,7 @@ export function restrict_enum<T extends string>(enum_: { [key: string]: T }, def
 export function hex_array(curr: number, max: number, path: string, classes?: string) {
   return [...Array(max)].map((_ele, index) => {
     const available = index + 1 <= curr;
-    return `<a><i class="${classes} mdi ${
+    return `<a><i class="${classes ?? ""} mdi ${
       available ? "mdi-hexagon-slice-6" : "mdi-hexagon-outline"
     } theme--light" data-available="${available}" data-path="${path}"></i></a>`;
   });

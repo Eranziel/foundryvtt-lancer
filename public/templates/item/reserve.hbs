@@ -1,5 +1,5 @@
 <form class="{{cssClass}} lancer-sheet" autocomplete="off">
-  {{!-- Sheet Header --}}
+  {{! Sheet Header }}
   <header class="sheet-header card clipped-bot">
     <div class="flexrow">
       <div class="header-fields">
@@ -9,40 +9,30 @@
             name="name"
             type="text"
             value="{{item.name}}"
-            placeholder="{{localize "lancer.placeholder.name"}}"
+            placeholder="{{localize 'lancer.placeholder.name'}}"
           />
         </h1>
       </div>
-      {{{ ref-portrait-img item.img "img" item }}}
+      {{{ref-portrait-img item.img "img" item}}}
     </div>
   </header>
 
-  {{!-- Sheet Body --}}
+  {{! Sheet Body }}
   <section class="sheet-body">
+    {{{textarea-card "RESOURCE LABEL" "system.label"}}}
     {{{textarea-card "DESCRIPTION" "system.description"}}}
-    <div class="card clipped">
-      <div class="lancer-header">CONFIGURATION</div>
-      <div class="flexrow">
-        <div
-          <span>TYPE:</span>{{{item-edit-enum     "system.reserve_type"     "ReserveType" label="RESERVE TYPE"}}}
-        </div>
-        <div class="flexcol" style="align-items: center;">
-          <span>CONSUMABLE:</span>
-          <input type="checkbox" name="system.consumable" {{checked system.consumable}}>
-        </div>
-        {{#if system.consumable}}
-          {{{reserve-used-indicator "item"}}}
-        {{/if}}
+    <div class="flexrow">
+      <div class="card clipped">
+        <div class="lancer-header lancer-primary">TYPE</div>
+        {{{item-edit-enum "system.type" "ReserveType" label=""}}}
       </div>
-    </div>
-    <div class="flexrow">
-      {{!-- TODO: pretty this up a bit --}}
-      {{{textarea-card      "RESOURCE NAME"      "system.resource_name"}}}
-      {{{textarea-card      "RESOURCE LABEL"     "system.label"}}}
-    </div>
-    <div class="flexrow">
-      {{{textarea-card      "RESOURCE COST"      "system.resource_cost"}}}
-      {{{textarea-card      "RESOURCE NOTE"      "system.resource_note"}}}
+      <div class="card clipped" style="align-items: center;">
+        <div class="lancer-header lancer-primary">CONSUMABLE</div>
+        <input type="checkbox" name="system.consumable" {{checked system.consumable}} />
+      </div>
+      {{#if system.consumable}}
+        {{{reserve-used-indicator "system.used"}}}
+      {{/if}}
     </div>
   </section>
 </form>

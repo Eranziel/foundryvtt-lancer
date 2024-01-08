@@ -70,7 +70,7 @@ export class TargetedEditForm<T> extends FormApplication {
       ...super.defaultOptions,
       width: 400,
       height: "auto" as const,
-      classes: ["lancer"],
+      classes: ["lancer", "targeted-form-editor"],
       submitOnChange: false,
       submitOnClose: true,
       closeOnSubmit: true,

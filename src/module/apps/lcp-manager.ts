@@ -3,9 +3,9 @@ const lp = LANCER.log_prefix;
 import { importCP, clearCompendiumData, setAllLock } from "../comp-builder";
 import { IContentPack, IContentPackManifest } from "../util/unpacking/packed-types";
 import { getBaseContentPack, parseContentPack } from "../util/lcp-parser";
-import { info } from "../util/typed-lancerdata";
+import * as lancerDataPackage from "@massif/lancer-data/package.json";
 
-export const core_update = info.version;
+export const core_update = lancerDataPackage.version;
 
 function addLCPManager(app: Application, html: any) {
   if (app.options.id == "compendium") {
@@ -80,6 +80,7 @@ class LCPManager extends Application {
     return mergeObject(super.defaultOptions, {
       template: `systems/${game.system.id}/templates/lcp/lcp-manager.hbs`,
       title: "LANCER Compendium Manager",
+      classes: ["lancer", "lcp-manager"],
       width: 800,
       height: 800,
     });
@@ -87,8 +88,8 @@ class LCPManager extends Application {
 
   getData() {
     const data = {
-      core_version: this.coreVersion,
-      core_update: this.coreUpdate,
+      coreVersion: this.coreVersion,
+      coreUpdate: this.coreUpdate,
       manifest: this.manifest,
       lcps: this.lcpIndex,
     };

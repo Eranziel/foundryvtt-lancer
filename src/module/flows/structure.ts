@@ -5,6 +5,9 @@ import { getAutomationOptions } from "../settings";
 import { LancerFlowState } from "./interfaces";
 import { Flow, FlowState } from "./flow";
 import { LancerActor } from "../actor/lancer-actor";
+import { getAutomationOptions } from "../settings";
+import { prepareTextMacro } from "./text";
+import { lancerDiceRoll } from "../helpers/commons";
 import { encodeMacroData } from "../macros";
 import { renderTemplateStep } from "./_render";
 

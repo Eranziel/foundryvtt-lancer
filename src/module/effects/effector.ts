@@ -1,7 +1,9 @@
+import { LANCER } from "../config";
 import { LancerActor, LancerMECH } from "../actor/lancer-actor";
 import { EntryType } from "../enums";
 import { ChangeWatchHelper } from "../util/misc";
 import { LancerActiveEffect, LancerActiveEffectConstructorData } from "./lancer-active-effect";
+const lp = LANCER.log_prefix;
 
 export interface InheritedEffectsState {
   from_uuid: string; // Who's giving it? We only inherit one at a time
@@ -48,7 +50,6 @@ export class EffectHelper {
   // Clear the expected effects for a given uuid
   // Kick off an update if update == true
   async clearEphemeralEffects() {
-    // @ts-expect-error v11
     let curr = this.actor.system.inherited_effects as InheritedEffectsState | null;
     if (curr) {
       await this.actor.update(
@@ -66,6 +67,7 @@ export class EffectHelper {
   inheritedEffects(): LancerActiveEffect[] {
     let results: LancerActiveEffect[] = [];
     let inherited_effects = (this.actor as LancerMECH).system.inherited_effects;
+    console.debug(`${lp} Actor ${this.actor.name} has inherited effects:`, inherited_effects);
     if (inherited_effects) {
       for (let effect of inherited_effects.data) {
         results.push(new LancerActiveEffect(effect, { parent: this.actor }));
@@ -188,6 +190,19 @@ export class EffectHelper {
   async removeActiveEffect(effect: string) {
     const target_effect = this.findEffect(effect);
     target_effect?.delete();
+  }
+
+  /**
+   * Locates ActiveEffects on the Actor by names provided and removes them if present.
+   * @param effects Array of String names of the ActiveEffects to remove.
+   */
+  async removeActiveEffects(effects: string[]) {
+    const target_effects = effects.map(e => this.findEffect(e));
+    if (!target_effects || !target_effects.some(e => !!e)) return;
+    this.actor.deleteEmbeddedDocuments(
+      "ActiveEffect",
+      target_effects.map(e => e?.id || "")
+    );
   }
 
   findEffect(effect: string): LancerActiveEffect | null {

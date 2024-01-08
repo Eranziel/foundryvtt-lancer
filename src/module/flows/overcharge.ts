@@ -1,63 +1,77 @@
 // Import TypeScript modules
 import { getAutomationOptions } from "../settings";
-import { LancerActor, LancerMECH } from "../actor/lancer-actor";
-import { encodeMacroData } from "./encode";
+import { LancerActor } from "../actor/lancer-actor";
 import { renderTemplateStep } from "./_render";
 import { LancerFlowState } from "./interfaces";
+import { Flow, FlowState } from "./flow";
+import { UUIDRef } from "../source-template";
+import { LancerItem } from "../item/lancer-item";
 
-export function encodeOverchargeMacroData(actor_uuid: string): string {
-  return encodeMacroData({
-    title: "OVERCHARGE",
-    fn: "prepareOverchargeMacro",
-    args: [actor_uuid],
-    iconPath: `systems/${game.system.id}/assets/icons/macro-icons/overcharge.svg`,
-  });
+export function registerOverchargeSteps(flowSteps: Map<string, any>) {
+  flowSteps.set("initOverchargeData", initOverchargeData);
+  flowSteps.set("rollOvercharge", rollOvercharge);
+  flowSteps.set("updateOverchargeActor", updateOverchargeActor);
+  flowSteps.set("printOverchargeCard", printOverchargeCard);
 }
 
-export async function prepareOverchargeMacro(actor: LancerActor | string) {
-  // Determine which Actor to speak as
-  actor = LancerActor.fromUuidSync(actor);
+export class OverchargeFlow extends Flow<LancerFlowState.OverchargeRollData> {
+  name = "OverchargeFlow";
+  steps = ["initOverchargeData", "rollOvercharge", "updateOverchargeActor", "printOverchargeCard"];
 
-  // Validate that we're overcharging a mech
-  if (!actor.is_mech()) {
-    ui.notifications!.warn(`Only mechs can overcharge!`);
-    return;
+  constructor(uuid: UUIDRef | LancerItem | LancerActor, data?: Partial<LancerFlowState.OverchargeRollData>) {
+    // Initialize data if not provided
+    const initialData: LancerFlowState.OverchargeRollData = {
+      type: "overcharge",
+      title: data?.title || "",
+      roll_str: data?.roll_str || "",
+      level: data?.level || 0,
+    };
+
+    super(uuid, initialData);
   }
-
-  let rollText = actor.strussHelper.getOverchargeRoll()!;
-
-  let mData: LancerFlowState.OverchargeRollData = {
-    level: actor.system.overcharge,
-    roll: rollText,
-  };
-
-  // Assume we can always increment overcharge here...
-  await actor.update({
-    "system.overcharge": Math.min(actor.system.overcharge + 1, actor.system.overcharge_sequence.length - 1),
-  });
-
-  return rollOverchargeMacro(actor, mData);
 }
 
-async function rollOverchargeMacro(actor: LancerActor, data: LancerFlowState.OverchargeRollData) {
-  if (!actor) return;
+async function initOverchargeData(state: FlowState<LancerFlowState.OverchargeRollData>, options?: { title?: string }) {
+  if (!state.actor || !state.actor.is_mech()) throw new Error(`Only mechs can overcharge!`);
+  if (!state.data) throw new Error(`Data not found for overcharge flow!`);
 
-  // Prep data
-  let roll = await new Roll(data.roll).evaluate({ async: true });
-  const roll_tt = await roll.getTooltip();
+  state.data.title = options?.title || state.data.title || `${state.actor.name!.toUpperCase()} is OVERCHARGING`;
+  state.data.roll_str = state.actor.strussHelper.getOverchargeRoll()!;
+  state.data.level = Math.min(state.actor.system.overcharge + 1, state.actor.system.overcharge_sequence.length - 1);
 
+  return state;
+}
+
+async function rollOvercharge(state: FlowState<LancerFlowState.OverchargeRollData>) {
+  if (!state.actor || !state.actor.is_mech()) throw new Error(`Only mechs can overcharge!`);
+  if (!state.data) throw new Error(`Data not found for overcharge flow!`);
+
+  const roll = await new Roll(state.data.roll_str).evaluate({ async: true });
+  const tt = await roll.getTooltip();
+  state.data.result = { roll, tt };
+}
+
+async function updateOverchargeActor(state: FlowState<LancerFlowState.OverchargeRollData>) {
+  if (!state.actor || !state.actor.is_mech()) throw new Error(`Only mechs can overcharge!`);
+  if (!state.data) throw new Error(`Data not found for overcharge flow!`);
+  if (!state.data.result) throw new Error(`Overcharge hasn't been rolled yet!`);
+  // Assume we can always increment overcharge here...
+  await state.actor.update({
+    "system.overcharge": state.data.level,
+  });
   // Only increase heat if we haven't disabled it
   if (getAutomationOptions().overcharge_heat) {
-    await actor.update({ "system.heat.value": (actor as LancerMECH).system.heat.value + roll.total! });
+    await state.actor.update({ "system.heat.value": state.actor.system.heat.value + state.data.result.roll.total! });
   }
+}
 
-  // Construct the template
-  const templateData = {
-    actorName: actor.name,
-    roll: data.roll,
-    level: data.level,
-    roll_tooltip: roll_tt,
-  };
-  const template = `systems/${game.system.id}/templates/chat/overcharge-card.hbs`;
-  return renderTemplateStep(actor, template, templateData);
+async function printOverchargeCard(
+  state: FlowState<LancerFlowState.OverchargeRollData>,
+  options?: { template?: string }
+) {
+  if (!state.actor || !state.actor.is_mech()) throw new Error(`Only mechs can overcharge!`);
+  if (!state.data) throw new Error(`Data not found for overcharge flow!`);
+
+  const template = options?.template ?? `systems/${game.system.id}/templates/chat/overcharge-card.hbs`;
+  return renderTemplateStep(state.actor, template, state.data);
 }

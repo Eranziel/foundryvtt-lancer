@@ -7,6 +7,7 @@ import { unpackBonus } from "../bits/bonus";
 import { DamageField, unpackDamage } from "../bits/damage";
 import { RangeField, unpackRange } from "../bits/range";
 import { unpackSynergy } from "../bits/synergy";
+import { unpackTag } from "../bits/tag";
 import { LancerDataModel, UnpackContext } from "../shared";
 import { template_universal_item, template_bascdt, template_uses } from "./shared";
 
@@ -54,7 +55,7 @@ export function unpackPilotWeapon(
       loaded: undefined,
 
       lid: data.id,
-      tags: [],
+      tags: (data.tags ?? []).map(unpackTag),
     },
   };
 }

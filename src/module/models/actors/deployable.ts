@@ -34,10 +34,10 @@ const deployable_schema = {
   }),
   cost: new fields.NumberField({ min: 0, integer: true, nullable: false, initial: 1 }),
   instances: new fields.NumberField({ min: 1, integer: true, nullable: false, initial: 1 }),
-  deactivation: new fields.StringField({ choices: Object.values(ActivationType), initial: ActivationType.Quick }),
+  deactivation: new fields.StringField({ choices: Object.values(ActivationType), initial: null, nullable: true }),
   detail: new fields.HTMLField(),
-  recall: new fields.StringField({ choices: Object.values(ActivationType), initial: ActivationType.Quick }),
-  redeploy: new fields.StringField({ choices: Object.values(ActivationType), initial: ActivationType.Quick }),
+  recall: new fields.StringField({ choices: Object.values(ActivationType), initial: null, nullable: true }),
+  redeploy: new fields.StringField({ choices: Object.values(ActivationType), initial: null, nullable: true }),
 
   type: new fields.StringField({ choices: Object.values(DeployableType), initial: DeployableType.Deployable }),
   avail_mounted: new fields.BooleanField({ initial: true }),
@@ -62,7 +62,7 @@ export class DeployableModel extends LancerDataModel<"DeployableModel"> {
   static migrateData(data: any) {
     if (typeof data.hp == "string") {
       let dv = decompose_hp(data.hp);
-      data.hp = dv.hp;
+      data.hp.value = dv.hp;
       data.stats ??= {};
       data.stats.hp ??= dv.hp;
       data.stats.grit_hp ??= dv.grit_hp;
@@ -118,6 +118,7 @@ export function unpackDeployableData(data: PackedDeployableData): DeepPartial<So
     activations: 0,
     avail_mounted: undefined,
     avail_unmounted: undefined,
+    hp: { min: 0, max: dh.hp, value: dh.hp },
     burn: undefined,
     cost: data.cost,
     custom_counters: undefined,

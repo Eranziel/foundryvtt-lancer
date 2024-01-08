@@ -1,3 +1,38 @@
+# 1.6.1 (2023-07-16)
+## Bug Fixes
+* #570 - If no icon sets are selected, enable the default set.
+
+# 1.6.0 (2023-07-15)
+## Features
+* Added status icons for dispersal shield to the "Hayley NPC" set.
+* Last release should have been 1.6.0, so I'm fixing the version number now. 😉
+## Bug Fixes
+* The "Scan (Journal)" macro now correctly updates existing journals. You will need to drag a new copy of the macro out of the compendium.
+
+# 1.5.5 (2023-07-13)
+## Features
+* Lancer Condition Icons is now integrated into the system. LCI settings are automatically migrated to the corresponding system settings.
+* Status icon setting changes are applied live.
+* Verified compatibility bump to 10.303.
+
+# 1.5.4 (2023-04-26)
+## Bug Fixes
+* Fix a compatibility issue between CUB and the "consume lock on" feature.
+
+# 1.5.3 (2023-03-31)
+## Bug Fixes
+* #529 - Fix issues with syncing pilot/mech images.
+* Make the new Ruin macro actually show up in the compendium.
+
+# 1.5.2 (2023-03-30)
+## Features
+* Add a reload macro to the compendium, courtesy of Valk.
+* Update the ruin macro in the compendium, courtesy of Valk. Now searches for wreck images, and ignores biologicals.
+* Add an `attackData` flag to attack roll `ChatMessage`s. Not user-visible, but contains data which may be useful to module devs. 
+## Bug Fixes
+* #528 - Make Comp/Con login email case-insensitive. (Thanks Archiver#1883!)
+* #397 - Partial fix for consume lock on bug. Lock on is removed when consumed if a GM user is logged in when the attack is rolled.
+
 # 1.5.1 (2023-02-12)
 ## Bug Fixes
 * #521 - Fix chat button macro for reserves.

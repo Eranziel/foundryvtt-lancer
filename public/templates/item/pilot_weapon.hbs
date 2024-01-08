@@ -1,29 +1,36 @@
 <form class="{{cssClass}} lancer-sheet" autocomplete="off">
-  
-  {{!-- Sheet Header --}}
+
+  {{! Sheet Header }}
   <header class="sheet-header card clipped-bot">
     <div class="flexrow">
       <div class="header-fields">
-        <h1 class="charname"><input class="header-field" name="name" type="text" value="{{item.name}}" placeholder="{{localize "lancer.placeholder.name"}}"/></h1>
+        <h1 class="charname"><input
+            class="header-field"
+            name="name"
+            type="text"
+            value="{{item.name}}"
+            placeholder="{{localize 'lancer.placeholder.name'}}"
+          /></h1>
       </div>
-      {{{ ref-portrait-img item.img "img" item }}}
+      {{{ref-portrait-img item.img "img" item}}}
     </div>
   </header>
   <div class="flexcol">
-    {{!-- Status --}}
+    {{! Status }}
     <div class="card clipped">
-      <div class="lancer-header major ">STATUS</div>
+      <div class="lancer-header lancer-primary major">STATUS</div>
       <div class="flexrow" style="align-self: center;">
         {{#if (is-loading item)}}
           {{{loading-indicator system.loaded "item"}}}
         {{/if}}
         {{#if (is-limited item)}}
-          {{{limited-uses-indicator "item"}}}
+          {{{limited-uses-indicator item "item"}}}
         {{/if}}
       </div>
     </div>
 
-    {{!-- Weapon Stats --}}
+    {{! Weapon Stats }}
+    {{!-- prettier-ignore --}}
     <div class="flexrow">
       {{{item-edit-arrayed-range        "system.range"     "RANGE"}}}
       {{{item-edit-arrayed-damage       "system.damage"    "DAMAGE"}}}
@@ -32,18 +39,17 @@
     {{{textarea-card "DESCRIPTION" "system.description"}}}
     {{{textarea-card "EFFECT" "system.effect"}}}
 
-    {{!-- Bonuses --}}
-    {{{item-edit-arrayed-actions      "system.actions"        "ACTIONS"}}}
-    {{{item-edit-arrayed-bonuses      "system.bonuses"}}}
-    {{{item-edit-arrayed-deployables  "system.deployables"    "DEPLOYABLES"}}}
-    {{{item-edit-arrayed-synergies    "system.synergies"      "SYNERGIES"}}}
-
-    {{!-- Tags --}}
-    <div class="card full">
-      <span class="lancer-header major">TAGS</span>
-      {{{tag-list "system.tags" system.tags editable}}}
+    {{! Bonuses }}
+    {{!-- prettier-ignore --}}
+    <div>
+      {{{item-edit-arrayed-actions      "system.actions"        "ACTIONS"}}}
+      {{{item-edit-arrayed-bonuses      "system.bonuses"}}}
+      {{{item-edit-arrayed-deployables  "system.deployables"    "DEPLOYABLES"}}}
+      {{{item-edit-arrayed-synergies    "system.synergies"      "SYNERGIES"}}}
     </div>
 
+    {{! Tags }}
+    {{{item-edit-arrayed-tags "system.tags" "TAGS"}}}
   </div>
 
 </form>

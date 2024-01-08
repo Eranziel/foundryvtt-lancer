@@ -11,10 +11,10 @@ import {
   LancerWEAPON_MOD,
   LancerRESERVE,
 } from "../item/lancer-item";
-import { array_path_edit_changes, drilldownDocument, hex_array, resolve_helper_dotpath } from "./commons";
+import { array_path_edit_changes, drilldownDocument, extendHelper, hex_array, resolve_helper_dotpath } from "./commons";
 import { FoundryDropData, handleDocDropping, handleDragging, ResolvedDropData } from "./dragdrop";
-import { framePreview, license_ref, mech_weapon_display as mechWeaponView, npc_feature_preview } from "./item";
-import { mech_system_view as mechSystemView } from "./loadout";
+import { framePreview, licenseRefView, mechWeaponDisplay as mechWeaponView, npcFeatureView } from "./item";
+import { mechSystemViewHBS } from "./loadout";
 import { LancerDoc } from "../util/doc";
 import { EntryType } from "../enums";
 import { LancerActor } from "../actor/lancer-actor";
@@ -95,7 +95,7 @@ export function simple_ref_slot(path: string = "", accept_types: string | EntryT
 export async function click_evt_open_ref(event: any) {
   event.preventDefault();
   event.stopPropagation();
-  const elt = event.currentTarget;
+  const elt = event.currentTarget.closest(".ref") as HTMLElement;
   const doc = await resolve_ref_element(elt);
   if (doc) {
     doc.sheet?.render(true, { focus: true });
@@ -142,7 +142,7 @@ export async function resolve_ref_element(
  * @param img_path The path to read/edit said image
  * @param item The reffable item/actor itself
  */
-export function ref_portrait<T extends EntryType>(
+export function refPortrait<T extends EntryType>(
   img: string,
   img_path: string,
   item: LancerDoc<T>,
@@ -157,13 +157,13 @@ export function ref_portrait<T extends EntryType>(
 // A helper suitable for showing a small preview of a ref (slot)
 // In general, any preview here is less for "use" (e.x. don't tend to have elaborate macros) and more just to show something is there
 // trash_actions controls what happens when the trashcan is clicked. Delete destroys an item, splice removes it from the array it is found in, and null replaces with null
-export function item_preview<T extends LancerItemType>(
+export function itemPreview<T extends LancerItemType>(
   item_path: string,
   trash_action: "delete" | "splice" | "null" | null,
   options: HelperOptions
 ): string {
   // Fetch
-  let doc = resolve_helper_dotpath<LancerDoc<T>>(options, item_path);
+  let doc = options.hash["item"] ?? resolve_helper_dotpath<LancerDoc<T>>(options, item_path);
   if (!doc) {
     // This probably shouldn't be happening
     console.error(`Unable to resolve ${item_path} in `, options.data);
@@ -177,7 +177,7 @@ export function item_preview<T extends LancerItemType>(
 
   // Handle based on type
   if (doc.is_mech_system()) {
-    return mechSystemView(item_path, options);
+    return mechSystemViewHBS(item_path, options);
   } else if (doc.is_mech_weapon()) {
     return mechWeaponView(item_path, null, options);
   } else if (doc.is_talent()) {
@@ -187,9 +187,9 @@ export function item_preview<T extends LancerItemType>(
   } else if (doc.is_core_bonus()) {
     return coreBonusView(item_path, options);
   } else if (doc.is_license()) {
-    return license_ref(item_path, options);
+    return licenseRefView(item_path, options);
   } else if (doc.is_npc_feature()) {
-    return npc_feature_preview(item_path, options);
+    return npcFeatureView(item_path, options);
   } else if (doc.is_frame()) {
     return framePreview(item_path, options);
   } else {
@@ -209,7 +209,7 @@ export function item_preview<T extends LancerItemType>(
   }
 }
 
-export function limited_uses_indicator(
+export function limitedUsesIndicator(
   item:
     | LancerMECH_WEAPON
     | LancerMECH_SYSTEM
@@ -217,34 +217,55 @@ export function limited_uses_indicator(
     | LancerPILOT_WEAPON
     | LancerPILOT_GEAR
     | LancerNPC_FEATURE,
-  path: string
+  path: string,
+  options?: { nonInteractive?: boolean }
 ): string {
   const uses = item.system.uses;
+  const nonInteractive = options?.nonInteractive ? "non-interactive" : "";
+  const hexes = hex_array(uses.value, uses.max, path, `uses-hex`);
 
-  const hexes = hex_array(uses.value, uses.max, path, "uses-hex");
+  return `<div class="clipped card limited-card ${nonInteractive}">USES ${hexes.join("")}</div>`;
+}
+
+export function reserveUsesIndicator(path: string, options: HelperOptions): string {
+  let used = resolve_helper_dotpath(options, path) as LancerRESERVE;
+  const hexes = hex_array(used ? 0 : 1, 1, path, "uses-hex");
 
   return `<div class="clipped card limited-card">USES ${hexes.join("")}</div>`;
 }
 
-export function reserve_used_indicator(path: string, options: HelperOptions): string {
-  let item = resolve_helper_dotpath(options, path) as LancerRESERVE;
-  const hexes = hex_array(item.system.used ? 0 : 1, 1, path);
-
-  return `<div class="clipped card limited-card">USED ${hexes.join("")}</div>`;
-}
-
 // Put this at the end of ref lists to have a place to drop things. Supports both native and non-native drops
 // Allowed types is a list of space-separated allowed types. "mech pilot mech_weapon", for instance
-export function item_preview_list(item_array_path: string, allowed_types: string, options: HelperOptions) {
-  let embeds = resolve_helper_dotpath<Array<any>>(options, item_array_path, []);
+export function lid_item_list(
+  item_array_path: string,
+  values: LancerItem[],
+  allowed_types: string,
+  options: HelperOptions
+) {
+  let lids = resolve_helper_dotpath<Array<any>>(options, item_array_path, []);
   let trash = options.hash["trash"] ?? null;
-  let previews = embeds.map((_, i) => item_preview(`${item_array_path}.${i}`, trash, options));
+  let previews = lids.map((_, i) =>
+    itemPreview(`${item_array_path}.${i}`, trash, extendHelper(options, { item: values[i] }))
+  );
   return `
-    <div class="flexcol ref-list" 
+    <div class="flexcol lid-list" 
          data-path="${item_array_path}" 
          data-accept-types="${allowed_types}">
          ${previews.join("")}
+         ${dropIndicator(allowed_types, options)}
     </div>`;
+}
+
+// CSS'd to only be visible when dragging one of allowed_types, which is a comma-separated list of EntryTypes
+export function dropIndicator(allowed_types: string, options: HelperOptions) {
+  let types = allowed_types.split(",");
+  let classes = types.map(t => `drop-target-${t}`);
+  return `<div class="line-drop-target ${classes.join(" ")}">DROP HERE</div>`;
+}
+
+// Enables clicking document refs to open their sheets
+export function handleRefClickOpen(html: JQuery) {
+  $(html).find(".ref.set.click-open, .ref.set .click-open").on("click", click_evt_open_ref);
 }
 
 // Enables dropping of items into open slots at the end of lists generated by mm_ref_list_append_slot
@@ -252,7 +273,7 @@ export function item_preview_list(item_array_path: string, allowed_types: string
 // and one to commit any changes to aforementioned object
 export function handleDocListDropping<T>(html: JQuery, root_doc: LancerActor | LancerItem) {
   // Use our handy dandy helper
-  handleDocDropping(html.find(".ref.ref-list"), async (rdd, evt) => {
+  handleDocDropping(html.find(".ref-list"), async (rdd, evt) => {
     if (!(rdd.type == "Actor" || rdd.type == "Item")) return; // For now, don't allow adding macros etc to lists
 
     // Gather context information
@@ -262,15 +283,37 @@ export function handleDocListDropping<T>(html: JQuery, root_doc: LancerActor | L
     // Check type is allowed type
     if (allowed_items_raw && !allowed_items_raw.includes(rdd.document.type)) return;
 
-    // Coerce val to appropriate type
-    let val = rdd.document;
+    // Try to apply the list addition
+    if (path) {
+      let dd = drilldownDocument(root_doc, path);
+      let array = dd.terminus;
+      if (Array.isArray(array)) {
+        let changes = array_path_edit_changes(dd.sub_doc, dd.sub_path + ".-1", rdd.document, "insert");
+        dd.sub_doc.update({ [changes.path]: changes.new_val });
+      }
+    }
+  });
+}
+
+export function handleLIDListDropping<T>(html: JQuery, root_doc: LancerActor | LancerItem) {
+  // Use our handy dandy helper
+  handleDocDropping(html.find(".lid-list"), async (rdd, evt) => {
+    if (!(rdd.type == "Actor" || rdd.type == "Item")) return; // For now, don't allow adding macros etc to lists
+
+    // Gather context information
+    let path = evt[0].dataset.path;
+    let allowed_items_raw = evt[0].dataset.acceptTypes ?? "";
+
+    // Check type is allowed type
+    if (allowed_items_raw && !allowed_items_raw.includes(rdd.document.type)) return;
 
     // Try to apply the list addition
     if (path) {
       let dd = drilldownDocument(root_doc, path);
       let array = dd.terminus;
       if (Array.isArray(array)) {
-        let changes = array_path_edit_changes(dd.sub_doc, dd.sub_path + ".-1", val, "insert");
+        let lid = rdd.document.system.lid;
+        let changes = array_path_edit_changes(dd.sub_doc, dd.sub_path + ".-1", lid, "insert");
         dd.sub_doc.update({ [changes.path]: changes.new_val });
       }
     }
@@ -285,13 +328,18 @@ export function handleUsesInteraction<T>(html: JQuery, doc: LancerActor | Lancer
     const params = ev.currentTarget.dataset;
     if (params.path) {
       const dd = drilldownDocument(doc, params.path);
-      const item = dd.sub_doc as LancerMECH_SYSTEM | LancerMECH_WEAPON | LancerPILOT_GEAR | LancerNPC_FEATURE;
+      const item = dd.sub_doc as
+        | LancerMECH_SYSTEM
+        | LancerMECH_WEAPON
+        | LancerPILOT_GEAR
+        | LancerRESERVE
+        | LancerNPC_FEATURE;
       const available = params.available === "true";
 
-      let newUses = item.system.uses.value;
       if (item.is_reserve()) {
-        item.update({ "system.used": true });
+        item.update({ "system.used": available });
       } else {
+        let newUses = item.system.uses.value;
         if (available) {
           // Deduct uses.
           newUses = Math.max(newUses - 1, item.system.uses.min);
@@ -309,36 +357,18 @@ export function handleUsesInteraction<T>(html: JQuery, doc: LancerActor | Lancer
 // This doesn't handle natives
 export function handleRefDragging(html: JQuery) {
   // Allow refs to be dragged arbitrarily
-  handleDragging(
-    html.find(".ref.set"),
-    (source, evt) => {
-      let uuid = evt.currentTarget.dataset.uuid as string;
-      if (!uuid || !(uuid.includes("Item.") || uuid.includes("Actor.") || uuid.includes("Token."))) {
-        console.error("Unable to properly drag ref", source, evt.currentTarget);
-        throw new Error("Drag error");
-      }
-      let result: FoundryDropData = {
-        type: uuid.includes("Item.") ? "Item" : "Actor",
-        uuid,
-      };
-      return JSON.stringify(result);
-    },
-
-    (start_stop, src, _evt) => {
-      /*
-    // Highlight valid drop points
-    let drop_set_target_selector = `.ref.drop-settable.${src[0].dataset.type}`;
-    let drop_append_target_selector = `.ref.ref-list.${src[0].dataset.type}`;
-    let target_selector = `${drop_set_target_selector}, ${drop_append_target_selector}`;
-
-    if (start_stop == "start") {
-      $(target_selector).addClass("highlight-can-drop");
-    } else {
-      $(target_selector).removeClass("highlight-can-drop");
+  handleDragging(html.find(".ref.set"), (source, evt) => {
+    let uuid = evt.currentTarget.dataset.uuid as string;
+    if (!uuid || !(uuid.includes("Item.") || uuid.includes("Actor.") || uuid.includes("Token."))) {
+      console.error("Unable to properly drag ref", source, evt.currentTarget);
+      throw new Error("Drag error");
     }
-    */
-    }
-  );
+    let result: FoundryDropData = {
+      type: uuid.includes("Item.") ? "Item" : "Actor",
+      uuid,
+    };
+    return JSON.stringify(result);
+  });
 }
 
 // Allow every ".ref.drop-settable" spot to be dropped onto, with a payload of a JSON RegRef

@@ -58,15 +58,15 @@
 
   {{!-- Traits --}}
   <div class="card">
-    <div class="lancer-header">
+    <div class="lancer-header lancer-primary">
       <span class="major left">TRAITS</span>
       <a class="gen-control" data-action="append" data-path="system.traits" data-action-value="(struct)frame_trait" style="float: right">+</a>
     </div>
     {{#each system.traits as |trait trait_index|}}
-      <div class="card clipped frame_trait">
-        <div class="lancer-header major">
+      <div class="card clipped lancer-trait">
+        <div class="lancer-header lancer-trait major">
           <i class="cci cci-trait i--m i--light header-icon"> </i>
-          <input class="lancer-invisible-input i--light" name="system.traits.{{trait_index}}.name" value="{{trait.name}}" data-dtype="String" />
+          <input class="lancer-invisible-input i--light" name="system.traits.{{trait_index}}.name" value="{{trait.name}}" type="text" data-dtype="String" />
           {{{popout-editor-button (concat "system.traits." trait_index ".description") }}}
           <a class="gen-control" data-action="splice" data-path="system.traits.{{trait_index}}">
             <i class="fas fa-trash"></i>
@@ -79,19 +79,19 @@
   </div>
 
   {{!-- Core System --}}
-  <div class="card clipped frame-core">
+  <div class="card clipped-top frame_core lancer-border-bonus">
     {{!-- General Description --}}
-    <div class="lancer-header frame_core medium">
+    <div class="lancer-header lancer-bonus frame_core medium">
       <i></i>
       <input class="lancer-invisible-input major i--light" name="system.core_system.name" value="{{system.core_system.name}}" data-dtype="String" />
-      <div class="medium i--faded" style="justify-self: right;"> // CORE SYSTEM</div>
+      <div class="medium faded" style="justify-self: right;"> // CORE SYSTEM</div>
       {{{popout-editor-button "system.core_system.description" }}}
     </div>
     <div class="desc-text">{{{safe-html system.core_system.description }}}</div>
 
     {{!-- Integrated --}}
     <div class="integrated-wrapper card clipped flexcol">
-      <div class="lancer-header">INTEGRATED GEAR</div>
+      <div class="lancer-header lancer-primary">INTEGRATED GEAR</div>
       <ul>
       {{#each system.core_system.integrated as |integrated index|}}
         <li>
@@ -105,11 +105,11 @@
     </div>
 
     {{!-- Passive Description + Bonuses --}}
-    <div class="card clipped frame_core">
-      <div class="lancer-header">
+    <div class="card clipped-top frame_core lancer-border-bonus">
+      <div class="lancer-header lancer-bonus">
         <i class="mdi mdi-circle-expand i--m i--light"> </i>
         <input class="lancer-invisible-input medium i--light" name="system.core_system.passive_name" value="{{system.core_system.passive_name}}" data-dtype="String" />
-        <div class="medium i--faded" style="justify-self: right;"> // PASSIVE</div>
+        <div class="medium faded" style="justify-self: right;"> // PASSIVE</div>
         {{{popout-editor-button "system.core_system.passive_effect" }}}
       </div>
       <div class="desc-text">{{{safe-html system.core_system.passive_effect }}}</div>
@@ -120,11 +120,11 @@
     </div>
 
     {{!-- Active Description + Bonuses --}}
-    <div class="card clipped frame_core">
-      <div class="lancer-header">
+    <div class="card clipped-top frame_core lancer-border-bonus">
+      <div class="lancer-header lancer-bonus">
         <i class="cci cci-corebonus i--m i--light"> </i>
         <input class="lancer-invisible-input medium i--light" name="system.core_system.active_name" value="{{system.core_system.active_name}}" data-dtype="String" />
-        <div class="i--faded" style="justify-self: right;"> // ACTIVE</div>
+        <div class="faded" style="justify-self: right;"> // ACTIVE</div>
         {{{popout-editor-button "system.core_system.active_effect" }}}
       </div>
       <div class="desc-text">{{{safe-html system.core_system.active_effect }}}</div>
@@ -133,11 +133,6 @@
         todo action
       {{/each}}
     </div>
-    <div class="tags-container" style="margin: 10px;">
-      <div class="flexcol lancer-title">
-        <span class="major">TAGS</span>
-        {{{tag-list "system.core_system.tags" system.core_system.tags editable}}}
-      </div>
-    </div>
+    {{{item-edit-arrayed-tags "system.core_system.tags" "TAGS"}}}
   </div>
 </form>

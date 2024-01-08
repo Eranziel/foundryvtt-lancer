@@ -15,6 +15,9 @@ import { StrussHelper } from "./struss-util";
 import { StructureFlow } from "../flows/structure";
 import { BasicAttackFlow } from "../flows/attack";
 import { pilotInnateEffect } from "../effects/converter";
+import { TechAttackFlow } from "../flows/tech";
+import { StatRollFlow } from "../flows/stat";
+import { OverchargeFlow } from "../flows/overcharge";
 const lp = LANCER.log_prefix;
 
 const DEFAULT_OVERCHARGE_SEQUENCE = ["+1", "+1d3", "+1d6", "+1d6+4"];
@@ -69,6 +72,9 @@ export class LancerActor extends Actor {
   // Helps us handle structuring/overheating, as well as providing miscellaneous utility functions for struct/stress
   strussHelper!: StrussHelper; // = new StrussHelper(this);
 
+  // @ts-expect-error - Foundry initializes this.
+  system: SystemData.Pilot | SystemData.Mech | SystemData.Npc | SystemData.Deployable;
+
   // These cannot be instantiated the normal way (e.x. via constructor)
   _configure() {
     // @ts-expect-error
@@ -92,7 +98,6 @@ export class LancerActor extends Actor {
     }
 
     // Step 1: Exposed doubles non-burn, non-heat damage
-    // @ts-expect-error v11
     if (this.system.statuses.exposed) {
       armored_damage_types.forEach(d => (damage[d] *= 2));
     }
@@ -103,16 +108,15 @@ export class LancerActor extends Actor {
      * Armor reduction may favor attacker or defender depending on automation.
      * Default is "favors defender".
      */
-    // @ts-expect-error v11
     if (!paracausal && !this.system.statuses.shredded) {
       const defense_favor = true; // getAutomationOptions().defenderArmor
-      // @ts-expect-error System's broken
+      // TODO: figure out how to fix this typing
+      // @ts-expect-error
       const resist_armor_damage = armored_damage_types.filter(t => this.system.resistances[t.toLowerCase()]);
-      // @ts-expect-error System's broken
+      // @ts-expect-error
       const normal_armor_damage = armored_damage_types.filter(t => !this.system.resistances[t.toLowerCase()]);
-      // @ts-expect-error System's broken
+      // @ts-expect-error
       const resist_ap_damage = ap_damage_types.filter(t => this.system.resistances[t.toLowerCase()]);
-      // @ts-expect-error System's broken
       let armor = ap ? 0 : this.system.armor;
       let leftover_armor: number; // Temp 'storage' variable for tracking used armor
 
@@ -149,31 +153,26 @@ export class LancerActor extends Actor {
 
     // Only set heat on items that have it
     if (this.hasHeatcap()) {
-      changes["system.heat"] = this.system.heat.value + damage.Heat;
+      changes["system.heat.value"] = this.system.heat.value + damage.Heat;
     }
 
     const armor_damage = Math.ceil(damage.Kinetic + damage.Energy + damage.Explosive + damage.Variable);
     let total_damage = armor_damage + damage.Burn;
 
     // Reduce Overshield first
-    // @ts-expect-error System's broken
     if (this.system.overshield.value) {
-      // @ts-expect-error System's broken
       const leftover_overshield = Math.max(this.system.overshield.value - total_damage, 0);
-      // @ts-expect-error System's broken
       total_damage = Math.max(total_damage - this.system.overshield.value, 0);
-      changes["system.overshield"] = leftover_overshield;
+      changes["system.overshield.value"] = leftover_overshield;
     }
 
     // Finally reduce HP by remaining damage
     if (total_damage) {
-      // @ts-expect-error System's broken
-      changes["system.hp"] = this.system.hp.value - total_damage;
+      changes["system.hp.value"] = this.system.hp.value - total_damage;
     }
 
     // Add to Burn stat
     if (damage.Burn) {
-      // @ts-expect-error System's broken
       changes["system.burn"] = this.system.burn + damage.Burn;
     }
 
@@ -193,7 +192,6 @@ export class LancerActor extends Actor {
     this.system.finalize_tasks();
 
     // 2. Initialize our universal derived stat fields
-    // @ts-expect-error
     let sys: SystemTemplates.actor_universal = this.system;
     sys.edef = 0;
     sys.evasion = 0;
@@ -248,29 +246,7 @@ export class LancerActor extends Actor {
     if (this.is_pilot()) {
       this.system.grit = Math.ceil(this.system.level / 2);
       this.system.hp.max = 6 + this.system.grit;
-      this.system.bond = this.items.find(i => i.is_bond()) as unknown as LancerBOND;
-      this.system.bond_state.xp.max = 8;
-      this.system.bond_state.stress.max = 8;
-      // sys should actually be the pilot's source data. There's probably a more elegant way to coerce the type here.
-      this.system.bond_state.minor_ideal = this.system.bond
-        ? this.system.bond.system.minor_ideals[(sys as unknown as SourceData.Pilot).bond_state.minor_ideal]
-        : "No Bond";
-      if (this.system.bond) {
-        const bond = this.system.bond;
-        if (this.system.bond_state.answers.length > this.system.bond.system.questions.length) {
-          this.system.bond_state.answers = this.system.bond_state.answers.slice(
-            0,
-            this.system.bond.system.questions.length
-          );
-        }
-        this.system.bond_state.answers = (sys as unknown as SourceData.Pilot).bond_state.answers.map((a, i) => {
-          let q = bond.system.questions[i];
-          if (a >= q.options.length) {
-            return q.options[0];
-          }
-          return bond.system.questions[i].options[a];
-        });
-      }
+      this.system.bond = (this.items.find(i => i.is_bond()) ?? null) as unknown as LancerBOND | null;
     } else if (this.is_mech()) {
       // Aggregate sp/ai
       let equipped_sp = 0;
@@ -288,6 +264,9 @@ export class LancerActor extends Actor {
           }
           if (slot.mod?.status == "resolved") {
             equipped_ai += slot.mod.value.system.tags.some(t => t.is_ai) ? 1 : 0;
+            if (slot.weapon?.value) {
+              slot.weapon.value.system.mod = slot.mod.value;
+            }
           }
         }
       }
@@ -336,6 +315,18 @@ export class LancerActor extends Actor {
 
     // Track shift in values. Use optional to handle compendium bulk-created items, which handle strangely
     this.effectHelper._passdownEffectTracker?.setValue(this.effectHelper.collectPassdownEffects());
+    this._markStatuses();
+  }
+
+  /** Check which statuses this actor has active and set system.status accordingly */
+  _markStatuses() {
+    // @ts-expect-error v11
+    if (!this.statuses) return;
+    // @ts-expect-error v11
+    for (const status of this.statuses.keys()) {
+      // @ts-expect-error
+      this.system.statuses[status] = true;
+    }
   }
 
   /** Mark our equipped items as equipped */
@@ -431,16 +422,15 @@ export class LancerActor extends Actor {
    * This is mostly copy-pasted from Actor.modifyTokenAttribute to allow negative hps, which are useful for structure checks
    */
   async modifyTokenAttribute(attribute: string, value: any, isDelta = false, isBar = true) {
-    // @ts-expect-error Should be fixed with v10 types
     const current = foundry.utils.getProperty(this.system, attribute);
 
     let updates;
     if (isBar) {
       if (isDelta) value = Number(current.value) + value;
-      updates = { [`data.${attribute}.value`]: value };
+      updates = { [`system.${attribute}.value`]: value };
     } else {
       if (isDelta) value = Number(current) + value;
-      updates = { [`data.${attribute}`]: value };
+      updates = { [`system.${attribute}`]: value };
     }
 
     // Call a hook to handle token resource bar updates
@@ -495,7 +485,6 @@ export class LancerActor extends Actor {
 
     // If changing active mech, all mechs need to render to recompute if they are the active mech
     if ((changed as any).system?.active_mech !== undefined) {
-      // @ts-expect-error idk why this is unhappy
       let owned_mechs = game.actors!.filter(a => a.is_mech() && a.system.pilot?.value == this);
       owned_mechs?.forEach(m => m.render());
     }
@@ -525,10 +514,10 @@ export class LancerActor extends Actor {
       (this.is_mech() || this.is_npc())
     ) {
       const data = changed as any; // DeepPartial<RegMechData | RegNpcData>;
-      if ((data.system?.heat ?? 0) > this.system.heat.max && this.system.stress.value > 0) {
+      if ((data.system?.heat?.value ?? 0) > this.system.heat.max && this.system.stress.value > 0) {
         prepareOverheatMacro(this);
       }
-      if ((data.system?.hp ?? 1) <= 0 && this.system.structure.value > 0) {
+      if ((data.system?.hp?.value ?? 1) <= 0 && this.system.structure.value > 0) {
         const flow = new StructureFlow(this, undefined);
         return flow.begin();
       }
@@ -536,12 +525,12 @@ export class LancerActor extends Actor {
 
     // If the Size of the ent has changed since the last update, set the
     // protype token size to the new size
-    // @ts-expect-error System's broken
     const expected_size = Math.max(1, this.system.size);
-    // @ts-expect-error System's broken
-    if (this.prototypeToken?.width !== expected_size) {
-      // @ts-expect-error
-      this.prototypeToken?.update({
+    // Update either prototype token or the token itself depending
+    // @ts-expect-error prototypeToken is not in the types
+    const token = this.token ?? this.prototypeToken;
+    if (token && token.width !== expected_size) {
+      token.update({
         width: expected_size,
         height: expected_size,
         flags: {
@@ -665,7 +654,7 @@ export class LancerActor extends Actor {
    * @returns         The newFrame if any updates were performed
    */
   async swapFrameImage(newFrame: LancerFRAME | LancerNPC_CLASS): Promise<void> {
-    if (!(this.is_mech() || this.is_deployable())) return;
+    if (!(this.is_mech() || this.is_npc())) return;
 
     let new_frame_path = frameToPath(newFrame?.name);
     let default_img = this.is_mech()
@@ -720,18 +709,39 @@ export class LancerActor extends Actor {
     return x;
   }
 
+  async beginOverchargeFlow(): Promise<boolean> {
+    if (!this.is_mech()) {
+      ui.notifications!.warn(`Only mechs can overcharge!`);
+      return false;
+    }
+    const flow = new OverchargeFlow(this);
+    return await flow.begin();
+  }
+
+  async beginStatFlow(path: string, title?: string): Promise<boolean> {
+    const flow = new StatRollFlow(this, { path, title });
+    return await flow.begin();
+  }
+
   async beginBasicAttackFlow(title?: string): Promise<boolean> {
-    if (this.type === EntryType.DEPLOYABLE) {
-      // @ts-expect-error System's broken
+    if (this.is_deployable()) {
       if (!this.system.owner) {
         ui.notifications!.warn(`Deployable ${this.id} has no deployer so cannot attack!`);
         return false;
       }
-      // @ts-expect-error System's broken
       const owner = await LancerActor.fromUuid(this.system.owner.id);
       return await owner.beginBasicAttackFlow(title);
     }
     const flow = new BasicAttackFlow(this, title ? { title } : undefined);
+    return await flow.begin();
+  }
+
+  async beginBasicTechAttackFlow(title?: string): Promise<boolean> {
+    if (!this.is_mech() && !this.is_npc()) {
+      ui.notifications!.warn(`Only mechs and NPCs can tech attack!`);
+      return false;
+    }
+    const flow = new TechAttackFlow(this, title ? { title } : undefined);
     return await flow.begin();
   }
 

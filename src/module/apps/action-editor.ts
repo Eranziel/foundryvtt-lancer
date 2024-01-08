@@ -10,6 +10,7 @@ export class ActionEditDialog extends TargetedEditForm<ActionData> {
     return mergeObject(super.defaultOptions, {
       template: `systems/${game.system.id}/templates/window/action_editor.hbs`,
       title: "Action Editing",
+      classes: ["lancer", "action-editor"],
     });
   }
 }

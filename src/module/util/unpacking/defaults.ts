@@ -16,8 +16,11 @@ import { DamageData } from "../../models/bits/damage";
 import { RangeData } from "../../models/bits/range";
 import { CounterData } from "../../models/bits/counter";
 import { SystemTemplates } from "../../system-template";
+import { PowerData } from "../../models/bits/power";
+import { BondQuestionData } from "../../models/bits/question";
+import { TagData } from "../../models/bits/tag";
 
-const DEFAULT_DESCRIPTION = "...";
+const DEFAULT_DESCRIPTION = "";
 
 // Our default bonus basically does nothing but allows everything
 export function BONUS(): BonusData {
@@ -92,6 +95,33 @@ export function COUNTER(): CounterData {
     max: 6,
     default_value: 1,
     value: 1,
+  };
+}
+
+export function TAG(): TagData {
+  return {
+    lid: "tg_unknown",
+    val: "",
+  };
+}
+
+export function BOND_QUESTION(): BondQuestionData {
+  return {
+    question: DEFAULT_DESCRIPTION,
+    options: [DEFAULT_DESCRIPTION],
+  };
+}
+
+export function POWER(): PowerData {
+  return {
+    name: "New Power",
+    description: DEFAULT_DESCRIPTION,
+    unlocked: false,
+    frequency: null,
+    uses: null,
+    veteran: false,
+    master: false,
+    prerequisite: null,
   };
 }
 

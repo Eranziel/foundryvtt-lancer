@@ -1,11 +1,12 @@
 import type { HelperOptions } from "handlebars";
-import { bonuses_display, damage_editor, range_editor, buildActionArrayHTML, buildDeployablesArray } from "./item";
+import { bonusesDisplay, damageEditor, rangeEditor, buildActionArrayHTML, buildDeployablesArrayHBS } from "./item";
 import {
   drilldownDocument,
   extendHelper as extendHelper,
   helper_root_doc,
   large_textbox_card,
   resolve_helper_dotpath,
+  std_checkbox,
   std_enum_select,
   std_num_input,
 } from "./commons";
@@ -29,7 +30,7 @@ export function item_edit_arrayed_actions(path: string, title: string, options: 
 
   return `
     <div class="card clipped double edi">
-      <span class="lancer-header submajor ">
+      <span class="lancer-header lancer-primary submajor ">
         ${title}
         <a class="gen-control fas fa-plus" data-action="append" data-path="${path}" data-action-value="(struct)action"></a>
       </span>
@@ -53,13 +54,13 @@ export function item_edit_arrayed_damage(path: string, title: string, options: H
 
   if (dam_arr) {
     for (let i = 0; i < dam_arr.length; i++) {
-      dam_detail = dam_detail.concat(damage_editor(path.concat(`.${i}`), options));
+      dam_detail = dam_detail.concat(damageEditor(path.concat(`.${i}`), options));
     }
   }
 
   return `
     <div class="card clipped double edi">
-      <span class="lancer-header submajor ">
+      <span class="lancer-header lancer-primary submajor ">
         ${title}
         <a class="gen-control fas fa-plus" data-action="append" data-path="${path}" data-action-value="(struct)damage"></a>
       </span>
@@ -81,13 +82,13 @@ export function item_edit_arrayed_range(path: string, title: string, options: He
 
   if (range_arr) {
     for (let i = 0; i < range_arr.length; i++) {
-      range_detail = range_detail.concat(range_editor(path.concat(`.${i}`), options));
+      range_detail = range_detail.concat(rangeEditor(path.concat(`.${i}`), options));
     }
   }
 
   return `
     <div class="card clipped double">
-      <span class="lancer-header submajor ">
+      <span class="lancer-header lancer-primary submajor ">
         ${title}
         <a class="gen-control fas fa-plus" data-action="append" data-path="${path}" data-action-value="(struct)range"></a>
       </span>
@@ -103,7 +104,7 @@ export function item_edit_arrayed_range(path: string, title: string, options: He
  */
 export function item_edit_arrayed_bonuses(path: string, options: HelperOptions): string {
   let arr = resolve_helper_dotpath<BonusData[]>(options, path, []);
-  return bonuses_display(path, true, options);
+  return bonusesDisplay(path, true, options);
 }
 
 export function item_edit_arrayed_counters(): string {
@@ -123,11 +124,11 @@ export function item_edit_arrayed_deployables(path: string, title: string, optio
   let dd = drilldownDocument(root, path);
 
   if (!(dd.sub_doc instanceof LancerItem)) return "";
-  let depHTML = buildDeployablesArray(dd.sub_doc, dd.sub_path, extendHelper(options, { full: true }));
+  let depHTML = buildDeployablesArrayHBS(dd.sub_doc, dd.sub_path, extendHelper(options, { full: true }));
 
   return `
     <div class="card clipped">
-      <span class="lancer-header submajor clipped-top">
+      <span class="lancer-header lancer-primary submajor clipped-top">
         ${title}
       </span>
       ${depHTML}
@@ -152,7 +153,7 @@ export function item_edit_arrayed_synergies(path: string, title: string, options
 
   return `
     <div class="card clipped">
-      <span class="lancer-header submajor clipped-top">
+      <span class="lancer-header lancer-primary submajor clipped-top">
         ${title}
       </span>
       ${synHTML}
@@ -190,11 +191,29 @@ export function item_edit_arrayed_enum(title: string, path: string, enum_name: s
 
   return `
     <div class="card clipped item-edit-arrayed">
-      <span class="lancer-header submajor ">
+      <span class="lancer-header lancer-primary submajor ">
         ${title}
         <a class="gen-control fas fa-plus" data-action="append" data-path="${path}" data-action-value="(struct)${enum_name}"></a>
       </span>
         ${selector_detail}
+    </div>`;
+}
+
+export function item_edit_checkboxes_object(title: string, path: string, options: HelperOptions): string {
+  let checkbox_obj = resolve_helper_dotpath<Record<string, boolean>>(options, path, {});
+  let selector_detail = "";
+  for (let [k, v] of Object.entries(checkbox_obj)) {
+    selector_detail += `<div class="flexrow">
+        ${std_checkbox(path.concat(`.${k}`), extendHelper(options, { label: k }))}
+    </div>`;
+  }
+
+  return `
+    <div class="card clipped item-edit-arrayed">
+      <span class="lancer-header lancer-primary submajor ">
+        ${title}
+      </span>
+      ${selector_detail}
     </div>`;
 }
 
@@ -261,9 +280,8 @@ export function item_edit_arrayed_integrated(path: string, title: string, option
 
   return `
     <div class="card clipped item-edit-arrayed">
-      <span class="lancer-header submajor ">
+      <span class="lancer-header lancer-primary submajor ">
         INTEGRATED ITEMS
-        <a class="gen-control fas fa-plus" data-action="append" data-path="${path}" data-action-value="(struct)string"></a>
       </span>
         ${intHTML}
     </div>`;
@@ -283,7 +301,7 @@ export function item_edit_license(options: HelperOptions): string {
   else {
     licenseInfo = license; // TODO - use a sync lookup to make this look nice
     /*
-      licenseInfo = `<div class="set ${EntryType.LICENSE} ref lancer-license-header medium clipped-top" ${ref_params(license)}>
+      licenseInfo = `<div class="set ${EntryType.LICENSE} ref lancer-header lancer-license medium clipped-top" ${ref_params(license)}>
       <i class="cci cci-license i--m i--dark"> </i>
       <span class="major modifier-name">${license.name}</span>
     </div>`;
@@ -329,7 +347,7 @@ export function item_edit_uses(cur_uses_path: string, max_uses_path: string, opt
     <div class="flexcol uses-editor clipped-top">
         <span class="major">Uses</span>
         <div class="flexrow flex-center no-wrap">
-            <input class="lancer-stat lancer-stat" type="number" name="${cur_uses_path}" value="${cur_uses}" data-dtype="Number" style="justify-content: left"/>
+            <input class="lancer-stat" type="number" name="${cur_uses_path}" value="${cur_uses}" data-dtype="Number" style="justify-content: left"/>
             <span>/</span>
             <span class="lancer-stat" style="justify-content: left">${max_uses}</span>
         </div>

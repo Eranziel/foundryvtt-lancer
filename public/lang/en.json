@@ -32,7 +32,8 @@
         "label": "MACROS"
       },
       "system": {
-        "label": "LOADOUT [SP: {total} / {max} ]"
+        "label": "LOADOUT",
+        "sp-used": "SP USED"
       }
     },
     "npc-sheet": {
@@ -108,6 +109,7 @@
         "attack": "// ATTACK //",
         "damage": "// DAMAGE //",
         "crit-damage": "// CRIT DAMAGE //",
+        "self-heat": "// SELF HEAT //",
         "defense-hit": "// HIT VS {defense}",
         "e-defense-hit": "// HIT VS E-DEF",
         "effect": "// EFFECT //",
@@ -138,6 +140,35 @@
         "uncharged": "{target} + :: UNCHARGED"
       },
       "remaining": "{total} / {max} REMAINING"
+    },
+    "uiTheme": {
+      "name": "UI Theme",
+      "hint": "Colour scheme for the UI, echoing Comp/Con's themes.",
+      "gms": "GMS Red (default)",
+      "gmsDark": "GMS Dark",
+      "msmc": "MSMC Solarized",
+      "horus": "HORUS Terminal"
+    },
+    "statusIconsConfig": {
+      "menu-name": "Status Icons",
+      "menu-label": "Status Icon Configuration",
+      "menu-hint": "Configure the status icons that appear on the token HUD",
+      "defaultConditionsStatus": "Default Conditions & Status",
+      "defaultConditionsStatus-desc": "Enable the default icon set for conditions & status",
+      "cancerConditionsStatus": "Cancermantis' Conditions & Status",
+      "cancerConditionsStatus-desc": "Enable Cancermantis' icon set for conditions & status",
+      "cancerNPCTemplates": "Cancermantis' NPC Templates",
+      "cancerNPCTemplates-desc": "Enable Cancermantis' icon set for NPC templates",
+      "hayleyConditionsStatus": "Hayley's Condition & Status",
+      "hayleyConditionsStatus-desc": "Enable Hayley's icon set for conditions & status",
+      "hayleyPC": "Hayley's PC Systems",
+      "hayleyPC-desc": "Enable Hayley's icon set for PC system effects",
+      "hayleyNPC": "Hayley's NPC Systems",
+      "hayleyNPC-desc": "Enable Hayley's icon set for NPC system effects",
+      "hayleyUtility": "Hayley's Utility",
+      "hayleyUtility-desc": "Enable Hayley's icon set for utility indicators",
+      "tommyConditionsStatus": "Tommy's Condition & Status",
+      "tommyConditionsStatus-desc": "Enable Tommy's icon set for conditions & status"
     },
     "automation": {
       "menu-name": "Automation",

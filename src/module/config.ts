@@ -12,100 +12,6 @@ const ASCII = `
 ┃╰━╯┃╭━╮┃┃╱┃┃┃╰━╯┃╰━━┫┃┃╰╮ 
 ╰━━━┻╯╱╰┻╯╱╰━┻━━━┻━━━┻╯╰━╯`;
 
-// These are general categories that items fall under, useful for the purpose of knowing when moving that item is allowed
-export const STATUSES = [
-  {
-    id: "immobilized",
-    label: "Immobilized",
-    icon: `systems/lancer/assets/icons/white/condition_immobilized.svg`,
-  },
-  {
-    id: "impaired",
-    label: "Impaired",
-    icon: `systems/lancer/assets/icons/white/condition_impaired.svg`,
-  },
-  {
-    id: "jammed",
-    label: "Jammed",
-    icon: `systems/lancer/assets/icons/white/condition_jammed.svg`,
-  },
-  {
-    id: "lockon",
-    label: "Lock On",
-    icon: `systems/lancer/assets/icons/white/condition_lockon.svg`,
-  },
-  {
-    id: "shredded",
-    label: "Shredded",
-    icon: `systems/lancer/assets/icons/white/condition_shredded.svg`,
-  },
-  {
-    id: "slowed",
-    label: "Slowed",
-    icon: `systems/lancer/assets/icons/white/condition_slow.svg`,
-  },
-  {
-    id: "stunned",
-    label: "Stunned",
-    icon: `systems/lancer/assets/icons/white/condition_stunned.svg`,
-  },
-  {
-    id: "dangerzone",
-    label: "Danger Zone",
-    icon: `systems/lancer/assets/icons/white/status_dangerzone.svg`,
-  },
-  {
-    id: "downandout",
-    label: "Down and Out",
-    icon: `systems/lancer/assets/icons/white/status_downandout.svg`,
-  },
-  {
-    id: "engaged",
-    label: "Engaged",
-    icon: `systems/lancer/assets/icons/white/status_engaged.svg`,
-  },
-  {
-    id: "exposed",
-    label: "Exposed",
-    icon: `systems/lancer/assets/icons/white/status_exposed.svg`,
-  },
-  {
-    id: "hidden",
-    label: "Hidden",
-    icon: `systems/lancer/assets/icons/white/status_hidden.svg`,
-  },
-  {
-    id: "invisible",
-    label: "Invisible",
-    icon: `systems/lancer/assets/icons/white/status_invisible.svg`,
-  },
-  {
-    id: "prone",
-    label: "Prone",
-    icon: `systems/lancer/assets/icons/white/status_prone.svg`,
-  },
-  {
-    id: "shutdown",
-    label: "Shut Down",
-    icon: `systems/lancer/assets/icons/white/status_shutdown.svg`,
-  },
-  {
-    id: "npc_tier_1",
-    label: "Tier 1",
-    icon: `systems/lancer/assets/icons/white/npc_tier_1.svg`,
-  },
-  {
-    id: "npc_tier_2",
-    label: "Tier 2",
-    icon: `systems/lancer/assets/icons/white/npc_tier_2.svg`,
-  },
-  {
-    id: "npc_tier_3",
-    label: "Tier 3",
-    icon: `systems/lancer/assets/icons/white/npc_tier_3.svg`,
-  },
-];
-
 export function WELCOME(changelog: string): string {
   return `<div style="margin: 10px 5px">
   <div style="text-align: center; margin-top: .5em" class="flex-center">
@@ -152,7 +58,9 @@ export const LANCER = {
   setting_lcps: "installedLCPs" as const,
   setting_stock_icons: "keepStockIcons" as const,
   setting_welcome: "hideWelcome" as const,
+  setting_ui_theme: "uiTheme" as const,
   setting_compcon_login: "compconLogin" as const,
+  setting_status_icons: "statusIconConfig" as const,
   setting_automation: "automationOptions" as const,
   setting_automation_switch: "automationSwitch" as const,
   setting_automation_attack: "attackSwitch" as const, // Deprecated

@@ -52,9 +52,6 @@
   <g
      transform="matrix(1,0,0,-1,0,896)"
      id="g829"
-     inkscape:export-filename="C:\Projects\foundryvtt-lancer\dist\assets\icons\status\condition_immobilized.png"
-     inkscape:export-xdpi="96"
-     inkscape:export-ydpi="96"
      style="fill:#ffffff">
     <path
        d="M 381,763 197,579 V 317 L 381,133 H 643 L 827,317 V 579 L 643,763 Z M 375,585 H 649 V 311 H 375 Z"

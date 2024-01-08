@@ -1,5 +1,5 @@
 <form class="{{cssClass}} lancer-sheet" autocomplete="off">
-  {{!-- Sheet Header --}}
+  {{! Sheet Header }}
   <header class="sheet-header card clipped-bot">
     <div class="header-fields">
       <h1 class="charname">
@@ -8,14 +8,14 @@
           name="name"
           type="text"
           value="{{actor.name}}"
-          placeholder="{{localize "lancer.placeholder.name"}}"
+          placeholder="{{localize 'lancer.placeholder.name'}}"
         />
       </h1>
     </div>
-    {{{ ref-portrait-img actor.img "img" actor }}}
+    {{{ref-portrait-img actor.img "img" actor}}}
   </header>
 
-  {{!-- Sheet Tab Navigation --}}
+  {{! Sheet Tab Navigation }}
   <nav class="lancer-tabs" data-group="primary">
     <a class="item lancer-tab medium" data-tab="status">{{localize "lancer.deployable-sheet.tabs.status"}}</a>
     <a class="item lancer-tab medium" data-tab="config">{{localize "lancer.deployable-sheet.tabs.config"}}</a>
@@ -23,66 +23,68 @@
     <!--<a class="item lancer-tab medium" data-tab="mech">&lt;FRAME//LOADOUT&gt;</a>-->
   </nav>
 
-  {{!-- Sheet Body --}}
+  {{! Sheet Body }}
   <section class="sheet-body">
-    {{!-- Active Tab --}}
+    {{! Active Tab }}
     <div class="tab manage" data-group="primary" data-tab="status">
       <div class="wraprow quadruple">
-        {{{stat-edit-max-card "HP" "mdi mdi-heart-outline" "system.hp.value" "system.hp.max" }}}
-        {{{stat-edit-max-card "HEAT" "cci cci-heat" "system.heat.value" "system.heat.max" }}}
-        {{{stat-edit-card "BURN" "cci cci-burn" "system.burn" }}}
-        {{{stat-edit-card "OVERSHIELD" "mdi mdi-shield-star-outline" "system.overshield.value" }}}
+        {{{stat-edit-max-card "HP" "mdi mdi-heart-outline" "system.hp.value" "system.hp.max"}}}
+        {{{stat-edit-max-card "HEAT" "cci cci-heat" "system.heat.value" "system.heat.max"}}}
+        {{{stat-edit-card "BURN" "cci cci-burn" "system.burn"}}}
+        {{{stat-edit-card "OVERSHIELD" "mdi mdi-shield-star-outline" "system.overshield.value"}}}
         {{#if (eq system.size 0.5)}}
-          {{{stat-view-card "SIZE" "cci cci-size-half" "system.size" }}}
+          {{{stat-view-card "SIZE" "cci cci-size-half" "system.size"}}}
         {{else}}
-          {{{stat-view-card "SIZE" (concat "cci cci-size-" system.size ) "system.size" }}}
+          {{{stat-view-card "SIZE" (concat "cci cci-size-" system.size) "system.size"}}}
         {{/if}}
-        {{{stat-view-card "ARMOR" "mdi mdi-shield-outline" "system.armor" }}}
-        {{{stat-view-card "EVASION" "cci cci-evasion" "system.evasion" }}}
-        {{{stat-view-card "E-DEF" "cci cci-edef" "system.edef" }}}
-        {{{stat-view-card "SPEED" "mdi mdi-arrow-right-bold-hexagon-outline" "system.speed" }}}
-        {{{stat-view-card "SAVE" "cci cci-save" "system.save" }}}
+        {{{stat-view-card "ARMOR" "mdi mdi-shield-outline" "system.armor"}}}
+        {{{stat-view-card "EVASION" "cci cci-evasion" "system.evasion"}}}
+        {{{stat-view-card "E-DEF" "cci cci-edef" "system.edef"}}}
+        {{{stat-view-card "SPEED" "mdi mdi-arrow-right-bold-hexagon-outline" "system.speed"}}}
+        {{{stat-view-card "SAVE" "cci cci-save" "system.save"}}}
 
         <div class="card clipped full lancer-macro-grid">
-          <span class="lancer-header submajor">BASIC ATTACKS</span>
+          <span class="lancer-header lancer-primary submajor">BASIC ATTACKS</span>
           <div class="lancer-macro-grid">
-            {{{flow-button "BASIC ATTACK" "BasicAttack" }}}
+            {{{flow-button "BASIC ATTACK" "BasicAttack"}}}
           </div>
         </div>
 
         <div class="card clipped full">
-          <div class="lancer-header major">
+          <div class="lancer-header lancer-primary major">
             {{localize "lancer.deployable-sheet.deployer.label"}}
           </div>
-          {{{deployer-slot "system.owner.value" }}}
+          {{{deployer-slot "system.owner.value"}}}
         </div>
 
-        {{{textarea-card "DETAILS" "system.detail"}}}  
+        {{{textarea-card "DETAILS" "system.detail"}}}
       </div>
     </div>
 
-    {{!-- Config Tab --}}
+    {{! Config Tab }}
     <div class="tab manage flexcol" data-group="primary" data-tab="config">
-      {{!-- Frame Stats --}}
+      {{! Frame Stats }}
       <div class="card clipped" style="text-align: left;">
-        <span class="lancer-header major" style="text-align: center;">{{localize "lancer.deployable-sheet.stats.label"}}</span>
+        <span class="lancer-header lancer-primary major" style="text-align: center;">{{localize
+            "lancer.deployable-sheet.stats.label"
+          }}</span>
         <div class="card clipped wraprow quadruple">
           <div class="wraprow quadruple">
-            {{{clicker-stat-card "MAX HP" "mdi mdi-heart-outline" "system.stats.hp" false }}}
-            {{{clicker-stat-card "ARMOR" "mdi mdi-shield-outline" "system.stats.armor" false }}}
-            {{{clicker-stat-card "EVASION" "cci cci-evasion" "system.stats.evasion" false }}}
-            {{{clicker-stat-card "E-DEF" "cci cci-edef" "system.stats.edef" false }}}
-            {{{clicker-stat-card "HEAT CAP" "cci cci-heatcap" "system.stats.heatcap" false }}}
-            {{{clicker-stat-card "SPEED" "mdi mdi-arrow-right-bold-hexagon-outline" "system.stats.speed" false }}}
-            {{{clicker-stat-card "SIZE" "cci cci-hexagon" "system.stats.size" false }}}
-            {{{clicker-stat-card "COST" "cci cci-hexagon" "system.cost" false }}}
+            {{{clicker-stat-card "MAX HP" "mdi mdi-heart-outline" "system.stats.hp" false}}}
+            {{{clicker-stat-card "ARMOR" "mdi mdi-shield-outline" "system.stats.armor" false}}}
+            {{{clicker-stat-card "EVASION" "cci cci-evasion" "system.stats.evasion" false}}}
+            {{{clicker-stat-card "E-DEF" "cci cci-edef" "system.stats.edef" false}}}
+            {{{clicker-stat-card "HEAT CAP" "cci cci-heatcap" "system.stats.heatcap" false}}}
+            {{{clicker-stat-card "SPEED" "mdi mdi-arrow-right-bold-hexagon-outline" "system.stats.speed" false}}}
+            {{{clicker-stat-card "SIZE" "cci cci-hexagon" "system.stats.size" false}}}
+            {{{clicker-stat-card "COST" "cci cci-hexagon" "system.cost" false}}}
           </div>
         </div>
       </div>
     </div>
 
     <div class="tab effects" data-group="primary" data-tab="effects">
-      {{{effect-categories-view actor effect_categories}}} 
+      {{{effect-categories-view actor effect_categories}}}
     </div>
   </section>
 </form>

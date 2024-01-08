@@ -137,21 +137,23 @@ export function getBaseContentPack(): IContentPack {
       version: "1.X",
     },
     data: {
-      coreBonuses: lancerData.core_bonuses,
+      // yeet all of the unresolved items
+      coreBonuses: lancerData.core_bonuses.filter(m => m.id != "missing_corebonus"),
       // factions: lancerData.factions,
-      frames: lancerData.frames.filter(m => m.id != "missing_frame"), // yeet the unresolved frame
+      frames: lancerData.frames.filter(m => m.id != "missing_frame"),
       // manufacturers: lancerData.manufacturers,
-      mods: lancerData.mods,
+      mods: lancerData.mods.filter(m => m.id != "missing_weaponmod"),
       npcClasses: lancerData.npc_classes,
       npcFeatures: lancerData.npc_features,
       npcTemplates: lancerData.npc_templates,
-      pilotGear: lancerData.pilot_gear,
-      systems: lancerData.systems,
+      pilotGear: lancerData.pilot_gear.filter(
+        m => !["missing_pilotweapon", "missing_pilotarmor", "missing_pilotgear"].includes(m.id)
+      ),
+      systems: lancerData.systems.filter(m => m.id != "missing_mechsystem"),
       tags: lancerData.tags,
-      talents: lancerData.talents,
-      weapons: lancerData.weapons,
+      talents: lancerData.talents.filter(m => m.id != "missing_frame"),
+      weapons: lancerData.weapons.filter(m => m.id != "missing_mechweapon"),
 
-      quirks: lancerData.quirks,
       environments: lancerData.environments,
       reserves: lancerData.reserves,
       sitreps: lancerData.sitreps,

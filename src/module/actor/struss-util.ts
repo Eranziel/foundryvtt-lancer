@@ -161,7 +161,7 @@ export class StrussHelper {
 
     if (o1 === StabOptions1.Cool) {
       return_text = return_text.concat("Mech is cooling itself. @Compendium[world.status.EXPOSED] cleared.<br>");
-      await this.actor.update({ "system.heat": 0 });
+      await this.actor.update({ "system.heat.value": 0 });
       this.actor.effectHelper.removeActiveEffect("exposed");
     } else if (o1 === StabOptions1.Repair) {
       if (this.actor.is_mech()) {

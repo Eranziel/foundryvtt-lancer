@@ -1,8 +1,8 @@
 <form class="{{cssClass}} lancer-sheet" onsubmit="event.preventDefault();">
 	<div class="card clipped">
-		<div class="lancer-header ">
+		<div class="lancer-header lancer-primary ">
 			<i class="${icon} i--m i--light header-icon"> </i>
-			<span class="major"><input name="name" value="{{ value.name }}"/></span>
+			<span class="major"><input name="name" type="text" value="{{ value.name }}"/></span>
 		</div>
 		<div class="flexrow">
 			<label>Min: <input class="lancer-stat" type="number" name="min" value="{{ value.min }}"

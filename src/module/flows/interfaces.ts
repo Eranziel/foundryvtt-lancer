@@ -1,6 +1,7 @@
 import { ActionType } from "../action";
 import { ActivationType, AttackType, DamageType } from "../enums";
 import { AccDiffData, AccDiffDataSerialized } from "../helpers/acc_diff";
+import { ActionData } from "../models/bits/action";
 import { DamageData } from "../models/bits/damage";
 import { Tag, TagData } from "../models/bits/tag";
 
@@ -17,13 +18,20 @@ export namespace LancerFlowState {
     type: "base";
     title: string;
     roll_str: string;
+    result?: RollResult;
+  }
+
+  export interface RollResult {
+    roll: Roll;
+    tt: string | HTMLElement | JQuery<HTMLElement>; // Tooltip
   }
 
   // Configuration passed to initiate a stat roll
   export interface StatRollData extends Omit<BaseRollData, "type"> {
     type: "stat";
+    path: string; // The dotpath to the stat in the item or actor
     bonus: string | number;
-    acc_diff: AccDiffDataSerialized;
+    acc_diff?: AccDiffData;
     effect?: string;
   }
 
@@ -32,7 +40,7 @@ export namespace LancerFlowState {
     targeted: {
       target: Token;
       roll: string;
-      usedLockOn: { delete: () => void } | null;
+      usedLockOn: boolean | null;
     }[];
   };
 
@@ -45,6 +53,11 @@ export namespace LancerFlowState {
     roll: Roll;
     tt: string | HTMLElement | JQuery<HTMLElement>; // Tooltip
     d_type: DamageType;
+  };
+
+  export type SelfHeatResult = {
+    roll: Roll;
+    tt: string | HTMLElement | JQuery<HTMLElement>; // Tooltip
   };
 
   export type HitResult = {
@@ -61,13 +74,15 @@ export namespace LancerFlowState {
     acc_diff?: AccDiffData;
 
     attack_type: AttackType; // Melee, Ranged, Quick Tech, Full Tech
+    action: ActionData | null;
     effect?: string;
     on_attack?: string;
     on_hit?: string;
     on_crit?: string;
 
     tags?: Tag[];
-    self_heat?: string; // The self heat roll if present
+    self_heat?: string; // The self heat roll string if present
+    self_heat_result?: SelfHeatResult;
     overkill?: boolean;
 
     scene_uuid?: string;
@@ -75,9 +90,11 @@ export namespace LancerFlowState {
     target_spaces?: [number, number][];
     // Data for output chat template
     is_smart: boolean;
+    defense?: string;
     attack_rolls: AttackRolls;
     attack_results: AttackResult[];
     hit_results: HitResult[];
+    // TODO: move damage and crit results to damage roll data
     damage_results: DamageResult[];
     crit_damage_results: DamageResult[];
     overkill_heat?: number;
@@ -106,15 +123,19 @@ export namespace LancerFlowState {
   export interface ActionUseData extends Omit<BaseRollData, "type"> {
     type: "action";
     acc: number;
-    actionName: string;
+    action_path: string;
+    action: ActionData | null;
+    self_heat?: string; // The self heat roll string if present
+    self_heat_result?: SelfHeatResult;
     detail: string;
-    tags: TagData[];
+    tags: Tag[];
   }
 
   // Configuration passed to initiate the printing of a talent
   export interface TalentUseData {
-    talent: unknown;
-    rank: number;
+    title: string;
+    lvl: number;
+    rank: { name: string; description: string };
   }
 
   export interface BondPowerUseData {
@@ -143,10 +164,14 @@ export namespace LancerFlowState {
     tags?: TagData[];
   }
 
+  export interface HTMLToChatData {
+    html: string;
+  }
+
   // Configuration passed to show an overcharge roll
-  export interface OverchargeRollData {
+  export interface OverchargeRollData extends Omit<BaseRollData, "type"> {
+    type: "overcharge";
     level: number;
-    roll: string;
   }
 
   interface BaseRollDataZ {
@@ -184,5 +209,23 @@ export namespace LancerFlowState {
     args: Array<any>;
     iconPath?: string;
     title: string;
+  }
+
+  // Type narrowers for state data
+  type RollData = BaseRollData | StatRollData | AttackRollData | WeaponRollData | TechAttackRollData | ActionUseData;
+  export function isStatRoll(data: RollData): data is StatRollData {
+    return data.type === "stat";
+  }
+  export function isAttackRoll(data: RollData): data is AttackRollData {
+    return data.type === "attack";
+  }
+  export function isWeaponRoll(data: RollData): data is WeaponRollData {
+    return data.type === "weapon";
+  }
+  export function isTechRoll(data: RollData): data is TechAttackRollData {
+    return data.type === "tech";
+  }
+  export function isActionRoll(data: RollData): data is ActionUseData {
+    return data.type === "action";
   }
 }

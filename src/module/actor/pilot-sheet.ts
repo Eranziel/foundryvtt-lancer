@@ -7,7 +7,7 @@ import { ref_params, resolve_ref_element, simple_ref_slot } from "../helpers/ref
 import { inc_if, resolve_dotpath } from "../helpers/commons";
 import { LancerActor, LancerMECH, LancerPILOT } from "./lancer-actor";
 import { fetchPilotViaCache, fetchPilotViaShareCode, pilotCache } from "../util/compcon";
-import { LancerItem, LancerItemType } from "../item/lancer-item";
+import { LancerFRAME, LancerItem, LancerItemType } from "../item/lancer-item";
 import { clicker_num_input } from "../helpers/actor";
 import { ResolvedDropData } from "../helpers/dragdrop";
 import { EntryType } from "../enums";
@@ -314,14 +314,14 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
       // Use the Actor's name for the pilot's callsign
       // formData["name"] = formData["data.callsign"];
       // Copy the pilot's callsign to the prototype token
-      formData["token.name"] = formData["callsign"];
+      formData["prototypeToken.name"] = formData["callsign"];
     }
     // Then let parent handle
     return super._updateObject(event, formData);
   }
 }
 
-export function pilot_counters(pilot: LancerPILOT, _options: HelperOptions): string {
+export function pilotCounters(pilot: LancerPILOT, _options: HelperOptions): string {
   let counter_detail = "";
 
   let counter_arr = pilot.system.custom_counters;
@@ -344,7 +344,7 @@ export function pilot_counters(pilot: LancerPILOT, _options: HelperOptions): str
 
   return `
   <div class="card clipped double">
-    <span class="lancer-header submajor" style="padding-right: 5px">
+    <span class="lancer-header lancer-primary submajor" style="padding-right: 5px">
       <span>COUNTERS</span>
       <a class="gen-control fas fa-plus" data-action="append" data-path="system.custom_counters" data-action-value="(struct)counter"></a>
     </span>
@@ -354,7 +354,7 @@ export function pilot_counters(pilot: LancerPILOT, _options: HelperOptions): str
   </div>`;
 }
 
-export function all_mech_preview(_options: HelperOptions): string {
+export function allMechPreview(_options: HelperOptions): string {
   let active_mech: LancerMECH | null = _options.data.root.system.active_mech?.value;
 
   /// I still feel like this is pretty inefficient... but it's probably the best we can do for now
@@ -372,9 +372,9 @@ export function all_mech_preview(_options: HelperOptions): string {
 }
 
 export function mech_preview(mech: LancerMECH, active: boolean, _options: HelperOptions): string {
-  var html = ``;
-
   // Generate commons
+  let frame = mech.items.find(i => i.type === EntryType.FRAME) as LancerFRAME | undefined;
+  let mfr = frame?.system.manufacturer;
 
   // Making ourselves easy templates for the preview in case we want to switch in the future
   let preview_stats_arr = [
@@ -390,7 +390,7 @@ export function mech_preview(mech: LancerMECH, active: boolean, _options: Helper
     { title: "SENSORS", icon: "cci cci-sensor", path: "system.sensor_range" },
   ];
 
-  var stats_html = ``;
+  let stats_html = ``;
 
   for (let i = 0; i < preview_stats_arr.length; i++) {
     const builder = preview_stats_arr[i];
@@ -406,15 +406,13 @@ export function mech_preview(mech: LancerMECH, active: boolean, _options: Helper
     ? `<a class="deactivate-mech"><i class="cci cci-deactivate"></i></a>`
     : `<a class="activate-mech"><i class="cci cci-activate"></i></a>`;
 
-  html = html.concat(`
-  <div class="mech-preview">
+  return `
+  <div class="mech-preview lancer-border-${active ? "primary" : "dark-gray"}">
     <div class="mech-preview-titlebar ref set click-open ${active ? "active" : "inactive"}" ${ref_params(mech)}>
       ${button}
-      <span>${mech.name}${inc_if(" // ACTIVE", active)}</span>
+      <span>${mech.name}${inc_if(" // ACTIVE", active)}  --  ${mfr} ${frame?.name}</span>
     </div>
     <img src="${mech.img}"/>
     ${stats_html}
-  </div>`);
-
-  return html;
+  </div>`;
 }

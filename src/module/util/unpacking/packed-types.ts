@@ -154,9 +154,9 @@ export interface PackedReserveData {
   name?: string;
   label?: string;
   description?: string;
-  resource_name: string;
-  resource_note: string;
-  resource_cost: string;
+  resource_name?: string; // Seems vestigial, unused by lancer-data
+  resource_note?: string; // Seems vestigial, unused by lancer-data
+  resource_cost?: string; // Seems vestigial, unused by lancer-data
   used: boolean;
   consumable: boolean;
   synergies?: PackedSynergyData[];
@@ -206,6 +206,16 @@ export interface PackedPilotData {
   talents: PackedRankedData[];
   reserves: PackedReserveData[];
   orgs: PackedOrganizationData[];
+  bondId: string;
+  xp: number;
+  stress: number;
+  maxStress: number;
+  burdens: PackedClockBurdenData[];
+  clocks: PackedClockBurdenData[];
+  bondPowers: PackedBondPowerData[];
+  powerSelections: number;
+  bondAnswers: string[];
+  minorIdeal: string;
   mechs: PackedMechData[];
   state?: IMechState;
   counter_data: PackedCounterSaveData[];
@@ -397,7 +407,6 @@ export interface IContentPackData {
   reserves?: PackedReserveData[];
   environments?: PackedEnvironmentData[];
   sitreps?: PackedSitrepData[];
-  quirks?: string[];
 }
 
 export interface IContentPack {
@@ -684,6 +693,15 @@ export interface PackedBondPowerData {
   veteran: boolean | undefined;
   master: boolean | undefined;
   prerequisite: string | undefined;
+}
+
+export interface PackedClockBurdenData {
+  id: string;
+  title: string;
+  description: string;
+  resolution: string;
+  segments: number;
+  progress: number;
 }
 
 interface AllNpcClassData {

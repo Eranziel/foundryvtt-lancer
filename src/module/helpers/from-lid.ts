@@ -23,7 +23,6 @@ export async function fromLid(lid: string, { source = "all" }: Partial<FromLidOp
 
   let document: unknown;
   if (search_world)
-    // @ts-expect-error v10
     document = game.items?.find(i => i.system.lid === lid) ?? game.actors?.find(a => a.system.lid === lid);
 
   if (!document && search_compendium) {
@@ -58,7 +57,6 @@ export function fromLidSync(lid: string, { source = "all" }: Partial<FromLidOpts
   let document: unknown;
 
   if (search_world)
-    // @ts-expect-error v10
     document = game.items?.find(i => i.system.lid === lid) ?? game.actors?.find(a => a.system.lid === lid);
 
   if (!document && search_compendium) {
