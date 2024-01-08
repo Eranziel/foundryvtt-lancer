@@ -235,6 +235,17 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
       weapon.beginWeaponAttackFlow();
     });
 
+    let techRollers = html.find(".roll-tech");
+    techRollers.on("click", ev => {
+      if (!ev.currentTarget) return; // No target, let other handlers take care of it.
+      ev.stopPropagation();
+
+      const techElement = $(ev.currentTarget).closest("[data-uuid]")[0] as HTMLElement;
+      const techId = techElement.dataset.uuid;
+      const techItem = LancerItem.fromUuidSync(techId ?? "", `Invalid weapon ID: ${techId}`);
+      techItem.beginTechAttackFlow();
+    });
+
     let itemFlows = html.find(".chat-flow-button");
     itemFlows.on("click", async ev => {
       ev.stopPropagation(); // Avoids triggering parent event handlers
