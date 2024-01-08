@@ -17,7 +17,7 @@ import { LancerActor } from "./module/actor/lancer-actor";
 import { LancerItem } from "./module/item/lancer-item";
 import { populatePilotCache } from "./module/util/compcon";
 
-import { action_type_selector } from "./module/helpers/npc";
+import { actionTypeSelector } from "./module/helpers/npc";
 
 import { LancerActionManager } from "./module/action/action-manager";
 
@@ -580,7 +580,7 @@ Hooks.once("init", async function () {
   Handlebars.registerHelper("sys-type-sel", systemTypeSelector);
   Handlebars.registerHelper("uses-ctrl", usesControl);
   Handlebars.registerHelper("act-icon", actionTypeIcon);
-  Handlebars.registerHelper("act-type-sel", action_type_selector);
+  Handlebars.registerHelper("act-type-sel", actionTypeSelector);
 
   // ------------------------------------------------------------------------
   // Item-level helpers for editing

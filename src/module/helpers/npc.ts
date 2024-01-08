@@ -37,7 +37,7 @@ export const EffectIcons = {
 /**
  * Handlebars helper for effect action type
  */
-export function action_type_selector(a_type: string, data_target: string): string {
+export function actionTypeSelector(a_type: string, data_target: string): string {
   const a = a_type ? a_type.toLowerCase() : ActivationType.None.toLowerCase();
   let html = '<div class="flexrow flex-center" style="padding: 5px; flex-wrap: nowrap;">';
   html += actionTypeIcon(a_type);
@@ -60,13 +60,7 @@ export function action_type_selector(a_type: string, data_target: string): strin
   return html;
 }
 
-// TODO: Make this globally consistent
-function del_button(path: string, options: HelperOptions): string {
-  let trash_action = options.hash["trash-action"] ?? "delete";
-  return `<a class="gen-control" data-action="${trash_action}" data-path="${path}"><i class="fas fa-trash"></i></a>`;
-}
-
-function npc_feature_scaffold(
+function npcFeatureScaffold(
   path: string,
   npc_feature: LancerNPC_FEATURE,
   body: string,
@@ -93,11 +87,11 @@ function npc_feature_scaffold(
   </div>`;
 }
 
-export function npc_reaction_effect_preview(path: string, options: HelperOptions): string {
+export function npcReactionView(path: string, options: HelperOptions): string {
   let npc_feature =
     (options.hash["item"] as LancerNPC_FEATURE) ?? resolve_helper_dotpath<LancerNPC_FEATURE>(options, path);
   if (!npc_feature) return "";
-  return npc_feature_scaffold(
+  return npcFeatureScaffold(
     path,
     npc_feature,
     `<div class="flexcol lancer-body">
@@ -115,11 +109,11 @@ export function npc_reaction_effect_preview(path: string, options: HelperOptions
 }
 
 // The below 2 funcs just map to this one, because they all do the same thing
-function npc_system_trait_effect_preview(path: string, options: HelperOptions): string {
+export function npcSystemTraitView(path: string, options: HelperOptions): string {
   let npc_feature =
     (options.hash["item"] as LancerNPC_FEATURE) ?? resolve_helper_dotpath<LancerNPC_FEATURE>(options, path);
   if (!npc_feature) return "";
-  return npc_feature_scaffold(
+  return npcFeatureScaffold(
     path,
     npc_feature,
     `<div class="flexcol lancer-body">
@@ -136,15 +130,7 @@ function npc_system_trait_effect_preview(path: string, options: HelperOptions): 
   );
 }
 
-export function npc_system_effect_preview(path: string, options: HelperOptions) {
-  return npc_system_trait_effect_preview(path, options);
-}
-
-export function npc_trait_effect_preview(path: string, options: HelperOptions) {
-  return npc_system_trait_effect_preview(path, options);
-}
-
-export function npc_tech_effect_preview(path: string, options: HelperOptions) {
+export function npcTechView(path: string, options: HelperOptions) {
   // Get the feature
   let npc_feature =
     (options.hash["item"] as LancerNPC_FEATURE) ?? resolve_helper_dotpath<LancerNPC_FEATURE>(options, path);
@@ -178,7 +164,7 @@ export function npc_tech_effect_preview(path: string, options: HelperOptions) {
     subheader_items.push(chargedBox(feature_data.charged, path));
   }
 
-  return npc_feature_scaffold(
+  return npcFeatureScaffold(
     path,
     npc_feature,
     `
@@ -196,7 +182,7 @@ export function npc_tech_effect_preview(path: string, options: HelperOptions) {
   );
 }
 
-export function npc_weapon_effect_preview(path: string, options: HelperOptions): string {
+export function npcWeaponView(path: string, options: HelperOptions): string {
   // Get the feature
   let npc_feature =
     (options.hash["item"] as LancerNPC_FEATURE) ?? resolve_helper_dotpath<LancerNPC_FEATURE>(options, path);
@@ -238,7 +224,7 @@ export function npc_weapon_effect_preview(path: string, options: HelperOptions):
   if (npc_feature.system.tags.some(t => t.is_loading))
     subheader_items.push(loadingIndicator(feature_data.loaded, path));
 
-  return npc_feature_scaffold(
+  return npcFeatureScaffold(
     path,
     npc_feature,
     `

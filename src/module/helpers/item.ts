@@ -4,13 +4,7 @@
 
 import type { HelperOptions } from "handlebars";
 import { TypeIcon } from "../config";
-import {
-  npc_reaction_effect_preview,
-  npc_system_effect_preview,
-  npc_tech_effect_preview,
-  npc_trait_effect_preview,
-  npc_weapon_effect_preview,
-} from "./npc";
+import { npcReactionView, npcSystemTraitView, npcTechView, npcWeaponView } from "./npc";
 import { compactTagListHBS } from "./tags";
 import {
   array_path_edit_changes,
@@ -254,15 +248,14 @@ export function npcFeatureView(npc_feature_path: string, options: HelperOptions)
 
   switch (feature.system.type) {
     case "Reaction":
-      return npc_reaction_effect_preview(npc_feature_path, options);
+      return npcReactionView(npc_feature_path, options);
     case "System":
-      return npc_system_effect_preview(npc_feature_path, options);
     case "Trait":
-      return npc_trait_effect_preview(npc_feature_path, options);
+      return npcSystemTraitView(npc_feature_path, options);
     case "Tech":
-      return npc_tech_effect_preview(npc_feature_path, options);
+      return npcTechView(npc_feature_path, options);
     case "Weapon":
-      return npc_weapon_effect_preview(npc_feature_path, options);
+      return npcWeaponView(npc_feature_path, options);
     default:
       return "bad feature";
   }
