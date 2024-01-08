@@ -114,7 +114,7 @@ Non-Flow steps are simply functions which take the flow's current state and (opt
   - [ ] `condensedActionButtonHTML(actor: LancerActor, actions: ActionTrackingData)` (actor is unused?)
 - [ ] `activations.ts`
   - [x] `prepareActivationMacro(item: string | LancerItem, type: ActivationOptions, path: string)`
-  - [ ] `prepareTechActionMacro(item: LancerItem, path: string)` (unused)
+  - [x] ~~`prepareTechActionMacro(item: LancerItem, path: string)` (unused)~~
   - [ ] `prepareDeployableMacro(item: LancerItem, path: string)`
 - [x] `attacks.ts`
   - [x] file-local `rollStr(bonus: number, total: number): string`
@@ -149,8 +149,8 @@ Non-Flow steps are simply functions which take the flow's current state and (opt
   - [ ] `onHotbarDrop(_bar: any, data: any, slot: number)`
 - [x] `interfaces.ts` - all interfaces, `LancerMacro` namespace. Rename to `LancerFlowState` namespace, add `Data` to each interface name.
   - [ ] Add metadata to these types to facilitate flow extensibility
-- [ ] `item.ts`
-  - [ ] `prepareItemMacro(item: string | LancerItem, options?: {rank?: number; title?: string; display?: boolean;})`
+- [x] `item.ts`
+  - [x] `prepareItemMacro(item: string | LancerItem, options?: {rank?: number; title?: string; display?: boolean;})`
 - [ ] `npc.ts`
   - [ ] `prepareNPCFeatureMacro(item: string | LancerItem, options?: {display?: boolean;})`
   - [ ] `prepareChargeMacro(actor: string | LancerActor)`
