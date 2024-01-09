@@ -20,19 +20,16 @@ export async function checkItemDestroyed(
   if (!getAutomationOptions().limited_loading && getAutomationOptions().attacks) return true;
   if (!state.item) return true; // This flow is actor-based, so there is no item to be destroyed.
   if (
-    !state.item.is_mech_weapon() &&
-    !state.item.is_mech_system() &&
-    !state.item.is_frame() &&
-    !state.item.is_pilot_weapon() &&
-    !state.item.is_npc_feature()
+    state.item.is_frame() ||
+    state.item.is_pilot_weapon() ||
+    state.item.is_pilot_gear() ||
+    state.item.is_pilot_armor() ||
+    state.item.is_talent()
   ) {
+    return true; // These items can't be destroyed
+  }
+  if (!state.item.is_mech_weapon() && !state.item.is_mech_system() && !state.item.is_npc_feature()) {
     return false;
-  }
-  if (state.item.is_frame()) {
-    return true; // Frames can't be destroyed
-  }
-  if (state.item.is_pilot_weapon()) {
-    return true; // Pilot weapons can't be destroyed
   }
   if (state.item.system.destroyed) {
     if (
@@ -54,6 +51,9 @@ export async function checkItemLimited(
   // If this automation option is not enabled, skip the check.
   if (!getAutomationOptions().limited_loading && getAutomationOptions().attacks) return true;
   if (!state.item) return true; // This flow is actor-based, so there is no item to be destroyed.
+  if (state.item.is_talent()) {
+    return true; // These items don't support limited uses
+  }
   if (
     !state.item.is_mech_weapon() &&
     !state.item.is_mech_system() &&
@@ -89,15 +89,6 @@ export async function checkItemCharged(
   // If this automation option is not enabled, skip the check.
   if (!getAutomationOptions().limited_loading && getAutomationOptions().attacks) return true;
   if (!state.item) return true; // This flow is actor-based, so there is no item to be destroyed.
-  if (
-    !state.item.is_mech_weapon() &&
-    !state.item.is_mech_system() &&
-    !state.item.is_frame() &&
-    !state.item.is_pilot_weapon() &&
-    !state.item.is_npc_feature()
-  ) {
-    return false;
-  }
   if (!state.item.is_npc_feature()) return true; // Recharge only applies to NPC features
 
   if (state.item.isRecharge() && !state.item.system.charged) {
@@ -117,10 +108,11 @@ export async function applySelfHeat(
     | LancerFlowState.WeaponRollData
     | LancerFlowState.TechAttackRollData
     | LancerFlowState.ActionUseData
+    | LancerFlowState.SystemUseData
   >,
   options?: {}
 ): Promise<boolean> {
-  if (!state.data) throw new TypeError(`Attack flow state missing!`);
+  if (!state.data) throw new TypeError(`Flow state missing!`);
   let self_heat = 0;
 
   if (state.data.self_heat) {
@@ -146,10 +138,15 @@ export async function applySelfHeat(
 }
 
 export async function updateItemAfterAction(
-  state: FlowState<LancerFlowState.WeaponRollData | LancerFlowState.TechAttackRollData | LancerFlowState.ActionUseData>,
+  state: FlowState<
+    | LancerFlowState.WeaponRollData
+    | LancerFlowState.TechAttackRollData
+    | LancerFlowState.ActionUseData
+    | LancerFlowState.SystemUseData
+  >,
   options?: {}
 ): Promise<boolean> {
-  if (!state.data) throw new TypeError(`Attack flow state missing!`);
+  if (!state.data) throw new TypeError(`Flow state missing!`);
   if (state.item && getAutomationOptions().limited_loading && getAutomationOptions().attacks) {
     let item_changes: DeepPartial<SourceData.MechWeapon | SourceData.NpcFeature | SourceData.PilotWeapon> = {};
     if (state.item.isLoading()) item_changes.loaded = false;

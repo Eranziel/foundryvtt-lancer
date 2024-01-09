@@ -1,15 +1,12 @@
 import type { GenControlContext } from "../interfaces";
 import { LANCER } from "../config";
 import { LancerActorSheet } from "./lancer-actor-sheet";
-import { prepareItemMacro, prepareStatMacro } from "../macros";
-import tippy from "tippy.js";
 import { LancerItem, LancerNPC_FEATURE } from "../item/lancer-item";
 import { insinuate } from "../util/doc";
 import { LancerNPC } from "./lancer-actor";
 import { ResolvedDropData } from "../helpers/dragdrop";
 import { EntryType } from "../enums";
 import { lookupLID } from "../util/lid";
-import { LancerFlowState } from "../flows/interfaces";
 const lp = LANCER.log_prefix;
 
 /**
@@ -55,9 +52,9 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
         ev.stopPropagation(); // Avoids triggering parent event handlers
 
         const el = $(ev.currentTarget).closest("[data-uuid]")[0] as HTMLElement;
-        prepareItemMacro(el.dataset.uuid!, {
-          display: true,
-        });
+        // prepareItemMacro(el.dataset.uuid!, {
+        //   display: true,
+        // });
       });
 
       // Tech rollers
@@ -67,7 +64,7 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
         ev.stopPropagation();
         const techElement = $(ev.currentTarget).closest("[data-uuid]")[0] as HTMLElement;
         let techId = techElement.dataset.uuid;
-        prepareItemMacro(techId!);
+        // prepareItemMacro(techId!);
       });
 
       // Item/Macroable Dragging

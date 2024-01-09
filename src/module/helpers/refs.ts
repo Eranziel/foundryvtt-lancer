@@ -13,8 +13,8 @@ import {
 } from "../item/lancer-item";
 import { array_path_edit_changes, drilldownDocument, extendHelper, hex_array, resolve_helper_dotpath } from "./commons";
 import { FoundryDropData, handleDocDropping, handleDragging, ResolvedDropData } from "./dragdrop";
-import { framePreview, license_ref, mech_weapon_display as mechWeaponView, npc_feature_preview } from "./item";
-import { mech_system_view as mechSystemView } from "./loadout";
+import { framePreview, licenseRefView, mechWeaponDisplay as mechWeaponView, npcFeatureView } from "./item";
+import { mechSystemViewHBS } from "./loadout";
 import { LancerDoc } from "../util/doc";
 import { EntryType } from "../enums";
 import { LancerActor } from "../actor/lancer-actor";
@@ -95,7 +95,7 @@ export function simple_ref_slot(path: string = "", accept_types: string | EntryT
 export async function click_evt_open_ref(event: any) {
   event.preventDefault();
   event.stopPropagation();
-  const elt = event.currentTarget;
+  const elt = event.currentTarget.closest(".ref") as HTMLElement;
   const doc = await resolve_ref_element(elt);
   if (doc) {
     doc.sheet?.render(true, { focus: true });
@@ -142,7 +142,7 @@ export async function resolve_ref_element(
  * @param img_path The path to read/edit said image
  * @param item The reffable item/actor itself
  */
-export function ref_portrait<T extends EntryType>(
+export function refPortrait<T extends EntryType>(
   img: string,
   img_path: string,
   item: LancerDoc<T>,
@@ -157,7 +157,7 @@ export function ref_portrait<T extends EntryType>(
 // A helper suitable for showing a small preview of a ref (slot)
 // In general, any preview here is less for "use" (e.x. don't tend to have elaborate macros) and more just to show something is there
 // trash_actions controls what happens when the trashcan is clicked. Delete destroys an item, splice removes it from the array it is found in, and null replaces with null
-export function item_preview<T extends LancerItemType>(
+export function itemPreview<T extends LancerItemType>(
   item_path: string,
   trash_action: "delete" | "splice" | "null" | null,
   options: HelperOptions
@@ -177,7 +177,7 @@ export function item_preview<T extends LancerItemType>(
 
   // Handle based on type
   if (doc.is_mech_system()) {
-    return mechSystemView(item_path, options);
+    return mechSystemViewHBS(item_path, options);
   } else if (doc.is_mech_weapon()) {
     return mechWeaponView(item_path, null, options);
   } else if (doc.is_talent()) {
@@ -187,9 +187,9 @@ export function item_preview<T extends LancerItemType>(
   } else if (doc.is_core_bonus()) {
     return coreBonusView(item_path, options);
   } else if (doc.is_license()) {
-    return license_ref(item_path, options);
+    return licenseRefView(item_path, options);
   } else if (doc.is_npc_feature()) {
-    return npc_feature_preview(item_path, options);
+    return npcFeatureView(item_path, options);
   } else if (doc.is_frame()) {
     return framePreview(item_path, options);
   } else {
@@ -209,7 +209,7 @@ export function item_preview<T extends LancerItemType>(
   }
 }
 
-export function limited_uses_indicator(
+export function limitedUsesIndicator(
   item:
     | LancerMECH_WEAPON
     | LancerMECH_SYSTEM
@@ -217,16 +217,17 @@ export function limited_uses_indicator(
     | LancerPILOT_WEAPON
     | LancerPILOT_GEAR
     | LancerNPC_FEATURE,
-  path: string
+  path: string,
+  options?: { nonInteractive?: boolean }
 ): string {
   const uses = item.system.uses;
+  const nonInteractive = options?.nonInteractive ? "non-interactive" : "";
+  const hexes = hex_array(uses.value, uses.max, path, `uses-hex`);
 
-  const hexes = hex_array(uses.value, uses.max, path, "uses-hex");
-
-  return `<div class="clipped card limited-card">USES ${hexes.join("")}</div>`;
+  return `<div class="clipped card limited-card ${nonInteractive}">USES ${hexes.join("")}</div>`;
 }
 
-export function reserve_used_indicator(path: string, options: HelperOptions): string {
+export function reserveUsesIndicator(path: string, options: HelperOptions): string {
   let used = resolve_helper_dotpath(options, path) as LancerRESERVE;
   const hexes = hex_array(used ? 0 : 1, 1, path, "uses-hex");
 
@@ -244,7 +245,7 @@ export function lid_item_list(
   let lids = resolve_helper_dotpath<Array<any>>(options, item_array_path, []);
   let trash = options.hash["trash"] ?? null;
   let previews = lids.map((_, i) =>
-    item_preview(`${item_array_path}.${i}`, trash, extendHelper(options, { item: values[i] }))
+    itemPreview(`${item_array_path}.${i}`, trash, extendHelper(options, { item: values[i] }))
   );
   return `
     <div class="flexcol lid-list" 
@@ -260,6 +261,11 @@ export function dropIndicator(allowed_types: string, options: HelperOptions) {
   let types = allowed_types.split(",");
   let classes = types.map(t => `drop-target-${t}`);
   return `<div class="line-drop-target ${classes.join(" ")}">DROP HERE</div>`;
+}
+
+// Enables clicking document refs to open their sheets
+export function handleRefClickOpen(html: JQuery) {
+  $(html).find(".ref.set.click-open, .ref.set .click-open").on("click", click_evt_open_ref);
 }
 
 // Enables dropping of items into open slots at the end of lists generated by mm_ref_list_append_slot

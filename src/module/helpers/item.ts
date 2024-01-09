@@ -4,34 +4,29 @@
 
 import type { HelperOptions } from "handlebars";
 import { TypeIcon } from "../config";
-import {
-  npc_reaction_effect_preview,
-  npc_system_effect_preview,
-  npc_tech_effect_preview,
-  npc_trait_effect_preview,
-  npc_weapon_effect_preview,
-} from "./npc";
-import { compact_tag_list } from "./tags";
+import { npcReactionView, npcSystemTraitView, npcTechView, npcWeaponView } from "./npc";
+import { compactTagListHBS } from "./tags";
 import {
   array_path_edit_changes,
   defaultPlaceholder,
   drilldownDocument,
-  effect_box,
+  effectBox,
   extendHelper,
   hex_array,
   inc_if,
   resolve_dotpath,
   resolve_helper_dotpath,
   spoofHelper,
-  sp_display,
+  spDisplay,
   std_enum_select,
   std_text_input,
   std_x_of_y,
   tippyContextMenu,
   manufacturerStyle,
   activationStyle,
+  activationIcon,
 } from "./commons";
-import { limited_uses_indicator, ref_params, reserve_used_indicator } from "./refs";
+import { limitedUsesIndicator, ref_params, reserveUsesIndicator } from "./refs";
 import {
   ActivationType,
   ChipIcons,
@@ -44,7 +39,6 @@ import {
   WeaponSize,
   WeaponType,
 } from "../enums";
-import { encodeMacroData } from "../macros";
 import { collapseButton, collapseParam, CollapseRegistry } from "./collapse";
 import { promptText } from "../apps/simple-prompt";
 import { CounterEditForm } from "../apps/counter-editor";
@@ -71,7 +65,7 @@ import {
 import { ActionData } from "../models/bits/action";
 import { LancerActor, LancerDEPLOYABLE } from "../actor/lancer-actor";
 import { CounterData } from "../models/bits/counter";
-import { slugify } from "../util/lid";
+import { lookupOwnedDeployables, slugify } from "../util/lid";
 import { LancerFlowState } from "../flows/interfaces";
 import { TagEditForm } from "../apps/tag-editor";
 import { FullBoundedNum } from "../source-template";
@@ -79,7 +73,7 @@ import { FullBoundedNum } from "../source-template";
 /**
  * Handlebars helper for weapon size selector
  */
-export function weapon_size_selector(path: string, options: HelperOptions) {
+export function weaponSizeSelector(path: string, options: HelperOptions) {
   if (!options.hash["default"]) {
     options.hash["default"] = WeaponSize.Main;
   }
@@ -89,7 +83,7 @@ export function weapon_size_selector(path: string, options: HelperOptions) {
 /**
  * Handlebars helper for weapon type selector. First parameter is the existing selection.
  */
-export function weapon_type_selector(path: string, options: HelperOptions) {
+export function weaponTypeSelector(path: string, options: HelperOptions) {
   if (!options.hash["default"]) {
     options.hash["default"] = WeaponType.Rifle;
   }
@@ -100,7 +94,7 @@ export function weapon_type_selector(path: string, options: HelperOptions) {
  * Handlebars helper for range type/value editing
  * Supply with path to Range, and any args that you'd like passed down to the standard input editors, as well as
  */
-export function range_editor(path: string, options: HelperOptions): string {
+export function rangeEditor(path: string, options: HelperOptions): string {
   // Lookup the range so we can draw icon.
   let range = resolve_helper_dotpath<Range>(options, path);
   if (!range) return "";
@@ -135,7 +129,7 @@ export function range_editor(path: string, options: HelperOptions): string {
  * Handlebars helper for weapon damage type/value editing.
  * Supply with path to Damage, and any args that you'd like passed down to the standard input editors
  */
-export function damage_editor(path: string, options: HelperOptions): string {
+export function damageEditor(path: string, options: HelperOptions): string {
   // Lookup the damage so we can draw icon.
   let damage = resolve_helper_dotpath<Damage>(options, path);
   if (!damage) return "";
@@ -164,7 +158,7 @@ export function damage_editor(path: string, options: HelperOptions): string {
  * Supply with the array of Damage[], as well as:
  * - classes: Any additional classes to put on the div holding them
  */
-export function show_damage_array(damages: Damage[], options: HelperOptions): string {
+export function damageArrayView(damages: Damage[], options: HelperOptions): string {
   // Get the classes
   let classes = options.hash["classes"] || "";
   let results: string[] = [];
@@ -180,7 +174,7 @@ export function show_damage_array(damages: Damage[], options: HelperOptions): st
 /**
  * Handlebars helper for showing range values
  */
-export function show_range_array(ranges: Range[], options: HelperOptions): string {
+export function rangeArrayView(ranges: Range[], options: HelperOptions): string {
   // Get the classes
   let classes = options.hash["classes"] || "";
 
@@ -197,7 +191,7 @@ export function show_range_array(ranges: Range[], options: HelperOptions): strin
  * Handlebars helper for an NPC feature preview attack bonus stat
  * @param atk {number} Attack bonus to render
  */
-export function npc_attack_bonus_preview(atk: number, txt: string = "ATTACK") {
+export function npcAttackBonusView(atk: number, txt: string = "ATTACK") {
   return `<div class="compact-acc">
     <i style="margin-right: 5px;" class="cci cci-reticule i--m"></i>
     <span class="medium"> ${atk < 0 ? "-" : "+"}${atk} ${txt}</span>
@@ -208,7 +202,7 @@ export function npc_attack_bonus_preview(atk: number, txt: string = "ATTACK") {
  * Handlebars helper for an NPC feature preview accuracy stat
  * @param acc {number} Accuracy bonus to render
  */
-export function npc_accuracy_preview(acc: number) {
+export function npcAccuracyView(acc: number) {
   let icon: string;
   let text: string;
   if (acc > 0) {
@@ -230,7 +224,7 @@ export function npc_accuracy_preview(acc: number) {
 /**
  * Handlebars partial for weapon type selector
  */
-export function system_type_selector(path: string, options: HelperOptions) {
+export function systemTypeSelector(path: string, options: HelperOptions) {
   return std_enum_select(path, SystemType, extendHelper(options, {}, { default: SystemType.System }));
 }
 
@@ -238,7 +232,7 @@ export function system_type_selector(path: string, options: HelperOptions) {
  * Handlebars partial for limited uses remaining
  * TODO: make look more like compcon
  */
-export function uses_control(uses_path: string, max_uses: number, options: HelperOptions): string {
+export function usesControl(uses_path: string, max_uses: number, options: HelperOptions): string {
   const curr_uses = resolve_helper_dotpath(options, uses_path, 0);
   return `
     <div class="card clipped">
@@ -248,21 +242,20 @@ export function uses_control(uses_path: string, max_uses: number, options: Helpe
     `;
 }
 
-export function npc_feature_preview(npc_feature_path: string, options: HelperOptions): string {
+export function npcFeatureView(npc_feature_path: string, options: HelperOptions): string {
   let feature = options.hash["item"] ?? resolve_helper_dotpath<LancerNPC_FEATURE>(options, npc_feature_path);
   if (!feature) return "";
 
   switch (feature.system.type) {
     case "Reaction":
-      return npc_reaction_effect_preview(npc_feature_path, options);
+      return npcReactionView(npc_feature_path, options);
     case "System":
-      return npc_system_effect_preview(npc_feature_path, options);
     case "Trait":
-      return npc_trait_effect_preview(npc_feature_path, options);
+      return npcSystemTraitView(npc_feature_path, options);
     case "Tech":
-      return npc_tech_effect_preview(npc_feature_path, options);
+      return npcTechView(npc_feature_path, options);
     case "Weapon":
-      return npc_weapon_effect_preview(npc_feature_path, options);
+      return npcWeaponView(npc_feature_path, options);
     default:
       return "bad feature";
   }
@@ -273,7 +266,7 @@ export function npc_feature_preview(npc_feature_path: string, options: HelperOpt
  * - bonuses=<bonus array to pre-populate with>.
  * Displays a list of bonuses, with buttons to add/delete (if edit true)
  */
-export function bonuses_display(bonuses_path: string, edit: boolean, options: HelperOptions) {
+export function bonusesDisplay(bonuses_path: string, edit: boolean, options: HelperOptions) {
   let bonuses_array = resolve_helper_dotpath<BonusData[]>(options, bonuses_path, []);
   let items: string[] = [];
 
@@ -284,7 +277,7 @@ export function bonuses_display(bonuses_path: string, edit: boolean, options: He
     let title = `<span class="grow">${bonus.lid}</span> ${inc_if(delete_button, edit)}`; // Todo: maybe return to
     let boxed = `
       <div class="bonus ${inc_if("editable", edit)}" data-path="${bonuses_path}.${i}">
-        ${effect_box(title, bonus.val)}
+        ${effectBox(title, bonus.val)}
       </div>
     `;
     items.push(boxed);
@@ -307,7 +300,7 @@ export function bonuses_display(bonuses_path: string, edit: boolean, options: He
  * - bonus_path=<string path to the individual bonus item>,  ex: ="doc.system.actions.3"
  * - bonus=<bonus object to pre-populate with>
  */
-export function single_action_editor(path: string, options: HelperOptions) {
+export function singleActionEditor(path: string, options: HelperOptions) {
   // Make inputs for each important field
   let id_input = std_text_input(`${path}.LID`, extendHelper(options, { label: "ID" }));
   let name_input = std_text_input(`${path}.Name`, extendHelper(options, { label: "Name" }));
@@ -320,7 +313,7 @@ export function single_action_editor(path: string, options: HelperOptions) {
     </div>`;
 }
 
-export function bond_power(bond_path: string, power_index: number, options: HelperOptions): string {
+export function bondPower(bond_path: string, power_index: number, options: HelperOptions): string {
   let bond = resolve_helper_dotpath<LancerBOND>(options, bond_path);
   let power = bond?.system.powers[power_index];
   if (!bond || !power) return "";
@@ -340,7 +333,7 @@ export function bond_power(bond_path: string, power_index: number, options: Help
             ${body}
             ${
               power.uses && power.uses.max
-                ? bond_power_uses_indicator(bond, power_index, `${bond_path}.system.powers.${power_index}`)
+                ? bondPowerUsesIndicator(bond, power_index, `${bond_path}.system.powers.${power_index}`)
                 : ""
             }
           </div>`
@@ -351,7 +344,7 @@ export function bond_power(bond_path: string, power_index: number, options: Help
 }
 
 // Helper for showing a piece of armor, or a slot to hold it (if path is provided)
-export function pilot_armor_slot(armor_path: string, options: HelperOptions): string {
+export function pilotArmorSlot(armor_path: string, options: HelperOptions): string {
   // Fetch the item
   let armor: LancerPILOT_ARMOR | null = resolve_helper_dotpath(options, armor_path);
 
@@ -410,12 +403,12 @@ export function pilot_armor_slot(armor_path: string, options: HelperOptions): st
             <div class="effect-text" style=" padding: 5px">
               ${armor.system.description}
             </div>
-            ${compact_tag_list(armor_path + ".system.tags", options)}
+            ${compactTagListHBS(armor_path + ".system.tags", options)}
           </div>`;
 }
 
 // Helper for showing a pilot weapon, or a slot to hold it (if path is provided)
-export function pilot_weapon_refview(weapon_path: string, options: HelperOptions): string {
+export function pilotWeaponRefview(weapon_path: string, options: HelperOptions): string {
   // Fetch the item
   let weapon: LancerPILOT_WEAPON | null = resolve_helper_dotpath(options, weapon_path);
 
@@ -433,12 +426,12 @@ export function pilot_weapon_refview(weapon_path: string, options: HelperOptions
   let loading = "";
   // Generate loading segment as needed
   if (weapon.system.tags.some(t => t.is_loading)) {
-    loading = loading_indicator(weapon.system.loaded, weapon_path);
+    loading = loadingIndicator(weapon.system.loaded, weapon_path);
   }
   // Generate limited segment as needed
   let limited = "";
   if (weapon.system.tags.some(t => t.is_limited)) {
-    limited_uses_indicator(weapon, weapon_path);
+    limitedUsesIndicator(weapon, weapon_path);
   }
 
   return `<div class="set ${
@@ -460,9 +453,9 @@ export function pilot_weapon_refview(weapon_path: string, options: HelperOptions
           <i class="fas fa-dice-d20 i--sm i--dark"></i>
           
         </a>
-        ${show_range_array(weapon.system.range, options)}
+        ${rangeArrayView(weapon.system.range, options)}
         <hr class="vsep">
-        ${show_damage_array(weapon.system.damage, options)}
+        ${damageArrayView(weapon.system.damage, options)}
         
         ${inc_if(`<hr class="vsep"><div class="uses-wrapper">`, loading || limited)}
         <!-- Loading toggle, if we are loading-->
@@ -472,13 +465,13 @@ export function pilot_weapon_refview(weapon_path: string, options: HelperOptions
         ${inc_if(`</div>`, loading || limited)}
       </div>
 
-      ${compact_tag_list(weapon_path + ".system.tags", options)}
+      ${compactTagListHBS(weapon_path + ".system.tags", options)}
     </div>
   </div>`;
 }
 
 // Helper for showing a pilot gear, or a slot to hold it (if path is provided)
-export function pilot_gear_refview(gear_path: string, options: HelperOptions): string {
+export function pilotGearRefview(gear_path: string, options: HelperOptions): string {
   // Fetch the item
   let gear = resolve_dotpath(options.data?.root, gear_path) as LancerPILOT_GEAR | null;
 
@@ -495,7 +488,7 @@ export function pilot_gear_refview(gear_path: string, options: HelperOptions): s
   // Conditionally show uses
   let uses = "";
   if (gear.getLimitedBase()) {
-    uses = limited_uses_indicator(gear, gear_path);
+    uses = limitedUsesIndicator(gear, gear_path);
   }
 
   return `<div class="set ${EntryType.PILOT_GEAR} ref drop-settable card clipped-top item lancer-border-system"
@@ -504,7 +497,7 @@ export function pilot_gear_refview(gear_path: string, options: HelperOptions): s
   >
     <div class="lancer-header lancer-system">
       <i class="cci cci-generic-item i--m"> </i>
-      <a class="gear-macro"><i class="mdi mdi-message"></i></a>
+      <a class="chat-flow-button"><i class="mdi mdi-message"></i></a>
       <span class="minor">${gear.name!}</span>
       <a class="lancer-context-menu" data-path="${gear_path}"">
         <i class="fas fa-ellipsis-v"></i>
@@ -517,12 +510,12 @@ export function pilot_gear_refview(gear_path: string, options: HelperOptions): s
         </div>
         ${uses}
       </div>
-      ${compact_tag_list(gear_path + ".system.tags", options)}
+      ${compactTagListHBS(gear_path + ".system.tags", options)}
     </div>
   </div>`;
 }
 
-export function bond_power_uses_indicator(item: LancerBOND, power_index: number, path: string): string {
+export function bondPowerUsesIndicator(item: LancerBOND, power_index: number, path: string): string {
   const power = item.system.powers[power_index];
   if (!power.uses) return "";
   const hexes = hex_array(power.uses.value, power.uses.max, path, "power-uses-hex");
@@ -532,7 +525,7 @@ export function bond_power_uses_indicator(item: LancerBOND, power_index: number,
 }
 
 // Helper for showing a reserve, or a slot to hold it (if path is provided)
-export function reserve_refview(reserve_path: string, options: HelperOptions): string {
+export function reserveRefView(reserve_path: string, options: HelperOptions): string {
   // Fetch the item
   let reserve = resolve_helper_dotpath(options, reserve_path) as LancerRESERVE | null;
 
@@ -588,14 +581,14 @@ export function reserve_refview(reserve_path: string, options: HelperOptions): s
   }
   let uses = "";
   if (reserve.system.consumable) {
-    uses = reserve_used_indicator(`${reserve_path}.system.used`, options);
+    uses = reserveUsesIndicator(`${reserve_path}.system.used`, options);
   }
 
   return `<div class="set ${EntryType.RESERVE} ref drop-settable card clipped-top item lancer-border-trait"
                 ${ref_params(reserve, reserve_path)} >
     <div class="lancer-header lancer-trait">
       <i class="${icon} i--m"> </i>
-      <a class="reserve-macro"><i class="mdi mdi-message"></i></a>
+      <a class="chat-flow-button"><i class="mdi mdi-message"></i></a>
       <span class="minor">${reserve.name}</span>
       <a class="lancer-context-menu" data-path="${reserve_path}"">
         <i class="fas fa-ellipsis-v"></i>
@@ -616,7 +609,7 @@ export function reserve_refview(reserve_path: string, options: HelperOptions): s
  * Handlebars helper for a mech weapon preview card. Doubles as a slot. Mech path needed for bonuses
  * SPECIFICALLY for loadout - expects things to be slot based
  */
-export function mech_loadout_weapon_slot(
+export function mechLoadoutWeaponSlot(
   weapon_path: string,
   mod_path: string,
   size: FittingSize, // Needed if slot is empty
@@ -634,14 +627,14 @@ export function mech_loadout_weapon_slot(
         <span class="major">Insert ${size ? size : "any"} weapon</span>
       </div>`;
   } else {
-    return mech_weapon_display(weapon_path, mod_path, options);
+    return mechWeaponDisplay(weapon_path, mod_path, options);
   }
 }
 
-export function mech_weapon_display(weapon_path: string, mod_path: string | null, options: HelperOptions): string {
+export function mechWeaponDisplay(weapon_path: string, mod_path: string | null, options: HelperOptions): string {
   let actor: LancerActor | null = resolve_helper_dotpath(options, "actor");
   let weapon = resolve_helper_dotpath<LancerMECH_WEAPON>(options, weapon_path);
-  let mod_text = mod_path ? weapon_mod_ref(mod_path, weapon_path, options) : "";
+  let mod_text = mod_path ? weaponModRef(mod_path, weapon_path, options) : "";
   let collapse = resolve_helper_dotpath<CollapseRegistry>(options, "collapse");
 
   if (!weapon) return "";
@@ -662,7 +655,7 @@ data-action="set" data-action-value="(int)${i}" data-path="${weapon_path}.system
     profiles += `</div>`;
   }
 
-  let sp = sp_display(weapon.system.sp ?? 0);
+  let sp = spDisplay(weapon.system.sp ?? 0);
 
   // What profile are we using?
   let profile = weapon.system.active_profile;
@@ -671,18 +664,18 @@ data-action="set" data-action-value="(int)${i}" data-path="${weapon_path}.system
   // Generate loading segment as needed
   let loading = "";
   if (weapon.system.all_tags.some(t => t.is_loading)) {
-    loading = loading_indicator(weapon.system.loaded, weapon_path);
+    loading = loadingIndicator(weapon.system.loaded, weapon_path);
   }
 
   // Generate effects
-  let effect = profile.effect ? effect_box("Effect", profile.effect) : "";
-  let on_attack = profile.on_attack ? effect_box("On Attack", profile.on_attack) : "";
-  let on_hit = profile.on_hit ? effect_box("On Hit", profile.on_hit) : "";
-  let on_crit = profile.on_crit ? effect_box("On Crit", profile.on_crit) : "";
+  let effect = profile.effect ? effectBox("Effect", profile.effect) : "";
+  let on_attack = profile.on_attack ? effectBox("On Attack", profile.on_attack) : "";
+  let on_hit = profile.on_hit ? effectBox("On Hit", profile.on_hit) : "";
+  let on_crit = profile.on_crit ? effectBox("On Crit", profile.on_crit) : "";
 
   let limited = "";
   if (weapon.system.all_tags.some(t => t.is_limited)) {
-    limited = limited_uses_indicator(weapon, weapon_path);
+    limited = limitedUsesIndicator(weapon, weapon_path);
   }
 
   return `
@@ -693,6 +686,7 @@ data-action="set" data-action-value="(int)${i}" data-path="${weapon_path}.system
                   style="max-height: fit-content;">
       <div class="lancer-header lancer-weapon ${weapon.system.destroyed ? "destroyed" : ""}">
         <i class="${weapon.system.destroyed ? "mdi mdi-cog" : "cci cci-weapon i--m i--light"}"> </i>
+        <a class="chat-flow-button"><i class="mdi mdi-message"></i></a>
         <span class="minor" >
           ${weapon.name} // ${weapon.system.size.toUpperCase()} ${profile.type.toUpperCase()}
         </span>
@@ -707,9 +701,9 @@ data-action="set" data-action-value="(int)${i}" data-path="${weapon_path}.system
         <div class="flexrow" style="text-align: left; white-space: nowrap;">
           <a class="roll-attack lancer-button"><i class="fas fa-dice-d20 i--m i--dark"></i></a>
           <hr class="vsep">
-          ${show_range_array(profile.all_range, options)}
+          ${rangeArrayView(profile.all_range, options)}
           <hr class="vsep">
-          ${show_damage_array(profile.all_damage, options)}
+          ${damageArrayView(profile.all_damage, options)}
 
           ${inc_if(`<hr class="vsep"><div class="uses-wrapper">`, loading || limited)}
           <!-- Loading toggle, if we are loading-->
@@ -724,7 +718,7 @@ data-action="set" data-action-value="(int)${i}" data-path="${weapon_path}.system
           ${on_attack}
           ${on_hit}
           ${on_crit}
-          ${compact_tag_list(profile_path + ".all_tags", options)}
+          ${compactTagListHBS(profile_path + ".all_tags", options)}
         </div>
         ${mod_text}
       </div>
@@ -732,14 +726,14 @@ data-action="set" data-action-value="(int)${i}" data-path="${weapon_path}.system
   </div>`;
 }
 
-export function loading_indicator(loaded: boolean, weapon_path: string): string {
+export function loadingIndicator(loaded: boolean, weapon_path: string): string {
   let loading_icon = `mdi ${loaded ? "mdi-hexagon-slice-6" : "mdi-hexagon-outline"} loaded-hex`;
   let indicator = `<a class="gen-control" data-action="set" data-action-value="(bool)${!loaded}" data-path="${weapon_path}.system.loaded"><i class="${loading_icon} i--m"></i></a>`;
   return `<div class="clipped card limited-card">LOADED ${indicator}</div>`;
 }
 
 // Renders a weapon mod slot
-export function weapon_mod_ref(mod_path: string, weapon_path: string | null, options: HelperOptions): string {
+export function weaponModRef(mod_path: string, weapon_path: string | null, options: HelperOptions): string {
   let mod: LancerWEAPON_MOD | null = resolve_helper_dotpath(options, mod_path);
   let weapon: LancerMECH_WEAPON | null = weapon_path ? resolve_helper_dotpath(options, weapon_path) : null;
   if (!mod) {
@@ -751,14 +745,14 @@ export function weapon_mod_ref(mod_path: string, weapon_path: string | null, opt
     </div>`;
   }
 
-  let sp = mod.system.sp ? sp_display(mod.system.sp) : "";
-  let limited = mod.system.tags.some(t => t.is_limited) ? limited_uses_indicator(mod, mod_path) : "";
+  let sp = mod.system.sp ? spDisplay(mod.system.sp) : "";
+  let limited = mod.system.tags.some(t => t.is_limited) ? limitedUsesIndicator(mod, mod_path) : "";
   let added_range = "";
   if (mod.system.added_range.length) {
     added_range = `
       <div class="effect-box">
         <div class="effect-title clipped-bot">ADDED RANGE</div>
-        ${show_range_array(mod.system.added_range, options)}
+        ${rangeArrayView(mod.system.added_range, options)}
       </div>`;
   }
   let added_damage = "";
@@ -766,21 +760,21 @@ export function weapon_mod_ref(mod_path: string, weapon_path: string | null, opt
     added_damage = `
       <div class="effect-box">
         <div class="effect-title clipped-bot">ADDED DAMAGE</div>
-        ${show_damage_array(mod.system.added_damage, options)}
+        ${damageArrayView(mod.system.added_damage, options)}
       </div>`;
   }
-  let effect = mod.system.effect ? effect_box("Effect", mod.system.effect) : "";
-  let bonuses = mod.system.bonuses.length > 0 ? bonuses_display(`${mod_path}.system.bonuses`, false, options) : "";
+  let effect = mod.system.effect ? effectBox("Effect", mod.system.effect, { flow: true }) : "";
+  let bonuses = mod.system.bonuses.length > 0 ? bonusesDisplay(`${mod_path}.system.bonuses`, false, options) : "";
   let added_tags = "";
   if (mod.system.added_tags.length) {
     added_tags = `
     <div class="effect-box">
       <span class="effect-title clipped-bot">ADDED TAGS</span>
-      ${compact_tag_list(mod_path + ".system.added_tags", options)}
+      ${compactTagListHBS(mod_path + ".system.added_tags", options)}
     </div>
     `;
   }
-  let tags = mod.system.tags.length ? compact_tag_list(`${mod_path}.system.tags`, options) : "";
+  let tags = mod.system.tags.length ? compactTagListHBS(`${mod_path}.system.tags`, options) : "";
   let actions = "";
   if (mod.system.actions.length) {
     actions = buildActionArrayHTML(mod, "system.actions");
@@ -799,7 +793,10 @@ export function weapon_mod_ref(mod_path: string, weapon_path: string | null, opt
       </a>
     </div>
     <div class="lancer-body">
-      <div class="flexrow">${sp} ${limited}</div>
+      <div class="flexrow">
+        ${limited}
+        ${sp}
+      </div>
       <div class="flexrow">
         ${added_range}
         ${added_damage}
@@ -840,7 +837,7 @@ export function manufacturer_ref(source_path: string, options: HelperOptions): s
 
 // A specific ref helper focused on displaying license info.
 // This if for display purposes and does not provide editable fields
-export function license_ref(item_path: string, options: HelperOptions): string {
+export function licenseRefView(item_path: string, options: HelperOptions): string {
   let license = resolve_helper_dotpath(options, item_path) as LancerLICENSE;
   const mfr = manufacturerStyle(license.system.manufacturer);
   return `
@@ -878,7 +875,7 @@ export function framePreview(path: string, options: HelperOptions): string {
   }
 }
 
-export function npc_class_ref(npc_class: LancerNPC_CLASS | null, item_path?: string): string {
+export function npcClassRefView(npc_class: LancerNPC_CLASS | null, item_path?: string): string {
   if (!npc_class) {
     return "";
   } else {
@@ -898,7 +895,7 @@ export function npc_class_ref(npc_class: LancerNPC_CLASS | null, item_path?: str
   }
 }
 
-export function npc_template_ref(template: LancerNPC_TEMPLATE | null, item_path?: string): string {
+export function npcTemplateRefView(template: LancerNPC_TEMPLATE | null, item_path?: string): string {
   if (!template) {
     return "";
   } else {
@@ -917,7 +914,7 @@ export function npc_template_ref(template: LancerNPC_TEMPLATE | null, item_path?
   }
 }
 
-export function action_type_icon(a_type: string) {
+export function actionTypeIcon(a_type: string) {
   const a = a_type ? a_type.toLowerCase() : ActivationType.None.toLowerCase();
   let html = "";
   switch (a) {
@@ -959,7 +956,7 @@ export function action_type_icon(a_type: string) {
 export function buildActionHTML(
   doc: LancerItem | LancerActor,
   path: string,
-  options?: { hideChip?: boolean; editable?: boolean; full?: boolean; tags?: boolean }
+  options?: { hideChip?: boolean; nonInteractive?: boolean; editable?: boolean; full?: boolean; tags?: boolean }
 ): string {
   let action = resolve_dotpath<ActionData>(doc, path);
   if (!action) return "";
@@ -968,14 +965,23 @@ export function buildActionHTML(
   let tags: string | undefined;
   let editor: string | undefined;
 
-  // Not using type yet but let's plan forward a bit
-  let icon: ChipIcons | undefined;
+  if (!options?.hideChip) {
+    chip = buildChipHTML(
+      action.activation,
+      { uuid: doc.uuid, path: path },
+      { nonInteractive: options?.nonInteractive }
+    );
+    chip = `<div class="action-flow-container">${chip}<hr class="vsep"></div>`;
+  } else {
+    chip = "";
+  }
 
   // If we don't have a trigger do a simple detail
   if (!action.trigger)
     detailText = `
       <div class="action-detail">
         <hr class="hsep">
+        ${chip}
         ${action.detail || defaultPlaceholder}
       </div>`;
   // Otherwise, look to be explicit about which is which
@@ -983,26 +989,17 @@ export function buildActionHTML(
     detailText = `
       <div class="action-detail ${options?.full ? "" : "collapsed"}">
         <hr class="hsep">
-        <div class="overline">${game.i18n.localize("lancer.chat-card.label.trigger")}</div> 
-        <div>${action.trigger || defaultPlaceholder}</div>
-        <div class="overline">${game.i18n.localize("lancer.chat-card.label.effect")}</div> 
-        <div>${action.detail || defaultPlaceholder}</div> 
+        <div>
+          ${chip}
+          <div>
+            <div class="overline">${game.i18n.localize("lancer.chat-card.label.trigger")}</div> 
+            ${action.trigger || defaultPlaceholder}
+            <div class="overline">${game.i18n.localize("lancer.chat-card.label.effect")}</div>
+            ${action.detail || defaultPlaceholder}
+          </div>
+        </div>
       </div>`;
   }
-
-  // Deduce what type of action it is broadly. Tech? Deployable? Normal? It wouldn't be a weapon, not here anyways
-  switch (action.activation) {
-    case ActivationType.QuickTech:
-    case ActivationType.FullTech:
-    case ActivationType.Invade:
-      icon = ChipIcons.Roll;
-      break;
-    default:
-      icon = ChipIcons.Chat;
-      break;
-  }
-
-  chip = !!options?.hideChip ? "" : buildChipHTML(action.activation, { icon: icon, uuid: doc.uuid, path: path });
 
   if (options?.editable) {
     // If it's editable, it's deletable
@@ -1014,17 +1011,16 @@ export function buildActionHTML(
   }
 
   if (options?.tags && doc instanceof LancerItem && doc.getTags()) {
-    tags = compact_tag_list("tags", spoofHelper({ tags: doc.getTags()! }));
+    tags = compactTagListHBS("tags", spoofHelper({ tags: doc.getTags()! }));
   }
 
   return `
   <div class="action-wrapper">
     <div class="title-wrapper flexrow">
-      ${action_type_icon(action.activation)}
+      ${actionTypeIcon(action.activation)}
       <span class="action-title collapse-trigger">
         ${action.name?.toUpperCase() ?? doc.name}
       </span>
-      ${chip}
       ${editor ?? ""}
     </div>
     ${detailText ?? ""}
@@ -1036,7 +1032,7 @@ export function buildActionHTML(
 export function buildActionArrayHTML(
   doc: LancerActor | LancerItem,
   path: string,
-  options?: { hideChip?: boolean }
+  options?: { hideChip?: boolean; nonInteractive?: boolean }
 ): string {
   let actions = resolve_dotpath<Array<ActionData>>(doc, path, []);
   let cards = actions.map((_, i) => buildActionHTML(doc, `${path}.${i}`, options));
@@ -1044,22 +1040,56 @@ export function buildActionArrayHTML(
 }
 
 /**
- * Builds the HTML for a given in-system deployable.
+ * Handlebars helper to build the HTML for an array of deployable references in another item.
  * @param item  Path to this item
  * @param array_path  Path to this deployables (LID) location relative to item
- * @returns Activation HTML in string form
+ * @param options.vertical If true, will use a vertical layout more suitable to narrow views
+ * @param options.nonInteractive If true, will disable or hide any interactive elements
+ * @returns Deployable HTML in string form
  */
-export function buildDeployablesArray(item: LancerItem, array_path: string, options: HelperOptions): string {
-  let cards = [] as string[];
+export function buildDeployablesArrayHBS(
+  item: LancerItem,
+  array_path: string,
+  helperOptions: HelperOptions,
+  options?: { vertical?: boolean; nonInteractive?: boolean }
+): string {
   let lids = resolve_dotpath<Array<string>>(item, array_path, []);
-  for (let lid of lids) {
-    let dep = resolve_helper_dotpath<LancerDEPLOYABLE>(options, `deployables.${lid}`);
+  let deps: Record<string, LancerDEPLOYABLE> = {};
+  lids.forEach(lid => {
+    let dep = resolve_helper_dotpath<LancerDEPLOYABLE>(helperOptions, `deployables.${lid}`);
+    if (dep) {
+      deps[lid] = dep;
+    }
+  });
+  return buildDeployablesArray(item, deps, options);
+}
+
+/**
+ * Build the HTML for an array of deployable actors
+ * @param item The item which the deployables belong to
+ * @param deployables Map of deployable actors, indexed by the owner's LID string
+ * @param options Options to configure the resulting HTML:
+ * @param options.vertical If true, will use a vertical layout more suitable to narrow views
+ * @param options.nonInteractive If true, will disable or hide any interactive elements
+ * @returns Deployable card HTML string
+ */
+export function buildDeployablesArray(
+  item: LancerItem,
+  deployables: Record<string, LancerDEPLOYABLE>,
+  options?: { vertical?: boolean; nonInteractive?: boolean }
+): string {
+  let cards = [] as string[];
+  for (const [lid, dep] of Object.entries(deployables)) {
     if (dep) {
       cards.push(
-        buildDeployableHTML(dep, {
-          item,
-          path: array_path,
-        })
+        buildDeployableHTML(
+          dep,
+          {
+            item,
+            path: `deployables.${lid}`,
+          },
+          options
+        )
       );
     } else {
       cards.push(`<span>Unresolved deployabled LID "${lid}". Re-import + Set yourself as its owner</span>`);
@@ -1079,7 +1109,8 @@ export function buildDeployableHTML(
   source: {
     item: LancerItem;
     path: string;
-  } | null
+  } | null,
+  options?: { vertical?: boolean; nonInteractive?: boolean }
 ): string {
   let detailText: string | undefined;
   let chips: string[] = [];
@@ -1099,32 +1130,45 @@ export function buildDeployableHTML(
   ].filter(a => !!a.action);
   standardActions.forEach(a => {
     chips.push(
-      buildChipHTML(a.action, {
-        icon: ChipIcons.Deployable,
-        label: a.label,
-        uuid: source ? source.item.uuid : undefined,
-        path: source ? source.path : undefined, // TODO: specific paths for each action?
-      })
+      buildChipHTML(
+        a.action,
+        {
+          label: a.label,
+          uuid: source ? source.item.uuid : undefined,
+          path: a.path,
+        },
+        options
+      )
     );
   });
   if (dep.system.actions.length) {
     actionText = `<hr class="hsep">`;
     dep.system.actions.forEach((_, i) => {
-      actionText += buildActionHTML(dep, `system.actions.${i}`, { full: true });
+      actionText += buildActionHTML(dep, `system.actions.${i}`, {
+        full: true,
+        nonInteractive: options?.nonInteractive,
+      });
     });
   }
 
   return `
-  <div class="deployable-wrapper ref set click-open" ${ref_params(dep)}>
-    <img style="grid-area: img; border: none" src="${encodeURI(dep.img!)}">
+  <div class="deployable-wrapper ref set ${options?.vertical ? "vertical" : ""}" ${ref_params(dep)}>
+    <img class="deployable-thumbnail" src="${encodeURI(dep.img!)}">
     <div style="grid-area: title" class="title-wrapper">
-      <span class="deployable-title">
+      <span class="deployable-title click-open">
         ${dep.name ? dep.name.toUpperCase() : ""}
       </span>
       <hr class="hsep">
     </div>
+    <div class="deployable-activations">
+      <div class="flexcol">
+        <div class="flexrow">
+          ${chips.join(`</div>\n<div class="flexrow">`)}
+        </div>
+      </div>
+      ${options?.vertical ? "" : `<hr class="vsep">`}
+    </div>
     <div style="grid-area: desc">${detailText ? detailText : ""}</div>
-    <div style="grid-area: chip; justify-content: flex-end;" class="flexcol">${chips.join("\n")}</div>
     ${
       actionText
         ? `
@@ -1137,9 +1181,9 @@ export function buildDeployableHTML(
   `;
 }
 
-/** Build a little clickable chip to activate an item.
+/**
+ * Build a little clickable chip to activate an item.
  * If trying to use a deployable, you should still provide the item uuid & the path to the deployable within it
- *
  * @param activation The type of activation.
  * @param flowData Options to configure the chip.
  * @param flowData.icon The icon to use. Defaults to chat icon if not provided.
@@ -1151,65 +1195,38 @@ export function buildDeployableHTML(
 export function buildChipHTML(
   activation: ActivationType,
   flowData?: {
-    icon?: ChipIcons;
+    icon?: ChipIcons | string;
     label?: string;
     // These must both be provided in order to use a flow
     uuid?: string;
     path?: string;
-  }
+  },
+  options?: { nonInteractive?: boolean }
 ): string {
   const activationClass = `activation-${slugify(activation, "-")}`;
   const themeClass = activationStyle(activation);
+  const interactiveClass = options?.nonInteractive ? "noninteractive" : "";
+  const label = `${
+    flowData?.label ? `${flowData.label.toUpperCase()} - ` : `${!options?.nonInteractive ? "USE " : ""}`
+  }${activation.toUpperCase()}`;
   if (flowData && flowData.uuid && flowData.path !== undefined) {
-    if (!flowData.icon) flowData.icon = ChipIcons.Chat;
+    if (!flowData.icon) flowData.icon = `<i class="${activationIcon(activation)} i--sm"></i>`;
     let data = `data-uuid=${flowData.uuid} data-path="${flowData.path}"`;
     return `
-    <a class="activation-flow activation-chip lancer-button ${activationClass} ${themeClass}" ${data}>
+    <a
+      class="activation-flow lancer-button activation-chip ${activationClass} ${themeClass} ${interactiveClass}"
+      ${data}
+    >
       ${flowData.icon ? flowData.icon : ""}
-      ${flowData.label ? flowData.label.toUpperCase() + " - " : ""}
-      ${activation.toUpperCase()}
+      ${label}
     </a>`;
   } else {
     return `
     <div class="activation-chip ${activationClass} lancer-chip ${themeClass}">
-      ${activation.toUpperCase()}
+      ${flowData?.icon ? flowData.icon : ""}
+      ${label}
     </div>`;
   }
-}
-
-export function buildSystemHTML(system: LancerMECH_SYSTEM): string {
-  let eff: string | undefined;
-  let actions: string | undefined;
-  let deployables: string | undefined;
-  let useFirstActivation = false;
-
-  if (system.system.effect) eff = system.system.effect;
-  else {
-    // If our first action doesn't have a name & we don't have an effect then first action is our "effect"
-    // Always first action? Or a better way?
-    useFirstActivation = system.system.actions.length ? !system.system.actions[0].name : false;
-  }
-
-  if (system.system.actions) {
-    actions = buildActionArrayHTML(system, "system.action");
-  }
-
-  if (system.system.deployables) {
-    deployables = ""; /* system.system.deployables
-      .map((d, i) => {
-        return d.status == "resolved" ? buildDeployableHTML(d.value, false) : d.status;
-      })
-      .join("");*/
-  }
-
-  let html = `<div class="card clipped-bot system-wrapper" ${ref_params(system)} style="margin: 0px;">
-  <div class="lancer-header lancer-system">// SYSTEM :: ${system.name} //</div>
-  ${eff ? eff : ""}
-  ${actions ? actions : ""}
-  ${deployables ? deployables : ""}
-  ${compact_tag_list("tags", spoofHelper({ tags: system.getTags() }))}
-</div>`;
-  return html;
 }
 
 // This has gotten very messy to account for the pilots, should refactor - TODO
@@ -1285,7 +1302,7 @@ export function buildCounterArrayHTML(
   </div>`;
 }
 
-export function generic_counter(name: string, data: FullBoundedNum, path: string): string {
+export function genericCounter(name: string, data: FullBoundedNum, path: string): string {
   const counterData: CounterData = {
     name,
     min: data.min,

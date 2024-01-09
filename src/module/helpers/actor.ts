@@ -1,14 +1,10 @@
 import type { HelperOptions } from "handlebars";
 import { extendHelper, inc_if, resolve_helper_dotpath, selected, std_num_input, std_x_of_y } from "./commons";
 import { ref_params, simple_ref_slot } from "./refs";
-import { encodeMacroData } from "../macros";
-import { encodeOverchargeMacroData } from "../flows/overcharge";
 import type { ActionType } from "../action";
 import type { LancerActor, LancerMECH, LancerNPC, LancerPILOT } from "../actor/lancer-actor";
 import { getActionTrackerOptions } from "../settings";
 import { EntryType } from "../enums";
-import { SystemTemplates } from "../system-template";
-import { LancerBOND } from "../item/lancer-item";
 
 // ---------------------------------------
 // Some simple stat editing thingies
@@ -18,10 +14,20 @@ interface ButtonOverrides {
   classes?: string;
 }
 
-function _rollable_macro_button(macroData: string, overrides: ButtonOverrides = {}): string {
-  return `<a class="lancer-macro lancer-button ${overrides.classes ?? ""}" data-macro="${macroData}">
+function _flowButton(button_class: string, html_data: string, overrides: ButtonOverrides = {}): string {
+  return `<a class="${button_class} lancer-button ${overrides.classes ?? ""}" ${html_data}>
     <i class="fas ${overrides.icon ?? "fa-dice-d20"} i--dark i--s"></i>
   </a>`;
+}
+
+function _statFlowButton(uuid: string, path: string, overrides: ButtonOverrides = {}): string {
+  const data = `data-uuid="${uuid}" data-path="${path}" data-flow-args="${""}"`;
+  return _flowButton("roll-stat", data, overrides);
+}
+
+function _basicFlowButton(uuid: string, type = "BasicAttack", overrides: ButtonOverrides = {}): string {
+  const data = `data-uuid="${uuid}" data-flow-type="${type}" data-flow-args="${""}"`;
+  return _flowButton("lancer-flow-button", data, overrides);
 }
 
 export function getActorUUID(options: HelperOptions): string | null {
@@ -71,32 +77,25 @@ export function stat_view_card(
   data_path: string,
   options: HelperOptions & { rollable?: boolean }
 ): string {
-  let data_val = resolve_helper_dotpath(options, data_path);
-  let macro_button: string | undefined;
-  let macroData = encodeMacroData({
-    title: title,
-    fn: "prepareStatMacro",
-    args: [getActorUUID(options), data_path],
-  });
-  let macroBasicData = encodeMacroData({ title: "BASIC ATTACK", fn: "prepareAttackMacro", args: [] });
-  if (options.rollable) macro_button = _rollable_macro_button(macroData);
-
+  let dataVal = resolve_helper_dotpath(options, data_path);
+  let flowButton: string = "";
+  let attackFlowButton: string = "";
+  if (options.rollable) {
+    flowButton = _statFlowButton(getActorUUID(options)!, data_path);
+    if (data_path === "system.grit" || data_path === "system.tier") {
+      attackFlowButton = _basicFlowButton(getActorUUID(options)!, "BasicAttack", { icon: "cci cci-weapon" });
+    }
+  }
   return `
     <div class="stat-card card clipped">
       <div class="lancer-header lancer-primary ">
         ${inc_if(`<i class="${icon} i--m i--light header-icon"> </i>`, icon)}
         <span class="major">${title}</span>
       </div>
-      <div class="${macro_button ? "stat-macro-container" : "flexrow flex-center"}">
-        ${macro_button ? macro_button : ""}
-        <span class="lancer-stat major" data-path="${data_path}">${data_val}</span>
-        ${
-          macro_button
-            ? data_path == "system.grit" || data_path === "system.tier"
-              ? _rollable_macro_button(macroBasicData, { icon: "cci cci-weapon" })
-              : ""
-            : ""
-        }
+      <div class="${flowButton ? "stat-macro-container" : "flexrow flex-center"}">
+        ${flowButton}
+        <span class="lancer-stat major" data-path="${data_path}">${dataVal}</span>
+        ${attackFlowButton}
       </div>
     </div>
     `;
@@ -153,31 +152,24 @@ export function clicker_stat_card(
   roller: boolean,
   options: HelperOptions
 ): string {
-  let button = "";
-  let uuid = getActorUUID(options);
-  let macroData = encodeMacroData({
-    title: title,
-    fn: "prepareStatMacro",
-    args: [uuid, data_path],
-  });
-  let macroBasicData = encodeMacroData({ title: "BASIC ATTACK", fn: "prepareAttackMacro", args: [] });
-  if (roller)
-    button = `<a class="lancer-macro lancer-button" data-macro="${macroData}"><i class="fas fa-dice-d20 i--dark i--s"></i></a>`;
+  let uuid = getActorUUID(options) ?? "unknown";
+  let statButton = "";
+  let attackButton = "<div></div>";
+  if (roller) {
+    statButton = `<a class="roll-stat lancer-button" data-uuid="${uuid}" data-path="${data_path}"><i class="fas fa-dice-d20 i--dark i--s"></i></a>`;
+    if (data_path === "system.grit" || data_path === "system.tier") {
+      attackButton = _basicFlowButton(uuid, "BasicAttack", { icon: "cci cci-weapon" });
+    }
+  }
   return `<div class="card clipped stat-container">
       <div class="lancer-header lancer-primary ">
         <i class="${icon} i--m i--light header-icon"> </i>
         <span class="major">${title}</span>
       </div>
       <div class="flexrow">
-        ${button}
+        ${statButton}
         ${clicker_num_input(data_path, options)}
-        ${
-          button
-            ? data_path == "system.grit" || data_path === "system.tier"
-              ? _rollable_macro_button(macroBasicData, { icon: "cci cci-weapon" })
-              : "<div></div>"
-            : ""
-        }
+        ${attackButton}
       </div>
     </div>
   `;
@@ -274,13 +266,8 @@ export function actor_flow_button(
 }
 
 export function tech_flow_card(title: string, icon: string, data_path: string, options: HelperOptions): string {
+  let uuid = getActorUUID(options) ?? "unknown";
   let data_val = resolve_helper_dotpath(options, data_path);
-
-  let macroData = encodeMacroData({
-    title: title,
-    fn: "prepareTechMacro",
-    args: [getActorUUID(options), null],
-  });
 
   return `
     <div class="stat-card card clipped">
@@ -289,7 +276,7 @@ export function tech_flow_card(title: string, icon: string, data_path: string, o
         <span class="major">${title}</span>
       </div>
       <div class="stat-macro-container">
-        ${_rollable_macro_button(macroData)}
+        ${_basicFlowButton(uuid, "TechAttack", { icon: "cci cci-tech-quick" })}
         <span class="lancer-stat major" data-path="${data_path}">${data_val}</span>
       </div>
     </div>
@@ -351,20 +338,21 @@ export function npc_stat_array_clicker_card(title: string, path: string, options
  * @param overcharge_path Path to current overcharge level, from 0 to 3
  * @param options Options object to pass to resolve_helper_dotpath
  */
-export function overcharge_button(actor: LancerMECH, overcharge_path: string, options: HelperOptions): string {
-  const overcharge_sequence = actor.system.overcharge_sequence;
+export function overchargeButton(actor: LancerMECH, overcharge_path: string, options: HelperOptions): string {
+  const sequence = actor.system.overcharge_sequence;
 
   let index = resolve_helper_dotpath(options, overcharge_path) as number;
-  index = Math.max(0, Math.min(overcharge_sequence.length - 1, index));
-  let over_val = overcharge_sequence[index];
+  index = Math.max(0, Math.min(sequence.length - 1, index));
+  let overchargeValue = sequence[index];
+  let flowButton = _basicFlowButton(actor.uuid, "Overcharge");
   return `
     <div class="flexcol card clipped">
       <div class="lancer-header lancer-primary clipped-top flexrow">
         <span class="major">OVERCHARGE</span>
       </div>
       <div class="overcharge-container">
-        ${_rollable_macro_button(encodeOverchargeMacroData(actor.uuid!), { classes: "overcharge-macro" })}
-        <a class="overcharge-text">${over_val}</a>
+        ${flowButton}
+        <a class="overcharge-text">${overchargeValue}</a>
         <a class="overcharge-reset mdi mdi-restore"></a>
       </div>
     </div>`;

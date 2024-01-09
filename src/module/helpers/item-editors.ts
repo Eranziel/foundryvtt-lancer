@@ -1,5 +1,5 @@
 import type { HelperOptions } from "handlebars";
-import { bonuses_display, damage_editor, range_editor, buildActionArrayHTML, buildDeployablesArray } from "./item";
+import { bonusesDisplay, damageEditor, rangeEditor, buildActionArrayHTML, buildDeployablesArrayHBS } from "./item";
 import {
   drilldownDocument,
   extendHelper as extendHelper,
@@ -54,7 +54,7 @@ export function item_edit_arrayed_damage(path: string, title: string, options: H
 
   if (dam_arr) {
     for (let i = 0; i < dam_arr.length; i++) {
-      dam_detail = dam_detail.concat(damage_editor(path.concat(`.${i}`), options));
+      dam_detail = dam_detail.concat(damageEditor(path.concat(`.${i}`), options));
     }
   }
 
@@ -82,7 +82,7 @@ export function item_edit_arrayed_range(path: string, title: string, options: He
 
   if (range_arr) {
     for (let i = 0; i < range_arr.length; i++) {
-      range_detail = range_detail.concat(range_editor(path.concat(`.${i}`), options));
+      range_detail = range_detail.concat(rangeEditor(path.concat(`.${i}`), options));
     }
   }
 
@@ -104,7 +104,7 @@ export function item_edit_arrayed_range(path: string, title: string, options: He
  */
 export function item_edit_arrayed_bonuses(path: string, options: HelperOptions): string {
   let arr = resolve_helper_dotpath<BonusData[]>(options, path, []);
-  return bonuses_display(path, true, options);
+  return bonusesDisplay(path, true, options);
 }
 
 export function item_edit_arrayed_counters(): string {
@@ -124,7 +124,7 @@ export function item_edit_arrayed_deployables(path: string, title: string, optio
   let dd = drilldownDocument(root, path);
 
   if (!(dd.sub_doc instanceof LancerItem)) return "";
-  let depHTML = buildDeployablesArray(dd.sub_doc, dd.sub_path, extendHelper(options, { full: true }));
+  let depHTML = buildDeployablesArrayHBS(dd.sub_doc, dd.sub_path, extendHelper(options, { full: true }));
 
   return `
     <div class="card clipped">

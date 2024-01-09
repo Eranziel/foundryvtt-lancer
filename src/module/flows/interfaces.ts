@@ -18,13 +18,20 @@ export namespace LancerFlowState {
     type: "base";
     title: string;
     roll_str: string;
+    result?: RollResult;
+  }
+
+  export interface RollResult {
+    roll: Roll;
+    tt: string | HTMLElement | JQuery<HTMLElement>; // Tooltip
   }
 
   // Configuration passed to initiate a stat roll
   export interface StatRollData extends Omit<BaseRollData, "type"> {
     type: "stat";
+    path: string; // The dotpath to the stat in the item or actor
     bonus: string | number;
-    acc_diff: AccDiffDataSerialized;
+    acc_diff?: AccDiffData;
     effect?: string;
   }
 
@@ -126,8 +133,9 @@ export namespace LancerFlowState {
 
   // Configuration passed to initiate the printing of a talent
   export interface TalentUseData {
-    talent: unknown;
-    rank: number;
+    title: string;
+    lvl: number;
+    rank: { name: string; description: string };
   }
 
   export interface BondPowerUseData {
@@ -156,10 +164,14 @@ export namespace LancerFlowState {
     tags?: TagData[];
   }
 
+  export interface HTMLToChatData {
+    html: string;
+  }
+
   // Configuration passed to show an overcharge roll
-  export interface OverchargeRollData {
+  export interface OverchargeRollData extends Omit<BaseRollData, "type"> {
+    type: "overcharge";
     level: number;
-    roll: string;
   }
 
   // export interface StructureRollData {

@@ -409,6 +409,7 @@ $theme-types: "primary" "secondary" "dark-gray" "light-gray" "tooltip"    // Gen
   border: none;
   border-left: 1px solid var(--secondary-color, black);
   border-right: 1px solid var(--secondary-color, black);
+  min-width: 3px;
   max-width: 3px;
   margin-left: 6px;
   margin-right: 6px;
@@ -819,6 +820,10 @@ tr.lcp-index-header {
 
 .click-open {
   cursor: pointer;
+
+  &:hover {
+    text-shadow: 0 0 8px var(--color-shadow-primary);
+  }
 }
 
 .ref-icon {
@@ -1096,6 +1101,7 @@ tr.lcp-index-header {
   .activation-chip {
     overflow: unset;
     margin-left: 0.1em;
+    padding: 0 0.5em 0 0.5em;
     align-self: center;
   }
 }
@@ -1546,23 +1552,27 @@ input.core-power-toggle:not(:checked)::before {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   align-items: center;
+
+  .lancer-flow-button {
+    justify-self: center;
+  }
+
+  .overcharge-text {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    line-height: 0.8em;
+  }
 }
 
-.overcharge-text {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  line-height: 0.8em;
-}
+.overcharge-heat-wrapper {
+  justify-content: flex-end;
 
-.overcharge-macro {
-  justify-self: center;
-}
-
-.overcharge-heat {
-  color: #fc3e0f;
-  flex-grow: unset;
-  width: 1.5em;
+  .overcharge-heat {
+    color: #fc3e0f;
+    flex-grow: unset;
+    width: 1.5em;
+  }
 }
 
 /* Some flex helpers */
@@ -1653,10 +1663,9 @@ input.core-power-toggle:not(:checked)::before {
   grid-template: 2em 1fr / 100px 1fr;
   align-items: center;
   margin-right: 25px;
-}
-
-a.flexrow.skill-macro {
-  margin-inline: 1.2em;
+  a.flexrow.skill-flow {
+    margin-inline: 1.2em;
+  }
 }
 
 ul.talent-ranks {
@@ -1665,7 +1674,10 @@ ul.talent-ranks {
 
 .talent-rank-compact {
   display: grid;
-  grid-template: auto 1fr / auto 1fr;
+  grid-template: auto 1fr / auto auto 1fr;
+  grid-template-areas:
+    "rank chat title"
+    "desc desc desc";
 }
 
 .card.lancer-border-talent.talent-rank-sep-border {
@@ -1685,13 +1697,13 @@ ul.talent-ranks {
 .core-active-detail,
 .core-passive-detail {
   text-align: left;
-  margin-left: 8px;
-  margin-right: 8px;
+  margin-left: 0.5em;
+  margin-right: 0.5em;
 }
 
-.activation-chip {
+.activation-chip,
+.activation-chip.lancer-button {
   align-self: flex-end;
-  right: 5px;
   margin-top: 5px;
   font-size: 12px;
   height: 24px;
@@ -1704,8 +1716,7 @@ ul.talent-ranks {
   max-width: 100%;
   outline: none;
   overflow: hidden;
-  padding: 0 12px;
-  position: relative;
+  padding: 0 12px 0px 5px;
   text-decoration: none;
   transition-duration: 0.28s;
   transition-property: box-shadow, opacity;
@@ -1713,6 +1724,7 @@ ul.talent-ranks {
   vertical-align: middle;
   white-space: nowrap;
   margin-bottom: 5px;
+  margin-right: 5px;
 }
 
 .action-wrapper,
@@ -1735,6 +1747,26 @@ ul.talent-ranks {
   }
 }
 
+.action-flow-container {
+  float: left;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+
+  .activation-chip,
+  .lancer-button {
+    height: 100%;
+    margin: 0;
+
+    span {
+      padding-right: 0.2em;
+    }
+  }
+
+  .vsep {
+    margin: 0.1em 0.7em;
+  }
+}
 .core-wrapper {
   border-radius: 0px;
   border-width: 2px;
@@ -1778,18 +1810,60 @@ ul.talent-ranks {
 
 .deployable-wrapper {
   display: grid;
-  grid-template-columns: 48px 1fr auto;
+  grid-template-columns: 48px auto auto;
   grid-template-rows: auto auto auto;
   grid-template-areas:
     "img title title"
-    "img desc chip"
-    "img action action";
+    "chip chip desc"
+    "action action action";
 
-  .activation-chip {
-    width: 100%;
-    max-height: 20px;
+  &.vertical {
+    grid-template-columns: 48px auto;
+    grid-template-rows: auto auto auto auto;
+    grid-template-areas:
+      "img title"
+      "chip chip"
+      "desc desc"
+      "action action";
+
+    .flexcol {
+      flex-grow: 1;
+    }
+
+    .deployable-activations {
+      margin-left: 0;
+    }
+
+    .activation-chip {
+      margin: 1px 2px;
+    }
+  }
+
+  img.deployable-thumbnail {
+    padding: 0.25em 0.5em;
+    grid-area: img;
+    border: none;
+    align-self: center;
+  }
+
+  .title-wrapper {
+    padding-left: 0.5em;
+  }
+
+  .deployable-activations {
+    grid-area: chip;
+    justify-content: flex-end;
     display: flex;
-    justify-content: center;
+    flex-direction: row;
+    margin-left: 0.5em;
+
+    .activation-chip {
+      max-height: 20px;
+      display: flex;
+      justify-content: center;
+      margin-top: 0.1em;
+      margin-bottom: 0.1em;
+    }
   }
 }
 
@@ -1940,7 +2014,7 @@ a.activation-chip > i.mdi {
 
 .uses-wrapper {
   display: flex;
-  justify-content: flex-end;
+  justify-content: flex-start;
   align-items: center;
   margin-right: 4px;
   margin-top: 4px;
@@ -1958,6 +2032,13 @@ a.activation-chip > i.mdi {
 .counter-hex[data-available="true"] {
   color: var(--primary-color);
   filter: brightness(1.25);
+}
+
+.sp-wrapper {
+  display: flex;
+  width: fit-content;
+  max-width: fit-content;
+  align-items: center;
 }
 
 .weapon-profile-wrapper {
@@ -2185,6 +2266,12 @@ a.activation-chip > i.mdi {
 
   &:hover {
     box-shadow: var(--button-shadow), var(--hover-bright);
+  }
+
+  &.noninteractive {
+    cursor: default;
+    text-shadow: none;
+    box-shadow: none;
   }
 }
 
@@ -2427,18 +2514,19 @@ a.action {
   align-items: center;
   color: var(--light-text);
   background-color: var(--dark-gray-color);
+
+  &.non-interactive a,
+  &.non-interactive .uses-hex {
+    cursor: default;
+    text-shadow: none;
+    box-shadow: none;
+  }
 }
 
 .counter-name {
   max-width: 90%;
   width: fit-content !important;
   color: var(--light-text) !important;
-}
-
-.chat-flow-button {
-  max-width: 60%;
-  align-self: center;
-  cursor: pointer;
 }
 
 // needed to override a builtin that removes all shadows from the sidebar
