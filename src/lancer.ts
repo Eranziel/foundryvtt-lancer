@@ -192,6 +192,7 @@ import { registerActivationSteps } from "./module/flows/activation";
 import { registerItemUtilSteps } from "./module/flows/item-utils";
 import { registerBondPowerSteps } from "./module/flows/bond";
 import { registerCoreActiveSteps } from "./module/flows/frame";
+import { registerFullRepairSteps } from "./module/flows/full-repair";
 import { registerTextSteps } from "./module/flows/text";
 import { registerTalentSteps } from "./module/flows/talent";
 import { registerStatSteps } from "./module/flows/stat";
@@ -291,6 +292,7 @@ Hooks.once("init", async function () {
   registerOverchargeSteps(flowSteps);
   registerTalentSteps(flowSteps);
   registerBondPowerSteps(flowSteps);
+  registerFullRepairSteps(flowSteps);
   // Assign custom classes and constants here
   // Create a Lancer namespace within the game global
   game.lancer = {
@@ -328,7 +330,7 @@ Hooks.once("init", async function () {
     prepareStructureSecondaryRollMacro: macros.prepareStructureSecondaryRollMacro,
     // rollTechMacro: macros.rollTechMacro,
     // rollAttackMacro: macros.rollAttackMacro,
-    fullRepairMacro: macros.fullRepairMacro,
+    // fullRepairMacro: macros.fullRepairMacro,
     stabilizeMacro: macros.stabilizeMacro,
     importActor: fulfillImportActor,
     targetsFromTemplate: macros.targetsFromTemplate,

@@ -138,8 +138,8 @@ Non-Flow steps are simply functions which take the flow's current state and (opt
   - [x] `prepareCoreActiveMacro(actor: string | LancerActor)`
   - [x] `prepareCorePassiveMacro(actor: string | LancerActor)`
   - [x] `prepareFrameTraitMacro(actor: string | LancerActor, index: number)`
-- [ ] `full-repair.ts`
-  - [ ] `prepareFullRepairMacro(actor_: string | LancerActor)`
+- [x] `full-repair.ts`
+  - [x] `prepareFullRepairMacro(actor_: string | LancerActor)`
 - [x] `gear.ts`
   - [x] `preparePilotGearMacro(item: string | LancerItem)`
   - [x] `prepareCoreBonusMacro(item: string | LancerItem)`

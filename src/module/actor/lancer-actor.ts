@@ -15,8 +15,10 @@ import { StrussHelper } from "./struss-util";
 import { BasicAttackFlow } from "../flows/attack";
 import { pilotInnateEffect } from "../effects/converter";
 import { TechAttackFlow } from "../flows/tech";
+import { FullRepairFlow } from "../flows/full-repair";
 import { StatRollFlow } from "../flows/stat";
 import { OverchargeFlow } from "../flows/overcharge";
+
 const lp = LANCER.log_prefix;
 
 const DEFAULT_OVERCHARGE_SEQUENCE = ["+1", "+1d3", "+1d6", "+1d6+4"];
@@ -705,6 +707,14 @@ export class LancerActor extends Actor {
       throw new Error(message);
     }
     return x;
+  }
+
+  async beginFullRepairFlow(title?: string): Promise<boolean> {
+    if (this.is_deployable()) {
+      return false;
+    }
+    const flow = new FullRepairFlow(this, title ? { title } : undefined);
+    return await flow.begin();
   }
 
   async beginOverchargeFlow(): Promise<boolean> {
