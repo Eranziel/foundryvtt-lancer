@@ -15,7 +15,7 @@ export function registerStructureSteps(flowSteps: Map<string, Step<any, any> | F
   flowSteps.set("noStructureRemaining", noStructureRemaining);
   flowSteps.set("checkStructureMultipleOnes", checkStructureMultipleOnes);
   flowSteps.set("structureInsertHullCheckButton", structureInsertHullCheckButton);
-  flowSteps.set("structureInsertHullCheckButton", structureInsertSecondaryRollButton);
+  flowSteps.set("structureInsertSecondaryRollButton", structureInsertSecondaryRollButton);
   flowSteps.set("printStructureCard", printStructureCard);
   flowSteps.set("secondaryStructureRoll", secondaryStructureRoll);
   flowSteps.set("printSecondaryStructureCard", printSecondaryStructureCard);
@@ -32,7 +32,7 @@ export class StructureFlow extends Flow<LancerFlowState.PrimaryStructureRollData
     "noStructureRemaining",
     "checkStructureMultipleOnes",
     "structureInsertHullCheckButton",
-    "structureInsertHullCheckButton",
+    "structureInsertSecondaryRollButton",
     "printStructureCard",
   ];
 
