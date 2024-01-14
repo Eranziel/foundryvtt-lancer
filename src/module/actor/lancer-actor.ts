@@ -1,10 +1,10 @@
 import { LANCER, replaceDefaultResource, TypeIcon } from "../config";
-import { prepareOverheatMacro, prepareStructureMacro } from "../macros";
+import { prepareOverheatMacro } from "../macros";
 import { DamageType, EntryType } from "../enums";
 import { fix_modify_token_attribute } from "../token";
 import { AppliedDamage } from "./damage-calc";
 import { SystemData, SystemDataType, SystemTemplates } from "../system-template";
-import { SourceData, SourceDataType } from "../source-template";
+import { SourceDataType } from "../source-template";
 import { getAutomationOptions } from "../settings";
 import { LancerBOND, LancerFRAME, LancerItem, LancerNPC_CLASS } from "../item/lancer-item";
 import { LancerActiveEffect } from "../effects/lancer-active-effect";
@@ -12,6 +12,7 @@ import { frameToPath } from "./retrograde-map";
 import { EffectHelper } from "../effects/effector";
 import { LoadoutHelper } from "./loadout-util";
 import { StrussHelper } from "./struss-util";
+import { StructureFlow } from "../flows/structure";
 import { BasicAttackFlow } from "../flows/attack";
 import { pilotInnateEffect } from "../effects/converter";
 import { TechAttackFlow } from "../flows/tech";
@@ -519,7 +520,8 @@ export class LancerActor extends Actor {
         prepareOverheatMacro(this);
       }
       if ((data.system?.hp?.value ?? 1) <= 0 && this.system.structure.value > 0) {
-        prepareStructureMacro(this);
+        const flow = new StructureFlow(this, undefined);
+        return flow.begin();
       }
     }
 
@@ -750,6 +752,11 @@ export class LancerActor extends Actor {
       return false;
     }
     const flow = new TechAttackFlow(this, title ? { title } : undefined);
+    return await flow.begin();
+  }
+
+  async beginStructureFlow(): Promise<boolean> {
+    const flow = new StructureFlow(this);
     return await flow.begin();
   }
 

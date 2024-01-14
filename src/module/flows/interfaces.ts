@@ -174,8 +174,37 @@ export namespace LancerFlowState {
     level: number;
   }
 
-  // export interface StructureRollData {
-  // }
+  export interface PrimaryStructureRollData extends Omit<BaseRollData, "type"> {
+    type: "structure";
+    desc: string;
+    val: number;
+    max: number;
+    // result adds "total" to RollResult
+    result?: {
+      roll: Roll;
+      tt: string | HTMLElement | JQuery<HTMLElement>; // Tooltip
+      total: string; // String representation of the roll total
+    };
+    legendary?: {
+      roll: Roll;
+      tt: string | HTMLElement | JQuery<HTMLElement>; // Tooltip
+      total: string; // String representation of the roll total
+    };
+    reroll_data?: { structure: number };
+    remStruct: number;
+    embedButton?: string; // HTML for a flow button to embed in the chat card
+  }
+
+  export interface SecondaryStructureRollData extends Omit<BaseRollData, "type"> {
+    type: "secondary_structure";
+    desc: string;
+    // result adds "total" to RollResult
+    result?: {
+      roll: Roll;
+      tt: string | HTMLElement | JQuery<HTMLElement>; // Tooltip
+      total: string; // String representation of the roll total
+    };
+  }
 
   // export interface StressRollData {
   // }
