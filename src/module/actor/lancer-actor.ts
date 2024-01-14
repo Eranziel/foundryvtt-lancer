@@ -4,7 +4,7 @@ import { DamageType, EntryType } from "../enums";
 import { fix_modify_token_attribute } from "../token";
 import { AppliedDamage } from "./damage-calc";
 import { SystemData, SystemDataType, SystemTemplates } from "../system-template";
-import { SourceData, SourceDataType } from "../source-template";
+import { SourceDataType } from "../source-template";
 import { getAutomationOptions } from "../settings";
 import { LancerBOND, LancerFRAME, LancerItem, LancerNPC_CLASS } from "../item/lancer-item";
 import { LancerActiveEffect } from "../effects/lancer-active-effect";
@@ -745,8 +745,8 @@ export class LancerActor extends Actor {
     return await flow.begin();
   }
 
-  async beginStructureFlow(_title?: string): Promise<boolean> {
-    const flow = new StructureFlow(this, undefined);
+  async beginStructureFlow(): Promise<boolean> {
+    const flow = new StructureFlow(this);
     return await flow.begin();
   }
 

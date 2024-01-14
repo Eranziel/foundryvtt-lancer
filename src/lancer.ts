@@ -197,6 +197,7 @@ import { registerTalentSteps } from "./module/flows/talent";
 import { registerStatSteps } from "./module/flows/stat";
 import { registerOverchargeSteps } from "./module/flows/overcharge";
 import { registerSystemSteps } from "./module/flows/system";
+import { beginSecondaryStructureFlow, registerStructureSteps } from "./module/flows/structure";
 
 const lp = LANCER.log_prefix;
 
@@ -288,6 +289,7 @@ Hooks.once("init", async function () {
   registerActivationSteps(flowSteps);
   registerCoreActiveSteps(flowSteps);
   registerStatSteps(flowSteps);
+  registerStructureSteps(flowSteps);
   registerOverchargeSteps(flowSteps);
   registerTalentSteps(flowSteps);
   registerBondPowerSteps(flowSteps);
@@ -322,10 +324,10 @@ Hooks.once("init", async function () {
     // prepareFrameTraitMacro: macros.prepareFrameTraitMacro,
     // prepareOverchargeMacro: macros.prepareOverchargeMacro,
     prepareOverheatMacro: macros.prepareOverheatMacro,
-    beginStructureFlow: macros.beginStructureFlow,
+    // beginStructureFlow: macros.beginStructureFlow,
     // prepareActivationMacro: macros.prepareActivationMacro,
     // prepareAttackMacro: macros.prepareAttackMacro,
-    beginSecondaryStructureFlow: macros.beginSecondaryStructureFlow,
+    // beginSecondaryStructureFlow: macros.beginSecondaryStructureFlow,
     // rollTechMacro: macros.rollTechMacro,
     // rollAttackMacro: macros.rollAttackMacro,
     fullRepairMacro: macros.fullRepairMacro,
@@ -791,6 +793,7 @@ Hooks.on("renderChatMessage", async (cm: ChatMessage, html: JQuery, data: any) =
   initializeCollapses(html);
   applyCollapseListeners(html);
 
+  // Handle old macro buttons
   html.find(".chat-button").on("click", ev => {
     let elt = $(ev.target).closest("[data-macro]")[0];
     if (elt?.dataset.macro) {
@@ -805,6 +808,47 @@ Hooks.on("renderChatMessage", async (cm: ChatMessage, html: JQuery, data: any) =
     return false;
   });
 
+  html.find(".flow-button").on("click", ev => {
+    const element = $(ev.target).closest("[data-flow-type]")[0];
+    if (element?.dataset.flowType) {
+      ev.stopPropagation();
+      const flowType = element.dataset.flowType;
+      const actorId = element.dataset.actorId;
+      const itemId = element.dataset.itemId;
+      switch (flowType) {
+        case "check":
+          if (!actorId) return ui.notifications?.error("No actor ID found on check prompt button.");
+          const actor = game.actors?.get(actorId);
+          if (!actor) return ui.notifications?.error("Invalid actor ID on check prompt button.");
+          const checkType = element.dataset.checkType;
+          switch (checkType) {
+            case "hull":
+            default:
+              actor.beginStatFlow("system.hull");
+              break;
+            case "agility":
+              actor.beginStatFlow("system.agility");
+              break;
+            case "systems":
+              actor.beginStatFlow("system.systems");
+              break;
+            case "engineering":
+              actor.beginStatFlow("system.engineering");
+              break;
+          }
+          break;
+        case "secondaryStructure":
+          if (!actorId) return ui.notifications?.error("No actor ID found on secondary structure prompt button.");
+          beginSecondaryStructureFlow(actorId);
+          break;
+        default:
+          return ui.notifications?.error("Invalid flow type on flow prompt button.");
+      }
+      return true;
+    }
+  });
+
+  // Handle clickable refs in chat messages
   handleRefClickOpen(html);
 });
 
