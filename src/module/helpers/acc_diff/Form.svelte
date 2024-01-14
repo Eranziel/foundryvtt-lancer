@@ -108,7 +108,7 @@
         style="width:100%;padding:4px;border-right-width: 1px;border-right-style: dashed;min-width:180px"
       >
         <h3 class="lancer-border-primary">
-          <i class="cci cci-accuracy i--m i--dark" style="vertical-align:middle;border:none" />
+          <i class="cci cci-accuracy i--m" style="vertical-align:middle;border:none" />
           Accuracy
         </h3>
         <label class="container">
@@ -129,7 +129,7 @@
               class="lancer-border-primary"
               style="border-top-width: 1px;border-top-style: dashed; padding-right: 4px; padding-top: 16px; margin-top: 16px;"
             >
-              <i class="cci cci-reticule i--m i--dark" style="vertical-align:middle;border:none" />
+              <i class="cci cci-reticule i--m" style="vertical-align:middle;border:none" />
               &nbsp;Misc
             </h3>
             {#each Object.keys(weapon.plugins) as key}
@@ -150,7 +150,7 @@
       </div>
       <div style="width:100%;padding:4px;min-width:180px">
         <h3 class="lancer-border-primary">
-          <i class="cci cci-difficulty i--m i--dark" style="vertical-align:middle;border:none" />
+          <i class="cci cci-difficulty i--m" style="vertical-align:middle;border:none" />
           Difficulty
         </h3>
         <label class="container">

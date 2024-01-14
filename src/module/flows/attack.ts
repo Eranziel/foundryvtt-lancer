@@ -368,8 +368,12 @@ export async function showAttackHUD(
   options?: {}
 ): Promise<boolean> {
   if (!state.data) throw new TypeError(`Attack flow state missing!`);
-  state.data.acc_diff = await openSlidingHud("attack", state.data.acc_diff!);
-  // TODO: click cancel on HUD?
+  try {
+    state.data.acc_diff = await openSlidingHud("attack", state.data.acc_diff!);
+  } catch (_e) {
+    // User hit cancel, abort the flow.
+    return false;
+  }
   return true;
 }
 
