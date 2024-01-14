@@ -131,6 +131,15 @@ export namespace LancerFlowState {
     tags: Tag[];
   }
 
+  export interface SystemUseData {
+    title: string;
+    effect: string;
+
+    tags?: Tag[];
+    self_heat?: string; // The self heat roll string if present
+    self_heat_result?: SelfHeatResult;
+  }
+
   // Configuration passed to initiate the printing of a talent
   export interface TalentUseData {
     title: string;
