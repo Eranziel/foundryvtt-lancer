@@ -819,10 +819,7 @@ Hooks.on("renderChatMessage", async (cm: ChatMessage, html: JQuery, data: any) =
       const itemId = element.dataset.itemId;
       switch (flowType) {
         case "check":
-          if (!actorId) return ui.notifications?.error("No actor ID found on check prompt button.");
-          const actor = fromUuidSync(actorId) as LancerActor;
-          if (!actor || (!actor.is_pilot() && !actor.is_mech() && !actor.is_npc() && !actor.is_deployable()))
-            return ui.notifications?.error("Invalid actor ID on check prompt button.");
+          const actor = LancerActor.fromUuidSync(actorId ?? "", "Invalid actor ID on check prompt button.");
           const checkType = element.dataset.checkType;
           switch (checkType) {
             case "hull":
