@@ -1135,7 +1135,7 @@ export function buildDeployableHTML(
         {
           label: a.label,
           uuid: source ? source.item.uuid : undefined,
-          path: a.path,
+          // path: a.path,
         },
         options
       )
