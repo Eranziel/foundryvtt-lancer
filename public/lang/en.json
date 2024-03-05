@@ -120,6 +120,7 @@
         "changes": "// CHANGES //",
         "structure": "// STRUCTURE DAMAGE //",
         "overheating": "// OVERHEATING //",
+        "cascade": "// CASCADE //",
         "check": "// CHECK :: {check} //",
         "system": "// SYSTEM :: {system} //"
       },

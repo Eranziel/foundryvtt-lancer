@@ -199,6 +199,7 @@ import { registerStatSteps } from "./module/flows/stat";
 import { registerOverchargeSteps } from "./module/flows/overcharge";
 import { registerSystemSteps } from "./module/flows/system";
 import { beginSecondaryStructureFlow, registerStructureSteps } from "./module/flows/structure";
+import { beginCascadeFlow, registerCascadeSteps } from "./module/flows/cascade";
 
 const lp = LANCER.log_prefix;
 
@@ -291,6 +292,7 @@ Hooks.once("init", async function () {
   registerCoreActiveSteps(flowSteps);
   registerStatSteps(flowSteps);
   registerStructureSteps(flowSteps);
+  registerCascadeSteps(flowSteps);
   registerOverchargeSteps(flowSteps);
   registerTalentSteps(flowSteps);
   registerBondPowerSteps(flowSteps);
@@ -840,6 +842,10 @@ Hooks.on("renderChatMessage", async (cm: ChatMessage, html: JQuery, data: any) =
         case "secondaryStructure":
           if (!actorId) return ui.notifications?.error("No actor ID found on secondary structure prompt button.");
           beginSecondaryStructureFlow(actorId);
+          break;
+        case "cascade":
+          if (!actorId) return ui.notifications?.error("No actor ID found on cascade prompt button.");
+          beginCascadeFlow(actorId);
           break;
         default:
           return ui.notifications?.error("Invalid flow type on flow prompt button.");

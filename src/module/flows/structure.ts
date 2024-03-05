@@ -16,6 +16,7 @@ export function registerStructureSteps(flowSteps: Map<string, Step<any, any> | F
   flowSteps.set("checkStructureMultipleOnes", checkStructureMultipleOnes);
   flowSteps.set("structureInsertHullCheckButton", structureInsertHullCheckButton);
   flowSteps.set("structureInsertSecondaryRollButton", structureInsertSecondaryRollButton);
+  flowSteps.set("structureCascadeCheck", structureCascadeCheck);
   flowSteps.set("printStructureCard", printStructureCard);
   flowSteps.set("secondaryStructureRoll", secondaryStructureRoll);
   flowSteps.set("printSecondaryStructureCard", printSecondaryStructureCard);
@@ -33,6 +34,7 @@ export class StructureFlow extends Flow<LancerFlowState.PrimaryStructureRollData
     "checkStructureMultipleOnes",
     "structureInsertHullCheckButton",
     "structureInsertSecondaryRollButton",
+    "structureCascadeCheck",
     "printStructureCard",
   ];
 
@@ -76,6 +78,7 @@ export async function preStructureRollChecks(
     try {
       await open("struct", { stat: "structure", title: "Structure Damage", lancerActor: actor });
     } catch (_e) {
+      // User hit cancel, abort the flow.
       return false;
     }
   }
@@ -250,14 +253,15 @@ export async function structureInsertHullCheckButton(
 
   if (state.data.result?.roll.total === 1 && state.data.remStruct === 2) {
     // TODO: we'll want helper functions to generate embeddable flow buttons
-    state.data.embedButton = `<a
+    state.data.embedButtons = state.data.embedButtons || [];
+    state.data.embedButtons.push(`<a
       class="flow-button lancer-button"
       data-flow-type="check"
       data-check-type="hull"
       data-actor-id="${actor.uuid}"
     >
       <i class="fas fa-dice-d20 i--sm"></i> HULL
-    </a>`;
+    </a>`);
   }
   return true;
 }
@@ -280,14 +284,38 @@ export async function structureInsertSecondaryRollButton(
   if (!result) throw new TypeError(`Structure check hasn't been rolled yet!`);
   if (result >= 2 && result <= 4) {
     // TODO: we'll want helper functions to generate embeddable flow buttons
-    state.data.embedButton = `<a
+    state.data.embedButtons = state.data.embedButtons || [];
+    state.data.embedButtons.push(`<a
       class="flow-button lancer-button"
       data-flow-type="secondaryStructure"
       data-actor-id="${actor.uuid}"
     >
       <i class="fas fa-dice-d20 i--sm"></i> TEAR OFF
-    </a>`;
+    </a>`);
   }
+  return true;
+}
+
+async function structureCascadeCheck(state: FlowState<LancerFlowState.PrimaryStructureRollData>): Promise<boolean> {
+  if (!state.data) throw new TypeError(`Structure roll flow data missing!`);
+
+  let actor = state.actor;
+  if (!actor.is_mech() && !actor.is_npc()) {
+    ui.notifications!.warn("Only npcs and mechs can roll structure.");
+    return false;
+  }
+
+  // Check if the actor has any AI items
+  const aiItems = actor.items.filter(item => item.isAI());
+  if (!aiItems.length) return true;
+  state.data.embedButtons = state.data.embedButtons || [];
+  state.data.embedButtons.push(`<a
+    class="flow-button lancer-button"
+    data-flow-type="cascade"
+    data-actor-id="${actor.uuid}"
+  >
+    <i class="fas fa-dice-d20 i--sm"></i> <span class="horus--subtle">CASCADE</span>
+  </a>`);
   return true;
 }
 

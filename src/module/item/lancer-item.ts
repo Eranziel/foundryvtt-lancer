@@ -523,6 +523,18 @@ export class LancerItem extends Item {
     return (this.getTags() ?? []).some(t => t.is_recharge);
   }
 
+  isUnique(): boolean {
+    return (this.getTags() ?? []).some(t => t.is_unique);
+  }
+
+  isAI(): boolean {
+    return (this.getTags() ?? []).some(t => t.is_ai);
+  }
+
+  isSmart(): boolean {
+    return (this.getTags() ?? []).some(t => t.is_smart);
+  }
+
   // Returns true & type information if this item has action data
   hasActions(): this is { system: { actions: ActionData[] } } {
     return (this as any).system.actions !== undefined;

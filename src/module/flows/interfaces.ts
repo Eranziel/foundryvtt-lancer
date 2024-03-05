@@ -201,12 +201,24 @@ export namespace LancerFlowState {
     };
     reroll_data?: { structure: number };
     remStruct: number;
-    embedButton?: string; // HTML for a flow button to embed in the chat card
+    embedButtons?: Array<string>; // HTML for flow buttons to embed in the chat card
   }
 
   export interface SecondaryStructureRollData extends Omit<BaseRollData, "type"> {
     type: "secondary_structure";
     desc: string;
+    // result adds "total" to RollResult
+    result?: {
+      roll: Roll;
+      tt: string | HTMLElement | JQuery<HTMLElement>; // Tooltip
+      total: string; // String representation of the roll total
+    };
+  }
+
+  export interface CascadeRollData extends Omit<BaseRollData, "type"> {
+    type: "cascade";
+    desc: string;
+    ai_systems: string[]; // The UUIDs of AI systems which can cascade
     // result adds "total" to RollResult
     result?: {
       roll: Roll;

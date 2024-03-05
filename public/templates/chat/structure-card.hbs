@@ -31,7 +31,9 @@
   {{/with}}
   <div class="lancer-header submajor">{{title}}</div>
   <div class="effect-text">{{{desc}}}</div>
-  {{#if embedButton}}
-    {{{embedButton}}}
+  {{#if embedButtons}}
+    {{#each embedButtons}}
+      {{{this}}}
+    {{/each}}
   {{/if}}
 </div>
