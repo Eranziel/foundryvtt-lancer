@@ -60,7 +60,6 @@
   "lint-staged": {
     "*.ts": "prettier --write",
     "*.svelte": "prettier --write",
-    "*.hbs": "prettier --write",
     "*.scss": "prettier --write",
     "*.css": "prettier --write"
   }
