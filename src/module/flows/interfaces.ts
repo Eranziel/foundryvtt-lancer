@@ -194,11 +194,6 @@ export namespace LancerFlowState {
       tt: string | HTMLElement | JQuery<HTMLElement>; // Tooltip
       total: string; // String representation of the roll total
     };
-    legendary?: {
-      roll: Roll;
-      tt: string | HTMLElement | JQuery<HTMLElement>; // Tooltip
-      total: string; // String representation of the roll total
-    };
     reroll_data?: { structure: number };
     remStruct: number;
     embedButtons?: Array<string>; // HTML for flow buttons to embed in the chat card

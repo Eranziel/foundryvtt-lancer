@@ -16,7 +16,7 @@ export function registerStructureSteps(flowSteps: Map<string, Step<any, any> | F
   flowSteps.set("checkStructureMultipleOnes", checkStructureMultipleOnes);
   flowSteps.set("structureInsertHullCheckButton", structureInsertHullCheckButton);
   flowSteps.set("structureInsertSecondaryRollButton", structureInsertSecondaryRollButton);
-  flowSteps.set("structureCascadeCheck", structureCascadeCheck);
+  flowSteps.set("structureInsertCascadeRollButton", structureInsertCascadeRollButton);
   flowSteps.set("printStructureCard", printStructureCard);
   flowSteps.set("secondaryStructureRoll", secondaryStructureRoll);
   flowSteps.set("printSecondaryStructureCard", printSecondaryStructureCard);
@@ -34,7 +34,7 @@ export class StructureFlow extends Flow<LancerFlowState.PrimaryStructureRollData
     "checkStructureMultipleOnes",
     "structureInsertHullCheckButton",
     "structureInsertSecondaryRollButton",
-    "structureCascadeCheck",
+    "structureInsertCascadeRollButton",
     "printStructureCard",
   ];
 
@@ -155,7 +155,16 @@ export async function rollStructureTable(state: FlowState<LancerFlowState.Primar
 
   let remStruct = state.data?.reroll_data?.structure ?? actor.system.structure.value;
   let damage = actor.system.structure.max - remStruct;
-  let roll: Roll = await new Roll(`${damage}d6kl1`).evaluate({ async: true });
+  let formula = `${damage}d6kl1`;
+  // If it's an NPC with legendary, change the formula to roll twice and keep the best result.
+  if (
+    actor.is_npc() &&
+    actor.items.some(i => ["npcf_legendary_ultra", "npcf_legendary_veteran"].includes(i.system.lid))
+  ) {
+    formula = `{${formula}, ${formula}}kh`;
+  }
+  let roll: Roll = await new Roll(formula).evaluate({ async: true });
+
   let result = roll.total;
   if (result === undefined) return false;
 
@@ -296,7 +305,9 @@ export async function structureInsertSecondaryRollButton(
   return true;
 }
 
-async function structureCascadeCheck(state: FlowState<LancerFlowState.PrimaryStructureRollData>): Promise<boolean> {
+async function structureInsertCascadeRollButton(
+  state: FlowState<LancerFlowState.PrimaryStructureRollData>
+): Promise<boolean> {
   if (!state.data) throw new TypeError(`Structure roll flow data missing!`);
 
   let actor = state.actor;

@@ -37,8 +37,8 @@ export class CascadeFlow extends Flow<LancerFlowState.CascadeRollData> {
   constructor(uuid: UUIDRef | LancerActor, data?: Partial<LancerFlowState.CascadeRollData>) {
     const initialData: LancerFlowState.CascadeRollData = {
       type: "cascade",
-      title: data?.title ?? "unused",
-      desc: data?.desc ?? "MY SHACKLES LOOSE, MY CHAINS UNBOUND!",
+      title: data?.title ?? "CASCADE",
+      desc: data?.desc ?? "The shackles remain intact, for now.",
       ai_systems: data?.ai_systems ?? [],
       roll_str: data?.roll_str ?? "1d20",
     };
@@ -92,9 +92,14 @@ export async function cascadeRoll(state: FlowState<LancerFlowState.CascadeRollDa
     tt: await roll.getTooltip(),
     total: result.toString(),
   };
-  if (result > 1) {
+  if (result === 1) {
     state.data.title = "CASCADE";
-    state.data.desc = "The shackles remain intact, for now.";
+    let names = state.data.ai_systems.map(id => actor.items.get(id)?.name).join(", ");
+    let message =
+      state.data.ai_systems.length > 1
+        ? "OUR SHACKLES LOOSE, OUR CHAINS UNBOUND!"
+        : "MY SHACKLES LOOSE, MY CHAINS UNBOUND!";
+    state.data.desc = `<b>${names}</b><p><code class="horus">${message}</code></p>`;
   }
   return true;
 }
