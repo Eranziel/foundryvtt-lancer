@@ -16,7 +16,7 @@ export function registerStructureSteps(flowSteps: Map<string, Step<any, any> | F
   flowSteps.set("checkStructureMultipleOnes", checkStructureMultipleOnes);
   flowSteps.set("structureInsertHullCheckButton", structureInsertHullCheckButton);
   flowSteps.set("structureInsertSecondaryRollButton", structureInsertSecondaryRollButton);
-  flowSteps.set("structureCascadeCheck", structureCascadeCheck);
+  flowSteps.set("structureInsertCascadeRollButton", structureInsertCascadeRollButton);
   flowSteps.set("printStructureCard", printStructureCard);
   flowSteps.set("secondaryStructureRoll", secondaryStructureRoll);
   flowSteps.set("printSecondaryStructureCard", printSecondaryStructureCard);
@@ -34,7 +34,7 @@ export class StructureFlow extends Flow<LancerFlowState.PrimaryStructureRollData
     "checkStructureMultipleOnes",
     "structureInsertHullCheckButton",
     "structureInsertSecondaryRollButton",
-    "structureCascadeCheck",
+    "structureInsertCascadeRollButton",
     "printStructureCard",
   ];
 
@@ -305,7 +305,9 @@ export async function structureInsertSecondaryRollButton(
   return true;
 }
 
-async function structureCascadeCheck(state: FlowState<LancerFlowState.PrimaryStructureRollData>): Promise<boolean> {
+async function structureInsertCascadeRollButton(
+  state: FlowState<LancerFlowState.PrimaryStructureRollData>
+): Promise<boolean> {
   if (!state.data) throw new TypeError(`Structure roll flow data missing!`);
 
   let actor = state.actor;
