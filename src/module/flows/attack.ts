@@ -482,19 +482,26 @@ export async function rollDamages(state: FlowState<LancerFlowState.WeaponRollDat
 
   // If there is at least one crit hit, evaluate crit damage
   if (has_crit_hit) {
-    await Promise.all(
-      state.data.damage_results.map(async result => {
-        const c_roll = await getCritRoll(result.roll);
-        // @ts-expect-error DSN options aren't typed
-        c_roll.dice.forEach(d => (d.options.rollOrder = 2));
-        const tt = await c_roll.getTooltip();
-        state.data!.crit_damage_results.push({
-          roll: c_roll,
-          tt,
-          d_type: result.d_type,
-        });
-      })
-    );
+    // NPCs do not follow the normal crit rules. They only get bonus damage from Deadly etc...
+    if (!state.actor.is_npc()) {
+      await Promise.all(
+        state.data.damage_results.map(async result => {
+          const c_roll = await getCritRoll(result.roll);
+          // @ts-expect-error DSN options aren't typed
+          c_roll.dice.forEach(d => (d.options.rollOrder = 2));
+          const tt = await c_roll.getTooltip();
+          state.data!.crit_damage_results.push({
+            roll: c_roll,
+            tt,
+            d_type: result.d_type,
+          });
+        })
+      );
+    } else {
+      state.data!.crit_damage_results = state.data!.damage_results;
+      // TODO: automation for Deadly
+      // Find any Deadly features and add a d6 for each
+    }
   }
   // If there were only crit hits and no normal hits, don't show normal damage in the results
   state.data.damage_results = has_normal_hit ? state.data.damage_results : [];
