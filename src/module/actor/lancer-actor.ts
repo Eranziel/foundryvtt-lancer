@@ -19,6 +19,7 @@ import { TechAttackFlow } from "../flows/tech";
 import { FullRepairFlow } from "../flows/full-repair";
 import { StatRollFlow } from "../flows/stat";
 import { OverchargeFlow } from "../flows/overcharge";
+import * as lancer_data from "@massif/lancer-data";
 
 const lp = LANCER.log_prefix;
 
@@ -247,7 +248,7 @@ export class LancerActor extends Actor {
 
     if (this.is_pilot()) {
       this.system.grit = Math.ceil(this.system.level / 2);
-      this.system.hp.max = 6 + this.system.grit;
+      this.system.hp.max = lancer_data.rules.base_pilot_hp + this.system.grit;
       this.system.bond = (this.items.find(i => i.is_bond()) ?? null) as unknown as LancerBOND | null;
       this.system.sensor_range = 5;
       this.system.save = this.system.grit + 10;
