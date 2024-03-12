@@ -199,6 +199,7 @@ import { registerStatSteps } from "./module/flows/stat";
 import { registerOverchargeSteps } from "./module/flows/overcharge";
 import { registerSystemSteps } from "./module/flows/system";
 import { beginSecondaryStructureFlow, registerStructureSteps } from "./module/flows/structure";
+import { registerOverheatSteps } from "./module/flows/overheat";
 import { beginCascadeFlow, registerCascadeSteps } from "./module/flows/cascade";
 
 const lp = LANCER.log_prefix;
@@ -292,6 +293,7 @@ Hooks.once("init", async function () {
   registerCoreActiveSteps(flowSteps);
   registerStatSteps(flowSteps);
   registerStructureSteps(flowSteps);
+  registerOverheatSteps(flowSteps);
   registerCascadeSteps(flowSteps);
   registerOverchargeSteps(flowSteps);
   registerTalentSteps(flowSteps);
@@ -327,8 +329,9 @@ Hooks.once("init", async function () {
     // prepareCorePassiveMacro: macros.prepareCorePassiveMacro,
     // prepareFrameTraitMacro: macros.prepareFrameTraitMacro,
     // prepareOverchargeMacro: macros.prepareOverchargeMacro,
-    prepareOverheatMacro: macros.prepareOverheatMacro,
+    // prepareOverheatMacro: macros.prepareOverheatMacro,
     // beginStructureFlow: macros.beginStructureFlow,
+    // beginOverheatFlow: macros.beginOverheatFlow,
     // prepareActivationMacro: macros.prepareActivationMacro,
     // prepareAttackMacro: macros.prepareAttackMacro,
     // beginSecondaryStructureFlow: macros.beginSecondaryStructureFlow,

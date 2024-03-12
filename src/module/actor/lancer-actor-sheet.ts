@@ -195,6 +195,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
         case "Stabilize":
           break;
         case "Overheat":
+          this.actor.beginOverheatFlow();
           break;
         case "Structure":
           this.actor.beginStructureFlow();

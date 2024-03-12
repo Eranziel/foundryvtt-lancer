@@ -1,5 +1,4 @@
 import { LANCER, replaceDefaultResource, TypeIcon } from "../config";
-import { prepareOverheatMacro } from "../macros";
 import { DamageType, EntryType } from "../enums";
 import { fix_modify_token_attribute } from "../token";
 import { AppliedDamage } from "./damage-calc";
@@ -13,6 +12,7 @@ import { EffectHelper } from "../effects/effector";
 import { LoadoutHelper } from "./loadout-util";
 import { StrussHelper } from "./struss-util";
 import { StructureFlow } from "../flows/structure";
+import { OverheatFlow } from "../flows/overheat";
 import { BasicAttackFlow } from "../flows/attack";
 import { pilotInnateEffect } from "../effects/converter";
 import { TechAttackFlow } from "../flows/tech";
@@ -519,7 +519,8 @@ export class LancerActor extends Actor {
     ) {
       const data = changed as any; // DeepPartial<RegMechData | RegNpcData>;
       if ((data.system?.heat?.value ?? 0) > this.system.heat.max && this.system.stress.value > 0) {
-        prepareOverheatMacro(this);
+        const flow = new OverheatFlow(this, undefined);
+        return flow.begin();
       }
       if ((data.system?.hp?.value ?? 1) <= 0 && this.system.structure.value > 0) {
         const flow = new StructureFlow(this, undefined);
@@ -759,6 +760,11 @@ export class LancerActor extends Actor {
 
   async beginStructureFlow(): Promise<boolean> {
     const flow = new StructureFlow(this);
+    return await flow.begin();
+  }
+
+  async beginOverheatFlow(): Promise<boolean> {
+    const flow = new OverheatFlow(this);
     return await flow.begin();
   }
 

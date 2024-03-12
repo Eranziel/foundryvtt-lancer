@@ -210,6 +210,22 @@ export namespace LancerFlowState {
     };
   }
 
+  export interface OverheatRollData extends Omit<BaseRollData, "type"> {
+    type: "overheat";
+    desc: string;
+    val: number;
+    max: number;
+    // result adds "total" to RollResult
+    result?: {
+      roll: Roll;
+      tt: string | HTMLElement | JQuery<HTMLElement>; // Tooltip
+      total: string; // String representation of the roll total
+    };
+    reroll_data?: { stress: number };
+    remStress: number;
+    embedButtons?: Array<string>; // HTML for flow buttons to embed in the chat card
+  }
+
   export interface CascadeRollData extends Omit<BaseRollData, "type"> {
     type: "cascade";
     desc: string;
