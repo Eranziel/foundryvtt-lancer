@@ -123,6 +123,7 @@
         "cascade": "// CASCADE //",
         "check": "// CHECK :: {check} //",
         "system": "// SYSTEM :: {title} //",
+        "mod": "// MOD :: {title} //",
         "trait": "// TRAIT :: {title} //",
         "tech": "// TECH :: {title} //",
         "reaction": "// REACTION :: {title} //"

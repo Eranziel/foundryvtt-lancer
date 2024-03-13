@@ -1,5 +1,5 @@
 import { ActionType } from "../action";
-import { ActivationType, AttackType, DamageType, NpcFeatureType } from "../enums";
+import { ActivationType, AttackType, DamageType, NpcFeatureType, SystemType } from "../enums";
 import { AccDiffData, AccDiffDataSerialized } from "../helpers/acc_diff";
 import { ActionData } from "../models/bits/action";
 import { DamageData } from "../models/bits/damage";
@@ -133,7 +133,7 @@ export namespace LancerFlowState {
 
   export interface SystemUseData {
     title: string;
-    type: NpcFeatureType | null;
+    type: SystemType.System | SystemType.Mod | NpcFeatureType | null;
     effect: string;
 
     tags?: Tag[];

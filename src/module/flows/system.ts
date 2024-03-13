@@ -5,7 +5,7 @@ import { UUIDRef } from "../source-template";
 import { LancerFlowState } from "./interfaces";
 import { Flow, FlowState } from "./flow";
 import { renderTemplateStep } from "./_render";
-import { NpcFeatureType } from "../enums";
+import { NpcFeatureType, SystemType } from "../enums";
 
 const lp = LANCER.log_prefix;
 
@@ -43,10 +43,14 @@ export class SystemFlow extends Flow<LancerFlowState.SystemUseData> {
 
 async function initSystemUseData(state: FlowState<LancerFlowState.SystemUseData>): Promise<boolean> {
   if (!state.data) throw new TypeError(`Flow state missing!`);
-  if (!state.item || (!state.item.is_mech_system() && !state.item.is_npc_feature()))
-    throw new TypeError(`Only mech systems and NPC features can do system flows!`);
+  if (!state.item || (!state.item.is_mech_system() && !state.item.is_weapon_mod() && !state.item.is_npc_feature()))
+    throw new TypeError(`Only mech systems, mods, and NPC features can do system flows!`);
   state.data.title = state.data.title || state.item.name!;
-  state.data.type = state.data.type || (state.item.is_mech_system() ? NpcFeatureType.System : state.item.system.type);
+  if (!state.data.type) {
+    if (state.item.is_mech_system()) state.data.type = SystemType.System;
+    else if (state.item.is_weapon_mod()) state.data.type = SystemType.Mod;
+    else state.data.type = state.item.system.type;
+  }
   if (!state.data.effect && state.item.is_npc_feature()) {
     // Reactions need to combine the trigger and effect
     if (state.item.system.type === NpcFeatureType.Reaction) {
@@ -57,7 +61,6 @@ async function initSystemUseData(state: FlowState<LancerFlowState.SystemUseData>
   } else {
     state.data.effect = state.data.effect || state.item.system.effect;
   }
-  state.data.effect = state.data.effect || state.item.system.effect;
   state.data.tags = state.data.tags || state.item.system.tags;
   // The system incurs self-heat, so set up the data for it
   const selfHeat = state.item.system.tags.find(t => t.is_selfheat);
@@ -72,8 +75,8 @@ async function printSystemCard(
   options?: { template: string }
 ): Promise<boolean> {
   if (!state.data) throw new TypeError(`Flow state missing!`);
-  if (!state.item || (!state.item.is_mech_system() && !state.item.is_npc_feature()))
-    throw new TypeError(`Only mech systems and NPC features can do system flows!`);
+  if (!state.item || (!state.item.is_mech_system() && !state.item.is_weapon_mod() && !state.item.is_npc_feature()))
+    throw new TypeError(`Only mech systems, mods, and NPC features can do system flows!`);
   const template = options?.template || `systems/${game.system.id}/templates/chat/system-card.hbs`;
   const flags = {
     // TODO: forced save data here

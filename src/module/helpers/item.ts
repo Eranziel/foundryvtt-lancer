@@ -794,7 +794,7 @@ export function weaponModRef(mod_path: string, weapon_path: string | null, optio
     mod,
     mod_path
   )} data-accept-types="${EntryType.WEAPON_MOD}">
-    <div class="lancer-header lancer-trait">
+    <div class="lancer-header lancer-mod">
       <i class="cci cci-weaponmod i--m i--light"> </i>
       <span class="minor">${mod.name}</span>
       <a class="lancer-context-menu" data-path="${mod_path}">

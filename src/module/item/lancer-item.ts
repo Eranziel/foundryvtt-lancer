@@ -600,8 +600,8 @@ export class LancerItem extends Item {
   }
 
   async beginSystemFlow() {
-    if (!this.is_mech_system() && !this.is_npc_feature()) {
-      ui.notifications!.error(`Item ${this.id} is not a mech system or NPC feature!`);
+    if (!this.is_mech_system() && !this.is_weapon_mod() && !this.is_npc_feature()) {
+      ui.notifications!.error(`Item ${this.id} is not a mech system, weapon mod, or NPC feature!`);
       return;
     }
     const flow = new SystemFlow(this);
