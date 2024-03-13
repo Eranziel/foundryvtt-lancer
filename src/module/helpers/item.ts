@@ -673,6 +673,13 @@ data-action="set" data-action-value="(int)${i}" data-path="${weapon_path}.system
   let on_hit = profile.on_hit ? effectBox("On Hit", profile.on_hit) : "";
   let on_crit = profile.on_crit ? effectBox("On Crit", profile.on_crit) : "";
 
+  // Generate actions
+  let actions = weapon.system.actions.length > 0 ? buildActionArrayHTML(weapon, `system.actions`) : "";
+  actions +=
+    profile.actions.length > 0
+      ? buildActionArrayHTML(weapon, `system.profiles.${weapon.system.selected_profile_index}.actions`)
+      : "";
+
   let limited = "";
   if (weapon.system.all_tags.some(t => t.is_limited)) {
     limited = limitedUsesIndicator(weapon, weapon_path);
@@ -718,6 +725,8 @@ data-action="set" data-action-value="(int)${i}" data-path="${weapon_path}.system
           ${on_attack}
           ${on_hit}
           ${on_crit}
+          HELLO
+          ${actions}
           ${compactTagListHBS(profile_path + ".all_tags", options)}
         </div>
         ${mod_text}

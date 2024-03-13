@@ -464,7 +464,7 @@ export class LancerItem extends Item {
     ) {
       return this.system.tags;
     } else if (this.is_mech_weapon()) {
-      return this.system.all_tags;
+      return this.system.active_profile.all_tags;
     } else if (this.is_frame()) {
       return this.system.core_system.tags;
     } else {

@@ -92,13 +92,16 @@
             {{{textarea-card "ON CRIT" (concat "system.profiles." prof_index ".on_crit")}}}
 
             {{! Actions }}
-            {{{item-edit-arrayed-actions (concat "system.profiles." prof_index ".actions") "ADDED ACTIONS"}}}
+            {{{item-edit-arrayed-actions (concat "system.profiles." prof_index ".actions") "PROFILE ACTIONS"}}}
 
             {{! Tags }}
             {{{item-edit-arrayed-tags (concat "system.profiles." prof_index ".tags") "TAGS"}}}
           </div>
         </div>
       {{/each}}
+      {{! Actions }}
+      {{{item-edit-arrayed-actions (concat "system.actions") "BASE ACTIONS"}}}
+
     </div>
   </section>
 </form>

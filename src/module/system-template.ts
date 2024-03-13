@@ -387,6 +387,7 @@ export namespace SystemData {
     deployables: LIDRef[];
     integrated: LIDRef[];
     sp: number;
+    actions: ActionData[];
     profiles: Array<{
       name: string;
       type: WeaponType;

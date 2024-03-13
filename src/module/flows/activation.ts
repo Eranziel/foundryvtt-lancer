@@ -76,7 +76,22 @@ export async function initActivationData(
     }
     state.data.title =
       options?.title || state.data.title || state.data.action?.name || state.item.name || "UNKNOWN ACTION";
-    state.data.detail = state.data.detail || state.data.action?.detail || "";
+    let detail_text = state.data.detail || "";
+    if (!detail_text && state.data.action) {
+      if (state.data.action.init) {
+        detail_text += `<p><b>INIT</b></p><p>${state.data.action.init}</p>`;
+      }
+      if (state.data.action.trigger) {
+        detail_text += `<p><b>TRIGGER</b></p><p>${state.data.action.trigger}</p>`;
+      }
+      if (detail_text) {
+        // If the action had an init or trigger, add a header for the effect text
+        detail_text += `<p><b>EFFECT</b></p><p>${state.data.action.detail}</p>`;
+      } else {
+        detail_text += state.data.action.detail || "";
+      }
+    }
+    state.data.detail = detail_text;
 
     // Deal with tags
     state.data.tags = state.item.getTags() ?? [];
