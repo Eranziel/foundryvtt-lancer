@@ -1,6 +1,6 @@
 <div class="card clipped-bot" style="margin: 0px;">
-  <div class="lancer-header lancer-system">
-    {{localize "lancer.chat-card.title.system" system=title}}
+  <div class="{{concat 'lancer-header lancer-' (lower-case type)}}">
+    {{localize (concat "lancer.chat-card.title." (lower-case type)) title=title}}
   </div>
   {{! Effect }}
   <div class="effect-text">

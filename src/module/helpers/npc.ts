@@ -100,7 +100,7 @@ export function npcReactionView(path: string, options: HelperOptions): string {
           ? chargedBox(npc_feature.system.charged, path)
           : ""
       }
-      ${effectBox("TRIGGER", (npc_feature.system as SystemTemplates.NPC.ReactionData).trigger)}
+      ${effectBox("TRIGGER", (npc_feature.system as SystemTemplates.NPC.ReactionData).trigger, { flow: true })}
       ${effectBox("EFFECT", npc_feature.system.effect)}
       ${compactTagListHBS(path + ".system.tags", options)}
     </div>`,

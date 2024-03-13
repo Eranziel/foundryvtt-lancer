@@ -122,7 +122,10 @@
         "overheating": "// OVERHEATING //",
         "cascade": "// CASCADE //",
         "check": "// CHECK :: {check} //",
-        "system": "// SYSTEM :: {system} //"
+        "system": "// SYSTEM :: {title} //",
+        "trait": "// TRAIT :: {title} //",
+        "tech": "// TECH :: {title} //",
+        "reaction": "// REACTION :: {title} //"
       },
       "label": {
         "trigger": "TRIGGER",

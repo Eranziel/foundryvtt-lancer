@@ -5,6 +5,7 @@ import { UUIDRef } from "../source-template";
 import { LancerFlowState } from "./interfaces";
 import { Flow, FlowState } from "./flow";
 import { renderTemplateStep } from "./_render";
+import { NpcFeatureType } from "../enums";
 
 const lp = LANCER.log_prefix;
 
@@ -31,6 +32,7 @@ export class SystemFlow extends Flow<LancerFlowState.SystemUseData> {
   constructor(uuid: UUIDRef | LancerItem, data?: Partial<LancerFlowState.SystemUseData>) {
     const initialData: LancerFlowState.SystemUseData = {
       title: data?.title || "",
+      type: data?.type || null,
       effect: data?.effect || "",
       tags: data?.tags || undefined,
     };
@@ -44,6 +46,17 @@ async function initSystemUseData(state: FlowState<LancerFlowState.SystemUseData>
   if (!state.item || (!state.item.is_mech_system() && !state.item.is_npc_feature()))
     throw new TypeError(`Only mech systems and NPC features can do system flows!`);
   state.data.title = state.data.title || state.item.name!;
+  state.data.type = state.data.type || (state.item.is_mech_system() ? NpcFeatureType.System : state.item.system.type);
+  if (!state.data.effect && state.item.is_npc_feature()) {
+    // Reactions need to combine the trigger and effect
+    if (state.item.system.type === NpcFeatureType.Reaction) {
+      state.data.effect = `<p><b>TRIGGER</b></p><p>${state.item.system.trigger}</p><p><b>EFFECT</b></p><p>${state.item.system.effect}</p>`;
+    } else {
+      state.data.effect = state.item.system.effect;
+    }
+  } else {
+    state.data.effect = state.data.effect || state.item.system.effect;
+  }
   state.data.effect = state.data.effect || state.item.system.effect;
   state.data.tags = state.data.tags || state.item.system.tags;
   // The system incurs self-heat, so set up the data for it

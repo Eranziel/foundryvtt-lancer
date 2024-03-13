@@ -378,7 +378,7 @@ Hooks.once("init", async function () {
     return parseInt(value) - 1;
   });
 
-  // cons, to concatenate strs. Can take any number of args. Last is omitted (as it is just a handlebars ref object)
+  // concat, to concatenate strs. Can take any number of args. Last is omitted (as it is just a handlebars ref object)
   Handlebars.registerHelper("concat", function (...values: any[]) {
     return values.slice(0, values.length - 1).join("");
   });
