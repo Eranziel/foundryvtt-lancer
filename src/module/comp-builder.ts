@@ -80,8 +80,11 @@ export async function importCP(
     // Iterate over everything in core, collecting all lids into a map of LID -> document
     let existing_lids: Map<string, LancerItem | LancerActor> = new Map();
     for (let et of Object.values(EntryType)) {
+      // Skip Mechs and Pilots
+      if ([EntryType.PILOT, EntryType.MECH].includes(et)) continue;
       let pack = await get_pack(et);
       // Get them all
+      // TODO: Use the index to improve performance
       let docs = await pack.getDocuments();
       // Get their ids
       docs.forEach(d => {
@@ -216,8 +219,13 @@ export async function importCP(
     Hooks.off("createItem", progress_hook);
 
     // Finish by forcing all packs to re-prepare
-    for (let p of Object.values(EntryType)) {
-      (await get_pack(p)).clear();
+    const pack_ids = new Set(
+      Object.values(EntryType)
+        .filter(t => [EntryType.MECH, EntryType.PILOT].includes(t))
+        .map(get_pack_id)
+    );
+    for (let p of pack_ids) {
+      game.packs.get(p)?.clear();
     }
     progress_callback(transmitCount, totalItems);
   } catch (err) {
