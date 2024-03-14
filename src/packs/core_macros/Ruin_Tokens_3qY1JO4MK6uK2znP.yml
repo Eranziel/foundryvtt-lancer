@@ -1,7 +1,4 @@
 name: Ruin Tokens
-permission:
-  default: 0
-  taXAFvhByAtu8MoU: 3
 type: script
 flags:
   core:
@@ -34,6 +31,17 @@ command: |-
   });
 author: taXAFvhByAtu8MoU
 img: systems/lancer/assets/icons/macro-icons/generic_item.svg
-actorIds: []
 _id: 3qY1JO4MK6uK2znP
+ownership:
+  default: 0
+  taXAFvhByAtu8MoU: 3
+folder: yxTxiLixDsbyThYC
+sort: 300000
+_stats:
+  systemId: lancer
+  systemVersion: 2.0.0-rc1
+  coreVersion: '11.315'
+  createdTime: null
+  modifiedTime: 1710448436375
+  lastModifiedBy: ci5PqVPSs3DhZWTF
 _key: '!macros!3qY1JO4MK6uK2znP'

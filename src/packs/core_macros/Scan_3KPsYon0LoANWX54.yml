@@ -114,10 +114,17 @@ command: |-
           content: `<h2>Scan results: ${sc_dir.Name}</h2>` + `<h3>Class: ${sc_class}, Tier ${sc_tier}</h3>`  + hase_table_html + stat_table_html + `<h3>Templates:</h3>` + sc_templates + `<h3>Systems:</h3>` + sc_list
       });
   })
-folder: null
-sort: 0
-permission:
+folder: yxTxiLixDsbyThYC
+sort: 112500
+flags: {}
+ownership:
   default: 0
   2a2IgZ2kiAqXSGqu: 3
-flags: {}
+_stats:
+  systemId: lancer
+  systemVersion: 2.0.0-rc1
+  coreVersion: '11.315'
+  createdTime: null
+  modifiedTime: 1710448434625
+  lastModifiedBy: ci5PqVPSs3DhZWTF
 _key: '!macros!3KPsYon0LoANWX54'

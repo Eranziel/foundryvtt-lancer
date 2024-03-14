@@ -25,13 +25,6 @@
   "styles": ["style.css", "fonts/compcon/glyphs.css", "fonts/mdi.css"],
   "packs": [
     {
-      "name": "aoe-templates",
-      "label": "AoE Templates",
-      "system": "lancer",
-      "path": "./packs/aoe_templates",
-      "type": "Macro"
-    },
-    {
       "name": "core_macros",
       "label": "LANCER Macros",
       "system": "lancer",
