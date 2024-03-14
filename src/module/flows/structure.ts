@@ -299,7 +299,7 @@ export async function structureInsertSecondaryRollButton(
       data-flow-type="secondaryStructure"
       data-actor-id="${actor.uuid}"
     >
-      <i class="fas fa-dice-d20 i--sm"></i> TEAR OFF
+      <i class="fas fa-dice-d6 i--sm"></i> TEAR OFF
     </a>`);
   }
   return true;
