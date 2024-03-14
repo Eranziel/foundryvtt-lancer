@@ -15,7 +15,6 @@ export function registerOverheatSteps(flowSteps: Map<string, Step<any, any> | Fl
   flowSteps.set("noStressRemaining", noStressRemaining);
   flowSteps.set("checkOverheatMultipleOnes", checkOverheatMultipleOnes);
   flowSteps.set("overheatInsertEngCheckButton", overheatInsertEngCheckButton);
-  flowSteps.set("overheatInsertCascadeRollButton", overheatInsertCascadeRollButton);
   flowSteps.set("printOverheatCard", printOverheatCard);
 }
 
@@ -30,7 +29,7 @@ export class OverheatFlow extends Flow<LancerFlowState.OverheatRollData> {
     "noStressRemaining",
     "checkOverheatMultipleOnes",
     "overheatInsertEngCheckButton",
-    "overheatInsertCascadeRollButton",
+    "structureInsertCascadeRollButton",
     "printOverheatCard",
   ];
 
@@ -272,29 +271,6 @@ export async function overheatInsertEngCheckButton(
       <i class="fas fa-dice-d20 i--sm"></i> ENGINEERING
     </a>`);
   }
-  return true;
-}
-
-async function overheatInsertCascadeRollButton(state: FlowState<LancerFlowState.OverheatRollData>): Promise<boolean> {
-  if (!state.data) throw new TypeError(`Overheat roll flow data missing!`);
-
-  let actor = state.actor;
-  if (!actor.is_mech() && !actor.is_npc()) {
-    ui.notifications!.warn("Only npcs and mechs can roll overheat.");
-    return false;
-  }
-
-  // Check if the actor has any AI items
-  const aiItems = actor.items.filter(item => item.isAI());
-  if (!aiItems.length) return true;
-  state.data.embedButtons = state.data.embedButtons || [];
-  state.data.embedButtons.push(`<a
-    class="flow-button lancer-button"
-    data-flow-type="cascade"
-    data-actor-id="${actor.uuid}"
-  >
-    <i class="fas fa-dice-d20 i--sm"></i> <span class="horus--subtle">CASCADE</span>
-  </a>`);
   return true;
 }
 
