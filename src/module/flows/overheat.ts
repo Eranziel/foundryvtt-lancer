@@ -123,7 +123,7 @@ function overheatTableDescriptions(roll: number, remStress: number): string {
     case 2:
     case 3:
     case 4:
-      return "The power plant becomes unstable, beginning to eject jets of plasma. Your mech becomes @Compendium[world.status.Exposed.";
+      return "The power plant becomes unstable, beginning to eject jets of plasma. Your mech becomes @Compendium[world.status.Exposed].";
     case 5:
     case 6:
       return "Your mech’s cooling systems manage to contain the increasing heat; however, your mech becomes @Compendium[world.status.Impaired] until the end of your next turn.";
@@ -201,10 +201,20 @@ export async function noStressRemaining(state: FlowState<LancerFlowState.Overhea
   const printCard = (game.lancer.flowSteps as Map<string, Step<any, any> | Flow<any>>).get("printOverheatCard");
   if (!printCard) throw new TypeError(`printOverheatCard flow step missing!`);
   if (typeof printCard !== "function") throw new TypeError(`printOverheatCard flow step is not a function.`);
-  state.data.title = overheatTableTitles[0];
-  state.data.desc = overheatTableDescriptions(0, 0);
-  state.data.result = undefined;
 
+  if (actor.is_npc() && actor.system.stress.max == 1) {
+    state.data.title = overheatTableTitles[3];
+    state.data.desc = overheatTableDescriptions(3, 1);
+    await actor.update({
+      "system.stress": actor.system.stress.value + 1,
+    });
+    state.data.val = 1;
+    state.data.result = undefined;
+  } else {
+    state.data.title = overheatTableTitles[0];
+    state.data.desc = overheatTableDescriptions(0, 0);
+    state.data.result = undefined;
+  }
   printCard(state);
   // This flow is finished now, so we return false to stop the flow.
   return false;
@@ -224,7 +234,7 @@ export async function checkOverheatMultipleOnes(state: FlowState<LancerFlowState
 
   const roll = state.data.result?.roll;
   if (!roll) throw new TypeError(`overheat check hasn't been rolled yet!`);
-  // Crushing hits
+  // Irreversible Meltdowns
   let one_count = (roll.terms as Die[])[0].results.filter(v => v.result === 1).length;
   if (one_count > 1) {
     state.data.title = overheatTableTitles[0];
@@ -259,7 +269,7 @@ export async function overheatInsertEngCheckButton(
       data-check-type="engineering"
       data-actor-id="${actor.uuid}"
     >
-      <i class="fas fa-dice-d6 i--sm"></i> ENGINEERING
+      <i class="fas fa-dice-d20 i--sm"></i> ENGINEERING
     </a>`);
   }
   return true;
@@ -300,41 +310,3 @@ async function printOverheatCard(
   await renderTemplateStep(state.actor, template, state.data);
   return true;
 }
-
-//Old Logic. Leaving it here for posterity for the moment.
-
-/**
- * Performs a roll on the overheat table for the given actor
- * @param actor   - Actor or ID of actor to overheat
- * @param reroll_data - Data to use if rerolling. Setting this also supresses the dialog.
- */
-/*
-export async function prepareOverheatMacro(
-  actor: string | LancerActor,
-  reroll_data?: { stress: number }
-): Promise<void> {
-  // Determine which Actor to speak as
-  actor = LancerActor.fromUuidSync(actor);
-
-  if (!actor.is_mech() && !actor.is_npc()) {
-    ui.notifications!.warn("Only Mechs and NPCs can overheat");
-    return;
-  }
-
-  if (getAutomationOptions().structure && !reroll_data) {
-    if (actor.system.heat.value <= actor.system.heat.max) {
-      ui.notifications!.info("Token heat is within heat cap.");
-      return;
-    }
-    const { openSlidingHud: open } = await import("../helpers/slidinghud");
-    try {
-      await open("stress", { stat: "stress", title: "Overheating", lancerActor: actor });
-    } catch (_e) {
-      return;
-    }
-  }
-
-  // Hand it off to the actor to overheat
-  await actor.strussHelper.overheat(reroll_data);
-}
-*/

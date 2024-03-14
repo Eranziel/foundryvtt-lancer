@@ -1,10 +1,12 @@
 <div class="card clipped-top" style="margin: 0px;">
   <div class="lancer-header lancer-primary struct-stress clipped-top">
-    <i class="cci cci-stress i--m"></i>
+    <i class="cci cci-reactor i--m"></i>
     {{#if reroll_data}}<span class="spacer"></span>{{/if}}
     <div class="flexcol">
-      <span style="align-self: center;">{{localize "lancer.chat-card.title.overheating"}}</span>
-      <span style="align-self: center;">{{localize "lancer.chat-card.remaining" total=val max=max}}</span>
+      <span>{{localize "lancer.chat-card.title.overheating"}}</span>
+      <span style="align-self: center;">
+        {{localize "lancer.chat-card.remaining" total=val max=max}}
+      </span>
     </div>
     {{! TODO: reroll button }}
   </div>
@@ -16,7 +18,7 @@
           <div class="dice-formula lancer-dice-formula flexrow">
             <span style="text-align: left; margin-left: 5px;">{{roll.formula}}</span>
             <span class="dice-total lancer-dice-total major">{{total}}</span>
-            <i class="cci cci-stress i--m"></i>
+            <i class="cci cci-reactor i--m"></i>
           </div>
           {{#if tt}}
             <div style="text-align: left;">
