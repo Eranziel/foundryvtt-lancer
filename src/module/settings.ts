@@ -57,10 +57,11 @@ export const registerSettings = function () {
       gmsDark: "lancer.uiTheme.gmsDark",
       msmc: "lancer.uiTheme.msmc",
       horus: "lancer.uiTheme.horus",
+      ha: "lancer.uiTheme.ha",
     },
     default: "gms",
     onChange: v => {
-      if (!["gms", "gmsDark", "msmc", "horus"].includes(v as string)) applyTheme("gms");
+      if (!["gms", "gmsDark", "msmc", "horus", "ha"].includes(v as string)) applyTheme("gms");
       applyTheme(v as any);
     },
   });

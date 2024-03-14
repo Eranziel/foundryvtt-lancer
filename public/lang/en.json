@@ -148,7 +148,11 @@
       "gms": "GMS Red (default)",
       "gmsDark": "GMS Dark",
       "msmc": "MSMC Solarized",
-      "horus": "HORUS Terminal"
+      "horus": "HORUS Terminal",
+      "ha": "Harrison Armory Ras Shamra",
+      "ssc": "SSC Constellar Congress",
+      "ipsn": "IPS-N Carina",
+      "gal": "FORECAST/GALSIM"
     },
     "statusIconsConfig": {
       "menu-name": "Status Icons",
