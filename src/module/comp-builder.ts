@@ -40,9 +40,10 @@ export async function clearAll(): Promise<void> {
     let pack = game.packs.get(`${PACK_SCOPE}.${p}`);
     if (!pack) continue;
 
-    let docs = await pack.getDocuments();
-    let keys = docs.map(d => d.id!);
+    const keys = Array.from(pack.index.keys());
     await pack.documentClass.deleteDocuments(keys, { pack: pack.collection });
+    // @ts-expect-error Pack folders is V11
+    await Folder.deleteDocuments(Array.from(pack.folders.keys()), { pack: pack.collection });
   }
   await setAllLock(true);
 }
@@ -144,6 +145,23 @@ export async function importCP(
     const createOrUpdateDocs = async (doc_class: any, item_data: Array<any>, et: EntryType) => {
       let existing_updates = [];
       let new_creates = [];
+      let pack = await get_pack(et);
+      let folder: Folder | undefined =
+        // @ts-expect-error Pack folders came with V11
+        pack.metadata.type === "Actor"
+          ? undefined
+          : // @ts-expect-error Pack folders came with V11
+            pack.folders.find(f => f.getFlag(game.system.id, "entrytype") === et) ??
+            (await Folder.create(
+              {
+                // @ts-expect-error Pack folders came with V11
+                name: game.i18n.localize(`TYPES.${pack.metadata.type}.${et}`),
+                // @ts-expect-error Pack folders came with V11
+                type: pack.metadata.type,
+                [`flags.${game.system.id}.entrytype`]: et,
+              },
+              { pack: `world.${et}` }
+            ));
       for (let d of item_data) {
         let existing = existing_lids.get(d.system.lid);
         if (existing) {
@@ -151,8 +169,10 @@ export async function importCP(
           existing_updates.push({
             ...d,
             _id: existing.id,
+            folder: folder?.id,
           });
         } else {
+          d.folder = folder?.id;
           // Formulate as a doc
           new_creates.push(d);
         }
