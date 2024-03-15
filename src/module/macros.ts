@@ -15,6 +15,6 @@ export { prepareChargeMacro } from "./flows/npc";
 // export { prepareTechMacro, rollTechMacro } from "./flows/tech";
 export { prepareTextMacro } from "./flows/text";
 export { prepareStabilizeMacro as stabilizeMacro } from "./flows/stabilize";
-export { prepareOverheatMacro } from "./flows/stress";
 // export { beginStructureFlow, beginSecondaryStructureFlow } from "./flows/structure";
+// export { beginOverheatFlow } from "./flows/overheat";
 // export { prepareFullRepairMacro as fullRepairMacro } from "./flows/full-repair";
