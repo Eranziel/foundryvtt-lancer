@@ -221,7 +221,7 @@ export async function importCP(
     // Finish by forcing all packs to re-prepare
     const pack_ids = new Set(
       Object.values(EntryType)
-        .filter(t => [EntryType.MECH, EntryType.PILOT].includes(t))
+        .filter(t => ![EntryType.MECH, EntryType.PILOT].includes(t))
         .map(get_pack_id)
     );
     for (let p of pack_ids) {
