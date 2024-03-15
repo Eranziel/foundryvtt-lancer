@@ -26,7 +26,7 @@
   "packs": [
     {
       "name": "core_macros",
-      "label": "LANCER Macros",
+      "label": "lancer.compendium.core_macros",
       "system": "lancer",
       "path": "./packs/core_macros",
       "type": "Macro"

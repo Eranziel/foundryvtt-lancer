@@ -213,7 +213,7 @@ export async function get_pack(
       name: basename,
       //@ts-ignore - entity property deprecated, v9 uses type instead.
       type: entity_type,
-      label: basename,
+      label: `lancer.compendium.${basename}`,
       system: "lancer",
       package: "world",
       path: `./packs/${basename}`,

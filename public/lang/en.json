@@ -255,6 +255,15 @@
         "disabled": "Disabled",
         "inherited": "Inherited"
       }
+    },
+    "compendium": {
+      "core_macros": "LANCER Macros",
+      "deployable": "Deployables",
+      "mech-items": "Mech Items",
+      "npc": "NPCs",
+      "npc-items": "NPC Items",
+      "pilot-items": "Pilot Items",
+      "status": "Status/Condition"
     }
   },
   "LANCERINITIATIVE": {
