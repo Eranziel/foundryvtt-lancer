@@ -81,6 +81,8 @@ export async function preOverheatRollChecks(state: FlowState<LancerFlowState.Ove
     let heat = actor.system.heat;
     let stress = actor.system.stress;
     if (heat.value > actor.system.heat.max && stress.value > 0) {
+      // 1-stress NPCs never actually lose their stress, they just become exposed.
+      if (actor.is_npc() && actor.system.stress.max === 1) return true;
       await actor.update({
         "system.stress": stress.value - 1,
         "system.heat": heat.value - actor.system.heat.max,
@@ -141,6 +143,21 @@ export async function rollOverheatTable(state: FlowState<LancerFlowState.Overhea
     return false;
   }
 
+  // Skip this step for 1-stress NPCs.
+  if (actor.is_npc() && actor.system.stress.max === 1) {
+    state.data = {
+      type: "overheat",
+      title: overheatTableTitles[3],
+      desc: overheatTableDescriptions(3, 1),
+      remStress: 1,
+      val: actor.system.stress.value,
+      max: actor.system.stress.max,
+      roll_str: "3",
+      result: undefined,
+    };
+    return true;
+  }
+
   if ((state.data?.reroll_data?.stress ?? actor.system.stress.value) >= actor.system.stress.max) {
     ui.notifications!.info("The mech is at full Stress, no overheat check to roll.");
     return false;
@@ -192,8 +209,8 @@ export async function noStressRemaining(state: FlowState<LancerFlowState.Overhea
   }
 
   if (state.data.remStress > 0) {
-    // The mech is intact, we don't need to do anything in this step.
-    return true;
+    // The mech is intact, we don't need to do anything in this step if it's not a 1-stress NPC.
+    if (!actor.is_npc() || actor.system.stress.max > 1) return true;
   }
 
   // You ded. Print the card and stop the flow.
@@ -204,10 +221,6 @@ export async function noStressRemaining(state: FlowState<LancerFlowState.Overhea
   if (actor.is_npc() && actor.system.stress.max == 1) {
     state.data.title = overheatTableTitles[3];
     state.data.desc = overheatTableDescriptions(3, 1);
-    await actor.update({
-      "system.stress": actor.system.stress.value + 1,
-    });
-    state.data.val = 1;
     state.data.result = undefined;
   } else {
     state.data.title = overheatTableTitles[0];

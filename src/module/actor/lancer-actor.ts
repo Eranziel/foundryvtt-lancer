@@ -520,13 +520,9 @@ export class LancerActor extends Actor {
     ) {
       const data = changed as any; // DeepPartial<RegMechData | RegNpcData>;
       if ((data.system?.heat?.value ?? 0) > this.system.heat.max && this.system.stress.value > 0) {
-        //const flow = new OverheatFlow(this, undefined);
-        //return flow.begin();
         this.beginOverheatFlow();
       }
       if ((data.system?.hp?.value ?? 1) <= 0 && this.system.structure.value > 0) {
-        //const flow = new StructureFlow(this, undefined);
-        //return flow.begin();
         this.beginStructureFlow();
       }
     }
