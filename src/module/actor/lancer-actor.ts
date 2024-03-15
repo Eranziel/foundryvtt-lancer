@@ -79,9 +79,9 @@ export class LancerActor extends Actor {
   system: SystemData.Pilot | SystemData.Mech | SystemData.Npc | SystemData.Deployable;
 
   // These cannot be instantiated the normal way (e.x. via constructor)
-  _configure() {
+  _configure(options: unknown) {
     // @ts-expect-error
-    super._configure();
+    super._configure(options);
     this.effectHelper = new EffectHelper(this);
     this.loadoutHelper = new LoadoutHelper(this);
     this.strussHelper = new StrussHelper(this);
