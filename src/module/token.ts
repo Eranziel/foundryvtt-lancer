@@ -39,7 +39,7 @@ export class LancerTokenDocument extends TokenDocument {
   }
 
   async _preCreate(...[data, options, user]: Parameters<TokenDocument["_preCreate"]>) {
-    if (getAutomationOptions().token_size) {
+    if (getAutomationOptions().token_size && !this.actor?.getFlag(game.system.id, "manual_token_size")) {
       const new_size = Math.max(1, this.actor?.system.size ?? 1);
       // @ts-expect-error v10
       this.updateSource({ width: new_size, height: new_size });
@@ -51,12 +51,9 @@ export class LancerTokenDocument extends TokenDocument {
     // @ts-expect-error
     super._onRelatedUpdate(update, options);
 
-    if (getAutomationOptions().token_size) {
-      const data = update instanceof Array ? update[0] : update;
-      console.log(data);
+    if ((getAutomationOptions().token_size && !game.system.id, "manual_token_size")) {
       let new_size = this.actor?.system.size;
       if (new_size !== undefined) this.update({ width: Math.max(1, new_size), height: Math.max(1, new_size) });
-      console.log(new_size);
     }
   }
 }
