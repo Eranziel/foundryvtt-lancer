@@ -179,15 +179,19 @@ export function get_pack_id(et: EntryType): string {
       id = "npc-items";
       break;
 
-    // actors
+    // player actors
     case EntryType.DEPLOYABLE:
     case EntryType.MECH:
-    case EntryType.NPC:
     case EntryType.PILOT:
+      id = "player-actors";
+      break;
+
+    // NPC actors
+    case EntryType.NPC:
     // conditions
     case EntryType.STATUS:
     default:
-      id = et;
+      id = `${et}-${is_actor_type(et) ? "actors" : "items"}`;
       break;
   }
 
@@ -215,9 +219,9 @@ export async function get_pack(
       type: entity_type,
       label: `lancer.compendium.${basename}`,
       system: "lancer",
+      // sort: PackSort[basename],
       package: "world",
       path: `./packs/${basename}`,
-      private: false,
     };
 
     return CompendiumCollection.createCompendium(metadata);

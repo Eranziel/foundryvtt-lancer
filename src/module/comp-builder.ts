@@ -150,22 +150,20 @@ export async function importCP(
       let existing_updates = [];
       let new_creates = [];
       let pack = await get_pack(et);
-      let folder: Folder | undefined =
-        // @ts-expect-error Pack folders came with V11
-        pack.metadata.type === "Actor"
-          ? undefined
-          : // @ts-expect-error Pack folders came with V11
-            pack.folders.find(f => f.getFlag(game.system.id, "entrytype") === et) ??
-            (await Folder.create(
-              {
-                // @ts-expect-error Pack folders came with V11
-                name: game.i18n.localize(`TYPES.${pack.metadata.type}.${et}`),
-                // @ts-expect-error Pack folders came with V11
-                type: pack.metadata.type,
-                [`flags.${game.system.id}.entrytype`]: et,
-              },
-              { pack: get_pack_id(et) }
-            ));
+      let folder: Folder | undefined = [EntryType.NPC, EntryType.STATUS].includes(et)
+        ? undefined
+        : // @ts-expect-error Pack folders came with V11
+          pack.folders.find(f => f.getFlag(game.system.id, "entrytype") === et) ??
+          (await Folder.create(
+            {
+              // @ts-expect-error Pack folders came with V11
+              name: game.i18n.localize(`TYPES.${pack.metadata.type}.${et}`),
+              // @ts-expect-error Pack folders came with V11
+              type: pack.metadata.type,
+              [`flags.${game.system.id}.entrytype`]: et,
+            },
+            { pack: get_pack_id(et) }
+          ));
       for (let d of item_data) {
         let existing = existing_lids.get(d.system.lid);
         if (existing) {

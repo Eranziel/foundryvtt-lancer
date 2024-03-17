@@ -298,30 +298,27 @@ export async function migrateCompendiumStructure() {
     })
   );
 
-  const ets = Object.values(EntryType).filter(
-    // Don't move these types
-    v => ![EntryType.DEPLOYABLE, EntryType.MECH, EntryType.NPC, EntryType.PILOT, EntryType.STATUS].includes(v)
-  );
+  const ets = Object.values(EntryType);
   for (let et of ets) {
     const documents = (await game.packs.get(`world.${et}`)?.getDocuments()) ?? [];
     console.log(`Moving ${documents.length} ${et} documents`);
     if (documents.length === 0) continue;
     const pack = await get_pack(et);
-    const folder: Folder | undefined =
-      pack.metadata.type === "Actor"
-        ? undefined
-        : pack.folders.find(f => f.getFlag(game.system.id, "entrytype") === et) ??
-          (await Folder.create(
-            {
-              name: game.i18n.localize(`TYPES.${pack.metadata.type}.${et}`),
-              type: pack.metadata.type,
-              [`flags.${game.system.id}.entrytype`]: et,
-            },
-            { pack: get_pack_id(et) }
-          ));
+    const folder: Folder | undefined = [EntryType.NPC, EntryType.STATUS].includes(et)
+      ? undefined
+      : pack.folders.find(f => f.getFlag(game.system.id, "entrytype") === et) ??
+        (await Folder.create(
+          {
+            name: game.i18n.localize(`TYPES.${pack.metadata.type}.${et}`),
+            type: pack.metadata.type,
+            [`flags.${game.system.id}.entrytype`]: et,
+          },
+          { pack: get_pack_id(et) }
+        ));
     const doc_data = documents.map(d => ({ ...d.toObject(), folder: folder?.id }));
+    const doc_class = documents[0].documentName;
 
-    await Item.createDocuments(doc_data, { pack: get_pack_id(et) });
+    await CONFIG[doc_class].documentClass.createDocuments(doc_data, { pack: get_pack_id(et) });
     await game.packs.get(`world.${et}`)?.deleteCompendium();
   }
 }
