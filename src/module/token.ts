@@ -39,7 +39,7 @@ export class LancerTokenDocument extends TokenDocument {
   }
 
   async _preCreate(...[data, options, user]: Parameters<TokenDocument["_preCreate"]>) {
-    if (getAutomationOptions().token_size && !this.actor?.getFlag(game.system.id, "manual_token_size")) {
+    if (getAutomationOptions().token_size && !this.getFlag(game.system.id, "manual_token_size")) {
       const new_size = Math.max(1, this.actor?.system.size ?? 1);
       // @ts-expect-error v10
       this.updateSource({ width: new_size, height: new_size });
@@ -51,7 +51,7 @@ export class LancerTokenDocument extends TokenDocument {
     // @ts-expect-error
     super._onRelatedUpdate(update, options);
 
-    if ((getAutomationOptions().token_size && !game.system.id, "manual_token_size")) {
+    if (getAutomationOptions().token_size && !this.getFlag(game.system.id, "manual_token_size")) {
       let new_size = this.actor?.system.size;
       if (new_size !== undefined) this.update({ width: Math.max(1, new_size), height: Math.max(1, new_size) });
     }
@@ -120,6 +120,32 @@ export class LancerToken extends Token {
     // Make a clone so the cache can't be mutated
     return this._spaces.spaces.map(p => ({ ...p }));
   }
+}
+
+export function extendTokenConfig(...[app, html, _data]: Parameters<Hooks.RenderApplication<TokenConfig>>) {
+  const auto = getAutomationOptions().token_size;
+  if (!auto) return;
+  const manual = (app.object.getFlag(game.system.id, "manual_token_size") ?? false) as boolean;
+  html.find("[name=width]").closest(".form-group").before(`
+    <div class="form-group slim">
+      <label>${game.i18n.localize("lancer.tokenConfig.manual_token_size.label")}</label>
+      <div class="form-fields">
+        <input type="checkbox"
+          name="flags.${game.system.id}.manual_token_size"
+          ${manual ? "checked" : ""}
+        >
+      </div>
+      <p class="hint">${game.i18n.localize("lancer.tokenConfig.manual_token_size.hint")}</p>
+    </div>`);
+  const toggle_inputs = (ev: JQuery.ChangeEvent<HTMLElement, undefined, HTMLElement, HTMLInputElement>) => {
+    const checked = ev.target.checked;
+    html.find("[name=width]").prop("disabled", !checked);
+    html.find("[name=height]").prop("disabled", !checked);
+  };
+  html.find(`[name='flags.${game.system.id}.manual_token_size']`).on("change" as any, toggle_inputs);
+  html.find("[name=width]").prop("disabled", !manual);
+  html.find("[name=height]").prop("disabled", !manual);
+  app.setPosition();
 }
 
 // Make derived fields properly update their intended origin target

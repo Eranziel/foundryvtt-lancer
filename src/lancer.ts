@@ -144,7 +144,7 @@ import { applyCollapseListeners, initializeCollapses } from "./module/helpers/co
 import { handleCombatUpdate } from "./module/helpers/automation/combat";
 import { handleActorExport, validForExport } from "./module/helpers/io";
 import { runEncodedMacro } from "./module/macros";
-import { LancerToken, LancerTokenDocument } from "./module/token";
+import { extendTokenConfig, LancerToken, LancerTokenDocument } from "./module/token";
 import { applyGlobalDragListeners } from "./module/helpers/dragdrop";
 import { gridDist } from "./module/helpers/automation/targeting";
 import CompconLoginForm from "./module/helpers/compcon-login-form";
@@ -662,6 +662,9 @@ Hooks.once("init", async function () {
   // });
 
   Hooks.on("renderCombatCarousel", handleRenderCombatCarousel);
+
+  // Extend TokenConfig for token size automation
+  Hooks.on("renderTokenConfig", extendTokenConfig);
 });
 
 /* ------------------------------------ */
