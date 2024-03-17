@@ -166,11 +166,11 @@ Non-Flow steps are simply functions which take the flow's current state and (opt
   - [x] `prepareStatMacro(actor: string | LancerActor, statKey: string)`
   - [x] `prepareSkillMacro(item: string | LancerItem)`
   - [x] `rollStatMacro(data: LancerMacro.StatRoll)`
-- [ ] `stress.ts`
-  - [ ] `prepareOverheatMacro(actor: string | LancerActor, reroll_data?: { stress: number }): Promise<void>`
-- [ ] `structure.ts`
-  - [ ] `prepareStructureMacro(actor: string | LancerActor, reroll_data?: { structure: number }): Promise<void>`
-  - [ ] `prepareStructureSecondaryRollMacro(actor: string | LancerActor)`
+- [x] `stress.ts`
+  - [x] `prepareOverheatMacro(actor: string | LancerActor, reroll_data?: { stress: number }): Promise<void>`
+- [x] `structure.ts`
+  - [x] `prepareStructureMacro(actor: string | LancerActor, reroll_data?: { structure: number }): Promise<void>`
+  - [x] `prepareStructureSecondaryRollMacro(actor: string | LancerActor)`
 - [x] `system.ts`
   - [x] `prepareSystemMacro(item: string | LancerItem)`
 - [x] `talent.ts`
