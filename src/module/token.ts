@@ -1,3 +1,4 @@
+import { getAutomationOptions } from "./settings";
 import { correctLegacyBarAttribute } from "./util/migrations";
 
 declare global {
@@ -35,6 +36,28 @@ export class LancerTokenDocument extends TokenDocument {
 
     // @ts-expect-error
     return super.migrateData(source);
+  }
+
+  async _preCreate(...[data, options, user]: Parameters<TokenDocument["_preCreate"]>) {
+    if (getAutomationOptions().token_size) {
+      const new_size = Math.max(1, this.actor?.system.size ?? 1);
+      // @ts-expect-error v10
+      this.updateSource({ width: new_size, height: new_size });
+    }
+    return super._preCreate(data, options, user);
+  }
+
+  _onRelatedUpdate(update: any, options: any) {
+    // @ts-expect-error
+    super._onRelatedUpdate(update, options);
+
+    if (getAutomationOptions().token_size) {
+      const data = update instanceof Array ? update[0] : update;
+      console.log(data);
+      let new_size = this.actor?.system.size;
+      if (new_size !== undefined) this.update({ width: Math.max(1, new_size), height: Math.max(1, new_size) });
+      console.log(new_size);
+    }
   }
 }
 

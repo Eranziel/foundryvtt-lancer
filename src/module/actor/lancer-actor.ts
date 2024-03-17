@@ -528,26 +528,6 @@ export class LancerActor extends Actor {
         this.beginStructureFlow();
       }
     }
-
-    // If the Size of the ent has changed since the last update, set the
-    // protype token size to the new size
-    const expected_size = Math.max(1, this.system.size);
-    // Update either prototype token or the token itself depending
-    // @ts-expect-error prototypeToken is not in the types
-    const token = this.token ?? this.prototypeToken;
-    if (token && token.width !== expected_size) {
-      token.update({
-        width: expected_size,
-        height: expected_size,
-        flags: {
-          "hex-size-support": {
-            borderSize: expected_size,
-            altSnapping: true,
-            evenSnap: !(expected_size % 2),
-          },
-        },
-      });
-    }
   }
 
   /** @inheritdoc
