@@ -28,7 +28,7 @@ const frame_schema = {
     repcap: new fields.NumberField({ integer: true, minimum: 0, initial: 0 }),
     save: new fields.NumberField({ integer: true, minimum: 0, initial: 10 }),
     sensor_range: new fields.NumberField({ integer: true, minimum: 0, initial: 10 }),
-    size: new fields.NumberField({ integer: true, minimum: 0, initial: 1 }),
+    size: new fields.NumberField({ integer: false, minimum: 0.5, initial: 1 }),
     sp: new fields.NumberField({ integer: true, minimum: 0, initial: 0 }),
     speed: new fields.NumberField({ integer: true, minimum: 0, initial: 4 }),
     stress: new fields.NumberField({ integer: true, minimum: 0, initial: 4 }),

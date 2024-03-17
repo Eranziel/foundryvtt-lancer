@@ -429,7 +429,7 @@ export class NpcStatBlockField extends fields.SchemaField {
         agi: new fields.NumberField({ integer: true, nullable, initial: nullable ? null : 0 }),
         sys: new fields.NumberField({ integer: true, nullable, initial: nullable ? null : 0 }),
         eng: new fields.NumberField({ integer: true, nullable, initial: nullable ? null : 0 }),
-        size: new fields.NumberField({ integer: true, nullable, initial: nullable ? null : 1 }),
+        size: new fields.NumberField({ integer: false, nullable, minimum: 0.5, initial: nullable ? null : 1 }),
         structure: new fields.NumberField({ integer: true, nullable, initial: nullable ? null : 1 }),
         stress: new fields.NumberField({ integer: true, nullable, initial: nullable ? null : 1 }),
       },
