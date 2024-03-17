@@ -657,6 +657,23 @@ export class LancerActor extends Actor {
     });
   }
 
+  /**
+   * Taking a new frame/class, set the prototype token size
+   * @param newFrame - The new frame or class to pull the size from.
+   */
+  async updateTokenSize(newFrame: LancerFRAME | LancerNPC_CLASS): Promise<void> {
+    let new_size: number | undefined;
+    if (newFrame.is_frame() && this.is_mech()) {
+      new_size = Math.max(1, newFrame.system.stats.size);
+    } else if (newFrame.is_npc_class() && this.is_npc()) {
+      const tier = this.system.tier || 1;
+      new_size = Math.max(1, newFrame.system.base_stats[tier - 1].size);
+    }
+    if (!new_size) return;
+    // @ts-expect-error
+    await this.prototypeToken.update({ height: new_size, width: new_size });
+  }
+
   // Checks that the provided document is not null, and is a lancer actor
   static async fromUuid(x: string | LancerActor, messagePrefix?: string): Promise<LancerActor> {
     if (x instanceof LancerActor) return x;
