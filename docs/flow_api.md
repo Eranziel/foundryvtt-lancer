@@ -151,9 +151,9 @@ Non-Flow steps are simply functions which take the flow's current state and (opt
   - [ ] Add metadata to these types to facilitate flow extensibility
 - [x] `item.ts`
   - [x] `prepareItemMacro(item: string | LancerItem, options?: {rank?: number; title?: string; display?: boolean;})`
-- [ ] `npc.ts`
-  - [ ] `prepareNPCFeatureMacro(item: string | LancerItem, options?: {display?: boolean;})`
-  - [ ] `prepareChargeMacro(actor: string | LancerActor)`
+- [x] `npc.ts`
+  - [x] `prepareNPCFeatureMacro(item: string | LancerItem, options?: {display?: boolean;})`
+  - [x] `prepareChargeMacro(actor: string | LancerActor)`
 - [x] `overcharge.ts`
   - [x] `encodeOverchargeMacroData(actor_uuid: string): string`
   - [x] `prepareOverchargeMacro(actor: LancerActor | string)`
