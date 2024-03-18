@@ -117,7 +117,7 @@
         "on-hit": "// ON HIT //",
         "on-crit": "// ON CRIT //",
         "charge-roll": "// CHARGE ROLL //",
-        "changes": "// CHANGES //",
+        "recharged": "// RECHARGED //",
         "structure": "// STRUCTURE DAMAGE //",
         "overheating": "// OVERHEATING //",
         "cascade": "// CASCADE //",

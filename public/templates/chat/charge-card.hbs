@@ -1,32 +1,31 @@
-<div class="card clipped-bot" style="margin: 0px;">
+<div class="card clipped">
+  <div class="lancer-header lancer-primary">
+    {{localize "lancer.chat-card.title.charge-roll"}}
+  </div>
+  {{{lancer-dice-roll result.roll result.tt "mdi mdi-refresh i--m"}}}
+</div>
+{{#if charged.length}}
   <div class="card clipped">
     <div class="lancer-header lancer-primary">
-      {{localize "lancer.chat-card.title.charge-roll"}}
+      {{localize "lancer.chat-card.title.recharged"}}
     </div>
-    {{{lancer-dice-roll result.roll result.tt "mdi mdi-refresh i--m"}}}
-    <div class="card clipped">
-      <div class="lancer-header lancer-primary">
-        {{localize "lancer.chat-card.title.changes"}}
-      </div>
-      {{#each charged as |charge key|}}
-        <div class="lancer-hit">
-          <div></div>
-          <div class="lancer-hit-text">
-            <span class="lancer-hit-text-name">
-              {{charge.name}}
+    {{#each charged as |charge key|}}
+      <div class="lancer-hit">
+        <div class="lancer-hit-text">
+          <span class="lancer-hit-text-name">
+            {{charge.name}}
+          </span>
+          {{#if charge.charged}}
+            <span class="card clipped lancer-charge-chip charged">
+              {{localize "lancer.chat-card.overcharge.charged" target=charge.target}}
             </span>
-            {{#if charge.charged}}
-              <span class="card clipped lancer-charge-chip charged">
-                {{localize "lancer.chat-card.overcharge.charged" target=charge.target}}
-              </span>
-            {{else}}
-              <span class="card clipped lancer-charge-chip">
-                {{localize "lancer.chat-card.overcharge.uncharged" target=charge.target}}
-              </span>
-            {{/if}}
-          </div>
+          {{else}}
+            <span class="card clipped lancer-charge-chip">
+              {{localize "lancer.chat-card.overcharge.uncharged" target=charge.target}}
+            </span>
+          {{/if}}
         </div>
-      {{/each}}
-    </div>
+      </div>
+    {{/each}}
   </div>
-</div>
+{{/if}}

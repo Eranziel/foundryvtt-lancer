@@ -65,9 +65,11 @@ async function applyRecharge(state: FlowState<LancerFlowState.RechargeRollData>)
     const item = await LancerItem.fromUuid(uuid);
     if (!item || item.parent !== state.actor || !item.is_npc_feature()) continue;
     const recharge = item.system.tags.find(tag => tag.is_recharge);
-    if (recharge && recharge.num_val && recharge.num_val <= (state.data.result?.roll.total ?? 0)) {
-      await item.update({ "system.charged": true });
-      state.data.charged.push({ name: item.name!, target: recharge.num_val, charged: true });
+    if (recharge) {
+      if (recharge.num_val && recharge.num_val <= (state.data.result?.roll.total ?? 0)) {
+        await item.update({ "system.charged": true });
+      }
+      state.data.charged.push({ name: item.name!, target: recharge.num_val ?? 0, charged: item.system.charged });
     }
   }
   return true;
