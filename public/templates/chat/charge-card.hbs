@@ -3,25 +3,25 @@
     <div class="lancer-header lancer-primary">
       {{localize "lancer.chat-card.title.charge-roll"}}
     </div>
-    {{{lancer-dice-roll roll roll_tooltip "mdi mdi-refresh i--m"}}}
+    {{{lancer-dice-roll result.roll result.tt "mdi mdi-refresh i--m"}}}
     <div class="card clipped">
       <div class="lancer-header lancer-primary">
         {{localize "lancer.chat-card.title.changes"}}
       </div>
-      {{#each changed as |change key|}}
+      {{#each charged as |charge key|}}
         <div class="lancer-hit">
           <div></div>
           <div class="lancer-hit-text">
             <span class="lancer-hit-text-name">
-              {{change.name}}
+              {{charge.name}}
             </span>
-            {{#if change.charged}}
+            {{#if charge.charged}}
               <span class="card clipped lancer-charge-chip charged">
-                {{localize "lancer.chat-card.overcharge.charged" target=change.target}}
+                {{localize "lancer.chat-card.overcharge.charged" target=charge.target}}
               </span>
             {{else}}
               <span class="card clipped lancer-charge-chip">
-                {{localize "lancer.chat-card.overcharge.uncharged" target=change.target}}
+                {{localize "lancer.chat-card.overcharge.uncharged" target=charge.target}}
               </span>
             {{/if}}
           </div>

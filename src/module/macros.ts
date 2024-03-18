@@ -8,7 +8,11 @@ export { renderTemplateStep as renderMacroTemplate, createChatMessageStep as ren
 // export { prepareAttackMacro, rollAttackMacro } from "./flows/attack";
 // export { prepareCoreActiveMacro, prepareCorePassiveMacro, prepareFrameTraitMacro } from "./flows/frame";
 // export { prepareItemMacro } from "./flows/item";
-export { prepareChargeMacro } from "./flows/npc";
+
+// HACK ALERT: For some reason, removing all exports from ./flows/npc causes the built
+// output to fail - it puts some Flow child class declarations before the Flow class declaration itself.
+export { registerNPCSteps } from "./flows/npc";
+
 // export { prepareOverchargeMacro } from "./flows/overcharge";
 // export { prepareStatMacro } from "./flows/stat";
 // export { prepareTalentMacro } from "./flows/talent";

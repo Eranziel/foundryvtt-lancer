@@ -19,6 +19,7 @@ import { TechAttackFlow } from "../flows/tech";
 import { FullRepairFlow } from "../flows/full-repair";
 import { StatRollFlow } from "../flows/stat";
 import { OverchargeFlow } from "../flows/overcharge";
+import { NPCRechargeFlow } from "../flows/npc";
 import * as lancer_data from "@massif/lancer-data";
 
 const lp = LANCER.log_prefix;
@@ -728,6 +729,15 @@ export class LancerActor extends Actor {
       return false;
     }
     const flow = new OverchargeFlow(this);
+    return await flow.begin();
+  }
+
+  async beginRechargeFlow(): Promise<boolean> {
+    if (!this.is_npc()) {
+      ui.notifications!.warn(`Only NPCs can recharge!`);
+      return false;
+    }
+    const flow = new NPCRechargeFlow(this);
     return await flow.begin();
   }
 

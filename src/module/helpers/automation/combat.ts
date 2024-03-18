@@ -1,7 +1,6 @@
 import { LancerCombat } from "../../combat/lancer-combat";
 import { modAction } from "../../action/action-tracker";
 import { LancerActor } from "../../actor/lancer-actor";
-import { prepareChargeMacro } from "../../macros";
 import { prepareActionTrackMacro } from "../../flows/action-track";
 import { getActionTrackerOptions, getAutomationOptions } from "../../settings";
 
@@ -32,7 +31,9 @@ function processStartTurn(actor: LancerActor) {
   console.log(`Processing start-of-turn combat automation for ${actor.name}`);
 
   // Handle NPC charges.
-  prepareChargeMacro(actor);
+  if (actor.is_npc()) {
+    actor.beginRechargeFlow();
+  }
 
   // Refresh actions.
   modAction(actor, false);

@@ -184,6 +184,12 @@ export namespace LancerFlowState {
     level: number;
   }
 
+  export interface RechargeRollData extends Omit<BaseRollData, "type"> {
+    type: "recharge";
+    recharging_uuids: string[];
+    charged: { name: string; target: number; charged: boolean }[];
+  }
+
   export interface PrimaryStructureRollData extends Omit<BaseRollData, "type"> {
     type: "structure";
     desc: string;

@@ -6,7 +6,7 @@ import { handleRefDragging, handleRefSlotDropping, handleRefClickOpen, handleUse
 import type { LancerActorSheetData } from "../interfaces";
 import { LancerItem } from "../item/lancer-item";
 import { LancerActor, LancerActorType } from "./lancer-actor";
-import { prepareChargeMacro, runEncodedMacro } from "../macros";
+import { runEncodedMacro } from "../macros";
 import { ActivationOptions } from "../enums";
 import { applyCollapseListeners, CollapseHandler, initializeCollapses } from "../helpers/collapse";
 import { addExportButton } from "../helpers/io";
@@ -359,7 +359,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
     ChargeMacro.on("click", ev => {
       ev.stopPropagation(); // Avoids triggering parent event handlers
 
-      prepareChargeMacro(this.actor);
+      this.actor.beginRechargeFlow();
     });
   }
 
