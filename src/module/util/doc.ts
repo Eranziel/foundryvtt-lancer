@@ -218,6 +218,7 @@ export async function get_pack(
       //@ts-ignore - entity property deprecated, v9 uses type instead.
       type: entity_type,
       label: `lancer.compendium.${basename}`,
+      banner: `./systems/lancer/assets/banners/${basename}.svg`,
       system: "lancer",
       // sort: PackSort[basename],
       package: "world",

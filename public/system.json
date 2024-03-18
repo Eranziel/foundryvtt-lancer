@@ -27,6 +27,7 @@
     {
       "name": "core_macros",
       "label": "lancer.compendium.core_macros",
+      "banner": "./systems/lancer/assets/banners/core_macros.svg",
       "system": "lancer",
       "path": "./packs/core_macros",
       "type": "Macro"
