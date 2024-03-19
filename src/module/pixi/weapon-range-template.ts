@@ -186,7 +186,20 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
           reject(new Error("Template creation failed"));
           return;
         }
-        resolve(template);
+        // in order to ensure the template is in a useful state, we poll until
+        // it's rendered and only then resolve the promise.
+        let n_polls = 0;
+        const poll = setInterval(() => {
+          ++n_polls;
+          // @ts-expect-error
+          if (template.object?.shape) {
+            clearInterval(poll);
+            resolve(template);
+          } else if (n_polls >= 100) {
+            clearInterval(poll);
+            reject(new Error(`Failed to draw template after ${n_polls * 5}ms`));
+          }
+        }, 5);
       };
 
       // Rotate the template by 3 degree increments (mouse-wheel)
@@ -196,7 +209,7 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
         let delta = canvas.grid!.type > CONST.GRID_TYPES.SQUARE ? 30 : 15;
         let snap = event.shiftKey ? delta : 5;
         //@ts-expect-error
-        this.document.updateSource({ direction: this.data.direction + snap * Math.sign(event.deltaY) });
+        this.document.updateSource({ direction: this.document.direction + snap * Math.sign(event.deltaY) });
         this.refresh();
       };
 
