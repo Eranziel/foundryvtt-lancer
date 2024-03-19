@@ -10,6 +10,55 @@ declare global {
 }
 
 /**
+ * Get an array of cube coordinates corresponding to a token of size and
+ * alternate orientation on grid type. Coordinates are relative to the space
+ * that foundry considers the center of the token to be in. Even sized shapes
+ * will be rotated according to whether the grid is columnar and whether the
+ * token is on alternate orientation.
+ */
+function cubesBySize({
+  size,
+  alt,
+  columns,
+}: {
+  size: number;
+  alt: boolean;
+  columns: boolean;
+}): { q: number; r: number; s: number }[] {
+  if (size % 2 === 1) {
+    let l = Math.floor(size / 2);
+    let res = [];
+    for (let q = -l; q <= l; ++q) {
+      for (let r = Math.max(-l, -q - l); r <= Math.min(l, -q + l); ++r) {
+        res.push({ q, r, s: -q - r });
+      }
+    }
+    return res;
+  } else {
+    return cubesBySize({ size: size + 1, alt, columns })
+      .filter(c => {
+        if (c.r >= 0 && Math.abs(c.q) + Math.abs(c.r) + Math.abs(c.s) === size) {
+          return false;
+        }
+        return true;
+      })
+      .map(c => {
+        if (!alt && !columns) return c;
+        if (!alt && columns) return { q: c.r, r: c.s, s: c.q };
+        return { q: -c.s, r: -c.q, s: -c.r };
+      });
+  }
+}
+
+function altOrientation(token: LancerToken): boolean {
+  // @ts-expect-error
+  const HSSisAltOrientation = game.modules.get("hex-size-support")?.api?.isAltOrientation;
+  // @ts-expect-error
+  if (!HSSisAltOrientation) return token.document.width === 2;
+  return HSSisAltOrientation(token);
+}
+
+/**
  * Extend the base TokenDocument class to implement system-specific HP bar logic.
  * @extends {TokenDocument}
  */
@@ -63,38 +112,56 @@ export class LancerToken extends Token {
   getOccupiedSpaces(): Point[] {
     let pos: { x: number; y: number } = { x: this.x, y: this.y };
     // Invalidate the cache if the position is different than when it was last calculated.
+    // TODO Evaluate whether caching this is even needed now that PIXI isn't responsible for the calculation
     if (Math.floor(pos.x) !== Math.floor(this._spaces.at.x) || Math.floor(pos.y) !== Math.floor(this._spaces.at.y)) {
       this._spaces.at = { ...pos };
       this._spaces.spaces = [];
     }
 
-    if (this._spaces.spaces.length === 0 && canvas?.grid?.type !== CONST.GRID_TYPES.GRIDLESS) {
-      let hitBox: PIXI.IHitArea;
-      if (this.hitArea instanceof PIXI.Polygon) {
-        let poly_points: number[] = [];
-        for (let i = 0; i < this.hitArea.points.length - 1; i += 2) {
-          poly_points.push(this.hitArea.points[i] + pos.x, this.hitArea.points[i + 1] + pos.y);
+    if (this._spaces.spaces.length === 0) {
+      if (canvas.grid?.isHex) {
+        // @ts-expect-error
+        const cube_space = HexagonalGrid.offsetToCube(
+          // @ts-expect-error
+          HexagonalGrid.pixelsToOffset(this.center, canvas.grid.grid.options),
+          // @ts-expect-error
+          canvas.grid.grid.options
+        );
+        const cubes = cubesBySize({
+          // @ts-expect-error
+          size: this.document.width,
+          alt: altOrientation(this),
+          columns: canvas.grid!.grid!.options.columns!,
+        }).map(c => ({
+          q: c.q + cube_space.q,
+          r: c.r + cube_space.r,
+          s: c.s + cube_space.s,
+        }));
+        this._spaces.spaces = cubes.map(c => {
+          // @ts-expect-error
+          const p = HexagonalGrid.offsetToPixels(
+            // @ts-expect-error
+            HexagonalGrid.cubeToOffset(c, canvas.grid.grid.options),
+            // @ts-expect-error
+            canvas.grid.grid.options
+          );
+          [p.x, p.y] = canvas.grid!.getCenter(p.x, p.y);
+          return p;
+        });
+      } else if (canvas.grid?.type === CONST.GRID_TYPES.SQUARE) {
+        // @ts-expect-error
+        for (let i = 0; i < this.document.width; ++i) {
+          // @ts-expect-error
+          for (let j = 0; j < this.document.height; ++j) {
+            this._spaces.spaces.push({
+              x: this.position.x + (i + 0.5) * canvas.grid.w,
+              y: this.position.y + (j + 0.5) * canvas.grid.h,
+            });
+          }
         }
-        hitBox = new PIXI.Polygon(poly_points);
-      } else if (this.hitArea instanceof PIXI.Rectangle) {
-        hitBox = new PIXI.Rectangle(pos.x, pos.y, this.hitArea.width, this.hitArea.height);
       } else {
-        // TODO, handle all possible hitArea shapes
-        return this._spaces.spaces.map(p => ({ ...p }));
-      }
-
-      // Get token grid coordinate
-      const [tx, ty] = canvas.grid!.grid?.getGridPositionFromPixels(pos.x, pos.y)!;
-
-      // TODO: Gridless isn't handled, probably split this off to two utility
-      // functions that handle gridded vs gridless properly
-      for (let i = tx - 1; i <= tx + this.width + 1; i++) {
-        for (let j = ty - 1; j <= ty + this.height + 1; j++) {
-          let pos = { x: 0, y: 0 };
-          [pos.x, pos.y] = canvas.grid!.grid!.getPixelsFromGridPosition(i, j);
-          [pos.x, pos.y] = canvas.grid!.getCenter(pos.x + 1, pos.y + 1);
-          if (hitBox.contains(pos.x, pos.y)) this._spaces.spaces.push(pos);
-        }
+        // Gridless needs to use different calcs
+        this._spaces.spaces.push({ ...this.center });
       }
     }
     // Make a clone so the cache can't be mutated
