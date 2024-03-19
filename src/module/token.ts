@@ -145,8 +145,7 @@ export class LancerToken extends Token {
             // @ts-expect-error
             canvas.grid.grid.options
           );
-          [p.x, p.y] = canvas.grid!.getCenter(p.x, p.y);
-          return p;
+          return { x: p.x + Math.floor(canvas.grid!.grid!.w / 2), y: p.y + Math.floor(canvas.grid!.grid!.h / 2) };
         });
       } else if (canvas.grid?.type === CONST.GRID_TYPES.SQUARE) {
         // @ts-expect-error
