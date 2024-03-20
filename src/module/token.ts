@@ -16,6 +16,7 @@ declare global {
  * will be rotated according to whether the grid is columnar and whether the
  * token is on alternate orientation.
  */
+// https://www.redblobgames.com/grids/hexagons/
 function cubesBySize({
   size,
   alt,
@@ -35,18 +36,18 @@ function cubesBySize({
     }
     return res;
   } else {
-    return cubesBySize({ size: size + 1, alt, columns })
-      .filter(c => {
-        if (c.r >= 0 && Math.abs(c.q) + Math.abs(c.r) + Math.abs(c.s) === size) {
-          return false;
-        }
-        return true;
-      })
-      .map(c => {
-        if (!alt && !columns) return c;
-        if (!alt && columns) return { q: c.r, r: c.s, s: c.q };
-        return { q: -c.s, r: -c.q, s: -c.r };
-      });
+    // Even size. Get the next larger size and remove spaces on the edge at and below the centerline
+    return (
+      cubesBySize({ size: size + 1, alt, columns })
+        // non-negative r is the center line and below, edge is size/2 spaces from the "center"
+        .filter(c => !(c.r >= 0 && (Math.abs(c.q) + Math.abs(c.r) + Math.abs(c.s)) / 2 === size / 2))
+        // Rotate based on token and grid settings
+        .map(c => {
+          if (!alt && !columns) return c;
+          if (!alt && columns) return { q: c.r, r: c.s, s: c.q };
+          return { q: -c.s, r: -c.q, s: -c.r };
+        })
+    );
   }
 }
 
