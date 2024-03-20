@@ -2,6 +2,7 @@ import { LancerActor, LancerDEPLOYABLE } from "../actor/lancer-actor";
 import { FetcherCache, PENDING, RepentantFetcherCache } from "./async";
 import { LancerItem } from "../item/lancer-item";
 import { EntryType } from "../enums";
+import { get_pack_id } from "./doc";
 
 // Converts the index into a map of LID -> index entry
 const indexFastCache = new FetcherCache<string, Map<string, any> | null>(async (pack: string) => {
@@ -38,7 +39,7 @@ const lookupLIDPluralCache = new RepentantFetcherCache<string, Array<LancerActor
     let result: Array<LancerActor | LancerItem> = [];
     // Dig through compendium
     for (let t of types) {
-      let pack_name = `world.${t}`;
+      let pack_name = get_pack_id(t);
       let pack = game.packs.get(pack_name);
       if (!pack) {
         console.error(`Pack not found: ${pack_name}`);

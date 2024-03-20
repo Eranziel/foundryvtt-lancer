@@ -3,6 +3,7 @@ import { handleContextMenus } from "../helpers/item";
 import { EntryType } from "../enums";
 import { LancerItem, LancerLICENSE } from "./lancer-item";
 import { handleDocDropping } from "../helpers/dragdrop";
+import { get_pack_id } from "../util/doc";
 
 /**
  * Extend the generic Lancer item sheet
@@ -31,7 +32,7 @@ export class LancerLicenseSheet extends LancerItemSheet<EntryType.LICENSE> {
 
     // Find the assoc frame
     for (let et of [EntryType.FRAME, EntryType.MECH_SYSTEM, EntryType.MECH_WEAPON, EntryType.WEAPON_MOD]) {
-      let pack = game.packs.get(`world.${et}`);
+      let pack = game.packs.get(get_pack_id(et));
       if (pack) {
         let index = await pack.getIndex();
         // @ts-expect-error
