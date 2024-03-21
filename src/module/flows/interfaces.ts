@@ -178,6 +178,10 @@ export namespace LancerFlowState {
     html: string;
   }
 
+  export interface ActionTrackData extends TextRollData {
+    start: boolean;
+  }
+
   // Configuration passed to show an overcharge roll
   export interface OverchargeRollData extends Omit<BaseRollData, "type"> {
     type: "overcharge";

@@ -109,9 +109,9 @@ Non-Flow steps are simply functions which take the flow's current state and (opt
   - [x] `renderMacroHTML(actor: LancerActor | undefined, html: HTMLElement | string, roll?: Roll)` -> createChatMessageStep, make actor required
 - [ ] `_template.ts`
   - [ ] `targetsFromTemplate(templateId: string): void`
-- [ ] `action-track.ts`
-  - [ ] `prepareActionTrackMacro(actor: string | LancerActor, start: boolean)`
-  - [ ] `condensedActionButtonHTML(actor: LancerActor, actions: ActionTrackingData)` (actor is unused?)
+- [x] `action-track.ts`
+  - [x] `prepareActionTrackMacro(actor: string | LancerActor, start: boolean)`
+  - [x] `condensedActionButtonHTML(actor: LancerActor, actions: ActionTrackingData)` (actor is unused?)
 - [ ] `activations.ts`
   - [x] `prepareActivationMacro(item: string | LancerItem, type: ActivationOptions, path: string)`
   - [x] ~~`prepareTechActionMacro(item: LancerItem, path: string)` (unused)~~

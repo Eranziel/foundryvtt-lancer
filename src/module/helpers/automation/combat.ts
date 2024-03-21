@@ -1,7 +1,7 @@
 import { LancerCombat } from "../../combat/lancer-combat";
 import { modAction } from "../../action/action-tracker";
 import { LancerActor } from "../../actor/lancer-actor";
-import { prepareActionTrackMacro } from "../../flows/action-track";
+import { ActionTrackFlow } from "../../flows/action-track";
 import { getActionTrackerOptions, getAutomationOptions } from "../../settings";
 
 export async function handleCombatUpdate(...[combat, changed]: Parameters<Hooks.UpdateDocument<typeof Combat>>) {
@@ -14,14 +14,14 @@ export async function handleCombatUpdate(...[combat, changed]: Parameters<Hooks.
       const nextActor = lookup(combat, (combat.current as any).combatantId);
       const prevActor = lookup(combat, (combat.previous as any).combatantId);
 
-      // Handle refreshing for next combatant.
-      if (nextActor) {
-        processStartTurn(nextActor);
-      }
-
       // Handle end-of-turn for previous combatant.
       if (prevActor) {
         processEndTurn(prevActor);
+      }
+
+      // Handle refreshing for next combatant.
+      if (nextActor) {
+        processStartTurn(nextActor);
       }
     }
   }
@@ -43,7 +43,7 @@ function processStartTurn(actor: LancerActor) {
 
   // Print chat messages.
   if (getActionTrackerOptions().printMessages) {
-    prepareActionTrackMacro(actor.id!, true);
+    new ActionTrackFlow(actor, { start: true }).begin();
   }
 }
 
@@ -55,7 +55,7 @@ function processEndTurn(actor: LancerActor) {
 
   // Print chat messages.
   if (getActionTrackerOptions().printMessages) {
-    prepareActionTrackMacro(actor.id!, false);
+    new ActionTrackFlow(actor, { start: false }).begin();
   }
 }
 

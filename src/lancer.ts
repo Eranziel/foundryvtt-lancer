@@ -202,6 +202,7 @@ import { beginSecondaryStructureFlow, registerStructureSteps } from "./module/fl
 import { registerOverheatSteps } from "./module/flows/overheat";
 import { beginCascadeFlow, registerCascadeSteps } from "./module/flows/cascade";
 import { registerNPCSteps } from "./module/flows/npc";
+import { registerActionTrackSteps } from "./module/flows/action-track";
 
 const lp = LANCER.log_prefix;
 
@@ -301,6 +302,7 @@ Hooks.once("init", async function () {
   registerBondPowerSteps(flowSteps);
   registerFullRepairSteps(flowSteps);
   registerNPCSteps(flowSteps);
+  registerActionTrackSteps(flowSteps);
   // Assign custom classes and constants here
   // Create a Lancer namespace within the game global
   game.lancer = {

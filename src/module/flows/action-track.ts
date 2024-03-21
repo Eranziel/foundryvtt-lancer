@@ -1,31 +1,53 @@
 import { ActionTrackingData } from "../action";
 import { getActions } from "../action/action-tracker";
 import { LancerActor } from "../actor/lancer-actor";
-import { prepareTextMacro } from "./text";
+import { Flow, FlowState, Step } from "./flow";
+import { LancerFlowState } from "./interfaces";
+import { printGenericCard } from "./text";
 
-/**
- * Renders out an update of the current action status for a turn change in combat.
- * @param actor     String of the actor UUID to roll the macro as
- * @param start True if start of turn, false if end of turn
- */
-export function prepareActionTrackMacro(actor: string | LancerActor, start: boolean) {
-  // Determine which Actor to speak as
-  actor = LancerActor.fromUuidSync(actor);
-
-  const actions = getActions(actor);
-  if (!actions) return;
-
-  let text: string;
-  if (start) {
-    text = `// ${actor.name} is starting their turn. //`;
-  } else {
-    text = `// ${actor.name} is ending their turn: //<br/>`;
-    text += condensedActionButtonHTML(actor, actions);
-  }
-  prepareTextMacro(actor, "Action Status", text);
+export function registerActionTrackSteps(flowSteps: Map<string, Step<any, any> | Flow<any>>) {
+  flowSteps.set("checkActions", checkActions);
+  flowSteps.set("printActionTrackCard", printActionTrackCard);
 }
 
-function condensedActionButtonHTML(actor: LancerActor, actions: ActionTrackingData) {
+export class ActionTrackFlow extends Flow<LancerFlowState.ActionTrackData> {
+  name = "ActionTrackFlow";
+  steps = ["checkActions", "printActionTrackCard"];
+
+  constructor(uuid: LancerActor, data?: Partial<LancerFlowState.ActionTrackData>) {
+    const initialData: LancerFlowState.ActionTrackData = {
+      title: data?.title ?? "",
+      description: data?.description ?? "",
+      start: data?.start ?? true,
+    };
+
+    super(uuid, initialData);
+  }
+}
+
+async function checkActions(state: FlowState<LancerFlowState.ActionTrackData>): Promise<boolean> {
+  if (!state.data) throw new TypeError(`Action track flow state data missing!`);
+  const actor = state.actor;
+  const actions = getActions(actor);
+  if (!actions) return false;
+
+  if (state.data.start) {
+    state.data.title = `${actor.name} is starting their turn`;
+  } else {
+    state.data.title = `${actor.name} is ending their turn`;
+    state.data.description += condensedActionBadgeHTML(actions);
+  }
+
+  return true;
+}
+
+async function printActionTrackCard(state: FlowState<LancerFlowState.ActionTrackData>): Promise<boolean> {
+  if (!state.data) throw new TypeError(`Action track flow state data missing!`);
+  printGenericCard(state, { template: `systems/${game.system.id}/templates/chat/action-track-card.hbs` });
+  return true;
+}
+
+function condensedActionBadgeHTML(actions: ActionTrackingData) {
   function constructButton(action: string, active: boolean) {
     let mIcon;
     switch (action) {
@@ -47,21 +69,17 @@ function condensedActionButtonHTML(actor: LancerActor, actions: ActionTrackingDa
     }
 
     return `
-        <button class="action-size-${action} lancer-action-button${active ? ` active activation-${action}` : ""}${
+        <button class="lancer-${action} lancer-action-badge${active ? ` active` : ""}${
       false ? ` enabled` : ""
     }"><i class="${mIcon} i--m"></i></button>`;
   }
 
   let buttons = "";
-  for (const action in actions) {
-    const val: boolean | number = (actions as any)[action];
-    let active = false;
-    if (typeof val == "boolean") {
-      active = val;
-    } else {
-      active = val > 0;
-    }
+  const actionsToPrint = ["protocol", "move", "full", "quick", "reaction"];
+  for (const [action, val] of Object.entries(actions)) {
+    if (!actionsToPrint.includes(action)) continue;
+    let active: boolean = !!val;
     buttons += constructButton(action, active);
   }
-  return `<div class="track-message lancer-action-grid">${buttons}</div`;
+  return `${buttons}`;
 }
