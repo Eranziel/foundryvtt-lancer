@@ -50,10 +50,24 @@ async function rebuild_pack(name) {
     await fs.remove(packPath);
   }
   await fs.ensureDir(packPath);
-  await fs.copy(path.resolve(".", "src", "packs", name), path.resolve(packPath, "_source"));
-  cp.spawnSync("npx", ["fvtt", "package", "workon", "lancer", "--type", "System"], { stdio: "inherit", shell: true });
-  cp.spawnSync("npx", ["fvtt", "package", "pack", "-n", name], { stdio: "inherit", shell: true });
-  await fs.remove(path.resolve(packPath, "_source"));
+  cp.spawnSync(
+    "npx",
+    [
+      "fvtt",
+      "package",
+      "pack",
+      "--type",
+      "System",
+      "-n",
+      name,
+      "--in",
+      `./src/packs/${name}`,
+      "--out",
+      "./dist/packs/",
+      "--yaml",
+    ],
+    { stdio: "inherit", shell: true }
+  );
   return Promise.resolve();
 }
 
@@ -73,9 +87,7 @@ async function configure_fvtt_cli() {
 }
 
 async function build_packs() {
-  await configure_fvtt_cli();
   await rebuild_pack("core_macros");
-  await rebuild_pack("aoe_templates");
   return Promise.resolve();
 }
 

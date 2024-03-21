@@ -7,7 +7,7 @@
   "minimumCoreVersion": "11",
   "compatibility": {
     "minimum": 11,
-    "verified": "11.306",
+    "verified": "11.315",
     "maximum": 11
   },
   "authors": [
@@ -25,15 +25,9 @@
   "styles": ["style.css", "fonts/compcon/glyphs.css", "fonts/mdi.css"],
   "packs": [
     {
-      "name": "aoe-templates",
-      "label": "AoE Templates",
-      "system": "lancer",
-      "path": "./packs/aoe_templates",
-      "type": "Macro"
-    },
-    {
       "name": "core_macros",
-      "label": "LANCER Macros",
+      "label": "lancer.compendium.core_macros",
+      "banner": "./systems/lancer/assets/banners/core_macros.svg",
       "system": "lancer",
       "path": "./packs/core_macros",
       "type": "Macro"

@@ -1,4 +1,32 @@
 {
+  "TYPES": {
+    "Actor": {
+      "deployable": "Deployable",
+      "mech": "Mech",
+      "npc": "NPC",
+      "pilot": "Pilot"
+    },
+    "Item": {
+      "bond": "Bond",
+      "core_bonus": "Core Bonus",
+      "frame": "Frame",
+      "license": "License",
+      "mech_system": "Mech System",
+      "mech_weapon": "Mech Weapon",
+      "npc_class": "NPC Class",
+      "npc_feature": "NPC Feature",
+      "npc_template": "NPC Template",
+      "organization": "Organization",
+      "pilot_armor": "Pilot Armor",
+      "pilot_gear": "Pilot Gear",
+      "pilot_weapon": "Pilot Weapon",
+      "reserve": "Reserve",
+      "skill": "Skill",
+      "status": "Status/Condition",
+      "talent": "Talent",
+      "weapon_mod": "Weapon Mod"
+    }
+  },
   "lancer": {
     "placeholder": {
       "name": "Name"
@@ -227,6 +255,16 @@
         "disabled": "Disabled",
         "inherited": "Inherited"
       }
+    },
+    "compendium": {
+      "core_macros": "LANCER Macros",
+      "deployable": "Deployables",
+      "mech-items": "Mech Items",
+      "npc-actors": "Premade NPCs",
+      "npc-items": "NPC Items",
+      "pilot-items": "Pilot Items",
+      "player-actors": "Premade Player Actors",
+      "status-items": "Status/Condition"
     }
   },
   "LANCERINITIATIVE": {

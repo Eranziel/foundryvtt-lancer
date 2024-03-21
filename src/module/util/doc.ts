@@ -7,7 +7,6 @@ import {
   LancerNPC,
   LancerPILOT,
 } from "../actor/lancer-actor";
-import { PACK_SCOPE } from "../comp-builder";
 import { friendly_entrytype_name } from "../config";
 import { EntryType } from "../enums";
 import type {
@@ -36,6 +35,8 @@ import { SystemTemplates } from "../system-template";
 import { FetcherCache } from "./async";
 import { lookupDeployables, lookupLID, lookupOwnedDeployables } from "./lid";
 import { requestImport } from "./requests";
+
+const PACK_SCOPE = "world";
 
 // Sort items. Moves moverand to dest, either before or after depending on third arg
 export async function resort_item(moverand: LancerItem, dest: LancerItem, sort_before = true) {
@@ -147,9 +148,54 @@ export function get_secondary_packs(doc_type: "Actor" | "Item"): any[] {
   return cached_alt_packs[doc_type];
 }
 
-// Get a pack id
-export function get_pack_id(type: EntryType): string {
-  return `${PACK_SCOPE}.${type}`;
+/**
+ * Retrieve the pack id that for an entrytype
+ * @param et - The type of document to search for
+ */
+export function get_pack_id(et: EntryType): string {
+  let id: string;
+  switch (et) {
+    case EntryType.FRAME:
+    case EntryType.MECH_SYSTEM:
+    case EntryType.MECH_WEAPON:
+    case EntryType.WEAPON_MOD:
+      id = "mech-items";
+      break;
+    case EntryType.BOND:
+    case EntryType.CORE_BONUS:
+    case EntryType.LICENSE:
+    case EntryType.ORGANIZATION:
+    case EntryType.PILOT_ARMOR:
+    case EntryType.PILOT_GEAR:
+    case EntryType.PILOT_WEAPON:
+    case EntryType.RESERVE:
+    case EntryType.SKILL:
+    case EntryType.TALENT:
+      id = "pilot-items";
+      break;
+    case EntryType.NPC_CLASS:
+    case EntryType.NPC_FEATURE:
+    case EntryType.NPC_TEMPLATE:
+      id = "npc-items";
+      break;
+
+    // player actors
+    case EntryType.DEPLOYABLE:
+    case EntryType.MECH:
+    case EntryType.PILOT:
+      id = "player-actors";
+      break;
+
+    // NPC actors
+    case EntryType.NPC:
+    // conditions
+    case EntryType.STATUS:
+    default:
+      id = `${et}-${is_actor_type(et) ? "actors" : "items"}`;
+      break;
+  }
+
+  return `${PACK_SCOPE}.${id}`;
 }
 
 // Retrieve a pack, or create it as necessary
@@ -158,22 +204,25 @@ export async function get_pack(
   type: LancerItemType | LancerActorType
 ): Promise<CompendiumCollection<CompendiumCollection.Metadata>> {
   // Find existing world compendium
-  let pack = game.packs.get(get_pack_id(type));
+  const id = get_pack_id(type);
+  let pack = game.packs.get(id);
   if (pack) {
     return pack;
   } else {
     // Compendium doesn't exist yet. Create a new one.
     // Create our metadata
     const entity_type = is_actor_type(type) ? "Actor" : "Item";
+    const basename = id.split(".")[1];
     const metadata: CompendiumCollection.Metadata = {
-      name: type,
+      name: basename,
       //@ts-ignore - entity property deprecated, v9 uses type instead.
       type: entity_type,
-      label: friendly_entrytype_name(type),
+      label: `lancer.compendium.${basename}`,
+      banner: `./systems/lancer/assets/banners/${basename}.svg`,
       system: "lancer",
+      // sort: PackSort[basename],
       package: "world",
-      path: `./packs/${type}.db`,
-      private: false,
+      path: `./packs/${basename}`,
     };
 
     return CompendiumCollection.createCompendium(metadata);

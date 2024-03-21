@@ -203,6 +203,7 @@ import { registerOverheatSteps } from "./module/flows/overheat";
 import { beginCascadeFlow, registerCascadeSteps } from "./module/flows/cascade";
 import { registerNPCSteps } from "./module/flows/npc";
 import { registerActionTrackSteps } from "./module/flows/action-track";
+import { get_pack_id } from "./module/util/doc";
 
 const lp = LANCER.log_prefix;
 
@@ -687,7 +688,7 @@ Hooks.once("ready", async function () {
   // Set up compendium-based statuses icons
   LancerActiveEffect.populateConfig(true);
   Hooks.on("updateCompendium", collection => {
-    if (collection?.metadata?.id == `world.${EntryType.STATUS}`) LancerActiveEffect.populateConfig(true);
+    if (collection?.metadata?.id == get_pack_id(EntryType.STATUS)) LancerActiveEffect.populateConfig(true);
   });
 });
 

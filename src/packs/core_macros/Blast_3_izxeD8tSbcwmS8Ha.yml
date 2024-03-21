@@ -1,0 +1,31 @@
+name: Blast 3
+type: script
+author: ci5PqVPSs3DhZWTF
+img: systems/lancer/assets/icons/macro-icons/aoe_blast.svg
+scope: global
+command: |-
+  game.lancer.canvas.WeaponRangeTemplate.fromRange({
+      type: "Blast",
+      val: 3,
+  }).placeTemplate()
+      .then(t => {
+          if (t) game.lancer.targetsFromTemplate(t.id);
+      }
+  );
+folder: r8tTAPddWnEN8GKi
+flags:
+  core:
+    sourceId: Compendium.lancer.aoe-templates.Macro.yIDTBuXVZen10R2o
+ownership:
+  default: 0
+  ci5PqVPSs3DhZWTF: 3
+_stats:
+  systemId: lancer
+  systemVersion: 2.0.0-rc1
+  coreVersion: '11.315'
+  createdTime: 1710448383149
+  modifiedTime: 1710448469626
+  lastModifiedBy: ci5PqVPSs3DhZWTF
+_id: izxeD8tSbcwmS8Ha
+sort: 0
+_key: '!macros!izxeD8tSbcwmS8Ha'

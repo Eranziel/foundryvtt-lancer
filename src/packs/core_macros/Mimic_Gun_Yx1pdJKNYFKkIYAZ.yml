@@ -36,10 +36,17 @@ command: |-
   }
 
   ChatMessage.create(await buildChatData(), {});
-folder: null
-sort: 0
-permission:
+folder: yxTxiLixDsbyThYC
+sort: 200000
+flags: {}
+ownership:
   default: 0
   2a2IgZ2kiAqXSGqu: 3
-flags: {}
+_stats:
+  systemId: lancer
+  systemVersion: 2.0.0-rc1
+  coreVersion: '11.315'
+  createdTime: null
+  modifiedTime: 1710448417563
+  lastModifiedBy: ci5PqVPSs3DhZWTF
 _key: '!macros!Yx1pdJKNYFKkIYAZ'
