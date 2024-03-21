@@ -725,7 +725,6 @@ data-action="set" data-action-value="(int)${i}" data-path="${weapon_path}.system
           ${on_attack}
           ${on_hit}
           ${on_crit}
-          HELLO
           ${actions}
           ${compactTagListHBS(profile_path + ".all_tags", options)}
         </div>
