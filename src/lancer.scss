@@ -316,6 +316,7 @@ $theme-types: "primary" "secondary" "dark-gray" "light-gray" "tooltip"    // Gen
 }
 
 .header-icon {
+  display: flex;
   float: left;
 }
 
@@ -884,6 +885,9 @@ tr.lcp-index-header {
   flex-direction: row;
   align-items: center;
   padding: 0 5px;
+  i {
+    display: flex;
+  }
 }
 
 /** Fixes CSS priority on flexrows within cards */
