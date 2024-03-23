@@ -143,18 +143,19 @@ export const themeHA: LancerUITheme = {
   primaryHighlight: "color-mix(in srgb, var(--primary-color), #fff 55%)",
   primaryShadow: "#d628d2",
   lightText: "#ffffff",
-  darkText: "#989e9f",
+  darkText: "#b3b9ba",
   backgroundColor: "#2b2b2b",
   secondaryColor: "#cf4bdb",
   secondaryHighlight: "#color-mix(in srgb, var(--secondary-color), #fff 55%)",
   secondaryText: "#ffffff",
   darkGrayColor: "#4d4d4d",
-  lightGrayColor: "#4a464d",
+  lightGrayColor: "#555555",
   tooltipBackground: "#222222",
   tooltipText: "#ffffff",
   // Gear type colors
-  systemColor: "#1c9ae8",
-  talentColor: "#ed68f8",
+  systemColor: "#b035ad",
+  talentColor: "#e080de",
+  pilotStatColor: "#333333",
   darkenColor: "64, 64, 64",
 };
 
