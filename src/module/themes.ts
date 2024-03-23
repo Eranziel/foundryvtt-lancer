@@ -180,6 +180,27 @@ export const themeSSC: LancerUITheme = {
   darkenColor: "64, 64, 64",
 };
 
+export const themeIPSN: LancerUITheme = {
+  ...themeGMS,
+  primaryColor: "#1952A2",
+  primaryHighlight: "color-mix(in srgb, var(--primary-color), #fff 55%)",
+  primaryShadow: "#c6daf6",
+  lightText: "#ffffff",
+  darkText: "#000000",
+  backgroundColor: "#dbdbdb",
+  secondaryColor: "#c77634",
+  secondaryHighlight: "#color-mix(in srgb, var(--secondary-color), #fff 55%)",
+  secondaryText: "#ffffff",
+  darkGrayColor: "#8a949e",
+  lightGrayColor: "#cccccc",
+  tooltipBackground: "#e8e8e8",
+  tooltipText: "#000000",
+  // Gear type colors
+  systemColor: "#061a1f",
+  talentColor: "#19A2A2",
+  darkenColor: "0, 0, 0",
+};
+
 function varName(key: string) {
   return (
     "--" +
@@ -190,7 +211,7 @@ function varName(key: string) {
   );
 }
 
-export function applyTheme(theme: "gms" | "gmsDark" | "msmc" | "horus" | "ha" | "ssc") {
+export function applyTheme(theme: "gms" | "gmsDark" | "msmc" | "horus" | "ha" | "ssc" | "ipsn") {
   let selectedTheme: LancerUITheme;
   switch (theme) {
     case "gmsDark":
@@ -207,6 +228,9 @@ export function applyTheme(theme: "gms" | "gmsDark" | "msmc" | "horus" | "ha" | 
       break;
     case "ssc":
       selectedTheme = themeSSC;
+      break;
+    case "ipsn":
+      selectedTheme = themeIPSN;
       break;
     case "gms":
     default:
