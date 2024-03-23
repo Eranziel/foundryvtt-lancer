@@ -50,6 +50,7 @@ $document-types: join($item-types, $actor-types);
   --bonus-list-color: #71a373;
   --tech-color: #7d2477;
   --talent-color: #3a81c3;
+  --pilot-stat-color: color-mix(in srgb, var(--background-color), #888 50%);
 
   /* Action color vars */
   --reaction-color: #892eb1;
@@ -868,7 +869,7 @@ tr.lcp-index-header {
 .pilot-stats {
   clip-path: polygon(0 0, calc(100% - 30px) 0, 100% 100%, 0 100%);
   -webkit-clip-path: polygon(0 0, calc(100% - 30px) 0, 100% 100%, 0 100%);
-  background-color: color-mix(in srgb, var(--background-color), #888 50%);
+  background-color: var(--pilot-stat-color);
   padding-left: 5px;
   padding-right: 5px;
   align-items: flex-start;
