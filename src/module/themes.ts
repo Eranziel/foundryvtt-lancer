@@ -20,6 +20,7 @@ export interface LancerUITheme {
   bonusListColor: string;
   techColor: string;
   talentColor: string;
+  pilotStatColor: string;
   // Action type colors
   reactionColor: string;
   protocolColor: string;
@@ -63,6 +64,7 @@ export const themeGMS: LancerUITheme = {
   bonusListColor: "#71a373",
   techColor: "#7d2477",
   talentColor: "#3a81c3",
+  pilotStatColor: "color-mix(in srgb, var(--background-color), #888 50%)",
   // Action type colors
   reactionColor: "#892eb1",
   protocolColor: "#c75a00",
@@ -156,6 +158,28 @@ export const themeHA: LancerUITheme = {
   darkenColor: "64, 64, 64",
 };
 
+export const themeSSC: LancerUITheme = {
+  ...themeGMS,
+  primaryColor: "#d1920a",
+  primaryHighlight: "color-mix(in srgb, var(--primary-color), #fff 55%)",
+  primaryShadow: "#fbe2ac",
+  lightText: "#ffffff",
+  darkText: "#000000",
+  backgroundColor: "#eee8d5",
+  secondaryColor: "#685d99",
+  secondaryHighlight: "#color-mix(in srgb, var(--secondary-color), #fff 55%)",
+  secondaryText: "#ffffff",
+  darkGrayColor: "#5a4c3f",
+  lightGrayColor: "#eadbcb",
+  tooltipBackground: "#d6c9b0",
+  tooltipText: "#000000",
+  // Gear type colors
+  systemColor: "#89610B",
+  talentColor: "#b58900",
+  pilotStatColor: "#eadbcb",
+  darkenColor: "64, 64, 64",
+};
+
 function varName(key: string) {
   return (
     "--" +
@@ -166,7 +190,7 @@ function varName(key: string) {
   );
 }
 
-export function applyTheme(theme: "gms" | "gmsDark" | "msmc" | "horus" | "ha") {
+export function applyTheme(theme: "gms" | "gmsDark" | "msmc" | "horus" | "ha" | "ssc") {
   let selectedTheme: LancerUITheme;
   switch (theme) {
     case "gmsDark":
@@ -180,6 +204,9 @@ export function applyTheme(theme: "gms" | "gmsDark" | "msmc" | "horus" | "ha") {
       break;
     case "ha":
       selectedTheme = themeHA;
+      break;
+    case "ssc":
+      selectedTheme = themeSSC;
       break;
     case "gms":
     default:
