@@ -16,6 +16,7 @@ import {
   tommyConditionsStatus,
 } from "../status-icons";
 import { LancerSTATUS } from "../item/lancer-item";
+import { get_pack_id } from "../util/doc";
 
 // Chassis = mech or standard npc
 export type LancerEffectTarget =
@@ -157,10 +158,10 @@ export class LancerActiveEffect extends ActiveEffect {
     let configStatuses: StatusEffect[] = [];
     // Pull the default statuses from the compendium if it exists
     if (statusIconConfig.defaultConditionsStatus) {
-      let pack = game.packs.get(`world.${EntryType.STATUS}`);
+      let pack = game.packs.get(get_pack_id(EntryType.STATUS));
       let pack_statuses: LancerSTATUS[] = [];
       if (from_compendium) {
-        pack_statuses = ((await pack?.getDocuments()) || []) as unknown as LancerSTATUS[];
+        pack_statuses = ((await pack?.getDocuments({ type: EntryType.STATUS })) || []) as unknown as LancerSTATUS[];
       }
       if (pack_statuses.length) {
         configStatuses = configStatuses.concat(pack_statuses.map(statusConfigEffect));

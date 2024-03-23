@@ -1,5 +1,5 @@
 import { ActionType } from "../action";
-import { ActivationType, AttackType, DamageType } from "../enums";
+import { ActivationType, AttackType, DamageType, NpcFeatureType, SystemType } from "../enums";
 import { AccDiffData, AccDiffDataSerialized } from "../helpers/acc_diff";
 import { ActionData } from "../models/bits/action";
 import { DamageData } from "../models/bits/damage";
@@ -133,6 +133,7 @@ export namespace LancerFlowState {
 
   export interface SystemUseData {
     title: string;
+    type: SystemType.System | SystemType.Mod | NpcFeatureType | null;
     effect: string;
 
     tags?: Tag[];
@@ -177,10 +178,20 @@ export namespace LancerFlowState {
     html: string;
   }
 
+  export interface ActionTrackData extends TextRollData {
+    start: boolean;
+  }
+
   // Configuration passed to show an overcharge roll
   export interface OverchargeRollData extends Omit<BaseRollData, "type"> {
     type: "overcharge";
     level: number;
+  }
+
+  export interface RechargeRollData extends Omit<BaseRollData, "type"> {
+    type: "recharge";
+    recharging_uuids: string[];
+    charged: { name: string; target: number; charged: boolean }[];
   }
 
   export interface PrimaryStructureRollData extends Omit<BaseRollData, "type"> {
@@ -208,6 +219,22 @@ export namespace LancerFlowState {
       tt: string | HTMLElement | JQuery<HTMLElement>; // Tooltip
       total: string; // String representation of the roll total
     };
+  }
+
+  export interface OverheatRollData extends Omit<BaseRollData, "type"> {
+    type: "overheat";
+    desc: string;
+    val: number;
+    max: number;
+    // result adds "total" to RollResult
+    result?: {
+      roll: Roll;
+      tt: string | HTMLElement | JQuery<HTMLElement>; // Tooltip
+      total: string; // String representation of the roll total
+    };
+    reroll_data?: { stress: number };
+    remStress: number;
+    embedButtons?: Array<string>; // HTML for flow buttons to embed in the chat card
   }
 
   export interface CascadeRollData extends Omit<BaseRollData, "type"> {

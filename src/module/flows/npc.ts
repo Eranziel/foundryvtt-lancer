@@ -1,89 +1,82 @@
-// Import TypeScript modules
-import { LANCER } from "../config";
 import { LancerActor } from "../actor/lancer-actor";
 import { renderTemplateStep } from "./_render";
-import { LancerItem, LancerNPC_FEATURE } from "../item/lancer-item";
+import { LancerItem } from "../item/lancer-item";
 import { rollTextMacro } from "./text";
 import { NpcFeatureType } from "../enums";
-// import { prepareAttackMacro } from "./attack";
-// import { prepareTechMacro } from "./tech";
 import { LancerFlowState } from "./interfaces";
+import { Flow, FlowState, Step } from "./flow";
 import { SystemTemplates } from "../system-template";
 import { rollReactionMacro } from "./reaction";
 
-export async function prepareNPCFeatureMacro(
-  item: string | LancerItem,
-  options?: {
-    display?: boolean;
-  }
-) {
-  item = LancerItem.fromUuidSync(item);
-  if (!item.actor || !item.is_npc_feature()) return;
+export function registerNPCSteps(flowSteps: Map<string, Step<any, any> | Flow<any>>) {
+  flowSteps.set("findRechargeableSystems", findRechargeableSystems);
+  flowSteps.set("rollRecharge", rollRecharge);
+  flowSteps.set("applyRecharge", applyRecharge);
+  flowSteps.set("printRechargeCard", printRechargeCard);
+}
 
-  switch (item.system.type) {
-    case NpcFeatureType.Weapon:
-      if (!options?.display) return item.beginWeaponAttackFlow();
-    case NpcFeatureType.Tech:
-      if (!options?.display) return item.beginTechAttackFlow();
-    case NpcFeatureType.System:
-    case NpcFeatureType.Trait:
-      let sysData: LancerFlowState.TextRollData = {
-        // docUUID: item.uuid,
-        title: item.name!,
-        description: item.system.effect,
-        tags: item.system.tags,
-      };
+export class NPCRechargeFlow extends Flow<LancerFlowState.RechargeRollData> {
+  name = "NPCRechargeFlow";
+  steps = ["findRechargeableSystems", "rollRecharge", "applyRecharge", "printRechargeCard"];
 
-      return rollTextMacro(sysData);
-    case NpcFeatureType.Reaction:
-      let reactData: LancerFlowState.ReactionRollData = {
-        // docUUID: item.uuid,
-        title: item.name!,
-        trigger: (item.system as SystemTemplates.NPC.ReactionData).trigger,
-        effect: (item.system as SystemTemplates.NPC.ReactionData).effect,
-        tags: (item.system as SystemTemplates.NPC.ReactionData).tags,
-      };
+  constructor(uuid: LancerActor, data?: Partial<LancerFlowState.RechargeRollData>) {
+    const initialData: LancerFlowState.RechargeRollData = {
+      type: "recharge",
+      title: data?.title ?? "",
+      roll_str: data?.roll_str ?? "1d6",
+      recharging_uuids: data?.recharging_uuids ?? [],
+      charged: data?.charged ?? [],
+    };
 
-      return rollReactionMacro(reactData);
+    super(uuid, initialData);
   }
 }
 
-export async function prepareChargeMacro(actor: string | LancerActor) {
-  // Determine which Actor to speak as
-  let npc = LancerActor.fromUuidSync(actor);
-  if (!npc || !npc.is_npc()) return;
+async function findRechargeableSystems(state: FlowState<LancerFlowState.RechargeRollData>): Promise<boolean> {
+  if (!state.data) throw new TypeError(`Recharge flow state missing!`);
+  if (!state.actor) throw new TypeError(`Recharge flow state actor missing!`);
+  const actor = state.actor;
+  // Skip this step if recharging_uuids was provided already, since this is a reroll etc...
+  if (state.data.recharging_uuids.length >= 1) return true;
+  for (let item of actor.items) {
+    if (!item.is_npc_feature()) continue;
+    if (item.system.charged) continue;
+    if (item.isRecharge()) state.data.recharging_uuids.push(item.uuid);
+  }
+  if (state.data.recharging_uuids.length < 1) {
+    ui.notifications?.info(`All systems are charged and ready for use!`);
+    return false;
+  }
+  return true;
+}
 
-  const feats = npc.itemTypes.npc_feature as LancerNPC_FEATURE[];
-  if (!feats.length) return;
+async function rollRecharge(state: FlowState<LancerFlowState.RechargeRollData>): Promise<boolean> {
+  if (!state.data) throw new TypeError(`Recharge flow state missing!`);
+  const roll = await new Roll(state.data.roll_str).evaluate({ async: true });
+  const tt = await roll.getTooltip();
+  state.data.result = { roll, tt };
+  return true;
+}
 
-  // Make recharge roll.
-  const roll = await new Roll("1d6").evaluate({ async: true });
-  const roll_tt = await roll.getTooltip();
-  // Iterate over each system with recharge, if val of tag is lower or equal to roll, set to charged.
-
-  let changed: { name: string; target: string | null | number | undefined; charged: boolean }[] = [];
-  for (let feat of feats) {
-    if (!feat.system.charged) {
-      const recharge = feat.system.tags.find(tag => tag.is_recharge);
-      if (recharge && recharge.num_val && recharge.num_val <= (roll.total ?? 0)) {
-        await feat.update({ "system.charged": true });
+async function applyRecharge(state: FlowState<LancerFlowState.RechargeRollData>): Promise<boolean> {
+  if (!state.data) throw new TypeError(`Recharge flow state missing!`);
+  if (!state.actor) throw new TypeError(`Recharge flow state actor missing!`);
+  for (let uuid of state.data.recharging_uuids) {
+    const item = await LancerItem.fromUuid(uuid);
+    if (!item || item.parent !== state.actor || !item.is_npc_feature()) continue;
+    const recharge = item.system.tags.find(tag => tag.is_recharge);
+    if (recharge) {
+      if (recharge.num_val && recharge.num_val <= (state.data.result?.roll.total ?? 0)) {
+        await item.update({ "system.charged": true });
       }
-      if (recharge) {
-        changed.push({ name: feat.name!, target: recharge.num_val, charged: feat.system.charged });
-      }
+      state.data.charged.push({ name: item.name!, target: recharge.num_val ?? 0, charged: item.system.charged });
     }
   }
+  return true;
+}
 
-  // Skip chat if no changes found.
-  if (changed.length === 0) return;
-
-  // Render template.
-  const templateData = {
-    actorName: npc.name,
-    roll: roll,
-    roll_tooltip: roll_tt,
-    changed: changed,
-  };
-  const template = `systems/${game.system.id}/templates/chat/charge-card.hbs`;
-  return renderTemplateStep(npc, template, templateData);
+async function printRechargeCard(state: FlowState<LancerFlowState.RechargeRollData>): Promise<boolean> {
+  if (!state.data) throw new TypeError(`Recharge flow state missing!`);
+  renderTemplateStep(state.actor, `systems/${game.system.id}/templates/chat/charge-card.hbs`, state.data);
+  return true;
 }

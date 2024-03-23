@@ -1,10 +1,12 @@
 // @ts-nocheck
 // We do not care about this file being super rigorous
-import { LANCER } from "./config";
 import { LancerActor } from "./actor/lancer-actor";
-import { LancerItem } from "./item/lancer-item";
 import { core_update, LCPManager, updateCore } from "./apps/lcp-manager";
+import { LANCER } from "./config";
+import { EntryType } from "./enums";
+import { LancerItem } from "./item/lancer-item";
 import { LancerTokenDocument } from "./token";
+import { get_pack, get_pack_id } from "./util/doc";
 
 /**
  * DataModels should internally handle any migrations across versions.
@@ -72,9 +74,14 @@ deprecated:</p>
  * Instead handle these via migrateWorld.
  */
 export async function migrateWorld() {
+  const curr_version = game.settings.get(game.system.id, LANCER.setting_migration_version);
+
+  // Migrate from the pre-2.0 compendium structure the combined compendiums
+  if (foundry.utils.isNewerVersion("2.0.0", curr_version)) {
+    await migrateCompendiumStructure();
+  }
   // Update World Compendium Packs, since updates comes with a more up to date version of lancerdata usually
   await updateCore(core_update);
-  const curr_version = game.settings.get(game.system.id, LANCER.setting_migration_version);
 
   if (game.settings.get(game.system.id, LANCER.setting_core_data) === core_update) {
     // Open the LCP manager for convenience.
@@ -274,4 +281,44 @@ export async function migrateTokenDocument(token: LancerTokenDocument): Promise<
 
   // Return update
   return updateData;
+}
+
+/**
+ * Migrate pre 2.0 Compendium structure to the post-2.0 structure.
+ * This operates on ALL compendiums that correspond to the old format and migrates them without confirmation
+ */
+export async function migrateCompendiumStructure() {
+  await Promise.all(Object.values(EntryType).map(v => game.packs.get(`world.${v}`)?.configure({ locked: false })));
+
+  // Delete all empty packs
+  await Promise.all(
+    Object.values(EntryType).map(v => {
+      const p = game.packs.get(`world.${v}`);
+      if (p && p.index.contents.length == 0) return p.deleteCompendium();
+    })
+  );
+
+  const ets = Object.values(EntryType);
+  for (let et of ets) {
+    const documents = (await game.packs.get(`world.${et}`)?.getDocuments()) ?? [];
+    console.log(`Moving ${documents.length} ${et} documents`);
+    if (documents.length === 0) continue;
+    const pack = await get_pack(et);
+    const folder: Folder | undefined = [EntryType.NPC, EntryType.STATUS].includes(et)
+      ? undefined
+      : pack.folders.find(f => f.getFlag(game.system.id, "entrytype") === et) ??
+        (await Folder.create(
+          {
+            name: game.i18n.localize(`TYPES.${pack.metadata.type}.${et}`),
+            type: pack.metadata.type,
+            [`flags.${game.system.id}.entrytype`]: et,
+          },
+          { pack: get_pack_id(et) }
+        ));
+    const doc_data = documents.map(d => ({ ...d.toObject(), folder: folder?.id }));
+    const doc_class = documents[0].documentName;
+
+    await CONFIG[doc_class].documentClass.createDocuments(doc_data, { pack: get_pack_id(et) });
+    await game.packs.get(`world.${et}`)?.deleteCompendium();
+  }
 }

@@ -1,6 +1,6 @@
 {
   "Actor": {
-    "types": ["pilot", "mech", "npc", "deployable"],
+    "types": ["npc", "pilot", "mech", "deployable"],
     "templates": {
       "universal": {
         "lid": "",

@@ -28,7 +28,12 @@ export async function checkItemDestroyed(
   ) {
     return true; // These items can't be destroyed
   }
-  if (!state.item.is_mech_weapon() && !state.item.is_mech_system() && !state.item.is_npc_feature()) {
+  if (
+    !state.item.is_mech_weapon() &&
+    !state.item.is_mech_system() &&
+    !state.item.is_weapon_mod() &&
+    !state.item.is_npc_feature()
+  ) {
     return false;
   }
   if (state.item.system.destroyed) {

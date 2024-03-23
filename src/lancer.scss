@@ -46,6 +46,7 @@ $document-types: join($item-types, $actor-types);
   --system-color: #58b434;
   --weapon-color: #111111;
   --trait-color: #0a7674;
+  --mod-color: var(--trait-color);
   --bonus-color: #5d8673;
   --bonus-list-color: #71a373;
   --tech-color: #7d2477;
@@ -167,7 +168,7 @@ button {
 /* prettier-ignore */
 $theme-types: "primary" "secondary" "dark-gray" "light-gray" "tooltip"    // General themes
   "gms" "ipsn" "ssc" "horus" "ha"                       // Manufacturers
-  "trait" "bonus" "system" "tech" "talent" "weapon"     // Gear types
+  "trait" "mod" "bonus" "system" "tech" "talent" "weapon"     // Gear types
   "reaction" "protocol" "quick" "full" "move" "free"; // Action types
 @each $theme-type in $theme-types {
   /* Headers, buttons, and chips */
@@ -2284,8 +2285,6 @@ a.activation-chip > i.mdi {
 // Actions
 .lancer-action-grid {
   display: flex;
-  margin-bottom: 8px;
-  padding: 4px;
 }
 
 .lancer-action-button {
@@ -2304,20 +2303,9 @@ a.activation-chip > i.mdi {
 .track-message.lancer-action-grid {
   flex-wrap: wrap;
 }
-.track-message .lancer-action-button {
+.track-message .lancer-action-badge {
   margin: 4px;
   width: fit-content;
-
-  &.action-size-protocol,
-  &.action-size-move {
-    width: calc(50% - 8px);
-  }
-
-  &.action-size-full,
-  &.action-size-quick,
-  &.action-size-reaction {
-    width: calc(100% / 3 - 8px);
-  }
 }
 
 #action-manager {

@@ -14,7 +14,7 @@ import {
 import { handleContextMenus } from "../helpers/item";
 import { applyCollapseListeners, CollapseHandler, initializeCollapses } from "../helpers/collapse";
 import { ActionEditDialog } from "../apps/action-editor";
-import { find_license_for } from "../util/doc";
+import { find_license_for, get_pack_id } from "../util/doc";
 import { lookupOwnedDeployables } from "../util/lid";
 import { EntryType } from "../enums";
 import { LancerDEPLOYABLE } from "../actor/lancer-actor";
@@ -164,7 +164,8 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet<ItemShe
       data.deployables = lookupOwnedDeployables(this.item.actor);
     } else {
       // Use compendium. This is probably overkill but, who well
-      let deps = (await game.packs.get(`world.${EntryType.DEPLOYABLE}`)?.getDocuments()) ?? [];
+      let deps =
+        (await game.packs.get(get_pack_id(EntryType.DEPLOYABLE))?.getDocuments({ type: EntryType.DEPLOYABLE })) ?? [];
       // @ts-expect-error
       for (let d of deps as LancerDEPLOYABLE) {
         data.deployables[d.system.lid] = d;

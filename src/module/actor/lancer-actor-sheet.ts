@@ -6,7 +6,7 @@ import { handleRefDragging, handleRefSlotDropping, handleRefClickOpen, handleUse
 import type { LancerActorSheetData } from "../interfaces";
 import { LancerItem } from "../item/lancer-item";
 import { LancerActor, LancerActorType } from "./lancer-actor";
-import { prepareChargeMacro, runEncodedMacro } from "../macros";
+import { runEncodedMacro } from "../macros";
 import { ActivationOptions } from "../enums";
 import { applyCollapseListeners, CollapseHandler, initializeCollapses } from "../helpers/collapse";
 import { addExportButton } from "../helpers/io";
@@ -188,13 +188,14 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
       // Check data-flow-type to pick which flow to trigger
       const flowElement = $(ev.currentTarget).closest("[data-flow-type]")[0] as HTMLElement;
       const flowType = flowElement.dataset.flowType;
-      const flowArgs = flowElement.dataset.flowArgs;
+      const flowArgs = JSON.parse(flowElement.dataset.flowArgs ?? "{}");
       switch (flowType) {
         case "FullRepair":
-          this.actor.beginFullRepairFlow(flowArgs);
+          this.actor.beginFullRepairFlow(flowArgs?.title ?? undefined);
         case "Stabilize":
           break;
         case "Overheat":
+          this.actor.beginOverheatFlow();
           break;
         case "Structure":
           this.actor.beginStructureFlow();
@@ -203,10 +204,10 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
           this.actor.beginOverchargeFlow();
           break;
         case "BasicAttack":
-          this.actor.beginBasicAttackFlow(flowArgs);
+          this.actor.beginBasicAttackFlow(flowArgs?.title ?? undefined);
           break;
         case "TechAttack":
-          this.actor.beginBasicTechAttackFlow(flowArgs);
+          this.actor.beginBasicTechAttackFlow(flowArgs?.title ?? undefined);
           break;
       }
     });
@@ -358,7 +359,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
     ChargeMacro.on("click", ev => {
       ev.stopPropagation(); // Avoids triggering parent event handlers
 
-      prepareChargeMacro(this.actor);
+      this.actor.beginRechargeFlow();
     });
   }
 

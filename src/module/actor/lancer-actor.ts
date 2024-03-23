@@ -1,5 +1,4 @@
 import { LANCER, replaceDefaultResource, TypeIcon } from "../config";
-import { prepareOverheatMacro } from "../macros";
 import { DamageType, EntryType } from "../enums";
 import { fix_modify_token_attribute } from "../token";
 import { AppliedDamage } from "./damage-calc";
@@ -13,12 +12,14 @@ import { EffectHelper } from "../effects/effector";
 import { LoadoutHelper } from "./loadout-util";
 import { StrussHelper } from "./struss-util";
 import { StructureFlow } from "../flows/structure";
+import { OverheatFlow } from "../flows/overheat";
 import { BasicAttackFlow } from "../flows/attack";
 import { pilotInnateEffect } from "../effects/converter";
 import { TechAttackFlow } from "../flows/tech";
 import { FullRepairFlow } from "../flows/full-repair";
 import { StatRollFlow } from "../flows/stat";
 import { OverchargeFlow } from "../flows/overcharge";
+import { NPCRechargeFlow } from "../flows/npc";
 import * as lancer_data from "@massif/lancer-data";
 
 const lp = LANCER.log_prefix;
@@ -79,9 +80,9 @@ export class LancerActor extends Actor {
   system: SystemData.Pilot | SystemData.Mech | SystemData.Npc | SystemData.Deployable;
 
   // These cannot be instantiated the normal way (e.x. via constructor)
-  _configure() {
+  _configure(options: unknown) {
     // @ts-expect-error
-    super._configure();
+    super._configure(options);
     this.effectHelper = new EffectHelper(this);
     this.loadoutHelper = new LoadoutHelper(this);
     this.strussHelper = new StrussHelper(this);
@@ -250,6 +251,7 @@ export class LancerActor extends Actor {
       this.system.grit = Math.ceil(this.system.level / 2);
       this.system.hp.max = lancer_data.rules.base_pilot_hp + this.system.grit;
       this.system.bond = (this.items.find(i => i.is_bond()) ?? null) as unknown as LancerBOND | null;
+      this.system.size = 0.5;
       this.system.sensor_range = 5;
       this.system.save = this.system.grit + 10;
     } else if (this.is_mech()) {
@@ -520,11 +522,10 @@ export class LancerActor extends Actor {
     ) {
       const data = changed as any; // DeepPartial<RegMechData | RegNpcData>;
       if ((data.system?.heat?.value ?? 0) > this.system.heat.max && this.system.stress.value > 0) {
-        prepareOverheatMacro(this);
+        this.beginOverheatFlow();
       }
       if ((data.system?.hp?.value ?? 1) <= 0 && this.system.structure.value > 0) {
-        const flow = new StructureFlow(this, undefined);
-        return flow.begin();
+        this.beginStructureFlow();
       }
     }
 
@@ -731,6 +732,15 @@ export class LancerActor extends Actor {
     return await flow.begin();
   }
 
+  async beginRechargeFlow(): Promise<boolean> {
+    if (!this.is_npc()) {
+      ui.notifications!.warn(`Only NPCs can recharge!`);
+      return false;
+    }
+    const flow = new NPCRechargeFlow(this);
+    return await flow.begin();
+  }
+
   async beginStatFlow(path: string, title?: string): Promise<boolean> {
     const flow = new StatRollFlow(this, { path, title });
     return await flow.begin();
@@ -760,6 +770,11 @@ export class LancerActor extends Actor {
 
   async beginStructureFlow(): Promise<boolean> {
     const flow = new StructureFlow(this);
+    return await flow.begin();
+  }
+
+  async beginOverheatFlow(): Promise<boolean> {
+    const flow = new OverheatFlow(this);
     return await flow.begin();
   }
 

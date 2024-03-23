@@ -22,6 +22,7 @@ export class MechWeaponModel extends LancerDataModel {
       deployables: new fields.ArrayField(new LIDField()),
       integrated: new fields.ArrayField(new LIDField()),
       sp: new fields.NumberField({ nullable: false, initial: 0 }),
+      actions: new fields.ArrayField(new ActionField()),
       profiles: new ControlledLengthArrayField(
         new fields.SchemaField({
           name: new fields.StringField({ initial: "Base Profile" }),
@@ -150,6 +151,7 @@ export function unpackMechWeapon(
       no_core_bonuses: data.no_core_bonus,
       no_mods: data.no_mods,
       no_synergies: data.no_synergy,
+      actions: data.actions?.map(unpackAction) || [],
       profiles,
       selected_profile_index: 0,
       size: data.mount,

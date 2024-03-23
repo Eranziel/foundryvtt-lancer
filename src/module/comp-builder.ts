@@ -1,7 +1,7 @@
 import { LANCER } from "./config";
 const lp = LANCER.log_prefix;
 import { LCPIndex } from "./apps/lcp-manager";
-import { get_pack } from "./util/doc";
+import { get_pack, get_pack_id } from "./util/doc";
 import type { LancerActor } from "./actor/lancer-actor";
 import { LancerItem, LancerLICENSE } from "./item/lancer-item";
 import { EntryType } from "./enums";
@@ -31,18 +31,18 @@ import { unpackWeaponMod } from "./models/items/weapon_mod";
 import { unpackReserve } from "./models/items/reserve";
 import { unpackStatus } from "./models/items/status";
 
-export const PACK_SCOPE = "world";
-
 // Clear all packs
 export async function clearAll(): Promise<void> {
   await setAllLock(false);
-  for (let p of Object.values(EntryType)) {
-    let pack = game.packs.get(`${PACK_SCOPE}.${p}`);
+  const pack_ids = new Set(Object.values(EntryType).map(get_pack_id));
+  for (let p of pack_ids) {
+    let pack = game.packs.get(p);
     if (!pack) continue;
 
-    let docs = await pack.getDocuments();
-    let keys = docs.map(d => d.id!);
+    const keys = Array.from(pack.index.keys());
     await pack.documentClass.deleteDocuments(keys, { pack: pack.collection });
+    // @ts-expect-error Pack folders is V11
+    await Folder.deleteDocuments(Array.from(pack.folders.keys()), { pack: pack.collection });
   }
   await setAllLock(true);
 }
@@ -80,8 +80,11 @@ export async function importCP(
     // Iterate over everything in core, collecting all lids into a map of LID -> document
     let existing_lids: Map<string, LancerItem | LancerActor> = new Map();
     for (let et of Object.values(EntryType)) {
+      // Skip Mechs and Pilots
+      if ([EntryType.PILOT, EntryType.MECH].includes(et)) continue;
       let pack = await get_pack(et);
       // Get them all
+      // TODO: Use the index to improve performance
       let docs = await pack.getDocuments();
       // Get their ids
       docs.forEach(d => {
@@ -132,7 +135,9 @@ export async function importCP(
     let allWeapons = cp.data.weapons?.map(d => unpackMechWeapon(d, context)) ?? [];
     let allLicenses = [];
     let existingLicenses =
-      (await game.packs.get(`world.${EntryType.LICENSE}`)?.getDocuments())?.map(l => (l as any).system.key) ?? [];
+      (await game.packs.get(get_pack_id(EntryType.LICENSE))?.getDocuments({ type: EntryType.LICENSE }))?.map(
+        l => (l as any).system.key
+      ) ?? [];
     for (let frame of cp.data.frames ?? []) {
       let lid = frame.license_id ?? frame.id;
       // Check existing
@@ -144,6 +149,21 @@ export async function importCP(
     const createOrUpdateDocs = async (doc_class: any, item_data: Array<any>, et: EntryType) => {
       let existing_updates = [];
       let new_creates = [];
+      let pack = await get_pack(et);
+      let folder: Folder | undefined = [EntryType.NPC, EntryType.STATUS].includes(et)
+        ? undefined
+        : // @ts-expect-error Pack folders came with V11
+          pack.folders.find(f => f.getFlag(game.system.id, "entrytype") === et) ??
+          (await Folder.create(
+            {
+              // @ts-expect-error Pack folders came with V11
+              name: game.i18n.localize(`TYPES.${pack.metadata.type}.${et}`),
+              // @ts-expect-error Pack folders came with V11
+              type: pack.metadata.type,
+              [`flags.${game.system.id}.entrytype`]: et,
+            },
+            { pack: get_pack_id(et) }
+          ));
       for (let d of item_data) {
         let existing = existing_lids.get(d.system.lid);
         if (existing) {
@@ -151,14 +171,16 @@ export async function importCP(
           existing_updates.push({
             ...d,
             _id: existing.id,
+            folder: folder?.id,
           });
         } else {
+          d.folder = folder?.id;
           // Formulate as a doc
           new_creates.push(d);
         }
       }
-      await doc_class.createDocuments(new_creates, { pack: `world.${et}` });
-      await doc_class.updateDocuments(existing_updates, { pack: `world.${et}` });
+      await doc_class.createDocuments(new_creates, { pack: get_pack_id(et) });
+      await doc_class.updateDocuments(existing_updates, { pack: get_pack_id(et) });
     };
 
     await createOrUpdateDocs(CONFIG.Item.documentClass, allCoreBonuses, EntryType.CORE_BONUS);
@@ -195,8 +217,13 @@ export async function importCP(
     Hooks.off("createItem", progress_hook);
 
     // Finish by forcing all packs to re-prepare
-    for (let p of Object.values(EntryType)) {
-      (await get_pack(p)).clear();
+    const pack_ids = new Set(
+      Object.values(EntryType)
+        .filter(t => ![EntryType.MECH, EntryType.PILOT].includes(t))
+        .map(get_pack_id)
+    );
+    for (let p of pack_ids) {
+      game.packs.get(p)?.clear();
     }
     progress_callback(transmitCount, totalItems);
   } catch (err) {
@@ -209,9 +236,9 @@ export async function importCP(
 export let IS_IMPORTING = false;
 export async function setAllLock(lock = false) {
   IS_IMPORTING = !lock;
-  for (let p of Object.values(EntryType)) {
-    const key = `${PACK_SCOPE}.${p}`;
-    let pack = game.packs.get(key);
+  const pack_ids = new Set(Object.values(EntryType).map(get_pack_id));
+  for (let p of pack_ids) {
+    let pack = game.packs.get(p);
     await pack?.configure({ private: false, locked: lock });
   }
 }

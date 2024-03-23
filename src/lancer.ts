@@ -199,7 +199,11 @@ import { registerStatSteps } from "./module/flows/stat";
 import { registerOverchargeSteps } from "./module/flows/overcharge";
 import { registerSystemSteps } from "./module/flows/system";
 import { beginSecondaryStructureFlow, registerStructureSteps } from "./module/flows/structure";
+import { registerOverheatSteps } from "./module/flows/overheat";
 import { beginCascadeFlow, registerCascadeSteps } from "./module/flows/cascade";
+import { registerNPCSteps } from "./module/flows/npc";
+import { registerActionTrackSteps } from "./module/flows/action-track";
+import { get_pack_id } from "./module/util/doc";
 
 const lp = LANCER.log_prefix;
 
@@ -292,11 +296,14 @@ Hooks.once("init", async function () {
   registerCoreActiveSteps(flowSteps);
   registerStatSteps(flowSteps);
   registerStructureSteps(flowSteps);
+  registerOverheatSteps(flowSteps);
   registerCascadeSteps(flowSteps);
   registerOverchargeSteps(flowSteps);
   registerTalentSteps(flowSteps);
   registerBondPowerSteps(flowSteps);
   registerFullRepairSteps(flowSteps);
+  registerNPCSteps(flowSteps);
+  registerActionTrackSteps(flowSteps);
   // Assign custom classes and constants here
   // Create a Lancer namespace within the game global
   game.lancer = {
@@ -327,8 +334,9 @@ Hooks.once("init", async function () {
     // prepareCorePassiveMacro: macros.prepareCorePassiveMacro,
     // prepareFrameTraitMacro: macros.prepareFrameTraitMacro,
     // prepareOverchargeMacro: macros.prepareOverchargeMacro,
-    prepareOverheatMacro: macros.prepareOverheatMacro,
+    // prepareOverheatMacro: macros.prepareOverheatMacro,
     // beginStructureFlow: macros.beginStructureFlow,
+    // beginOverheatFlow: macros.beginOverheatFlow,
     // prepareActivationMacro: macros.prepareActivationMacro,
     // prepareAttackMacro: macros.prepareAttackMacro,
     // beginSecondaryStructureFlow: macros.beginSecondaryStructureFlow,
@@ -378,7 +386,7 @@ Hooks.once("init", async function () {
     return parseInt(value) - 1;
   });
 
-  // cons, to concatenate strs. Can take any number of args. Last is omitted (as it is just a handlebars ref object)
+  // concat, to concatenate strs. Can take any number of args. Last is omitted (as it is just a handlebars ref object)
   Handlebars.registerHelper("concat", function (...values: any[]) {
     return values.slice(0, values.length - 1).join("");
   });
@@ -680,7 +688,7 @@ Hooks.once("ready", async function () {
   // Set up compendium-based statuses icons
   LancerActiveEffect.populateConfig(true);
   Hooks.on("updateCompendium", collection => {
-    if (collection?.metadata?.id == `world.${EntryType.STATUS}`) LancerActiveEffect.populateConfig(true);
+    if (collection?.metadata?.id == get_pack_id(EntryType.STATUS)) LancerActiveEffect.populateConfig(true);
   });
 });
 

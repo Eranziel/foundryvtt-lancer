@@ -26,7 +26,7 @@ function _statFlowButton(uuid: string, path: string, overrides: ButtonOverrides 
 }
 
 function _basicFlowButton(uuid: string, type = "BasicAttack", overrides: ButtonOverrides = {}): string {
-  const data = `data-uuid="${uuid}" data-flow-type="${type}" data-flow-args="${""}"`;
+  const data = `data-uuid="${uuid}" data-flow-type="${type}"`;
   return _flowButton("lancer-flow-button", data, overrides);
 }
 
@@ -235,7 +235,7 @@ export function actor_flow_button(
   type: string,
   options: HelperOptions & { rollable?: boolean }
 ): string {
-  let args = JSON.stringify([getActorUUID(options)]);
+  let args = JSON.stringify({});
   let mIcon;
   switch (type) {
     case "FullRepair":

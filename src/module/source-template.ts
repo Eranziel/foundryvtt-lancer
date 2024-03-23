@@ -324,6 +324,7 @@ export namespace SourceData {
     deployables: LIDRef[];
     integrated: LIDRef[];
     sp: number;
+    actions: ActionData[];
     profiles: Array<{
       name: string;
       type: WeaponType;

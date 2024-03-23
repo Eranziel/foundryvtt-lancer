@@ -17,7 +17,7 @@ import {
 } from "../item/lancer-item";
 import { PowerData } from "../models/bits/power";
 import { SourceData } from "../source-template";
-import { insinuate } from "../util/doc";
+import { get_pack_id, insinuate } from "../util/doc";
 import { lookupLID } from "../util/lid";
 import {
   PackedEquipmentData,
@@ -162,9 +162,10 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
           p.unlocked = false;
         });
 
-        const bondPack = game.packs.get(`world.${EntryType.BOND}`);
+        const bondPack = game.packs.get(get_pack_id(EntryType.BOND));
         await bondPack?.getIndex();
-        const bonds: LancerItem[] | null = ((await bondPack?.getDocuments({})) as unknown as LancerItem[]) ?? null;
+        const bonds: LancerItem[] | null =
+          ((await bondPack?.getDocuments({ type: EntryType.BOND })) as unknown as LancerItem[]) ?? null;
         const unlockAndRefill = function (power: PowerData) {
           power.unlocked = true;
           if (power.uses) {

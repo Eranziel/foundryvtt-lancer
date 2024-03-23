@@ -299,20 +299,20 @@ export async function structureInsertSecondaryRollButton(
       data-flow-type="secondaryStructure"
       data-actor-id="${actor.uuid}"
     >
-      <i class="fas fa-dice-d20 i--sm"></i> TEAR OFF
+      <i class="fas fa-dice-d6 i--sm"></i> TEAR OFF
     </a>`);
   }
   return true;
 }
 
-async function structureInsertCascadeRollButton(
-  state: FlowState<LancerFlowState.PrimaryStructureRollData>
+export async function structureInsertCascadeRollButton(
+  state: FlowState<LancerFlowState.PrimaryStructureRollData> | FlowState<LancerFlowState.OverheatRollData>
 ): Promise<boolean> {
-  if (!state.data) throw new TypeError(`Structure roll flow data missing!`);
+  if (!state.data) throw new TypeError(`Structure/Overheat roll flow data missing!`);
 
   let actor = state.actor;
   if (!actor.is_mech() && !actor.is_npc()) {
-    ui.notifications!.warn("Only npcs and mechs can roll structure.");
+    ui.notifications!.warn("Only npcs and mechs can roll structure/overheat.");
     return false;
   }
 

@@ -58,10 +58,17 @@ command: >-
   game.lancer.prepareStructureMacro(canvas.tokens.controlled[0].actor.id);
 
   canvas.tokens.controlled[0].drawBars();
-folder: null
-sort: 0
-permission:
+folder: yxTxiLixDsbyThYC
+sort: 100000
+flags: {}
+ownership:
   default: 0
   2a2IgZ2kiAqXSGqu: 3
-flags: {}
-_key: "!macros!angOaW77n9ZZZqgq"
+_stats:
+  systemId: lancer
+  systemVersion: 2.0.0-rc1
+  coreVersion: '11.315'
+  createdTime: null
+  modifiedTime: 1710448405568
+  lastModifiedBy: ci5PqVPSs3DhZWTF
+_key: '!macros!angOaW77n9ZZZqgq'
