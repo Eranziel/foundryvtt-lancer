@@ -29,7 +29,7 @@ $document-types: join($item-types, $actor-types);
 
   /* Manufacturer theme vars */
   --gms-color: #991e2a;
-  --ipsn-color: #1662b8;
+  --ips-n-color: #1662b8;
   --ssc-color: #d1920a;
   --horus-color: #00a256;
   --ha-color: #6e4373;
@@ -167,7 +167,7 @@ button {
 /* General-purpose theme color classes */
 /* prettier-ignore */
 $theme-types: "primary" "secondary" "dark-gray" "light-gray" "tooltip"    // General themes
-  "gms" "ipsn" "ssc" "horus" "ha"                       // Manufacturers
+  "gms" "ips-n" "ssc" "horus" "ha"                       // Manufacturers
   "trait" "mod" "bonus" "system" "tech" "talent" "weapon"     // Gear types
   "reaction" "protocol" "quick" "full" "move" "free"; // Action types
 @each $theme-type in $theme-types {

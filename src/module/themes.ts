@@ -143,18 +143,19 @@ export const themeHA: LancerUITheme = {
   primaryHighlight: "color-mix(in srgb, var(--primary-color), #fff 55%)",
   primaryShadow: "#d628d2",
   lightText: "#ffffff",
-  darkText: "#989e9f",
+  darkText: "#b3b9ba",
   backgroundColor: "#2b2b2b",
   secondaryColor: "#cf4bdb",
   secondaryHighlight: "#color-mix(in srgb, var(--secondary-color), #fff 55%)",
   secondaryText: "#ffffff",
   darkGrayColor: "#4d4d4d",
-  lightGrayColor: "#4a464d",
+  lightGrayColor: "#555555",
   tooltipBackground: "#222222",
   tooltipText: "#ffffff",
   // Gear type colors
-  systemColor: "#1c9ae8",
-  talentColor: "#ed68f8",
+  systemColor: "#b035ad",
+  talentColor: "#e080de",
+  pilotStatColor: "#333333",
   darkenColor: "64, 64, 64",
 };
 
@@ -178,6 +179,27 @@ export const themeSSC: LancerUITheme = {
   talentColor: "#b58900",
   pilotStatColor: "#eadbcb",
   darkenColor: "64, 64, 64",
+};
+
+export const themeIPSN: LancerUITheme = {
+  ...themeGMS,
+  primaryColor: "#1952A2",
+  primaryHighlight: "color-mix(in srgb, var(--primary-color), #fff 55%)",
+  primaryShadow: "#c6daf6",
+  lightText: "#ffffff",
+  darkText: "#000000",
+  backgroundColor: "#dbdbdb",
+  secondaryColor: "#c77634",
+  secondaryHighlight: "#color-mix(in srgb, var(--secondary-color), #fff 55%)",
+  secondaryText: "#ffffff",
+  darkGrayColor: "#8a949e",
+  lightGrayColor: "#cccccc",
+  tooltipBackground: "#e8e8e8",
+  tooltipText: "#000000",
+  // Gear type colors
+  systemColor: "#061a1f",
+  talentColor: "#19A2A2",
+  darkenColor: "0, 0, 0",
 };
 
 export const themeGAL: LancerUITheme = {
@@ -212,7 +234,7 @@ function varName(key: string) {
   );
 }
 
-export function applyTheme(theme: "gms" | "gmsDark" | "msmc" | "horus" | "ha" | "ssc" | "gal") {
+export function applyTheme(theme: "gms" | "gmsDark" | "msmc" | "horus" | "ha" | "ssc" | "ipsn" | "gal") {
   let selectedTheme: LancerUITheme;
   switch (theme) {
     case "gmsDark":
@@ -229,6 +251,9 @@ export function applyTheme(theme: "gms" | "gmsDark" | "msmc" | "horus" | "ha" | 
       break;
     case "ssc":
       selectedTheme = themeSSC;
+      break;
+    case "ipsn":
+      selectedTheme = themeIPSN;
       break;
     case "gal":
       selectedTheme = themeGAL;
