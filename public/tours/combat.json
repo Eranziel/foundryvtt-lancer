@@ -1,0 +1,72 @@
+{
+  "title": "lancer.tour.combat.title",
+  "description": "lancer.tour.combat.description",
+  "canBeResumed": true,
+  "display": true,
+  "steps": [
+    {
+      "id": "combatTab",
+      "selector": ".tabs>a[data-tab='combat']",
+      "title": "lancer.tour.combat.combatTab.title",
+      "content": "lancer.tour.combat.combatTab.content",
+      "sidebarTab": "combat"
+    },
+    {
+      "id": "turnOrder",
+      "selector": "#combat #combat-tracker",
+      "title": "lancer.tour.combat.turnOrder.title",
+      "content": "lancer.tour.combat.turnOrder.content",
+      "sidebarTab": "combat"
+    },
+    {
+      "id": "activateButton",
+      "selector": "#combat #combat-tracker li.enemy .lancer-combat-control",
+      "title": "lancer.tour.combat.activateButton.title",
+      "content": "lancer.tour.combat.activateButton.content",
+      "sidebarTab": "combat",
+      "click": true
+    },
+    {
+      "id": "endTurn",
+      "selector": "#combat #combat-tracker li .lancer-combat-control",
+      "title": "lancer.tour.combat.endTurn.title",
+      "content": "lancer.tour.combat.endTurn.content",
+      "sidebarTab": "combat",
+      "click": true
+    },
+    {
+      "id": "combatSettings",
+      "selector": "#combat header .encounter-controls a[data-control='trackerSettings']",
+      "title": "lancer.tour.combat.combatSettings.title",
+      "content": "lancer.tour.combat.combatSettings.content",
+      "sidebarTab": "combat"
+    }
+  ],
+  "suggestedNextTours": [],
+  "localization": {
+    "lancer.tour.combat": {
+      "title": "Combat Tracker",
+      "description": "Using the customized LANCER combat tracker",
+      "combatTab": {
+        "title": "LANCER Combat Tracker",
+        "content": "LANCER provides a customized combat tracker with some differences from the default foundry tracker"
+      },
+      "turnOrder": {
+        "title": "Turn Order",
+        "content": "Because LANCER does not use a fixed turn order, combatants are instead displayed grouped by their side. Players and allies are listed first, then neutral, then enemies. Additionally, the current combatant is listed firs and any combatants with no turns remaining for the round are listed last."
+      },
+      "activateButton": {
+        "title": "Activation Button",
+        "content": "To start the turn for a combatant, click the activation button."
+      },
+      "endTurn": {
+        "title": "Ending Turns",
+        "content": "Turns can be ended by clicking the Activate Button again for the current combatant, or by simply starting the turn of a different combatant."
+      },
+      "combatSettings": {
+        "title": "Combat Settings",
+        "content": "The settings menu has been customized to allow configuring LANCER specific options."
+      }
+    }
+  }
+}
