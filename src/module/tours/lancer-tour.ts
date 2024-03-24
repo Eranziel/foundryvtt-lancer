@@ -57,9 +57,7 @@ export class LancerLcpTour extends LancerTour {
       );
       await this.manager._onLcpParsed(lcp_tribute);
       // Delay to avoid race condition
-      await new Promise(resolve => {
-        setTimeout(resolve, 30);
-      });
+      await new Promise(resolve => setTimeout(resolve, 30));
     }
     if (this.currentStep.inApp) {
       // @ts-expect-error Incorrectly labeled protected
@@ -72,9 +70,25 @@ export class LancerCombatTour extends LancerTour {
   combat?: LancerCombat;
   async _preStep() {
     await super._preStep();
-    if (!this.combat) this.combat = (await this._setupCombat())!;
+    if (!this.combat || this.currentStep.id === "combatTab") this.combat = (await this._setupCombat())!;
     await this.combat.activate();
     if (!this.combat.started) await this.combat.startCombat();
+    if (this.currentStep.id === "endTurn") {
+      await this.combat.activateCombatant(
+        this.combat.turns.find(t => t.getFlag(game.system.id, "tour") === "ultra")?.id ?? "",
+        true
+      );
+      // Delay to avoid race condition
+      await new Promise(resolve => setTimeout(resolve, 30));
+    }
+  }
+
+  async _postStep() {
+    await super._postStep();
+    if (this.currentStep?.id === "combatSettings") {
+      this.combat?.delete();
+      this.combat = undefined;
+    }
   }
 
   protected async _setupCombat() {
@@ -89,9 +103,11 @@ export class LancerCombatTour extends LancerTour {
           [`flags.${game.system.id}.disposition` as const]: -1,
         },
         {
-          name: "Assault (2)",
-          img: `./systems/${game.system.id}/assets/retrograde-minis/Retrograde-Minis-Corpro-ASSAULT.png` as const,
-          [`flags.${game.system.id}.tour` as const]: true,
+          name: "Ultra Berserker (1)",
+          img: `./systems/${game.system.id}/assets/retrograde-minis/Retrograde-Minis-Corpro-BERSERKER.png` as const,
+          initiative: 10, // Force sort order
+          [`flags.${game.system.id}.tour` as const]: "ultra",
+          [`flags.${game.system.id}.activations.max` as const]: 2,
           [`flags.${game.system.id}.disposition` as const]: -1,
         },
         {
@@ -114,7 +130,7 @@ function get_player_data() {
   return demo_pilots.slice(0, 3).map(p => ({
     name: p.name,
     img: `./systems/${game.system.id}/assets/retrograde-minis/Retrograde-Minis-${p.img}.png` as const,
-    [`flags.${game.system.id}.tour` as const]: true,
+    [`flags.${game.system.id}.tour` as const]: "player",
     [`flags.${game.system.id}.disposition` as const]: 2,
   }));
 }
@@ -122,7 +138,10 @@ function get_player_data() {
 const demo_pilots = [
   { name: "Catastrophe", img: "Horus-MANTICORE" }, // Rais
   { name: "Closing Crescendo", img: "IPS-N-RALEIGH" }, // traduiz
+  { name: "Dragonspark", img: "HA-TOKUGAWA" }, // Tonysan
   { name: "Errant", img: "IPS-N-NELSON" }, // FactualInsanity
+  { name: "Gale Storm", img: "Horus-BALOR" }, // Kirbo.exe
+  { name: "Gale", img: "IPS-N-NELSON" }, // Lynn (4d6north)
   { name: "Instrument", img: "SSC-MONARCH" }, // Jazzman - Update to viceroy if we add an icon
   { name: "Owl", img: "SSC-DEATHS HEAD" }, // Jimothy
   { name: "Oxhorn", img: "HA-SHERMAN" }, // Bargo
