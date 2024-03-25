@@ -211,65 +211,68 @@ export class LancerItem extends Item {
 
     if (!this.actor) {
       // This would ordinarily be called by our parent actor. We must do it ourselves.
-      this.prepareFinalAttributes(null);
+      this.prepareFinalAttributes();
     }
   }
 
   /**
    * Method used by mech weapons (and perhaps some other miscellaneous items???) to prepare their individual stats
-   * using the bonuses described in the provided synthetic actor.
+   * using bonuses.
+   *
+   * Note that it is still necessary that items without actors call this in order to prepare weapon tags
    */
-  prepareFinalAttributes(system: SystemData.Mech | SystemData.Pilot | null): void {
+  prepareFinalAttributes(): void {
     // At the very least, we can apply limited bonuses from our parent
     if (this.actor?.is_mech()) {
       if (this._hasUses() && this.system.uses.max) {
-        this.system.uses.max += (system as SystemData.Mech).loadout.limited_bonus;
+        this.system.uses.max += this.actor.system.loadout.limited_bonus;
       }
     }
 
     if (this.is_mech_weapon()) {
-      // Add mod bonuses
+      // Add mod bonuses to all profiles
       for (let profile of this.system.profiles) {
         if (this.system.mod) {
           profile.bonus_damage.push(...this.system.mod.system.added_damage);
           profile.bonus_range.push(...this.system.mod.system.added_range);
           profile.bonus_tags.push(...this.system.mod.system.added_tags);
+          this.system.all_tags.push(...profile.all_tags);
         }
+
+        // Add all bonuses.
+        for (let b of (this.actor as LancerMECH | null)?.system.bonuses.weapon_bonuses || []) {
+          // Every type of actor has bonuses so this isn't a dangerous cast
+          if (!bonusAffectsWeapon(this, b)) continue;
+          if (b.lid == "damage") {
+            profile.bonus_damage.push(
+              new Damage({
+                type: profile.damage[0]?.type ?? DamageType.Variable,
+                val: b.val,
+              })
+            );
+          } else if (b.lid == "range") {
+            if (this.system.active_profile.type == WeaponType.Melee) {
+              profile.bonus_range.push(
+                new Range({
+                  type: RangeType.Threat,
+                  val: parseInt(b.val) ?? 0,
+                })
+              );
+            } else {
+              profile.bonus_range.push(
+                new Range({
+                  type: RangeType.Range,
+                  val: parseInt(b.val) ?? 0,
+                })
+              );
+            }
+          }
+        }
+
+        // Finally, form combined damages/ranges/tags for the profile
         profile.all_damage = Damage.CombineLists(profile.damage, profile.bonus_damage);
         profile.all_range = Range.CombineLists(profile.range, profile.bonus_range);
         profile.all_tags = Tag.MergeTags(profile.tags, profile.bonus_tags);
-        this.system.all_tags.push(...profile.all_tags);
-      }
-
-      // Add all bonuses
-      let bonuses = (system as SystemData.Mech)?.all_bonuses ?? [];
-      for (let b of bonuses) {
-        if (b.lid == "damage") {
-          if (!bonusAffectsWeapon(this, b)) continue;
-          this.system.active_profile.bonus_damage.push(
-            new Damage({
-              type: this.system.active_profile.damage[0]?.type ?? DamageType.Variable,
-              val: b.val,
-            })
-          );
-        } else if (b.lid == "range") {
-          if (!bonusAffectsWeapon(this, b)) continue;
-          if (this.system.active_profile.type == WeaponType.Melee) {
-            this.system.active_profile.bonus_range.push(
-              new Range({
-                type: RangeType.Threat,
-                val: parseInt(b.val) ?? 0,
-              })
-            );
-          } else {
-            this.system.active_profile.bonus_range.push(
-              new Range({
-                type: RangeType.Range,
-                val: parseInt(b.val) ?? 0,
-              })
-            );
-          }
-        }
       }
     }
   }

@@ -229,6 +229,7 @@ Hooks.on(
         }
       } catch (e) {
         // Nothing to do really, except log it
+        console.warn(e);
         console.warn(`JSON effect parse failed, ${change.value}`);
       }
     }

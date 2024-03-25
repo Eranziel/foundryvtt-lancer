@@ -231,6 +231,9 @@ export class LancerActor extends Actor {
       kinetic: false,
       variable: false,
     };
+    sys.bonuses = {
+      weapon_bonuses: [],
+    };
     /*
     sys.bonuses = {
       flat: defaults.ROLL_BONUS_TARGETS(),
@@ -316,8 +319,7 @@ export class LancerActor extends Actor {
 
     // Ask items to prepare their final attributes using weapon_bonuses / equip information
     for (let item of this.items.contents) {
-      // @ts-expect-error Eventually this will have per-item active effects. For now, it doesn't. cope i guess lol
-      item.prepareFinalAttributes(this.system);
+      item.prepareFinalAttributes();
     }
 
     // Track shift in values. Use optional to handle compendium bulk-created items, which handle strangely

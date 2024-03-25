@@ -81,20 +81,46 @@ export class Damage implements Readonly<DamageData> {
   }
 
   // Combine two arrays of damage. Does not edit originals
-  public static CombineLists(a: Damage[], b: Damage[]): Damage[] {
+  public static CombineLists(base: Damage[], addition: Damage[]): Damage[] {
     // Make a copy of a.
-    let result = a.map(d => d.copy());
+    let result = base.map(d => d.copy());
 
     // For each b, try to find a matching a and add them together
-    for (let db of b) {
+    for (let add of addition) {
       // Get a match on
-      let to_be_modified = result.find(result_d => result_d.type == db.type);
+      let to_be_modified = result.find(result_d => result_d.type == add.type);
       if (to_be_modified) {
-        // We found existing damage of that type. Sum on the new stuff
-        to_be_modified.val += ` + ${db.val}`;
+        // We found existing damage of that type. Utilize foundry dice parsing to merge terms
+        try {
+          let base_formula = new Roll(to_be_modified.val);
+          let add_formula = new Roll(add.val);
+          for (let add_term of add_formula.terms) {
+            let added = false;
+            for (let base_term of base_formula.terms) {
+              // Combine like terms
+              //@ts-expect-error Appropriately narrow types are unavailable as of right now
+              if (add_term.number && base_term.number && add_term.faces === base_term.faces) {
+                //@ts-expect-error Ditto
+                base_term.number += add_term.number;
+                added = true;
+                break;
+              }
+            }
+            //@ts-expect-error Ditto
+            if (!added && !add_term.operator) {
+              // Create a new roll by appending the formulae
+              base_formula = new Roll(base_formula.formula + " + " + add_term.formula);
+            }
+          }
+          // Write back to string
+          to_be_modified.val = base_formula.formula;
+        } catch (e) {
+          // If the above measure fails, do a simple addition
+          to_be_modified.val += ` + ${add.val}`;
+        }
       } else {
         // Did not already have that damage type. Add it
-        result.push(db.copy());
+        result.push(add.copy());
       }
     }
     return result;
