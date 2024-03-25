@@ -664,15 +664,10 @@ export function bonusAffectsWeapon(weapon: LancerMECH_WEAPON, bonus: BonusData):
   let sel_prof = weapon.system.active_profile;
 
   // Now start checking
-  console.log("Size ok?");
   if (bonus.weapon_sizes?.[weapon.system.size] === false) return false;
-  console.log("Type ok?");
   if (bonus.weapon_types?.[sel_prof.type] === false) return false;
-  console.log("Damage ok?");
   if (!sel_prof.damage.some(d => bonus.damage_types?.[d.type] === true)) return false;
-  console.log("Range ok?");
   if (!sel_prof.range.some(d => bonus.range_types?.[d.type] === true)) return false;
-  console.log("Ok");
 
   // Passed the test
   return true;
