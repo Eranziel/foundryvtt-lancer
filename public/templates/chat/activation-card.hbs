@@ -1,0 +1,15 @@
+<div class="card clipped-bot" style="margin: 0px;">
+  <div class="lancer-header lancer-primary">
+    <span>// {{upper-case title}} //</span>
+    {{{action_chip}}}
+  </div>
+  <div style="padding: 5px">
+    <div class="effect-text" style="grid-area: 2/1/3/3">
+      {{{description}}}
+    </div>
+    {{#if roll}}
+      {{{lancer-dice-roll roll roll_tt roll_icon}}}
+    {{/if}}
+    {{{tag-list "tags"}}}
+  </div>
+</div>

@@ -1,0 +1,16 @@
+name: Core
+sorting: a
+folder: null
+type: Macro
+_id: yxTxiLixDsbyThYC
+sort: 100000
+color: null
+flags: {}
+_stats:
+  systemId: lancer
+  systemVersion: 2.0.0-rc1
+  coreVersion: '11.315'
+  createdTime: 1710448401990
+  modifiedTime: 1710448407018
+  lastModifiedBy: ci5PqVPSs3DhZWTF
+_key: '!folders!yxTxiLixDsbyThYC'

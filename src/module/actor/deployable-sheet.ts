@@ -1,7 +1,8 @@
 import { LancerActorSheet } from "./lancer-actor-sheet";
-import { EntryType } from "machine-mind";
-import type { AnyMMActor } from "./lancer-actor";
-import type { AnyMMItem } from "../item/lancer-item";
+import { LancerActor } from "./lancer-actor";
+import { LancerItem } from "../item/lancer-item";
+import { ResolvedDropData } from "../helpers/dragdrop";
+import { EntryType } from "../enums";
 
 /**
  * Extend the basic ActorSheet
@@ -12,7 +13,7 @@ export class LancerDeployableSheet extends LancerActorSheet<EntryType.DEPLOYABLE
    */
   static get defaultOptions(): ActorSheet.Options {
     return mergeObject(super.defaultOptions, {
-      classes: ["lancer", "sheet", "actor", "npc"],
+      classes: ["lancer", "sheet", "actor", "deployable"],
       template: `systems/${game.system.id}/templates/actor/deployable.hbs`,
       width: 800,
       height: 800,
@@ -27,9 +28,19 @@ export class LancerDeployableSheet extends LancerActorSheet<EntryType.DEPLOYABLE
   }
 
   // Need to allow this stuff for setting deployable
-  can_root_drop_entry(item: AnyMMActor | AnyMMItem): boolean {
+  canRootDrop(item: ResolvedDropData): boolean {
     // Accept actors
-    return item.Type == EntryType.PILOT || item.Type == EntryType.MECH || item.Type == EntryType.NPC;
+    return item.type == "Actor" && [EntryType.PILOT, EntryType.MECH, EntryType.NPC].includes(item.document.type);
+  }
+
+  async onRootDrop(
+    drop: ResolvedDropData,
+    _event: JQuery.DropEvent<any, any, any, any>,
+    _dest: JQuery<HTMLElement>
+  ): Promise<void> {
+    if (drop.type == "Actor" && drop.document != this.actor) {
+      this.actor.update({ "system.owner": drop.document.uuid });
+    }
   }
 
   /* -------------------------------------------- */

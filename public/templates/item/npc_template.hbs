@@ -4,31 +4,25 @@
     <div class="header-fields">
       <h1 class="charname"><input class="header-field" name="name" type="text" value="{{item.name}}" placeholder="{{localize "lancer.placeholder.name"}}"/></h1>
     </div>
-    {{{ ref-portrait-img item.img "img" mm }}}
+    {{{ ref-portrait-img item.img "img" item }}}
   </header>
   
-  {{{textarea-card "DESCRIPTION" "mm.Description"}}}
+  {{{textarea-card "DESCRIPTION" "system.description"}}}
   
   </div>
-  <div class="flexcol" style="margin: 10px;">
-    <div class="lancer-title">
+  <div class="flexcol card clipped-top lancer-border-primary" style="margin: 10px;">
+    <div class="lancer-header lancer-primary major">
       <span class="major">BASE FEATURES</span>
     </div>
 
-    {{#each mm.BaseFeatures as |feature feature_index|}}
-      {{{npc-feat-preview (concat "mm.BaseFeatures." feature_index) trash-action="splice" }}}
-    {{/each}}
-    {{{ref-mm-list-item-append "mm.BaseFeatures" "npc_feature"}}}
+    {{{lid-item-list "system.base_features" base_features "npc_feature"}}}
   </div>
 
-  <div class="flexcol" style="margin: 10px;">
-    <div class="lancer-title">
+  <div class="flexcol card clipped-top lancer-border-primary" style="margin: 10px;">
+    <div class="lancer-header lancer-primary major">
       <span class="major">OPTIONAL FEATURES</span>
     </div>
 
-    {{#each mm.OptionalFeatures as |feature feature_index|}}
-      {{{npc-feat-preview (concat "mm.OptionalFeatures." feature_index) trash-action="splice" }}}
-    {{/each}}
-    {{{ref-mm-list-item-append "mm.OptionalFeatures" "npc_feature"}}}
+    {{{lid-item-list "system.optional_features" optional_features "npc_feature"}}}
   </div>
 </form>

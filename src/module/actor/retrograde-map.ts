@@ -1,4 +1,4 @@
-export const frameToPath: Record<string, string> = {
+const frame_to_path: Record<string, string> = {
   BALOR: "systems/lancer/assets/retrograde-minis/Retrograde-Minis-Horus-BALOR.png",
   BARBAROSSA: "systems/lancer/assets/retrograde-minis/Retrograde-Minis-HA-BARBAROSSA.png",
   "BLACK WITCH": "systems/lancer/assets/retrograde-minis/Retrograde-Minis-SSC-BLACK WITCH.png",
@@ -77,3 +77,7 @@ export const frameToPath: Record<string, string> = {
   "WHITE WITCH": "systems/lancer/assets/retrograde-minis/Retrograde-Minis-SSC-WHITE WITCH.png",
   EMPEROR: "systems/lancer/assets/retrograde-minis/Retrograde-Minis-SSC-EMPEROR.png",
 };
+
+export function frameToPath(name: string | null | undefined): string | null {
+  return name ? frame_to_path[name.trim().toUpperCase()] : null ?? null;
+}

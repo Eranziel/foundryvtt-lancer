@@ -3,7 +3,7 @@ import { StatusIconConfigOptions } from "./settings";
 
 const lp = LANCER.log_prefix;
 
-const defaultStatuses = [
+export const defaultStatuses = [
   {
     id: "immobilized",
     label: "Immobilized",
@@ -30,7 +30,7 @@ const defaultStatuses = [
     icon: `systems/lancer/assets/icons/white/condition_shredded.svg`,
   },
   {
-    id: "slowed",
+    id: "slow",
     label: "Slowed",
     icon: `systems/lancer/assets/icons/white/condition_slow.svg`,
   },
@@ -101,7 +101,7 @@ const defaultStatuses = [
   },
 ];
 
-const cancerConditionsStatus = [
+export const cancerConditionsStatus = [
   {
     id: "burn",
     label: "Burn",
@@ -178,7 +178,7 @@ const cancerConditionsStatus = [
     icon: "systems/lancer/assets/icons/alt-status/cancercondstat/shutdown.svg",
   },
   {
-    id: "slowed",
+    id: "slow",
     label: "Slowed",
     icon: "systems/lancer/assets/icons/alt-status/cancercondstat/slowed.svg",
   },
@@ -189,7 +189,7 @@ const cancerConditionsStatus = [
   },
 ];
 
-const cancerNPCTemplates = [
+export const cancerNPCTemplates = [
   {
     id: "commander",
     label: "Commander",
@@ -252,7 +252,7 @@ const cancerNPCTemplates = [
   },
 ];
 
-const hayleyConditionsStatus = [
+export const hayleyConditionsStatus = [
   {
     id: "bolster",
     label: "Bolster",
@@ -319,7 +319,7 @@ const hayleyConditionsStatus = [
     icon: "systems/lancer/assets/icons/alt-status/hayleycondstat/shutdown.webp",
   },
   {
-    id: "slowed",
+    id: "slow",
     label: "Slowed",
     icon: "systems/lancer/assets/icons/alt-status/hayleycondstat/slowed.webp",
   },
@@ -330,7 +330,7 @@ const hayleyConditionsStatus = [
   },
 ];
 
-const hayleyPC = [
+export const hayleyPC = [
   {
     id: "aceso",
     label: "Aceso",
@@ -488,7 +488,7 @@ const hayleyPC = [
   },
 ];
 
-const hayleyNPC = [
+export const hayleyNPC = [
   {
     id: "abjure",
     label: "Abjure",
@@ -586,7 +586,7 @@ const hayleyNPC = [
   },
 ];
 
-const hayleyUtility = [
+export const hayleyUtility = [
   {
     id: "blind",
     label: "Blind",
@@ -614,7 +614,7 @@ const hayleyUtility = [
   },
 ];
 
-const tommyConditionsStatus = [
+export const tommyConditionsStatus = [
   {
     id: "bolster",
     label: "Bolster",
@@ -696,7 +696,7 @@ const tommyConditionsStatus = [
     icon: "systems/lancer/assets/icons/alt-status/tommystat/Shut Down.webp",
   },
   {
-    id: "slowed",
+    id: "slow",
     label: "Slowed",
     icon: "systems/lancer/assets/icons/alt-status/tommystat/Slowed.webp",
   },
@@ -726,54 +726,6 @@ const tommyConditionsStatus = [
     icon: "systems/lancer/assets/icons/alt-status/tommystat/Tier Custom.webp",
   },
 ];
-
-/** Set up system status icons */
-export function configureStatusIcons(): void {
-  const statusIconConfig = game.settings.get(game.system.id, LANCER.setting_status_icons) as StatusIconConfigOptions;
-  let statuses: { id: string; label: string; icon: string }[] = [];
-  // If no sets are selected, enable the default set
-  if (
-    !statusIconConfig.defaultConditionsStatus &&
-    !statusIconConfig.cancerConditionsStatus &&
-    !statusIconConfig.cancerNPCTemplates &&
-    !statusIconConfig.hayleyConditionsStatus &&
-    !statusIconConfig.hayleyPC &&
-    !statusIconConfig.hayleyNPC &&
-    !statusIconConfig.hayleyUtility &&
-    !statusIconConfig.tommyConditionsStatus
-  ) {
-    statusIconConfig.defaultConditionsStatus = true;
-    if (game.ready) {
-      game.settings.set(game.system.id, LANCER.setting_status_icons, statusIconConfig);
-    }
-  }
-  if (statusIconConfig.defaultConditionsStatus) {
-    statuses = statuses.concat(defaultStatuses);
-  }
-  if (statusIconConfig.cancerConditionsStatus) {
-    statuses = statuses.concat(cancerConditionsStatus);
-  }
-  if (statusIconConfig.cancerNPCTemplates) {
-    statuses = statuses.concat(cancerNPCTemplates);
-  }
-  if (statusIconConfig.hayleyConditionsStatus) {
-    statuses = statuses.concat(hayleyConditionsStatus);
-  }
-  if (statusIconConfig.hayleyPC) {
-    statuses = statuses.concat(hayleyPC);
-  }
-  if (statusIconConfig.hayleyNPC) {
-    statuses = statuses.concat(hayleyNPC);
-  }
-  if (statusIconConfig.hayleyUtility) {
-    statuses = statuses.concat(hayleyUtility);
-  }
-  if (statusIconConfig.tommyConditionsStatus) {
-    statuses = statuses.concat(tommyConditionsStatus);
-  }
-  console.log(`Lancer | ${statuses.length} status icons configured`);
-  CONFIG.statusEffects = statuses;
-}
 
 export async function migrateLancerConditions() {
   // Migrate settings from the module

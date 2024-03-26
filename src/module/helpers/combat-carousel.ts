@@ -1,4 +1,4 @@
-import type { LancerCombat, LancerCombatant } from "lancer-initiative";
+import type { LancerCombat, LancerCombatant } from "../combat/lancer-combat";
 import { LancerCombatTrackerConfig } from "./lancer-initiative-config-form";
 
 const dispositions: Record<number, string> = {

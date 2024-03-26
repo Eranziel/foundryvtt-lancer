@@ -1,5 +1,5 @@
 export type { AccDiffDataSerialized } from "./data";
-export { findEffect, Cover, AccDiffWeapon, AccDiffBase, AccDiffTarget, AccDiffData } from "./data";
+export { Cover, AccDiffWeapon, AccDiffBase, AccDiffTarget, AccDiffData } from "./data";
 export type {
   CheckboxUI,
   NoUI,

@@ -1,9 +1,9 @@
 import { stateless } from "./serde";
 import type { AccDiffPlugin, AccDiffPluginData } from "./plugin";
 import type { AccDiffData, AccDiffTarget } from "./index";
-import type { LancerActor } from "../../actor/lancer-actor";
-import type { Mech, Pilot } from "machine-mind";
+import type { LancerActor, LancerMECH, LancerPILOT } from "../../actor/lancer-actor";
 import type { LancerToken } from "../../token";
+import { LancerTALENT } from "../../item/lancer-item";
 
 // this is an example of a case implemented without defining a full class
 function adjacentSpotter(actor: LancerActor): boolean {
@@ -27,10 +27,10 @@ function adjacentSpotter(actor: LancerActor): boolean {
   // TODO: TYPECHECK: all of this seems to work
   let adjacentPilots = (canvas!.tokens!.objects!.children as LancerToken[])
     .filter((t: LancerToken) => t.actor?.is_mech() && adjacent(t) && t.id != token.id)
-    // @ts-expect-error Should be fixed with v10 types
-    .map((t: LancerToken) => (t.actor!.system.derived.mm! as Mech).Pilot);
+    .map((t: LancerToken) => (t.actor! as LancerMECH).system.pilot?.value)
+    .filter(x => x) as LancerPILOT[];
 
-  return !!adjacentPilots.find((p: Pilot | null) => p?.Talents.find(t => t.LID == "t_spotter"));
+  return adjacentPilots.some(p => p?.itemTypes.talent.find(t => (t as LancerTALENT).system.lid == "t_spotter"));
 }
 
 function spotter(): AccDiffPluginData {

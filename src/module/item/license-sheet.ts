@@ -1,8 +1,9 @@
-import type { EntryType, LicensedItem } from "machine-mind";
-import { FoundryReg } from "../mm-util/foundry-reg";
 import { LancerItemSheet } from "./item-sheet";
-import { HANDLER_activate_item_context_menus } from "../helpers/item";
-import { LancerItemSheetData } from "../interfaces";
+import { handleContextMenus } from "../helpers/item";
+import { EntryType } from "../enums";
+import { LancerItem, LancerLICENSE } from "./lancer-item";
+import { handleDocDropping } from "../helpers/dragdrop";
+import { get_pack_id } from "../util/doc";
 
 /**
  * Extend the generic Lancer item sheet
@@ -21,40 +22,51 @@ export class LancerLicenseSheet extends LancerItemSheet<EntryType.LICENSE> {
   }
 
   async getData() {
-    let sup = await super.getData();
-
-    // Perform a scan of the compendium
-    let comp_reg = new FoundryReg("comp_core");
-    console.warn("Todo: also allow scan to hit any other compendiums"); // They just gotta be provided in the scan array argument
-    let scan = await sup.mm.scan([comp_reg], sup.mm.OpCtx);
+    let data = await super.getData();
+    let license = this.item as LancerLICENSE;
 
     // Build an unlocks array
-    let ranks = Array.from(scan.ByLevel.keys()).sort();
-    let unlocks: LicensedItem[][] = [];
-    if (ranks.length) {
-      for (let i = 0; i <= ranks[ranks.length - 1]; i++) {
-        unlocks.push(scan.ByLevel.get(i) ?? []);
+
+    // let ranks = Array.from(scan.ByLevel.keys()).sort();
+    let unlocks: LancerItem[][] = [[]];
+
+    // Find the assoc frame
+    for (let et of [EntryType.FRAME, EntryType.MECH_SYSTEM, EntryType.MECH_WEAPON, EntryType.WEAPON_MOD]) {
+      let pack = game.packs.get(get_pack_id(et));
+      if (pack) {
+        let index = await pack.getIndex();
+        // @ts-expect-error
+        let key = this.item.system.key;
+        for (let [id, index_data] of index.entries()) {
+          // @ts-expect-error
+          let item_license = index_data.system.license as string | undefined;
+          if (item_license != key) continue;
+
+          let doc = await pack.getDocument(id);
+          // @ts-expect-error
+          let rank = doc.system.license_level as number;
+          while (unlocks.length <= rank) {
+            unlocks.push([]);
+          }
+          unlocks[rank].push(doc as LancerItem);
+        }
       }
     }
+    console.log(unlocks);
 
     // Put the unlocks array in. Don't bother meddling the type
-    (sup as any)["unlocks"] = unlocks;
+    (data as any)["unlocks"] = unlocks;
 
     // Pass it along
-    return sup;
+    return data;
   }
 
   /**
    * @override
    */
-  _activate_context_listeners(
-    html: JQuery,
-    // Retrieves the data that we will operate on
-    data_getter: () => Promise<LancerItemSheetData<EntryType.LICENSE>> | LancerItemSheetData<EntryType.LICENSE>,
-    commit_func: (data: LancerItemSheetData<EntryType.LICENSE>) => void | Promise<void>
-  ) {
+  _activate_context_listeners(html: JQuery) {
     // Enable custom context menu triggers with only the "view" option.
-    HANDLER_activate_item_context_menus(html, data_getter, commit_func, true);
+    handleContextMenus(html, this.item, true);
   }
 
   /**
@@ -64,6 +76,20 @@ export class LancerLicenseSheet extends LancerItemSheet<EntryType.LICENSE> {
    */
   activateListeners(html: JQuery) {
     super.activateListeners(html);
+
+    // If an item is dropped on it, set its license & manufacturer to match the license
+    handleDocDropping(html, (doc, dest, evt) => {
+      if (doc.type == "Item") {
+        doc.document.update({
+          system: {
+            // @ts-expect-error
+            license: this.item.system.key,
+            // @ts-expect-error
+            manufacturer: this.item.system.manufacturer,
+          },
+        });
+      }
+    });
 
     // Everything below here is only needed if the sheet is editable
     if (!this.options.editable) return;

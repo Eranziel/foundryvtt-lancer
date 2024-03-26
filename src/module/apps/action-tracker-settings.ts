@@ -13,6 +13,7 @@ export class ActionTrackerConfig extends FormApplication<FormApplication.Options
       title: "lancer.actionTracker.menu-label",
       id: "lancer-actionTracker-settings",
       template: `systems/${game.system.id}/templates/window/actiontracker-config.hbs`,
+      classes: ["lancer", "action-tracker-config"],
       width: 350,
     };
   }

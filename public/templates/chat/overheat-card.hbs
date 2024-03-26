@@ -1,32 +1,39 @@
-<div class="card clipped-bot" style="margin: 0px;">
-  <div class="lancer-header struct-stress clipped-top">
-    {{#if rerollMacroData}}<span class="spacer"></span>{{/if}}
+<div class="card clipped-top" style="margin: 0px;">
+  <div class="lancer-header lancer-primary struct-stress clipped-top">
+    <i class="cci cci-reactor i--m"></i>
+    {{#if reroll_data}}<span class="spacer"></span>{{/if}}
     <div class="flexcol">
       <span>{{localize "lancer.chat-card.title.overheating"}}</span>
-      <span style="align-self: center;">{{localize "lancer.chat-card.remaining" total=val max=max}}</span>
+      <span style="align-self: center;">
+        {{localize "lancer.chat-card.remaining" total=val max=max}}
+      </span>
     </div>
-    {{#if rerollMacroData}}
-    <a class="chat-button roll-overheating lancer-macro" data-macro="{{rerollMacroData}}" title="Reroll this result">
-      <i class="fas fa-dice-d20 i--m i--light"></i>
-    </a>
+    {{! TODO: reroll button }}
+  </div>
+  {{#with result}}
+    {{#if roll}}
+      {{! Not using the dice roll helper because `total` is a special case here }}
+      <div class="dice-roll lancer-dice-roll">
+        <div class="dice-result">
+          <div class="dice-formula lancer-dice-formula flexrow">
+            <span style="text-align: left; margin-left: 5px;">{{roll.formula}}</span>
+            <span class="dice-total lancer-dice-total major">{{total}}</span>
+            <i class="cci cci-reactor i--m"></i>
+          </div>
+          {{#if tt}}
+            <div style="text-align: left;">
+              {{{tt}}}
+            </div>
+          {{/if}}
+        </div>
+      </div>
     {{/if}}
-  </div>
-  {{#if roll}}
-  <div class="dice-roll lancer-dice-roll">
-    <div class="dice-result">
-      <div class="dice-formula lancer-dice-formula flexrow">
-        <span style="text-align: left; margin-left: 5px;">{{ roll.formula }}</span>
-        <span class="dice-total lancer-dice-total major">{{ total }}</span>
-      </div>
-      {{#if tt}}
-      <div style="text-align: left;">
-        {{{tt}}}
-      </div>
-      {{/if}}
-    </div>
-  </div>
+  {{/with}}
+  <div class="lancer-header submajor">{{title}}</div>
+  <div class="effect-text">{{{desc}}}</div>
+  {{#if embedButtons}}
+    {{#each embedButtons}}
+      {{{this}}}
+    {{/each}}
   {{/if}}
-  <div class="lancer-stat-header clipped-top">{{title}}</div>
-  <div class="effect-text">{{{text}}}</div>
-  {{#if secondaryRoll}} {{{ secondaryRoll }}} {{/if}}
 </div>

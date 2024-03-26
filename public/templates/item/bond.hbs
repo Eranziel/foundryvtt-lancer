@@ -1,0 +1,132 @@
+<form class="{{cssClass}} lancer-sheet bond" autocomplete="off">
+
+  {{!-- Sheet Header --}}
+  <header class="sheet-header card clipped-bot">
+    <div class="flexcol grow">
+      <h1 class="charname"><input class="header-field" name="name" type="text" value="{{item.name}}" placeholder="{{localize "lancer.placeholder.name"}}"/></h1>
+    </div>
+    {{{ ref-portrait-img item.img "img" item }}}
+  </header>
+
+  {{!-- Sheet Body --}}
+  <div class="flexcol">
+    {{!-- TODO: add and delete buttons for ideals and questions --}}
+    {{!-- Major Ideals --}}
+    <div class="card clipped">
+      <div class="lancer-header lancer-primary major">
+        <span>MAJOR IDEALS</span>
+        <a class="gen-control fas fa-plus" data-action="append" data-path="system.major_ideals" data-action-value="(struct)string"></a>
+      </div>
+      <ul>
+        {{#each system.major_ideals}}
+          <li>
+            <div class="bond-ideal-row">
+              {{{std-text-input (concat "system.major_ideals." @index) classes="lancer-text-field bond-ideal"}}}
+              <a class="gen-control" data-action="splice" data-path="system.major_ideals.{{@index}}">
+                <i class="fas fa-trash"></i>
+              </a>
+            </div>
+          </li>
+        {{/each}}
+      </ul>
+    </div>
+
+    {{!-- Minor Ideals --}}
+    <div class="card clipped">
+      <div class="lancer-header lancer-primary major">
+        <span>MINOR IDEALS</span>
+        <a class="gen-control fas fa-plus" data-action="append" data-path="system.minor_ideals" data-action-value="(struct)string"></a>
+      </div>
+      <ul>
+        {{#each system.minor_ideals}}
+          <li>
+            <div class="bond-ideal-row">
+              {{{std-text-input (concat "system.minor_ideals." @index) classes="lancer-text-field"}}}
+              <a class="gen-control" data-action="splice" data-path="system.minor_ideals.{{@index}}">
+                <i class="fas fa-trash"></i>
+              </a>
+            </div>
+          </li>
+        {{/each}}
+      </ul>
+    </div>
+
+    {{!-- Questions --}}
+    <div class="card clipped">
+      <div class="lancer-header lancer-primary major">
+        <span>QUESTIONS</span>
+        <a class="gen-control fas fa-plus" data-action="append" data-path="system.questions" data-action-value="(struct)bond_question"></a>
+      </div>
+      {{#each system.questions as |question|}}
+        <div class="bond-question">
+          <div class="bond-question-row">
+            {{{std-text-input (concat "system.questions." (concat @index ".question")) classes="lancer-text-field"}}}
+            <a class="gen-control" data-action="splice" data-path="system.questions.{{@index}}">
+              <i class="fas fa-trash"></i>
+            </a>
+          </div>
+          <ul class="bond-question-options">
+            {{#each question.options as |option|}}
+              <li>
+                <div class="bond-question-option-row">
+                  {{{std-text-input (concat "system.questions." (concat @../index (concat ".options." @index))) classes="lancer-text-field"}}}
+                  <a class="gen-control" data-action="splice" data-path="system.questions.{{@../index}}.options.{{@index}}">
+                    <i class="fas fa-trash"></i>
+                  </a>
+                </div>
+              </li>
+            {{/each}}
+            <li>
+              <span>
+                <a class="gen-control add-question fas fa-plus" data-action="append" data-path="{{concat "system.questions[" (concat @index "].options")}}" data-action-value="(struct)string"></a>
+              </span>
+            </li>
+          </ul>
+        </div>
+        <hr style="width: 95%;">
+      {{/each}}
+    </div>
+
+    {{!-- Powers --}}
+    <div class="card clipped">
+      <div class="lancer-header lancer-primary major">
+        <span>POWERS</span>
+        <a class="gen-control fas fa-plus" data-action="append" data-path="system.powers" data-action-value="(struct)power"></a>
+      </div>
+      {{#each system.powers as |power power_index|}}
+        <div class="card clipped">
+          <div class="lancer-header lancer-primary major">
+            {{{std-checkbox (concat "system.powers." (concat power_index ".unlocked")) label="" classes=""}}}
+            {{!-- TODO: bond icon? --}}
+            <i class="cci cci-trait i--m i--light header-icon"> </i> 
+            {{{std-text-input (concat "system.powers." (concat power_index ".name")) classes="lancer-text-field"}}}
+            <a class="gen-control" data-action="splice" data-path="system.powers.{{power_index}}">
+              <i class="fas fa-trash"></i>
+            </a>
+          </div>
+          <div class="flexrow" style="padding: 0em 1.5em">
+            {{{std-text-input (concat "system.powers." (concat power_index ".frequency")) label="Frequency:" label_classes="flex-center flex2" classes="lancer-text-field"}}}
+            {{{std-checkbox (concat "system.powers." (concat power_index ".veteran")) label="Veteran:" classes=""}}}
+            {{{std-checkbox (concat "system.powers." (concat power_index ".master")) label="Master:" classes=""}}}
+          </div>
+          {{#if (or power.veteran power.master)}}
+            <div class="card">
+              <div class="lancer-header lancer-primary minor">
+                <span>Prerequisite</span>
+                {{{popout-editor-button (concat "system.powers." (concat power_index ".prerequisite")) }}}
+              </div>
+              <div class="desc-text">{{{safe-html power.prerequisite }}}</div>
+            </div>
+          {{/if}}
+          <div class="card">
+            <div class="lancer-header lancer-primary minor">
+              <span>Effect</span>
+              {{{popout-editor-button (concat "system.powers." (concat power_index ".description")) }}}
+            </div>
+            <div class="desc-text">{{{safe-html power.description }}}</div>
+          </div>
+        </div>
+      {{/each}}
+    </div>
+  </div>
+</form>

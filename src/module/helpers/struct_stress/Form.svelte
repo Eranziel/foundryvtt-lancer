@@ -16,12 +16,12 @@
 
   function getCurrent(a: LancerActor | null) {
     if (!a || (!a.is_mech() && !a.is_npc())) return 0;
-    return Math.max(a.system.derived[stat].value - 1, 0);
+    return Math.max(a.system[stat].value - 1, 0);
   }
 
   function getDamage(a: LancerActor | null) {
     if (!a || (!a.is_mech() && !a.is_npc())) return 0;
-    return a.system.derived[stat].max - getCurrent(a);
+    return a.system[stat].max - getCurrent(a);
   }
 
   $: icon = stat === "stress" ? ("reactor" as const) : stat;
@@ -36,7 +36,7 @@
     dispatch("submit");
   }}
 >
-  <div class="lancer-header medium">
+  <div class="lancer-header lancer-primary medium">
     <i class="cci cci-{icon} i--m i--light" />
     <span>{title}</span>
   </div>

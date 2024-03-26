@@ -1,27 +1,12 @@
 <div>
-    <div class="flexcol">
-        {{#each categories as |cat cat_index|}}
-            <span class="lancer-header major">
-                {{cat.label}}
-            </span>
-            {{#each cat.items as |item item_index|}}
-              {{#if (eq item.Type "mech_system")}}
-                {{{ref-mm-controllable-item-native (concat "categories." cat_index ".items." item_index) "delete" }}}
-              {{else if (eq item.Type "mech_weapon")}}
-                <div style="margin:3px 10px">
-                  {{{mech-weapon-preview (concat "categories." cat_index ".items." item_index) "" }}}
-                </div>
-              {{else if (eq item.Type "weapon_mod")}}
-                <div style="margin:3px 10px">
-                  {{{wpn-mod-ref (concat "categories." cat_index ".items." item_index) null }}}
-                </div>
-              {{else if (eq item.Type "frame")}}
-                {{{ref-frame item (concat "categories." cat_index ".items." item_index) }}}
-              {{else}}
-              {{!-- Fallback - typically there should be nothing other than mech systems, weapons, mods, and frames, but just in case.--}}
-                {{{ref-mm-controllable-item-native (concat "categories." cat_index ".items." item_index) "delete" }}}
-              {{/if}}
-            {{/each}}
-        {{/each}}
-    </div>
+  <div class="flexcol">
+    {{#each categories as |cat cat_index|}}
+      <span class="lancer-header lancer-primary major">
+        {{cat.label}}
+      </span>
+      {{#each cat.items as |item item_index|}}
+        {{{item-preview (concat "categories." cat_index ".items." item_index) "delete"}}}
+      {{/each}}
+    {{/each}}
+  </div>
 </div>

@@ -13,3 +13,4 @@ dist/**/*
 package/**
 debug.log
 foundry.js
+.vite-cache

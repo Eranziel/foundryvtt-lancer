@@ -6,7 +6,7 @@ export function promptText(title: string, prefill: string = ""): Promise<string 
         title,
         content: ` 
           <div class="form-group">  
-            <input id="textval" style="width: 100%;" value="${prefill}"></input>
+            <input id="textval" type="text" style="width: 100%;" value="${prefill}"></input>
           </div>
           <hr>
         `,

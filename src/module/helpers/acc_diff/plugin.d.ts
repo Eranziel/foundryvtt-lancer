@@ -1,5 +1,6 @@
 import type * as t from "io-ts";
 import { LancerItem } from "../../item/lancer-item";
+import { LancerActor } from "../../actor/lancer-actor";
 
 import type { AccDiffData } from "./index";
 

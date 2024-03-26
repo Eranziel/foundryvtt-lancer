@@ -2,50 +2,45 @@
   {{! Sheet Header }}
   <header class="sheet-header card clipped-bot">
     <h1 class="charname grow">
-      <input class="header-field" name="name" type="text" value="{{item.name}}"
-             placeholder="{{localize "lancer.placeholder.name"}}" />
+      <input
+        class="header-field"
+        name="name"
+        type="text"
+        value="{{item.name}}"
+        placeholder="{{localize 'lancer.placeholder.name'}}"
+      />
     </h1>
-    {{{ref-portrait-img item.img "img" mm}}}
+    {{{ref-portrait-img item.img "img" item}}}
   </header>
   <div>
-    {{#if item.isOwned }}
+    {{#if item.isOwned}}
       <div class="flexrow" style="align-items:center;margin-right:8px;">
         <span style="text-align: right;padding: 4px;">
           RANK:
         </span>
-        {{{l-num-input "mm.CurrentRank" 3}}}
+        {{{l-num-input "system.curr_rank"}}}
       </div>
     {{/if}}
   </div>
   <div class="flexcol">
+    {{{std-num-input "system.curr_rank" label="RANK"}}}
     {{#each unlocks as |unlock_array rank|}}
       <div class="card">
-        <div class="lancer-header">
+        <div class="lancer-header lancer-primary">
           <span class="left">
             //RANK
             {{rank}}
           </span>
         </div>
         {{#each unlock_array as |unlock unlock_index|}}
-          {{#if (eq unlock.Type "mech_system")}}
-            {{{ref-mm-controllable-item-native (concat "unlocks." rank "." unlock_index) null }}}
-          {{else if (eq unlock.Type "mech_weapon")}}
-            <div style="margin:3px 10px">
-              {{{mech-weapon-preview (concat "unlocks." rank "." unlock_index) "" }}}
-            </div>
-          {{else if (eq unlock.Type "weapon_mod")}}
-            <div style="margin:3px 10px">
-              {{{wpn-mod-ref (concat "unlocks." rank "." unlock_index) null }}}
-            </div>
-          {{else if (eq unlock.Type "frame")}}
-            {{{ref-frame unlock (concat "unlocks." rank "." unlock_index) }}}
-          {{else}}
-            {{!-- Fallback - typically there should be nothing other than mech systems, weapons, mods, and frames,
-            but just in case.--}}
-            {{{ref-mm-controllable-item-native (concat "unlocks." rank "." unlock_index) null }}}
-          {{/if}}
+          {{{item-preview (concat "unlocks." rank "." unlock_index) null}}}
         {{/each}}
       </div>
     {{/each}}
+  </div>
+  <div class="flexcol">
+    {{{std-text-input "system.manufacturer" label="Manufacturer"}}}
+    {{{std-text-input "system.lid" label="LID:"}}}
+    {{{std-text-input "system.key" label="Key:"}}}
   </div>
 </form>

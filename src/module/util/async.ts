@@ -6,14 +6,14 @@ export class FetcherCache<K, V> {
   constructor(private readonly fetch_func: (arg: K) => Promise<V>, private readonly timeout: number = 30_000) {}
 
   // The currently cached value
-  private cached_values: Map<K, Promise<V>> = new Map();
-  private cached_resolved_values: Map<K, V> = new Map();
+  protected cached_values: Map<K, Promise<V>> = new Map();
+  protected cached_resolved_values: Map<K, V> = new Map();
 
   // Holds the expiration time of specified keys. Repeated access will keep alive for longer
-  private timeout_map: Map<K, number> = new Map();
+  protected timeout_map: Map<K, number> = new Map();
 
   // Updates the timeout map for the specified key to be now + timeout
-  private stroke_timer(key: K) {
+  protected stroke_timer(key: K) {
     this.timeout_map.set(key, Date.now() + this.timeout);
   }
   // Fetch the value iff it is currently cached.
@@ -79,5 +79,36 @@ export class FetcherCache<K, V> {
     this.cached_values.clear();
     this.cached_resolved_values.clear();
     this.timeout_map.clear();
+  }
+}
+
+/**
+ * Specialized fetchercache that knows when a result is "bad", and will attempt to re-fetch it if ever that fetch fails.
+ * The fetch function is provided with a second variable on retrys.
+ */
+export class RepentantFetcherCache<K, V> extends FetcherCache<K, V> {
+  constructor(
+    private readonly upgraded_fetch_func: (arg: K, retrying?: boolean) => Promise<V>,
+    private readonly miss_predicate: (arg: V) => boolean,
+    timeout: number = 30_000
+  ) {
+    super(upgraded_fetch_func, timeout);
+  }
+
+  // Fetch value using the specified key. Returns a promise that resolves to the getters lookup function
+  async fetch(key: K): Promise<V> {
+    let result = await super.fetch(key);
+    if (this.miss_predicate(result)) {
+      // Re-do it on a miss. This logic is basically identical to a block of normal fetch, but with an additional true argument + we have to re-stroke the timer
+      super.flush(key);
+      let new_val_promise = this.upgraded_fetch_func(key, true);
+      this.cached_values.set(key, new_val_promise);
+      new_val_promise.then(resolved => this.cached_resolved_values.set(key, resolved));
+      this.stroke_timer(key);
+      return new_val_promise;
+    } else {
+      // it was fine
+      return result;
+    }
   }
 }

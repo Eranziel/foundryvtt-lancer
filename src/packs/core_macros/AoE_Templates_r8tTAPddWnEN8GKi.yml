@@ -1,0 +1,16 @@
+name: AoE Templates
+type: Macro
+color: null
+folder: null
+_id: r8tTAPddWnEN8GKi
+sorting: a
+sort: 100000
+flags: {}
+_stats:
+  systemId: lancer
+  systemVersion: 2.0.0-rc1
+  coreVersion: '11.315'
+  createdTime: 1710448383121
+  modifiedTime: 1710448469647
+  lastModifiedBy: ci5PqVPSs3DhZWTF
+_key: '!folders!r8tTAPddWnEN8GKi'

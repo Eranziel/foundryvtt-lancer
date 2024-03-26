@@ -1,12 +1,8 @@
-import { Mech } from "machine-mind";
-import type { LancerActor, AnyMMActor } from "../actor/lancer-actor";
-import { HANDLER_activate_general_controls } from "../helpers/commons";
-import {
-  HANDLER_activate_native_ref_dragging,
-  HANDLER_activate_ref_dragging,
-  HANDLER_activate_ref_clicking,
-} from "../helpers/refs";
-import { HANDLER_activate_item_context_menus } from "../helpers/item";
+import type { LancerActor } from "../actor/lancer-actor";
+import { handleGenControls } from "../helpers/commons";
+import { handleRefDragging, click_evt_open_ref } from "../helpers/refs";
+import { handleContextMenus } from "../helpers/item";
+import { applyCollapseListeners, initializeCollapses } from "../helpers/collapse";
 
 interface FilledCategory {
   label: string;
@@ -37,21 +33,16 @@ export class InventoryDialog extends Dialog {
       template: `systems/${game.system.id}/templates/window/inventory.hbs`,
       width: 600,
       height: "auto",
-      classes: ["lancer"],
+      classes: ["lancer", "inventory-editor"],
     });
   }
 
-  /** @override
-   * Expose our data. Note that everything should be ready by now
-   */
-  // @ts-ignore Dialog is apparently cut off from async in league types
+  // @ts-expect-error Dialog is apparently cut off from async in league types
   async getData(): Promise<InventoryDialogData> {
     // Fill out our categories
-    // @ts-expect-error Should be fixed with v10 types
-    let mm = await this.actor.system.derived.mm_promise;
     return {
       ...super.getData(),
-      categories: this.populate_categories(mm), // this.populate_categories()
+      categories: this.populate_categories(this.actor),
     };
   }
 
@@ -67,36 +58,78 @@ export class InventoryDialog extends Dialog {
     return super.close(options);
   }
 
-  // Get the appropriate cats for the given mm actor
-  populate_categories(mm: AnyMMActor): FilledCategory[] {
+  // Get the appropriate cats for the given actor
+  populate_categories(actor: LancerActor): FilledCategory[] {
     // Decide categories based on type
     let cats: FilledCategory[] = [];
-    if (mm instanceof Mech) {
+    if (actor.is_mech()) {
       cats = [
         {
           label: "Frames",
-          items: mm.OwnedFrames,
+          items: actor.items.filter(i => i.is_frame()),
         },
         {
           label: "Weapons",
-          items: mm.OwnedMechWeapons,
+          items: actor.items.filter(i => i.is_mech_weapon()),
         },
         {
           label: "Systems",
-          items: mm.OwnedSystems,
+          items: actor.items.filter(i => i.is_mech_system()),
         },
         {
           label: "Mods",
-          items: mm.OwnedWeaponMods,
+          items: actor.items.filter(i => i.is_weapon_mod()),
         },
         {
           label: "Statuses",
-          items: mm.StatusesAndConditions,
-          // path: "mm.StatusesAndConditions"
+          items: actor.items.filter(i => i.is_status()),
+        },
+      ];
+    } else if (actor.is_pilot()) {
+      cats = [
+        {
+          label: "Weapons",
+          items: actor.items.filter(i => i.is_pilot_weapon()),
+        },
+        {
+          label: "Armor",
+          items: actor.items.filter(i => i.is_pilot_armor()),
+        },
+        {
+          label: "Gear",
+          items: actor.items.filter(i => i.is_pilot_gear()),
+        },
+        {
+          label: "Talents",
+          items: actor.items.filter(i => i.is_talent()),
+        },
+        {
+          label: "Skills",
+          items: actor.items.filter(i => i.is_skill()),
+        },
+        {
+          label: "Licenses",
+          items: actor.items.filter(i => i.is_license()),
+        },
+        {
+          label: "Core Bonuses",
+          items: actor.items.filter(i => i.is_core_bonus()),
+        },
+        {
+          label: "Reserves",
+          items: actor.items.filter(i => i.is_reserve()),
+        },
+        {
+          label: "Organizations",
+          items: actor.items.filter(i => i.is_organization()),
+        },
+        {
+          label: "Statuses",
+          items: actor.items.filter(i => i.is_status()),
         },
       ];
     } else {
-      console.warn("Cannot yet show inventory for " + mm.Type);
+      console.warn("Cannot yet show inventory for " + actor.type);
     }
     return cats;
   }
@@ -109,22 +142,23 @@ export class InventoryDialog extends Dialog {
   activateListeners(html: JQuery<HTMLElement>) {
     super.activateListeners(html);
 
+    initializeCollapses(html);
+    applyCollapseListeners(html);
+
     // Everything below here is only needed if the sheet is editable
     let getfunc = () => this.getData();
     let commitfunc = (_: any) => {};
 
     // Enable general controls, so items can be deleted and such
-    // TODO: This is going to probably cause an error every time it runs.
-    HANDLER_activate_general_controls(html, <any>getfunc, commitfunc);
+    handleGenControls(html, this.actor);
 
     // Enable ref dragging
-    HANDLER_activate_ref_dragging(html);
-    HANDLER_activate_native_ref_dragging(html);
+    handleRefDragging(html);
 
-    HANDLER_activate_item_context_menus(html, getfunc, commitfunc);
+    handleContextMenus(html, this.actor);
 
     // Make refs clickable to open the item
-    $(html).find(".ref.valid.clickable-ref").on("click", HANDLER_activate_ref_clicking);
+    $(html).find(".ref.set.click-open").on("click", click_evt_open_ref);
   }
 
   static async show_inventory(actor: LancerActor): Promise<void> {

@@ -1,20 +1,24 @@
 // Import TypeScript modules
 
-export { onHotbarDrop } from "./macros/_hotbar";
-export { targetsFromTemplate } from "./macros/_template";
-export { encodeMacroData, runEncodedMacro } from "./macros/_encode";
-export { renderMacroTemplate, renderMacroHTML } from "./macros/_render";
-export { prepareActivationMacro } from "./macros/activation";
-export { prepareEncodedAttackMacro, openBasicAttack } from "./macros/attack";
-export { prepareCoreActiveMacro, prepareCorePassiveMacro, prepareFrameTraitMacro } from "./macros/frame";
-export { prepareItemMacro } from "./macros/item";
-export { prepareChargeMacro } from "./macros/npc-recharge";
-export { prepareOverchargeMacro } from "./macros/overcharge";
-export { prepareStatMacro } from "./macros/stat";
-export { prepareTalentMacro } from "./macros/talent";
-export { prepareTechMacro } from "./macros/tech";
-export { prepareTextMacro } from "./macros/text";
-export { stabilizeMacro } from "./macros/stabilize";
-export { prepareOverheatMacro } from "./macros/stress";
-export { prepareStructureMacro, prepareStructureSecondaryRollMacro } from "./macros/structure";
-export { fullRepairMacro } from "./macros/full-repair";
+export { onHotbarDrop } from "./flows/hotbar";
+export { targetsFromTemplate } from "./flows/_template";
+export { encodeMacroData, runEncodedMacro } from "./flows/encode";
+export { renderTemplateStep as renderMacroTemplate, createChatMessageStep as renderMacroHTML } from "./flows/_render";
+// export { prepareActivationMacro } from "./flows/activation";
+// export { prepareAttackMacro, rollAttackMacro } from "./flows/attack";
+// export { prepareCoreActiveMacro, prepareCorePassiveMacro, prepareFrameTraitMacro } from "./flows/frame";
+// export { prepareItemMacro } from "./flows/item";
+
+// HACK ALERT: For some reason, removing all exports from ./flows/npc causes the built
+// output to fail - it puts some Flow child class declarations before the Flow class declaration itself.
+export { registerNPCSteps } from "./flows/npc";
+
+// export { prepareOverchargeMacro } from "./flows/overcharge";
+// export { prepareStatMacro } from "./flows/stat";
+// export { prepareTalentMacro } from "./flows/talent";
+// export { prepareTechMacro, rollTechMacro } from "./flows/tech";
+export { prepareTextMacro } from "./flows/text";
+export { prepareStabilizeMacro as stabilizeMacro } from "./flows/stabilize";
+// export { beginStructureFlow, beginSecondaryStructureFlow } from "./flows/structure";
+// export { beginOverheatFlow } from "./flows/overheat";
+// export { prepareFullRepairMacro as fullRepairMacro } from "./flows/full-repair";
