@@ -300,7 +300,7 @@ export function activationStyle(activation: ActivationType): string {
 
 export function manufacturerStyle(mfr: string, border?: boolean): string {
   let manufacturer = slugify(mfr, "-");
-  if (!["gms", "ipsn", "ssc", "horus", "ha"].includes(manufacturer)) {
+  if (!["gms", "ips-n", "ssc", "horus", "ha"].includes(manufacturer)) {
     manufacturer = "primary";
   }
   return `lancer${border ? "-border" : ""}-${manufacturer}`;

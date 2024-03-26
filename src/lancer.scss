@@ -29,7 +29,7 @@ $document-types: join($item-types, $actor-types);
 
   /* Manufacturer theme vars */
   --gms-color: #991e2a;
-  --ipsn-color: #1662b8;
+  --ips-n-color: #1662b8;
   --ssc-color: #d1920a;
   --horus-color: #00a256;
   --ha-color: #6e4373;
@@ -51,6 +51,7 @@ $document-types: join($item-types, $actor-types);
   --bonus-list-color: #71a373;
   --tech-color: #7d2477;
   --talent-color: #3a81c3;
+  --pilot-stat-color: color-mix(in srgb, var(--background-color), #888 50%);
 
   /* Action color vars */
   --reaction-color: #892eb1;
@@ -166,7 +167,7 @@ button {
 /* General-purpose theme color classes */
 /* prettier-ignore */
 $theme-types: "primary" "secondary" "dark-gray" "light-gray" "tooltip"    // General themes
-  "gms" "ipsn" "ssc" "horus" "ha"                       // Manufacturers
+  "gms" "ips-n" "ssc" "horus" "ha"                       // Manufacturers
   "trait" "mod" "bonus" "system" "tech" "talent" "weapon"     // Gear types
   "reaction" "protocol" "quick" "full" "move" "free"; // Action types
 @each $theme-type in $theme-types {
@@ -870,7 +871,7 @@ tr.lcp-index-header {
 .pilot-stats {
   clip-path: polygon(0 0, calc(100% - 30px) 0, 100% 100%, 0 100%);
   -webkit-clip-path: polygon(0 0, calc(100% - 30px) 0, 100% 100%, 0 100%);
-  background-color: color-mix(in srgb, var(--background-color), #888 50%);
+  background-color: var(--pilot-stat-color);
   padding-left: 5px;
   padding-right: 5px;
   align-items: flex-start;
