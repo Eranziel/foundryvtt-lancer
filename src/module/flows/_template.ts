@@ -134,7 +134,10 @@ function min_dist(seg: Ray, p: Point) {
 }
 
 function in_cone_arc(ray: Ray, angle: number, p: Point) {
-  let OP = new Ray(ray.A, p);
-  let theta = (ray.angle + 2 * Math.PI - OP.angle) % (2 * Math.PI);
+  // using unit vectors for brevity
+  const a = Ray.fromAngle(ray.A.x, ray.A.y, ray.angle, 1);
+  // @ts-expect-error
+  const b: Ray = Ray.towardsPoint(ray.A, p, 1);
+  const theta = Math.acos(Math.clamped(-1, dot_product(a, b), 1));
   return theta < angle / 2;
 }
