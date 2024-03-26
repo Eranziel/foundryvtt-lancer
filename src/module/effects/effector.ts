@@ -67,7 +67,6 @@ export class EffectHelper {
   inheritedEffects(): LancerActiveEffect[] {
     let results: LancerActiveEffect[] = [];
     let inherited_effects = (this.actor as LancerMECH).system.inherited_effects;
-    console.debug(`${lp} Actor ${this.actor.name} has inherited effects:`, inherited_effects);
     if (inherited_effects) {
       for (let effect of inherited_effects.data) {
         results.push(new LancerActiveEffect(effect, { parent: this.actor }));

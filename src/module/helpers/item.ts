@@ -681,7 +681,7 @@ data-action="set" data-action-value="(int)${i}" data-path="${weapon_path}.system
       : "";
 
   let limited = "";
-  if (weapon.system.all_tags.some(t => t.is_limited)) {
+  if (weapon.isLimited()) {
     limited = limitedUsesIndicator(weapon, weapon_path);
   }
 

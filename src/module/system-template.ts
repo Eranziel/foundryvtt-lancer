@@ -120,7 +120,10 @@ export namespace SystemTemplates {
     sys: number;
     eng: number;
 
-    // Set by active effects
+    // Set principally by active effects
+    bonuses: {
+      weapon_bonuses: BonusData[];
+    };
     // TODO
     /*
     bonuses: {
@@ -365,7 +368,7 @@ export namespace SystemData {
     // Set by pilot active effect
     grit: number;
     psd: null | SourceData.Pilot; // Short for "pilot system dump". An active-effect provided dump of active pilots sytem data
-    all_bonuses: BonusData[]; // All bonuses across everything
+    all_bonuses: BonusData[]; // All compcon bonuses across everything. In general, prefer more specific mechanisms than thjis
   }
 
   export interface MechSystem
