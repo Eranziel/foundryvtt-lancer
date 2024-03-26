@@ -272,11 +272,8 @@ export class LancerItem extends Item {
     // Apply limited max from tags, as applicable
     let tags = this.getTags() ?? [];
     let lim_tag = tags.find(t => t.is_limited);
-    console.log(this.name);
-    console.log(lim_tag);
     if (lim_tag && this._hasUses()) {
       this.system.uses.max = lim_tag.num_val ?? 0; // We will apply bonuses later
-      console.log(this.system.uses.max);
     }
 
     // We can then finally apply limited bonuses from our parent
