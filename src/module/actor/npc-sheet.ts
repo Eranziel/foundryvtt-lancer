@@ -149,6 +149,7 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
       }
       if (doc.is_npc_class()) {
         await this.actor.swapFrameImage(doc);
+        await this.actor.updateTokenSize(doc);
       }
     }
 

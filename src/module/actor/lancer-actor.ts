@@ -528,26 +528,6 @@ export class LancerActor extends Actor {
         this.beginStructureFlow();
       }
     }
-
-    // If the Size of the ent has changed since the last update, set the
-    // protype token size to the new size
-    const expected_size = Math.max(1, this.system.size);
-    // Update either prototype token or the token itself depending
-    // @ts-expect-error prototypeToken is not in the types
-    const token = this.token ?? this.prototypeToken;
-    if (token && token.width !== expected_size) {
-      token.update({
-        width: expected_size,
-        height: expected_size,
-        flags: {
-          "hex-size-support": {
-            borderSize: expected_size,
-            altSnapping: true,
-            evenSnap: !(expected_size % 2),
-          },
-        },
-      });
-    }
   }
 
   /** @inheritdoc
@@ -675,6 +655,23 @@ export class LancerActor extends Actor {
       img: replaceDefaultResource(curr_actor, new_frame_path, default_img),
       "prototypeToken.texture.src": replaceDefaultResource(curr_token, new_frame_path, default_img),
     });
+  }
+
+  /**
+   * Taking a new frame/class, set the prototype token size
+   * @param newFrame - The new frame or class to pull the size from.
+   */
+  async updateTokenSize(newFrame: LancerFRAME | LancerNPC_CLASS): Promise<void> {
+    let new_size: number | undefined;
+    if (newFrame.is_frame() && this.is_mech()) {
+      new_size = Math.max(1, newFrame.system.stats.size);
+    } else if (newFrame.is_npc_class() && this.is_npc()) {
+      const tier = this.system.tier || 1;
+      new_size = Math.max(1, newFrame.system.base_stats[tier - 1].size);
+    }
+    if (!new_size) return;
+    // @ts-expect-error
+    await this.prototypeToken.update({ height: new_size, width: new_size });
   }
 
   // Checks that the provided document is not null, and is a lancer actor

@@ -205,6 +205,7 @@ export function getAutomationOptions(useDefault = false): AutomationOptions {
     attack_self_heat: true,
     limited_loading: true,
     remove_templates: false,
+    token_size: true,
   };
   if (useDefault) return def;
   const settings = (game.settings.get(game.system.id, LANCER.setting_automation) as Record<string, boolean>) ?? {};
@@ -223,6 +224,7 @@ export function getAutomationOptions(useDefault = false): AutomationOptions {
       attack_self_heat: false,
       limited_loading: false,
       remove_templates: false,
+      token_size: false,
     };
   }
 }
@@ -269,6 +271,11 @@ export interface AutomationOptions {
    * @defaultValue `false`
    */
   remove_templates: boolean;
+  /**
+   * Automatically manage token sizes based on the actor
+   * @defaultValue `true`
+   */
+  token_size: boolean;
 }
 
 //

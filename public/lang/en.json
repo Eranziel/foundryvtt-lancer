@@ -220,7 +220,9 @@
       "remove_templates": "Remove Templates Each Turn",
       "remove_templates-desc": "When the turn changes, should measured templates from attacks be cleared?",
       "limited_loading": "Manage Limited/Loading",
-      "limited_loading-desc": "When items are used, should their limited and loading status be automatically managed and tracked?"
+      "limited_loading-desc": "When items are used, should their limited and loading status be automatically managed and tracked?",
+      "token_size": "Manage Token Sizes",
+      "token_size-desc": "Automatically force tokens sizes to match the associated actor's size stat."
     },
     "actionTracker": {
       "menu-name": "Action Tracker",
@@ -265,6 +267,12 @@
       "pilot-items": "Pilot Items",
       "player-actors": "Premade Player Actors",
       "status-items": "Status/Condition"
+    },
+    "tokenConfig": {
+      "manual_token_size": {
+        "label": "Manual Token Sizing",
+        "hint": "Bypass system automation for determining token size"
+      }
     }
   },
   "LANCERINITIATIVE": {
