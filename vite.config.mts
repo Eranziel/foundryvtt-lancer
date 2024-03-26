@@ -42,6 +42,7 @@ const config: UserConfig = {
       fileName: "lancer",
     },
   },
+  esbuild: { keepNames: true },
   plugins: [
     svelte({
       preprocess: preprocess(),
@@ -56,7 +57,7 @@ const config: UserConfig = {
     }),
   ],
   define: {
-    'process.env': process.env,
+    "process.env": process.env,
   },
 };
 
