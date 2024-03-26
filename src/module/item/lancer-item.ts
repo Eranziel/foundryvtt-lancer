@@ -202,13 +202,6 @@ export class LancerItem extends Item {
       this.system.powers = this.system.powers.map(p => fixupPowerUses(p));
     }
 
-    // Apply limited max from tags, as applicable
-    let tags = this.getTags() ?? [];
-    let lim_tag = tags.find(t => t.is_limited);
-    if (lim_tag && this._hasUses()) {
-      this.system.uses.max = lim_tag.num_val ?? 0; // We will apply bonuses later
-    }
-
     if (!this.actor) {
       // This would ordinarily be called by our parent actor. We must do it ourselves.
       this.prepareFinalAttributes();
@@ -222,13 +215,7 @@ export class LancerItem extends Item {
    * Note that it is still necessary that items without actors call this in order to prepare weapon tags
    */
   prepareFinalAttributes(): void {
-    // At the very least, we can apply limited bonuses from our parent
-    if (this.actor?.is_mech()) {
-      if (this._hasUses() && this.system.uses.max) {
-        this.system.uses.max += this.actor.system.loadout.limited_bonus;
-      }
-    }
-
+    // Build final arrays of bonus_damage/range based on mods and actor bonuses
     if (this.is_mech_weapon()) {
       // Add mod bonuses to all profiles
       for (let profile of this.system.profiles) {
@@ -236,7 +223,6 @@ export class LancerItem extends Item {
           profile.bonus_damage.push(...this.system.mod.system.added_damage);
           profile.bonus_range.push(...this.system.mod.system.added_range);
           profile.bonus_tags.push(...this.system.mod.system.added_tags);
-          this.system.all_tags.push(...profile.all_tags);
         }
 
         // Add all bonuses.
@@ -273,6 +259,26 @@ export class LancerItem extends Item {
         profile.all_damage = Damage.CombineLists(profile.damage, profile.bonus_damage);
         profile.all_range = Range.CombineLists(profile.range, profile.bonus_range);
         profile.all_tags = Tag.MergeTags(profile.tags, profile.bonus_tags);
+
+        // "all_tags" is rarely what you actually want to use, but can be useful as a litmus test of what tags are present on the weapon as a whole
+        this.system.all_tags = Tag.MergeTags(this.system.all_tags, profile.all_tags);
+      }
+    }
+
+    // Apply limited max from tags, as applicable
+    let tags = this.getTags() ?? [];
+    let lim_tag = tags.find(t => t.is_limited);
+    console.log(this.name);
+    console.log(lim_tag);
+    if (lim_tag && this._hasUses()) {
+      this.system.uses.max = lim_tag.num_val ?? 0; // We will apply bonuses later
+      console.log(this.system.uses.max);
+    }
+
+    // We can then finally apply limited bonuses from our parent
+    if (this.actor?.is_mech()) {
+      if (this._hasUses() && this.system.uses.max) {
+        this.system.uses.max += this.actor.system.loadout.limited_bonus;
       }
     }
   }
