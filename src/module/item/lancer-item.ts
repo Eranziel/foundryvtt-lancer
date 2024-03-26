@@ -255,6 +255,10 @@ export class LancerItem extends Item {
           }
         }
 
+        // Crunch down the Damage and Range
+        profile.bonus_damage = Damage.CombineLists([], profile.bonus_damage);
+        profile.bonus_range = Range.CombineLists([], profile.bonus_range);
+
         // Finally, form combined damages/ranges/tags for the profile
         profile.all_damage = Damage.CombineLists(profile.damage, profile.bonus_damage);
         profile.all_range = Range.CombineLists(profile.range, profile.bonus_range);
