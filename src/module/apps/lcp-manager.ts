@@ -18,6 +18,7 @@ function addLCPManager(app: Application, html: any) {
       return;
     }
     let button = document.createElement("button");
+    button.setAttribute("id", "lcp-manager-button");
     button.setAttribute("style", "flex-basis: 100%;margin-top: 5px;");
     button.innerHTML = "<i class='cci cci-content-manager i--s'></i> LANCER Compendium Manager";
     buttons.append(button);
@@ -80,6 +81,7 @@ class LCPManager extends Application {
     return mergeObject(super.defaultOptions, {
       template: `systems/${game.system.id}/templates/lcp/lcp-manager.hbs`,
       title: "LANCER Compendium Manager",
+      id: "lcp-manager",
       classes: ["lancer", "lcp-manager"],
       width: 800,
       height: 800,
