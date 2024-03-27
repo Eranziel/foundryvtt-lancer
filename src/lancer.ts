@@ -1085,7 +1085,7 @@ function addSettingsButtons(_app: Application, html: HTMLElement) {
             <i class="fas fa-robot"></i>LANCER Help
         </button>`);
 
-  const loginButton = $(`<button id="triggler-form" data-action="triggler">
+  const loginButton = $(`<button id="compcon-login" data-action="compconLogin">
             <i class="mdi mdi-cloud-sync-outline "></i>COMP/CON Login
           </button>`);
 

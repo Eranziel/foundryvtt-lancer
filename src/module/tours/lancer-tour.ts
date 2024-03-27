@@ -20,9 +20,18 @@ interface TourStep {
   inApp?: boolean;
 }
 
+import { LancerActor } from "../actor/lancer-actor";
 import { LCPManager } from "../apps/lcp-manager";
 import { LancerCombat } from "../combat/lancer-combat";
+import { EntryType } from "../enums";
 
+/**
+ * LANCER Extensions to the foundry Tour class. Adds sidebarTab and click as
+ * optional parameters on tour steps. The sidebarTab parameter will open the
+ * sidebar to the specified tab before the step. The click parameter will
+ * simulate a click on the element before proceeding to the next step if set to
+ * true.
+ */
 export class LancerTour extends Tour {
   async _preStep() {
     await super._preStep();
@@ -40,6 +49,9 @@ export class LancerTour extends Tour {
   }
 }
 
+/**
+ * Tour for showcasing the LCP Manager
+ */
 export class LancerLcpTour extends LancerTour {
   manager?: LCPManager;
   async _preStep() {
@@ -66,6 +78,41 @@ export class LancerLcpTour extends LancerTour {
   }
 }
 
+/**
+ * Tour of Pilot imports
+ */
+export class LancerPilotTour extends LancerTour {
+  actor?: LancerActor;
+  async _preStep() {
+    await super._preStep();
+    if (!this.actor) {
+      this.actor = await Actor.create(
+        {
+          name: "Test Pilot",
+          type: EntryType.PILOT,
+          system: { callsign: get_player_data()[0].name, hp: { value: 6 } },
+        },
+        { temporary: true }
+      );
+    }
+    // @ts-expect-error
+    await this.actor?.sheet?._render(true);
+    // @ts-expect-error
+    this.actor?.sheet?.activateTab("cloud");
+  }
+
+  async _postStep() {
+    await super._postStep();
+    if (this.currentStep?.id === "jsonImport") {
+      this.actor?.sheet?.close({ submit: false });
+      delete this.actor;
+    }
+  }
+}
+
+/**
+ * Tour of combat tracker changes
+ */
 export class LancerCombatTour extends LancerTour {
   combat?: LancerCombat;
   async _preStep() {
@@ -127,29 +174,40 @@ function get_player_data() {
     let j = Math.floor(Math.random() * (i + 1));
     [demo_pilots[i], demo_pilots[j]] = [demo_pilots[j], demo_pilots[i]];
   }
-  return demo_pilots.slice(0, 3).map(p => ({
+  return demo_pilots.slice(0, 3).map((p, i) => ({
     name: p.name,
     img: `./systems/${game.system.id}/assets/retrograde-minis/Retrograde-Minis-${p.img}.png` as const,
-    [`flags.${game.system.id}.tour` as const]: "player",
+    [`flags.${game.system.id}.tour` as const]: `player-${i + 1}` as const,
     [`flags.${game.system.id}.disposition` as const]: 2,
   }));
 }
 // Data subitted from the lancer-vtt channel in Pilot NET
 const demo_pilots = [
+  { name: "Bandana", img: "IPS-N-LANCASTER" }, // bulletkin
+  { name: "Bulkhead", img: "IPS-N-DRAKE" }, // Golthan
   { name: "Catastrophe", img: "Horus-MANTICORE" }, // Rais
   { name: "Closing Crescendo", img: "IPS-N-RALEIGH" }, // traduiz
+  { name: "Deathwish", img: "Horus-MANTICORE" }, // Dudemaster 47
   { name: "Dragonspark", img: "HA-TOKUGAWA" }, // Tonysan
   { name: "Errant", img: "IPS-N-NELSON" }, // FactualInsanity
   { name: "Gale Storm", img: "Horus-BALOR" }, // Kirbo.exe
   { name: "Gale", img: "IPS-N-NELSON" }, // Lynn (4d6north)
+  { name: "Goldsmith", img: "SSC-DUSK WING" }, // Moxkete
+  { name: "Good Kisser", img: "IPS-N-TORTUGA" }, // Cipher (cipher3227)
   { name: "Instrument", img: "SSC-MONARCH" }, // Jazzman - Update to viceroy if we add an icon
+  { name: "Kinesthesia", img: "SSC-SWALLOWTAIL" }, // CawsForConcern
   { name: "Owl", img: "SSC-DEATHS HEAD" }, // Jimothy
   { name: "Oxhorn", img: "HA-SHERMAN" }, // Bargo
+  { name: "Poundcakes", img: "IPS-N-CALIBAN" }, // AnatoleSerial
   { name: "Raven", img: "SSC-DUSK WING" }, // Zenn
+  { name: "Salaryman", img: "SSC-MOURNING CLOAK" }, // Siege (s13g3)
+  { name: "Scherzo", img: "IPS-N-KIDD" }, // spentrek
   { name: "Sunset", img: "SSC-MOURNING CLOAK" }, // Zemyla
+  { name: "Superman", img: "GMS" }, // ZerReiMaru
   { name: "Timber", img: "IPS-N-BLACKBEARD" }, // Valkyrion
   { name: "Tyrant", img: "Horus-BALOR" }, // Night Parade in the Kitchen
   { name: "Verminspeaker", img: "Horus-HYDRA" }, // Cancermantis
+  { name: "buck wild", img: "HA-ENKIDU" }, // rikerwashere
   { name: "jellyfish", img: "SSC-ATLAS" }, // Marfew
   // { name: "Callsign", img: "GMS" },
 ];
