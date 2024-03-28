@@ -173,7 +173,7 @@ import { PilotWeaponModel } from "./module/models/items/pilot_weapon";
 import { importCC } from "./module/actor/import";
 
 import "./module/helpers/text-enrichers";
-import { fromLid, fromLidSync } from "./module/helpers/from-lid";
+import { fromLid, fromLidMany, fromLidSync } from "./module/helpers/from-lid";
 import { SkillModel } from "./module/models/items/skill";
 import { LicenseModel } from "./module/models/items/license";
 import { NpcTemplateModel } from "./module/models/items/npc_template";
@@ -350,6 +350,7 @@ Hooks.once("init", async function () {
     migrations: migrations,
     getAutomationOptions: getAutomationOptions,
     fromLid: fromLid,
+    fromLidMany: fromLidMany,
     fromLidSync: fromLidSync,
   };
 
