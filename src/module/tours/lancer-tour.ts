@@ -24,6 +24,7 @@ import { LancerActor } from "../actor/lancer-actor";
 import { LCPManager } from "../apps/lcp-manager";
 import { LancerCombat } from "../combat/lancer-combat";
 import { EntryType } from "../enums";
+import { LancerItem } from "../item/lancer-item";
 
 /**
  * LANCER Extensions to the foundry Tour class. Adds sidebarTab and click as
@@ -106,6 +107,55 @@ export class LancerPilotTour extends LancerTour {
     if (this.currentStep?.id === "jsonImport") {
       this.actor?.sheet?.close({ submit: false });
       delete this.actor;
+    }
+  }
+}
+
+/**
+ * Tour of NPC creation
+ */
+export class LancerNPCTour extends LancerTour {
+  npc?: LancerActor;
+  async _preStep() {
+    await super._preStep();
+    if (!this.npc) {
+      this.npc = await Actor.create(
+        {
+          name: "Test NPC",
+          type: EntryType.NPC,
+          items: [
+            {
+              _id: "0000000000000000",
+              name: "Test Class",
+              img: `systems/${game.system.id}/assets/icons/npc_class.svg`,
+              type: EntryType.NPC_CLASS,
+              system: { role: "TEST" },
+            } as any,
+            {
+              _id: "0000000000000001",
+              name: "Test Template",
+              img: `systems/${game.system.id}/assets/icons/npc_template.svg`,
+              type: EntryType.NPC_TEMPLATE,
+            },
+          ],
+        },
+        { temporary: true }
+      );
+    }
+    // @ts-expect-error
+    await this.npc?.sheet?._render(true);
+    if (["baseFeatures", "optionalFeatures"].includes(this.currentStep?.id)) {
+      // @ts-expect-error
+      await this.npc?.system?.class?.sheet?._render(true);
+    }
+  }
+  async _postStep() {
+    await super._postStep();
+    // @ts-expect-error
+    if (this.currentStep?.id === "optionalFeatures") await this.npc?.system?.class?.sheet?.close({ submit: false });
+    if (this.currentStep?.id === "npcTemplates") {
+      this.npc?.sheet?.close({ submit: false });
+      delete this.npc;
     }
   }
 }

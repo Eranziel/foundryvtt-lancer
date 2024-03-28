@@ -1,4 +1,4 @@
-import { LancerCombatTour, LancerLcpTour, LancerPilotTour } from "./lancer-tour";
+import { LancerCombatTour, LancerLcpTour, LancerNPCTour, LancerPilotTour } from "./lancer-tour";
 
 export async function registerTours() {
   game.tours.register(
@@ -10,6 +10,11 @@ export async function registerTours() {
     game.system.id,
     "pilot-import",
     await LancerPilotTour.fromJSON(`./systems/${game.system.id}/tours/pilot-import.json`)
+  );
+  game.tours.register(
+    game.system.id,
+    "npc",
+    await LancerNPCTour.fromJSON(`./systems/${game.system.id}/tours/npc.json`)
   );
   game.tours.register(
     game.system.id,

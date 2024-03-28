@@ -3,6 +3,7 @@
   "description": "lancer.tour.lcp.description",
   "canBeResumed": true,
   "display": true,
+  "restricted": true,
   "steps": [
     {
       "id": "compendiumTab",
