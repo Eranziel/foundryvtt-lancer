@@ -24,7 +24,6 @@ import { LancerActor } from "../actor/lancer-actor";
 import { LCPManager } from "../apps/lcp-manager";
 import { LancerCombat } from "../combat/lancer-combat";
 import { EntryType } from "../enums";
-import { LancerItem } from "../item/lancer-item";
 
 /**
  * LANCER Extensions to the foundry Tour class. Adds sidebarTab and click as
@@ -155,6 +154,58 @@ export class LancerNPCTour extends LancerTour {
     if (this.currentStep?.id === "optionalFeatures") await this.npc?.system?.class?.sheet?.close({ submit: false });
     if (this.currentStep?.id === "npcTemplates") {
       this.npc?.sheet?.close({ submit: false });
+      delete this.npc;
+    }
+  }
+}
+
+/**
+ * Tour of attack and check dialog
+ * Here be $^&#@*&$^*&#
+ */
+export class LancerSlidingHudTour extends LancerTour {
+  npc?: LancerActor;
+  async _preStep() {
+    await super._preStep();
+    if (!this.npc) {
+      const id = get_player_data()[0];
+      this.npc = await Actor.create(
+        {
+          ...id,
+          type: EntryType.NPC,
+          items: [
+            {
+              name: "Test Weapon",
+              type: EntryType.NPC_FEATURE,
+              img: "systems/lancer/assets/icons/generic_item.svg",
+              system: {
+                type: "Weapon",
+                weapon_type: "Launcher",
+                damage: [
+                  { type: "Kinetic", val: 5 },
+                  { type: "Kinetic", val: 5 },
+                  { type: "Kinetic", val: 5 },
+                ],
+                range: [
+                  { type: "Range", val: 5 },
+                  { type: "Blast", val: 1 },
+                ],
+              },
+            } as any,
+          ],
+        },
+        { temporary: !0 }
+      );
+    }
+    this.npc?.itemTypes[EntryType.NPC_FEATURE][0].beginWeaponAttackFlow();
+    await new Promise(resolve => setTimeout(resolve, 100));
+  }
+
+  async _postStep() {
+    await super._postStep();
+    if (this.currentStep?.id === "finish") {
+      // Dismiss the dialogue to avoid an error from trying to roll
+      document.querySelector<HTMLElement>("#hudzone #accdiff .dialog-buttons .cancel")?.click();
       delete this.npc;
     }
   }
