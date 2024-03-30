@@ -9,8 +9,8 @@ declare global {
     start(): Promise<unknown>;
     exit(): void;
     complete(): Promise<void>;
-    _preStep(): Promise<void>;
-    _postStep(): Promise<void>;
+    protected _preStep(): Promise<void>;
+    protected _postStep(): Promise<void>;
   }
 }
 
@@ -50,9 +50,9 @@ export class LancerTour extends Tour {
    * Clean up after the tour. Runs on exit or completion. This is never awaited.
    * @param _complete - True if exiting due to completion, false if exiting early
    */
-  async _tearDown(_complete: boolean) {}
+  protected async _tearDown(_complete: boolean) {}
 
-  async _preStep() {
+  protected async _preStep() {
     await super._preStep();
     if (this.currentStep?.sidebarTab) {
       ui.sidebar?.expand();
@@ -60,7 +60,7 @@ export class LancerTour extends Tour {
     }
   }
 
-  async _postStep() {
+  protected async _postStep() {
     await super._postStep();
     if (this.currentStep?.click) {
       document.querySelector<HTMLElement>(this.currentStep.selector)?.click();
@@ -73,7 +73,7 @@ export class LancerTour extends Tour {
  */
 export class LancerLcpTour extends LancerTour {
   manager?: LCPManager;
-  async _preStep() {
+  protected async _preStep() {
     await super._preStep();
     if (!this.manager) this.manager = new LCPManager();
     if (this.currentStep.id === "lcpImport") {
@@ -91,7 +91,7 @@ export class LancerLcpTour extends LancerTour {
       await new Promise(resolve => setTimeout(resolve, 30));
     }
     if (this.currentStep.inApp) {
-      // @ts-expect-error Incorrectly labeled protected
+      // @ts-expect-error Bypass protected
       await this.manager._render(true);
     }
   }
@@ -102,7 +102,7 @@ export class LancerLcpTour extends LancerTour {
  */
 export class LancerPilotTour extends LancerTour {
   actor?: LancerActor;
-  async _preStep() {
+  protected async _preStep() {
     await super._preStep();
     if (!this.actor) {
       this.actor = await Actor.create(
@@ -114,13 +114,13 @@ export class LancerPilotTour extends LancerTour {
         { temporary: true }
       );
     }
-    // @ts-expect-error
+    // @ts-expect-error Bypass protected
     await this.actor?.sheet?._render(true);
-    // @ts-expect-error
+    // @ts-expect-error v11
     this.actor?.sheet?.activateTab("cloud");
   }
 
-  async _tearDown() {
+  protected async _tearDown() {
     this.actor?.sheet?.close({ submit: false });
     delete this.actor;
   }
@@ -131,7 +131,7 @@ export class LancerPilotTour extends LancerTour {
  */
 export class LancerNPCTour extends LancerTour {
   npc?: LancerActor;
-  async _preStep() {
+  protected async _preStep() {
     await super._preStep();
     if (!this.npc) {
       this.npc = await Actor.create(
@@ -157,20 +157,20 @@ export class LancerNPCTour extends LancerTour {
         { temporary: true }
       );
     }
-    // @ts-expect-error
+    // @ts-expect-error Bypass protected
     await this.npc?.sheet?._render(true);
     if (["baseFeatures", "optionalFeatures"].includes(this.currentStep?.id)) {
-      // @ts-expect-error
+      // @ts-expect-error Bypass protected
       await this.npc?.system?.class?.sheet?._render(true);
     }
   }
-  async _postStep() {
+  protected async _postStep() {
     await super._postStep();
     // @ts-expect-error
     if (this.currentStep?.id === "optionalFeatures") await this.npc?.system?.class?.sheet?.close({ submit: false });
   }
 
-  async _tearDown() {
+  protected async _tearDown() {
     this.npc?.sheet?.close({ submit: false });
     delete this.npc;
   }
@@ -182,7 +182,7 @@ export class LancerNPCTour extends LancerTour {
  */
 export class LancerSlidingHudTour extends LancerTour {
   npc?: LancerActor;
-  async _preStep() {
+  protected async _preStep() {
     await super._preStep();
     if (!this.npc) {
       const id = get_player_data()[0];
@@ -218,7 +218,7 @@ export class LancerSlidingHudTour extends LancerTour {
     await new Promise(resolve => setTimeout(resolve, 100));
   }
 
-  async _tearDown() {
+  protected async _tearDown() {
     // Dismiss the dialogue to avoid an error from trying to roll
     document.querySelector<HTMLElement>("#hudzone #accdiff .dialog-buttons .cancel")?.click();
     delete this.npc;
@@ -230,7 +230,7 @@ export class LancerSlidingHudTour extends LancerTour {
  */
 export class LancerCombatTour extends LancerTour {
   combat?: LancerCombat;
-  async _preStep() {
+  protected async _preStep() {
     await super._preStep();
     if (!this.combat) this.combat = (await this._setupCombat())!;
     await this.combat.activate();
@@ -243,7 +243,7 @@ export class LancerCombatTour extends LancerTour {
     }
   }
 
-  async _tearDown() {
+  protected async _tearDown() {
     this.combat?.delete();
     delete this.combat;
   }
