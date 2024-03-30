@@ -5,6 +5,10 @@ declare global {
   class Tour {
     static fromJSON(json_file: string): Promise<Tour>;
     currentStep: TourStep;
+
+    start(): Promise<unknown>;
+    exit(): void;
+    complete(): Promise<void>;
     _preStep(): Promise<void>;
     _postStep(): Promise<void>;
   }
@@ -33,6 +37,21 @@ import { EntryType } from "../enums";
  * true.
  */
 export class LancerTour extends Tour {
+  exit() {
+    super.exit();
+    this._tearDown(false);
+  }
+  async complete() {
+    await super.complete();
+    this._tearDown(true);
+  }
+
+  /**
+   * Clean up after the tour. Runs on exit or completion. This is never awaited.
+   * @param _complete - True if exiting due to completion, false if exiting early
+   */
+  async _tearDown(_complete: boolean) {}
+
   async _preStep() {
     await super._preStep();
     if (this.currentStep?.sidebarTab) {
@@ -101,12 +120,9 @@ export class LancerPilotTour extends LancerTour {
     this.actor?.sheet?.activateTab("cloud");
   }
 
-  async _postStep() {
-    await super._postStep();
-    if (this.currentStep?.id === "jsonImport") {
-      this.actor?.sheet?.close({ submit: false });
-      delete this.actor;
-    }
+  async _tearDown() {
+    this.actor?.sheet?.close({ submit: false });
+    delete this.actor;
   }
 }
 
@@ -152,10 +168,11 @@ export class LancerNPCTour extends LancerTour {
     await super._postStep();
     // @ts-expect-error
     if (this.currentStep?.id === "optionalFeatures") await this.npc?.system?.class?.sheet?.close({ submit: false });
-    if (this.currentStep?.id === "npcTemplates") {
-      this.npc?.sheet?.close({ submit: false });
-      delete this.npc;
-    }
+  }
+
+  async _tearDown() {
+    this.npc?.sheet?.close({ submit: false });
+    delete this.npc;
   }
 }
 
@@ -194,20 +211,17 @@ export class LancerSlidingHudTour extends LancerTour {
             } as any,
           ],
         },
-        { temporary: !0 }
+        { temporary: true }
       );
     }
     this.npc?.itemTypes[EntryType.NPC_FEATURE][0].beginWeaponAttackFlow();
     await new Promise(resolve => setTimeout(resolve, 100));
   }
 
-  async _postStep() {
-    await super._postStep();
-    if (this.currentStep?.id === "finish") {
-      // Dismiss the dialogue to avoid an error from trying to roll
-      document.querySelector<HTMLElement>("#hudzone #accdiff .dialog-buttons .cancel")?.click();
-      delete this.npc;
-    }
+  async _tearDown() {
+    // Dismiss the dialogue to avoid an error from trying to roll
+    document.querySelector<HTMLElement>("#hudzone #accdiff .dialog-buttons .cancel")?.click();
+    delete this.npc;
   }
 }
 
@@ -218,25 +232,20 @@ export class LancerCombatTour extends LancerTour {
   combat?: LancerCombat;
   async _preStep() {
     await super._preStep();
-    if (!this.combat || this.currentStep.id === "combatTab") this.combat = (await this._setupCombat())!;
+    if (!this.combat) this.combat = (await this._setupCombat())!;
     await this.combat.activate();
     if (!this.combat.started) await this.combat.startCombat();
     if (this.currentStep.id === "endTurn") {
-      await this.combat.activateCombatant(
-        this.combat.turns.find(t => t.getFlag(game.system.id, "tour") === "ultra")?.id ?? "",
-        true
-      );
+      const turn = this.combat.turns.find(t => t.getFlag(game.system.id, "tour") === "ultra")?.id ?? "";
+      await this.combat.activateCombatant(turn, true);
       // Delay to avoid race condition
       await new Promise(resolve => setTimeout(resolve, 30));
     }
   }
 
-  async _postStep() {
-    await super._postStep();
-    if (this.currentStep?.id === "combatSettings") {
-      this.combat?.delete();
-      this.combat = undefined;
-    }
+  async _tearDown() {
+    this.combat?.delete();
+    delete this.combat;
   }
 
   protected async _setupCombat() {
