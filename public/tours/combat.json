@@ -3,6 +3,7 @@
   "description": "lancer.tour.combat.description",
   "canBeResumed": false,
   "display": true,
+  "restricted": true,
   "steps": [
     {
       "id": "combatTab",

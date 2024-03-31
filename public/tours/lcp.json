@@ -48,7 +48,10 @@
       "inApp": true
     }
   ],
-  "suggestedNextTours": [],
+  "suggestedNextTours": [
+    "lancer.npc",
+    "lancer.pilot-import"
+  ],
   "localization": {
     "lancer.tour.lcp": {
       "title": "Importing LCPs",

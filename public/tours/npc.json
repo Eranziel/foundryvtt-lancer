@@ -38,7 +38,7 @@
       "content": "lancer.tour.npc.npcTemplates.content"
     }
   ],
-  "suggestedNextTours": [],
+  "suggestedNextTours": ["lancer.pilot-import"],
   "localization": {
     "lancer.tour.npc": {
       "title": "Building NPCs",

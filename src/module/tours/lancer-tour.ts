@@ -9,6 +9,8 @@ declare global {
     start(): Promise<unknown>;
     exit(): void;
     complete(): Promise<void>;
+    next(): Promise<void>;
+    previous(): Promise<void>;
     protected _preStep(): Promise<void>;
     protected _postStep(): Promise<void>;
   }
@@ -103,6 +105,8 @@ export class LancerLcpTour extends LancerTour {
 export class LancerPilotTour extends LancerTour {
   actor?: LancerActor;
   protected async _preStep() {
+    // Clear selector for non-gm players since by default they don't have the button
+    if (this.currentStep?.id === "folders" && !game.user?.isGM) this.currentStep.selector = null!;
     await super._preStep();
     if (!this.actor) {
       this.actor = await Actor.create(
