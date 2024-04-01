@@ -661,7 +661,20 @@ Hooks.once("init", async function () {
   //   }
   // });
 
+  // Combat tracker HUD modules integration
   Hooks.on("renderCombatCarousel", handleRenderCombatCarousel);
+  if (game.modules.get("combat-tracker-dock")?.active) {
+    game.lancer.combatTrackerDock = await import("./module/integrations/combat-tracker-dock");
+    (game.lancer.combatTrackerDock as any).renderHook = Hooks.on(
+      "renderCombatDock",
+      (...[_app, html]: Parameters<Hooks.RenderApplication>) => {
+        html.find(".buttons-container [data-action='roll-all']").hide();
+        html.find(".buttons-container [data-action='roll-npc']").hide();
+        // html.find(".buttons-container [data-action='previous-turn']").hide();
+        html.find(".buttons-container [data-action='next-turn']").hide();
+      }
+    );
+  }
 
   // Extend TokenConfig for token size automation
   Hooks.on("renderTokenConfig", extendTokenConfig);

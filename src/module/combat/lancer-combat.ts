@@ -63,6 +63,18 @@ export class LancerCombat extends Combat {
     return this.update({ round, turn: null }, { advanceTime });
   }
 
+  /**
+   * End the current turn and refund the activation
+   */
+  override async previousTurn() {
+    if (this.turn === null) return this;
+    const updateData = { turn: null };
+    const updateOptions = { advanceTime: -CONFIG.time.turnTime, direction: -1 };
+    await this.combatant?.modifyCurrentActivations(1);
+    Hooks.callAll("combatTurn", this, updateData, updateOptions);
+    return this.update(updateData, updateOptions as any);
+  }
+
   override async resetAll(): Promise<this | undefined> {
     await this.resetActivations();
     // @ts-expect-error V10 typings
@@ -122,19 +134,7 @@ export class LancerCombatant extends Combatant {
       this.flags?.[module]?.activations?.max === undefined &&
       canvas?.ready
     ) {
-      let activations: number;
-      switch (typeof CONFIG.LancerInitiative.activations) {
-        case "string":
-          activations =
-            foundry.utils.getProperty(this.actor?.getRollData() ?? {}, CONFIG.LancerInitiative.activations) ?? 1;
-          break;
-        case "number":
-          activations = CONFIG.LancerInitiative.activations;
-          break;
-        default:
-          activations = 1;
-          break;
-      }
+      const activations = foundry.utils.getProperty(this.actor?.getRollData() ?? {}, "activations") ?? 1;
       // @ts-expect-error v10
       this.updateSource({
         [`flags.${module}.activations`]: {
@@ -143,6 +143,8 @@ export class LancerCombatant extends Combatant {
         },
       });
     }
+    // @ts-expect-error v10
+    this.initiative ??= 0;
   }
 
   /**
