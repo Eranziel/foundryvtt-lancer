@@ -97,7 +97,6 @@ export class LancerCombat extends Combat {
   async activateCombatant(id: string, override = false): Promise<this | undefined> {
     if (!(game.user?.isGM || (this.turn == null && this.combatants.get(id)?.isOwner) || override))
       return this.requestActivation(id);
-    // if (!game.user?.isGM && !override) return this.requestActivation(id);
     const combatant = <LancerCombatant | undefined>this.getEmbeddedDocument("Combatant", id);
     if (!combatant?.activations.value) return this;
     await combatant?.modifyCurrentActivations(-1);
