@@ -20,6 +20,7 @@ export interface LancerUITheme {
   bonusListColor: string;
   techColor: string;
   talentColor: string;
+  pilotStatColor: string;
   // Action type colors
   reactionColor: string;
   protocolColor: string;
@@ -63,6 +64,7 @@ export const themeGMS: LancerUITheme = {
   bonusListColor: "#71a373",
   techColor: "#7d2477",
   talentColor: "#3a81c3",
+  pilotStatColor: "color-mix(in srgb, var(--background-color), #888 50%)",
   // Action type colors
   reactionColor: "#892eb1",
   protocolColor: "#c75a00",
@@ -135,6 +137,93 @@ export const themeHORUS: LancerUITheme = {
   darkenColor: "125, 125, 125",
 };
 
+export const themeHA: LancerUITheme = {
+  ...themeGMS,
+  primaryColor: "#771675",
+  primaryHighlight: "color-mix(in srgb, var(--primary-color), #fff 55%)",
+  primaryShadow: "#d628d2",
+  lightText: "#ffffff",
+  darkText: "#b3b9ba",
+  backgroundColor: "#2b2b2b",
+  secondaryColor: "#cf4bdb",
+  secondaryHighlight: "#color-mix(in srgb, var(--secondary-color), #fff 55%)",
+  secondaryText: "#ffffff",
+  darkGrayColor: "#4d4d4d",
+  lightGrayColor: "#555555",
+  tooltipBackground: "#222222",
+  tooltipText: "#ffffff",
+  // Gear type colors
+  systemColor: "#b035ad",
+  talentColor: "#e080de",
+  pilotStatColor: "#333333",
+  darkenColor: "64, 64, 64",
+};
+
+export const themeSSC: LancerUITheme = {
+  ...themeGMS,
+  primaryColor: "#d1920a",
+  primaryHighlight: "color-mix(in srgb, var(--primary-color), #fff 55%)",
+  primaryShadow: "#fbe2ac",
+  lightText: "#ffffff",
+  darkText: "#000000",
+  backgroundColor: "#eee8d5",
+  secondaryColor: "#685d99",
+  secondaryHighlight: "#color-mix(in srgb, var(--secondary-color), #fff 55%)",
+  secondaryText: "#ffffff",
+  darkGrayColor: "#5a4c3f",
+  lightGrayColor: "#eadbcb",
+  tooltipBackground: "#d6c9b0",
+  tooltipText: "#000000",
+  // Gear type colors
+  systemColor: "#89610B",
+  talentColor: "#b58900",
+  pilotStatColor: "#eadbcb",
+  darkenColor: "64, 64, 64",
+};
+
+export const themeIPSN: LancerUITheme = {
+  ...themeGMS,
+  primaryColor: "#1952A2",
+  primaryHighlight: "color-mix(in srgb, var(--primary-color), #fff 55%)",
+  primaryShadow: "#c6daf6",
+  lightText: "#ffffff",
+  darkText: "#000000",
+  backgroundColor: "#dbdbdb",
+  secondaryColor: "#c77634",
+  secondaryHighlight: "#color-mix(in srgb, var(--secondary-color), #fff 55%)",
+  secondaryText: "#ffffff",
+  darkGrayColor: "#8a949e",
+  lightGrayColor: "#cccccc",
+  tooltipBackground: "#e8e8e8",
+  tooltipText: "#000000",
+  // Gear type colors
+  systemColor: "#061a1f",
+  talentColor: "#19A2A2",
+  darkenColor: "0, 0, 0",
+};
+
+export const themeGAL: LancerUITheme = {
+  ...themeGMS,
+  primaryColor: "#e36600",
+  primaryHighlight: "color-mix(in srgb, var(--primary-color), #fff 55%)",
+  primaryShadow: "#ffe3cc",
+  lightText: "#ffffff",
+  darkText: "#96a0a0",
+  backgroundColor: "#2b2b2b",
+  secondaryColor: "#3e6a94",
+  secondaryHighlight: "#color-mix(in srgb, var(--secondary-color), #fff 55%)",
+  secondaryText: "#ffffff",
+  darkGrayColor: "#111111",
+  lightGrayColor: "#444444",
+  tooltipBackground: "#333333",
+  tooltipText: "#ffffff",
+  // Gear type colors
+  systemColor: "#3e6a94",
+  talentColor: "#4974bf",
+  pilotStatColor: "#272727",
+  darkenColor: "0, 0, 0",
+};
+
 function varName(key: string) {
   return (
     "--" +
@@ -145,7 +234,7 @@ function varName(key: string) {
   );
 }
 
-export function applyTheme(theme: "gms" | "gmsDark" | "msmc" | "horus") {
+export function applyTheme(theme: "gms" | "gmsDark" | "msmc" | "horus" | "ha" | "ssc" | "ipsn" | "gal") {
   let selectedTheme: LancerUITheme;
   switch (theme) {
     case "gmsDark":
@@ -156,6 +245,18 @@ export function applyTheme(theme: "gms" | "gmsDark" | "msmc" | "horus") {
       break;
     case "horus":
       selectedTheme = themeHORUS;
+      break;
+    case "ha":
+      selectedTheme = themeHA;
+      break;
+    case "ssc":
+      selectedTheme = themeSSC;
+      break;
+    case "ipsn":
+      selectedTheme = themeIPSN;
+      break;
+    case "gal":
+      selectedTheme = themeGAL;
       break;
     case "gms":
     default:
