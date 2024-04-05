@@ -173,7 +173,7 @@ import { PilotWeaponModel } from "./module/models/items/pilot_weapon";
 import { importCC } from "./module/actor/import";
 
 import "./module/helpers/text-enrichers";
-import { fromLid, fromLidSync } from "./module/helpers/from-lid";
+import { fromLid, fromLidMany, fromLidSync } from "./module/helpers/from-lid";
 import { SkillModel } from "./module/models/items/skill";
 import { LicenseModel } from "./module/models/items/license";
 import { NpcTemplateModel } from "./module/models/items/npc_template";
@@ -204,6 +204,7 @@ import { beginCascadeFlow, registerCascadeSteps } from "./module/flows/cascade";
 import { registerNPCSteps } from "./module/flows/npc";
 import { registerActionTrackSteps } from "./module/flows/action-track";
 import { get_pack_id } from "./module/util/doc";
+import { registerTours } from "./module/tours/register-tours";
 
 const lp = LANCER.log_prefix;
 
@@ -349,6 +350,7 @@ Hooks.once("init", async function () {
     migrations: migrations,
     getAutomationOptions: getAutomationOptions,
     fromLid: fromLid,
+    fromLidMany: fromLidMany,
     fromLidSync: fromLidSync,
   };
 
@@ -364,6 +366,9 @@ Hooks.once("init", async function () {
 
   // Set up default system status icons
   LancerActiveEffect.populateConfig(false);
+
+  // Register the system tours
+  registerTours();
 
   // Register Web Components
   customElements.define("card-clipped", class LancerClippedCard extends HTMLDivElement {}, {
@@ -1084,7 +1089,7 @@ function addSettingsButtons(_app: Application, html: HTMLElement) {
             <i class="fas fa-robot"></i>LANCER Help
         </button>`);
 
-  const loginButton = $(`<button id="triggler-form" data-action="triggler">
+  const loginButton = $(`<button id="compcon-login" data-action="compconLogin">
             <i class="mdi mdi-cloud-sync-outline "></i>COMP/CON Login
           </button>`);
 

@@ -1,0 +1,94 @@
+{
+  "title": "lancer.tour.combat.title",
+  "description": "lancer.tour.combat.description",
+  "canBeResumed": false,
+  "display": true,
+  "restricted": true,
+  "steps": [
+    {
+      "id": "combatTab",
+      "selector": ".tabs>a[data-tab='combat']",
+      "title": "lancer.tour.combat.combatTab.title",
+      "content": "lancer.tour.combat.combatTab.content",
+      "sidebarTab": "combat"
+    },
+    {
+      "id": "turnOrder",
+      "selector": "#combat #combat-tracker",
+      "title": "lancer.tour.combat.turnOrder.title",
+      "content": "lancer.tour.combat.turnOrder.content",
+      "sidebarTab": "combat"
+    },
+    {
+      "id": "activateButton",
+      "selector": "#combat #combat-tracker li.enemy .lancer-combat-control",
+      "title": "lancer.tour.combat.activateButton.title",
+      "content": "lancer.tour.combat.activateButton.content",
+      "sidebarTab": "combat"
+    },
+    {
+      "id": "endTurn",
+      "selector": "#combat #combat-tracker li .lancer-combat-control.done",
+      "title": "lancer.tour.combat.endTurn.title",
+      "content": "lancer.tour.combat.endTurn.content",
+      "sidebarTab": "combat",
+      "click": true
+    },
+    {
+      "id": "combatControls",
+      "selector": "#combat #combat-controls",
+      "title": "lancer.tour.combat.combatControls.title",
+      "content": "lancer.tour.combat.combatControls.content",
+      "sidebarTab": "combat"
+    },
+    {
+      "id": "resetActivations",
+      "selector": "#combat header .encounter-controls [data-control='resetAll']",
+      "title": "lancer.tour.combat.resetActivations.title",
+      "content": "lancer.tour.combat.resetActivations.content",
+      "sidebarTab": "combat"
+    },
+    {
+      "id": "combatSettings",
+      "selector": "#combat header .encounter-controls a[data-control='trackerSettings']",
+      "title": "lancer.tour.combat.combatSettings.title",
+      "content": "lancer.tour.combat.combatSettings.content",
+      "sidebarTab": "combat"
+    }
+  ],
+  "suggestedNextTours": [],
+  "localization": {
+    "lancer.tour.combat": {
+      "title": "Combat Tracker",
+      "description": "Using the customized LANCER combat tracker",
+      "combatTab": {
+        "title": "LANCER Combat Tracker",
+        "content": "LANCER provides a customized combat tracker with some differences from the default foundry tracker"
+      },
+      "turnOrder": {
+        "title": "Turn Order",
+        "content": "Because LANCER does not use a fixed turn order, combatants are instead displayed grouped by their side. Players and allies are listed first, then neutral, then enemies. Additionally, the current combatant is listed first and any combatants with no turns remaining for the round are listed last."
+      },
+      "activateButton": {
+        "title": "Activation Button",
+        "content": "To start the turn for a combatant, click the activation button. Combatants with multiple activations (turns) will have a button for each activation."
+      },
+      "endTurn": {
+        "title": "Ending Turns",
+        "content": "Turns can be ended by clicking the Activate Button again for the current combatant, or by simply starting the turn of a different combatant."
+      },
+      "combatControls": {
+        "title": "Combat Controls",
+        "content": "The next and previous turn buttons have been removed. Advancing the round will reset activations for all combatants."
+      },
+      "resetActivations": {
+        "title": "Reset Activations",
+        "content": "The Reset Initiative button will reset the activations for all combatants without needing to change the round. Activations can be reset for individual combatants from their context menu."
+      },
+      "combatSettings": {
+        "title": "Combat Settings",
+        "content": "The settings menu has been customized to allow configuring LANCER specific options."
+      }
+    }
+  }
+}
