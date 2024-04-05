@@ -136,20 +136,20 @@ export class Range implements Required<RangeData> {
   }
 
   // Combine two arrays of damage. Does not edit originals
-  public static CombineLists(a: Range[], b: Range[]): Range[] {
+  public static CombineLists(base: Range[], additions: Range[]): Range[] {
     // Make a copy of a.
-    let result = a.map(d => d.copy());
+    let result = base.map(d => d.copy());
 
     // For each b, try to find a matching a and add them together
-    for (let db of b) {
+    for (let added_range of additions) {
       // Get a match on
-      let to_be_modified = result.find(result_d => result_d.type == db.type);
+      let to_be_modified = result.find(result_d => result_d.type == added_range.type);
       if (to_be_modified) {
         // We found existing range of that type. Sum on the new stuff
-        to_be_modified.val += db.val;
+        to_be_modified.val += added_range.val;
       } else {
         // Did not already have that damage type. Add it
-        result.push(db.copy());
+        result.push(added_range.copy());
       }
     }
     return result;

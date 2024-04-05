@@ -5,6 +5,7 @@ import { LancerFRAME, LancerMECH_WEAPON, LancerNPC_CLASS, LancerNPC_FEATURE, Lan
 import { BonusData } from "../models/bits/bonus";
 import { SystemData, SystemTemplates } from "../system-template";
 import {
+  AE_MODE_APPEND_JSON,
   AE_MODE_SET_JSON,
   LancerActiveEffect,
   LancerActiveEffectConstructorData,
@@ -413,10 +414,27 @@ export function npcFeatureOverrideEffects(feature: LancerNPC_FEATURE): LancerAct
 // Converts a single bonus to a single active effect
 export function convertBonus(origin: string, name: string, bonus: BonusData): null | LancerActiveEffectConstructorData {
   // Separate logic for "restricted" bonuses
-  if (bonus.lid == "damage") {
-    // TODO
-  } else if (bonus.lid == "range") {
-    // TODO
+  if (bonus.lid == "damage" || bonus.lid == "range") {
+    return {
+      name,
+      flags: {
+        [game.system.id]: {
+          target_type: EntryType.MECH,
+          ephemeral: true,
+        },
+      },
+      changes: [
+        {
+          mode: AE_MODE_APPEND_JSON,
+          value: JSON.stringify(bonus),
+          priority: 50,
+          key: "system.bonuses.weapon_bonuses",
+        },
+      ],
+      transfer: true,
+      disabled: false,
+      origin: origin,
+    };
   } else {
     // ui.notifications?.warn("Bonus restrictions have no effect");
   }
@@ -442,14 +460,6 @@ export function convertBonus(origin: string, name: string, bonus: BonusData): nu
     // case "pilot_gear":
 
     // Here's what we care about
-    case "range":
-      target_type = EntryType.MECH;
-      changes.push({ mode, value, priority, key: "system.range_bonus" });
-      break;
-    case "damage":
-      target_type = EntryType.MECH;
-      changes.push({ mode, value, priority, key: "system.damage_bonus" });
-      break;
     case "hp":
       target_type = EntryType.MECH;
       changes.push({ mode, value, priority, key: "system.hp.max" });
@@ -656,8 +666,8 @@ export function bonusAffectsWeapon(weapon: LancerMECH_WEAPON, bonus: BonusData):
   // Now start checking
   if (bonus.weapon_sizes?.[weapon.system.size] === false) return false;
   if (bonus.weapon_types?.[sel_prof.type] === false) return false;
-  if (!sel_prof.damage.some(d => bonus.damage_types?.[d.type] === false)) return false;
-  if (!sel_prof.range.some(d => bonus.range_types?.[d.type] === false)) return false;
+  if (!sel_prof.damage.some(d => bonus.damage_types?.[d.type] === true)) return false;
+  if (!sel_prof.range.some(d => bonus.range_types?.[d.type] === true)) return false;
 
   // Passed the test
   return true;
