@@ -67,11 +67,11 @@
       },
       "turnOrder": {
         "title": "Turn Order",
-        "content": "Because LANCER does not use a fixed turn order, combatants are instead displayed grouped by their side. Players and allies are listed first, then neutral, then enemies. Additionally, the current combatant is listed firs and any combatants with no turns remaining for the round are listed last."
+        "content": "Because LANCER does not use a fixed turn order, combatants are instead displayed grouped by their side. Players and allies are listed first, then neutral, then enemies. Additionally, the current combatant is listed first and any combatants with no turns remaining for the round are listed last."
       },
       "activateButton": {
         "title": "Activation Button",
-        "content": "To start the turn for a combatant, click the activation button. Combatants with multiple activations will have a button for each activation."
+        "content": "To start the turn for a combatant, click the activation button. Combatants with multiple activations (turns) will have a button for each activation."
       },
       "endTurn": {
         "title": "Ending Turns",
