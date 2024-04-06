@@ -42,24 +42,24 @@ export class StrussHelper {
         case 0:
           if (maxStress > 1)
             return "The reactor goes critical – your mech suffers a reactor meltdown at the end of your next turn.";
-          else if (maxStress <= 1) return "Your mech becomes @Compendium[world.status.EXPOSED].";
+          else if (maxStress <= 1) return "Your mech becomes @Compendium[world.status-items.Exposed].";
         case 1:
           switch (remStress) {
             case 2:
               // Choosing not to auto-roll the checks to keep the suspense up
-              return "Roll an ENGINEERING check. On a success, your mech is @Compendium[world.status.EXPOSED]; on a failure, it suffers a reactor meltdown after 1d6 of your turns (rolled by the GM). A reactor meltdown can be prevented by retrying the ENGINEERING check as a full action.";
+              return "Roll an ENGINEERING check. On a success, your mech is @Compendium[world.status-items.Exposed]; on a failure, it suffers a reactor meltdown after 1d6 of your turns (rolled by the GM). A reactor meltdown can be prevented by retrying the ENGINEERING check as a full action.";
             case 1:
               return "Your mech suffers a reactor meltdown at the end of your next turn.";
             default:
-              return "Your mech becomes @Compendium[world.status.EXPOSED].";
+              return "Your mech becomes @Compendium[world.status-items.Exposed].";
           }
         case 2:
         case 3:
         case 4:
-          return "The power plant becomes unstable, beginning to eject jets of plasma. Your mech becomes @Compendium[world.status.EXPOSED], taking double kinetic, explosive and energy damage until the status is cleared.";
+          return "The power plant becomes unstable, beginning to eject jets of plasma. Your mech becomes @Compendium[world.status-items.Exposed], taking double kinetic, explosive and energy damage until the status is cleared.";
         case 5:
         case 6:
-          return "Your mech’s cooling systems manage to contain the increasing heat; however, your mech becomes @Compendium[world.status.IMPAIRED] until the end of your next turn.";
+          return "Your mech’s cooling systems manage to contain the increasing heat; however, your mech becomes @Compendium[world.status-items.Impaired] until the end of your next turn.";
       }
     }
 
@@ -160,7 +160,7 @@ export class StrussHelper {
     let item_changes: any = []; // TODO
 
     if (o1 === StabOptions1.Cool) {
-      return_text = return_text.concat("Mech is cooling itself. @Compendium[world.status.EXPOSED] cleared.<br>");
+      return_text = return_text.concat("Mech is cooling itself. @Compendium[world.status-items.Exposed] cleared.<br>");
       await this.actor.update({ "system.heat.value": 0 });
       this.actor.effectHelper.removeActiveEffect("exposed");
     } else if (o1 === StabOptions1.Repair) {

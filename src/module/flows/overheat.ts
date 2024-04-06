@@ -115,19 +115,19 @@ function overheatTableDescriptions(roll: number, remStress: number): string {
     case 1:
       switch (remStress) {
         case 2:
-          return "Roll an ENGINEERING check. On a success, your mech is @Compendium[world.status.Exposed]. On a failure, it suffers a reactor meltdown after 1d6 of your turns (rolled by the GM). A reactor meltdown can be prevented by retrying the ENGINEERING check as a free action..";
+          return "Roll an ENGINEERING check. On a success, your mech is @Compendium[world.status-items.Exposed]. On a failure, it suffers a reactor meltdown after 1d6 of your turns (rolled by the GM). A reactor meltdown can be prevented by retrying the ENGINEERING check as a free action..";
         case 1:
           return "Your mech suffers a reactor meltdown at the end of your next turn.";
         default:
-          return "Your mech becomes @Compendium[world.status.Exposed]";
+          return "Your mech becomes @Compendium[world.status-items.Exposed]";
       }
     case 2:
     case 3:
     case 4:
-      return "The power plant becomes unstable, beginning to eject jets of plasma. Your mech becomes @Compendium[world.status.Exposed].";
+      return "The power plant becomes unstable, beginning to eject jets of plasma. Your mech becomes @Compendium[world.status-items.Exposed].";
     case 5:
     case 6:
-      return "Your mech’s cooling systems manage to contain the increasing heat; however, your mech becomes @Compendium[world.status.Impaired] until the end of your next turn.";
+      return "Your mech’s cooling systems manage to contain the increasing heat; however, your mech becomes @Compendium[world.status-items.Impaired] until the end of your next turn.";
   }
   return "";
 }
