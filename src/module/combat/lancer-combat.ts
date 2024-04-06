@@ -41,17 +41,22 @@ export class LancerCombat extends Combat {
 
   override async nextRound(): Promise<this | undefined> {
     await this.resetActivations();
+    const updateData = { round: this.round + 1, turn: null };
     let advanceTime = Math.max(this.turns.length - (this.turn || 0), 0) * CONFIG.time.turnTime;
     advanceTime += CONFIG.time.roundTime;
-    // @ts-ignore jtfc advanceTime is fucking used in foundry.js
-    return this.update({ round: this.round + 1, turn: null }, { advanceTime });
+    const updateOptions = { advanceTime, direction: 1 };
+    Hooks.callAll("combatRound", this, updateData, updateOptions);
+    return this.update(updateData, updateOptions as any);
   }
 
   /**
    * Ends the current turn without starting a new one
    */
   override async nextTurn(): Promise<this | undefined> {
-    return this.update({ turn: null });
+    const updateData = { turn: null };
+    const updateOptions = { advanceTime: 0, direction: 0 };
+    Hooks.callAll("combatTurn", this, updateData, updateOptions);
+    return this.update(updateData, updateOptions as any);
   }
 
   override async previousRound(): Promise<this | undefined> {
@@ -59,8 +64,22 @@ export class LancerCombat extends Combat {
     const round = Math.max(this.round - 1, 0);
     let advanceTime = 0;
     if (round > 0) advanceTime -= CONFIG.time.roundTime;
-    // @ts-ignore jtfc advanceTime is fucking used in foundry.js
-    return this.update({ round, turn: null }, { advanceTime });
+    const updateData = { round, turn: null };
+    const updateOptions = { advanceTime, direction: -1 };
+    Hooks.callAll("combatRound", this, updateData, updateOptions);
+    return this.update(updateData, updateOptions as any);
+  }
+
+  /**
+   * End the current turn and refund the activation
+   */
+  override async previousTurn() {
+    if (this.turn === null) return this;
+    const updateData = { turn: null };
+    const updateOptions = { advanceTime: -CONFIG.time.turnTime, direction: -1 };
+    await this.combatant?.modifyCurrentActivations(1);
+    Hooks.callAll("combatTurn", this, updateData, updateOptions);
+    return this.update(updateData, updateOptions as any);
   }
 
   override async resetAll(): Promise<this | undefined> {
@@ -76,12 +95,16 @@ export class LancerCombat extends Combat {
    * permission to modify the combat
    */
   async activateCombatant(id: string, override = false): Promise<this | undefined> {
-    if (!game.user?.isGM && !override) return this.requestActivation(id);
+    if (!(game.user?.isGM || (this.turn == null && this.combatants.get(id)?.isOwner) || override))
+      return this.requestActivation(id);
     const combatant = <LancerCombatant | undefined>this.getEmbeddedDocument("Combatant", id);
     if (!combatant?.activations.value) return this;
     await combatant?.modifyCurrentActivations(-1);
     const turn = this.turns.findIndex(t => t.id === id);
-    return this.update({ turn });
+    const updateData = { turn };
+    const updateOptions = { advanceTime: CONFIG.time.turnTime, direction: 1 };
+    Hooks.callAll("combatTurn", this, updateData, updateOptions);
+    return this.update(updateData, updateOptions as any);
   }
 
   /**
@@ -122,19 +145,7 @@ export class LancerCombatant extends Combatant {
       this.flags?.[module]?.activations?.max === undefined &&
       canvas?.ready
     ) {
-      let activations: number;
-      switch (typeof CONFIG.LancerInitiative.activations) {
-        case "string":
-          activations =
-            foundry.utils.getProperty(this.actor?.getRollData() ?? {}, CONFIG.LancerInitiative.activations) ?? 1;
-          break;
-        case "number":
-          activations = CONFIG.LancerInitiative.activations;
-          break;
-        default:
-          activations = 1;
-          break;
-      }
+      const activations = foundry.utils.getProperty(this.actor?.getRollData() ?? {}, "activations") ?? 1;
       // @ts-expect-error v10
       this.updateSource({
         [`flags.${module}.activations`]: {
@@ -143,6 +154,8 @@ export class LancerCombatant extends Combatant {
         },
       });
     }
+    // @ts-expect-error v10
+    this.initiative ??= 0;
   }
 
   /**
