@@ -270,6 +270,48 @@ Hooks.once("init", async function () {
   // @ts-expect-error
   CONFIG.Actor.dataModels[EntryType.DEPLOYABLE] = DeployableModel;
 
+  // Set up trackable resources for the various actor types
+  const base = {
+    bar: ["hp", "heat", "overshield"],
+    value: [
+      "activations",
+      "agi",
+      "armor",
+      "burn",
+      "edef",
+      "eng",
+      "evasion",
+      "hull",
+      "overshield.value",
+      "save",
+      "sensor_range",
+      "size",
+      "speed",
+      "sys",
+      "tech_attack",
+    ],
+  };
+  // @ts-expect-error
+  CONFIG.Actor.trackableAttributes = {
+    base,
+    ["deployable"]: {
+      bar: [...base.bar],
+      value: [...base.value, "cost", "instances"],
+    },
+    ["mech"]: {
+      bar: [...base.bar, "structure", "stress"],
+      value: [...base.value, "action_tracker.move", "core_energy", "grit", "meltdown_timer", "overcharge"],
+    },
+    ["npc"]: {
+      bar: [...base.bar, "structure", "stress"],
+      value: [...base.value, "meltdown_timer", "tier"],
+    },
+    ["pilot"]: {
+      bar: [...base.bar, "bond_state.stress", "bond_state.xp"],
+      value: [...base.value, "grit", "level"],
+    },
+  };
+
   // Configure indexes
   // @ts-expect-error
   CONFIG.Item.compendiumIndexFields = ["system.lid", "system.license"];
