@@ -43,7 +43,7 @@ export class Flow<StateData> {
   name: string = "UnnamedFlow";
   // The Steps involved in this flow, signified by key name in game.lancer.flowSteps.
   // Steps are fetched from the registry and resolved in the order they appear in the array.
-  steps: Array<string> = ["dummyStep"];
+  steps: Array<string> = ["emptyStep"];
   // State tracking object. Passed to each step for it to modify and then return.
   state: FlowState<StateData>;
 

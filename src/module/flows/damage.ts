@@ -10,7 +10,7 @@ import { LancerFlowState } from "./interfaces";
 export class DamageApplyFlow extends Flow<LancerFlowState.WeaponRollData> {
   name = "DamageApplyFlow";
   steps = [
-    "dummyStep",
+    "emptyStep",
     // this.steps.set("getDamages", dummyDamageStep);
     // this.steps.set("checkTargetImmunity", dummyDamageStep);
     // this.steps.set("checkTargetResist", dummyDamageStep);

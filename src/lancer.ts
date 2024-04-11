@@ -329,7 +329,7 @@ Hooks.once("init", async function () {
 
   const flowSteps: Map<string, Step<any, any> | Flow<any>> = new Map();
   // Register flow steps
-  flowSteps.set("dummyStep", async (state: FlowState<any>) => !!state);
+  flowSteps.set("emptyStep", async (state: FlowState<any>) => !!state);
   registerTextSteps(flowSteps);
   registerSystemSteps(flowSteps);
   registerItemUtilSteps(flowSteps);
