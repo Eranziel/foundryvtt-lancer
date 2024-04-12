@@ -11,6 +11,7 @@ import { TagField, unpackTag } from "../bits/tag";
 import { restrict_enum } from "../../helpers/commons";
 import { ActivationType, DeployableType, EntryType } from "../../enums";
 import { slugify } from "../../util/lid";
+import { fixCCFormula } from "../../util/misc";
 
 const fields: any = foundry.data.fields;
 
@@ -82,7 +83,7 @@ export function unpackDeployableData(data: PackedDeployableData): DeepPartial<So
       edef: data.edef,
       evasion: data.evasion,
       heatcap: data.heatcap,
-      hp: max_hp,
+      hp: fixCCFormula(data.hp?.toString() || "5"),
       save: data.save,
       size: data.size,
       speed: data.speed,
