@@ -96,14 +96,14 @@ export function frameInnateEffect(frame: LancerFRAME): LancerActiveEffectConstru
 /**
  * Creates the "innate" ActiveEffect of a pilot, essentially just the buff supplied by being piloted by this mech
  */
-export function pilotInnateEffect(pilot: LancerActor): LancerActiveEffect {
+export function pilotInnateEffects(pilot: LancerActor): LancerActiveEffect[] {
   // This guard is mostly just to keep TS happy
   if (!pilot.is_pilot()) throw new Error("Cannot create pilot innate effect for non-pilot actor");
   // Bake GRIT+HASE into an active effect
-  return new LancerActiveEffect(
+  let mech_effect = new LancerActiveEffect(
     {
       // @ts-expect-error types are missing `name`
-      name: "Pilot Stats",
+      name: "Pilot Mech Attribute Bonuses",
       changes: [
         // HASE
         {
@@ -190,19 +190,19 @@ export function pilotInnateEffect(pilot: LancerActor): LancerActiveEffect {
           priority: PILOT_STAT_PRIORITY,
           value: Math.floor(pilot.system.eng / 2).toString(),
         },
+        // More basic pilot info
         {
           mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
           key: "system.grit",
           priority: PILOT_STAT_PRIORITY,
           value: pilot.system.grit.toString(),
         },
-        // Bake the rest of the pilot source data into an active effect - TODO: Isolate to just counters or something
-        /*{
-        mode: AE_MODE_SET_JSON as any,
-        key: "system.psd",
-        // @ts-expect-error
-        value: JSON.stringify(pilot.system.toObject()),
-      }*/
+        {
+          mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+          key: "system.level",
+          priority: PILOT_STAT_PRIORITY,
+          value: pilot.system.level.toString(),
+        },
       ],
       icon: pilot.img,
       origin: pilot.uuid,
@@ -217,6 +217,41 @@ export function pilotInnateEffect(pilot: LancerActor): LancerActiveEffect {
       parent: pilot,
     }
   );
+
+  let deployable_effect = new LancerActiveEffect(
+    {
+      // @ts-expect-error types are missing `name`
+      name: "Pilot Deployable Attribute Bonuses",
+      changes: [
+        // Much simpler
+        {
+          mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+          key: "system.grit",
+          priority: PILOT_STAT_PRIORITY,
+          value: pilot.system.grit.toString(),
+        },
+        {
+          mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+          key: "system.level",
+          priority: PILOT_STAT_PRIORITY,
+          value: pilot.system.level.toString(),
+        },
+      ],
+      icon: pilot.img,
+      origin: pilot.uuid,
+      flags: {
+        lancer: {
+          target_type: EntryType.DEPLOYABLE,
+          ephemeral: true,
+        },
+      },
+    },
+    {
+      parent: pilot,
+    }
+  );
+
+  return [mech_effect, deployable_effect];
 }
 
 /**

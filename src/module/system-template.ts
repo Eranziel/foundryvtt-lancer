@@ -276,7 +276,8 @@ export namespace SystemData {
     owner: SystemTemplates.ResolvedSyncUuidRef<LancerActor> | null;
 
     // Set by active effects
-    psd: null | SourceData.Pilot; // Short for "pilot system dump". An active-effect provided dump of active pilots sytem data
+    level: number;
+    grit: number;
   }
   export interface Frame extends SystemTemplates.item_universal, SystemTemplates.licensed {
     description: string;
@@ -368,8 +369,8 @@ export namespace SystemData {
     stress_repair_cost: number;
 
     // Set by pilot active effect
+    level: number;
     grit: number;
-    psd: null | SourceData.Pilot; // Short for "pilot system dump". An active-effect provided dump of active pilots sytem data
     all_bonuses: BonusData[]; // All compcon bonuses across everything. In general, prefer more specific mechanisms than thjis
   }
 

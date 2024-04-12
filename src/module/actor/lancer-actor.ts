@@ -14,7 +14,7 @@ import { StrussHelper } from "./struss-util";
 import { StructureFlow } from "../flows/structure";
 import { OverheatFlow } from "../flows/overheat";
 import { BasicAttackFlow } from "../flows/attack";
-import { pilotInnateEffect } from "../effects/converter";
+import { pilotInnateEffects } from "../effects/converter";
 import { TechAttackFlow } from "../flows/tech";
 import { FullRepairFlow } from "../flows/full-repair";
 import { StatRollFlow } from "../flows/stat";
@@ -288,7 +288,7 @@ export class LancerActor extends Actor {
 
       // Other misc
       this.system.overcharge_sequence = DEFAULT_OVERCHARGE_SEQUENCE;
-      this.system.psd = null;
+      this.system.level = 0;
       this.system.grit = 0;
       this.system.stress_repair_cost = 2;
       this.system.structure_repair_cost = 2;
@@ -303,6 +303,8 @@ export class LancerActor extends Actor {
       sys.save = this.system.stats.save;
       sys.size = this.system.stats.size;
       sys.speed = this.system.stats.speed;
+      this.system.level = 0;
+      this.system.grit = 0;
     }
 
     // Marked our equipped items as such
@@ -413,8 +415,8 @@ export class LancerActor extends Actor {
 
     // Yield this actors innate effects
     if (this.is_pilot()) {
-      yield pilotInnateEffect(this);
-    } // TODO mech
+      yield* pilotInnateEffects(this);
+    }
   }
 
   /**
