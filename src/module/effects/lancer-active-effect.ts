@@ -15,7 +15,7 @@ import {
   hayleyUtility,
   tommyConditionsStatus,
 } from "../status-icons";
-import { LancerSTATUS } from "../item/lancer-item";
+import { LancerItem, LancerSTATUS } from "../item/lancer-item";
 import { get_pack_id } from "../util/doc";
 
 // Chassis = mech or standard npc
@@ -68,27 +68,41 @@ export class LancerActiveEffect extends ActiveEffect {
     // Check right actor type
     // @ts-expect-error
     let tf = this.flags[game.system.id];
-    if (this.parent instanceof LancerActor && tf?.target_type) {
-      switch (tf.target_type) {
-        case EntryType.PILOT:
-          return this.parent.is_pilot();
-        case EntryType.MECH:
-          return this.parent.is_mech();
-        case EntryType.DEPLOYABLE:
-          return this.parent.is_deployable();
-        case EntryType.NPC:
-          return this.parent.is_npc();
-        case "mech_and_npc":
-          return this.parent.is_mech() || this.parent.is_npc();
-        case "only_deployable":
-          return this.parent.is_deployable() && this.parent.system.type == DeployableType.Deployable;
-        case "only_drone":
-          return this.parent.is_deployable() && this.parent.system.type == DeployableType.Drone;
-        default:
-          return false;
-      }
+    if (!tf?.target_type) {
+      return true; // Safe bet - no target type, assume it affects us
     }
-    return true;
+
+    // Otherwise got to get the parent
+    let parent: LancerActor | null = null;
+    if (this.parent instanceof LancerActor) {
+      parent = this.parent;
+    } else if (this.parent instanceof LancerItem) {
+      parent = this.parent.parent;
+    }
+
+    // No parent? Just exit early, something's weird but not really our problem
+    if (!(parent instanceof LancerActor)) {
+      return false; // Doesn't matter
+    }
+
+    switch (tf.target_type) {
+      case EntryType.PILOT:
+        return parent.is_pilot();
+      case EntryType.MECH:
+        return parent.is_mech();
+      case EntryType.DEPLOYABLE:
+        return parent.is_deployable();
+      case EntryType.NPC:
+        return parent.is_npc();
+      case "mech_and_npc":
+        return parent.is_mech() || parent.is_npc();
+      case "only_deployable":
+        return parent.is_deployable() && parent.system.type == DeployableType.Deployable;
+      case "only_drone":
+        return parent.is_deployable() && parent.system.type == DeployableType.Drone;
+      default:
+        return false;
+    }
   }
 
   /* --------------------------------------------- */
