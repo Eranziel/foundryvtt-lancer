@@ -26,8 +26,7 @@ const deployable_schema = {
     edef: new fields.NumberField({ min: 0, integer: true, nullable: false, initial: 10 }),
     evasion: new fields.NumberField({ min: 0, integer: true, nullable: false, initial: 10 }),
     heatcap: new fields.NumberField({ min: 1, integer: true, nullable: false, initial: 5 }),
-    hp: new fields.NumberField({ min: 1, integer: true, nullable: false, initial: 5 }),
-    grit_hp: new fields.BooleanField({ initial: false }),
+    hp: new fields.StringField({ initial: "5" }),
     save: new fields.NumberField({ min: 0, integer: true, nullable: false, initial: 10 }),
     size: new fields.NumberField({ min: 0.5, integer: false, nullable: false, initial: 0.5 }),
     speed: new fields.NumberField({ min: 0, integer: true, nullable: false, initial: 0 }),
@@ -60,14 +59,6 @@ export class DeployableModel extends LancerDataModel<"DeployableModel"> {
   }
 
   static migrateData(data: any) {
-    if (typeof data.hp == "string") {
-      let dv = decompose_hp(data.hp);
-      data.hp.value = dv.hp;
-      data.stats ??= {};
-      data.stats.hp ??= dv.hp;
-      data.stats.grit_hp ??= dv.grit_hp;
-    }
-
     if (data.type && data.type[0] == data.type[0].toLowerCase()) {
       data.type = restrict_enum(DeployableType, DeployableType.Deployable, data.type);
     }
@@ -77,26 +68,8 @@ export class DeployableModel extends LancerDataModel<"DeployableModel"> {
   }
 }
 
-// Handles deployables with grit hp
-function decompose_hp(raw_hp: unknown): { hp: number; grit_hp?: boolean } {
-  if (typeof raw_hp == "string") {
-    let m = raw_hp.match(/\d+/);
-    return {
-      hp: m ? parseInt(m[0]) : 5,
-      grit_hp: raw_hp.includes("grit"),
-    };
-  } else if (typeof raw_hp == "number") {
-    return { hp: raw_hp };
-  } else {
-    return {
-      hp: 5,
-      grit_hp: false,
-    };
-  }
-}
-
 export function unpackDeployableData(data: PackedDeployableData): DeepPartial<SourceData.Deployable> {
-  let dh = decompose_hp(data.hp);
+  let max_hp = Number.parseInt(data.hp?.toString() || "5") || 5;
   let rv = {
     actions: data.actions?.map(unpackAction),
     bonuses: data.bonuses?.map(unpackBonus),
@@ -109,8 +82,7 @@ export function unpackDeployableData(data: PackedDeployableData): DeepPartial<So
       edef: data.edef,
       evasion: data.evasion,
       heatcap: data.heatcap,
-      hp: dh.hp,
-      grit_hp: dh.grit_hp ?? false,
+      hp: max_hp,
       save: data.save,
       size: data.size,
       speed: data.speed,
@@ -118,7 +90,7 @@ export function unpackDeployableData(data: PackedDeployableData): DeepPartial<So
     activations: 0,
     avail_mounted: undefined,
     avail_unmounted: undefined,
-    hp: { min: 0, max: dh.hp, value: dh.hp },
+    hp: { min: 0, max: max_hp, value: max_hp },
     burn: undefined,
     cost: data.cost,
     custom_counters: undefined,

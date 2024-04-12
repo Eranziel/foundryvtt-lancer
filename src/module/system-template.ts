@@ -258,7 +258,6 @@ export namespace SystemData {
       evasion: number;
       heatcap: number;
       hp: number;
-      grit_hp: boolean;
       save: number;
       size: number;
       speed: number;
@@ -275,6 +274,9 @@ export namespace SystemData {
     avail_unmounted: boolean;
     deployer: SystemTemplates.ResolvedSyncUuidRef<LancerActor> | null;
     owner: SystemTemplates.ResolvedSyncUuidRef<LancerActor> | null;
+
+    // Set by active effects
+    psd: null | SourceData.Pilot; // Short for "pilot system dump". An active-effect provided dump of active pilots sytem data
   }
   export interface Frame extends SystemTemplates.item_universal, SystemTemplates.licensed {
     description: string;
