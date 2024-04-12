@@ -70,8 +70,11 @@
           }}</span>
         <div class="card clipped wraprow quadruple">
           <div class="wraprow quadruple">
-            <div class="details flexcol">
-              <span>MAX HP</span>
+            <div class="card clipped stat-container">
+              <div class="lancer-header lancer-primary ">
+                <i class="mdi mdi-heart-outline i--m i--light header-icon"> </i>
+                <span class="major">MAX HP</span>
+              </div>
               <input class="lancer-input major" {{{getset "system.stats.hp" }}} type="text" data-dtype="String" />
             </div>
             {{{clicker-stat-card "ARMOR" "mdi mdi-shield-outline" "system.stats.armor" false}}}
