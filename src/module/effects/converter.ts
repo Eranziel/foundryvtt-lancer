@@ -103,7 +103,7 @@ export function pilotInnateEffects(pilot: LancerActor): LancerActiveEffect[] {
   let mech_effect = new LancerActiveEffect(
     {
       // @ts-expect-error types are missing `name`
-      name: "Pilot Mech Attribute Bonuses",
+      name: "Pilot → Mech Bonuses",
       changes: [
         // HASE
         {
@@ -221,7 +221,7 @@ export function pilotInnateEffects(pilot: LancerActor): LancerActiveEffect[] {
   let deployable_effect = new LancerActiveEffect(
     {
       // @ts-expect-error types are missing `name`
-      name: "Pilot Deployable Attribute Bonuses",
+      name: "Pilot → Deployable Bonuses",
       changes: [
         // Much simpler
         {
@@ -599,7 +599,7 @@ export function convertBonus(origin: string, name: string, bonus: BonusData): nu
       break;
     case "deployable_hp":
       target_type = "only_deployable";
-      changes.push({ mode, value, priority, key: "system.hp.max" });
+      changes.push({ mode, value, priority, key: "system.hp_bonus" });
       break;
     case "deployable_size":
       target_type = "only_deployable";
@@ -636,7 +636,7 @@ export function convertBonus(origin: string, name: string, bonus: BonusData): nu
       break;
     case "drone_hp":
       target_type = "only_drone";
-      changes.push({ mode, value, priority, key: "system.hp.max" });
+      changes.push({ mode, value, priority, key: "system.hp_bonus" });
       break;
     case "drone_size":
       target_type = "only_drone";

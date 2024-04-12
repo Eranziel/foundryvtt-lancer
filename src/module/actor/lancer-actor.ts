@@ -305,7 +305,8 @@ export class LancerActor extends Actor {
       sys.speed = this.system.stats.speed;
       this.system.level = 0;
       this.system.grit = 0;
-      // Don't do hp just yet!
+      this.system.hp_bonus = 0;
+      // Don't do max hp just yet!
     }
 
     // Marked our equipped items as such
@@ -331,7 +332,7 @@ export class LancerActor extends Actor {
 
     // Deployables: calculate max hp
     if (this.is_deployable()) {
-      this.system.hp.max = evalSync(this.system.stats.hp, this.getRollData()) || 5;
+      this.system.hp.max = evalSync(`${this.system.stats.hp} + ${this.system.hp_bonus}`, this.getRollData()) || 5;
     }
   }
 
