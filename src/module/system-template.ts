@@ -257,7 +257,7 @@ export namespace SystemData {
       edef: number;
       evasion: number;
       heatcap: number;
-      hp: number;
+      hp: string;
       save: number;
       size: number;
       speed: number;

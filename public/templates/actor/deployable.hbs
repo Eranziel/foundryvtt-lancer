@@ -70,7 +70,10 @@
           }}</span>
         <div class="card clipped wraprow quadruple">
           <div class="wraprow quadruple">
-            {{{clicker-stat-card "MAX HP" "mdi mdi-heart-outline" "system.stats.hp" false}}}
+            <div class="details flexcol">
+              <span>MAX HP</span>
+              <input class="lancer-input major" {{{getset "system.stats.hp" }}} type="text" data-dtype="String" />
+            </div>
             {{{clicker-stat-card "ARMOR" "mdi mdi-shield-outline" "system.stats.armor" false}}}
             {{{clicker-stat-card "EVASION" "cci cci-evasion" "system.stats.evasion" false}}}
             {{{clicker-stat-card "E-DEF" "cci cci-edef" "system.stats.edef" false}}}
