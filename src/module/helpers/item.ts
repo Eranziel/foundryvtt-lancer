@@ -33,6 +33,7 @@ import {
   DamageType,
   EntryType,
   FittingSize,
+  NpcFeatureType,
   RangeType,
   ReserveType,
   SystemType,
@@ -1524,7 +1525,9 @@ function _handleContextMenus(
       return (
         !view_only &&
         item instanceof LancerItem &&
-        (item.is_mech_system() || item.is_mech_weapon() || item.is_npc_feature()) &&
+        (item.is_mech_system() ||
+          item.is_mech_weapon() ||
+          (item.is_npc_feature() && item.system.type !== NpcFeatureType.Trait)) &&
         !item.system.destroyed
       );
     },
