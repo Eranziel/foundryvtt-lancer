@@ -1137,6 +1137,9 @@ async function showChangelog() {
 }
 
 function addSettingsButtons(_app: Application, html: HTMLElement) {
+  const lancerHeader = $(`<h2>LANCER</h2>
+            <div id="settings-lancer"></div>`);
+
   const faqButton = $(`<button id="triggler-form" data-action="triggler">
             <i class="fas fa-robot"></i>LANCER Help
         </button>`);
@@ -1145,8 +1148,9 @@ function addSettingsButtons(_app: Application, html: HTMLElement) {
             <i class="mdi mdi-cloud-sync-outline "></i>COMP/CON Login
           </button>`);
 
-  $(html).find("#settings-documentation").append(faqButton);
-  $(html).find("#settings-game").prepend(loginButton);
+  $(html).find("#settings-game").after(lancerHeader);
+  $(html).find("#settings-lancer").append(loginButton);
+  $(html).find("#settings-lancer").append(faqButton);
 
   loginButton.on("click", async () => {
     const app = new CompconLoginForm({});
