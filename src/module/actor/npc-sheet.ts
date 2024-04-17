@@ -190,16 +190,13 @@ function getStatInput(event: Event): HTMLInputElement | HTMLDataElement | null {
 }
 
 // Removes class/features when a delete of class/template happens
-function handleClassDelete(ctx: GenControlContext) {
-  if (ctx.action == "delete") {
-    let pt = ctx.path_target as LancerItem;
-    if (pt instanceof LancerItem && (pt.is_npc_template() || pt.is_npc_class())) {
-      let matches = findMatchingFeaturesInNpc(ctx.target_document, [
-        ...pt.system.base_features,
-        ...pt.system.optional_features,
-      ]);
-      ctx.target_document.deleteEmbeddedDocuments("Item", matches.map(m => m.id).filter(x => x) as string[]);
-    }
+export function handleClassDelete(item: LancerItem, npc: LancerNPC) {
+  if (item.is_npc_template() || item.is_npc_class()) {
+    let matches = findMatchingFeaturesInNpc(npc, [
+      ...item.system.base_features,
+      ...item.system.optional_features,
+    ]);
+    npc.deleteEmbeddedDocuments("Item", matches.map(m => m.id).filter(x => x) as string[]);
   }
 }
 
