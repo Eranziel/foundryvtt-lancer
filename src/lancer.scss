@@ -2199,33 +2199,51 @@ a.activation-chip > i.mdi {
   margin-right: 0.5em;
 }
 
+// Stabilize dialog
 // Begin "Button" radio buttons
-.stabilize-wrapper .hidden {
-  display: none;
-}
 
-.radio-label:checked + .button-label {
-  background-color: var(--primary-color);
-  color: var(--light-text);
-}
+.stabilize-wrapper {
+  .button-label {
+    background-color: var(--secondary-color);
+    color: var(--secondary-text);
+    flex-basis: 45%;
 
-.radio-label + .button-label:hover {
-  filter: brightness(120%);
-}
+    i.checked-icon {
+      display: none;
+    }
+  }
 
-.button-label {
-  display: inline-block;
-  padding: 1em 2em;
-  margin: 0.5em;
-  cursor: pointer;
-  border-radius: 0.25em;
-  box-shadow: 0 3px 10px var(--darken-2);
-  user-select: none;
-}
+  .hidden {
+    display: none;
+  }
 
-.center-text {
-  display: table;
-  text-align: center;
+  .radio-label:checked + .button-label {
+    background-color: var(--primary-color);
+    color: var(--light-text);
+
+    i.checked-icon {
+      display: inline;
+    }
+  }
+
+  .radio-label + .button-label:hover {
+    filter: brightness(120%);
+  }
+
+  .button-label {
+    display: inline-block;
+    padding: 1em 2em;
+    margin: 0.5em;
+    cursor: pointer;
+    border-radius: 0.25em;
+    box-shadow: 0 3px 10px var(--darken-2);
+    user-select: none;
+  }
+
+  .center-text {
+    display: table;
+    text-align: center;
+  }
 }
 
 // Effects
@@ -2237,14 +2255,6 @@ a.activation-chip > i.mdi {
   justify-items: start;
   margin: 3px;
   padding: 3px;
-}
-
-// Stabilize dialog
-
-.stabilize-wrapper .button-label {
-  background-color: var(--secondary-color);
-  color: black;
-  flex-basis: 45%;
 }
 
 // Macros
