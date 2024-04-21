@@ -17,17 +17,22 @@ export class LoadoutHelper {
       refill?: boolean;
     }
   ): any {
-    let changes: any = { _id: item.id };
-    if (opts.repair && (item as any).destroyed !== undefined) {
+    let changes: any = { _id: item.id, name: item.name };
+    if (opts.repair && (item as any).system.destroyed === true) {
       changes["system.destroyed"] = false;
     }
-    if (opts.reload && (item as any).loaded !== undefined) {
+    if (opts.reload && (item as any).system.loaded === false) {
       changes["system.loaded"] = true;
     }
-    if (opts.refill && (item as any).uses !== undefined) {
+    const uses = (item as any).system.uses;
+    if (opts.refill && uses !== undefined && uses.val !== uses.max) {
       changes["system.uses"] = (item as any).uses.max;
     }
-
+    // Only return changes if there is actually something to do
+    if (!Object.keys(changes).some(k => k.startsWith("system"))) {
+      return null;
+    }
+    // Remove items with no changes to make
     return changes;
   }
 
@@ -111,28 +116,36 @@ export class LoadoutHelper {
    * Find all limited systems and set them to their max/repaired/ideal state
    */
   async restoreAllItems() {
-    let fixes = this.listLoadout().map(i =>
-      this.refresh(i, {
-        reload: true,
-        repair: true,
-        refill: true,
-      })
-    );
+    let fixes = this.listLoadout()
+      .map(i =>
+        this.refresh(i, {
+          reload: true,
+          repair: true,
+          refill: true,
+        })
+      )
+      .filter(x => !!x);
     return this.actor.updateEmbeddedDocuments("Item", fixes);
   }
 
   /**
    * Find all owned items and set them to be not destroyed
    */
-  async repairAllItems() {
-    return Promise.all(this.listLoadout().map(i => this.refresh(i, { repair: true })));
+  async repairableItems() {
+    return Promise.all(
+      this.listLoadout()
+        .map(i => this.refresh(i, { repair: true }))
+        .filter(x => !!x)
+    );
   }
 
   /**
    * Find all owned weapons and (generate the changes necessary to) reload them
    */
-  reloadAllItems() {
-    return this.listLoadout().map(i => this.refresh(i, { reload: true }));
+  reloadableItems() {
+    return this.listLoadout()
+      .map(i => this.refresh(i, { reload: true }))
+      .filter(x => !!x);
   }
 
   /**

@@ -148,56 +148,55 @@ export class StrussHelper {
    * @param o2  Choice 2, Reloading, removing Burn, or clearing own or adjacent ally condition
    * @returns   Details to be printed to chat
    */
-  async stabilize(o1: StabOptions1, o2: StabOptions2): Promise<string> {
-    let return_text = "";
-
+  async stabilize(o1: StabOptions1, o2: StabOptions2): Promise<void> {
     if (!this.actor.is_mech() && !this.actor.is_npc()) {
-      ui.notifications!.warn("This can't be stabilized!");
-      return "";
+      ui.notifications!.warn(`A ${this.actor.type} can't be stabilized!`);
+      return;
     }
 
     let changes: any = {};
     let item_changes: any = []; // TODO
 
     if (o1 === StabOptions1.Cool) {
-      return_text = return_text.concat("Mech is cooling itself. @Compendium[world.status-items.Exposed] cleared.<br>");
-      await this.actor.update({ "system.heat.value": 0 });
+      changes["system.heat.value"] = 0;
       this.actor.effectHelper.removeActiveEffect("exposed");
     } else if (o1 === StabOptions1.Repair) {
-      if (this.actor.is_mech()) {
-        if (this.actor.system.repairs.value <= 0) {
-          return "Mech has decided to repair, but doesn't have any repair left. Please try again.<br>";
+      // Allow NPCs here for the Self Repair feature from Veteran
+      if (this.actor.is_mech() || this.actor.is_npc()) {
+        if (this.actor.is_mech() && this.actor.system.repairs.value <= 0) {
+          ui.notifications!.warn("No repairs remaining!");
+          return;
         } else {
-          changes["system.repairs"] = this.actor.system.repairs.value - 1;
+          changes["system.hp.value"] = this.actor.system.hp.max;
+          if (this.actor.is_mech()) {
+            changes["system.repairs.value"] = this.actor.system.repairs.value - 1;
+          }
         }
       }
     } else {
-      return ``;
+      return;
     }
-    return_text = return_text.concat("<br>");
     switch (o2) {
       case StabOptions2.ClearBurn:
-        return_text = return_text.concat("Mech has selected full burn clear.");
         changes["system.burn"] = 0;
         break;
       case StabOptions2.ClearOtherCond:
-        return_text = return_text.concat("Mech has selected to clear an allied condition. Please clear manually.");
+        // TODO: make a flow for clearing a condition on yourself?
         break;
       case StabOptions2.ClearOwnCond:
-        return_text = return_text.concat("Mech has selected to clear own condition. Please clear manually.");
+        // TODO: make a flow for clearing a condition on your target?
         break;
       case StabOptions2.Reload:
-        return_text = return_text.concat("Mech has selected full reload, reloading...");
-        item_changes = this.actor.loadoutHelper.reloadAllItems();
+        item_changes = this.actor.loadoutHelper.reloadableItems();
         break;
       default:
-        return ``;
+        ui.notifications!.warn("Invalid Stabilize choice!");
+        return;
     }
 
     await this.actor.update(changes);
     await this.actor.updateEmbeddedDocuments("Item", item_changes);
-
-    return return_text;
+    return;
   }
 
   /**
