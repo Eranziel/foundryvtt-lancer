@@ -107,8 +107,8 @@ Non-Flow steps are simply functions which take the flow's current state and (opt
 - [x] `_render.ts`
   - [x] `renderMacroTemplate(actor: LancerActor | undefined, template: string, templateData: any)` -> renderTemplateStep, make actor required
   - [x] `renderMacroHTML(actor: LancerActor | undefined, html: HTMLElement | string, roll?: Roll)` -> createChatMessageStep, make actor required
-- [ ] `_template.ts`
-  - [ ] `targetsFromTemplate(templateId: string): void`
+- [x] `_template.ts`
+  - [x] `targetsFromTemplate(templateId: string): void`
 - [x] `action-track.ts`
   - [x] `prepareActionTrackMacro(actor: string | LancerActor, start: boolean)`
   - [x] `condensedActionButtonHTML(actor: LancerActor, actions: ActionTrackingData)` (actor is unused?)
@@ -158,10 +158,10 @@ Non-Flow steps are simply functions which take the flow's current state and (opt
   - [x] `encodeOverchargeMacroData(actor_uuid: string): string`
   - [x] `prepareOverchargeMacro(actor: LancerActor | string)`
   - [x] `rollOverchargeMacro(actor: LancerActor, data: LancerMacro.OverchargeRoll)`
-- [ ] `reaction.ts`
-  - [ ] `rollReactionMacro(data: LancerMacro.ReactionRoll)`
-- [ ] `stabilize.ts`
-  - [ ] `prepareStabilizeMacro(actor_: string | LancerActor)`
+- [x] ~~`reaction.ts`~~
+  - [x] ~~`rollReactionMacro(data: LancerMacro.ReactionRoll)`~~
+- [x] `stabilize.ts`
+  - [x] `prepareStabilizeMacro(actor_: string | LancerActor)`
 - [x] `stat.ts`
   - [x] `prepareStatMacro(actor: string | LancerActor, statKey: string)`
   - [x] `prepareSkillMacro(item: string | LancerItem)`
@@ -178,8 +178,8 @@ Non-Flow steps are simply functions which take the flow's current state and (opt
 - [x] `tech.ts`
   - [x] `prepareTechMacro(docUUID: string | LancerActor | LancerItem, options?: {action_path?: string;})`
   - [x] `rollTechMacro(data: LancerMacro.AttackRoll, reroll: boolean = false)`
-- [ ] `text.ts`
-  - [ ] `prepareTextMacro(actor: string | LancerActor, title: string, text: string, tags?: Tag[]): Promise<void>`
-  - [ ] `rollTextMacro(data: LancerMacro.TextRoll)`
-- [ ] `util.ts`
-  - [ ] `resolveItemOrActor(provided: string | LancerActor | LancerItem): {actor: LancerActor | null; item: LancerItem | null;}`
+- [x] `text.ts`
+  - [x] ~~`prepareTextMacro(actor: string | LancerActor, title: string, text: string, tags?: Tag[]): Promise<void>`~~
+  - [x] ~~`rollTextMacro(data: LancerMacro.TextRoll)`~~
+- [x] `util.ts`
+  - [x] `resolveItemOrActor(provided: string | LancerActor | LancerItem): {actor: LancerActor | null; item: LancerItem | null;}`
