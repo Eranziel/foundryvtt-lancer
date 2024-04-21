@@ -205,6 +205,7 @@ import { registerNPCSteps } from "./module/flows/npc";
 import { registerActionTrackSteps } from "./module/flows/action-track";
 import { get_pack_id } from "./module/util/doc";
 import { registerTours } from "./module/tours/register-tours";
+import { registerStabilizeSteps } from "./module/flows/stabilize";
 
 const lp = LANCER.log_prefix;
 
@@ -342,6 +343,7 @@ Hooks.once("init", async function () {
   registerOverheatSteps(flowSteps);
   registerCascadeSteps(flowSteps);
   registerOverchargeSteps(flowSteps);
+  registerStabilizeSteps(flowSteps);
   registerTalentSteps(flowSteps);
   registerBondPowerSteps(flowSteps);
   registerFullRepairSteps(flowSteps);
@@ -386,7 +388,7 @@ Hooks.once("init", async function () {
     // rollTechMacro: macros.rollTechMacro,
     // rollAttackMacro: macros.rollAttackMacro,
     // fullRepairMacro: macros.fullRepairMacro,
-    stabilizeMacro: macros.stabilizeMacro,
+    // stabilizeMacro: macros.stabilizeMacro,
     importActor: fulfillImportActor,
     targetsFromTemplate: macros.targetsFromTemplate,
     migrations: migrations,

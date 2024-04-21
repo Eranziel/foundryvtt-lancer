@@ -1,5 +1,13 @@
 import { ActionType } from "../action";
-import { ActivationType, AttackType, DamageType, NpcFeatureType, SystemType } from "../enums";
+import {
+  ActivationType,
+  AttackType,
+  DamageType,
+  NpcFeatureType,
+  StabOptions1,
+  StabOptions2,
+  SystemType,
+} from "../enums";
 import { AccDiffData, AccDiffDataSerialized } from "../helpers/acc_diff";
 import { ActionData } from "../models/bits/action";
 import { DamageData } from "../models/bits/damage";
@@ -247,6 +255,13 @@ export namespace LancerFlowState {
       tt: string | HTMLElement | JQuery<HTMLElement>; // Tooltip
       total: string; // String representation of the roll total
     };
+  }
+
+  export interface StabilizeData {
+    title: string;
+    description: string;
+    option1: StabOptions1;
+    option2: StabOptions2;
   }
 
   // export interface StressRollData {

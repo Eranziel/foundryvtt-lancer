@@ -21,6 +21,7 @@ import { StatRollFlow } from "../flows/stat";
 import { OverchargeFlow } from "../flows/overcharge";
 import { NPCRechargeFlow } from "../flows/npc";
 import * as lancer_data from "@massif/lancer-data";
+import { StabilizeFlow } from "../flows/stabilize";
 
 const lp = LANCER.log_prefix;
 
@@ -719,6 +720,14 @@ export class LancerActor extends Actor {
       return false;
     }
     const flow = new FullRepairFlow(this, title ? { title } : undefined);
+    return await flow.begin();
+  }
+
+  async beginStabilizeFlow(title?: string): Promise<boolean> {
+    if (!this.is_mech() && !this.is_npc()) {
+      return false;
+    }
+    const flow = new StabilizeFlow(this, title ? { title } : undefined);
     return await flow.begin();
   }
 

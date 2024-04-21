@@ -192,7 +192,9 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
       switch (flowType) {
         case "FullRepair":
           this.actor.beginFullRepairFlow(flowArgs?.title ?? undefined);
+          break;
         case "Stabilize":
+          this.actor.beginStabilizeFlow(flowArgs?.title ?? undefined);
           break;
         case "Overheat":
           this.actor.beginOverheatFlow();

@@ -18,7 +18,7 @@ export { registerNPCSteps } from "./flows/npc";
 // export { prepareTalentMacro } from "./flows/talent";
 // export { prepareTechMacro, rollTechMacro } from "./flows/tech";
 export { prepareTextMacro } from "./flows/text";
-export { prepareStabilizeMacro as stabilizeMacro } from "./flows/stabilize";
+// export { prepareStabilizeMacro as stabilizeMacro } from "./flows/stabilize";
 // export { beginStructureFlow, beginSecondaryStructureFlow } from "./flows/structure";
 // export { beginOverheatFlow } from "./flows/overheat";
 // export { prepareFullRepairMacro as fullRepairMacro } from "./flows/full-repair";
