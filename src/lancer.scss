@@ -2231,13 +2231,20 @@ a.activation-chip > i.mdi {
   }
 
   .button-label {
-    display: inline-block;
-    padding: 1em 2em;
+    display: grid;
+    grid-template-columns: 2em 2em auto;
+    padding: 1em;
     margin: 0.5em;
     cursor: pointer;
     border-radius: 0.25em;
     box-shadow: 0 3px 10px var(--darken-2);
     user-select: none;
+    align-items: center;
+
+    i,
+    span {
+      text-align: center;
+    }
   }
 
   .center-text {
