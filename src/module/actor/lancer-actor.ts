@@ -22,7 +22,7 @@ import { OverchargeFlow } from "../flows/overcharge";
 import { NPCRechargeFlow } from "../flows/npc";
 import * as lancer_data from "@massif/lancer-data";
 import { StabilizeFlow } from "../flows/stabilize";
-import { evalSync } from "../util/misc";
+import { rollEvalSync } from "../util/misc";
 
 const lp = LANCER.log_prefix;
 
@@ -333,7 +333,7 @@ export class LancerActor extends Actor {
 
     // Deployables: calculate max hp
     if (this.is_deployable()) {
-      this.system.hp.max = evalSync(`${this.system.stats.hp} + ${this.system.hp_bonus}`, this.getRollData()) || 5;
+      this.system.hp.max = rollEvalSync(`${this.system.stats.hp} + ${this.system.hp_bonus}`, this.getRollData()) || 5;
     }
   }
 

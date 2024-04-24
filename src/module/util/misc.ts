@@ -61,7 +61,7 @@ export function fixCCFormula(formula: string) {
  * @param data Data to provide the dice formula, accessible via @
  * @returns The roll total
  */
-export function evalSync(formula: string, data: object): number {
+export function rollEvalSync(formula: string, data: object): number {
   let roll = new Roll(formula, data);
   try {
     // @ts-expect-error
