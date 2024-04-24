@@ -257,8 +257,7 @@ export namespace SystemData {
       edef: number;
       evasion: number;
       heatcap: number;
-      hp: number;
-      grit_hp: boolean;
+      hp: string;
       save: number;
       size: number;
       speed: number;
@@ -275,6 +274,11 @@ export namespace SystemData {
     avail_unmounted: boolean;
     deployer: SystemTemplates.ResolvedSyncUuidRef<LancerActor> | null;
     owner: SystemTemplates.ResolvedSyncUuidRef<LancerActor> | null;
+
+    // Set by active effects
+    level: number;
+    grit: number;
+    hp_bonus: number; // Used to get around an obnoxious chicken egg situation
   }
   export interface Frame extends SystemTemplates.item_universal, SystemTemplates.licensed {
     description: string;
@@ -366,8 +370,8 @@ export namespace SystemData {
     stress_repair_cost: number;
 
     // Set by pilot active effect
+    level: number;
     grit: number;
-    psd: null | SourceData.Pilot; // Short for "pilot system dump". An active-effect provided dump of active pilots sytem data
     all_bonuses: BonusData[]; // All compcon bonuses across everything. In general, prefer more specific mechanisms than thjis
   }
 

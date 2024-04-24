@@ -50,3 +50,31 @@ export class ChangeWatchHelper {
     return this.isDirty;
   }
 }
+
+export function fixCCFormula(formula: string) {
+  return formula.replaceAll("{ll}", "@level").replaceAll("{grit}", "@grit");
+}
+
+/**
+ * Synchronously evaluates a roll in a version safe way
+ * @param formula A dice formula
+ * @param data Data to provide the dice formula, accessible via @
+ * @returns The roll total
+ */
+export function evalSync(formula: string, data: object): number {
+  let roll = new Roll(formula, data);
+  try {
+    // @ts-expect-error
+    if (foundry.utils.isNewerVersion(game.version, "12")) {
+      // Then do the v12 version
+      // @ts-ignore
+      roll.evaluateSync();
+    } else {
+      // Then do the v11 version
+      roll.roll({ async: false });
+    }
+  } catch (e) {
+    return 0;
+  }
+  return roll.total!;
+}

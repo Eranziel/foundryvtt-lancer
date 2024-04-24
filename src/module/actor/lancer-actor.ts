@@ -14,7 +14,7 @@ import { StrussHelper } from "./struss-util";
 import { StructureFlow } from "../flows/structure";
 import { OverheatFlow } from "../flows/overheat";
 import { BasicAttackFlow } from "../flows/attack";
-import { pilotInnateEffect } from "../effects/converter";
+import { pilotInnateEffects } from "../effects/converter";
 import { TechAttackFlow } from "../flows/tech";
 import { FullRepairFlow } from "../flows/full-repair";
 import { StatRollFlow } from "../flows/stat";
@@ -22,6 +22,7 @@ import { OverchargeFlow } from "../flows/overcharge";
 import { NPCRechargeFlow } from "../flows/npc";
 import * as lancer_data from "@massif/lancer-data";
 import { StabilizeFlow } from "../flows/stabilize";
+import { evalSync } from "../util/misc";
 
 const lp = LANCER.log_prefix;
 
@@ -289,7 +290,7 @@ export class LancerActor extends Actor {
 
       // Other misc
       this.system.overcharge_sequence = DEFAULT_OVERCHARGE_SEQUENCE;
-      this.system.psd = null;
+      this.system.level = 0;
       this.system.grit = 0;
       this.system.stress_repair_cost = 2;
       this.system.structure_repair_cost = 2;
@@ -300,10 +301,13 @@ export class LancerActor extends Actor {
       sys.edef = this.system.stats.edef;
       sys.evasion = this.system.stats.evasion;
       this.system.heat.max = this.system.stats.heatcap;
-      sys.hp.max = this.system.stats.hp;
       sys.save = this.system.stats.save;
       sys.size = this.system.stats.size;
       sys.speed = this.system.stats.speed;
+      this.system.level = 0;
+      this.system.grit = 0;
+      this.system.hp_bonus = 0;
+      // Don't do max hp just yet!
     }
 
     // Marked our equipped items as such
@@ -326,6 +330,11 @@ export class LancerActor extends Actor {
     // Track shift in values. Use optional to handle compendium bulk-created items, which handle strangely
     this.effectHelper._passdownEffectTracker?.setValue(this.effectHelper.collectPassdownEffects());
     this._markStatuses();
+
+    // Deployables: calculate max hp
+    if (this.is_deployable()) {
+      this.system.hp.max = evalSync(`${this.system.stats.hp} + ${this.system.hp_bonus}`, this.getRollData()) || 5;
+    }
   }
 
   /** Check which statuses this actor has active and set system.status accordingly */
@@ -414,8 +423,8 @@ export class LancerActor extends Actor {
 
     // Yield this actors innate effects
     if (this.is_pilot()) {
-      yield pilotInnateEffect(this);
-    } // TODO mech
+      yield* pilotInnateEffects(this);
+    }
   }
 
   /**
@@ -494,7 +503,8 @@ export class LancerActor extends Actor {
     let cause_updates = game.userId == user;
 
     // If changing active mech, all mechs need to render to recompute if they are the active mech
-    if ((changed as any).system?.active_mech !== undefined) {
+    let changing_active_mech = (changed as any).system?.active_mech !== undefined;
+    if (changing_active_mech) {
       let owned_mechs = game.actors!.filter(a => a.is_mech() && a.system.pilot?.value == this);
       owned_mechs?.forEach(m => m.render());
     }
@@ -506,7 +516,7 @@ export class LancerActor extends Actor {
     }
 
     // Any update could change our innate effects which would then need to be passed down
-    this.effectHelper.propagateEffects(false);
+    this.effectHelper.propagateEffects(changing_active_mech);
 
     // Many of the operations below MIGHT cause DB operations (async operations!).
     // We can't really await them here, nor should we - they will re-trigger an onUpdate as necessary

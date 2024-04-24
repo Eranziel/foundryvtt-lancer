@@ -120,7 +120,7 @@
       "activation": "",
       "armor": 0,
       "cost": 1,
-      "max_hp": 5,
+      "max_hp": "5",
       "max_heat": 5,
       "size": 0.5,
       "speed": 0,
