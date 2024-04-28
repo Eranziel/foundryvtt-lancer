@@ -45,7 +45,7 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
     if (!canvas.ready) return null;
     const dist = parseInt(val);
     if (isNaN(dist)) return null;
-    const hex: boolean = (canvas.grid?.type ?? 0) >= 2;
+    const hex: boolean = canvas.grid?.isHex ?? false;
     const grid_distance = (canvas.scene?.dimensions as Partial<Canvas.Dimensions> | undefined)?.distance ?? 1;
 
     let shape: "cone" | "ray" | "circle";
@@ -64,16 +64,16 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
         return null;
     }
 
-    const scale = 1; // hex ? Math.sqrt(3) / 2 : 1;
+    const scale = hex && type == RangeType.Cone ? Math.sqrt(3) / 2 : 1.1;
     const templateData = {
       t: shape,
       user: game.user!.id,
-      distance: (dist + 0.1) * scale * grid_distance,
+      distance: dist * scale * grid_distance,
       width: scale * grid_distance,
       direction: 0,
       x: 0,
       y: 0,
-      angle: 58,
+      angle: 61,
       fillColor: game.user!.color,
       flags: {
         [game.system.id]: {
