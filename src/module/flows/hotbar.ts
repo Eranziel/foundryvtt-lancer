@@ -1,9 +1,8 @@
 // Import TypeScript modules
 import { LANCER } from "../config";
 import { EntryType, NpcFeatureType } from "../enums";
-// Import JSON data
-
-import { isValidEncodedMacro } from "./encode";
+import { DroppableFlowType, handleDragging } from "../helpers/dragdrop";
+import { LancerFlowState } from "./interfaces";
 
 const lp = LANCER.log_prefix;
 
@@ -42,32 +41,70 @@ function _chooseItemImage(data: any): string {
 }
 
 export function onHotbarDrop(_bar: any, data: any, slot: number) {
-  if (data.uuid) {
-    // Is a compendium drop - we don't care about it
+  // We set an associated command & title based off the type
+  // Everything else gets handled elsewhere
+  console.log(`${lp} Data dropped on hotbar:`, data, slot);
+  // Validate that the data is from an actor or item, has a UUID, and flow type
+  // if ((data.type !== "Actor" && data.type !== "Item") || !data.flowType || !data.uuid) {
+  if (!data.lancerType || !data.flowType || !data.uuid) {
+    // Not a flow, actor, or item, so this handler doesn't care about it.
     return;
   }
 
-  // We set an associated command & title based off the type
-  // Everything else gets handled elsewhere
-  console.log(`${lp} Data dropped on hotbar:`, data);
+  let title = "";
+  let command = "";
+  let img = `systems/${game.system.id}/assets/icons/macro-icons/generic_item.svg`;
 
-  // Grab new encoded data ASAP
-  if (isValidEncodedMacro(data)) {
-    let command = `game.lancer.${data.fn}(${data.args.map((e: any) => JSON.stringify(e)).join(",")})`;
-    let img = data.iconPath ? data.iconPath : `systems/${game.system.id}/assets/icons/macro-icons/generic_item.svg`;
-    let title = data.title;
-
-    let macro = game.macros!.contents.find(m => m.name === title && m.data.command === command);
-    if (!macro) {
-      Macro.create({
-        command,
-        name: title,
-        type: "script",
-        img: img,
-      }).then(macro => game.user!.assignHotbarMacro(macro!, slot));
-    } else {
-      game.user!.assignHotbarMacro(macro, slot);
-    }
-    return false;
+  // Check what type of action this is supposed to represent. A roll, attack, activation, etc.
+  // Generate an appropriate macro for the item type and action.
+  switch (data.flowType) {
+    case DroppableFlowType.BASIC:
+      if (data.lancerType !== EntryType.MECH && data.lancerType !== EntryType.NPC) {
+        ui.notifications!.error("Basic flow drop on hotbar was not from a mech or NPC");
+        throw new Error("Basic flow drop on hotbar was not from a mech or NPC");
+      }
+      if (!data.flowSubtype) {
+        ui.notifications!.error("No flow subtype provided for basic flow drop on hotbar");
+        throw new Error("No flow subtype provided for basic flow");
+      }
+      let flowInvocation = "";
+      const BasicFlowType = LancerFlowState.BasicFlowType;
+      switch (data.flowSubtype) {
+        case BasicFlowType.FullRepair:
+          img = `systems/${game.system.id}/assets/icons/macro-icons/repair.svg`;
+          title = "Full Repair";
+          flowInvocation = `actor.beginFullRepairFlow(${data.flowArgs?.title ?? ""});`;
+          break;
+        case BasicFlowType.Stabilize:
+          break;
+        case BasicFlowType.Overheat:
+          break;
+        case BasicFlowType.Structure:
+          break;
+        case BasicFlowType.Overcharge:
+          break;
+        case BasicFlowType.BasicAttack:
+          break;
+        case BasicFlowType.TechAttack:
+          break;
+      }
+      if (flowInvocation) {
+        command = `const actor = await fromUuid("${data.uuid}");\n${flowInvocation}`;
+      }
+      break;
+    default:
+      break;
   }
+
+  console.log("Generated macro:", title, img);
+  console.log(command);
+  if (title && command) {
+    Macro.create({
+      command,
+      name: title,
+      type: "script",
+      img: img,
+    }).then(macro => game.user!.assignHotbarMacro(macro!, slot));
+  }
+  return false;
 }

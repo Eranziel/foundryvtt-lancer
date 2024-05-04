@@ -1,6 +1,6 @@
 import { LANCER } from "../config";
 import { handleGenControls, handlePopoutTextEditor } from "../helpers/commons";
-import { handleDocDropping, ResolvedDropData } from "../helpers/dragdrop";
+import { handleDocDropping, LancerFlowDropData, ResolvedDropData } from "../helpers/dragdrop";
 import { handleCounterInteraction, handleInputPlusMinusButtons, handlePowerUsesInteraction } from "../helpers/item";
 import { handleRefDragging, handleRefSlotDropping, handleRefClickOpen, handleUsesInteraction } from "../helpers/refs";
 import type { LancerActorSheetData } from "../interfaces";
@@ -21,6 +21,8 @@ import { LancerActiveEffect } from "../effects/lancer-active-effect";
 import { LancerFlowState } from "../flows/interfaces";
 import { lookupOwnedDeployables } from "../util/lid";
 import { beginItemChatFlow } from "../flows/item";
+import { DroppableFlowType } from "../helpers/dragdrop";
+import { Flow } from "../flows/flow";
 const lp = LANCER.log_prefix;
 
 /**
@@ -68,6 +70,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
     this._activateFlowListeners(html);
 
     // All-actor macro dragging
+    this._activateFlowDragging(html);
     this._activateMacroDragging(html);
 
     // Make +/- buttons work
@@ -108,6 +111,26 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
     );
   }
 
+  _activateFlowDragging(html: JQuery) {
+    const FlowDragHandler = (e: DragEvent) => this._onFlowButtonDragStart(e);
+
+    html
+      .find(".lancer-flow-button")
+      .add(".roll-stat")
+      .add(".roll-attack")
+      .add(".roll-tech")
+      .add(".chat-flow-button")
+      .add(".skill-flow")
+      .add(".bond-power-flow")
+      .add(".effect-flow")
+      .add(".activation-flow")
+      .each((_i, item) => {
+        item.setAttribute("draggable", "true");
+        item.addEventListener("dragstart", FlowDragHandler, false);
+      });
+  }
+
+  // TODO: deprecate/refactor
   _activateMacroDragging(html: JQuery) {
     const ActionMacroHandler = (e: DragEvent) => this._onDragActivationChipStart(e);
     const EncodedMacroHandler = (e: DragEvent) => this._onDragEncodedMacroStart(e);
@@ -135,6 +158,44 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
       });
   }
 
+  _onFlowButtonDragStart(e: DragEvent) {
+    if (!e.currentTarget) return; // No target, let other handlers take care of it.
+    e.stopPropagation();
+
+    // TODO: can we consolidate this with the flow listeners somehow??
+    // For now there's just going to be a lot of duplication.
+    const dragElement = $(e.currentTarget);
+    let data: LancerFlowDropData | null = null;
+    if (dragElement.hasClass("lancer-flow-button")) {
+      const flowElement = $(e.currentTarget).closest("[data-flow-type]")[0] as HTMLElement;
+      const flowType: DroppableFlowType = DroppableFlowType.BASIC;
+      const flowSubtype = flowElement.dataset.flowType;
+      const flowArgs = JSON.parse(flowElement.dataset.flowArgs ?? "{}");
+      if (flowSubtype) {
+        data = {
+          // type: "Actor",
+          lancerType: this.actor.type,
+          uuid: this.actor.uuid,
+          flowType,
+          flowSubtype,
+          args: flowArgs,
+        };
+      }
+    } else if (dragElement.hasClass("roll-stat")) {
+    } else if (dragElement.hasClass("roll-attack")) {
+    } else if (dragElement.hasClass("roll-tech")) {
+    } else if (dragElement.hasClass("chat-flow-button")) {
+    } else if (dragElement.hasClass("skill-flow")) {
+    } else if (dragElement.hasClass("bond-power-flow")) {
+    } else if (dragElement.hasClass("effect-flow")) {
+    } else if (dragElement.hasClass("activation-flow")) {
+    }
+    if (!data) return;
+    e.dataTransfer?.setData("text/plain", JSON.stringify(data));
+    console.log("Flow drag data:", data, e.dataTransfer?.getData("text/plain"));
+  }
+
+  // TODO: deprecate
   _onDragEncodedMacroStart(e: DragEvent) {
     // For macros with encoded data
     e.stopPropagation();
@@ -173,6 +234,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
 
   _activateFlowListeners(html: JQuery) {
     // Encoded macros
+    // TODO: deprecate
     let encMacros = html.find(".lancer-macro");
     encMacros.on("click", ev => {
       ev.stopPropagation(); // Avoids triggering parent event handlers
@@ -184,31 +246,31 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
     actorFlows.on("click", ev => {
       if (!ev.currentTarget) return; // No target, let other handlers take care of it.
       ev.stopPropagation();
-      console.log("Lancer Flow Button");
       // Check data-flow-type to pick which flow to trigger
       const flowElement = $(ev.currentTarget).closest("[data-flow-type]")[0] as HTMLElement;
       const flowType = flowElement.dataset.flowType;
       const flowArgs = JSON.parse(flowElement.dataset.flowArgs ?? "{}");
+      const BasicFlowType = LancerFlowState.BasicFlowType;
       switch (flowType) {
-        case "FullRepair":
+        case BasicFlowType.FullRepair:
           this.actor.beginFullRepairFlow(flowArgs?.title ?? undefined);
           break;
-        case "Stabilize":
+        case BasicFlowType.Stabilize:
           this.actor.beginStabilizeFlow(flowArgs?.title ?? undefined);
           break;
-        case "Overheat":
+        case BasicFlowType.Overheat:
           this.actor.beginOverheatFlow();
           break;
-        case "Structure":
+        case BasicFlowType.Structure:
           this.actor.beginStructureFlow();
           break;
-        case "Overcharge":
+        case BasicFlowType.Overcharge:
           this.actor.beginOverchargeFlow();
           break;
-        case "BasicAttack":
+        case BasicFlowType.BasicAttack:
           this.actor.beginBasicAttackFlow(flowArgs?.title ?? undefined);
           break;
-        case "TechAttack":
+        case BasicFlowType.TechAttack:
           this.actor.beginBasicTechAttackFlow(flowArgs?.title ?? undefined);
           break;
       }
@@ -259,24 +321,6 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
       if (!item) throw Error(`UUID "${el.dataset.uuid}" does not resolve to an item!`);
       beginItemChatFlow(item, el.dataset);
     });
-    // TODO: For sanity's sake, merge these into a single "macro" handler
-    // Trigger rollers
-    // let itemMacros = html
-    //   .find(".skill-macro")
-    //   // System rollers
-    //   .add(html.find(".system-macro"))
-    //   // Gear rollers
-    //   .add(html.find(".gear-macro"))
-    //   // Core bonus
-    //   .add(html.find(".cb-macro"))
-    //   // Reserve
-    //   .add(html.find(".reserve-macro"));
-    // itemMacros.on("click", (ev: any) => {
-    //   ev.stopPropagation(); // Avoids triggering parent event handlers
-
-    //   const el = $(ev.currentTarget).closest("[data-uuid]")[0] as HTMLElement;
-    //   prepareItemMacro(el.dataset.uuid!);
-    // });
 
     let skillFlows = html.find(".skill-flow");
     skillFlows.on("click", ev => {

@@ -182,6 +182,27 @@ export type FoundryDropData = {
   uuid: string;
 };
 
+export type LancerFlowDropData = {
+  // type: "Actor" | "Item"; // Do we need to not use Foundry type here to avoid stock hotbar drop?
+  uuid: string;
+  lancerType: EntryType;
+  flowType: DroppableFlowType;
+  flowSubtype?: string;
+  args?: object;
+};
+
+export enum DroppableFlowType {
+  BASIC = "lancer-flow-button",
+  STAT = "roll-stat",
+  ATTACK = "roll-attack",
+  TECH_ATTACK = "roll-tech",
+  CHAT = "chat-flow-button",
+  SKILL = "skill-flow",
+  BOND_POWER = "bond-power-flow",
+  EFFECT = "effect-flow",
+  ACTIVATION = "activation-flow",
+}
+
 // Result of resolving a native drop to its corresponding document
 // Mostly just for ease of typing
 export type ResolvedDropData =

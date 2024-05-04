@@ -1,24 +1,11 @@
-import { ActionType } from "../action";
-import {
-  ActivationType,
-  AttackType,
-  DamageType,
-  NpcFeatureType,
-  StabOptions1,
-  StabOptions2,
-  SystemType,
-} from "../enums";
-import { AccDiffData, AccDiffDataSerialized } from "../helpers/acc_diff";
+import { AttackType, DamageType, NpcFeatureType, StabOptions1, StabOptions2, SystemType } from "../enums";
+import { AccDiffData } from "../helpers/acc_diff";
 import { ActionData } from "../models/bits/action";
 import { DamageData } from "../models/bits/damage";
 import { Tag, TagData } from "../models/bits/tag";
 
-// -------- Macro data types -------------------------------------
-// Within our macro ecosystem these serve 2 primary purposes
-// - In the many-to-one Prepare->Roll paradigm, these provide
-//   a unified interface to feed into rollWhatever function
-// - For rerolls, these provide a serializable state of what was rolled,
-//   which we can either instantaneously repeat, or present for further editing (then roll)
+// -------- Flow state data types -------------------------------------
+// Each flow uses one of these data types to track its state.
 
 export namespace LancerFlowState {
   // Shared by all rolls
@@ -292,5 +279,15 @@ export namespace LancerFlowState {
   }
   export function isActionRoll(data: RollData): data is ActionUseData {
     return data.type === "action";
+  }
+
+  export enum BasicFlowType {
+    FullRepair = "FullRepair",
+    Stabilize = "Stabilize",
+    Overheat = "Overheat",
+    Structure = "Structure",
+    Overcharge = "Overcharge",
+    BasicAttack = "BasicAttack",
+    TechAttack = "TechAttack",
   }
 }

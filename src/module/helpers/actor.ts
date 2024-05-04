@@ -5,6 +5,7 @@ import type { ActionType } from "../action";
 import type { LancerActor, LancerMECH, LancerNPC, LancerPILOT } from "../actor/lancer-actor";
 import { getActionTrackerOptions } from "../settings";
 import { EntryType } from "../enums";
+import { LancerFlowState } from "../flows/interfaces";
 
 // ---------------------------------------
 // Some simple stat editing thingies
@@ -237,23 +238,24 @@ export function actor_flow_button(
 ): string {
   let args = JSON.stringify({});
   let mIcon;
+  const BasicFlowType = LancerFlowState.BasicFlowType;
   switch (type) {
-    case "FullRepair":
+    case BasicFlowType.FullRepair:
       mIcon = "cci-repair";
       break;
-    case "Stabilize":
+    case BasicFlowType.Stabilize:
       mIcon = "cci-marker";
       break;
-    case "Overheat":
+    case BasicFlowType.Overheat:
       mIcon = "cci-heat";
       break;
-    case "Structure":
+    case BasicFlowType.Structure:
       mIcon = "cci-condition-shredded";
       break;
-    case "BasicAttack":
+    case BasicFlowType.BasicAttack:
       mIcon = "cci-weapon";
       break;
-    case "TechAttack":
+    case BasicFlowType.TechAttack:
       mIcon = "cci-tech-quick";
       break;
   }
