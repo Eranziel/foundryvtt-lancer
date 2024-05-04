@@ -1,4 +1,5 @@
 // Import TypeScript modules
+import { LancerActor } from "../actor/lancer-actor";
 import { LANCER } from "../config";
 import { EntryType, NpcFeatureType } from "../enums";
 import { DroppableFlowType, handleDragging } from "../helpers/dragdrop";
@@ -59,33 +60,62 @@ export function onHotbarDrop(_bar: any, data: any, slot: number) {
   // Generate an appropriate macro for the item type and action.
   switch (data.flowType) {
     case DroppableFlowType.BASIC:
-      if (data.lancerType !== EntryType.MECH && data.lancerType !== EntryType.NPC) {
-        ui.notifications!.error("Basic flow drop on hotbar was not from a mech or NPC");
-        throw new Error("Basic flow drop on hotbar was not from a mech or NPC");
+      if (
+        data.lancerType !== EntryType.PILOT &&
+        data.lancerType !== EntryType.MECH &&
+        data.lancerType !== EntryType.DEPLOYABLE &&
+        data.lancerType !== EntryType.NPC
+      ) {
+        ui.notifications!.error("Basic flow drop on hotbar was not from an actor");
+        throw new Error("Basic flow drop on hotbar was not from an actor");
+      }
+      const actor = fromUuidSync(data.uuid);
+      if (!actor) {
+        ui.notifications!.error("Invalid actor UUID for basic flow drop on hotbar");
+        throw new Error("Invalid actor UUID for basic flow drop on hotbar");
       }
       if (!data.flowSubtype) {
         ui.notifications!.error("No flow subtype provided for basic flow drop on hotbar");
         throw new Error("No flow subtype provided for basic flow");
       }
-      let flowInvocation = "";
       const BasicFlowType = LancerFlowState.BasicFlowType;
+
+      let flowInvocation = "";
       switch (data.flowSubtype) {
         case BasicFlowType.FullRepair:
           img = `systems/${game.system.id}/assets/icons/macro-icons/repair.svg`;
-          title = "Full Repair";
+          title = `Full Repair - ${actor.name}`;
           flowInvocation = `actor.beginFullRepairFlow(${data.flowArgs?.title ?? ""});`;
           break;
         case BasicFlowType.Stabilize:
+          img = `systems/${game.system.id}/assets/icons/macro-icons/marker.svg`;
+          title = `Stabilize - ${actor.name}`;
+          flowInvocation = `actor.beginStabilizeFlow(${data.flowArgs?.title ?? ""});`;
           break;
         case BasicFlowType.Overheat:
+          img = `systems/${game.system.id}/assets/icons/macro-icons/heat.svg`;
+          title = `Overheat - ${actor.name}`;
+          flowInvocation = `actor.beginOverheatFlow();`;
           break;
         case BasicFlowType.Structure:
+          img = `systems/${game.system.id}/assets/icons/macro-icons/shredded.svg`;
+          title = `Structure - ${actor.name}`;
+          flowInvocation = `actor.beginStructureFlow();`;
           break;
         case BasicFlowType.Overcharge:
+          img = `systems/${game.system.id}/assets/icons/macro-icons/overcharge.svg`;
+          title = `Overcharge - ${actor.name}`;
+          flowInvocation = `actor.beginOverchargeFlow();`;
           break;
         case BasicFlowType.BasicAttack:
+          img = `systems/${game.system.id}/assets/icons/macro-icons/weapon.svg`;
+          title = `Basic Attack - ${actor.name}`;
+          flowInvocation = `actor.beginBasicAttackFlow(${data.flowArgs?.title ?? ""});`;
           break;
         case BasicFlowType.TechAttack:
+          img = `systems/${game.system.id}/assets/icons/macro-icons/tech_quick.svg`;
+          title = `Tech Attack - ${actor.name}`;
+          flowInvocation = `actor.beginBasicTechAttackFlow(${data.flowArgs?.title ?? ""});`;
           break;
       }
       if (flowInvocation) {
