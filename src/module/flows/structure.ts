@@ -325,7 +325,7 @@ export async function structureInsertCascadeRollButton(
     data-flow-type="cascade"
     data-actor-id="${actor.uuid}"
   >
-    <i class="fas fa-dice-d20 i--sm"></i> <span class="horus--subtle">CASCADE</span>
+    <i class="fas fa-dice-d20 i--sm"></i> <span class="horus--subtle">CASCADE CHECK</span>
   </a>`);
   return true;
 }
