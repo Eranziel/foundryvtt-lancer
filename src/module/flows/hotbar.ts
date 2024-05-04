@@ -3,6 +3,7 @@ import { LancerActor } from "../actor/lancer-actor";
 import { LANCER } from "../config";
 import { EntryType, NpcFeatureType } from "../enums";
 import { DroppableFlowType, handleDragging } from "../helpers/dragdrop";
+import { LancerItem } from "../item/lancer-item";
 import { LancerFlowState } from "./interfaces";
 
 const lp = LANCER.log_prefix;
@@ -52,28 +53,28 @@ export function onHotbarDrop(_bar: any, data: any, slot: number) {
     return;
   }
 
+  const actorOrItem = fromUuidSync(data.uuid);
+  if (!actorOrItem) {
+    ui.notifications!.error("Invalid UUID for flow drop on hotbar");
+    throw new Error("Invalid UUID for flow drop on hotbar");
+  }
   let title = "";
   let command = "";
   let img = `systems/${game.system.id}/assets/icons/macro-icons/generic_item.svg`;
+  let actor: LancerActor;
+  let item: LancerItem;
+  const getActor = `const actor = await fromUuid("${data.uuid}");\n`;
+  const getItem = `const item = await fromUuid("${data.uuid}");\n`;
 
   // Check what type of action this is supposed to represent. A roll, attack, activation, etc.
   // Generate an appropriate macro for the item type and action.
   switch (data.flowType) {
     case DroppableFlowType.BASIC:
-      if (
-        data.lancerType !== EntryType.PILOT &&
-        data.lancerType !== EntryType.MECH &&
-        data.lancerType !== EntryType.DEPLOYABLE &&
-        data.lancerType !== EntryType.NPC
-      ) {
+      if (!(actorOrItem instanceof LancerActor)) {
         ui.notifications!.error("Basic flow drop on hotbar was not from an actor");
         throw new Error("Basic flow drop on hotbar was not from an actor");
       }
-      const actor = fromUuidSync(data.uuid);
-      if (!actor) {
-        ui.notifications!.error("Invalid actor UUID for basic flow drop on hotbar");
-        throw new Error("Invalid actor UUID for basic flow drop on hotbar");
-      }
+      actor = actorOrItem;
       if (!data.flowSubtype) {
         ui.notifications!.error("No flow subtype provided for basic flow drop on hotbar");
         throw new Error("No flow subtype provided for basic flow");
@@ -119,9 +120,38 @@ export function onHotbarDrop(_bar: any, data: any, slot: number) {
           break;
       }
       if (flowInvocation) {
-        command = `const actor = await fromUuid("${data.uuid}");\n${flowInvocation}`;
+        command = `${getActor}${flowInvocation}`;
       }
       break;
+    case DroppableFlowType.STAT:
+      if (!(actorOrItem instanceof LancerActor)) {
+        ui.notifications!.error("Stat flow drop on hotbar was not from an actor");
+        throw new Error("Stat flow drop on hotbar was not from an actor");
+      }
+      actor = actorOrItem;
+      img = `systems/${game.system.id}/assets/icons/macro-icons/d20-framed.svg`;
+      // Determine the title for the macro
+      switch (data.args?.statPath) {
+        case "system.grit":
+          title = `Grit - ${actor.name}`;
+          break;
+        case "system.tier":
+          title = `Tier - ${actor.name}`;
+          break;
+        case "system.hull":
+          title = `Hull - ${actor.name}`;
+          break;
+        case "system.agi":
+          title = `Agility - ${actor.name}`;
+          break;
+        case "system.sys":
+          title = `System - ${actor.name}`;
+          break;
+        case "system.eng":
+          title = `Engineering - ${actor.name}`;
+          break;
+      }
+      command = `${getActor}actor.beginStatFlow("${data.args?.statPath}");`;
     default:
       break;
   }

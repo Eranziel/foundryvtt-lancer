@@ -173,7 +173,6 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
       const flowArgs = JSON.parse(flowElement.dataset.flowArgs ?? "{}");
       if (flowSubtype) {
         data = {
-          // type: "Actor",
           lancerType: this.actor.type,
           uuid: this.actor.uuid,
           flowType,
@@ -182,6 +181,15 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
         };
       }
     } else if (dragElement.hasClass("roll-stat")) {
+      const el = $(e.currentTarget).closest("[data-uuid]")[0] as HTMLElement;
+      const statPath = el.dataset.path;
+      if (!statPath) throw Error("No stat path found!");
+      data = {
+        lancerType: this.actor.type,
+        uuid: this.actor.uuid,
+        flowType: DroppableFlowType.STAT,
+        args: { statPath },
+      };
     } else if (dragElement.hasClass("roll-attack")) {
     } else if (dragElement.hasClass("roll-tech")) {
     } else if (dragElement.hasClass("chat-flow-button")) {
