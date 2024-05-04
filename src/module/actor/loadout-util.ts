@@ -26,7 +26,7 @@ export class LoadoutHelper {
     }
     const uses = (item as any).system.uses;
     if (opts.refill && uses !== undefined && uses.val !== uses.max) {
-      changes["system.uses"] = (item as any).uses.max;
+      changes["system.uses"] = (item as any).system.uses.max;
     }
     // Only return changes if there is actually something to do
     if (!Object.keys(changes).some(k => k.startsWith("system"))) {
