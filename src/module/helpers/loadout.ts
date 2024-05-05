@@ -321,7 +321,7 @@ function frameTraits(frame_path: string, options: HelperOptions): string {
   let frame = resolve_helper_dotpath<LancerFRAME>(options, frame_path)!;
   return frame.system.traits
     .map((trait, index) => {
-      let actionHTML = buildActionArrayHTML(frame, `frame.system.traits.${index}.actions`);
+      let actionHTML = buildActionArrayHTML(frame, `system.traits.${index}.actions`);
       let depHTML = buildDeployablesArrayHBS(frame, `system.traits.${index}.deployables`, options, { vertical: true });
       return `<div class="frame-trait clipped-top">
     <div
