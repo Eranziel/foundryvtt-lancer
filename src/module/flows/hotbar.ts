@@ -130,6 +130,10 @@ export function onHotbarDrop(_bar: any, data: any, slot: number) {
         ui.notifications!.error("Stat flow drop on hotbar was not from an actor");
         throw new Error("Stat flow drop on hotbar was not from an actor");
       }
+      if (!data.args?.statPath) {
+        ui.notifications!.error("Stat flow drop on hotbar was missing a stat path");
+        throw new Error("Stat flow drop on hotbar was missing a stat path");
+      }
       actor = actorOrItem;
       img = `systems/${game.system.id}/assets/icons/macro-icons/d20-framed.svg`;
       // Determine the title for the macro
@@ -190,6 +194,10 @@ export function onHotbarDrop(_bar: any, data: any, slot: number) {
       if (!(actorOrItem instanceof LancerItem)) {
         ui.notifications!.error("Chat flow drop on hotbar was not from an item");
         throw new Error("Chat flow drop on hotbar was not from an item");
+      }
+      if (!data.args) {
+        ui.notifications!.error("Chat flow drop on hotbar was missing required data");
+        throw new Error("Chat flow drop on hotbar was missing required data");
       }
       item = actorOrItem;
       img = _chooseItemImage(item);
