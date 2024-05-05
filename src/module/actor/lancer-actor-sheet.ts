@@ -246,7 +246,45 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
         args: { powerIndex },
       };
     } else if (dragElement.hasClass("effect-flow")) {
+      const el = $(e.currentTarget).closest("[data-uuid]")[0] as HTMLElement;
+      const itemId = el.dataset.uuid;
+      if (!itemId) throw Error("No item ID found!");
+      const item = LancerItem.fromUuidSync(itemId, `Invalid item ID: ${itemId}`);
+      data = {
+        lancerType: item.type,
+        uuid: itemId,
+        flowType: DroppableFlowType.EFFECT,
+        args: {},
+      };
     } else if (dragElement.hasClass("activation-flow")) {
+      const el = $(e.currentTarget).closest("[data-uuid]")[0] as HTMLElement;
+      const itemId = el.dataset.uuid;
+      const path = el.dataset.path;
+      if (!itemId || !path) throw Error("No item ID from activation chip");
+      let isDeployable = path.includes("deployable");
+      let isAction = !isDeployable && path.includes("action");
+      let isCoreSystem = !isDeployable && path.includes("core_system");
+      const item = LancerItem.fromUuidSync(itemId, `Invalid item ID: ${itemId}`);
+      if (isAction) {
+        data = {
+          lancerType: item.type,
+          uuid: itemId,
+          flowType: DroppableFlowType.ACTIVATION,
+          args: { path },
+        };
+      } else if (isCoreSystem) {
+        data = {
+          lancerType: item.type,
+          uuid: itemId,
+          flowType: DroppableFlowType.CORE_ACTIVE,
+          args: { path },
+        };
+      } else if (isDeployable) {
+        // TODO - deployable actions
+      } else {
+        ui.notifications!.error("Could not infer action type");
+        throw Error("Could not infer action type");
+      }
     }
     if (!data) return;
     e.dataTransfer?.setData("text/plain", JSON.stringify(data));
@@ -454,6 +492,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
       } else if (isCoreSystem) {
         item.beginCoreActiveFlow(path);
       } else if (isDeployable) {
+        // TODO - deployable actions
       } else {
         ui.notifications!.error("Could not infer action type");
       }

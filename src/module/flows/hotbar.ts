@@ -2,8 +2,10 @@
 import { LancerActor } from "../actor/lancer-actor";
 import { LANCER } from "../config";
 import { EntryType, NpcFeatureType } from "../enums";
+import { resolve_dotpath } from "../helpers/commons";
 import { DroppableFlowType, handleDragging } from "../helpers/dragdrop";
 import { LancerItem } from "../item/lancer-item";
+import { ActionData } from "../models/bits/action";
 import { LancerFlowState } from "./interfaces";
 
 const lp = LANCER.log_prefix;
@@ -23,6 +25,10 @@ function _chooseItemImage(item: LancerItem): string {
       return `systems/${game.system.id}/assets/icons/macro-icons/mech_weapon.svg`;
     case EntryType.MECH_SYSTEM:
       return `systems/${game.system.id}/assets/icons/macro-icons/mech_system.svg`;
+    case EntryType.FRAME:
+      return `systems/${game.system.id}/assets/icons/macro-icons/frame.svg`;
+    case EntryType.WEAPON_MOD:
+      return `systems/${game.system.id}/assets/icons/macro-icons/weapon_mod.svg`;
     case EntryType.NPC_FEATURE:
       // Just a type narrower
       if (!item.is_npc_feature()) break;
@@ -238,10 +244,47 @@ export function onHotbarDrop(_bar: any, data: any, slot: number) {
       command = `${getItem}item.beginBondPowerFlow(${data.args.powerIndex});`;
       break;
     case DroppableFlowType.EFFECT:
+      if (!(actorOrItem instanceof LancerItem)) {
+        ui.notifications!.error("Effect flow drop on hotbar was not from an item");
+        throw new Error("Effect flow drop on hotbar was not from an item");
+      }
+      item = actorOrItem;
+      img = _chooseItemImage(item);
+      title = `${item.name}${item.actor?.name ? ` - ${item.actor.name}` : ""}`;
+      command = `${getItem}item.beginSystemFlow();`;
       break;
     case DroppableFlowType.ACTIVATION:
+      if (!(actorOrItem instanceof LancerItem)) {
+        ui.notifications!.error("Activation flow drop on hotbar was not from an item");
+        throw new Error("Activation flow drop on hotbar was not from an item");
+      }
+      if (!data.args?.path) {
+        ui.notifications!.error("Activation flow drop on hotbar was missing an action path");
+        throw new Error("Activation flow drop on hotbar was missing an action path");
+      }
+      item = actorOrItem;
+      img = _chooseItemImage(item);
+      let action = resolve_dotpath<ActionData>(item, data.args.path);
+      title = `${item.name} - ${action ? action.name : ""}${item.actor?.name ? ` - ${item.actor.name}` : ""}`;
+      command = `${getItem}item.beginActivationFlow("${data.args.path}");`;
       break;
     case DroppableFlowType.CORE_ACTIVE:
+      if (!(actorOrItem instanceof LancerItem)) {
+        ui.notifications!.error("Core active flow drop on hotbar was not from an item");
+        throw new Error("Core active flow drop on hotbar was not from an item");
+      }
+      if (!data.args?.path) {
+        ui.notifications!.error("Core active flow drop on hotbar was missing an action path");
+        throw new Error("Core active flow drop on hotbar was missing an action path");
+      }
+      item = actorOrItem;
+      if (!item.is_frame()) {
+        ui.notifications!.error("Core active flow drop on hotbar was not from a frame item");
+        throw new Error("Core active flow drop on hotbar was not from a frame item");
+      }
+      img = _chooseItemImage(item);
+      title = `${item.system.core_system.active_name}${item.actor?.name ? ` - ${item.actor.name}` : ""}`;
+      command = `${getItem}item.beginCoreActiveFlow("${data.args.path}");`;
       break;
     default:
       ui.notifications!.error("Unknown flow type for flow drop on hotbar!");
