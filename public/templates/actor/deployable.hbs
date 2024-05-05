@@ -43,9 +43,9 @@
         {{{stat-view-card "SPEED" "mdi mdi-arrow-right-bold-hexagon-outline" "system.speed"}}}
         {{{stat-view-card "SAVE" "cci cci-save" "system.save"}}}
 
-        <div class="card clipped full lancer-macro-grid">
+        <div class="card clipped full lancer-flow-button-grid">
           <span class="lancer-header lancer-primary submajor">BASIC ATTACKS</span>
-          <div class="lancer-macro-grid">
+          <div class="lancer-flow-button-grid">
             {{{flow-button "BASIC ATTACK" "BasicAttack"}}}
           </div>
         </div>
@@ -71,11 +71,12 @@
         <div class="card clipped wraprow quadruple">
           <div class="wraprow quadruple">
             <div class="card clipped stat-container">
-              <div class="lancer-header lancer-primary ">
+              <div class="lancer-header lancer-primary">
                 <i class="mdi mdi-heart-outline i--m i--light header-icon"> </i>
                 <span class="major">MAX HP</span>
               </div>
-              <input class="lancer-input major" {{{getset "system.stats.hp" }}} type="text" data-dtype="String" />
+              {{!-- prettier-ignore --}}
+              <input class="lancer-input major" {{{getset "system.stats.hp"}}} type="text" data-dtype="String" />
             </div>
             {{{clicker-stat-card "ARMOR" "mdi mdi-shield-outline" "system.stats.armor" false}}}
             {{{clicker-stat-card "EVASION" "cci cci-evasion" "system.stats.evasion" false}}}
