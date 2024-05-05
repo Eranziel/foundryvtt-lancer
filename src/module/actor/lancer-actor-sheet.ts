@@ -71,7 +71,6 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
 
     // All-actor macro dragging
     this._activateFlowDragging(html);
-    this._activateMacroDragging(html);
 
     // Make +/- buttons work
     handleInputPlusMinusButtons(html, this.actor);
@@ -127,34 +126,6 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
       .each((_i, item) => {
         item.setAttribute("draggable", "true");
         item.addEventListener("dragstart", FlowDragHandler, false);
-      });
-  }
-
-  // TODO: deprecate/refactor
-  _activateMacroDragging(html: JQuery) {
-    const ActionMacroHandler = (e: DragEvent) => this._onDragActivationChipStart(e);
-    const EncodedMacroHandler = (e: DragEvent) => this._onDragEncodedMacroStart(e);
-
-    html
-      .find('li[class*="item"]')
-      .add('span[class*="item"]')
-      .add('[class*="lancer-macro"]')
-      .each((_i, item) => {
-        if (item.classList.contains("inventory-header")) return;
-        item.setAttribute("draggable", "true");
-        if (item.classList.contains("lancer-macro")) {
-          item.addEventListener("dragstart", EncodedMacroHandler, false);
-          return;
-        }
-        if (item.classList.contains("activation-chip")) item.addEventListener("dragstart", ActionMacroHandler, false);
-        if (item.classList.contains("item"))
-          item.addEventListener(
-            "dragstart",
-            (ev: any) => {
-              this._onDragStart(ev);
-            },
-            false
-          );
       });
   }
 
@@ -289,19 +260,6 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
     if (!data) return;
     e.dataTransfer?.setData("text/plain", JSON.stringify(data));
     console.log("Flow drag data:", data, e.dataTransfer?.getData("text/plain"));
-  }
-
-  // TODO: deprecate
-  _onDragEncodedMacroStart(e: DragEvent) {
-    // For macros with encoded data
-    e.stopPropagation();
-
-    let encoded = (<HTMLElement>e.currentTarget).getAttribute("data-macro");
-
-    if (!encoded) throw Error("No macro data available");
-
-    let data = JSON.parse(decodeURI(window.atob(encoded)));
-    e.dataTransfer?.setData("text/plain", JSON.stringify(data));
   }
 
   async _activateActionGridListeners(html: JQuery) {
@@ -504,65 +462,6 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
 
       this.actor.beginRechargeFlow();
     });
-  }
-
-  _onDragActivationChipStart(event: DragEvent) {
-    // For talent macros
-    event.stopPropagation(); // Avoids triggering parent event handlers
-
-    let target = <HTMLElement>event.currentTarget;
-
-    let title = target.closest(".action-wrapper")?.querySelector(".action-title")?.textContent;
-    let itemId = target.closest("[data-uuid]")?.getAttribute("data-uuid");
-
-    if (!itemId) throw Error("No item found");
-
-    title = title ?? this.actor.items.get(itemId)?.name ?? "unknown activation";
-
-    let a = target.getAttribute("data-activation");
-    let d = target.getAttribute("data-deployable");
-
-    let activationOption: ActivationOptions;
-    let activationIndex: number;
-    if (a) {
-      const activation = parseInt(a);
-      activationOption = ActivationOptions.ACTION;
-      activationIndex = activation;
-    } else if (d) {
-      const deployable = parseInt(d);
-      activationOption = ActivationOptions.DEPLOYABLE;
-      activationIndex = deployable;
-    } else {
-      throw Error("unknown activation was dragged.");
-    }
-
-    // send as a generated macro:
-    let macroData: LancerFlowState.InvocationData = {
-      iconPath: `systems/${game.system.id}/assets/icons/macro-icons/mech_system.svg`,
-      title: title!,
-      fn: "prepareActivationMacro",
-      args: [itemId, activationOption, activationIndex],
-    };
-
-    event.dataTransfer?.setData("text/plain", JSON.stringify(macroData));
-  }
-
-  getStatPath(event: any): string | null {
-    if (!event.currentTarget) return null;
-    // Find the stat input to get the stat's key to pass to the macro function
-    let el = $(event.currentTarget).closest(".stat-container").find(".lancer-stat")[0] as HTMLElement;
-
-    if (!el) el = $(event.currentTarget).siblings(".lancer-stat")[0];
-
-    if (el.nodeName === "INPUT") {
-      return (<HTMLInputElement>el).name;
-    } else if (el.nodeName === "DATA") {
-      return (<HTMLDataElement>el).id;
-    } else if (el.nodeName === "SPAN") {
-      return (<HTMLSpanElement>el).getAttribute("data-path");
-    } else {
-      throw "Error - stat macro was not run on an input or data element";
-    }
   }
 
   /**
