@@ -212,6 +212,22 @@ export function onHotbarDrop(_bar: any, data: any, slot: number) {
       command = `${getItem}item.beginSkillFlow();`;
       break;
     case DroppableFlowType.BOND_POWER:
+      if (!(actorOrItem instanceof LancerItem)) {
+        ui.notifications!.error("Bond power flow drop on hotbar was not from an item");
+        throw new Error("Bond power flow drop on hotbar was not from an item");
+      }
+      item = actorOrItem;
+      if (!item.is_bond()) {
+        ui.notifications!.error("Bond power flow drop on hotbar was not from a bond power item");
+        throw new Error("Bond power flow drop on hotbar was not from a bond power item");
+      }
+      if (!data.args?.powerIndex) {
+        ui.notifications!.error("Bond power flow drop on hotbar was missing a power index");
+        throw new Error("Bond power flow drop on hotbar was missing a power index");
+      }
+      img = _chooseItemImage(item);
+      title = `${item.system.powers[data.args.powerIndex].name}${item.actor?.name ? ` - ${item.actor.name}` : ""}`;
+      command = `${getItem}item.beginBondPowerFlow(${data.args.powerIndex});`;
       break;
     case DroppableFlowType.EFFECT:
       break;

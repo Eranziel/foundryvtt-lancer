@@ -234,6 +234,17 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
         args: { skillId },
       };
     } else if (dragElement.hasClass("bond-power-flow")) {
+      const powerElement = $(e.currentTarget).closest("[data-uuid]")[0] as HTMLElement;
+      const bondId = powerElement.dataset.uuid;
+      if (!bondId) throw Error("No bond ID found!");
+      const bond = LancerItem.fromUuidSync(bondId, `Invalid bond ID: ${bondId}`);
+      const powerIndex = parseInt(powerElement.dataset.powerIndex ?? "-1");
+      data = {
+        lancerType: bond.type,
+        uuid: bondId,
+        flowType: DroppableFlowType.BOND_POWER,
+        args: { powerIndex },
+      };
     } else if (dragElement.hasClass("effect-flow")) {
     } else if (dragElement.hasClass("activation-flow")) {
     }
