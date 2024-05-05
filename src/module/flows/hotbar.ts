@@ -187,8 +187,29 @@ export function onHotbarDrop(_bar: any, data: any, slot: number) {
       command = `${getItem}item.beginTechAttackFlow();`;
       break;
     case DroppableFlowType.CHAT:
+      if (!(actorOrItem instanceof LancerItem)) {
+        ui.notifications!.error("Chat flow drop on hotbar was not from an item");
+        throw new Error("Chat flow drop on hotbar was not from an item");
+      }
+      item = actorOrItem;
+      img = _chooseItemImage(item);
+      // TODO: the title could be improved for various items. Talent rank, frame trait/core active, etc...
+      title = `${item.name}${item.actor?.name ? ` - ${item.actor.name}` : ""}`;
+      command = `${getItem}game.lancer.beginItemChatFlow(item, ${JSON.stringify(data.args)});`;
       break;
     case DroppableFlowType.SKILL:
+      if (!(actorOrItem instanceof LancerItem)) {
+        ui.notifications!.error("Skill flow drop on hotbar was not from an item");
+        throw new Error("Skill flow drop on hotbar was not from an item");
+      }
+      item = actorOrItem;
+      if (!item.is_skill()) {
+        ui.notifications!.error("Skill flow drop on hotbar was not from a skill item");
+        throw new Error("Skill flow drop on hotbar was not from a skill item");
+      }
+      img = _chooseItemImage(item);
+      title = `${item.name}${item.actor?.name ? ` - ${item.actor.name}` : ""}`;
+      command = `${getItem}item.beginSkillFlow();`;
       break;
     case DroppableFlowType.BOND_POWER:
       break;

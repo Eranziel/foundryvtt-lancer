@@ -213,7 +213,26 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
         args: {},
       };
     } else if (dragElement.hasClass("chat-flow-button")) {
+      const el = $(e.currentTarget).closest("[data-uuid]")[0] as HTMLElement;
+      if (!el || !el.dataset.uuid) throw Error(`No item UUID found!`);
+      const item = LancerItem.fromUuidSync(el.dataset.uuid, `Invalid item ID: ${el.dataset.uuid}`);
+      data = {
+        lancerType: item.type,
+        uuid: el.dataset.uuid,
+        flowType: DroppableFlowType.CHAT,
+        args: { ...el.dataset },
+      };
     } else if (dragElement.hasClass("skill-flow")) {
+      const el = $(e.currentTarget).closest("[data-uuid]")[0] as HTMLElement;
+      const skillId = el.dataset.uuid;
+      if (!skillId) throw Error("No skill ID found!");
+      const skill = LancerItem.fromUuidSync(skillId, `Invalid skill ID: ${skillId}`);
+      data = {
+        lancerType: skill.type,
+        uuid: skillId,
+        flowType: DroppableFlowType.SKILL,
+        args: { skillId },
+      };
     } else if (dragElement.hasClass("bond-power-flow")) {
     } else if (dragElement.hasClass("effect-flow")) {
     } else if (dragElement.hasClass("activation-flow")) {

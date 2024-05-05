@@ -206,6 +206,7 @@ import { registerActionTrackSteps } from "./module/flows/action-track";
 import { get_pack_id } from "./module/util/doc";
 import { registerTours } from "./module/tours/register-tours";
 import { registerStabilizeSteps } from "./module/flows/stabilize";
+import { beginItemChatFlow } from "./module/flows/item";
 
 const lp = LANCER.log_prefix;
 
@@ -370,6 +371,7 @@ Hooks.once("init", async function () {
       lookupOwnedDeployables,
     },
     flowSteps,
+    beginItemChatFlow,
     // prepareItemMacro: macros.prepareItemMacro,
     // prepareStatMacro: macros.prepareStatMacro,
     // prepareTalentMacro: macros.prepareTalentMacro,
