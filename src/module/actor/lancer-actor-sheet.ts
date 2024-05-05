@@ -191,7 +191,27 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
         args: { statPath },
       };
     } else if (dragElement.hasClass("roll-attack")) {
+      const weaponElement = $(e.currentTarget).closest("[data-uuid]")[0] as HTMLElement;
+      const weaponId = weaponElement.dataset.uuid;
+      if (!weaponId) throw Error("No weapon ID found!");
+      const weapon = LancerItem.fromUuidSync(weaponId, `Invalid weapon ID: ${weaponId}`);
+      data = {
+        lancerType: weapon.type,
+        uuid: weaponId,
+        flowType: DroppableFlowType.ATTACK,
+        args: {},
+      };
     } else if (dragElement.hasClass("roll-tech")) {
+      const techElement = $(e.currentTarget).closest("[data-uuid]")[0] as HTMLElement;
+      const techId = techElement.dataset.uuid;
+      if (!techId) throw Error("No tech ID found!");
+      const techItem = LancerItem.fromUuidSync(techId, `Invalid tech ID: ${techId}`);
+      data = {
+        lancerType: techItem.type,
+        uuid: techId,
+        flowType: DroppableFlowType.TECH_ATTACK,
+        args: {},
+      };
     } else if (dragElement.hasClass("chat-flow-button")) {
     } else if (dragElement.hasClass("skill-flow")) {
     } else if (dragElement.hasClass("bond-power-flow")) {

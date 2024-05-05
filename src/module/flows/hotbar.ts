@@ -8,8 +8,8 @@ import { LancerFlowState } from "./interfaces";
 
 const lp = LANCER.log_prefix;
 
-function _chooseItemImage(data: any): string {
-  switch (data.type) {
+function _chooseItemImage(item: LancerItem): string {
+  switch (item.type) {
     case EntryType.SKILL:
       return `systems/${game.system.id}/assets/icons/macro-icons/skill.svg`;
     case EntryType.TALENT:
@@ -24,7 +24,9 @@ function _chooseItemImage(data: any): string {
     case EntryType.MECH_SYSTEM:
       return `systems/${game.system.id}/assets/icons/macro-icons/mech_system.svg`;
     case EntryType.NPC_FEATURE:
-      switch (data.FeatureType) {
+      // Just a type narrower
+      if (!item.is_npc_feature()) break;
+      switch (item.system.type) {
         case NpcFeatureType.Reaction:
           return `systems/${game.system.id}/assets/icons/macro-icons/reaction.svg`;
         case NpcFeatureType.System:
@@ -152,8 +154,53 @@ export function onHotbarDrop(_bar: any, data: any, slot: number) {
           break;
       }
       command = `${getActor}actor.beginStatFlow("${data.args?.statPath}");`;
-    default:
+    case DroppableFlowType.ATTACK:
+      if (!(actorOrItem instanceof LancerItem)) {
+        ui.notifications!.error("Attack flow drop on hotbar was not from an item");
+        throw new Error("Attack flow drop on hotbar was not from an item");
+      }
+      if (
+        data.lancerType !== EntryType.MECH_WEAPON &&
+        data.lancerType !== EntryType.PILOT_WEAPON &&
+        data.lancerType !== EntryType.NPC_FEATURE
+      ) {
+        ui.notifications!.error("Attack flow drop on hotbar was not from a weapon");
+        throw new Error("Attack flow drop on hotbar was not from a weapon");
+      }
+      item = actorOrItem;
+      img = _chooseItemImage(item);
+      title = `${item.name}${item.actor?.name ? ` - ${item.actor.name}` : ""}`;
+      command = `${getItem}item.beginWeaponAttackFlow();`;
       break;
+    case DroppableFlowType.TECH_ATTACK:
+      if (!(actorOrItem instanceof LancerItem)) {
+        ui.notifications!.error("Tech attack flow drop on hotbar was not from an item");
+        throw new Error("Tech attack flow drop on hotbar was not from an item");
+      }
+      if (data.lancerType !== EntryType.MECH_SYSTEM && data.lancerType !== EntryType.NPC_FEATURE) {
+        ui.notifications!.error("Tech attack flow drop on hotbar was not from a system or NPC feature");
+        throw new Error("Tech attack flow drop on hotbar was not from a system or NPC feature");
+      }
+      item = actorOrItem;
+      img = _chooseItemImage(item);
+      title = `${item.name}${item.actor?.name ? ` - ${item.actor.name}` : ""}`;
+      command = `${getItem}item.beginTechAttackFlow();`;
+      break;
+    case DroppableFlowType.CHAT:
+      break;
+    case DroppableFlowType.SKILL:
+      break;
+    case DroppableFlowType.BOND_POWER:
+      break;
+    case DroppableFlowType.EFFECT:
+      break;
+    case DroppableFlowType.ACTIVATION:
+      break;
+    case DroppableFlowType.CORE_ACTIVE:
+      break;
+    default:
+      ui.notifications!.error("Unknown flow type for flow drop on hotbar!");
+      throw new Error("Unknown flow type for flow drop on hotbar!");
   }
 
   console.log("Generated macro:", title, img);
