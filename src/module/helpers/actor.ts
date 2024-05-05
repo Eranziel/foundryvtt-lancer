@@ -93,7 +93,7 @@ export function stat_view_card(
         ${inc_if(`<i class="${icon} i--m i--light header-icon"> </i>`, icon)}
         <span class="major">${title}</span>
       </div>
-      <div class="${flowButton ? "stat-macro-container" : "flexrow flex-center"}">
+      <div class="${flowButton ? "stat-flow-container" : "flexrow flex-center"}">
         ${flowButton}
         <span class="lancer-stat major" data-path="${data_path}">${dataVal}</span>
         ${attackFlowButton}
@@ -277,7 +277,7 @@ export function tech_flow_card(title: string, icon: string, data_path: string, o
         ${inc_if(`<i class="${icon} i--m i--light header-icon"> </i>`, icon)}
         <span class="major">${title}</span>
       </div>
-      <div class="stat-macro-container">
+      <div class="stat-flow-container">
         ${_basicFlowButton(uuid, "TechAttack", { icon: "cci cci-tech-quick" })}
         <span class="lancer-stat major" data-path="${data_path}">${data_val}</span>
       </div>

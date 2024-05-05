@@ -1901,17 +1901,17 @@ a.activation-chip > i.mdi {
   grid-template: 1fr 1fr / 1fr;
 }
 
-.stat-macro-container {
+.stat-flow-container {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
 }
 
 .stat-container,
-.stat-macro-container {
+.stat-flow-container {
   align-items: center;
 }
 
-.stat-macro-container > a {
+.stat-flow-container > a {
   margin: auto;
 }
 /* Frame descriptor, probably-but-not-necessarily in mech-loadout */
@@ -1976,7 +1976,7 @@ a.activation-chip > i.mdi {
       margin: 0px 7px;
       flex-grow: unset;
 
-      .stat-macro-container {
+      .stat-flow-container {
         grid-template: auto / fit-content(75%) auto;
       }
     }
