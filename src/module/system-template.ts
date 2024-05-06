@@ -37,6 +37,7 @@ import { Tag, TagData } from "./models/bits/tag";
 import { PowerData } from "./models/bits/power";
 import { BondQuestionData } from "./models/bits/question";
 import { FullBoundedNum, LIDRef, SourceData, SourceTemplates, UUIDRef } from "./source-template";
+import { AmmoData } from "./models/bits/ammo";
 
 export namespace SystemTemplates {
   // We mimic these types, such that if we later decide to modify how they are hydrated, our job is easier
@@ -385,6 +386,7 @@ export namespace SystemData {
     sp: number;
     description: string;
     type: SystemType;
+    ammo: AmmoData[];
   }
   export interface MechWeapon
     extends SystemTemplates.item_universal,

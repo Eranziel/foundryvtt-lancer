@@ -149,6 +149,16 @@ export interface PackedRankedData {
   custom_detail?: string;
 }
 
+export interface PackedAmmoData {
+  name: string;
+  description: string;
+  cost?: number;
+  allowed_types?: WeaponType[];
+  allowed_sizes?: WeaponSize[];
+  restricted_types?: WeaponType[];
+  restricted_sizes?: WeaponSize[];
+}
+
 export interface PackedReserveData {
   type?: string;
   name?: string;
@@ -592,6 +602,7 @@ export interface PackedMechSystemData {
   counters?: PackedCounterData[];
   bonuses?: PackedBonusData[];
   actions?: PackedActionData[];
+  ammo?: PackedAmmoData[];
   tags?: PackedTagInstanceData[];
   source: string; // must be the same as the Manufacturer ID to sort correctly
   license_id?: string;

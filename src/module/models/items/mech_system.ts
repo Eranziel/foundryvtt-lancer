@@ -3,6 +3,7 @@ import { SourceData } from "../../source-template";
 import { PackedMechSystemData } from "../../util/unpacking/packed-types";
 import { unpackDeployable } from "../actors/deployable";
 import { unpackAction } from "../bits/action";
+import { AmmoField, unpackAmmo } from "../bits/ammo";
 import { unpackBonus } from "../bits/bonus";
 import { unpackCounter } from "../bits/counter";
 import { unpackSynergy } from "../bits/synergy";
@@ -25,6 +26,7 @@ export class MechSystemModel extends LancerDataModel<"MechSystemModel"> {
       sp: new fields.NumberField({ nullable: false, initial: 0 }),
       description: new fields.HTMLField(),
       type: new fields.StringField(),
+      ammo: new fields.ArrayField(new AmmoField()),
       ...template_universal_item(),
       ...template_bascdt(),
       ...template_destructible(),
@@ -64,6 +66,7 @@ export function unpackMechSystem(
       synergies: data.synergies?.map(unpackSynergy),
       tags: data.tags?.map(unpackTag),
       type: data.type,
+      ammo: data.ammo?.map(unpackAmmo),
       uses: { value: 0, max: 0 },
     },
   };

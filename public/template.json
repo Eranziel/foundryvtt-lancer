@@ -349,7 +349,8 @@
         "value": 0
       },
       "description": "",
-      "type": ""
+      "type": "",
+      "ammo": []
     },
     "mech_weapon": {
       "templates": ["universal", "destructible", "licensed"],

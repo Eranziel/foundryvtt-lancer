@@ -19,6 +19,7 @@ import {
   WeaponTypeChecklist,
 } from "./enums";
 import { ActionData } from "./models/bits/action";
+import { AmmoData } from "./models/bits/ammo";
 import { BonusData } from "./models/bits/bonus";
 import { CounterData } from "./models/bits/counter";
 import { DamageData } from "./models/bits/damage";
@@ -314,6 +315,7 @@ export namespace SourceData {
     sp: number;
     description: string;
     type: SystemType;
+    ammo: AmmoData[];
   }
   export interface MechWeapon
     extends SourceTemplates.item_universal,
