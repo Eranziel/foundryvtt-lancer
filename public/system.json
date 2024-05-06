@@ -8,7 +8,7 @@
   "compatibility": {
     "minimum": 10,
     "verified": "10.303",
-    "maximum": 10
+    "maximum": 11
   },
   "authors": [
     {"name": "Eranziel"},
