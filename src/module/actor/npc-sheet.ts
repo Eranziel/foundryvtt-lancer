@@ -129,11 +129,9 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
       if (this.actor.is_npc() && doc.is_npc_class() && old_class) {
         // But before we do that, destroy all old classes
         // If we have a class, get rid of it
-        let class_features = findMatchingFeaturesInNpc(this.actor, [
-          ...old_class.system.base_features,
-          ...old_class.system.optional_features,
-        ]);
-        await this.actor._safeDeleteDescendant("Item", [old_class, ...class_features]);
+        await this.actor.removeClassFeatures(old_class);
+        // And then destroy it
+        await old_class.delete();
       }
 
       // And add all new features
@@ -187,29 +185,4 @@ function getStatInput(event: Event): HTMLInputElement | HTMLDataElement | null {
   return $(event.currentTarget).closest(".stat-container").find(".lancer-stat")[0] as
     | HTMLInputElement
     | HTMLDataElement;
-}
-
-// Removes class/features when a delete of class/template happens
-export function handleClassDelete(item: LancerItem, npc: LancerNPC) {
-  if (item.is_npc_template() || item.is_npc_class()) {
-    let matches = findMatchingFeaturesInNpc(npc, [
-      ...item.system.base_features,
-      ...item.system.optional_features,
-    ]);
-    npc.deleteEmbeddedDocuments("Item", matches.map(m => m.id).filter(x => x) as string[]);
-  }
-}
-
-// Given a list of npc features, return the corresponding entries on the provided npc
-export function findMatchingFeaturesInNpc(npc: LancerNPC, feature_ids: string[]): LancerNPC_FEATURE[] {
-  if (!npc.is_npc()) return [];
-  let result = [];
-  for (let predicate_lid of feature_ids) {
-    for (let candidate_feature of npc.itemTypes.npc_feature as LancerNPC_FEATURE[]) {
-      if (candidate_feature.system.lid == predicate_lid) {
-        result.push(candidate_feature);
-      }
-    }
-  }
-  return result;
 }

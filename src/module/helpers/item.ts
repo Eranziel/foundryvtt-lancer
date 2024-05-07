@@ -1537,7 +1537,7 @@ function _handleContextMenus(
     callback: async (html: JQuery) => {
       let item = dd(html)?.terminus as LancerItem | null;
       if (item instanceof LancerItem && doc instanceof LancerActor) {
-        handleClassDelete(item, doc as LancerNPC);
+        doc.removeClassFeatures(item);
       }
       (dd(html)?.terminus as foundry.abstract.Document<any, any> | null)?.delete();
     },
