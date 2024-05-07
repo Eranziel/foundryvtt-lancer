@@ -5,7 +5,14 @@ import { AppliedDamage } from "./damage-calc";
 import { SystemData, SystemDataType, SystemTemplates } from "../system-template";
 import { SourceDataType } from "../source-template";
 import { getAutomationOptions } from "../settings";
-import { LancerBOND, LancerFRAME, LancerItem, LancerNPC_CLASS } from "../item/lancer-item";
+import {
+  LancerBOND,
+  LancerFRAME,
+  LancerItem,
+  LancerNPC_CLASS,
+  LancerNPC_FEATURE,
+  LancerNPC_TEMPLATE,
+} from "../item/lancer-item";
 import { LancerActiveEffect } from "../effects/lancer-active-effect";
 import { frameToPath } from "./retrograde-map";
 import { EffectHelper } from "../effects/effector";
@@ -644,6 +651,16 @@ export class LancerActor extends Actor {
   // Quick checkers
   hasHeatcap(): this is { system: SystemTemplates.heat } {
     return (this as any).system.heat !== undefined;
+  }
+
+  async removeClassFeatures(item: LancerItem) {
+    if (!this.is_npc() || (!item.is_npc_class() && !item.is_npc_template())) return;
+    const targetFeatures = [...item.system.base_features, ...item.system.optional_features];
+    let matches = this.itemTypes.npc_feature.filter(feat => targetFeatures.includes(feat.system.lid));
+    await this._safeDeleteDescendant(
+      "Item",
+      matches.filter(x => x)
+    );
   }
 
   /**

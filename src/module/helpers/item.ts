@@ -1535,6 +1535,10 @@ function _handleContextMenus(
     name: "Delete Document",
     icon: '<i class="fas fa-fw fa-trash"></i>',
     callback: async (html: JQuery) => {
+      let item = dd(html)?.terminus as LancerItem | null;
+      if (item instanceof LancerItem && doc instanceof LancerActor) {
+        doc.removeClassFeatures(item);
+      }
       (dd(html)?.terminus as foundry.abstract.Document<any, any> | null)?.delete();
     },
     condition: html => !view_only && dd(html)?.terminus instanceof foundry.abstract.Document,
