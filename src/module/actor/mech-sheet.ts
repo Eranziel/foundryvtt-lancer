@@ -68,6 +68,11 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
     let [drop, is_new] = await this.quickOwnDrop(base_drop);
 
     if (drop.type == "Item" && drop.document.is_frame() && this.actor.is_mech()) {
+      // Find and delete the old frame item, if it exists
+      const oldFrame = this.actor.items.find(i => i.is_frame() && i.id != drop.document.id);
+      if (oldFrame) {
+        await this.actor.deleteEmbeddedDocuments("Item", [oldFrame.id!]);
+      }
       // If new frame, auto swap with prior frame
       await this.actor.swapFrameImage(drop.document);
       await this.actor.updateTokenSize(drop.document);
