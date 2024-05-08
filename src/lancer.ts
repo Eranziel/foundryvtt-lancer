@@ -421,9 +421,6 @@ Hooks.once("init", async function () {
     extends: "div",
   });
 
-  // Preload Handlebars templates
-  await preloadTemplates();
-
   // *******************************************************************
   // Register handlebars helpers
 
@@ -737,6 +734,9 @@ Hooks.once("ready", async function () {
   setupSheets();
 
   Hooks.on("updateCombat", handleCombatUpdate);
+
+  // Start preloading Handlebars templates in the background, don't await.
+  preloadTemplates();
 
   console.log(`${lp} Foundry ready, doing final checks.`);
 
