@@ -30,6 +30,11 @@ export namespace LancerFlowState {
     effect?: string;
   }
 
+  export interface SaveRollData extends Omit<StatRollData, "type"> {
+    type: "save";
+    // TODO
+  }
+
   export type AttackRolls = {
     roll: string;
     targeted: {
@@ -112,6 +117,10 @@ export namespace LancerFlowState {
     damage?: DamageData[]; // Typically heat for invades
     bonus_damage?: DamageData[];
     destroyed?: boolean;
+  }
+
+  export interface DamageRollData extends Omit<BaseRollData, "type"> {
+    // TODO
   }
 
   // Configuration passed to initiate the use of an action
