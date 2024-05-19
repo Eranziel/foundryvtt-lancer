@@ -8,7 +8,7 @@ export const preloadTemplates = async function () {
     // Most common chat cards
     `systems/${game.system.id}/templates/chat/attack-card.hbs`,
     `systems/${game.system.id}/templates/chat/tech-attack-card.hbs`,
-    `systems/${game.system.id}/templates/chat/generic.hbs`,
+    `systems/${game.system.id}/templates/chat/generic-card.hbs`,
     `systems/${game.system.id}/templates/chat/stat-roll-card.hbs`,
     `systems/${game.system.id}/templates/chat/system-card.hbs`,
     // Combat tracker & settings UI
