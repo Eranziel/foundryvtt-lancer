@@ -251,11 +251,15 @@ export async function migrateItem(item: LancerItem): Promise<object> {
  */
 export async function migrateScene(scene: Scene) {
   for (let token of scene.tokens.contents) {
-    // Migrate unlinked token actors
-    if (!token.isLinked) {
-      console.log(`Migrating unlinked token actor ${token.actor.name}`);
-      let updateData = await migrateActor(token.actor);
-      await token.actor.update(updateData);
+    try {
+      // Migrate unlinked token actors
+      if (!token.isLinked && token.actor) {
+        console.log(`Migrating unlinked token actor ${token.actor.name}`);
+        let updateData = await migrateActor(token.actor);
+        await token.actor.update(updateData);
+      }
+    } catch (e) {
+      console.error(`Error while migrating unlinked token ${token.name} in scene ${scene.name}:`, e);
     }
   }
 
