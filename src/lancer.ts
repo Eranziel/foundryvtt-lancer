@@ -1045,7 +1045,7 @@ async function doMigration() {
       `Your LANCER system data is from too old a version (${game.settings.get(
         game.system.id,
         LANCER.setting_migration_version
-      )}) and cannot be reliably migrated to the latest version. Please install and migrate to version 1.5.0 before attempting this migration`,
+      )}) and cannot be reliably migrated to the latest version. Please install and migrate to version 1.5.0+ before attempting this migration`,
       { permanent: true }
     );
     return;
@@ -1053,11 +1053,18 @@ async function doMigration() {
     // Un-hide the welcome message
     await game.settings.set(game.system.id, LANCER.setting_welcome, false);
     await migrations.migrateWorld();
+    // Update the stored version number for next migration
+    // @ts-ignore Packages do include a version string
+    await game.settings.set(game.system.id, LANCER.setting_migration_version, game.system.version);
   } else if (needs_migrate == "yes") {
     ui.notifications!.warn(
       "Your GM needs to migrate this world. Please do not attempt to play the game while migrations are pending.",
       { permanent: true }
     );
+  } else if (needs_migrate == "no" && game.user!.isGM) {
+    // Update the stored version number for next migration
+    // @ts-ignore Packages do include a version string
+    await game.settings.set(game.system.id, LANCER.setting_migration_version, game.system.version);
   }
 }
 
