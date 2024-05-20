@@ -2,6 +2,7 @@
 // We do not care about this file being super rigorous
 import { LancerActor } from "./actor/lancer-actor";
 import { core_update, LCPManager, updateCore } from "./apps/lcp-manager";
+import { clearCompendiumData } from "./comp-builder";
 import { LANCER } from "./config";
 import { EntryType } from "./enums";
 import { LancerItem } from "./item/lancer-item";
@@ -20,7 +21,7 @@ export async function commitDataModelMigrations() {
   await Item.updateDocuments(game.items._source, { diff: false, recursive: false, noHook: true });
   await Actor.updateDocuments(game.actors._source, { diff: false, recursive: false, noHook: true });
   await Scene.updateDocuments(game.scenes._source, { diff: false, recursive: false, noHook: true }); // Will innately handle unlinked tokens
-  ui.notifications?.info("All world documents models re-committed to database");
+  ui.notifications?.info("All world Actors, Items, and Scenes migrated and data models cleaned.");
 }
 
 /**
@@ -39,9 +40,13 @@ function getMigrationMessage() {
   </span>
 </div>
 <p>
-  Migration of Actors, Items, Scenes, and Tokens is ongoing in the background. 
+  Migration of Actors, Items, Scenes, and Tokens is ongoing in the background.
+</p>
+<p>
   <b>DO NOT LOG OFF OR CLOSE THE GAME</b>
-  until you see the notification "LANCER System Migration to version ${game.system.version} completed".
+</p>
+<p>
+  Please be patient and wait until you see the notification "LANCER System Migration to version ${game.system.version} completed".
 </p>
 `;
 
@@ -51,9 +56,18 @@ function getMigrationMessage() {
 simplifications of most of of the data model, as well as the removal of our machine-minds. More importantly, Foundry
 has evolved significantly as a platform, allowing us to do a lot of nice cleanup in how we store and work with data.
 As such, we once again need to migrate! Improvements in how foundry tracks and validates data should make this a
-fairly painless operation, and luckily the chance of your world being bricked are lower than ever though possible!</p>
+fairly painless operation.</p>
 
-<p>After lengthy debate, we have trimmed some of the fat in our data models. As such, the following item types are now
+<p>Some things are not fully migratable, so you may need to do a bit of reconnecting:</p>
+<ul>
+  <li>Existing mechs may not be set as active mechs for their pilots, and will not get HASE bonuses etc...
+  You can set a pilot's active mech in the "MECH//ACTIVE" tab on their sheet.</li>
+  <li>Deployables will likely lose the link to their deployers, and will need to be reconnected.</li>
+  <li>Pilot licenses may not have the correct rank post-migration.</li>
+  <li>Deployable tokens in existing scenes may not be the correct size post-migration.</li>
+</ul>
+
+<p>After lengthy debate, we have trimmed some of the fat in our data models. The following item types are now
 deprecated:</p>
 <ul>
   <li><code>tag</code>s - which are now tracked via the world settings for efficiency and consistency.</li>
@@ -76,31 +90,38 @@ deprecated:</p>
 export async function migrateWorld() {
   const curr_version = game.settings.get(game.system.id, LANCER.setting_migration_version);
 
+  // Display migration message
+  new Dialog(
+    {
+      title: `Migration Details`,
+      content: getMigrationMessage(),
+      buttons: {
+        accept: {
+          label: "Ok",
+          callback: () => {
+            // Open the LCP manager for convenience.
+            new LCPManager().render(true);
+          },
+        },
+      },
+    },
+    {
+      width: 800,
+    }
+  ).render(true);
+
   // Migrate from the pre-2.0 compendium structure the combined compendiums
   if (foundry.utils.isNewerVersion("2.0.0", curr_version)) {
+    await clearCompendiumData({ v1: true });
     await migrateCompendiumStructure();
   }
   // Update World Compendium Packs, since updates comes with a more up to date version of lancerdata usually
   await updateCore(core_update);
 
-  if (game.settings.get(game.system.id, LANCER.setting_core_data) === core_update) {
-    // Open the LCP manager for convenience.
-    new LCPManager().render(true);
+  // Clean out old data fields so they don't cause issues
+  await commitDataModelMigrations();
 
-    // Compendium migration succeeded, prompt to migrate actors.
-    new Dialog(
-      {
-        title: `Migration Details`,
-        content: getMigrationMessage(),
-        buttons: {
-          accept: { label: "Ok" },
-        },
-      },
-      {
-        width: 800,
-      }
-    ).render(true);
-  } else {
+  if (game.settings.get(game.system.id, LANCER.setting_core_data) !== core_update) {
     // Compendium migration failed.
     new Dialog({
       title: `Compendium Migration Failed`,

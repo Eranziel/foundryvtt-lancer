@@ -1032,14 +1032,12 @@ async function versionCheck(): Promise<"yes" | "no" | "too_old"> {
 
 /**
  * Performs our version validation and migration
- * Uses window.FEATURES to check theoretical Foundry compatibility with our features
- * Also performs system version checks
  */
 async function doMigration() {
   // Determine whether a system migration  is needed
-  let needs_migrate = await versionCheck();
+  let needsMigrate = await versionCheck();
 
-  if (needs_migrate == "too_old") {
+  if (needsMigrate == "too_old") {
     // System version is too old for migration
     ui.notifications!.error(
       `Your LANCER system data is from too old a version (${game.settings.get(
@@ -1049,19 +1047,19 @@ async function doMigration() {
       { permanent: true }
     );
     return;
-  } else if (needs_migrate == "yes" && game.user!.isGM) {
+  } else if (needsMigrate == "yes" && game.user!.isGM) {
     // Un-hide the welcome message
     await game.settings.set(game.system.id, LANCER.setting_welcome, false);
     await migrations.migrateWorld();
     // Update the stored version number for next migration
     // @ts-ignore Packages do include a version string
     await game.settings.set(game.system.id, LANCER.setting_migration_version, game.system.version);
-  } else if (needs_migrate == "yes") {
+  } else if (needsMigrate == "yes") {
     ui.notifications!.warn(
       "Your GM needs to migrate this world. Please do not attempt to play the game while migrations are pending.",
       { permanent: true }
     );
-  } else if (needs_migrate == "no" && game.user!.isGM) {
+  } else if (needsMigrate == "no" && game.user!.isGM) {
     // Update the stored version number for next migration
     // @ts-ignore Packages do include a version string
     await game.settings.set(game.system.id, LANCER.setting_migration_version, game.system.version);

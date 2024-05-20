@@ -70,13 +70,17 @@ export class PilotModel extends LancerDataModel<"PilotModel"> {
     if (Array.isArray(data.loadout?.weapons)) data.loadout.weapons = data.loadout.weapons.filter((w: any) => w);
 
     // And renamed fields
-    if (data.cloudID) data.cloud_id ??= data.cloudID;
-    if (data.cloudOwnerID) data.cloud_owner_id ??= data.cloudOwnerID;
+    if (data.cloudID) {
+      data.cloud_id = data.cloudID;
+    }
+    if (data.cloudOwnerID) {
+      data.cloud_owner_id = data.cloudOwnerID;
+    }
     if (data.mechSkills?.length == 4) {
-      data.hull ??= data.mechSkills[0];
-      data.agi ??= data.mechSkills[1];
-      data.sys ??= data.mechSkills[2];
-      data.eng ??= data.mechSkills[3];
+      data.hull = data.mechSkills[0] ?? 0;
+      data.agi = data.mechSkills[1] ?? 0;
+      data.sys = data.mechSkills[2] ?? 0;
+      data.eng = data.mechSkills[3] ?? 0;
     }
 
     // @ts-expect-error v11

@@ -16,6 +16,14 @@ export class SkillModel extends LancerDataModel {
       ...template_universal_item(),
     };
   }
+
+  static migrateData(data: any) {
+    if (data.rank) {
+      data.curr_rank = data.rank;
+    }
+
+    return super.migrateData(data);
+  }
 }
 
 // Converts an lcp bonus into our expected format

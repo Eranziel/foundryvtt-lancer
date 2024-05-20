@@ -112,6 +112,10 @@ class LCPManager extends Application {
     this.render(true);
   }
 
+  async clearV1Compendiums() {
+    await clearCompendiumData({ v1: true });
+  }
+
   activateListeners(html: JQuery<HTMLElement>) {
     super.activateListeners(html);
     document.getElementsByClassName("lcp-core-update")[0]?.addEventListener("click", (ev: Event) => {
