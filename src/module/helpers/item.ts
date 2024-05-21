@@ -634,7 +634,7 @@ export function mechLoadoutWeaponSlot(
 export function mechWeaponDisplay(weapon_path: string, mod_path: string | null, options: HelperOptions): string {
   let actor: LancerActor | null = resolve_helper_dotpath(options, "actor");
   let weapon = resolve_helper_dotpath<LancerMECH_WEAPON>(options, weapon_path);
-  let mod_text = mod_path ? weaponModRef(mod_path, weapon_path, options) : "";
+  let mod_text = mod_path ? weaponModView(mod_path, weapon_path, options) : "";
   let collapse = resolve_helper_dotpath<CollapseRegistry>(options, "collapse");
 
   if (!weapon) return "";
@@ -741,7 +741,7 @@ export function loadingIndicator(loaded: boolean, weapon_path: string): string {
 }
 
 // Renders a weapon mod slot
-export function weaponModRef(mod_path: string, weapon_path: string | null, options: HelperOptions): string {
+export function weaponModView(mod_path: string, weapon_path: string | null, options: HelperOptions): string {
   let mod: LancerWEAPON_MOD | null = resolve_helper_dotpath(options, mod_path);
   let weapon: LancerMECH_WEAPON | null = weapon_path ? resolve_helper_dotpath(options, weapon_path) : null;
   if (!mod) {

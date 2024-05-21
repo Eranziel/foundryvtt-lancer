@@ -13,7 +13,13 @@ import {
 } from "../item/lancer-item";
 import { array_path_edit_changes, drilldownDocument, extendHelper, hex_array, resolve_helper_dotpath } from "./commons";
 import { FoundryDropData, handleDocDropping, handleDragging, ResolvedDropData } from "./dragdrop";
-import { framePreview, licenseRefView, mechWeaponDisplay as mechWeaponView, npcFeatureView } from "./item";
+import {
+  framePreview,
+  licenseRefView,
+  mechWeaponDisplay as mechWeaponView,
+  npcFeatureView,
+  weaponModView,
+} from "./item";
 import { mechSystemViewHBS } from "./loadout";
 import { LancerDoc } from "../util/doc";
 import { EntryType } from "../enums";
@@ -180,6 +186,8 @@ export function itemPreview<T extends LancerItemType>(
     return mechSystemViewHBS(item_path, options);
   } else if (doc.is_mech_weapon()) {
     return mechWeaponView(item_path, null, options);
+  } else if (doc.is_weapon_mod()) {
+    return weaponModView(item_path, null, options);
   } else if (doc.is_talent()) {
     return talentView(item_path, options);
   } else if (doc.is_skill()) {
