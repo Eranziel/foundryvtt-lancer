@@ -908,7 +908,7 @@ export function npcTemplateRefView(template: LancerNPC_TEMPLATE | null, item_pat
     return "";
   } else {
     return `
-    <div class="card clipped ref set" ${ref_params(template)}>
+    <div class="card clipped ref set click-open" ${ref_params(template)}>
       <div class="compact-template medium flexrow">
         <span class="img-bar" style="background-image: url(${template.img})"></span>
         <div class="major modifier-name i--light">${template.name}</div>
