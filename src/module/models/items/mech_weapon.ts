@@ -11,12 +11,18 @@ import { RangeField, unpackRange } from "../bits/range";
 import { SynergyField, unpackSynergy } from "../bits/synergy";
 import { TagField, unpackTag } from "../bits/tag";
 import { ControlledLengthArrayField, LancerDataModel, LIDField, UnpackContext } from "../shared";
-import { template_universal_item, template_destructible, template_licensed, template_uses } from "./shared";
+import {
+  template_universal_item,
+  template_destructible,
+  template_licensed,
+  template_uses,
+  migrateManufacturer,
+} from "./shared";
 
 const fields: any = foundry.data.fields;
 
 // @ts-ignore
-export class MechWeaponModel extends LancerDataModel {
+export class MechWeaponModel extends LancerDataModel<"MechWeaponModel"> {
   static defineSchema() {
     return {
       deployables: new fields.ArrayField(new LIDField()),
@@ -61,6 +67,15 @@ export class MechWeaponModel extends LancerDataModel {
       ...template_licensed(),
       ...template_uses(),
     };
+  }
+
+  static migrateData(data: any) {
+    if (data.source) {
+      data.manufacturer = migrateManufacturer(data.source);
+    }
+
+    // @ts-expect-error v11
+    return super.migrateData(data);
   }
 }
 

@@ -9,7 +9,7 @@ import { CounterField, unpackCounter } from "../bits/counter";
 import { SynergyField, unpackSynergy } from "../bits/synergy";
 import { TagField, unpackTag } from "../bits/tag";
 import { LancerDataModel, LIDField, UnpackContext } from "../shared";
-import { template_universal_item, template_licensed } from "./shared";
+import { template_universal_item, template_licensed, migrateManufacturer } from "./shared";
 import { frameToPath } from "../../actor/retrograde-map";
 
 // @ts-ignore
@@ -81,6 +81,15 @@ const frame_schema = {
 export class FrameModel extends LancerDataModel<"FrameModel"> {
   static defineSchema() {
     return frame_schema;
+  }
+
+  static migrateData(data: any) {
+    if (data.source) {
+      data.manufacturer = migrateManufacturer(data.source);
+    }
+
+    // @ts-expect-error v11
+    return super.migrateData(data);
   }
 }
 

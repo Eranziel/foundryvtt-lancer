@@ -6,7 +6,7 @@ import { template_universal_item } from "./shared";
 const fields: any = foundry.data.fields;
 
 // @ts-ignore
-export class LicenseModel extends LancerDataModel {
+export class LicenseModel extends LancerDataModel<"LicenseModel"> {
   static defineSchema() {
     return {
       key: new fields.StringField(),
@@ -20,7 +20,10 @@ export class LicenseModel extends LancerDataModel {
     if (typeof data.manufacturer == "object") {
       data.manufacturer = data.manufacturer.fallback_lid;
     }
-    return data;
+    if (data.rank) data.curr_rank = data.rank;
+
+    // @ts-expect-error v11
+    return super.migrateData(data);
   }
 }
 

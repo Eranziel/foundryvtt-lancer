@@ -63,7 +63,6 @@ export class DeployableModel extends LancerDataModel<"DeployableModel"> {
     if (data.type && data.type[0] == data.type[0].toLowerCase()) {
       data.type = restrict_enum(DeployableType, DeployableType.Deployable, data.type);
     }
-    console.log("migrating deployable");
     if (!data.stats)
       // Populate with defaults. They will be overwritten with the old values if they exist.
       data.stats = {

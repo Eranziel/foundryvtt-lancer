@@ -7,12 +7,12 @@ import { unpackBonus } from "../bits/bonus";
 import { unpackCounter } from "../bits/counter";
 import { unpackSynergy } from "../bits/synergy";
 import { LancerDataModel, UnpackContext } from "../shared";
-import { template_universal_item, template_bascdt } from "./shared";
+import { template_universal_item, template_bascdt, migrateManufacturer } from "./shared";
 
 const fields: any = foundry.data.fields;
 
 // @ts-ignore
-export class CoreBonusModel extends LancerDataModel {
+export class CoreBonusModel extends LancerDataModel<"CoreBonusModel"> {
   static defineSchema() {
     return {
       description: new fields.StringField({ nullable: true }),
@@ -22,6 +22,15 @@ export class CoreBonusModel extends LancerDataModel {
       ...template_universal_item(),
       ...template_bascdt(),
     };
+  }
+
+  static migrateData(data: any) {
+    if (data.source) {
+      data.manufacturer = migrateManufacturer(data.source);
+    }
+
+    // @ts-expect-error v11
+    return super.migrateData(data);
   }
 }
 

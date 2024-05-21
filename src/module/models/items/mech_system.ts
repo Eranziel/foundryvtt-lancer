@@ -15,6 +15,7 @@ import {
   template_destructible,
   template_licensed,
   template_uses,
+  migrateManufacturer,
 } from "./shared";
 
 const fields: any = foundry.data.fields;
@@ -33,6 +34,15 @@ export class MechSystemModel extends LancerDataModel<"MechSystemModel"> {
       ...template_licensed(),
       ...template_uses(),
     };
+  }
+
+  static migrateData(data: any) {
+    if (data.source) {
+      data.manufacturer = migrateManufacturer(data.source);
+    }
+
+    // @ts-expect-error v11
+    return super.migrateData(data);
   }
 }
 

@@ -46,3 +46,12 @@ export function template_licensed() {
     license: new fields.StringField({ required: true, nullable: false, blank: false, initial: "mf_unknown" }),
   };
 }
+
+export function migrateManufacturer(source: {
+  id?: string;
+  fallback_lid?: string;
+  type?: string;
+  reg_name?: string;
+}): string {
+  return source?.fallback_lid || "GMS";
+}

@@ -16,12 +16,13 @@ import {
   template_destructible,
   template_licensed,
   template_uses,
+  migrateManufacturer,
 } from "./shared";
 
 const fields: any = foundry.data.fields;
 
 // @ts-ignore
-export class WeaponModModel extends LancerDataModel {
+export class WeaponModModel extends LancerDataModel<"WeaponModModel"> {
   static defineSchema() {
     return {
       added_tags: new fields.ArrayField(new TagField()),
@@ -38,6 +39,15 @@ export class WeaponModModel extends LancerDataModel {
       ...template_licensed(),
       ...template_uses(),
     };
+  }
+
+  static migrateData(data: any) {
+    if (data.source) {
+      data.manufacturer = migrateManufacturer(data.source);
+    }
+
+    // @ts-expect-error v11
+    return super.migrateData(data);
   }
 }
 
