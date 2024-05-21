@@ -58,12 +58,12 @@ has evolved significantly as a platform, allowing us to do a lot of nice cleanup
 As such, we once again need to migrate! Improvements in how foundry tracks and validates data should make this a
 fairly painless operation.</p>
 
-<p>Some things are not fully migratable, so you may need to do a bit of reconnecting:</p>
+<p>Unfortunately, your Lancer compendiums will be cleared to prevent issues from old data, so you will
+need to re-import your LCPs. Some things are also not fully migratable, so you may need to do a bit of reconnecting:</p>
 <ul>
   <li>Existing mechs may not be set as active mechs for their pilots, and will not get HASE bonuses etc...
   You can set a pilot's active mech in the "MECH//ACTIVE" tab on their sheet.</li>
   <li>Deployables will likely lose the link to their deployers, and will need to be reconnected.</li>
-  <li>Pilot licenses may not have the correct rank post-migration.</li>
   <li>Deployable tokens in existing scenes may not be the correct size post-migration.</li>
 </ul>
 
