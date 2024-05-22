@@ -117,7 +117,7 @@ import {
   itemPreview,
   simple_ref_slot,
   refPortrait,
-  lid_item_list,
+  lidItemList,
   limitedUsesIndicator,
   reserveUsesIndicator,
   handleRefClickOpen,
@@ -584,7 +584,7 @@ Hooks.once("init", async function () {
   // Refs
   Handlebars.registerHelper("simple-ref", simple_ref_slot);
   Handlebars.registerHelper("item-preview", itemPreview);
-  Handlebars.registerHelper("lid-item-list", lid_item_list);
+  Handlebars.registerHelper("lid-item-list", lidItemList);
   Handlebars.registerHelper("pilot-slot", pilotSlot);
   Handlebars.registerHelper("deployer-slot", deployer_slot); // Can be pilot, npc, or mech. Preferably mech, lol
   Handlebars.registerHelper("ref-portrait-img", refPortrait);

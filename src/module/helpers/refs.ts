@@ -244,23 +244,18 @@ export function reserveUsesIndicator(path: string, options: HelperOptions): stri
 
 // Put this at the end of ref lists to have a place to drop things. Supports both native and non-native drops
 // Allowed types is a list of space-separated allowed types. "mech pilot mech_weapon", for instance
-export function lid_item_list(
-  item_array_path: string,
-  values: LancerItem[],
-  allowed_types: string,
-  options: HelperOptions
-) {
-  let lids = resolve_helper_dotpath<Array<any>>(options, item_array_path, []);
+export function lidItemList(itemArrayPath: string, values: LancerItem[], allowedTypes: string, options: HelperOptions) {
+  let lids = resolve_helper_dotpath<Array<any>>(options, itemArrayPath, []);
   let trash = options.hash["trash"] ?? null;
   let previews = lids.map((_, i) =>
-    itemPreview(`${item_array_path}.${i}`, trash, extendHelper(options, { item: values[i] }))
+    itemPreview(`${itemArrayPath}.${i}`, trash, extendHelper(options, { item: values[i] }))
   );
   return `
     <div class="flexcol lid-list" 
-         data-path="${item_array_path}" 
-         data-accept-types="${allowed_types}">
-         ${previews.join("")}
-         ${dropIndicator(allowed_types, options)}
+      data-path="${itemArrayPath}" 
+      data-accept-types="${allowedTypes}">
+      ${previews.join("")}
+      ${dropIndicator(allowedTypes, options)}
     </div>`;
 }
 

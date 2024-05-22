@@ -13,7 +13,7 @@ import {
   rangeArrayView,
 } from "./item";
 import { limitedUsesIndicator, ref_params } from "./refs";
-import { compactTagListHBS } from "./tags";
+import { compactTagList, compactTagListHBS } from "./tags";
 
 export const EffectIcons = {
   Generic: `systems/lancer/assets/icons/generic_item.svg`,
@@ -88,20 +88,19 @@ function npcFeatureScaffold(
 }
 
 export function npcReactionView(path: string, options: HelperOptions): string {
-  let npc_feature =
+  let npcFeature =
     (options.hash["item"] as LancerNPC_FEATURE) ?? resolve_helper_dotpath<LancerNPC_FEATURE>(options, path);
-  if (!npc_feature) return "";
+  if (!npcFeature) return "";
+  options.hash["tags"] = npcFeature.system.tags;
   return npcFeatureScaffold(
     path,
-    npc_feature,
+    npcFeature,
     `<div class="flexcol lancer-body">
       ${
-        npc_feature.system.tags.find(tag => tag.lid === "tg_recharge")
-          ? chargedBox(npc_feature.system.charged, path)
-          : ""
+        npcFeature.system.tags.find(tag => tag.lid === "tg_recharge") ? chargedBox(npcFeature.system.charged, path) : ""
       }
-      ${effectBox("TRIGGER", (npc_feature.system as SystemTemplates.NPC.ReactionData).trigger, { flow: true })}
-      ${effectBox("EFFECT", npc_feature.system.effect)}
+      ${effectBox("TRIGGER", (npcFeature.system as SystemTemplates.NPC.ReactionData).trigger, { flow: true })}
+      ${effectBox("EFFECT", npcFeature.system.effect)}
       ${compactTagListHBS(path + ".system.tags", options)}
     </div>`,
     options
@@ -110,20 +109,19 @@ export function npcReactionView(path: string, options: HelperOptions): string {
 
 // The below 2 funcs just map to this one, because they all do the same thing
 export function npcSystemTraitView(path: string, options: HelperOptions): string {
-  let npc_feature =
+  let npcFeature =
     (options.hash["item"] as LancerNPC_FEATURE) ?? resolve_helper_dotpath<LancerNPC_FEATURE>(options, path);
-  if (!npc_feature) return "";
+  if (!npcFeature) return "";
+  options.hash["tags"] = npcFeature.system.tags;
   return npcFeatureScaffold(
     path,
-    npc_feature,
+    npcFeature,
     `<div class="flexcol lancer-body">
-      ${npc_feature.system.tags.find(tag => tag.lid === "tg_limited") ? limitedUsesIndicator(npc_feature, path) : ""}
+      ${npcFeature.system.tags.find(tag => tag.lid === "tg_limited") ? limitedUsesIndicator(npcFeature, path) : ""}
       ${
-        npc_feature.system.tags.find(tag => tag.lid === "tg_recharge")
-          ? chargedBox(npc_feature.system.charged, path)
-          : ""
+        npcFeature.system.tags.find(tag => tag.lid === "tg_recharge") ? chargedBox(npcFeature.system.charged, path) : ""
       }
-      ${effectBox("EFFECT", npc_feature.system.effect, { flow: true })}
+      ${effectBox("EFFECT", npcFeature.system.effect, { flow: true })}
       ${compactTagListHBS(path + ".system.tags", options)}
     </div>`,
     options
@@ -132,48 +130,49 @@ export function npcSystemTraitView(path: string, options: HelperOptions): string
 
 export function npcTechView(path: string, options: HelperOptions) {
   // Get the feature
-  let npc_feature =
+  let npcFeature =
     (options.hash["item"] as LancerNPC_FEATURE) ?? resolve_helper_dotpath<LancerNPC_FEATURE>(options, path);
-  if (!npc_feature) return "";
-  let feature_data = npc_feature.system as SystemTemplates.NPC.TechData;
+  if (!npcFeature) return "";
+  options.hash["tags"] = npcFeature.system.tags;
+  let featureData = npcFeature.system as SystemTemplates.NPC.TechData;
 
   // Get the tier (or default 1)
-  let tier_index: number = (options.hash["tier"] ?? 1) - 1;
+  let tierIndex: number = (options.hash["tier"] ?? 1) - 1;
 
   let sep = `<hr class="vsep">`;
-  let subheader_items = [`<a class="roll-tech lancer-button"><i class="fas fa-dice-d20 i--m"></i></a>`];
+  let subheaderItems = [`<a class="roll-tech lancer-button"><i class="fas fa-dice-d20 i--m"></i></a>`];
 
-  let attack_bonus = feature_data.attack_bonus[tier_index];
-  let from_sys = false;
+  let attackBonus = featureData.attack_bonus[tierIndex];
+  let fromSys = false;
 
   // If we didn't find one, retrieve. Maybe check for undefined as we want an explicit 0 to be a true 0? How to support this in UI?
-  if (!attack_bonus) {
+  if (!attackBonus) {
     resolve_helper_dotpath(options, "system.systems", 0, true); // A bit lazy. Expand this to cover more cases if needed
-    from_sys = true;
+    fromSys = true;
   }
-  if (attack_bonus) {
-    subheader_items.push(npcAttackBonusView(attack_bonus, from_sys ? "ATK (SYS)" : "ATTACK"));
+  if (attackBonus) {
+    subheaderItems.push(npcAttackBonusView(attackBonus, fromSys ? "ATK (SYS)" : "ATTACK"));
   }
 
   // Accuracy much simpler. If we got it, we got it
-  if (feature_data.accuracy[tier_index]) {
-    subheader_items.push(npcAccuracyView(feature_data.accuracy[tier_index]));
+  if (featureData.accuracy[tierIndex]) {
+    subheaderItems.push(npcAccuracyView(featureData.accuracy[tierIndex]));
   }
 
-  if (feature_data.tags.find(tag => tag.is_recharge)) {
-    subheader_items.push(chargedBox(feature_data.charged, path));
+  if (featureData.tags.find(tag => tag.is_recharge)) {
+    subheaderItems.push(chargedBox(featureData.charged, path));
   }
 
   return npcFeatureScaffold(
     path,
-    npc_feature,
+    npcFeature,
     `
     <div class="lancer-body flex-col">
       <div class="flexrow">
-        ${subheader_items.join(sep)}
+        ${subheaderItems.join(sep)}
       </div>
       <div class="flexcol" style="padding: 0 10px;">
-        ${effectBox("EFFECT", feature_data.effect)}
+        ${effectBox("EFFECT", featureData.effect)}
         ${compactTagListHBS(path + ".system.tags", options)}
       </div>
     </div>
@@ -184,65 +183,62 @@ export function npcTechView(path: string, options: HelperOptions) {
 
 export function npcWeaponView(path: string, options: HelperOptions): string {
   // Get the feature
-  let npc_feature =
+  let npcFeature =
     (options.hash["item"] as LancerNPC_FEATURE) ?? resolve_helper_dotpath<LancerNPC_FEATURE>(options, path);
-  if (!npc_feature) return "";
-  let feature_data = npc_feature.system as SystemTemplates.NPC.WeaponData;
-
-  let loading: string | undefined;
+  if (!npcFeature) return "";
+  options.hash["tags"] = npcFeature.system.tags;
+  let featureData = npcFeature.system as SystemTemplates.NPC.WeaponData;
 
   // Get the tier (or default 1)
-  let tier_index: number = (options.hash["tier"] ?? 1) - 1;
+  let tierIndex: number = (options.hash["tier"] ?? 1) - 1;
 
   let sep = `<hr class="vsep">`;
-  let subheader_items = [
+  let subheaderItems = [
     `<a class="roll-attack lancer-button no-grow"><i class="fas fa-dice-d20 i--m i--dark"></i></a>`,
   ];
 
   // Weapon info
 
   // Topline stuff
-  if (feature_data.attack_bonus[tier_index]) {
-    subheader_items.push(npcAttackBonusView(feature_data.attack_bonus[tier_index]));
+  if (featureData.attack_bonus[tierIndex]) {
+    subheaderItems.push(npcAttackBonusView(featureData.attack_bonus[tierIndex]));
   }
-  if (feature_data.accuracy[tier_index]) {
-    subheader_items.push(npcAccuracyView(feature_data.accuracy[tier_index]));
+  if (featureData.accuracy[tierIndex]) {
+    subheaderItems.push(npcAccuracyView(featureData.accuracy[tierIndex]));
   }
 
   // Get the mid-body stuff. Real meat and potatos of a weapon
-  if (feature_data.range.length) {
-    subheader_items.push(rangeArrayView(feature_data.range, options));
+  if (featureData.range.length) {
+    subheaderItems.push(rangeArrayView(featureData.range, options));
   }
-  if (feature_data.damage[tier_index] && feature_data.damage[tier_index].length) {
-    subheader_items.push(damageArrayView(feature_data.damage[tier_index], options));
-  }
-
-  if (feature_data.tags.find(tag => tag.lid === "tg_recharge")) {
-    subheader_items.push(chargedBox(feature_data.charged, path));
+  if (featureData.damage[tierIndex] && featureData.damage[tierIndex].length) {
+    subheaderItems.push(damageArrayView(featureData.damage[tierIndex], options));
   }
 
-  if (npc_feature.system.tags.some(t => t.is_loading))
-    subheader_items.push(loadingIndicator(feature_data.loaded, path));
+  if (featureData.tags.find(t => t.is_recharge)) {
+    subheaderItems.push(chargedBox(featureData.charged, path));
+  }
+
+  if (npcFeature.system.tags.some(t => t.is_loading)) subheaderItems.push(loadingIndicator(featureData.loaded, path));
 
   return npcFeatureScaffold(
     path,
-    npc_feature,
+    npcFeature,
     `
     <div class="lancer-body flex-col">
       <div class="flexrow no-wrap">
-        ${subheader_items.join(sep)}
+        ${subheaderItems.join(sep)}
       </div>
       <div>
-        <span>${feature_data.weapon_type} // ${npc_feature.system.origin.name} ${
-      npc_feature.system.origin.type
+        <span>${featureData.weapon_type} // ${npcFeature.system.origin.name} ${
+      npcFeature.system.origin.type
     } Feature (TODO ORIGIN)</span>
       </div>
-      ${effectBox("ON HIT", feature_data.on_hit)}
-      ${effectBox("EFFECT", feature_data.effect)}
+      ${effectBox("ON HIT", featureData.on_hit)}
+      ${effectBox("EFFECT", featureData.effect)}
       ${compactTagListHBS(path + ".system.tags", options)}
     </div>
     `,
     options
   );
-  return "";
 }
