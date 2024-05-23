@@ -23,11 +23,8 @@ export class LancerLicenseSheet extends LancerItemSheet<EntryType.LICENSE> {
 
   async getData() {
     let data = await super.getData();
-    let license = this.item as LancerLICENSE;
 
     // Build an unlocks array
-
-    // let ranks = Array.from(scan.ByLevel.keys()).sort();
     let unlocks: LancerItem[][] = [[]];
 
     // Find the assoc frame
@@ -37,22 +34,31 @@ export class LancerLicenseSheet extends LancerItemSheet<EntryType.LICENSE> {
         let index = await pack.getIndex();
         // @ts-expect-error
         let key = this.item.system.key;
-        for (let [id, index_data] of index.entries()) {
+        for (let [id, indexData] of index.entries()) {
           // @ts-expect-error
-          let item_license = index_data.system.license as string | undefined;
-          if (item_license != key) continue;
+          let itemLicense = indexData.system.license as string | undefined;
+          if (itemLicense !== key) continue;
 
-          let doc = await pack.getDocument(id);
+          let doc = (await pack.getDocument(id)) as unknown as LancerItem;
           // @ts-expect-error
           let rank = doc.system.license_level as number;
           while (unlocks.length <= rank) {
             unlocks.push([]);
           }
+          // Don't add duplicates
+          if (unlocks[rank].some(i => i.id === doc.id)) continue;
           unlocks[rank].push(doc as LancerItem);
         }
       }
     }
-    console.log(unlocks);
+    // Sort the items in the unlocks. Frames first, then alphabetical by name.
+    for (let i = 0; i < unlocks.length; i++) {
+      unlocks[i].sort((a, b) => {
+        if (a.is_frame() && !b.is_frame()) return -1;
+        if (!a.is_frame() && b.is_frame()) return 1;
+        return a.name!.localeCompare(b.name!);
+      });
+    }
 
     // Put the unlocks array in. Don't bother meddling the type
     (data as any)["unlocks"] = unlocks;
