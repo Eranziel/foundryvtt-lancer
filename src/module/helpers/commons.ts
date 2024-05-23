@@ -917,19 +917,19 @@ export function read_form(form_element: HTMLFormElement): Record<string, string 
  * This just generates the hooked context menu html, with click listeners. Up to you to put it wherever you want
  * @argument parent: The element to which this menu will be attached. Identical to foundry behavior
  * @argument options: The options to show
- * @argument on_select_any: Called when any options is selected, after calling callback. Useful for closing menus etc
+ * @argument onSelectAny: Called when any options is selected, after calling callback. Useful for closing menus etc
  */
-export function create_context_menu(
+export function createContextMenu(
   parent: JQuery<HTMLElement>,
   options: ContextMenuEntry[],
-  on_select_any?: () => void
+  onSelectAny?: () => void
 ): Element {
   let menu = $(`<div class="lancer-context-menu flexcol" />`);
   for (let o of options) {
     let ro = $(`<div class="lancer-context-item">${o.icon ?? ""}${o.name}</div>`);
     ro.on("click", () => {
       o.callback(parent);
-      if (on_select_any) on_select_any();
+      if (onSelectAny) onSelectAny();
     });
     menu.append(ro);
   }
@@ -960,7 +960,7 @@ export function tippyContextMenu(targets: JQuery<HTMLElement>, event_types: stri
     });
 
     // Generate the content
-    let content = create_context_menu(target, curr_options, () => instance.hide());
+    let content = createContextMenu(target, curr_options, () => instance.hide());
     instance.setContent(content);
 
     // Bind it to whatever event is provided. Sometimes we want left clicks, other times right

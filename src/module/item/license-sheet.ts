@@ -64,7 +64,7 @@ export class LancerLicenseSheet extends LancerItemSheet<EntryType.LICENSE> {
   /**
    * @override
    */
-  _activate_context_listeners(html: JQuery) {
+  _activateContextListeners(html: JQuery) {
     // Enable custom context menu triggers with only the "view" option.
     handleContextMenus(html, this.item, true);
   }

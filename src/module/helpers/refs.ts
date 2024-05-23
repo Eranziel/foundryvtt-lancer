@@ -248,7 +248,7 @@ export function lidItemList(itemArrayPath: string, values: LancerItem[], allowed
   let lids = resolveHelperDotpath<Array<any>>(options, itemArrayPath, []);
   let trash = options.hash["trash"] ?? null;
   let previews = lids.map((_, i) =>
-    itemPreview(`${itemArrayPath}.${i}`, trash, extendHelper(options, { item: values[i] }))
+    itemPreview(`${itemArrayPath}.${i}`, trash, extendHelper(options, { item: values[i], isRef: true }))
   );
   return `
     <div class="flexcol lid-list" 

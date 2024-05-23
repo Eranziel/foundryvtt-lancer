@@ -73,7 +73,7 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet<ItemShe
    * @param data_getter      Reference to a function which can provide the sheet data
    * @param commit_func      Reference to a function which can commit/save data back to the document
    */
-  _activate_context_listeners(html: JQuery) {
+  _activateContextListeners(html: JQuery) {
     // Enable custom context menu triggers. If the sheet is not editable, show only the "view" option.
     handleContextMenus(html, this.item, !this.options.editable);
   }
@@ -101,7 +101,7 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet<ItemShe
     // Enable ref dragging
     handleRefDragging(html);
 
-    this._activate_context_listeners(html);
+    this._activateContextListeners(html);
 
     // Everything below here is only needed if the sheet is editable
     if (!this.options.editable) {

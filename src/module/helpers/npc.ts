@@ -79,7 +79,7 @@ function npcFeatureScaffold(
       <i class="${npc_feature.system.destroyed ? "mdi mdi-cog" : `cci ${icon} i--m i--light`}"> </i>
       ${macro_button}
       <span class="minor grow">${npc_feature.name}</span>
-      <a class="lancer-context-menu" data-path="${path}">
+      <a class="lancer-context-menu" data-path="${path}" ${options.hash.isRef ? `data-uuid=${npc_feature.uuid}` : ""}>
         <i class="fas fa-ellipsis-v"></i>
       </a>
     </div>

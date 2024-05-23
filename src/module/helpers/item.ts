@@ -1471,6 +1471,29 @@ function _handleContextMenus(
     condition: html => dd(html)?.terminus instanceof foundry.abstract.Document,
   };
 
+  // Special case for NPC class/template features. They only track the uuid
+  // of the feature documents, so we need to handle them differently.
+  let editRefItem: ContextMenuEntry = {
+    name: view_only ? "View" : "Edit",
+    icon: view_only ? `<i class="fas fa-eye"></i>` : `<i class="fas fa-edit"></i>`,
+    callback: html => {
+      const uuid = html[0].dataset.uuid;
+      if (!uuid) return;
+      let found_doc = fromUuidSync(uuid) as LancerItem | null;
+      if (found_doc) {
+        let sheet = found_doc.sheet;
+        // If the sheet is already rendered:
+        if (sheet?.rendered) {
+          sheet.maximize().then(() => sheet!.bringToTop());
+        }
+        // Otherwise render the sheet
+        else sheet?.render(true);
+      }
+    },
+    // Normal edit is not visible, and this item has a uuid.
+    condition: html => !(dd(html)?.terminus instanceof foundry.abstract.Document) && html[0].dataset.uuid != undefined,
+  };
+
   // Renders the editor for the effect referenced at data-path
   let edit_effect: ContextMenuEntry = {
     name: view_only ? "View" : "Edit",
@@ -1554,10 +1577,14 @@ function _handleContextMenus(
       doc.update({ [path(html)!]: null });
     },
     condition: html => {
-      // We support this if the path ends with a .value, and the ref has a truthy value
+      if (view_only) return false;
       let p = path(html);
+      // NPC features in classes/templates
+      if (p?.startsWith("system.base_features") || p?.startsWith("system.optional_features")) return true;
+      // Other cases - weapons in mounts, others?
+      // We support this if the path ends with a .value, and the ref has a truthy value
       if (!p?.endsWith(".value")) return false;
-      return !!(!view_only && dd(html)?.terminus);
+      return !!dd(html)?.terminus;
     },
   };
 
@@ -1623,6 +1650,7 @@ function _handleContextMenus(
 
   let all = [
     edit,
+    editRefItem,
     edit_effect,
     repair_item,
     destroy_item,

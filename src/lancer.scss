@@ -2583,6 +2583,8 @@ Here, this means we want to allow for drag stuff etc to show contextually if:
 
 .line-drop-target {
   @include glow;
+  min-height: 6em;
+  align-content: center;
 }
 
 .slot:not(.set) {
