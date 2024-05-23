@@ -1,5 +1,5 @@
 import { LancerActorSheet } from "./lancer-actor-sheet";
-import { resolve_dotpath } from "../helpers/commons";
+import { resolveDotpath } from "../helpers/commons";
 import tippy from "tippy.js";
 import type { LancerMECH } from "./lancer-actor";
 import { ResolvedDropData } from "../helpers/dragdrop";
@@ -177,7 +177,7 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
           let mountPath = html[0].dataset.path ?? "";
 
           // Get the current mount
-          let mount = resolve_dotpath(this.actor, mountPath) as SystemData.Mech["loadout"]["weapon_mounts"][0];
+          let mount = resolveDotpath(this.actor, mountPath) as SystemData.Mech["loadout"]["weapon_mounts"][0];
           if (!mount) {
             console.error("Bad mountpath:", mountPath);
           }
@@ -221,7 +221,7 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
         let mountPath = html[0].dataset.path ?? "";
 
         // Get the current mount
-        let mount = resolve_dotpath(cd, mountPath) as SystemData.Mech["loadout"]["weapon_mounts"][0];
+        let mount = resolveDotpath(cd, mountPath) as SystemData.Mech["loadout"]["weapon_mounts"][0];
         if (!mount) {
           console.error("Bad mountpath:", mountPath);
         }
@@ -257,7 +257,7 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
       case "reset-wep":
         if (!path) return;
         ui.notifications?.info("TODO: Reset the weapons");
-        // let wep_mount = resolve_dotpath(data, path) as WeaponMount;
+        // let wep_mount = resolveDotpath(data, path) as WeaponMount;
         // wep_mount?.reset();
         break;
       default:

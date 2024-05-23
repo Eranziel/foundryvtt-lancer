@@ -1,7 +1,7 @@
 import type { LancerItemSheetData } from "../interfaces";
 import { LANCER } from "../config";
 import type { LancerItem, LancerItemType } from "./lancer-item";
-import { handleGenControls, handlePopoutTextEditor, resolve_dotpath } from "../helpers/commons";
+import { handleGenControls, handlePopoutTextEditor } from "../helpers/commons";
 import { handleCounterInteraction, handleInputPlusMinusButtons } from "../helpers/item";
 import {
   handleRefDragging,

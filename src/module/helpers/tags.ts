@@ -1,6 +1,6 @@
 import type { HelperOptions } from "handlebars";
 import { Tag } from "../models/bits/tag";
-import { inc_if, resolve_helper_dotpath } from "./commons";
+import { inc_if, resolveHelperDotpath } from "./commons";
 
 // A small tag display containing just the label and value
 export function compactTag(tagPath: string, tag: Tag, editable: boolean = true): string {
@@ -17,8 +17,8 @@ export function compactTag(tagPath: string, tag: Tag, editable: boolean = true):
 // The above, but on an array, filtering out hidden as appropriate
 export function compactTagListHBS(tagArrayPath: string, options: HelperOptions): string {
   // Collect all of the tags, formatting them using `compact_tag`
-  let tags = options.hash["tags"] ?? resolve_helper_dotpath<Tag[]>(options, tagArrayPath) ?? [];
-  return compactTagList(tags, tagArrayPath, { editable: resolve_helper_dotpath(options, "editable", false, true) });
+  let tags = options.hash["tags"] ?? resolveHelperDotpath<Tag[]>(options, tagArrayPath) ?? [];
+  return compactTagList(tags, tagArrayPath, { editable: resolveHelperDotpath(options, "editable", false, true) });
 }
 
 export function compactTagList(tags: Tag[], tagArrayPath: string, options?: { editable?: boolean }) {
@@ -54,7 +54,7 @@ export function itemEditTags(path: string, header: string, options: HelperOption
       <span>${header}</span>
       ${inc_if(
         `<a class="gen-control fas fa-plus" data-action="append" data-path="${path}" data-action-value="(struct)tag"></a>`,
-        resolve_helper_dotpath(options, "editable", false, true)
+        resolveHelperDotpath(options, "editable", false, true)
       )}
     </div>
     ${compactTagListHBS(path, options)}

@@ -1,5 +1,5 @@
 import { LancerActor } from "../actor/lancer-actor";
-import { drilldownDocument, resolve_dotpath } from "../helpers/commons";
+import { drilldownDocument, resolveDotpath } from "../helpers/commons";
 import { LancerItem, LancerTALENT } from "../item/lancer-item";
 import { TagData } from "../models/bits/tag";
 
@@ -34,7 +34,7 @@ export class TargetedEditForm<T> extends FormApplication {
     );
     this.target = target;
     this.value_path = value_path;
-    this.value = resolve_dotpath(target, value_path) as T;
+    this.value = resolveDotpath(target, value_path) as T;
     this.resolve = resolve_func;
   }
 

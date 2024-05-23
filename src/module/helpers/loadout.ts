@@ -2,7 +2,7 @@ import type { HelperOptions } from "handlebars";
 import { EntryType, SystemType } from "../enums";
 import {
   inc_if,
-  resolve_helper_dotpath,
+  resolveHelperDotpath,
   spDisplay,
   effectBox,
   defaultPlaceholder,
@@ -25,8 +25,8 @@ export function mechSystemViewHBS(
   helperOptions: HelperOptions,
   options?: { nonInteractive?: boolean }
 ): string {
-  let collapse = resolve_helper_dotpath<CollapseRegistry>(helperOptions, "collapse");
-  let doc = resolve_helper_dotpath<LancerMECH_SYSTEM>(helperOptions, system_path);
+  let collapse = resolveHelperDotpath<CollapseRegistry>(helperOptions, "collapse");
+  let doc = resolveHelperDotpath<LancerMECH_SYSTEM>(helperOptions, system_path);
   if (!doc) return ""; // Hide our shame
   return mechSystemView(doc, system_path, options);
 }
@@ -119,8 +119,8 @@ export function mechSystemView(
 
 // A drag-drop slot for a weapon mount. TODO: delete button, clear button
 function weaponMount(mount_path: string, options: HelperOptions): string {
-  let mech = resolve_helper_dotpath(options, "actor") as LancerMECH;
-  let mount = resolve_helper_dotpath(options, mount_path) as SystemData.Mech["loadout"]["weapon_mounts"][0];
+  let mech = resolveHelperDotpath(options, "actor") as LancerMECH;
+  let mount = resolveHelperDotpath(options, mount_path) as SystemData.Mech["loadout"]["weapon_mounts"][0];
 
   // If bracing, override
   if (mount.bracing) {
@@ -170,7 +170,7 @@ function weaponMount(mount_path: string, options: HelperOptions): string {
 
 // Helper to display all weapon mounts on a mech loadout
 function allWeaponMountView(loadout_path: string, options: HelperOptions) {
-  let loadout = resolve_helper_dotpath(options, loadout_path) as SystemData.Mech["loadout"];
+  let loadout = resolveHelperDotpath(options, loadout_path) as SystemData.Mech["loadout"];
   const weapon_mounts = loadout.weapon_mounts.map((_wep, index) =>
     weaponMount(`${loadout_path}.weapon_mounts.${index}`, options)
   );
@@ -190,7 +190,7 @@ function allWeaponMountView(loadout_path: string, options: HelperOptions) {
 
 // Helper to display all systems mounted on a mech loadout
 function all_system_view(loadout_path: string, options: HelperOptions) {
-  let loadout = resolve_helper_dotpath(options, loadout_path) as LancerMECH["system"]["loadout"];
+  let loadout = resolveHelperDotpath(options, loadout_path) as LancerMECH["system"]["loadout"];
   const system_views = loadout.systems.map((_sys, index) =>
     mechSystemViewHBS(`${loadout_path}.systems.${index}.value`, options)
   );
@@ -232,7 +232,7 @@ export function pilotSlot(data_path: string, options: HelperOptions): string {
   if (options.hash.value) {
     pilot = options.hash.value;
   } else {
-    pilot = resolve_helper_dotpath<LancerPILOT | null>(options, data_path)!;
+    pilot = resolveHelperDotpath<LancerPILOT | null>(options, data_path)!;
     if (!pilot) {
       return simple_ref_slot(data_path, [EntryType.PILOT], options);
     }
@@ -257,7 +257,7 @@ export function pilotSlot(data_path: string, options: HelperOptions): string {
  * @return            HTML for the frame reference, typically for inclusion in a mech sheet.
  */
 export function frameView(frame_path: string, core_energy: number, options: HelperOptions): string {
-  let frame = resolve_helper_dotpath<LancerFRAME | null>(options, frame_path);
+  let frame = resolveHelperDotpath<LancerFRAME | null>(options, frame_path);
   if (!frame) return simple_ref_slot(frame_path, [EntryType.FRAME], options);
 
   return `
@@ -281,7 +281,7 @@ export function frameView(frame_path: string, core_energy: number, options: Help
  * @return        HTML for the core system, typically for inclusion in a mech sheet.
  */
 function buildCoreSysHTML(frame_path: string, core_energy: number, options: HelperOptions): string {
-  let frame = resolve_helper_dotpath<LancerFRAME>(options, frame_path)!;
+  let frame = resolveHelperDotpath<LancerFRAME>(options, frame_path)!;
   let tags = compactTagListHBS(`${frame_path}.core_system.tags`, options);
   let core = frame.system.core_system;
 
@@ -318,7 +318,7 @@ function buildCoreSysHTML(frame_path: string, core_energy: number, options: Help
 }
 
 function frameTraits(frame_path: string, options: HelperOptions): string {
-  let frame = resolve_helper_dotpath<LancerFRAME>(options, frame_path)!;
+  let frame = resolveHelperDotpath<LancerFRAME>(options, frame_path)!;
   return frame.system.traits
     .map((trait, index) => {
       let actionHTML = buildActionArrayHTML(frame, `system.traits.${index}.actions`);
@@ -343,7 +343,7 @@ function frameTraits(frame_path: string, options: HelperOptions): string {
 }
 
 function frameActive(frame_path: string, core_energy: number, options: HelperOptions): string {
-  const frame = resolve_helper_dotpath<LancerFRAME>(options, frame_path)!;
+  const frame = resolveHelperDotpath<LancerFRAME>(options, frame_path)!;
   const core = frame.system.core_system;
   const activeName = core.active_actions.length ? core.active_actions[0].name : core.name;
   const actionHTML = buildActionArrayHTML(frame, `system.core_system.active_actions`, {

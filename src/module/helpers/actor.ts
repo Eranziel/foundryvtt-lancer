@@ -1,5 +1,5 @@
 import type { HelperOptions } from "handlebars";
-import { extendHelper, inc_if, resolve_helper_dotpath, selected, std_num_input, std_x_of_y } from "./commons";
+import { extendHelper, inc_if, resolveHelperDotpath, selected, std_num_input, std_x_of_y } from "./commons";
 import { ref_params, simple_ref_slot } from "./refs";
 import type { ActionType } from "../action";
 import type { LancerActor, LancerMECH, LancerNPC, LancerPILOT } from "../actor/lancer-actor";
@@ -45,8 +45,8 @@ export function stat_edit_card_max(
   max_path: string,
   options: HelperOptions
 ): string {
-  let data_val = resolve_helper_dotpath(options, data_path, 0);
-  let max_val = resolve_helper_dotpath(options, max_path, 0);
+  let data_val = resolveHelperDotpath(options, data_path, 0);
+  let max_val = resolveHelperDotpath(options, max_path, 0);
   return `
     <div class="stat-card card clipped">
       <div class="lancer-header lancer-primary ">
@@ -78,7 +78,7 @@ export function stat_view_card(
   data_path: string,
   options: HelperOptions & { rollable?: boolean }
 ): string {
-  let dataVal = resolve_helper_dotpath(options, data_path);
+  let dataVal = resolveHelperDotpath(options, data_path);
   let flowButton: string = "";
   let attackFlowButton: string = "";
   if (options.rollable) {
@@ -109,7 +109,7 @@ export function stat_rollable_card(title: string, icon: string, data_path: strin
 
 // Shows a compact readonly value
 export function compact_stat_view(icon: string, data_path: string, options: HelperOptions): string {
-  let data_val = resolve_helper_dotpath(options, data_path);
+  let data_val = resolveHelperDotpath(options, data_path);
   return `        
     <div class="compact-stat">
         <i class="${icon} i--m i--dark"></i>
@@ -120,10 +120,10 @@ export function compact_stat_view(icon: string, data_path: string, options: Help
 
 // Shows a compact editable value
 export function compact_stat_edit(icon: string, data_path: string, max_path: string, options: HelperOptions): string {
-  let data_val = resolve_helper_dotpath(options, data_path);
+  let data_val = resolveHelperDotpath(options, data_path);
   let max_html = ``;
   if (max_path) {
-    let max_val = resolve_helper_dotpath(options, max_path);
+    let max_val = resolveHelperDotpath(options, max_path);
     max_html = `<span class="lancer-stat minor" style="max-width: min-content;" > / </span>
     <span class="lancer-stat minor">${max_val}</span>`;
   }
@@ -207,7 +207,7 @@ export function action_button(
   action: ActionType,
   options: HelperOptions & { rollable?: boolean }
 ): string {
-  let action_val = resolve_helper_dotpath(options, data_path);
+  let action_val = resolveHelperDotpath(options, data_path);
   let active: boolean;
   if (action == "move") {
     active = (action_val as number) > 0;
@@ -269,7 +269,7 @@ export function actor_flow_button(
 
 export function tech_flow_card(title: string, icon: string, data_path: string, options: HelperOptions): string {
   let uuid = getActorUUID(options) ?? "unknown";
-  let data_val = resolve_helper_dotpath(options, data_path);
+  let data_val = resolveHelperDotpath(options, data_path);
 
   return `
     <div class="stat-card card clipped">
@@ -291,7 +291,7 @@ export function npc_stat_block_clicker_card(
   key: string,
   options: HelperOptions
 ): string {
-  let stat_blocks: Array<Record<string, number>> = resolve_helper_dotpath(options, data_base_path) ?? [];
+  let stat_blocks: Array<Record<string, number>> = resolveHelperDotpath(options, data_base_path) ?? [];
   let tier_clickers: string[] = [];
 
   // Make a clicker for every tier
@@ -313,7 +313,7 @@ export function npc_stat_block_clicker_card(
 
 // Simpler case of above. Seem damage for a use case
 export function npc_stat_array_clicker_card(title: string, path: string, options: HelperOptions): string {
-  let stats = resolve_helper_dotpath<number[]>(options, path) ?? [];
+  let stats = resolveHelperDotpath<number[]>(options, path) ?? [];
   let tier_clickers: string[] = [];
 
   // Make a clicker for every tier
@@ -338,12 +338,12 @@ export function npc_stat_array_clicker_card(title: string, path: string, options
  * Currently this is overkill, but eventually we want to support custom overcharge values
  * @param actor Reference to the actor
  * @param overcharge_path Path to current overcharge level, from 0 to 3
- * @param options Options object to pass to resolve_helper_dotpath
+ * @param options Options object to pass to resolveHelperDotpath
  */
 export function overchargeButton(actor: LancerMECH, overcharge_path: string, options: HelperOptions): string {
   const sequence = actor.system.overcharge_sequence;
 
-  let index = resolve_helper_dotpath(options, overcharge_path) as number;
+  let index = resolveHelperDotpath(options, overcharge_path) as number;
   index = Math.max(0, Math.min(sequence.length - 1, index));
   let overchargeValue = sequence[index];
   let flowButton = _basicFlowButton(actor.uuid, "Overcharge");
@@ -365,7 +365,7 @@ export function overchargeButton(actor: LancerMECH, overcharge_path: string, opt
  * @param tier The tier ID string
  */
 export function npc_tier_selector(tier_path: string, options: HelperOptions) {
-  let tier = resolve_helper_dotpath<number>(options, tier_path) ?? 1;
+  let tier = resolveHelperDotpath<number>(options, tier_path) ?? 1;
   let tiers: string[] = [1, 2, 3].map(
     tier_option => `
     <option value="${tier_option}" ${selected(tier_option === tier)}>TIER ${tier_option}</option>
@@ -387,7 +387,7 @@ export function is_combatant(actor: LancerActor) {
 // Create a div with flags for dropping native pilots/mechs/npcs
 export function deployer_slot(data_path: string, options: HelperOptions): string {
   // get the existing
-  let existing = resolve_helper_dotpath<LancerPILOT | LancerMECH | LancerNPC | null>(options, data_path, null);
+  let existing = resolveHelperDotpath<LancerPILOT | LancerMECH | LancerNPC | null>(options, data_path, null);
   if (!existing) {
     return simple_ref_slot(data_path, [EntryType.PILOT, EntryType.MECH, EntryType.NPC], options);
   }

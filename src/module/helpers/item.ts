@@ -14,8 +14,8 @@ import {
   extendHelper,
   hex_array,
   inc_if,
-  resolve_dotpath,
-  resolve_helper_dotpath,
+  resolveDotpath,
+  resolveHelperDotpath,
   spoofHelper,
   spDisplay,
   std_enum_select,
@@ -96,7 +96,7 @@ export function weaponTypeSelector(path: string, options: HelperOptions) {
  */
 export function rangeEditor(path: string, options: HelperOptions): string {
   // Lookup the range so we can draw icon.
-  let range = resolve_helper_dotpath<Range>(options, path);
+  let range = resolveHelperDotpath<Range>(options, path);
   if (!range) return "";
 
   let icon_html = `<i class="cci ${range.icon} i--m i--dark"></i>`;
@@ -131,7 +131,7 @@ export function rangeEditor(path: string, options: HelperOptions): string {
  */
 export function damageEditor(path: string, options: HelperOptions): string {
   // Lookup the damage so we can draw icon.
-  let damage = resolve_helper_dotpath<Damage>(options, path);
+  let damage = resolveHelperDotpath<Damage>(options, path);
   if (!damage) return "";
 
   let icon_html = `<i class="cci ${damage.icon} i--m"></i>`;
@@ -233,7 +233,7 @@ export function systemTypeSelector(path: string, options: HelperOptions) {
  * TODO: make look more like compcon
  */
 export function usesControl(uses_path: string, max_uses: number, options: HelperOptions): string {
-  const curr_uses = resolve_helper_dotpath(options, uses_path, 0);
+  const curr_uses = resolveHelperDotpath(options, uses_path, 0);
   return `
     <div class="card clipped">
       <span class="lancer-header lancer-primary"> USES </span>
@@ -243,7 +243,7 @@ export function usesControl(uses_path: string, max_uses: number, options: Helper
 }
 
 export function npcFeatureView(npc_feature_path: string, options: HelperOptions): string {
-  let feature = options.hash["item"] ?? resolve_helper_dotpath<LancerNPC_FEATURE>(options, npc_feature_path);
+  let feature = options.hash["item"] ?? resolveHelperDotpath<LancerNPC_FEATURE>(options, npc_feature_path);
   if (!feature) return "";
 
   switch (feature.system.type) {
@@ -267,7 +267,7 @@ export function npcFeatureView(npc_feature_path: string, options: HelperOptions)
  * Displays a list of bonuses, with buttons to add/delete (if edit true)
  */
 export function bonusesDisplay(bonuses_path: string, edit: boolean, options: HelperOptions) {
-  let bonuses_array = resolve_helper_dotpath<BonusData[]>(options, bonuses_path, []);
+  let bonuses_array = resolveHelperDotpath<BonusData[]>(options, bonuses_path, []);
   let items: string[] = [];
 
   // Render each bonus
@@ -314,7 +314,7 @@ export function singleActionEditor(path: string, options: HelperOptions) {
 }
 
 export function bondPower(bond_path: string, power_index: number, options: HelperOptions): string {
-  let bond = resolve_helper_dotpath<LancerBOND>(options, bond_path);
+  let bond = resolveHelperDotpath<LancerBOND>(options, bond_path);
   let power = bond?.system.powers[power_index];
   if (!bond || !power) return "";
   let body = `<span class="desc-text">${power.description}</span>`;
@@ -346,7 +346,7 @@ export function bondPower(bond_path: string, power_index: number, options: Helpe
 // Helper for showing a piece of armor, or a slot to hold it (if path is provided)
 export function pilotArmorSlot(armor_path: string, options: HelperOptions): string {
   // Fetch the item
-  let armor: LancerPILOT_ARMOR | null = resolve_helper_dotpath(options, armor_path);
+  let armor: LancerPILOT_ARMOR | null = resolveHelperDotpath(options, armor_path);
 
   // Generate commons
   if (!armor) {
@@ -410,7 +410,7 @@ export function pilotArmorSlot(armor_path: string, options: HelperOptions): stri
 // Helper for showing a pilot weapon, or a slot to hold it (if path is provided)
 export function pilotWeaponRefview(weapon_path: string, options: HelperOptions): string {
   // Fetch the item
-  let weapon: LancerPILOT_WEAPON | null = resolve_helper_dotpath(options, weapon_path);
+  let weapon: LancerPILOT_WEAPON | null = resolveHelperDotpath(options, weapon_path);
 
   // Generate commons
   if (!weapon) {
@@ -473,7 +473,7 @@ export function pilotWeaponRefview(weapon_path: string, options: HelperOptions):
 // Helper for showing a pilot gear, or a slot to hold it (if path is provided)
 export function pilotGearRefview(gear_path: string, options: HelperOptions): string {
   // Fetch the item
-  let gear = resolve_dotpath(options.data?.root, gear_path) as LancerPILOT_GEAR | null;
+  let gear = resolveDotpath(options.data?.root, gear_path) as LancerPILOT_GEAR | null;
 
   if (!gear) {
     // Make an empty ref. Note that it still has path stuff if we are going to be dropping things here
@@ -527,7 +527,7 @@ export function bondPowerUsesIndicator(item: LancerBOND, power_index: number, pa
 // Helper for showing a reserve, or a slot to hold it (if path is provided)
 export function reserveRefView(reserve_path: string, options: HelperOptions): string {
   // Fetch the item
-  let reserve = resolve_helper_dotpath(options, reserve_path) as LancerRESERVE | null;
+  let reserve = resolveHelperDotpath(options, reserve_path) as LancerRESERVE | null;
 
   // Generate commons
   if (!reserve) {
@@ -616,7 +616,7 @@ export function mechLoadoutWeaponSlot(
   options: HelperOptions
 ): string {
   // Fetch the item(s)
-  let weapon: LancerMECH_WEAPON | null = resolve_helper_dotpath(options, weapon_path);
+  let weapon: LancerMECH_WEAPON | null = resolveHelperDotpath(options, weapon_path);
   if (!weapon) {
     // Make an empty ref. Note that it still has path stuff if we are going to be dropping things here
     return `
@@ -632,10 +632,10 @@ export function mechLoadoutWeaponSlot(
 }
 
 export function mechWeaponDisplay(weapon_path: string, mod_path: string | null, options: HelperOptions): string {
-  let actor: LancerActor | null = resolve_helper_dotpath(options, "actor");
-  let weapon = resolve_helper_dotpath<LancerMECH_WEAPON>(options, weapon_path);
+  let actor: LancerActor | null = resolveHelperDotpath(options, "actor");
+  let weapon = resolveHelperDotpath<LancerMECH_WEAPON>(options, weapon_path);
   let mod_text = mod_path ? weaponModView(mod_path, weapon_path, options) : "";
-  let collapse = resolve_helper_dotpath<CollapseRegistry>(options, "collapse");
+  let collapse = resolveHelperDotpath<CollapseRegistry>(options, "collapse");
 
   if (!weapon) return "";
 
@@ -742,8 +742,8 @@ export function loadingIndicator(loaded: boolean, weapon_path: string): string {
 
 // Renders a weapon mod slot
 export function weaponModView(mod_path: string, weapon_path: string | null, options: HelperOptions): string {
-  let mod: LancerWEAPON_MOD | null = resolve_helper_dotpath(options, mod_path);
-  let weapon: LancerMECH_WEAPON | null = weapon_path ? resolve_helper_dotpath(options, weapon_path) : null;
+  let mod: LancerWEAPON_MOD | null = resolveHelperDotpath(options, mod_path);
+  let weapon: LancerMECH_WEAPON | null = weapon_path ? resolveHelperDotpath(options, weapon_path) : null;
   if (!mod) {
     return `<div class="${EntryType.WEAPON_MOD} ref slot drop-settable card flexrow"
         data-path="${mod_path}"
@@ -821,7 +821,7 @@ export function weaponModView(mod_path: string, weapon_path: string | null, opti
 // A specific ref helper focused on displaying manufacturer info.
 /*
 export function manufacturer_ref(source_path: string, options: HelperOptions): string {
-  let source_: Manufacturer | null = resolve_helper_dotpath(options, source_path);
+  let source_: Manufacturer | null = resolveHelperDotpath(options, source_path);
   let cd = ref_doc_common_attrs(source_);
   // TODO? maybe do a little bit more here, aesthetically speaking
   if (cd) {
@@ -846,7 +846,7 @@ export function manufacturer_ref(source_path: string, options: HelperOptions): s
 // A specific ref helper focused on displaying license info.
 // This if for display purposes and does not provide editable fields
 export function licenseRefView(item_path: string, options: HelperOptions): string {
-  let license = resolve_helper_dotpath(options, item_path) as LancerLICENSE;
+  let license = resolveHelperDotpath(options, item_path) as LancerLICENSE;
   const mfr = manufacturerStyle(license.system.manufacturer);
   return `
     <li class="card clipped ref set" ${ref_params(license)}>
@@ -863,7 +863,7 @@ export function licenseRefView(item_path: string, options: HelperOptions): strin
 }
 
 export function framePreview(path: string, options: HelperOptions): string {
-  let frame = resolve_helper_dotpath<LancerFRAME>(options, path);
+  let frame = resolveHelperDotpath<LancerFRAME>(options, path);
   if (!frame) {
     return "";
   } else {
@@ -966,7 +966,7 @@ export function buildActionHTML(
   path: string,
   options?: { hideChip?: boolean; nonInteractive?: boolean; editable?: boolean; full?: boolean; tags?: boolean }
 ): string {
-  let action = resolve_dotpath<ActionData>(doc, path);
+  let action = resolveDotpath<ActionData>(doc, path);
   if (!action) return "";
   let detailText: string | undefined;
   let chip: string | undefined;
@@ -1042,7 +1042,7 @@ export function buildActionArrayHTML(
   path: string,
   options?: { hideChip?: boolean; nonInteractive?: boolean }
 ): string {
-  let actions = resolve_dotpath<Array<ActionData>>(doc, path, []);
+  let actions = resolveDotpath<Array<ActionData>>(doc, path, []);
   let cards = actions.map((_, i) => buildActionHTML(doc, `${path}.${i}`, options));
   return cards.join("");
 }
@@ -1061,10 +1061,10 @@ export function buildDeployablesArrayHBS(
   helperOptions: HelperOptions,
   options?: { vertical?: boolean; nonInteractive?: boolean }
 ): string {
-  let lids = resolve_dotpath<Array<string>>(item, array_path, []);
+  let lids = resolveDotpath<Array<string>>(item, array_path, []);
   let deps: Record<string, LancerDEPLOYABLE> = {};
   lids.forEach(lid => {
-    let dep = resolve_helper_dotpath<LancerDEPLOYABLE>(helperOptions, `deployables.${lid}`);
+    let dep = resolveHelperDotpath<LancerDEPLOYABLE>(helperOptions, `deployables.${lid}`);
     if (dep) {
       deps[lid] = dep;
     }

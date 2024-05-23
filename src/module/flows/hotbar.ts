@@ -2,7 +2,7 @@
 import { LancerActor } from "../actor/lancer-actor";
 import { LANCER } from "../config";
 import { EntryType, NpcFeatureType } from "../enums";
-import { resolve_dotpath } from "../helpers/commons";
+import { resolveDotpath } from "../helpers/commons";
 import { DroppableFlowType, handleDragging } from "../helpers/dragdrop";
 import { LancerItem } from "../item/lancer-item";
 import { ActionData } from "../models/bits/action";
@@ -264,7 +264,7 @@ export function onHotbarDrop(_bar: any, data: any, slot: number) {
       }
       item = actorOrItem;
       img = _chooseItemImage(item);
-      let action = resolve_dotpath<ActionData>(item, data.args.path);
+      let action = resolveDotpath<ActionData>(item, data.args.path);
       title = `${item.name} - ${action ? action.name : ""}${item.actor?.name ? ` - ${item.actor.name}` : ""}`;
       command = `${getItem}item.beginActivationFlow("${data.args.path}");`;
       break;

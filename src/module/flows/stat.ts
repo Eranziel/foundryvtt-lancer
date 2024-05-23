@@ -1,7 +1,7 @@
 // Import TypeScript modules
 import { LANCER } from "../config";
 import { LancerActor } from "../actor/lancer-actor";
-import { resolve_dotpath } from "../helpers/commons";
+import { resolveDotpath } from "../helpers/commons";
 import { renderTemplateStep } from "./_render";
 import { LancerFlowState } from "./interfaces";
 import { LancerItem, LancerSKILL } from "../item/lancer-item";
@@ -48,7 +48,7 @@ async function initStatRollData(
   if (!state.item) {
     let pathParts = state.data.path.split(".");
     state.data.title = options?.title || state.data.title || pathParts[pathParts.length - 1].toUpperCase();
-    state.data.bonus = resolve_dotpath(state.actor, state.data.path) as number;
+    state.data.bonus = resolveDotpath(state.actor, state.data.path) as number;
     state.data.acc_diff = options?.acc_diff
       ? AccDiffData.fromObject(options.acc_diff)
       : AccDiffData.fromParams(state.actor, undefined, state.data.title);

@@ -54,13 +54,13 @@ export function selected(truthytest: any): string {
  */
 export function array_path_edit(target: any, flat_path: string, value: any, mode: "insert" | "delete") {
   // Break it up
-  flat_path = format_dotpath(flat_path);
+  flat_path = formatDotpath(flat_path);
   let split = flat_path.split(".");
   let tail = split.splice(split.length - 1)[0];
   let lead = split.join(".");
 
   let index = parseInt(tail);
-  let array = resolve_dotpath(target, lead);
+  let array = resolveDotpath(target, lead);
   if (Array.isArray(array) && !Number.isNaN(index)) {
     // Bound our index
     if (index > array.length) {
@@ -111,13 +111,13 @@ export function array_path_edit_changes(
   mode: "insert" | "delete"
 ): { path: string; new_val: any } {
   // Break it up
-  flat_path = format_dotpath(flat_path);
+  flat_path = formatDotpath(flat_path);
   let split = flat_path.split(".");
   let tail = split.splice(split.length - 1)[0];
   let lead = split.join(".");
 
   let index = parseInt(tail);
-  let array = resolve_dotpath(target, lead);
+  let array = resolveDotpath(target, lead);
   if (Array.isArray(array) && !Number.isNaN(index)) {
     // Bound our index
     if (index > array.length) {
@@ -317,7 +317,7 @@ export function safe_json_parse(str: string): any | null {
 }
 
 // Helper function to format a dotpath to not have any square brackets, instead using pure dot notation
-export function format_dotpath(path: string): string {
+export function formatDotpath(path: string): string {
   return path.replace(/\[/g, ".").replace(/]/g, "");
 }
 
@@ -332,7 +332,7 @@ export function stepwiseResolveDotpath(
   pathlet: string | null;
   val: unknown;
 }> {
-  let pathlets = format_dotpath(dotpath).split(".");
+  let pathlets = formatDotpath(dotpath).split(".");
 
   // Resolve each key
   let result = [
@@ -352,7 +352,7 @@ export function stepwiseResolveDotpath(
 }
 
 /**
- * A variant of resolve_dotpath that provides more context about documents we encounter along the way.
+ * A variant of resolveDotpath that provides more context about documents we encounter along the way.
  *
  * @param rootDoc The document we are starting at
  * @param path The path to resolve
@@ -386,9 +386,9 @@ export function drilldownDocument(
 // Helper function to get arbitrarily deep array references
 // Returns every item along the path, starting with the object itself
 // Any failed resolutions will still be emitted, but as a dedicated symbol
-export function resolve_dotpath<T>(ob: any, path: string): T | null;
-export function resolve_dotpath<T>(ob: any, path: string, default_: T): T;
-export function resolve_dotpath(
+export function resolveDotpath<T>(ob: any, path: string): T | null;
+export function resolveDotpath<T>(ob: any, path: string, default_: T): T;
+export function resolveDotpath(
   obj: any,
   dotpath: string,
   default_: any = null,
@@ -416,10 +416,10 @@ export function helper_root_doc(options: HelperOptions): LancerActor | LancerIte
 
 const RESOLVE_FAIL = Symbol("Fail");
 // Helper function to get arbitrarily deep array references, specifically in a helperoptions, and with better types for that matter
-export function resolve_helper_dotpath<T>(options: HelperOptions, path: string): T | null;
-export function resolve_helper_dotpath<T>(options: HelperOptions, path: string, default_: T): T;
-export function resolve_helper_dotpath<T>(options: HelperOptions, path: string, default_: T, try_parent: boolean): T;
-export function resolve_helper_dotpath(
+export function resolveHelperDotpath<T>(options: HelperOptions, path: string): T | null;
+export function resolveHelperDotpath<T>(options: HelperOptions, path: string, default_: T): T;
+export function resolveHelperDotpath<T>(options: HelperOptions, path: string, default_: T, try_parent: boolean): T;
+export function resolveHelperDotpath(
   options: HelperOptions,
   path: string,
   default_: any = null,
@@ -430,7 +430,7 @@ export function resolve_helper_dotpath(
 
     // Loop until no _parent
     while (data) {
-      let resolved = resolve_dotpath(data?.root, path, RESOLVE_FAIL);
+      let resolved = resolveDotpath(data?.root, path, RESOLVE_FAIL);
       if (resolved != RESOLVE_FAIL) {
         // Looks like we found something!
         return resolved;
@@ -442,7 +442,7 @@ export function resolve_helper_dotpath(
     return default_;
   } else {
     // Trivial wrapper.
-    return resolve_dotpath(options.data?.root, path, default_);
+    return resolveDotpath(options.data?.root, path, default_);
   }
 }
 
@@ -718,7 +718,7 @@ function std_input(path: string, type: string, options: HelperOptions) {
   let value: string | undefined = options.hash["value"];
   if (value == undefined) {
     // Resolve
-    value = resolve_helper_dotpath(options, path) ?? default_val;
+    value = resolveHelperDotpath(options, path) ?? default_val;
   }
 
   let html_type = type.toLowerCase();
@@ -780,7 +780,7 @@ export function std_checkbox(path: string, options: HelperOptions) {
   let value: boolean | undefined = options.hash["value"];
   if (value == undefined) {
     // Resolve
-    value = resolve_helper_dotpath(options, path) ?? default_val;
+    value = resolveHelperDotpath(options, path) ?? default_val;
   }
 
   let input = `<input class="${input_classes}" name="${path}" ${inc_if("checked", value)} type="checkbox" />`;
@@ -819,7 +819,7 @@ export function std_enum_select<T extends string>(path: string, enum_: { [key: s
   let value: T | undefined = options.hash["value"];
   if (value == undefined) {
     // Resolve
-    value = resolve_helper_dotpath(options, path, default_val);
+    value = resolveHelperDotpath(options, path, default_val);
   }
 
   // Restrict value to the enum
@@ -876,7 +876,7 @@ export function safe_html_helper(orig: string) {
 
 // These typically are the exact same so we made a helper for 'em
 export function large_textbox_card(title: string, text_path: string, options: HelperOptions) {
-  let resolved = resolve_helper_dotpath(options, text_path, "");
+  let resolved = resolveHelperDotpath(options, text_path, "");
   return `
   <div class="card full clipped">
     <div class="lancer-header lancer-primary">

@@ -5,7 +5,7 @@ import {
   extendHelper as extendHelper,
   helper_root_doc,
   large_textbox_card,
-  resolve_helper_dotpath,
+  resolveHelperDotpath,
   std_checkbox,
   std_enum_select,
   std_num_input,
@@ -48,7 +48,7 @@ export function item_edit_arrayed_actions(path: string, title: string, options: 
  * @returns         HTML for an editable damage area
  */
 export function item_edit_arrayed_damage(path: string, title: string, options: HelperOptions): string {
-  let dam_arr = resolve_helper_dotpath<ActionData[]>(options, path);
+  let dam_arr = resolveHelperDotpath<ActionData[]>(options, path);
 
   let dam_detail = "";
 
@@ -76,7 +76,7 @@ export function item_edit_arrayed_damage(path: string, title: string, options: H
  * @returns         HTML for an editable range area
  */
 export function item_edit_arrayed_range(path: string, title: string, options: HelperOptions): string {
-  let range_arr = resolve_helper_dotpath<RangeData[]>(options, path);
+  let range_arr = resolveHelperDotpath<RangeData[]>(options, path);
 
   let range_detail = "";
 
@@ -103,7 +103,7 @@ export function item_edit_arrayed_range(path: string, title: string, options: He
  * @returns         HTML for an editable bonus area
  */
 export function item_edit_arrayed_bonuses(path: string, options: HelperOptions): string {
-  let arr = resolve_helper_dotpath<BonusData[]>(options, path, []);
+  let arr = resolveHelperDotpath<BonusData[]>(options, path, []);
   return bonusesDisplay(path, true, options);
 }
 
@@ -143,7 +143,7 @@ export function item_edit_arrayed_deployables(path: string, title: string, optio
  * @returns         HTML for an editable synergy area
  */
 export function item_edit_arrayed_synergies(path: string, title: string, options: HelperOptions): string {
-  let syn_arr = resolve_helper_dotpath<SynergyData[]>(options, path, []);
+  let syn_arr = resolveHelperDotpath<SynergyData[]>(options, path, []);
 
   let synHTML = syn_arr
     .map((d, i) => {
@@ -175,7 +175,7 @@ export function item_edit_arrayed_synergies(path: string, title: string, options
 export function item_edit_arrayed_enum(title: string, path: string, enum_name: string, options: HelperOptions): string {
   let resolved_enum = resolve_enum(enum_name);
 
-  let enum_arr = resolve_helper_dotpath<Array<typeof resolve_enum>>(options, path, []);
+  let enum_arr = resolveHelperDotpath<Array<typeof resolve_enum>>(options, path, []);
 
   let selector_detail = "";
 
@@ -200,7 +200,7 @@ export function item_edit_arrayed_enum(title: string, path: string, enum_name: s
 }
 
 export function item_edit_checkboxes_object(title: string, path: string, options: HelperOptions): string {
-  let checkbox_obj = resolve_helper_dotpath<Record<string, boolean>>(options, path, {});
+  let checkbox_obj = resolveHelperDotpath<Record<string, boolean>>(options, path, {});
   let selector_detail = "";
   for (let [k, v] of Object.entries(checkbox_obj)) {
     selector_detail += `<div class="flexrow">
@@ -270,7 +270,7 @@ export function item_edit_effect(path: string, options: HelperOptions): string {
  * @returns         HTML for an editable integrated area
  */
 export function item_edit_arrayed_integrated(path: string, title: string, options: HelperOptions): string {
-  let int_arr = resolve_helper_dotpath<Array<string>>(options, path, []);
+  let int_arr = resolveHelperDotpath<Array<string>>(options, path, []);
 
   let intHTML = int_arr
     .map((s: string, i: number | undefined) => {
@@ -337,8 +337,8 @@ export function item_edit_sp(path: string, options: HelperOptions): string {
  * @returns              HTML to edit Uses and Max Uses
  */
 export function item_edit_uses(cur_uses_path: string, max_uses_path: string, options: HelperOptions): string {
-  let cur_uses = resolve_helper_dotpath(options, cur_uses_path);
-  let max_uses = resolve_helper_dotpath(options, max_uses_path);
+  let cur_uses = resolveHelperDotpath(options, cur_uses_path);
+  let max_uses = resolveHelperDotpath(options, max_uses_path);
 
   // If we don't have max uses, it's not already limited--so we should add the tag
   if (!max_uses) return ``;

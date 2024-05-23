@@ -8,7 +8,7 @@ import {
   WeaponType,
   WeaponTypeChecklist,
 } from "../enums";
-import { IconFactory, resolve_dotpath } from "../helpers/commons";
+import { IconFactory, resolveDotpath } from "../helpers/commons";
 import { BonusData } from "../models/bits/bonus";
 import { Damage } from "../models/bits/damage";
 import { Range } from "../models/bits/range";

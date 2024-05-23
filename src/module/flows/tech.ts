@@ -6,7 +6,7 @@ import { renderTemplateStep } from "./_render";
 import { SystemTemplates } from "../system-template";
 import { LancerFlowState } from "./interfaces";
 import { LancerItem } from "../item/lancer-item";
-import { resolve_dotpath } from "../helpers/commons";
+import { resolveDotpath } from "../helpers/commons";
 import { ActivationType, AttackType } from "../enums";
 import { Flow, FlowState, Step } from "./flow";
 import { UUIDRef } from "../source-template";
@@ -121,7 +121,7 @@ export async function initTechAttackData(
 
       // Get the action if possible
       if (options?.action_path) {
-        state.data.action = resolve_dotpath(state.item, options.action_path);
+        state.data.action = resolveDotpath(state.item, options.action_path);
       }
       state.data.flat_bonus = state.actor.system.tech_attack;
       state.data.tags = state.item.getTags() ?? undefined;

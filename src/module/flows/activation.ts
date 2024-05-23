@@ -5,7 +5,7 @@ import type { LancerActor } from "../actor/lancer-actor";
 import { buildChipHTML } from "../helpers/item";
 import { ActivationType, AttackType } from "../enums";
 import { renderTemplateStep } from "./_render";
-import { resolve_dotpath } from "../helpers/commons";
+import { resolveDotpath } from "../helpers/commons";
 import { ActionData } from "../models/bits/action";
 import { LancerFlowState } from "./interfaces";
 import { Flow, FlowState, Step } from "./flow";
@@ -70,7 +70,7 @@ export async function initActivationData(
     state.data.action_path = options?.action_path || state.data.action_path || "system.actions.0";
     if (!state.data.action) {
       // First, find the action
-      state.data.action = resolve_dotpath<ActionData>(state.item, state.data.action_path);
+      state.data.action = resolveDotpath<ActionData>(state.item, state.data.action_path);
       if (!state.data.action) throw new Error(`Failed to resolve action ${state.data.action_path}`);
       state.data.title = state.data.action?.name;
     }

@@ -1,5 +1,5 @@
 import { LancerActor } from "../actor/lancer-actor";
-import { resolve_dotpath } from "../helpers/commons";
+import { resolveDotpath } from "../helpers/commons";
 import { LancerItem } from "../item/lancer-item";
 
 /**
@@ -28,7 +28,7 @@ export class HTMLEditDialog extends FormApplication {
     );
     this.target = target;
     this.text_path = text_path;
-    this.text = resolve_dotpath(target, text_path) as string;
+    this.text = resolveDotpath(target, text_path) as string;
     this.resolve = resolve_func;
   }
 

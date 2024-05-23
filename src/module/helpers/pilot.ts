@@ -3,13 +3,13 @@ import { LancerCORE_BONUS, LancerSKILL, LancerTALENT } from "../item/lancer-item
 import { encodeMacroData } from "../macros";
 import { LancerFlowState } from "../flows/interfaces";
 import { collapseButton, collapseParam, CollapseRegistry } from "./collapse";
-import { effectBox, resolve_helper_dotpath } from "./commons";
+import { effectBox, resolveHelperDotpath } from "./commons";
 import { buildActionArrayHTML } from "./item";
 import { ref_params } from "./refs";
 
 export function talent_view(talent_path: string, options: HelperOptions) {
-  let collapse = resolve_helper_dotpath<CollapseRegistry>(options, "collapse");
-  let talent = resolve_helper_dotpath<LancerTALENT>(options, talent_path);
+  let collapse = resolveHelperDotpath<CollapseRegistry>(options, "collapse");
+  let talent = resolveHelperDotpath<LancerTALENT>(options, talent_path);
   if (!talent) return "";
   let retStr = `<li class="card clipped-top lancer-border-talent talent-compact ref set" ${ref_params(talent)}>
         <div class="lancer-header lancer-talent submajor" style="grid-area: 1/1/2/4">
@@ -59,7 +59,7 @@ export function talent_view(talent_path: string, options: HelperOptions) {
 }
 
 export function skillView(skill_path: string, options: HelperOptions) {
-  let skill = resolve_helper_dotpath<LancerSKILL>(options, skill_path);
+  let skill = resolveHelperDotpath<LancerSKILL>(options, skill_path);
   if (!skill) return "";
   return `
       <li class="card clipped skill-compact ref set" ${ref_params(skill)}>
@@ -82,8 +82,8 @@ export function skillView(skill_path: string, options: HelperOptions) {
 }
 
 export function coreBonusView(item_path: string, options: HelperOptions) {
-  let coreBonus = resolve_helper_dotpath<LancerCORE_BONUS>(options, item_path);
-  let collapse = resolve_helper_dotpath<CollapseRegistry>(options, "collapse");
+  let coreBonus = resolveHelperDotpath<LancerCORE_BONUS>(options, item_path);
+  let collapse = resolveHelperDotpath<CollapseRegistry>(options, "collapse");
   if (!coreBonus) return "";
   return `
       <li class="card clipped-top lancer-border-bonus ref set" ${ref_params(coreBonus)}>

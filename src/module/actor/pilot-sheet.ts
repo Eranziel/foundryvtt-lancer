@@ -4,7 +4,7 @@ import { LancerActorSheet } from "./lancer-actor-sheet";
 import type { HelperOptions } from "handlebars";
 import { buildCounterHeader, buildCounterHTML } from "../helpers/item";
 import { ref_params, resolve_ref_element, simple_ref_slot } from "../helpers/refs";
-import { inc_if, resolve_dotpath } from "../helpers/commons";
+import { inc_if, resolveDotpath } from "../helpers/commons";
 import { LancerActor, LancerMECH, LancerPILOT } from "./lancer-actor";
 import { fetchPilotViaCache, fetchPilotViaShareCode, pilotCache } from "../util/compcon";
 import { LancerFRAME, LancerItem, LancerItemType } from "../item/lancer-item";
@@ -398,7 +398,7 @@ export function mech_preview(mech: LancerMECH, active: boolean, _options: Helper
     <div class="mech-preview-stat-wrapper">
       <i class="${builder.icon} i--m i--dark"> </i>
       <span class="major">${builder.title}</span>
-      <span class="major">${resolve_dotpath(mech, builder.path, 0)}</span>
+      <span class="major">${resolveDotpath(mech, builder.path, 0)}</span>
     </div>`);
   }
 

@@ -1,6 +1,6 @@
 import { LancerActor } from "../actor/lancer-actor";
 import { DamageType, EntryType, RangeType, SystemType, WeaponSize, WeaponType } from "../enums";
-import { format_dotpath } from "../helpers/commons";
+import { formatDotpath } from "../helpers/commons";
 import { LancerItem } from "../item/lancer-item";
 import { regRefToId, regRefToLid, regRefToUuid } from "../util/migrations";
 import { FullBoundedNum, SourceData } from "../source-template";
@@ -61,7 +61,7 @@ export function fancy_merge_data(full_source_data: any, update_data: any): any {
   }
   for (let [k, v] of Object.entries(update_data)) {
     // Prepare for dotpath traversal
-    k = format_dotpath(k);
+    k = formatDotpath(k);
 
     // Detect deletes
     let del = k.startsWith("-=");

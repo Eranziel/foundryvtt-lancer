@@ -11,7 +11,7 @@ import {
   LancerWEAPON_MOD,
   LancerRESERVE,
 } from "../item/lancer-item";
-import { array_path_edit_changes, drilldownDocument, extendHelper, hex_array, resolve_helper_dotpath } from "./commons";
+import { array_path_edit_changes, drilldownDocument, extendHelper, hex_array, resolveHelperDotpath } from "./commons";
 import { FoundryDropData, handleDocDropping, handleDragging, ResolvedDropData } from "./dragdrop";
 import {
   framePreview,
@@ -69,7 +69,7 @@ export function simple_ref_slot(path: string = "", accept_types: string | EntryT
   }
 
   // Get present value
-  let doc = _options.hash["value"] ?? (resolve_helper_dotpath(_options, path) as LancerDoc);
+  let doc = _options.hash["value"] ?? (resolveHelperDotpath(_options, path) as LancerDoc);
 
   if (!doc || doc.status == "missing") {
     // Show an icon for each accepted type
@@ -169,7 +169,7 @@ export function itemPreview<T extends LancerItemType>(
   options: HelperOptions
 ): string {
   // Fetch
-  let doc = options.hash["item"] ?? resolve_helper_dotpath<LancerDoc<T>>(options, item_path);
+  let doc = options.hash["item"] ?? resolveHelperDotpath<LancerDoc<T>>(options, item_path);
   if (!doc) {
     // This probably shouldn't be happening
     console.error(`Unable to resolve ${item_path} in `, options.data);
@@ -236,7 +236,7 @@ export function limitedUsesIndicator(
 }
 
 export function reserveUsesIndicator(path: string, options: HelperOptions): string {
-  let used = resolve_helper_dotpath(options, path) as LancerRESERVE;
+  let used = resolveHelperDotpath(options, path) as LancerRESERVE;
   const hexes = hex_array(used ? 0 : 1, 1, path, "uses-hex");
 
   return `<div class="clipped card limited-card">USES ${hexes.join("")}</div>`;
@@ -245,7 +245,7 @@ export function reserveUsesIndicator(path: string, options: HelperOptions): stri
 // Put this at the end of ref lists to have a place to drop things. Supports both native and non-native drops
 // Allowed types is a list of space-separated allowed types. "mech pilot mech_weapon", for instance
 export function lidItemList(itemArrayPath: string, values: LancerItem[], allowedTypes: string, options: HelperOptions) {
-  let lids = resolve_helper_dotpath<Array<any>>(options, itemArrayPath, []);
+  let lids = resolveHelperDotpath<Array<any>>(options, itemArrayPath, []);
   let trash = options.hash["trash"] ?? null;
   let previews = lids.map((_, i) =>
     itemPreview(`${itemArrayPath}.${i}`, trash, extendHelper(options, { item: values[i] }))

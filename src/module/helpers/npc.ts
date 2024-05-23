@@ -3,7 +3,7 @@ import { ActivationType, EntryType, NpcFeatureType } from "../enums";
 import { LancerNPC_FEATURE } from "../item/lancer-item";
 import { SystemData, SystemTemplates } from "../system-template";
 import { slugify } from "../util/lid";
-import { chargedBox, effectBox, resolve_helper_dotpath } from "./commons";
+import { chargedBox, effectBox, resolveHelperDotpath } from "./commons";
 import {
   actionTypeIcon,
   loadingIndicator,
@@ -89,7 +89,7 @@ function npcFeatureScaffold(
 
 export function npcReactionView(path: string, options: HelperOptions): string {
   let npcFeature =
-    (options.hash["item"] as LancerNPC_FEATURE) ?? resolve_helper_dotpath<LancerNPC_FEATURE>(options, path);
+    (options.hash["item"] as LancerNPC_FEATURE) ?? resolveHelperDotpath<LancerNPC_FEATURE>(options, path);
   if (!npcFeature) return "";
   options.hash["tags"] = npcFeature.system.tags;
   return npcFeatureScaffold(
@@ -110,7 +110,7 @@ export function npcReactionView(path: string, options: HelperOptions): string {
 // The below 2 funcs just map to this one, because they all do the same thing
 export function npcSystemTraitView(path: string, options: HelperOptions): string {
   let npcFeature =
-    (options.hash["item"] as LancerNPC_FEATURE) ?? resolve_helper_dotpath<LancerNPC_FEATURE>(options, path);
+    (options.hash["item"] as LancerNPC_FEATURE) ?? resolveHelperDotpath<LancerNPC_FEATURE>(options, path);
   if (!npcFeature) return "";
   options.hash["tags"] = npcFeature.system.tags;
   return npcFeatureScaffold(
@@ -131,7 +131,7 @@ export function npcSystemTraitView(path: string, options: HelperOptions): string
 export function npcTechView(path: string, options: HelperOptions) {
   // Get the feature
   let npcFeature =
-    (options.hash["item"] as LancerNPC_FEATURE) ?? resolve_helper_dotpath<LancerNPC_FEATURE>(options, path);
+    (options.hash["item"] as LancerNPC_FEATURE) ?? resolveHelperDotpath<LancerNPC_FEATURE>(options, path);
   if (!npcFeature) return "";
   options.hash["tags"] = npcFeature.system.tags;
   let featureData = npcFeature.system as SystemTemplates.NPC.TechData;
@@ -147,7 +147,7 @@ export function npcTechView(path: string, options: HelperOptions) {
 
   // If we didn't find one, retrieve. Maybe check for undefined as we want an explicit 0 to be a true 0? How to support this in UI?
   if (!attackBonus) {
-    resolve_helper_dotpath(options, "system.systems", 0, true); // A bit lazy. Expand this to cover more cases if needed
+    resolveHelperDotpath(options, "system.systems", 0, true); // A bit lazy. Expand this to cover more cases if needed
     fromSys = true;
   }
   if (attackBonus) {
@@ -184,7 +184,7 @@ export function npcTechView(path: string, options: HelperOptions) {
 export function npcWeaponView(path: string, options: HelperOptions): string {
   // Get the feature
   let npcFeature =
-    (options.hash["item"] as LancerNPC_FEATURE) ?? resolve_helper_dotpath<LancerNPC_FEATURE>(options, path);
+    (options.hash["item"] as LancerNPC_FEATURE) ?? resolveHelperDotpath<LancerNPC_FEATURE>(options, path);
   if (!npcFeature) return "";
   options.hash["tags"] = npcFeature.system.tags;
   let featureData = npcFeature.system as SystemTemplates.NPC.WeaponData;

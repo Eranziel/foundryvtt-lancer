@@ -53,7 +53,7 @@ tippy.setDefaultProps({ theme: "lancer-small", arrow: false, delay: [400, 200] }
 
 // Import node modules
 import {
-  resolve_helper_dotpath,
+  resolveHelperDotpath,
   popout_editor_button,
   safe_html_helper,
   large_textbox_card,
@@ -442,12 +442,12 @@ Hooks.once("init", async function () {
   // rp, to resolve path values strs. Helps use effectively half as many arguments for many helpers/partials
   // Using this, {{{rp path}}} {{path}} would show the value at path, and path, respectively. No need to pass both!
   Handlebars.registerHelper("rp", function (path: string, options: HelperOptions) {
-    return resolve_helper_dotpath(options, path);
+    return resolveHelperDotpath(options, path);
   });
 
   // get-set, to resolve situations wherein we read and write to the same path via "value" and "name" element properties
   Handlebars.registerHelper("getset", function (path: string, options: HelperOptions) {
-    let value = resolve_helper_dotpath(options, path);
+    let value = resolveHelperDotpath(options, path);
     return ` name="${path}" value="${value}" `;
   });
 
