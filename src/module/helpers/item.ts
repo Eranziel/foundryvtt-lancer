@@ -1580,7 +1580,11 @@ function _handleContextMenus(
       if (view_only) return false;
       let p = path(html);
       // NPC features in classes/templates
-      if (p?.startsWith("system.base_features") || p?.startsWith("system.optional_features")) return true;
+      if (
+        (p?.startsWith("system.base_features") || p?.startsWith("system.optional_features")) &&
+        !p?.includes("system.tags")
+      )
+        return true;
       // Other cases - weapons in mounts, others?
       // We support this if the path ends with a .value, and the ref has a truthy value
       if (!p?.endsWith(".value")) return false;
@@ -1604,7 +1608,13 @@ function _handleContextMenus(
       let p = path(html);
       return !!(
         !view_only &&
-        (p?.includes("tags") || p?.includes("counters") || p?.substring(0, p.length - 2).endsWith("profiles"))
+        ((!p?.includes("system.loadout") &&
+          !p?.includes("itemTypes") &&
+          !p?.includes("system.base_features") &&
+          !p?.includes("system.optional_features") &&
+          p?.includes("tags")) ||
+          p?.includes("counters") ||
+          p?.substring(0, p.length - 2).endsWith("profiles"))
       );
     },
   };
@@ -1628,7 +1638,17 @@ function _handleContextMenus(
     callback: html => {
       TagEditForm.edit(doc, path(html)!);
     },
-    condition: html => !view_only && !!path(html)?.includes("tags"), // Crude but effective
+    condition: html => {
+      const p = path(html);
+      return (
+        !view_only &&
+        !p?.includes("system.loadout") &&
+        !p?.includes("itemTypes") &&
+        !p?.includes("system.base_features") &&
+        !p?.includes("system.optional_features") &&
+        !!p?.includes("tags")
+      ); // Crude but effective
+    },
   };
 
   // If the "renameSubpath" appears in the dataset, allow simple-prompt to change the name

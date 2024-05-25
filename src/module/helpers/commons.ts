@@ -948,6 +948,7 @@ export function tippyContextMenu(targets: JQuery<HTMLElement>, event_types: stri
 
     // Filter the options
     let curr_options = options.filter(o => (o.condition ? o.condition === true || o.condition(target) : true));
+    if (!curr_options.length) return; // No options, no menu
 
     // Make the instance
     const instance = tippy(_target, {
