@@ -361,7 +361,20 @@ export class FullBoundedNumberField extends fields.SchemaField {
   /** @override */
   _cast(value: FullBoundedNum) {
     if (typeof value == "number") {
-      value = { value, min: this.options?.min ?? 0, max: this.options?.max ?? FullBoundedNumberField.defaultValue };
+      value = { value, min: this.options?.min ?? 0, max: this.options?.max ?? FullBoundedNumberField.defaultMax };
+    }
+    if (typeof value == "string") {
+      let strValue = FullBoundedNumberField.defaultValue;
+      try {
+        strValue = parseFloat(value);
+      } catch (e) {
+        console.warn(`Failed to parse number from string ${value}`);
+      }
+      value = {
+        value: strValue,
+        min: this.options?.min ?? 0,
+        max: this.options?.max ?? FullBoundedNumberField.defaultMax,
+      };
     }
     if (value.min == null || value.min == undefined) value.min = this.options?.min ?? 0;
     if (value.max == null || value.max == undefined)
