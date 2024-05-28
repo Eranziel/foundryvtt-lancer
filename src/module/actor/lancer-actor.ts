@@ -338,6 +338,11 @@ export class LancerActor extends Actor {
     this.effectHelper._passdownEffectTracker?.setValue(this.effectHelper.collectPassdownEffects());
     this._markStatuses();
 
+    // Special case for the emperor - subtract grit
+    if (this.is_mech() && this.items.find(i => i.system.lid === "mf_emperor")) {
+      this.system.hp.max -= this.system.grit;
+    }
+
     // Deployables: calculate max hp
     if (this.is_deployable()) {
       this.system.hp.max = rollEvalSync(`${this.system.stats.hp} + ${this.system.hp_bonus}`, this.getRollData()) || 5;
