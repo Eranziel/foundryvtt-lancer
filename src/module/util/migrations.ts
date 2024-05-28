@@ -27,8 +27,8 @@ export function regRefToUuid(doc_type: "Item" | "Actor" | "ActiveEffect", rr: an
   if (!rr.id && rr.fallback_lid) {
     // We can at least look at raw world data
     return coarseLIDtoUUID(rr.fallback_lid);
-  } else if (!rr.id) {
-    // Non recoverable without lid
+  } else if (!rr.id || !rr.reg_name) {
+    // Non recoverable without lid or compendium name
     return null;
   } else if (rr.reg_name == "comp_core") {
     // There is no way to recover this synchronously, unfortunately
