@@ -301,6 +301,7 @@ export enum MechType {
   Controller = "Controller",
   Support = "Support",
   Defender = "Defender",
+  Specialty = "Specialty", // Suldan is pretty popular...
 }
 
 export enum HASE {
@@ -352,13 +353,17 @@ export type SynergyLocation =
   | "tech_attack"
   | "hp"
   | "armor"
+  | "repair"
   | "overshield"
+  | "burn"
   | "structure"
   | "heat"
   | "stress"
   | "overcharge"
   | "skill_check"
   | "overwatch"
+  | "skirmish"
+  | "barrage"
   | "improvised_attack"
   | "disengage"
   | "stabilize"
