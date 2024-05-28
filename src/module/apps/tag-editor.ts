@@ -14,6 +14,7 @@ export class TagEditForm extends TargetedEditForm<TagData> {
       template: `systems/${game.system.id}/templates/window/tag.hbs`,
       classes: ["lancer", "tag-editor"],
       title: "Tag Editing",
+      submitOnClose: false,
     };
   }
 
