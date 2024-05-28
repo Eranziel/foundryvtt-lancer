@@ -805,6 +805,11 @@ export function std_checkbox(path: string, options: HelperOptions) {
  * - `default`: Change the default value if resolution fails. Otherwise, we just use the first one in the enum.
  */
 export function std_enum_select<T extends string>(path: string, enum_: { [key: string]: T }, options: HelperOptions) {
+  let entries = Object.entries(enum_);
+  // Sort the entries
+  if (!options.hash["presorted"]) {
+    entries.sort((a, b) => a[1].localeCompare(b[1]));
+  }
   // Get the classes to add
   let select_classes: string = options.hash["select_classes"] || "";
   let label_classes: string = options.hash["label_classes"] || "";
@@ -812,7 +817,7 @@ export function std_enum_select<T extends string>(path: string, enum_: { [key: s
   // Get the default. If undefined, use first found.
   let default_val: T | undefined = options.hash["default"];
   if (default_val == undefined) {
-    default_val = Object.values(enum_)[0];
+    default_val = entries[0][1];
   }
 
   // Get the value
@@ -826,8 +831,10 @@ export function std_enum_select<T extends string>(path: string, enum_: { [key: s
   let currentVal = restrict_enum(enum_, default_val, value!);
 
   let choices: string[] = [];
-  for (let choice of Object.values(enum_)) {
-    choices.push(`<option value="${choice}" ${selected(choice === currentVal)}>${choice.toUpperCase()}</option>`);
+  for (let choice of entries) {
+    choices.push(
+      `<option value="${choice[0]}" ${selected(choice[0] === currentVal)}>${choice[1].toUpperCase()}</option>`
+    );
   }
 
   let select = `

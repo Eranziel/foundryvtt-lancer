@@ -182,7 +182,7 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet<ItemShe
 
     if (this.item.is_organization()) {
       // console.log(OrgType);
-      data.org_types = Object.keys(OrgType);
+      data.org_types = OrgType;
     }
 
     console.log(`${lp} Rendering with following item ctx: `, data);

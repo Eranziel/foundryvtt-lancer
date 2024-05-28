@@ -15,7 +15,7 @@ import { LancerItem, LancerLICENSE } from "../item/lancer-item";
 import { ActionData } from "../models/bits/action";
 import { BonusData } from "../models/bits/bonus";
 import { SynergyData } from "../models/bits/synergy";
-import { ActivationType, EntryType, WeaponSize, WeaponType } from "../enums";
+import { ActivationType, EntryType, ReserveType, WeaponSize, WeaponType } from "../enums";
 import { RangeData } from "../models/bits/range";
 
 export function item_edit_arrayed_actions(path: string, title: string, options: HelperOptions): string {
@@ -236,15 +236,7 @@ function resolve_enum(enum_name: string): any {
     case "ActivationType":
       return ActivationType;
     case "ReserveType":
-      // machine-mind and C/C don't seem to fully agree, so we're making our own for now.
-      return {
-        Resource: "Resources",
-        Tactical: "Tactical",
-        Mech: "Mech",
-        Project: "Project",
-        Organization: "Organization",
-        Bonus: "Bonus",
-      };
+      return ReserveType;
     default:
       console.debug("Using default enum with enum_name of ".concat(enum_name));
       return none_enum;

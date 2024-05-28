@@ -316,6 +316,7 @@ export enum ReserveType {
   Mech = "Mech",
   Project = "Project",
   Organization = "Organization",
+  Bonus = "Bonus",
 }
 
 export enum OrgType {

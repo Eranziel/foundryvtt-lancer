@@ -65,8 +65,7 @@ import {
 import { ActionData } from "../models/bits/action";
 import { LancerActor, LancerDEPLOYABLE } from "../actor/lancer-actor";
 import { CounterData } from "../models/bits/counter";
-import { lookupOwnedDeployables, slugify } from "../util/lid";
-import { LancerFlowState } from "../flows/interfaces";
+import { slugify } from "../util/lid";
 import { TagEditForm } from "../apps/tag-editor";
 import { FullBoundedNum } from "../source-template";
 
@@ -74,6 +73,7 @@ import { FullBoundedNum } from "../source-template";
  * Handlebars helper for weapon size selector
  */
 export function weaponSizeSelector(path: string, options: HelperOptions) {
+  options.hash["presorted"] = true;
   if (!options.hash["default"]) {
     options.hash["default"] = WeaponSize.Main;
   }
@@ -130,6 +130,7 @@ export function rangeEditor(path: string, options: HelperOptions): string {
  * Supply with path to Damage, and any args that you'd like passed down to the standard input editors
  */
 export function damageEditor(path: string, options: HelperOptions): string {
+  options.hash["presorted"] = true;
   // Lookup the damage so we can draw icon.
   let damage = resolveHelperDotpath<Damage>(options, path);
   if (!damage) return "";
