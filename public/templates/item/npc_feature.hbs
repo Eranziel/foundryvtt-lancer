@@ -11,27 +11,8 @@
           placeholder="{{localize 'lancer.placeholder.name'}}"
         />
       </h1>
-    </div>
-    <div class="header-fields flexcol">
-      <h3 class="origin_name">
-        <input
-          class="header-field"
-          name="system.origin.name"
-          type="text"
-          value="{{system.origin.name}}"
-          placeholder="Origin Name"
-        />
-      </h3>
-      <h3 class="origin_type">
-        <input
-          class="header-field"
-          name="system.origin.type"
-          type="text"
-          value="{{system.origin.type}}"
-          placeholder="Origin Type"
-        />
-      </h3>
-      <h3 class="origin_type">
+      <div class="origin_type">
+        <span class="medium">FEATURE TYPE: </span>
         <select class="header-field" name="system.type" data-type="String">
           {{#select system.type}}
             <option class="i--dark" value="Reaction">
@@ -51,16 +32,42 @@
             </option>
           {{/select}}
         </select>
-      </h3>
-      <h3 class="origin_base">
-        BASE:
-        <input type="checkbox" name="system.origin.base" {{checked system.origin.base}} />
-      </h3>
+      </div>
     </div>
     {{{ref-portrait-img item.img "img" item}}}
   </header>
   {{! Sheet Body }}
   <section class="sheet-body">
+    <div class="effect-box">
+      <div class="effect-title clipped-bot">SOURCE</div>
+      <div class="effect-text flexrow" style="padding: 0 0.5em 0.5em 0.5em; width: 100%;">
+        <div class="origin-name">
+          <input name="system.origin.name" type="text" value="{{system.origin.name}}" placeholder="Origin Name" />
+        </div>
+        <div class="origin-type flexrow">
+          <select name="system.origin.type" data-type="text">
+            {{#select system.origin.type}}
+              <option class="i--dark" value="Class">
+                CLASS
+              </option>
+              <option class="i--dark" value="Template">
+                TEMPLATE
+              </option>
+            {{/select}}
+          </select>
+        </div>
+        <div class="origin_base flexrow" style="align-items: center;">
+          <span class="medium" style="text-align: right;">
+            {{#if system.origin.base}}
+              BASE FEATURE
+            {{else}}
+              OPTIONAL FEATURE
+            {{/if}}
+          </span>
+          <input type="checkbox" name="system.origin.base" {{checked system.origin.base}} />
+        </div>
+      </div>
+    </div>
     {{! Limited Uses Tracking }}
     {{#if (is-limited item)}}
       <div class="flexrow stat-container" style="align-self: center; margin: 5px 30px; max-width: max-content;">
@@ -91,8 +98,8 @@
     {{! Tech }}
     {{#if (eq system.type "Tech")}}
       <div class="wraprow triple">
-        <div>
-          <span class="medium">
+        <div class="flexrow" style="align-items: center;">
+          <span class="medium" style="text-align: right; max-width: fit-content; padding-right: 1em;">
             TECH
           </span>
           <select name="system.techType" data-type="String" style="align-self: center;">
@@ -119,7 +126,15 @@
           <span class="lancer-header lancer-primary major">
             TYPE
           </span>
-          {{{wpn-type-sel "system.weapon_type"}}}
+          {{! Can't use the weapon type/size selectors because NPC weapons only have
+              a single string field that combines both }}
+          <input
+            class="lancer-stat"
+            type="text"
+            name="system.weapon_type"
+            value="{{system.weapon_type}}"
+            data-dtype="String"
+          />
         </div>
         <div class="double"></div>
         {{! Range }}
