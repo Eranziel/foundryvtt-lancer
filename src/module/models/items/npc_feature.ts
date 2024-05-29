@@ -55,6 +55,7 @@ export class NpcFeatureModel extends LancerDataModel<"NpcFeatureModel"> {
       origin: new fields.SchemaField({
         type: new fields.StringField(),
         name: new fields.StringField(),
+        base: new fields.BooleanField(),
       }),
 
       // Templates
@@ -97,6 +98,8 @@ export function unpackNpcFeature(
       override: data.override,
       tags: (data.tags || []).map(unpackTag),
       type: data.type,
+
+      origin: data.origin,
 
       charged: undefined,
       uses: undefined,
