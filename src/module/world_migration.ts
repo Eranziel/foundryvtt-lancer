@@ -90,28 +90,13 @@ deprecated:</p>
 export async function migrateWorld() {
   const curr_version = game.settings.get(game.system.id, LANCER.setting_migration_version);
 
-  // Display migration message
-  new Dialog(
-    {
-      title: `Migration Details`,
-      content: getMigrationMessage(),
-      buttons: {
-        accept: {
-          label: "Ok",
-          callback: () => {
-            // Open the LCP manager for convenience.
-            new LCPManager().render(true);
-          },
-        },
-      },
-    },
-    {
-      width: 800,
-    }
-  ).render(true);
-
   // Migrate from the pre-2.0 compendium structure the combined compendiums
   if (foundry.utils.isNewerVersion("2.0.0", curr_version)) {
+    const journals = await game.packs.get("lancer.lancer_info")?.getDocuments({ name: "LANCER System Information" });
+    if (journals.length) {
+      await journals[0].sheet?.render(true);
+    }
+
     await clearCompendiumData({ v1: true });
     await migrateCompendiumStructure();
   }
