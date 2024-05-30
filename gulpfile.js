@@ -73,6 +73,16 @@ async function rebuild_pack(name) {
   return Promise.resolve();
 }
 
+async function export_pack(name) {
+  console.log(chalk.green(`Extracting ${chalk.blueBright(name)}`));
+  // TODO: specifying output directory doesn't seem to work?
+  cp.spawnSync("npx", ["fvtt", "package", "unpack", "--type", "System", "--id", "lancer", "-n", name, "--yaml"], {
+    stdio: "inherit",
+    shell: true,
+  });
+  return Promise.resolve();
+}
+
 async function configure_fvtt_cli() {
   const config = await fs.readJSON("foundryconfig.json");
   if (config.dataPath === "/path/to/foundry/data") {
@@ -91,6 +101,12 @@ async function configure_fvtt_cli() {
 async function build_packs() {
   await rebuild_pack("core_macros");
   await rebuild_pack("lancer_info");
+  return Promise.resolve();
+}
+
+async function export_packs() {
+  await export_pack("core_macros");
+  await export_pack("lancer_info");
   return Promise.resolve();
 }
 
@@ -329,6 +345,7 @@ const execGit = gulp.series(gitAdd, gitCommit, gitTag);
 
 exports.build = build;
 exports.build_packs = build_packs;
+exports.export_packs = export_packs;
 exports.watch = watch;
 exports.serve = serve;
 exports.link = linkUserData;
