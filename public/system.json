@@ -31,6 +31,14 @@
       "system": "lancer",
       "path": "./packs/core_macros",
       "type": "Macro"
+    },
+    {
+      "name": "lancer_info",
+      "label": "lancer.compendium.lancer_info",
+      "banner": "./systems/lancer/assets/banners/core_macros.svg",
+      "system": "lancer",
+      "path": "./packs/lancer_info",
+      "type": "JournalEntry"
     }
   ],
   "languages": [
@@ -49,9 +57,9 @@
   "manifest": "https://github.com/Eranziel/foundryvtt-lancer/releases/latest/download/system.json",
   "download": "https://github.com/Eranziel/foundryvtt-lancer/releases/download/v2.0.0-rc1/lancer-v2.0.0-rc1.zip",
   "license": "GNU GPLv3",
-  "readme": "https://github.com/Eranziel/foundryvtt-lancer/blob/beta-release/README.md",
+  "readme": "https://github.com/Eranziel/foundryvtt-lancer/blob/master/README.md",
   "bugs": "https://github.com/Eranziel/foundryvtt-lancer/issues/new/choose",
-  "changelog": "https://github.com/Eranziel/foundryvtt-lancer/blob/beta-release/CHANGELOG.md",
+  "changelog": "https://github.com/Eranziel/foundryvtt-lancer/blob/master/CHANGELOG.md",
   "manifestPlusVersion": "1.2.0",
   "media": [
     {

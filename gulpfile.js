@@ -90,6 +90,7 @@ async function configure_fvtt_cli() {
 
 async function build_packs() {
   await rebuild_pack("core_macros");
+  await rebuild_pack("lancer_info");
   return Promise.resolve();
 }
 

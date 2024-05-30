@@ -264,6 +264,7 @@
     },
     "compendium": {
       "core_macros": "LANCER Macros",
+      "lancer_info": "LANCER Info",
       "deployable": "Deployables",
       "mech-items": "Mech Items",
       "npc-actors": "Premade NPCs",
