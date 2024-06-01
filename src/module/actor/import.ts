@@ -1,3 +1,4 @@
+import { LANCER } from "../config";
 import { replaceDefaultResource } from "../config";
 import { EntryType, FittingSize, MountType } from "../enums";
 import {
@@ -31,6 +32,11 @@ import { frameToPath } from "./retrograde-map";
 
 // Imports packed pilot data, from either a vault id or gist id
 export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearFirst = false) {
+  const coreVersion = await game.settings.get(game.system.id, LANCER.setting_core_data);
+  if (!coreVersion) {
+    ui.notifications?.warn("You must build the Core data in the Lancer Compendium Manager before importing.");
+    return;
+  }
   console.log("Importing Pilot", pilot, data);
   if (!pilot.is_pilot() || !data) return;
   if (clearFirst) {

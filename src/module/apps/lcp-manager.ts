@@ -205,6 +205,11 @@ class LCPManager extends Application {
       ui.notifications!.warn(`Only GM can modify the Compendiums.`);
       return;
     }
+    console.log("Core version: ", this.coreVersion);
+    if (!this.coreVersion) {
+      ui.notifications!.warn(`Please update the Core data before importing LCPs.`);
+      return;
+    }
     if (!this.lcpFile) {
       ui.notifications!.error(`You must select an LCP file before importing.`);
       return;
