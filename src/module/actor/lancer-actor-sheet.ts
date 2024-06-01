@@ -6,8 +6,6 @@ import { handleRefDragging, handleRefSlotDropping, handleRefClickOpen, handleUse
 import type { LancerActorSheetData } from "../interfaces";
 import { LancerItem } from "../item/lancer-item";
 import { LancerActor, LancerActorType } from "./lancer-actor";
-import { runEncodedMacro } from "../macros";
-import { ActivationOptions } from "../enums";
 import { applyCollapseListeners, CollapseHandler, initializeCollapses } from "../helpers/collapse";
 import { addExportButton } from "../helpers/io";
 import type { ActionType } from "../action";
@@ -22,7 +20,6 @@ import { LancerFlowState } from "../flows/interfaces";
 import { lookupOwnedDeployables } from "../util/lid";
 import { beginItemChatFlow } from "../flows/item";
 import { DroppableFlowType } from "../helpers/dragdrop";
-import { Flow } from "../flows/flow";
 const lp = LANCER.log_prefix;
 
 /**
@@ -287,14 +284,6 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
   }
 
   _activateFlowListeners(html: JQuery) {
-    // Encoded macros
-    // TODO: deprecate
-    let encMacros = html.find(".lancer-macro");
-    encMacros.on("click", ev => {
-      ev.stopPropagation(); // Avoids triggering parent event handlers
-      runEncodedMacro(ev.currentTarget);
-    });
-
     // Basic flow buttons
     let actorFlows = html.find(".lancer-flow-button");
     actorFlows.on("click", ev => {
