@@ -194,15 +194,6 @@ export class LancerActiveEffect extends ActiveEffect {
     if (statusIconConfig.tommyConditionsStatus) {
       configStatuses = configStatuses.concat(tommyConditionsStatus);
     }
-    if (statusIconConfig.cancerConditionsStatus) {
-      configStatuses = configStatuses.concat(cancerConditionsStatus);
-    }
-    if (statusIconConfig.hayleyConditionsStatus) {
-      configStatuses = configStatuses.concat(hayleyConditionsStatus);
-    }
-    if (statusIconConfig.tommyConditionsStatus) {
-      configStatuses = configStatuses.concat(tommyConditionsStatus);
-    }
     // Icons for other things which aren't mechanical condition/status
     if (statusIconConfig.cancerNPCTemplates) {
       configStatuses = configStatuses.concat(cancerNPCTemplates);
