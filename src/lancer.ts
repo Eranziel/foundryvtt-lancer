@@ -42,9 +42,6 @@ import { addLCPManager, updateCore, core_update } from "./module/apps/lcp-manage
 // Import sliding HUD (used for accuracy/difficulty windows)
 import * as slidingHUD from "./module/helpers/slidinghud";
 
-// Import Machine Mind and helpers
-import * as macros from "./module/macros";
-
 // Import Tippy.js
 import tippy from "tippy.js";
 import "tippy.js/dist/tippy.css"; // optional for styling
@@ -144,6 +141,7 @@ import { applyCollapseListeners, initializeCollapses } from "./module/helpers/co
 import { handleCombatUpdate } from "./module/helpers/automation/combat";
 import { handleActorExport, validForExport } from "./module/helpers/io";
 import { runEncodedMacro } from "./module/macros";
+import { targetsFromTemplate } from "./module/flows/_template";
 import { extendTokenConfig, LancerToken, LancerTokenDocument } from "./module/token";
 import { applyGlobalDragListeners } from "./module/helpers/dragdrop";
 import { gridDist } from "./module/helpers/automation/targeting";
@@ -392,7 +390,7 @@ Hooks.once("init", async function () {
     // fullRepairMacro: macros.fullRepairMacro,
     // stabilizeMacro: macros.stabilizeMacro,
     importActor: fulfillImportActor,
-    targetsFromTemplate: macros.targetsFromTemplate,
+    targetsFromTemplate,
     migrations: migrations,
     getAutomationOptions: getAutomationOptions,
     fromLid: fromLid,
