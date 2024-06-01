@@ -194,9 +194,6 @@ export class LancerActiveEffect extends ActiveEffect {
     if (statusIconConfig.tommyConditionsStatus) {
       configStatuses = configStatuses.concat(tommyConditionsStatus);
     }
-    if (statusIconConfig.defaultConditionsStatus) {
-      configStatuses = configStatuses.concat(defaultStatuses);
-    }
     if (statusIconConfig.cancerConditionsStatus) {
       configStatuses = configStatuses.concat(cancerConditionsStatus);
     }
