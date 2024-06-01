@@ -2,13 +2,14 @@
   <div class="lancer-header lancer-tech tech medium">
     <i class="cci cci-tech-quick i--m i--light"> </i>
     <span>TECH ATK{{#if title}} :: {{title}}{{/if}}</span>
-    <a
-      class="chat-button roll-attack lancer-button lancer-macro"
+    {{! TODO: refactor reroll button }}
+    <!-- <a
+      class="flow-button roll-attack lancer-button lancer-macro"
       data-macro="{{rerollMacroData}}"
       title="Reroll this attack"
     >
       <i class="fas fa-dice-d20 i--m i--light"></i>
-    </a>
+    </a> -->
   </div>
   <div class="card clipped">
     <div class="lancer-mini-header collapse-trigger" data-collapse-id="{{_uuid}}-attacks">
