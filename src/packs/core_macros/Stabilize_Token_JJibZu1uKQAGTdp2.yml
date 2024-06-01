@@ -5,16 +5,11 @@ flags:
     sourceId: Macro.d699WQo7DT5zrIK7
 scope: global
 command: |-
-  (async ()=>{
-      
-      if (canvas.tokens.controlled.length !== 1) {
-          ui.notifications.error("Select one and only one token");
-          return;
-      }
-
-      game.lancer.stabilizeMacro(canvas.tokens.controlled[0].actor.id);
-
-  })();
+  if (canvas.tokens.controlled.length !== 1) {
+    ui.notifications.error("Select one and only one token");
+    return;
+  }
+  canvas.tokens.controlled[0].actor.beginStabilizeFlow();
 author: PN55ItGPHjs7sY8L
 img: systems/lancer/assets/icons/macro-icons/marker.svg
 _id: JJibZu1uKQAGTdp2
@@ -26,8 +21,8 @@ sort: 300000
 _stats:
   systemId: lancer
   systemVersion: 2.0.0-rc1
-  coreVersion: '11.315'
+  coreVersion: "11.315"
   createdTime: null
   modifiedTime: 1710448445404
   lastModifiedBy: ci5PqVPSs3DhZWTF
-_key: '!macros!JJibZu1uKQAGTdp2'
+_key: "!macros!JJibZu1uKQAGTdp2"

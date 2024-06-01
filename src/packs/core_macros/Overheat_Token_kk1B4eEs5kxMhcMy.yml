@@ -9,7 +9,7 @@ command: |-
     ui.notifications.error("Select one and only one token");
     return;
   }
-  game.lancer.prepareOverheatMacro(token.actor);
+  canvas.tokens.controlled[0].actor.beginOverheatFlow();
 folder: yxTxiLixDsbyThYC
 sort: 106250
 flags:
@@ -21,8 +21,8 @@ ownership:
 _stats:
   systemId: lancer
   systemVersion: 2.0.0-rc1
-  coreVersion: '11.315'
+  coreVersion: "11.315"
   createdTime: null
   modifiedTime: 1710448439309
   lastModifiedBy: ci5PqVPSs3DhZWTF
-_key: '!macros!kk1B4eEs5kxMhcMy'
+_key: "!macros!kk1B4eEs5kxMhcMy"

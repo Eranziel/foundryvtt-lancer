@@ -9,7 +9,7 @@ command: |-
       ui.notifications.error("Select one and only one token");
       return;
   }
-  game.lancer.prepareStructureMacro(token.actor);
+  canvas.tokens.controlled[0].actor.beginStructureFlow();
 folder: yxTxiLixDsbyThYC
 sort: 150000
 flags:
@@ -21,8 +21,8 @@ ownership:
 _stats:
   systemId: lancer
   systemVersion: 2.0.0-rc1
-  coreVersion: '11.315'
+  coreVersion: "11.315"
   createdTime: null
   modifiedTime: 1710448425858
   lastModifiedBy: ci5PqVPSs3DhZWTF
-_key: '!macros!Q07qegz0pYbqIk61'
+_key: "!macros!Q07qegz0pYbqIk61"
