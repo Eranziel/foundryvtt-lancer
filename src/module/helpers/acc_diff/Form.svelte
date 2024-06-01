@@ -16,7 +16,7 @@
   import { RangeType } from "../../enums";
   import { WeaponRangeTemplate } from "../../pixi/weapon-range-template";
   import { fade } from "../slidinghud";
-  import { targetsFromTemplate } from "../../macros";
+  import { targetsFromTemplate } from "../../flows/_template";
 
   export let weapon: AccDiffWeapon;
   export let base: AccDiffBase;

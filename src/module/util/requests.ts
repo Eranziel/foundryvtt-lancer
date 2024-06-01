@@ -1,5 +1,4 @@
 import { LancerActor } from "../actor/lancer-actor";
-import { encodeMacroData } from "../macros";
 
 /**
  *
@@ -12,15 +11,13 @@ export async function requestImport(compendiumActor: LancerActor, forPilot: Lanc
     return fulfillImportActor(compendiumActor, forPilot);
   }
 
-  let macroData = encodeMacroData({
-    fn: "importActor",
-    args: [compendiumActor.uuid, forPilot.uuid],
-    title: `Import ${LancerActor.name}`,
-  });
-
-  let content = `<button class="chat-button self-destruct" data-macro="${macroData}">
-                        IMPORT ${compendiumActor.name} FOR ${LancerActor.name}?
-                    </button>`;
+  let content = `<button class="chat-button self-destruct"
+      data-action="importActor"
+      data-import-id="${compendiumActor.uuid}"
+      data-target-id="${forPilot.uuid}"
+    >
+      IMPORT ${compendiumActor.name} FOR ${forPilot.name}?
+    </button>`;
 
   ChatMessage.create({
     blind: true,
@@ -41,6 +38,7 @@ export async function fulfillImportActor(compDeployable: string | LancerActor, f
   if (!game.user?.hasPermission("ACTOR_CREATE")) throw new Error("You do not have permissions to import an actor!");
   compDeployable = await LancerActor.fromUuid(compDeployable);
   forActor = await LancerActor.fromUuid(forActor);
+  if (!compDeployable || !forActor) throw new Error("Invalid actor(s) provided for import!");
 
   // Redirect mech to pilot
   if (forActor.is_mech() && forActor.system.pilot?.status == "resolved") {

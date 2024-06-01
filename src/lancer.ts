@@ -140,7 +140,6 @@ import {
 import { applyCollapseListeners, initializeCollapses } from "./module/helpers/collapse";
 import { handleCombatUpdate } from "./module/helpers/automation/combat";
 import { handleActorExport, validForExport } from "./module/helpers/io";
-import { runEncodedMacro } from "./module/macros";
 import { targetsFromTemplate } from "./module/flows/_template";
 import { extendTokenConfig, LancerToken, LancerTokenDocument } from "./module/token";
 import { applyGlobalDragListeners } from "./module/helpers/dragdrop";
@@ -205,6 +204,7 @@ import { get_pack_id } from "./module/util/doc";
 import { registerTours } from "./module/tours/register-tours";
 import { registerStabilizeSteps } from "./module/flows/stabilize";
 import { beginItemChatFlow } from "./module/flows/item";
+import { onHotbarDrop } from "./module/flows/hotbar";
 
 const lp = LANCER.log_prefix;
 
@@ -868,20 +868,40 @@ Hooks.on("renderChatMessage", async (cm: ChatMessage, html: JQuery, data: any) =
   applyCollapseListeners(html);
 
   // Handle old macro buttons
-  html.find(".chat-button").on("click", ev => {
-    let elt = $(ev.target).closest("[data-macro]")[0];
-    if (elt?.dataset.macro) {
+  html.find(".chat-button").on("click", async ev => {
+    let elt = $(ev.target).closest("[data-action]")[0];
+    if (elt?.dataset.action) {
       ev.stopPropagation();
-      runEncodedMacro(elt).then(_ => {
-        if (elt.classList.contains("self-destruct")) {
-          cm.delete();
-        }
-      });
+      const action = elt.dataset.action;
+      switch (action) {
+        case "importActor":
+          const actorId = elt.dataset.targetId;
+          if (!actorId) return ui.notifications?.error("No target actor ID found on actor import prompt button.");
+          const importId = elt.dataset.importId;
+          if (!importId) return ui.notifications?.error("No import actor ID found on actor import prompt button.");
+          const toImport = await LancerActor.fromUuid(
+            importId,
+            "Invalid import actor ID on actor import prompt button."
+          );
+          const forActor = await LancerActor.fromUuid(
+            actorId,
+            "Invalid target actor ID on actor import prompt button."
+          );
+          await fulfillImportActor(toImport, forActor);
+          break;
+        default:
+          ui.notifications?.error("Invalid action on chat button.");
+          return false;
+      }
+      if (elt.classList.contains("self-destruct")) {
+        cm.delete();
+      }
       return true;
     }
     return false;
   });
 
+  // Handle flow buttons in chat messages
   html.find(".flow-button").on("click", ev => {
     const element = $(ev.target).closest("[data-flow-type]")[0];
     if (element?.dataset.flowType) {
@@ -929,7 +949,7 @@ Hooks.on("renderChatMessage", async (cm: ChatMessage, html: JQuery, data: any) =
 });
 
 Hooks.on("hotbarDrop", (_bar: any, data: any, slot: number) => {
-  macros.onHotbarDrop(_bar, data, slot);
+  onHotbarDrop(_bar, data, slot);
 });
 
 /**
