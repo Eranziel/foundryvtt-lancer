@@ -16,6 +16,8 @@ import {
 import { LancerActiveEffect } from "../effects/lancer-active-effect";
 import { frameToPath } from "./retrograde-map";
 import { EffectHelper } from "../effects/effector";
+import { insinuate } from "../util/doc";
+import { lookupLID } from "../util/lid";
 import { LoadoutHelper } from "./loadout-util";
 import { StrussHelper } from "./struss-util";
 import { StructureFlow } from "../flows/structure";
@@ -87,6 +89,10 @@ export class LancerActor extends Actor {
 
   // @ts-expect-error - Foundry initializes this.
   system: SystemData.Pilot | SystemData.Mech | SystemData.Npc | SystemData.Deployable;
+
+  // Promises for NPC class/template swap. That work is initiated by a sync method,
+  // so we need a way to track when the work is finished.
+  npcClassSwapPromises: Promise<any>[] = [];
 
   // These cannot be instantiated the normal way (e.x. via constructor)
   _configure(options: unknown) {
@@ -555,6 +561,30 @@ export class LancerActor extends Actor {
     }
   }
 
+  /**
+   * Makes us own (or rather, creates an owned copy of) the provided item if we don't already.
+   * The second return value indicates whether a new copy was made (true), or if we already owned it/it is an actor (false)
+   * Note: this operation also fixes limited to be the full capability of our actor
+   * @param document
+   * @returns The created item, and whether it was created. If it already existed or the document was an actor, the second value is false.
+   */
+  async quickOwn(document: LancerItem): Promise<[LancerItem, boolean]> {
+    if (document.parent != this) {
+      let results = await insinuate([document], this);
+      for (let newItem of results) {
+        if (newItem.isLimited()) {
+          await newItem.update({
+            "system.uses.value": newItem.system.uses.max,
+          });
+        }
+      }
+      return [results[0], true];
+    } else {
+      // It's already owned
+      return [document, false];
+    }
+  }
+
   /** @inheritdoc
    * Due to the complex effects equipment can have on an actors statistical values, it is necessary to be sure our
    * effects are kept in lockstep as items are created, updated, and deleted
@@ -567,8 +597,31 @@ export class LancerActor extends Actor {
     options: any,
     userId: string
   ) {
+    // When adding an NPC class, find the old class if one exists.
+    let oldClass: LancerNPC_CLASS | null = null;
+    // What janky types! If someone has ideas to clean this up, be my guest.
+    let itemDocs: LancerItem[] = (documents as (LancerItem | LancerActiveEffect)[]).filter(
+      d => d.documentName === "Item"
+    ) as LancerItem[];
+    if (this.is_npc() && itemDocs.some(d => d.is_npc_class())) {
+      oldClass = this.items.find(
+        item => item.is_npc_class() && !itemDocs.find(doc => item._id === doc._id)
+      ) as LancerNPC_CLASS;
+    }
+
     // @ts-expect-error
     super._onCreateDescendantDocuments(parent, collection, documents, changes, options, userId);
+
+    // If an NPC class or template was added, add and remove the relevant features.
+    if (this.is_npc() && itemDocs.some(d => d.is_npc_class() || d.is_npc_template())) {
+      itemDocs = itemDocs.filter(d => d.is_npc_class() || d.is_npc_template());
+      let newClass = itemDocs.find(d => d.is_npc_class()) as LancerNPC_CLASS;
+      if (newClass) this.npcClassSwapPromises.push(this._swapNpcClass(oldClass, newClass));
+
+      let newTemplates = itemDocs.filter(d => d.is_npc_template()) as LancerNPC_TEMPLATE[];
+      newTemplates.forEach(t => this.npcClassSwapPromises.push(this._swapNpcClass(null, t)));
+    }
+
     if (game.userId == userId) {
       this.effectHelper.propagateEffects(false); // Items / Effects have changed - may need to propagate
     }
@@ -707,6 +760,71 @@ export class LancerActor extends Actor {
     if (!new_size) return;
     // @ts-expect-error
     await this.prototypeToken.update({ height: new_size, width: new_size });
+  }
+
+  // Given a list of npc features, return the corresponding entries on this npc
+  findMatchingFeaturesInNpc(featureLids: string[]): LancerNPC_FEATURE[] {
+    if (!this.is_npc()) return [];
+    let result = [];
+    for (let predicateLid of featureLids) {
+      for (let candidate_feature of this.itemTypes.npc_feature as LancerNPC_FEATURE[]) {
+        if (candidate_feature.system.lid == predicateLid) {
+          result.push(candidate_feature);
+        }
+      }
+    }
+    return result;
+  }
+
+  /**
+   * Internal utility method, intended to be called by _onCreateDescendantDocuments.
+   * Removes features associated with the old class and adds features associated with the new class.
+   * @param oldClass The old class which is being removed
+   * @param newClass The new class which is being added
+   */
+  async _swapNpcClass(oldClass: LancerNPC_CLASS | null, newClass: LancerNPC_CLASS | LancerNPC_TEMPLATE): Promise<void> {
+    if (!this.is_npc() || (!newClass.is_npc_class() && !newClass.is_npc_template())) return;
+    // Flag to know if we need to reset stats
+    let needsRefresh = false;
+    // If the classes are the same, do nothing
+    if (oldClass?.system.lid === newClass.system.lid) return;
+
+    // If this NPC has an existing class, remove it and all its features
+    if (oldClass) {
+      // Find the features from the old class
+      let classFeatures = this.findMatchingFeaturesInNpc([
+        ...oldClass.system.base_features,
+        ...oldClass.system.optional_features,
+      ]);
+      if (classFeatures.length) {
+        // Delete the old class and its features
+        await this._safeDeleteDescendant("Item", [oldClass, ...classFeatures]);
+        needsRefresh = true;
+      }
+    }
+
+    // And add all new features
+    let baseFeatures = (await Promise.all(
+      newClass.system.base_features.map(lid => lookupLID(lid, EntryType.NPC_FEATURE))
+    )) as LancerItem[];
+    await insinuate(
+      baseFeatures.filter(x => x),
+      this
+    );
+    needsRefresh = true;
+    if (newClass.is_npc_class()) {
+      await this.swapFrameImage(newClass);
+    }
+
+    // If a new item was added, fill our hp, stress, and structure to match new maxes
+    if (needsRefresh) {
+      // Update this, to re-populate arrays etc to reflect new item
+      await this.update({
+        "system.hp.value": this.system.hp.max,
+        "system.stress.value": this.system.stress.max,
+        "system.structure.value": this.system.structure.max,
+      });
+    }
   }
 
   // Checks that the provided document is not null, and is a lancer actor

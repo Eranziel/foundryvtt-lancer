@@ -3,7 +3,7 @@ const lp = LANCER.log_prefix;
 import { LCPIndex } from "./apps/lcp-manager";
 import { get_pack, get_pack_id } from "./util/doc";
 import type { LancerActor } from "./actor/lancer-actor";
-import { LancerItem, LancerLICENSE } from "./item/lancer-item";
+import { LancerItem } from "./item/lancer-item";
 import { EntryType } from "./enums";
 import {
   IContentPack,
@@ -16,7 +16,7 @@ import { unpackMechWeapon } from "./models/items/mech_weapon";
 import { unpackFrame } from "./models/items/frame";
 import { unpackMechSystem } from "./models/items/mech_system";
 import { unpackCoreBonus } from "./models/items/core_bonus";
-import { TagData, TagTemplateData, unpackTag, unpackTagTemplate } from "./models/bits/tag";
+import { TagTemplateData, unpackTagTemplate } from "./models/bits/tag";
 import { unpackTalent } from "./models/items/talent";
 import { unpackBond } from "./models/items/bond";
 import { unpackPilotArmor } from "./models/items/pilot_armor";
@@ -30,6 +30,11 @@ import { unpackNpcFeature } from "./models/items/npc_feature";
 import { unpackWeaponMod } from "./models/items/weapon_mod";
 import { unpackReserve } from "./models/items/reserve";
 import { unpackStatus } from "./models/items/status";
+import { generateNpcDataFromClass } from "./models/actors/npc";
+import { fromLid } from "./helpers/from-lid";
+
+export const PACK_SCOPE = "world";
+const packTypes = Object.values(EntryType).filter(et => ![EntryType.MECH, EntryType.PILOT].includes(et));
 
 // Clear all packs
 export async function clearAll(v1 = false): Promise<void> {
@@ -80,10 +85,8 @@ export async function importCP(
     totalItems += cp.data.weapons?.length ?? 0;
 
     // Iterate over everything in core, collecting all lids into a map of LID -> document
-    let existing_lids: Map<string, LancerItem | LancerActor> = new Map();
-    for (let et of Object.values(EntryType)) {
-      // Skip Mechs and Pilots
-      if ([EntryType.PILOT, EntryType.MECH].includes(et)) continue;
+    let existingLids: Map<string, LancerItem | LancerActor> = new Map();
+    for (let et of packTypes) {
       let pack = await get_pack(et);
       // Get them all
       // TODO: Use the index to improve performance
@@ -91,7 +94,7 @@ export async function importCP(
       // Get their ids
       docs.forEach(d => {
         // @ts-expect-error Should be fixed with v10 types
-        existing_lids.set((d as LancerActor | LancerItem).system.lid, d);
+        existingLids.set((d as LancerActor | LancerItem).system.lid || d.name, d);
       });
     }
 
@@ -105,6 +108,7 @@ export async function importCP(
       }
     };
     Hooks.on("createItem", progress_hook);
+    Hooks.on("createActor", progress_hook);
 
     let context: UnpackContext = {
       createdDeployables: [],
@@ -114,6 +118,7 @@ export async function importCP(
     let allFrames = cp.data.frames?.map(d => unpackFrame(d, context)) ?? [];
     let allMods = cp.data.mods?.map(d => unpackWeaponMod(d, context)) ?? [];
     let allNpcClasses = cp.data.npcClasses?.map(d => unpackNpcClass(d, context)) ?? [];
+    let allNpcs = allNpcClasses.map(d => generateNpcDataFromClass(d)) ?? [];
     let allNpcFeatures = cp.data.npcFeatures?.map(d => unpackNpcFeature(d, context)) ?? [];
     let allNpcTemplates = cp.data.npcTemplates?.map(d => unpackNpcTemplate(d, context)) ?? [];
     let allPilotArmor =
@@ -149,8 +154,8 @@ export async function importCP(
 
     // Get creating, or updating if the lid is already created. Typing is extremely fuzzy here, sorry, I just didn't really want to fight it
     const createOrUpdateDocs = async (doc_class: any, item_data: Array<any>, et: EntryType) => {
-      let existing_updates = [];
-      let new_creates = [];
+      let existingUpdates = [];
+      let newCreates = [];
       let pack = await get_pack(et);
       let folder: Folder | undefined = [EntryType.NPC, EntryType.STATUS].includes(et)
         ? undefined
@@ -166,11 +171,13 @@ export async function importCP(
             },
             { pack: get_pack_id(et) }
           ));
+      let results = [];
       for (let d of item_data) {
-        let existing = existing_lids.get(d.system.lid);
+        let key = d.system.lid || d.name;
+        let existing = existingLids.get(key);
         if (existing) {
           // Formulate as an update
-          existing_updates.push({
+          existingUpdates.push({
             ...d,
             _id: existing.id,
             folder: folder?.id,
@@ -178,11 +185,12 @@ export async function importCP(
         } else {
           d.folder = folder?.id;
           // Formulate as a doc
-          new_creates.push(d);
+          newCreates.push(d);
         }
       }
-      await doc_class.createDocuments(new_creates, { pack: get_pack_id(et) });
-      await doc_class.updateDocuments(existing_updates, { pack: get_pack_id(et) });
+      results.push(...(await doc_class.createDocuments(newCreates, { pack: get_pack_id(et) })));
+      results.push(...(await doc_class.updateDocuments(existingUpdates, { pack: get_pack_id(et) })));
+      return results;
     };
 
     await createOrUpdateDocs(CONFIG.Item.documentClass, allCoreBonuses, EntryType.CORE_BONUS);
@@ -204,6 +212,24 @@ export async function importCP(
     await createOrUpdateDocs(CONFIG.Item.documentClass, allWeapons, EntryType.MECH_WEAPON);
     await createOrUpdateDocs(CONFIG.Actor.documentClass, context.createdDeployables, EntryType.DEPLOYABLE);
 
+    // NPC actor generation needs to wait until here so that the features are properly populated in the compendium
+    let npcActors = await createOrUpdateDocs(CONFIG.Actor.documentClass, allNpcs, EntryType.NPC);
+    let npcPromises = [];
+    // Create each NPC and add its class item
+    for (let npc of npcActors) {
+      let classLid = allNpcClasses.find(n => n.name === npc.name)?.system.lid;
+      if (!classLid) continue;
+      let thisClass = (await fromLid(classLid, { source: "compendium" })) as LancerItem;
+      if (thisClass) {
+        console.log("Adding class to NPC: ", npc);
+        await npc.quickOwn(thisClass);
+        npcPromises.push(...npc.npcClassSwapPromises);
+      }
+    }
+    console.time(`Waiting for ${npcPromises.length} class swaps`);
+    await Promise.all(npcPromises);
+    console.timeEnd(`Waiting for ${npcPromises.length} class swaps`);
+
     // Tags are stored in config
     let newTagConfig = foundry.utils.duplicate(game.settings.get(game.system.id, LANCER.setting_tag_config)) as Record<
       string,
@@ -217,15 +243,11 @@ export async function importCP(
     game.settings.set(game.system.id, LANCER.setting_tag_config, newTagConfig);
 
     Hooks.off("createItem", progress_hook);
+    Hooks.off("createActor", progress_hook);
 
     // Finish by forcing all packs to re-prepare
-    const pack_ids = new Set(
-      Object.values(EntryType)
-        .filter(t => ![EntryType.MECH, EntryType.PILOT].includes(t))
-        .map(get_pack_id)
-    );
-    for (let p of pack_ids) {
-      game.packs.get(p)?.clear();
+    for (let p of packTypes) {
+      (await get_pack(p)).clear();
     }
     progress_callback(transmitCount, totalItems);
   } catch (err) {

@@ -1,3 +1,4 @@
+import { EntryType } from "../../enums";
 import {
   template_action_tracking,
   template_heat,
@@ -7,6 +8,7 @@ import {
 } from "./shared";
 
 import { LancerDataModel } from "../shared";
+import { SourceData } from "../../source-template";
 
 const fields: any = foundry.data.fields;
 
@@ -28,4 +30,23 @@ export class NpcModel extends LancerDataModel<"NpcModel"> {
   static defineSchema(): NpcSchema {
     return npc_schema;
   }
+}
+
+export function generateNpcDataFromClass(npc_class: {
+  name: string;
+  type: EntryType.NPC_CLASS;
+  img: string | undefined;
+  system: DeepPartial<SourceData.NpcClass>;
+}): {
+  name: string;
+  type: EntryType.NPC;
+  img: string | undefined;
+  system: DeepPartial<SourceData.Npc>;
+} {
+  return {
+    name: npc_class.name,
+    type: EntryType.NPC,
+    img: npc_class.img ?? undefined,
+    system: {},
+  };
 }
