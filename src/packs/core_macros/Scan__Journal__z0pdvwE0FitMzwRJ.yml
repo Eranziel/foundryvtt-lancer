@@ -23,6 +23,10 @@ command: >-
   // ======================================================
 
 
+  // outputToChat - if set to true, also send the scan results to chat.
+
+  const outputToChat = false;
+
   //journalFolderName - The name, as displayed in foundry, of the folder you
   want the journal entries to save to. Remember to enclose in quotes: 'example'
 
@@ -108,8 +112,7 @@ command: >-
       .filter(
         (f) =>
           f.system.origin &&
-          f.system.origin.name === origin &&
-          f.system.type !== "Weapon"
+          f.system.origin.name === origin
       )
       .sort(sort_features);
     sc_features.forEach((i) => {
@@ -341,7 +344,23 @@ command: >-
         sc_weapons += construct_weapons(items, origin, sc_tier);
       });
     }
-    var scanContent =
+
+    if (outputToChat) {
+      ChatMessage.create({
+        user: game.user._id,
+        content:
+          `<h2>Scan results: ${actor.name}</h2>
+          <h3>Class: ${sc_class}, Tier ${sc_tier}</h3>
+          ${hase_table_html}
+          ${stat_table_html}
+          <h3>Templates:</h3>
+          ${sc_templates}
+          <h3>Systems:</h3>
+          ${sc_list}`,
+      });
+    }
+
+    let scanContent =
       `<h2>Scan results: ${actor.name}</h2>` +
       `<h3>Class: ${sc_class}, Tier ${sc_tier}</h3>` +
       hase_table_html +
@@ -405,6 +424,6 @@ _stats:
   systemVersion: 2.0.0
   coreVersion: "11.315"
   createdTime: null
-  modifiedTime: 1717308467473
+  modifiedTime: 1717341303401
   lastModifiedBy: RyAORVJNmdo1gq2Z
 _key: "!macros!z0pdvwE0FitMzwRJ"
