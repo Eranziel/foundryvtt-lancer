@@ -12,13 +12,13 @@
   },
   "authors": [
     { "name": "Eranziel" },
-    { "name": "Grygon" },
     { "name": "Whitespine" },
-    { "name": "SohumB" },
     { "name": "BoltsJ" },
     { "name": "Valkyrion" },
     { "name": "Kuenaimaku" },
-    { "name": "dodgepong" }
+    { "name": "dodgepong" },
+    { "name": "Grygon" },
+    { "name": "SohumB" }
   ],
   "scripts": [],
   "esmodules": ["lancer.mjs"],
@@ -35,7 +35,7 @@
     {
       "name": "lancer_info",
       "label": "lancer.compendium.lancer_info",
-      "banner": "./systems/lancer/assets/banners/core_macros.svg",
+      "banner": "./systems/lancer/assets/banners/lancer_info.svg",
       "system": "lancer",
       "path": "./packs/lancer_info",
       "type": "JournalEntry"
