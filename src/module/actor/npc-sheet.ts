@@ -125,15 +125,6 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
     if (is_new && drop.type == "Item") {
       let doc = drop.document;
 
-      // Mark replaced classes for deletion
-      if (this.actor.is_npc() && doc.is_npc_class() && old_class) {
-        // But before we do that, destroy all old classes
-        // If we have a class, get rid of it
-        await this.actor.removeClassFeatures(old_class);
-        // And then destroy it
-        await old_class.delete();
-      }
-
       if (doc.is_npc_class()) {
         await this.actor.swapFrameImage(doc);
         await this.actor.updateTokenSize(doc);
