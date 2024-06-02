@@ -50,7 +50,7 @@
       },
       "template": {
         "title": "Place a Measured Template",
-        "content": "If the attack is an AoE attack, this buttpn will allow you to place a measured template. Scrollwheel rotates the template and left click confirms placement. Targets will be automatically selected when to template is placed."
+        "content": "If the attack is an AoE attack, this button will allow you to place a measured template. Scrollwheel rotates the template and left click confirms placement. Targets will be automatically selected when to template is placed."
       },
       "targeting": {
         "title": "Targets",
