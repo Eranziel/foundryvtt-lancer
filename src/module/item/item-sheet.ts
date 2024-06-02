@@ -1,34 +1,25 @@
 import type { LancerItemSheetData } from "../interfaces";
 import { LANCER } from "../config";
 import type { LancerItem, LancerItemType } from "./lancer-item";
+import { handleGenControls, handlePopoutTextEditor } from "../helpers/commons";
+import { handleCounterInteraction, handleInputPlusMinusButtons } from "../helpers/item";
 import {
-  HANDLER_activate_general_controls,
-  gentle_merge,
-  HANDLER_activate_popout_text_editor,
-  resolve_dotpath,
-} from "../helpers/commons";
-import { HANDLER_activate_counter_listeners, HANDLER_activate_plus_minus_buttons } from "../helpers/item";
-import {
-  HANDLER_activate_native_ref_dragging,
-  HANDLER_activate_ref_dragging,
-  HANDLER_activate_ref_drop_clearing,
-  HANDLER_activate_ref_drop_setting,
-  HANDLER_add_ref_to_list_on_drop,
-  HANDLER_activate_ref_clicking,
-  HANDLER_activate_uses_editor,
+  handleRefDragging,
+  handleRefSlotDropping,
+  handleDocListDropping,
+  click_evt_open_ref,
+  handleUsesInteraction,
+  handleLIDListDropping,
 } from "../helpers/refs";
-import { OpCtx, Counter, RegEntry } from "machine-mind";
-import {
-  HANDLER_activate_edit_bonus,
-  HANDLER_activate_item_context_menus,
-  HANDLER_activate_profile_context_menus,
-} from "../helpers/item";
-import { HANDLER_activate_tag_context_menus, HANDLER_activate_tag_dropping } from "../helpers/tags";
-import { CollapseHandler } from "../helpers/collapse";
-import { activate_action_editor } from "../apps/action-editor";
-import type { FoundryFlagData } from "../mm-util/foundry-reg";
-import { find_license_for } from "../mm-util/helpers";
-import { MMDragResolveCache } from "../helpers/dragdrop";
+import { handleContextMenus } from "../helpers/item";
+import { applyCollapseListeners, CollapseHandler, initializeCollapses } from "../helpers/collapse";
+import { ActionEditDialog } from "../apps/action-editor";
+import { find_license_for, get_pack_id } from "../util/doc";
+import { lookupOwnedDeployables } from "../util/lid";
+import { EntryType } from "../enums";
+import { LancerDEPLOYABLE } from "../actor/lancer-actor";
+import { BonusEditDialog } from "../apps/bonus-editor";
+import { OrgType } from "../enums";
 
 const lp = LANCER.log_prefix;
 
@@ -42,7 +33,7 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet<ItemShe
     if (this.item.is_mech_weapon()) {
       // @ts-ignore IDK if this even does anything
       // TODO Figure out if this even does anything
-      this.options.initial = `profile${this.item.system.selected_profile || 0}`;
+      this.options.initial = `profile${this.item.system.selected_profile_index}`;
     }
   }
 
@@ -82,14 +73,9 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet<ItemShe
    * @param data_getter      Reference to a function which can provide the sheet data
    * @param commit_func      Reference to a function which can commit/save data back to the document
    */
-  _activate_context_listeners(
-    html: JQuery,
-    // Retrieves the data that we will operate on
-    data_getter: () => Promise<LancerItemSheetData<T>> | LancerItemSheetData<T>,
-    commit_func: (data: LancerItemSheetData<T>) => void | Promise<void>
-  ) {
+  _activateContextListeners(html: JQuery) {
     // Enable custom context menu triggers. If the sheet is not editable, show only the "view" option.
-    HANDLER_activate_item_context_menus(html, data_getter, commit_func, !this.options.editable);
+    handleContextMenus(html, this.item, !this.options.editable);
   }
 
   /**
@@ -100,17 +86,22 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet<ItemShe
   activateListeners(html: JQuery) {
     super.activateListeners(html);
 
-    let getfunc = () => this.getDataLazy();
-    let commitfunc = (_: any) => this._commitCurrMM();
+    // Enable collapse triggers.
+    initializeCollapses(html);
+    applyCollapseListeners(html);
+
+    let getfunc = () => this.getData();
+    let commitfunc = (_: any) => {
+      ui.notifications?.error("DEPRECATED");
+    };
 
     // Make refs clickable
-    $(html).find(".ref.valid.clickable-ref:not(.profile-img)").on("click", HANDLER_activate_ref_clicking);
+    $(html).find(".ref.set.click-open").on("click", click_evt_open_ref);
 
     // Enable ref dragging
-    HANDLER_activate_ref_dragging(html);
-    HANDLER_activate_native_ref_dragging(html);
+    handleRefDragging(html);
 
-    this._activate_context_listeners(html, getfunc, commitfunc);
+    this._activateContextListeners(html);
 
     // Everything below here is only needed if the sheet is editable
     if (!this.options.editable) {
@@ -118,76 +109,42 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet<ItemShe
     }
 
     // Make +/- buttons work
-    HANDLER_activate_plus_minus_buttons(html, getfunc, () => this.submit({}));
+    handleInputPlusMinusButtons(html, this.item);
 
     // Make counter pips work
-    HANDLER_activate_counter_listeners(html, getfunc);
-
-    // Grab pre-existing ctx if available
-    let ctx = this.getCtx() || new OpCtx();
-    let resolver = new MMDragResolveCache(ctx);
+    handleCounterInteraction(html, this.item);
 
     // Enable hex use triggers.
-    HANDLER_activate_uses_editor(html, getfunc);
+    handleUsesInteraction(html, this.item);
 
     // Allow dragging items into lists
-    HANDLER_add_ref_to_list_on_drop(resolver, html, getfunc, commitfunc);
+    handleDocListDropping(html, this.item);
+    handleLIDListDropping(html, this.item);
 
     // Allow set things by drop. Mostly we use this for manufacturer/license dragging
-    HANDLER_activate_ref_drop_setting(resolver, html, null, null, getfunc, commitfunc); // Don't restrict what can be dropped past type, and don't take ownership or whatever
-    HANDLER_activate_ref_drop_clearing(html, getfunc, commitfunc);
+    handleRefSlotDropping(html, this.item, null); // Don't restrict what can be dropped past type, and don't take ownership or whatever
 
-    // Enable bonus editors
-    HANDLER_activate_edit_bonus(html, getfunc, commitfunc);
-
-    // Enable tag editing
-    HANDLER_activate_tag_context_menus(html, getfunc, commitfunc);
-
-    // Enable profile editing
-    HANDLER_activate_profile_context_menus(html, getfunc, commitfunc);
+    // Enable our subform editors editors
+    BonusEditDialog.handle(html, ".editable.bonus", this.item);
+    ActionEditDialog.handle(html, ".editable.action", this.item);
 
     // Enable popout editors
-    HANDLER_activate_popout_text_editor(html, getfunc, commitfunc);
+    handlePopoutTextEditor(html, this.item);
 
     // Enable general controls, so items can be deleted and such
-    HANDLER_activate_general_controls(html, getfunc, commitfunc);
-
-    // Enable tag dropping
-    HANDLER_activate_tag_dropping(resolver, html, getfunc, commitfunc);
-
-    // Enable action editors
-    activate_action_editor(html, getfunc, commitfunc);
+    handleGenControls(html, this.item);
   }
 
   /* -------------------------------------------- */
 
-  _propagateMMData(formData: any): any {
-    // Pushes relevant field data from the form to other appropriate locations,
-    // (presently there aren't any but uhhh could be i guess. Just here to mirror actor-sheet)
-    // Get the basics
-    let new_top: any = {
-      img: formData.img,
-      name: formData.name,
-    };
-
-    return new_top;
-  }
   /**
    * Implement the _updateObject method as required by the parent class spec
    * This defines how to update the subject of the form when the form is submitted
    * @private
    */
   async _updateObject(_event: Event | JQuery.Event, formData: any): Promise<any> {
-    // Fetch data, modify, and writeback
-    let ct = await this.getDataLazy();
-
-    // Automatically propagates chanages that should affect multiple things.
-    let new_top = this._propagateMMData(formData);
-
-    // No need for the complicated actor logic since no token weirdness to account for
-    gentle_merge(ct, formData);
-    mergeObject((ct.mm.Flags as FoundryFlagData<any>).top_level_data, new_top);
-    await this._commitCurrMM();
+    // Simple writeback
+    await this.item.update(formData);
   }
 
   /**
@@ -196,48 +153,39 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet<ItemShe
    */
   async getData(): Promise<LancerItemSheetData<T>> {
     const data = super.getData() as LancerItemSheetData<T>; // Not fully populated yet!
+    // @ts-expect-error v10
+    data.system = this.item.system; // Set our alias
+    data.collapse = {};
 
-    // Wait for preparations to complete
-    // @ts-ignore T doesn't narrow this.item.data
-    data.mm = await this.item.system.derived.mm_promise;
+    // Populate deployables depending on our context
+    data.deployables = {};
+    if (!this.item.pack && this.item.actor) {
+      // Use those owned in the world
+      data.deployables = lookupOwnedDeployables(this.item.actor);
+    } else {
+      // Use compendium. This is probably overkill but, who well
+      let deps =
+        (await game.packs.get(get_pack_id(EntryType.DEPLOYABLE))?.getDocuments({ type: EntryType.DEPLOYABLE })) ?? [];
+      // @ts-expect-error
+      for (let d of deps as LancerDEPLOYABLE) {
+        data.deployables[d.system.lid] = d;
+      }
+    }
 
     // Additionally we would like to find a matching license. Re-use ctx, try both a world and global reg, actor as well if it exists
     data.license = null;
     if (this.actor?.is_pilot() || this.actor?.is_mech()) {
-      data.license = await find_license_for(data.mm, this.actor!);
+      data.license = await find_license_for(this.item, this.actor!);
     } else {
-      data.license = await find_license_for(data.mm);
+      data.license = await find_license_for(this.item);
+    }
+
+    if (this.item.is_organization()) {
+      // console.log(OrgType);
+      data.org_types = OrgType;
     }
 
     console.log(`${lp} Rendering with following item ctx: `, data);
-    this._currData = data;
     return data;
-  }
-
-  // Cached getdata
-  private _currData: LancerItemSheetData<T> | null = null;
-  async getDataLazy(): Promise<LancerItemSheetData<T>> {
-    return this._currData ?? (await this.getData());
-  }
-
-  // Write back our currently cached _currData, then refresh this sheet
-  // Useful for when we want to do non form-based alterations
-  async _commitCurrMM() {
-    console.log("Committing");
-    let cd = this._currData;
-    this._currData = null;
-    (await cd?.mm.writeback()) ?? null;
-
-    // Compendium entries don't re-draw appropriately
-    if (this.item.compendium) {
-      this.render();
-    }
-  }
-
-  // Get the ctx that our actor + its items reside in. If an unowned item we'll just yield null
-  getCtx(): OpCtx | null {
-    // @ts-expect-error Should be fixed with v10 types
-    let ctx = this.item.system.derived.mm?.OpCtx;
-    return ctx ?? null;
   }
 }

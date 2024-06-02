@@ -1,15 +1,18 @@
 import { LANCER } from "../config";
 const lp = LANCER.log_prefix;
 import { LancerActorSheet } from "./lancer-actor-sheet";
-import { EntryType, Mech, PackedPilotData, Pilot } from "machine-mind";
 import type { HelperOptions } from "handlebars";
 import { buildCounterHeader, buildCounterHTML } from "../helpers/item";
-import { ref_commons, ref_params, resolve_ref_element, simple_mm_ref } from "../helpers/refs";
-import { resolve_dotpath } from "../helpers/commons";
-import { AnyMMActor, is_reg_mech, LancerActor } from "./lancer-actor";
-import { fetchPilotViaCache, fetchPilotViaShareCode, pilotCache } from "../compcon";
-import type { AnyMMItem, LancerItemType } from "../item/lancer-item";
+import { ref_params, resolve_ref_element, simple_ref_slot } from "../helpers/refs";
+import { inc_if, resolveDotpath } from "../helpers/commons";
+import { LancerActor, LancerMECH, LancerPILOT } from "./lancer-actor";
+import { fetchPilotViaCache, fetchPilotViaShareCode, pilotCache } from "../util/compcon";
+import { LancerFRAME, LancerItem, LancerItemType } from "../item/lancer-item";
 import { clicker_num_input } from "../helpers/actor";
+import { ResolvedDropData } from "../helpers/dragdrop";
+import { EntryType } from "../enums";
+import { PackedPilotData } from "../util/unpacking/packed-types";
+import { importCC } from "./import";
 
 const shareCodeMatcher = /^[A-Z0-9\d]{6}$/g;
 const COUNTER_MAX = 8;
@@ -49,40 +52,39 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
     if (!this.options.editable) return;
 
     if (this.actor.isOwner) {
+      let pilot = this.actor as LancerPILOT;
       // Item/Macroable Dragging
+
+      // Cloud id select
+      let cloudSelect = html.find('select[name="selectCloudId"]');
+      cloudSelect.on("change", evt => {
+        evt.stopPropagation();
+        pilot.update({ "system.cloud_id": (evt.target as HTMLSelectElement).value });
+      });
 
       // Cloud download
       let download = html.find('.cloud-control[data-action*="download"]');
-      let actor = this.actor;
-      // @ts-expect-error Should be fixed with v10 types
-      if (actor.is_pilot() && actor.system.derived.mm!.CloudID) {
+      if (pilot.system.cloud_id) {
         download.on("click", async ev => {
           ev.stopPropagation();
 
-          let self = await this.getDataLazy();
           // Fetch data to sync
           let raw_pilot_data = null;
-          if (self.rawID.match(shareCodeMatcher)) {
+          if (pilot.system.cloud_id.match(shareCodeMatcher)) {
             // pilot share codes
             ui.notifications!.info("Importing character from share code...");
-            console.log(`Attempting import with share code: ${self.rawID}`);
+            console.log(`Attempting import with share code: ${pilot.system.cloud_id}`);
             try {
-              raw_pilot_data = await fetchPilotViaShareCode(self.rawID);
+              raw_pilot_data = await fetchPilotViaShareCode(pilot.system.cloud_id);
             } catch (error) {
               ui.notifications!.error("Error importing from share code. Share code may need to be refreshed.");
-              console.error(`Failed import with share code ${self.rawID}, error:`, error);
+              console.error(`Failed import with share code ${pilot.system.cloud_id}, error:`, error);
               return;
             }
-          } else if (self.rawID) {
-            ui.notifications!.warn(
-              "Invalid share code format. Share codes must be exactly six alphanumeric characters."
-            );
-            console.warn(`Failed import with invalid share code format: ${self.rawID}`);
-            return;
-          } else if (self.vaultID != "") {
+          } else if (pilot.system.cloud_id) {
             // Vault ID from a logged-in Comp/Con account
             ui.notifications!.info("Importing character from COMP/CON account...");
-            const cachedPilot = self.pilotCache.find(p => p.cloudID == self.vaultID);
+            const cachedPilot = pilotCache().find(p => p.cloudID == pilot.system.cloud_id);
             if (cachedPilot != undefined) {
               try {
                 raw_pilot_data = await fetchPilotViaCache(cachedPilot);
@@ -90,34 +92,30 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
                 ui.notifications!.error(
                   "Failed to import from COMP/CON account. Try refreshing the page to reload pilot list."
                 );
-                console.error(`Failed to import vaultID ${self.vaultID} via pilot list, error:`, error);
+                console.error(`Failed to import vaultID ${pilot.system.cloud_id} via pilot list, error:`, error);
                 return;
               }
             } else {
               ui.notifications!.error(
                 "Failed to import from COMP/CON account. Try refreshing the page to reload pilot list"
               );
-              console.error(`Failed to find pilot in cache, vaultID: ${self.vaultID}`);
+              console.error(`Failed to find pilot in cache, vaultID: ${pilot.system.cloud_id}`);
               return;
             }
           } else {
             ui.notifications!.error(
               "Could not find character to import! No pilot selected via dropdown and no share code entered."
             );
-            console.error(`Failed to import pilot. vaultID: ${self.vaultID}, rawID: ${self.rawID}`);
             return;
           }
-          await actor.importCC(raw_pilot_data);
-          this._currData = null;
+          await importCC(this.actor as LancerPILOT, raw_pilot_data);
         });
       } else {
         download.addClass("disabled-cloud");
       }
 
       // JSON Import
-      if (actor.is_pilot()) {
-        html.find("#pilot-json-import").on("change", ev => this._onPilotJsonUpload(ev, actor));
-      }
+      html.find("#pilot-json-import").on("change", ev => this._onPilotJsonUpload(ev));
 
       // editing rawID clears vaultID
       // (other way happens automatically because we prioritise vaultID in commit)
@@ -132,9 +130,9 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
       let mechActivators = html.find(".activate-mech");
       mechActivators.on("click", async ev => {
         ev.stopPropagation();
-        let mech = await resolve_ref_element(ev.currentTarget);
+        let mech = (await resolve_ref_element(ev.currentTarget.parentElement!)) as LancerActor | null;
 
-        if (!mech || !is_reg_mech(mech)) return;
+        if (!mech || !mech.is_mech()) return;
 
         this.activateMech(mech);
       });
@@ -148,7 +146,7 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
     }
   }
 
-  _onPilotJsonUpload(ev: JQuery.ChangeEvent<HTMLElement, undefined, HTMLElement, HTMLElement>, actor: LancerActor) {
+  _onPilotJsonUpload(ev: JQuery.ChangeEvent<HTMLElement, undefined, HTMLElement, HTMLElement>) {
     let files = (ev.target as HTMLInputElement).files;
     let jsonFile: File | null = null;
     if (files) jsonFile = files[0];
@@ -158,7 +156,7 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
     const fr = new FileReader();
     fr.readAsBinaryString(jsonFile);
     fr.addEventListener("load", (ev: ProgressEvent) => {
-      this._onPilotJsonParsed((ev.target as FileReader).result as string, actor);
+      this._onPilotJsonParsed((ev.target as FileReader).result as string, this.actor);
     });
   }
 
@@ -172,53 +170,43 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
     console.log(`${lp} Starting import of ${pilotData.name}, Callsign ${pilotData.callsign}.`);
     console.log(`${lp} Parsed Pilot Data pack:`, pilotData);
 
-    await actor.importCC(pilotData);
+    await importCC(this.actor as LancerPILOT, pilotData);
     ui.notifications!.info(`Import of ${pilotData.name}, Callsign ${pilotData.callsign} complete.`);
     console.log(`${lp} Import of ${pilotData.name}, Callsign ${pilotData.callsign} complete.`);
     this.render();
   }
 
-  async activateMech(mech: Mech) {
-    // @ts-expect-error Should be fixed with v10 types
-    let this_mm = this.actor.system.derived.mm as Pilot;
+  activateMech(mech: LancerMECH) {
+    let pilot = this.actor as LancerPILOT;
     // Set active mech
-    this_mm.ActiveMechRef = mech.as_ref();
-    if (mech.Pilot?.RegistryID != mech.RegistryID) {
-      // Also set the mechs pilot if necessary
-      mech.Pilot = this_mm;
-      mech.writeback();
-    }
-
-    await this_mm.writeback();
+    pilot.update({ "system.active_mech": mech.uuid });
+    mech.update({ "system.pilot": pilot.uuid });
   }
 
   async deactivateMech() {
-    // @ts-expect-error Should be fixed with v10 types
-    let this_mm = this.actor.system.derived.mm as Pilot;
-
     // Unset active mech
-    this_mm.ActiveMechRef = null;
-
-    await this_mm.writeback();
+    await this.actor.update({
+      "system.active_mech": null,
+    });
   }
 
   async getData() {
     const data = await super.getData(); // Not fully populated yet!
+    const pilot = this.actor as LancerPILOT;
 
-    data.active_mech = await data.mm.ActiveMech();
     data.pilotCache = pilotCache();
 
     // use the select if and only if we have the pilot in our cache
-    let useSelect = data.mm.CloudID && data.pilotCache.find(p => p.cloudID == data.mm.CloudID);
+    let pilotInSelect = data.pilotCache.find(p => p.cloudID == pilot.system.cloud_id);
 
-    if (useSelect) {
+    if (pilotInSelect) {
       // if this is a vault id we know of
-      data.vaultID = data.mm.CloudID;
+      data.vaultID = pilot.system.cloud_id;
       data.rawID = "";
-    } else if (data.mm.CloudID && data.mm.CloudID.match(shareCodeMatcher)) {
+    } else if (pilot.system.cloud_id && pilot.system.cloud_id.match(shareCodeMatcher)) {
       // If this was a share code, show it in the input box so it can be edited
-      data.rawID = data.mm.CloudID;
       data.vaultID = "";
+      data.rawID = pilot.system.cloud_id;
     } else {
       data.rawID = "";
       data.vaultID = "";
@@ -228,14 +216,26 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
   }
 
   // Pilots can handle most stuff
-  can_root_drop_entry(item: AnyMMActor | AnyMMItem): boolean {
-    // Accept mechs, so as to change their actor
-    if (item.Type == EntryType.MECH) {
+  canRootDrop(item: ResolvedDropData): boolean {
+    // Accept mechs, so as to change their pilot
+    if (item.type == "Actor" && item.document.is_mech()) {
       return true;
     }
 
-    // Accept non pilot item
-    if (LANCER.pilot_items.includes(item.Type as LancerItemType)) {
+    // Accept pilot items
+    if (
+      item.type == "Item" &&
+      (item.document.is_core_bonus() ||
+        item.document.is_pilot_weapon() ||
+        item.document.is_pilot_armor() ||
+        item.document.is_pilot_gear() ||
+        item.document.is_license() ||
+        item.document.is_skill() ||
+        item.document.is_talent() ||
+        item.document.is_organization() ||
+        item.document.is_reserve() ||
+        item.document.is_bond())
+    ) {
       return true;
     }
 
@@ -243,74 +243,60 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
     return false;
   }
 
-  async on_root_drop(base_drop: AnyMMItem | AnyMMActor): Promise<void> {
-    let sheet_data = await this.getDataLazy();
-    let this_mm = sheet_data.mm;
+  async onRootDrop(base_drop: ResolvedDropData, event: JQuery.DropEvent, _dest: JQuery<HTMLElement>): Promise<void> {
+    if (!this.actor.is_pilot()) return; // Just for types really
+    let pilot = this.actor as LancerPILOT;
+    let loadout = pilot.system.loadout;
+    let oldBonds = pilot.items.filter(i => i.is_bond());
 
     // Take posession
-    let [drop, is_new] = await this.quick_own(base_drop);
+    let [drop, is_new] = await this.quickOwnDrop(base_drop);
 
     // Now, do sensible things with it
-    let loadout = this_mm.Loadout;
-    if (is_new && drop.Type === EntryType.PILOT_WEAPON) {
-      // If new weapon, try to equip to first empty slot
-      for (let i = 0; i < loadout.Weapons.length; i++) {
-        if (!loadout.Weapons[i]) {
-          loadout.Weapons[i] = drop;
-          break;
+    if (drop.type == "Item") {
+      // Handle all pilot item types
+      if (drop.document.is_pilot_weapon()) {
+        // If new weapon, try to equip to first empty slot / first post slot
+        for (let i = 0; i < loadout.weapons.length || i <= 2; i++) {
+          if (!loadout.weapons[i]) {
+            await pilot.update({
+              [`system.loadout.weapons.${i}`]: drop.document.id,
+            });
+            break;
+          }
+        }
+      } else if (drop.document.is_pilot_gear()) {
+        // If new gear, try to equip to first empty slot / first post slot
+        for (let i = 0; i < loadout.gear.length || i <= 3; i++) {
+          if (!loadout.gear[i]) {
+            await pilot.update({
+              [`system.loadout.gear.${i}`]: drop.document.id,
+            });
+            break;
+          }
+        }
+      } else if (drop.document.is_pilot_armor()) {
+        // If new armor, try to equip to first empty slot / first post slot
+        for (let i = 0; i < loadout.armor.length || i <= 1; i++) {
+          if (!loadout.armor[i]) {
+            await pilot.update({
+              [`system.loadout.armor.${i}`]: drop.document.id,
+            });
+            break;
+          }
+        }
+      } else if ((is_new && drop.document.is_talent()) || drop.document.is_skill()) {
+        // If new skill or talent, reset to level 1
+        await drop.document.update({ "system.rank": 1 });
+      } else if (is_new && drop.document.is_bond() && oldBonds.length > 0) {
+        // Delete all other bond items
+        for (let oldBond of oldBonds) {
+          await pilot._safeDeleteDescendant("Item", [oldBond]);
         }
       }
-    } else if (is_new && drop.Type === EntryType.PILOT_GEAR) {
-      // If new gear, try to equip to first empty slot
-      for (let i = 0; i < loadout.Gear.length; i++) {
-        if (!loadout.Gear[i]) {
-          loadout.Gear[i] = drop;
-          break;
-        }
-      }
-    } else if (is_new && drop.Type === EntryType.PILOT_ARMOR) {
-      // If new armor, try to equip to first empty slot
-      for (let i = 0; i < loadout.Armor.length; i++) {
-        if (!loadout.Armor[i]) {
-          loadout.Armor[i] = drop;
-          break;
-        }
-      }
-    } else if ((is_new && drop.Type === EntryType.SKILL) || drop.Type == EntryType.TALENT) {
-      // If new skill or talent, reset to level 1
-      drop.CurrentRank = 1;
-      await drop.writeback(); // Since we're editing the item, we gotta do this
-    } else if (drop.Type === EntryType.MECH) {
-      this.activateMech(drop);
+    } else if (drop.type == "Actor" && drop.document.is_mech()) {
+      this.activateMech(drop.document);
     }
-
-    // Writeback when done. Even if nothing explicitly changed, probably good to trigger a redraw
-    await this_mm.writeback();
-  }
-
-  async _commitCurrMM() {
-    if (this._currData) {
-      // we prioritise vault ids here, so when the user selects a vault id via dropdown
-      // it gets saved and any rawID doesn't, so the render clears the rawID
-      // i.e., editing vaultID clears rawID
-      // other way around happens in the rawID input listener
-      let assignSplit = (str: string) => {
-        if (str.match(/\/\//)) {
-          let [owner, id] = str.split("//");
-          this._currData!.mm.CloudOwnerID = owner;
-          this._currData!.mm.CloudID = id;
-        } else {
-          this._currData!.mm.CloudID = str;
-        }
-      };
-
-      if (this._currData.vaultID) {
-        assignSplit(this._currData.vaultID);
-      } else {
-        assignSplit(this._currData.rawID);
-      }
-    }
-    return super._commitCurrMM();
   }
 
   /* -------------------------------------------- */
@@ -324,46 +310,32 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
     if (!this.actor.is_pilot()) return;
     // Do some pre-processing
     // Do these only if the callsign updated
-    // @ts-expect-error Should be fixed with v10 types
-    if (this.actor.system.callsign !== formData["data.pilot.callsign"]) {
+    if (this.actor.system.callsign !== formData["callsign"]) {
       // Use the Actor's name for the pilot's callsign
       // formData["name"] = formData["data.callsign"];
       // Copy the pilot's callsign to the prototype token
-      formData["actor.token.name"] = formData["data.callsign"];
+      formData["prototypeToken.name"] = formData["callsign"];
     }
     // Then let parent handle
     return super._updateObject(event, formData);
   }
 }
 
-export function pilot_counters(pilot: Pilot, _helper: HelperOptions): string {
+export function pilotCounters(pilot: LancerPILOT, _options: HelperOptions): string {
   let counter_detail = "";
 
-  let counter_arr = pilot.PilotCounters;
-  let custom_path = "mm.CustomCounters";
+  let counter_arr = pilot.system.custom_counters;
 
   for (let i = 0; i < counter_arr.length; i++) {
     // Only allow deletion if the Pilot is the source
-    const counter = counter_arr[i].counter;
-    if (counter.Max != null) {
-      if (counter.Max <= COUNTER_MAX) {
-        counter_detail = counter_detail.concat(
-          buildCounterHTML(
-            counter,
-            `mm.PilotCounters.${i}.counter`,
-            `mm.PilotCounters.${i}.source`,
-            counter_arr[i].source === pilot
-          )
-        );
+    const counter = counter_arr[i];
+    if (counter.max != null) {
+      if (counter.max <= COUNTER_MAX) {
+        counter_detail = counter_detail.concat(buildCounterHTML(counter, `system.custom_counters.${i}`, true));
       } else {
         counter_detail = counter_detail.concat(
-          buildCounterHeader(
-            counter,
-            `mm.PilotCounters.${i}.counter`,
-            `mm.PilotCounters.${i}.source`,
-            counter_arr[i].source === pilot
-          ),
-          clicker_num_input(`mm.PilotCounters.${i}.counter.Value`, counter.Max, _helper),
+          buildCounterHeader(counter, `system.custom_counters.${i}`, true),
+          clicker_num_input(`system.custom_counters.${i}.value`, _options),
           "</div>"
         );
       }
@@ -372,9 +344,9 @@ export function pilot_counters(pilot: Pilot, _helper: HelperOptions): string {
 
   return `
   <div class="card clipped double">
-    <span class="lancer-header submajor" style="padding-right: 5px">
+    <span class="lancer-header lancer-primary submajor" style="padding-right: 5px">
       <span>COUNTERS</span>
-      <a class="gen-control fas fa-plus" data-action="append" data-path="${custom_path}" data-action-value="(struct)counter"></a>
+      <a class="gen-control fas fa-plus" data-action="append" data-path="system.custom_counters" data-action-value="(struct)counter"></a>
     </span>
     <div class="wraprow double">
       ${counter_detail}
@@ -382,69 +354,43 @@ export function pilot_counters(pilot: Pilot, _helper: HelperOptions): string {
   </div>`;
 }
 
-export function all_mech_preview(_helper: HelperOptions): string {
-  let this_mm: Pilot = _helper.data.root.mm;
-  let active_mech: Mech | null = _helper.data.root.active_mech;
-
-  let html = ``;
+export function allMechPreview(_options: HelperOptions): string {
+  let active_mech: LancerMECH | null = _options.data.root.system.active_mech?.value;
 
   /// I still feel like this is pretty inefficient... but it's probably the best we can do for now
-  game?.actors
-    ?.filter(
-      a =>
-        a.is_mech() &&
-        // @ts-expect-error Should be fixed with v10 types
-        !!a.system.pilot &&
-        // @ts-expect-error Should be fixed with v10 types
-        a.system.pilot.id === _helper.data.root.actor.id &&
-        a.id !== active_mech?.RegistryID
-    )
-    .map((m, k) => {
-      // @ts-expect-error Should be fixed with v10 types
-      let inactive_mech = m.system.derived.mm;
-
-      if (!inactive_mech) return;
-
-      if (!is_reg_mech(inactive_mech)) return;
-
-      let cd = ref_commons(inactive_mech);
-      if (!cd) return simple_mm_ref(EntryType.MECH, inactive_mech, "ERROR LOADING MECH", "", true);
-
-      html = html.concat(`
-      <div class="flexrow inactive-row">
-        <a class="activate-mech" ${ref_params(cd.ref, cd.uuid)}><i class="cci cci-activate"></i></a>
-        <div class="major valid ${cd.ref.type} ref" ${ref_params(cd.ref, cd.uuid)}>${m.name}</div>
-      </div>
-    `);
-    });
-
-  let cd = ref_commons(this_mm);
-  if (active_mech) return active_mech_preview(active_mech, "active_mech", _helper).concat(html);
-  else return html;
+  let owned_mechs = (game?.actors?.filter(
+    mech =>
+      mech.is_mech() &&
+      mech.system.pilot?.status == "resolved" &&
+      mech.system.pilot.value.id === _options.data.root.actor.id
+  ) ?? []) as unknown as LancerMECH[];
+  let as_html = [];
+  for (let m of owned_mechs) {
+    as_html.push(mech_preview(m, m == active_mech, _options));
+  }
+  return as_html.join("");
 }
 
-export function active_mech_preview(mech: Mech, path: string, _helper: HelperOptions): string {
-  var html = ``;
-
+export function mech_preview(mech: LancerMECH, active: boolean, _options: HelperOptions): string {
   // Generate commons
-  let cd = ref_commons(mech);
-  if (!cd) return simple_mm_ref(EntryType.MECH, mech, "No Active Mech", path, true);
+  let frame = mech.items.find(i => i.type === EntryType.FRAME) as LancerFRAME | undefined;
+  let mfr = frame?.system.manufacturer;
 
   // Making ourselves easy templates for the preview in case we want to switch in the future
   let preview_stats_arr = [
-    { title: "HP", icon: "mdi mdi-heart-outline", path: "CurrentHP" },
-    { title: "HEAT", icon: "cci cci-heat", path: "CurrentHeat" },
-    { title: "EVASION", icon: "cci cci-evasion", path: "Evasion" },
-    { title: "ARMOR", icon: "mdi mdi-shield-outline", path: "Armor" },
-    { title: "STRUCTURE", icon: "cci cci-structure", path: "CurrentStructure" },
-    { title: "STRESS", icon: "cci cci-reactor", path: "CurrentStress" },
-    { title: "E-DEF", icon: "cci cci-edef", path: "EDefense" },
-    { title: "SPEED", icon: "mdi mdi-arrow-right-bold-hexagon-outline", path: "Speed" },
-    { title: "SAVE", icon: "cci cci-save", path: "SaveTarget" },
-    { title: "SENSORS", icon: "cci cci-sensor", path: "SensorRange" },
+    { title: "HP", icon: "mdi mdi-heart-outline", path: "system.hp.value" },
+    { title: "HEAT", icon: "cci cci-heat", path: "system.heat.value" },
+    { title: "EVASION", icon: "cci cci-evasion", path: "system.evasion" },
+    { title: "ARMOR", icon: "mdi mdi-shield-outline", path: "system.armor" },
+    { title: "STRUCTURE", icon: "cci cci-structure", path: "system.structure.value" },
+    { title: "STRESS", icon: "cci cci-reactor", path: "system.stress.value" },
+    { title: "E-DEF", icon: "cci cci-edef", path: "system.edef" },
+    { title: "SPEED", icon: "mdi mdi-arrow-right-bold-hexagon-outline", path: "system.speed" },
+    { title: "SAVE", icon: "cci cci-save", path: "system.save" },
+    { title: "SENSORS", icon: "cci cci-sensor", path: "system.sensor_range" },
   ];
 
-  var stats_html = ``;
+  let stats_html = ``;
 
   for (let i = 0; i < preview_stats_arr.length; i++) {
     const builder = preview_stats_arr[i];
@@ -452,19 +398,21 @@ export function active_mech_preview(mech: Mech, path: string, _helper: HelperOpt
     <div class="mech-preview-stat-wrapper">
       <i class="${builder.icon} i--m i--dark"> </i>
       <span class="major">${builder.title}</span>
-      <span class="major">${resolve_dotpath(mech, builder.path)}</span>
+      <span class="major">${resolveDotpath(mech, builder.path, 0)}</span>
     </div>`);
   }
 
-  html = html.concat(`
-  <div class="mech-preview">
-    <div class="mech-preview-titlebar">
-    <a class="deactivate-mech"><i class="cci cci-activate"></i></a>
-      <span>ACTIVE MECH: ${mech.Name}</span>
-    </div>
-    <img class="valid ${cd.ref.type} ref" ${ref_params(cd.ref, cd.uuid)} src="${mech.Flags.top_level_data.img}"/>
-    ${stats_html}
-  </div>`);
+  let button = active
+    ? `<a class="deactivate-mech"><i class="cci cci-deactivate"></i></a>`
+    : `<a class="activate-mech"><i class="cci cci-activate"></i></a>`;
 
-  return html;
+  return `
+  <div class="mech-preview lancer-border-${active ? "primary" : "dark-gray"}">
+    <div class="mech-preview-titlebar ref set click-open ${active ? "active" : "inactive"}" ${ref_params(mech)}>
+      ${button}
+      <span>${mech.name}${inc_if(" // ACTIVE", active)}  --  ${mfr} ${frame?.name}</span>
+    </div>
+    <img src="${mech.img}"/>
+    ${stats_html}
+  </div>`;
 }

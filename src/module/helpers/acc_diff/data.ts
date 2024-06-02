@@ -1,4 +1,3 @@
-import type { TagInstance } from "machine-mind";
 import * as t from "io-ts";
 
 import type { LancerActor } from "../../actor/lancer-actor";
@@ -9,11 +8,8 @@ import { LancerItem } from "../../item/lancer-item";
 import Invisibility from "./invisibility";
 import Spotter from "./spotter";
 import { LancerToken } from "../../token";
-
-export function findEffect(actor: LancerActor, effect: string): ActiveEffect | null {
-  // @ts-expect-error Should be fixed with v10 types
-  return actor.effects.find(eff => eff.flags.core?.statusId?.endsWith(effect) ?? false) ?? null;
-}
+import { Tag } from "../../models/bits/tag";
+import { LancerActiveEffect } from "../../effects/lancer-active-effect";
 
 export enum Cover {
   None = 0,
@@ -67,7 +63,8 @@ export class AccDiffWeapon {
   }
 
   get impaired(): ActiveEffect | null {
-    return (this.#data?.lancerActor && findEffect(this.#data.lancerActor, "impaired")) ?? null;
+    // @ts-expect-error
+    return !!this.#data?.lancerActor?.system?.statuses.impaired;
   }
 
   total(cover: number) {
@@ -215,12 +212,12 @@ export class AccDiffTarget {
     }
   }
 
-  get usingLockOn(): null | ActiveEffect {
+  get usingLockOn(): null | boolean {
     return (this.consumeLockOn && this.lockOnAvailable) || null;
   }
 
-  get lockOnAvailable(): null | ActiveEffect {
-    return findEffect(this.target.actor!, "lockon");
+  get lockOnAvailable(): null | boolean {
+    return !!this.target.actor?.system.statuses.lockon;
   }
 
   get total() {
@@ -304,6 +301,7 @@ export class AccDiffData {
     };
   }
 
+  // Decode from a serialized object, optionally populating remaining data from an item
   static fromObject(obj: AccDiffDataSerialized, runtimeData?: LancerItem | LancerActor): AccDiffData {
     let ret = decode(obj, AccDiffData.codec);
     ret.hydrate(runtimeData);
@@ -332,10 +330,10 @@ export class AccDiffData {
 
   static fromParams(
     runtimeData?: LancerItem | LancerActor,
-    tags?: TagInstance[],
+    tags?: Tag[],
     title?: string,
     targets?: Token[],
-    starting?: [number, number]
+    starting?: [number, number] | number
   ): AccDiffData {
     let weapon = {
       accurate: false,
@@ -344,8 +342,15 @@ export class AccDiffData {
       plugins: {} as { [k: string]: any },
     };
 
+    // Fix number to array
+    if (!starting) {
+      starting = [0, 0];
+    } else if (typeof starting == "number") {
+      starting = starting >= 0 ? [starting, 0] : [0, -starting];
+    }
+
     for (let tag of tags || []) {
-      switch (tag.Tag.LID) {
+      switch (tag.lid) {
         case "tg_accurate":
           weapon.accurate = true;
           break;
@@ -360,8 +365,8 @@ export class AccDiffData {
 
     let base = {
       cover: Cover.None,
-      accuracy: starting ? starting[0] : 0,
-      difficulty: starting ? starting[1] : 0,
+      accuracy: starting[0],
+      difficulty: starting[1],
       plugins: {} as { [k: string]: any },
     };
 

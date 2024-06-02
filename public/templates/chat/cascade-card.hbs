@@ -1,0 +1,13 @@
+<div class="card clipped-top" style="margin: 0px;">
+  <div class="lancer-header lancer-primary struct-stress clipped-top">
+    {{! TODO: icon }}
+    <i class="cci cci-condition-jammed i--m"></i>
+    {{#if reroll_data}}<span class="spacer"></span>{{/if}}
+    <div class="flexcol">
+      <span>{{localize "lancer.chat-card.title.cascade"}}</span>
+    </div>
+    <span class="spacer"></span>
+  </div>
+  {{{lancer-dice-roll result.roll result.tt ""}}}
+  <div class="effect-text">{{{desc}}}</div>
+</div>

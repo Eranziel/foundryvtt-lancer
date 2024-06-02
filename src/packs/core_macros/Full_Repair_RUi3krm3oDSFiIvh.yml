@@ -1,0 +1,28 @@
+name: Full Repair
+type: script
+flags:
+  core:
+    sourceId: Macro.SaR8ruxHJ8xpF1Wj
+scope: global
+command: |-
+  if (canvas.tokens.controlled.length !== 1) {
+    ui.notifications.error("Select one and only one token");
+    return;
+  }
+  canvas.tokens.controlled[0].actor.beginFullRepairFlow();
+author: PN55ItGPHjs7sY8L
+img: systems/lancer/assets/icons/macro-icons/repair.svg
+_id: RUi3krm3oDSFiIvh
+ownership:
+  default: 0
+  PN55ItGPHjs7sY8L: 3
+folder: yxTxiLixDsbyThYC
+sort: 0
+_stats:
+  systemId: lancer
+  systemVersion: 2.0.0-rc1
+  coreVersion: "11.315"
+  createdTime: null
+  modifiedTime: 1710448441920
+  lastModifiedBy: ci5PqVPSs3DhZWTF
+_key: "!macros!RUi3krm3oDSFiIvh"

@@ -3,114 +3,103 @@
 /* ------------------------------------ */
 
 import type { HelperOptions } from "handlebars";
-import { MechWeapon, Reserve, ReserveType, TagInstance } from "machine-mind";
+import { TypeIcon } from "../config";
+import { npcReactionView, npcSystemTraitView, npcTechView, npcWeaponView } from "./npc";
+import { compactTagListHBS } from "./tags";
 import {
-  Action,
+  array_path_edit_changes,
+  defaultPlaceholder,
+  drilldownDocument,
+  effectBox,
+  extendHelper,
+  hex_array,
+  inc_if,
+  resolveDotpath,
+  resolveHelperDotpath,
+  spoofHelper,
+  spDisplay,
+  std_enum_select,
+  std_text_input,
+  std_x_of_y,
+  tippyContextMenu,
+  manufacturerStyle,
+  activationStyle,
+  activationIcon,
+} from "./commons";
+import { limitedUsesIndicator, ref_params, reserveUsesIndicator } from "./refs";
+import {
   ActivationType,
-  Bonus,
-  Counter,
-  Damage,
+  ChipIcons,
   DamageType,
-  Deployable,
   EntryType,
   FittingSize,
-  Frame,
-  funcs,
-  License,
-  Manufacturer,
-  Mech,
-  MechSystem,
-  MechWeaponProfile,
-  NpcClass,
-  NpcFeature,
-  NpcTemplate,
-  PilotArmor,
-  PilotGear,
-  PilotWeapon,
-  Range,
   RangeType,
-  RegEntry,
+  ReserveType,
   SystemType,
-  WeaponMod,
   WeaponSize,
   WeaponType,
-} from "machine-mind";
-import { BonusEditDialog } from "../apps/bonus-editor";
-import { TypeIcon } from "../config";
-import {
-  npc_reaction_effect_preview,
-  npc_system_effect_preview,
-  npc_tech_effect_preview,
-  npc_trait_effect_preview,
-  npc_weapon_effect_preview,
-} from "./npc";
-import { compact_tag_list } from "./tags";
-import {
-  array_path_edit,
-  effect_box,
-  ext_helper_hash,
-  format_dotpath,
-  IconFactory,
-  inc_if,
-  resolve_dotpath,
-  resolve_helper_dotpath,
-  sp_display,
-  std_checkbox,
-  std_enum_select,
-  std_string_input,
-  std_x_of_y,
-  tippy_context_menu,
-} from "./commons";
-import {
-  hex_array,
-  limited_uses_indicator,
-  ref_commons,
-  ref_params,
-  reserve_used_indicator,
-  resolve_ref_element,
-} from "./refs";
-import { ActivationOptions, ChipIcons } from "../enums";
-import type { LancerActorSheetData, LancerItemSheetData, LancerMacroData } from "../interfaces";
-import { encodeMacroData } from "../macros";
-import { is_limited, is_loading } from "machine-mind/dist/classes/mech/EquipUtil";
-import type { CollapseRegistry } from "./loadout";
-import { uuid4 } from "./collapse";
+} from "../enums";
+import { collapseButton, collapseParam, CollapseRegistry } from "./collapse";
 import { promptText } from "../apps/simple-prompt";
 import { CounterEditForm } from "../apps/counter-editor";
-import { FoundryFlagData } from "../mm-util/foundry-reg";
-import { is_reg_pilot } from "../actor/lancer-actor";
 import { frameToPath } from "../actor/retrograde-map";
-import { InventoryDialogData } from "../apps/inventory";
+import { Damage } from "../models/bits/damage";
+import { Range } from "../models/bits/range";
+import { BonusData } from "../models/bits/bonus";
+import {
+  LancerBOND,
+  LancerFRAME,
+  LancerItem,
+  LancerLICENSE,
+  LancerMECH_SYSTEM,
+  LancerMECH_WEAPON,
+  LancerNPC_CLASS,
+  LancerNPC_FEATURE,
+  LancerNPC_TEMPLATE,
+  LancerPILOT_ARMOR,
+  LancerPILOT_GEAR,
+  LancerPILOT_WEAPON,
+  LancerRESERVE,
+  LancerWEAPON_MOD,
+} from "../item/lancer-item";
+import { ActionData } from "../models/bits/action";
+import { LancerActor, LancerDEPLOYABLE } from "../actor/lancer-actor";
+import { CounterData } from "../models/bits/counter";
+import { slugify } from "../util/lid";
+import { TagEditForm } from "../apps/tag-editor";
+import { FullBoundedNum } from "../source-template";
 
 /**
  * Handlebars helper for weapon size selector
  */
-export function weapon_size_selector(path: string, helper: HelperOptions) {
-  if (!helper.hash["default"]) {
-    helper.hash["default"] = WeaponSize.Main;
+export function weaponSizeSelector(path: string, options: HelperOptions) {
+  options.hash["presorted"] = true;
+  if (!options.hash["default"]) {
+    options.hash["default"] = WeaponSize.Main;
   }
-  return std_enum_select(path, WeaponSize, helper);
+  return std_enum_select(path, WeaponSize, options);
 }
 
 /**
  * Handlebars helper for weapon type selector. First parameter is the existing selection.
  */
-export function weapon_type_selector(path: string, helper: HelperOptions) {
-  if (!helper.hash["default"]) {
-    helper.hash["default"] = WeaponType.Rifle;
+export function weaponTypeSelector(path: string, options: HelperOptions) {
+  if (!options.hash["default"]) {
+    options.hash["default"] = WeaponType.Rifle;
   }
-  return std_enum_select(path, WeaponType, helper);
+  return std_enum_select(path, WeaponType, options);
 }
 
 /**
  * Handlebars helper for range type/value editing
  * Supply with path to Range, and any args that you'd like passed down to the standard input editors, as well as
  */
-export function range_editor(path: string, options: HelperOptions) {
+export function rangeEditor(path: string, options: HelperOptions): string {
   // Lookup the range so we can draw icon.
-  let range: Range = resolve_helper_dotpath(options, path);
+  let range = resolveHelperDotpath<Range>(options, path);
+  if (!range) return "";
 
-  let icon_html = `<i class="cci ${range.Icon} i--m i--dark"></i>`;
+  let icon_html = `<i class="cci ${range.icon} i--m i--dark"></i>`;
   /* TODO: For a next iteration--would be really nifty to set it up to select images rather than text. 
     But that seems like a non-trivial task...
     <img class="med-icon" src="../systems/${game.system.id}/assets/icons/range.svg">
@@ -119,11 +108,11 @@ export function range_editor(path: string, options: HelperOptions) {
   */
 
   // Extend the options to not have to repeat lookup
-  let type_options = ext_helper_hash(options, { value: range.RangeType }, { default: RangeType.Range });
-  let range_type_selector = std_enum_select(path + ".RangeType", RangeType, type_options);
+  let type_options = extendHelper(options, { value: range.type }, { default: RangeType.Range });
+  let range_type_selector = std_enum_select(path + ".type", RangeType, type_options);
 
-  let value_options = ext_helper_hash(options, { value: range.Value });
-  let value_input = std_string_input(path + ".Value", value_options);
+  let value_options = extendHelper(options, { value: range.val });
+  let value_input = std_text_input(path + ".val", value_options);
 
   let delete_button = `<a class="gen-control" data-action="splice" data-path="${path}" style="margin: 4px;"><i class="fas fa-trash"></i></a>`;
 
@@ -140,17 +129,19 @@ export function range_editor(path: string, options: HelperOptions) {
  * Handlebars helper for weapon damage type/value editing.
  * Supply with path to Damage, and any args that you'd like passed down to the standard input editors
  */
-export function damage_editor(path: string, options: HelperOptions) {
+export function damageEditor(path: string, options: HelperOptions): string {
+  options.hash["presorted"] = true;
   // Lookup the damage so we can draw icon.
-  let damage: Damage = resolve_helper_dotpath(options, path);
+  let damage = resolveHelperDotpath<Damage>(options, path);
+  if (!damage) return "";
 
-  let icon_html = `<i class="cci ${damage.Icon} i--m"></i>`;
+  let icon_html = `<i class="cci ${damage.icon} i--m"></i>`;
 
-  let type_options = ext_helper_hash(options, { value: damage.DamageType }, { default: DamageType.Kinetic });
-  let damage_type_selector = std_enum_select(path + ".DamageType", DamageType, type_options);
+  let type_options = extendHelper(options, { value: damage.type }, { default: DamageType.Kinetic });
+  let damage_type_selector = std_enum_select(path + ".type", DamageType, type_options);
 
-  let value_options = ext_helper_hash(options, { value: damage.Value });
-  let value_input = std_string_input(path + ".Value", value_options);
+  let value_options = extendHelper(options, { value: damage.val });
+  let value_input = std_text_input(path + ".val", value_options);
 
   let delete_button = `<a class="gen-control" data-action="splice" data-path="${path}" style="margin: 4px;"><i class="fas fa-trash"></i></a>`;
 
@@ -168,14 +159,14 @@ export function damage_editor(path: string, options: HelperOptions) {
  * Supply with the array of Damage[], as well as:
  * - classes: Any additional classes to put on the div holding them
  */
-export function show_damage_array(damages: Damage[], options: HelperOptions): string {
+export function damageArrayView(damages: Damage[], options: HelperOptions): string {
   // Get the classes
   let classes = options.hash["classes"] || "";
   let results: string[] = [];
   for (let damage of damages) {
     let damage_item = `<span class="compact-damage">
-      <i class="cci ${damage.Icon} i--m i--dark damage--${damage.DamageType.toLowerCase()}"></i>
-      ${damage.Value}</span>`;
+      <i class="cci ${damage.icon} i--m i--dark damage--${damage.type.toLowerCase()}"></i>
+      ${damage.val}</span>`;
     results.push(damage_item);
   }
   return `<div class="flexrow no-grow compact-damage ${classes}">${results.join(" ")}</div>`;
@@ -184,14 +175,14 @@ export function show_damage_array(damages: Damage[], options: HelperOptions): st
 /**
  * Handlebars helper for showing range values
  */
-export function show_range_array(ranges: Range[], options: HelperOptions): string {
+export function rangeArrayView(ranges: Range[], options: HelperOptions): string {
   // Get the classes
   let classes = options.hash["classes"] || "";
 
   // Build out results
   let results: string[] = [];
   for (let range of ranges) {
-    let range_item = `<span class="compact-range"><i class="cci ${range.Icon} i--m i--dark"></i>${range.Value}</span>`;
+    let range_item = `<span class="compact-range"><i class="cci ${range.icon} i--m i--dark"></i>${range.val}</span>`;
     results.push(range_item);
   }
   return `<div class="flexrow no-grow compact-range ${classes}">${results.join(" ")}</div>`;
@@ -201,7 +192,7 @@ export function show_range_array(ranges: Range[], options: HelperOptions): strin
  * Handlebars helper for an NPC feature preview attack bonus stat
  * @param atk {number} Attack bonus to render
  */
-export function npc_attack_bonus_preview(atk: number, txt: string = "ATTACK") {
+export function npcAttackBonusView(atk: number, txt: string = "ATTACK") {
   return `<div class="compact-acc">
     <i style="margin-right: 5px;" class="cci cci-reticule i--m"></i>
     <span class="medium"> ${atk < 0 ? "-" : "+"}${atk} ${txt}</span>
@@ -212,7 +203,7 @@ export function npc_attack_bonus_preview(atk: number, txt: string = "ATTACK") {
  * Handlebars helper for an NPC feature preview accuracy stat
  * @param acc {number} Accuracy bonus to render
  */
-export function npc_accuracy_preview(acc: number) {
+export function npcAccuracyView(acc: number) {
   let icon: string;
   let text: string;
   if (acc > 0) {
@@ -234,131 +225,60 @@ export function npc_accuracy_preview(acc: number) {
 /**
  * Handlebars partial for weapon type selector
  */
-export function system_type_selector(path: string, options: HelperOptions) {
-  return std_enum_select(path, SystemType, ext_helper_hash(options, {}, { default: SystemType.System }));
+export function systemTypeSelector(path: string, options: HelperOptions) {
+  return std_enum_select(path, SystemType, extendHelper(options, {}, { default: SystemType.System }));
 }
 
 /**
  * Handlebars partial for limited uses remaining
  * TODO: make look more like compcon
  */
-export function uses_control(uses_path: string, max_uses: number, helper: HelperOptions) {
-  const curr_uses = resolve_helper_dotpath(helper, uses_path, 0);
+export function usesControl(uses_path: string, max_uses: number, options: HelperOptions): string {
+  const curr_uses = resolveHelperDotpath(options, uses_path, 0);
   return `
     <div class="card clipped">
-      <span class="lancer-header"> USES </span>
+      <span class="lancer-header lancer-primary"> USES </span>
       ${std_x_of_y(uses_path, curr_uses, max_uses)}
     </div>
     `;
 }
 
-export function npc_feature_preview(npc_feature_path: string, helper: HelperOptions) {
-  let feature: NpcFeature = resolve_helper_dotpath(helper, npc_feature_path);
+export function npcFeatureView(npc_feature_path: string, options: HelperOptions): string {
+  let feature = options.hash["item"] ?? resolveHelperDotpath<LancerNPC_FEATURE>(options, npc_feature_path);
+  if (!feature) return "";
 
-  switch (feature.FeatureType) {
+  switch (feature.system.type) {
     case "Reaction":
-      return npc_reaction_effect_preview(npc_feature_path, helper);
+      return npcReactionView(npc_feature_path, options);
     case "System":
-      return npc_system_effect_preview(npc_feature_path, helper);
     case "Trait":
-      return npc_trait_effect_preview(npc_feature_path, helper);
+      return npcSystemTraitView(npc_feature_path, options);
     case "Tech":
-      return npc_tech_effect_preview(npc_feature_path, helper);
+      return npcTechView(npc_feature_path, options);
     case "Weapon":
-      return npc_weapon_effect_preview(npc_feature_path, helper);
+      return npcWeaponView(npc_feature_path, options);
     default:
       return "bad feature";
   }
 }
 
 /** Expected arguments:
- * - bonus_path=<string path to the individual bonus item>,  ex: ="doc.mm.Bonuses.3"
- * - bonus=<bonus object to pre-populate with>
- */
-export function single_bonus_editor(bonus_path: string, bonus: Bonus, options: HelperOptions) {
-  // Our main two inputs
-  let id_input = std_string_input(`${bonus_path}.LID`, ext_helper_hash(options, { label: "ID" }));
-  let val_input = std_string_input(`${bonus_path}.Value`, ext_helper_hash(options, { label: "Value" }));
-
-  // Icon factory
-  let iconer = new IconFactory({
-    size: "m",
-  });
-
-  // Our type options
-  let damage_checkboxes: string[] = [];
-  for (let dt of Object.values(DamageType)) {
-    damage_checkboxes.push(
-      std_checkbox(
-        `${bonus_path}.DamageTypes.${dt}`,
-        ext_helper_hash(options, { label: iconer.r(Damage.icon_for(dt)) })
-      )
-    );
-  }
-
-  let range_checkboxes: string[] = [];
-  for (let rt of Object.values(RangeType)) {
-    range_checkboxes.push(
-      std_checkbox(`${bonus_path}.RangeTypes.${rt}`, ext_helper_hash(options, { label: iconer.r(Range.icon_for(rt)) }))
-    );
-  }
-
-  let type_checkboxes: string[] = [];
-  for (let wt of Object.values(WeaponType)) {
-    type_checkboxes.push(std_checkbox(`${bonus_path}.WeaponTypes.${wt}`, ext_helper_hash(options, { label: wt })));
-  }
-
-  let size_checkboxes: string[] = [];
-  for (let st of Object.values(WeaponSize)) {
-    size_checkboxes.push(std_checkbox(`${bonus_path}.WeaponSizes.${st}`, ext_helper_hash(options, { label: st })));
-  }
-
-  // Consolidate them into rows
-  return `
-    <div class="flexcol">
-      <span class="lancer-header">INFO</span>
-      ${id_input}
-      ${val_input}
-
-      <div class="wraprow double">
-        <div class="flexcol">
-          <span class="lancer-header">DAMAGE TYPES</span>
-          ${damage_checkboxes.join(" ")}
-        </div>
-        <div class="flexcol">
-          <span class="lancer-header">RANGES TYPES</span>
-          ${range_checkboxes.join(" ")}
-        </div>
-
-        <div class="flexcol">
-          <span class="lancer-header">WEAPON TYPES</span>
-          ${type_checkboxes.join(" ")}
-        </div>
-        <div class="flexcol">
-          <span class="lancer-header">WEAPON SIZES</span>
-          ${size_checkboxes.join(" ")}
-        </div>
-      </div>
-    </div>
-    `;
-}
-
-/** Expected arguments:
- * - bonuses_path=<string path to the bonuses array>,  ex: ="doc.mm.Bonuses"
+ * - bonuses_path=<string path to the bonuses array>,  ex: ="doc.system.bonuses"
  * - bonuses=<bonus array to pre-populate with>.
  * Displays a list of bonuses, with buttons to add/delete (if edit true)
  */
-export function bonuses_display(bonuses_path: string, bonuses_array: Bonus[], edit: boolean) {
+export function bonusesDisplay(bonuses_path: string, edit: boolean, options: HelperOptions) {
+  let bonuses_array = resolveHelperDotpath<BonusData[]>(options, bonuses_path, []);
   let items: string[] = [];
 
   // Render each bonus
   for (let i = 0; i < bonuses_array.length; i++) {
     let bonus = bonuses_array[i];
     let delete_button = `<a class="gen-control" data-action="splice" data-path="${bonuses_path}.${i}"><i class="fas fa-trash"></i></a>`;
-    let title = `<span class="grow">${bonus.Title}</span> ${inc_if(delete_button, edit)}`;
+    let title = `<span class="grow">${bonus.lid}</span> ${inc_if(delete_button, edit)}`; // Todo: maybe return to
     let boxed = `
       <div class="bonus ${inc_if("editable", edit)}" data-path="${bonuses_path}.${i}">
-        ${effect_box(title, "" + bonus.Detail)}
+        ${effectBox(title, bonus.val)}
       </div>
     `;
     items.push(boxed);
@@ -366,7 +286,7 @@ export function bonuses_display(bonuses_path: string, bonuses_array: Bonus[], ed
 
   return `
     <div class="card bonus-list">
-      <div class="lancer-header">
+      <div class="lancer-header lancer-bonus">
         <span class="left">// Bonuses</span>
         ${inc_if(
           `<a class="gen-control fas fa-plus" data-action="append" data-path="${bonuses_path}" data-action-value="(struct)bonus"></a>`,
@@ -377,49 +297,14 @@ export function bonuses_display(bonuses_path: string, bonuses_array: Bonus[], ed
     </div>
     `;
 }
-
-// Allows right clicking bonuses to edit them
-export function HANDLER_activate_edit_bonus<T>(
-  html: JQuery,
-  data_getter: () => Promise<T> | T,
-  commit_func: (data: T) => void | Promise<void>
-) {
-  let bonuses = html.find(".editable.bonus");
-  bonuses.on("click", async event => {
-    // Find the bonus
-    let bonus_path = event.currentTarget.dataset.path;
-    if (!bonus_path) return;
-    let data = await data_getter();
-    return BonusEditDialog.edit_bonus(data, bonus_path, commit_func).catch(e => console.error("Dialog failed", e));
-  });
-}
-
-// Allows counter editing
-export function HANDLER_activate_edit_counter<T>(html: JQuery, data_getter: () => Promise<T> | T) {
-  html.find(".counter-edit-button").on("click", async evt => {
-    // Find the counter
-    let path = evt.currentTarget.dataset.path;
-    let writeback_path = evt.currentTarget.dataset.writeback_path;
-    if (!path || !writeback_path) throw "Counters weren't set up right";
-
-    let data = await data_getter();
-
-    let writeback_obj: RegEntry<any> | null = resolve_dotpath(data, writeback_path);
-
-    if (!writeback_obj) throw "Writeback is broken";
-
-    return CounterEditForm.edit_counter(data, path, writeback_obj).catch(e => console.error("Dialog failed", e));
-  });
-}
-
 /** Expected arguments:
- * - bonus_path=<string path to the individual bonus item>,  ex: ="doc.mm.Bonuses.3"
+ * - bonus_path=<string path to the individual bonus item>,  ex: ="doc.system.actions.3"
  * - bonus=<bonus object to pre-populate with>
  */
-export function single_action_editor(path: string, options: HelperOptions) {
+export function singleActionEditor(path: string, options: HelperOptions) {
   // Make inputs for each important field
-  let id_input = std_string_input(`${path}.LID`, ext_helper_hash(options, { label: "ID" }));
-  let name_input = std_string_input(`${path}.Name`, ext_helper_hash(options, { label: "Name" }));
+  let id_input = std_text_input(`${path}.LID`, extendHelper(options, { label: "ID" }));
+  let name_input = std_text_input(`${path}.Name`, extendHelper(options, { label: "Name" }));
 
   // Consolidate them into rows
   return `<div class="card" style="align-content: flex-start">
@@ -429,39 +314,68 @@ export function single_action_editor(path: string, options: HelperOptions) {
     </div>`;
 }
 
+export function bondPower(bond_path: string, power_index: number, options: HelperOptions): string {
+  let bond = resolveHelperDotpath<LancerBOND>(options, bond_path);
+  let power = bond?.system.powers[power_index];
+  if (!bond || !power) return "";
+  let body = `<span class="desc-text">${power.description}</span>`;
+  return `
+    <div class="card clipped bond-power" data-uuid="${bond.uuid}" data-power-index="${power_index}">
+      <div class="lancer-header lancer-primary medium clipped-top">
+        <i class="cci cci-trait i--m"></i>
+        <a class="bond-power-flow"><i class="mdi mdi-message"></i></a>
+        <span>${power.name}</span>
+        ${power.veteran ? `<i class="mdi mdi-alpha-v-box i--sm"></i>` : ``}
+        ${power.master ? `<i class="mdi mdi-alpha-m-box i--sm"></i>` : ``}
+      </div>
+      ${
+        power.uses
+          ? `<div class="flexrow">
+            ${body}
+            ${
+              power.uses && power.uses.max
+                ? bondPowerUsesIndicator(bond, power_index, `${bond_path}.system.powers.${power_index}`)
+                : ""
+            }
+          </div>`
+          : `${body}`
+      }
+    </div>
+  `;
+}
+
 // Helper for showing a piece of armor, or a slot to hold it (if path is provided)
-export function pilot_armor_slot(armor_path: string, helper: HelperOptions): string {
+export function pilotArmorSlot(armor_path: string, options: HelperOptions): string {
   // Fetch the item
-  let armor_: PilotArmor | null = resolve_helper_dotpath(helper, armor_path);
+  let armor: LancerPILOT_ARMOR | null = resolveHelperDotpath(options, armor_path);
 
   // Generate commons
-  let cd = ref_commons(armor_);
-
-  if (!cd) {
+  if (!armor) {
     // Make an empty ref. Note that it still has path stuff if we are going to be dropping things here
     return `<div class="${EntryType.PILOT_ARMOR} ref drop-settable card" 
                         data-path="${armor_path}" 
-                        data-type="${EntryType.PILOT_ARMOR}">
+                        data-accept-types="${EntryType.PILOT_ARMOR}">
           <img class="ref-icon" src="${TypeIcon(EntryType.PILOT_ARMOR)}"></img>
           <span class="major">Equip armor</span>
       </div>`;
   }
 
-  let armor = armor_!;
-
   // Need to look in bonuses to find what we need
-  let armor_val = armor.Bonuses.find(b => b.LID == "pilot_armor")?.Value ?? "0";
-  let speed_val = armor.Bonuses.find(b => b.LID == "pilot_speed")?.Value ?? "0";
-  let edef_val = armor.Bonuses.find(b => b.LID == "pilot_edef")?.Value ?? "0";
-  let eva_val = armor.Bonuses.find(b => b.LID == "pilot_evasion")?.Value ?? "0";
-  let hp_val = armor.Bonuses.find(b => b.LID == "pilot_hp")?.Value ?? "0";
+  let bonuses = armor.system.bonuses;
+  let armor_val = bonuses.find(b => b.lid == "pilot_armor")?.val ?? "0";
+  let speed_val = bonuses.find(b => b.lid == "pilot_speed")?.val ?? "0";
+  let edef_val = bonuses.find(b => b.lid == "pilot_edef")?.val ?? "0";
+  let eva_val = bonuses.find(b => b.lid == "pilot_evasion")?.val ?? "0";
+  let hp_val = bonuses.find(b => b.lid == "pilot_hp")?.val ?? "0";
 
-  return `<div class="valid ${cd.ref.type} ref drop-settable card clipped pilot-armor-compact item" 
-                ${ref_params(cd.ref, armor_path)} >
-            <div class="lancer-header">
+  return `<div class="set ref drop-settable card clipped-top pilot-armor-compact item lancer-border-primary" 
+                ${ref_params(armor, armor_path)} 
+                data-accept-types="${EntryType.PILOT_ARMOR}"
+                >
+            <div class="lancer-header lancer-primary">
               <i class="mdi mdi-shield-outline i--m i--light"> </i>
-              <span class="minor">${armor!.Name}</span>
-              <a class="lancer-context-menu" data-context-menu="${armor.Type}" data-path="${armor_path}"">
+              <span class="minor">${armor.name}</span>
+              <a class="lancer-context-menu" data-path="${armor_path}"">
                 <i class="fas fa-ellipsis-v"></i>
               </a>
             </div>
@@ -488,58 +402,61 @@ export function pilot_armor_slot(armor_path: string, helper: HelperOptions): str
               </div>
             </div>
             <div class="effect-text" style=" padding: 5px">
-              ${armor.Description}
+              ${armor.system.description}
             </div>
-            ${compact_tag_list(armor_path + ".Tags", armor.Tags, false)}
+            ${compactTagListHBS(armor_path + ".system.tags", options)}
           </div>`;
 }
 
 // Helper for showing a pilot weapon, or a slot to hold it (if path is provided)
-export function pilot_weapon_refview(weapon_path: string, helper: HelperOptions): string {
+export function pilotWeaponRefview(weapon_path: string, options: HelperOptions): string {
   // Fetch the item
-  let weapon_: PilotWeapon | null = resolve_helper_dotpath(helper, weapon_path);
+  let weapon: LancerPILOT_WEAPON | null = resolveHelperDotpath(options, weapon_path);
 
   // Generate commons
-  let cd = ref_commons(weapon_);
-
-  if (!cd) {
+  if (!weapon) {
     // Make an empty ref. Note that it still has path stuff if we are going to be dropping things here
     return `<div class="${EntryType.PILOT_WEAPON} ref drop-settable card flexrow" 
                         data-path="${weapon_path}" 
-                        data-type="${EntryType.PILOT_WEAPON}">
+                        data-accept-types="${EntryType.PILOT_WEAPON}">
           <img class="ref-icon" src="${TypeIcon(EntryType.PILOT_WEAPON)}"></img>
           <span class="major">Equip weapon</span>
       </div>`;
   }
 
-  let weapon = weapon_!;
-
   let loading = "";
   // Generate loading segment as needed
-  if (is_loading(weapon)) loading = loading_indicator(weapon.Loaded, weapon_path);
+  if (weapon.system.tags.some(t => t.is_loading)) {
+    loading = loadingIndicator(weapon.system.loaded, weapon_path);
+  }
   // Generate limited segment as needed
-  let limited = is_limited(weapon) ? limited_uses_indicator(weapon, weapon_path) : "";
+  let limited = "";
+  if (weapon.system.tags.some(t => t.is_limited)) {
+    limitedUsesIndicator(weapon, weapon_path);
+  }
 
-  return `<div class="valid ${
+  return `<div class="set ${
     EntryType.PILOT_WEAPON
-  } ref drop-settable card clipped pilot-weapon-compact item macroable"
-                ${ref_params(cd.ref, weapon_path)} >
-    <div class="lancer-header">
+  } ref drop-settable card clipped-top pilot-weapon-compact item lancer-border-weapon"
+    ${ref_params(weapon, weapon_path)} 
+    data-accept-types="${EntryType.PILOT_WEAPON}"
+  >
+    <div class="lancer-header lancer-weapon">
       <i class="cci cci-weapon i--m i--light"> </i>
-      <span class="minor">${weapon.Name}</span>
-              <a class="lancer-context-menu" data-context-menu="${weapon.Type}" data-path="${weapon_path}"">
+      <span class="minor">${weapon.name}</span>
+              <a class="lancer-context-menu" data-path="${weapon_path}"">
                 <i class="fas fa-ellipsis-v"></i>
               </a>
     </div>
     <div class="flexcol">
       <div class="flexrow">
-        <a class="flexrow roll-attack" style="max-width: min-content;">
+        <a class="flexrow roll-attack lancer-button" style="max-width: min-content;">
           <i class="fas fa-dice-d20 i--sm i--dark"></i>
           
         </a>
-        ${show_range_array(weapon.Range, helper)}
+        ${rangeArrayView(weapon.system.range, options)}
         <hr class="vsep">
-        ${show_damage_array(weapon.Damage, helper)}
+        ${damageArrayView(weapon.system.damage, options)}
         
         ${inc_if(`<hr class="vsep"><div class="uses-wrapper">`, loading || limited)}
         <!-- Loading toggle, if we are loading-->
@@ -549,81 +466,81 @@ export function pilot_weapon_refview(weapon_path: string, helper: HelperOptions)
         ${inc_if(`</div>`, loading || limited)}
       </div>
 
-      ${compact_tag_list(weapon_path + ".Tags", weapon.Tags, false)}
+      ${compactTagListHBS(weapon_path + ".system.tags", options)}
     </div>
   </div>`;
 }
 
 // Helper for showing a pilot gear, or a slot to hold it (if path is provided)
-export function pilot_gear_refview(gear_path: string, helper: HelperOptions): string {
+export function pilotGearRefview(gear_path: string, options: HelperOptions): string {
   // Fetch the item
-  let gear_: PilotGear | null = resolve_dotpath(helper.data?.root, gear_path);
+  let gear = resolveDotpath(options.data?.root, gear_path) as LancerPILOT_GEAR | null;
 
-  // Generate commons
-  let cd = ref_commons(gear_);
-
-  if (!cd) {
+  if (!gear) {
     // Make an empty ref. Note that it still has path stuff if we are going to be dropping things here
     return `<div class="${EntryType.PILOT_GEAR} ref drop-settable card flexrow" 
                         data-path="${gear_path}" 
-                        data-type="${EntryType.PILOT_GEAR}">
+                        data-accept-types="${EntryType.PILOT_GEAR}">
           <img class="ref-icon" src="${TypeIcon(EntryType.PILOT_GEAR)}"></img>
           <span class="major">Equip gear</span>
       </div>`;
   }
 
-  let gear = gear_!;
-
   // Conditionally show uses
   let uses = "";
-  let limited = funcs.limited_max(gear);
-  if (limited) {
-    uses = limited_uses_indicator(gear, gear_path);
+  if (gear.getLimitedBase()) {
+    uses = limitedUsesIndicator(gear, gear_path);
   }
 
-  return `<div class="valid ${EntryType.PILOT_GEAR} ref drop-settable card clipped macroable item"
-                ${ref_params(cd.ref, gear_path)} >
-    <div class="lancer-header">
+  return `<div class="set ${EntryType.PILOT_GEAR} ref drop-settable card clipped-top item lancer-border-system"
+    ${ref_params(gear, gear_path)} 
+    data-accept-types="${EntryType.PILOT_GEAR}"
+  >
+    <div class="lancer-header lancer-system">
       <i class="cci cci-generic-item i--m"> </i>
-      <a class="gear-macro macroable"><i class="mdi mdi-message"></i></a>
-      <span class="minor">${gear.Name}</span>
-      <a class="lancer-context-menu" data-context-menu="${gear.Type}" data-path="${gear_path}"">
+      <a class="chat-flow-button"><i class="mdi mdi-message"></i></a>
+      <span class="minor">${gear.name!}</span>
+      <a class="lancer-context-menu" data-path="${gear_path}"">
         <i class="fas fa-ellipsis-v"></i>
       </a>
     </div>
     <div class="flexcol">
-      <div class="uses-wrapper">
+      <div class="flexrow">
+        <div class="effect-text" style=" padding: 5px">
+          ${gear.system.description}
+        </div>
         ${uses}
       </div>
-
-      <div class="effect-text" style=" padding: 5px">
-        ${gear.Description}
-      </div>
-
-      ${compact_tag_list(gear_path + ".Tags", gear.Tags, false)}
+      ${compactTagListHBS(gear_path + ".system.tags", options)}
     </div>
   </div>`;
 }
 
+export function bondPowerUsesIndicator(item: LancerBOND, power_index: number, path: string): string {
+  const power = item.system.powers[power_index];
+  if (!power.uses) return "";
+  const hexes = hex_array(power.uses.value, power.uses.max, path, "power-uses-hex");
+  return `<div class="clipped card limited-card">
+    <div class="flexcol"><span>USES</span><div>${hexes.join("")}</div></div>
+  </div>`;
+}
+
 // Helper for showing a reserve, or a slot to hold it (if path is provided)
-export function reserve_refview(reserve_path: string, helper: HelperOptions): string {
+export function reserveRefView(reserve_path: string, options: HelperOptions): string {
   // Fetch the item
-  let reserve_: Reserve | null = resolve_dotpath(helper.data?.root, reserve_path);
+  let reserve = resolveHelperDotpath(options, reserve_path) as LancerRESERVE | null;
 
   // Generate commons
-  let cd = ref_commons(reserve_);
-
-  if (!cd) {
+  if (!reserve) {
     // Make an empty ref. Note that it still has path stuff if we are going to be dropping things here
     return `<div class="${EntryType.RESERVE} ref drop-settable card flexrow"
                         data-path="${reserve_path}"
-                        data-type="${EntryType.RESERVE}">
+                        data-accept-types="${EntryType.RESERVE}">
           <img class="ref-icon" src="${TypeIcon(EntryType.RESERVE)}"></img>
           <span class="major">Equip reserve</span>
       </div>`;
   }
 
-  let reserve = reserve_!;
   let icon = "";
   const resTypes = [
     ReserveType.Mech,
@@ -634,11 +551,11 @@ export function reserve_refview(reserve_path: string, helper: HelperOptions): st
     "Resource", // machine-mind bug? Reserves from Comp/Con are Resource instead of Resources
     "Bonus",
   ];
-  let resType = resTypes.includes(reserve.ReserveType)
-    ? reserve.ReserveType
-    : resTypes.includes(reserve.ResourceLabel)
-    ? reserve.ResourceLabel
-    : reserve.ReserveType;
+  let resType = resTypes.includes(reserve.system.type)
+    ? reserve.system.type
+    : resTypes.includes(reserve.system.label)
+    ? reserve.system.label
+    : reserve.system.type;
   switch (resType) {
     case "Bonus": // missing?
       icon = "cci cci-accuracy";
@@ -664,24 +581,24 @@ export function reserve_refview(reserve_path: string, helper: HelperOptions): st
       break;
   }
   let uses = "";
-  if (reserve.Consumable) {
-    uses = reserve_used_indicator(reserve, reserve_path);
+  if (reserve.system.consumable) {
+    uses = reserveUsesIndicator(`${reserve_path}.system.used`, options);
   }
 
-  return `<div class="valid ${EntryType.RESERVE} ref drop-settable card clipped macroable item"
-                ${ref_params(cd.ref, reserve_path)} >
-    <div class="lancer-header">
+  return `<div class="set ${EntryType.RESERVE} ref drop-settable card clipped-top item lancer-border-trait"
+                ${ref_params(reserve, reserve_path)} >
+    <div class="lancer-header lancer-trait">
       <i class="${icon} i--m"> </i>
-      <a class="reserve-macro macroable"><i class="mdi mdi-message"></i></a>
-      <span class="minor">${reserve.Name}</span>
-      <a class="lancer-context-menu" data-context-menu="${reserve.Type}" data-path="${reserve_path}"">
+      <a class="chat-flow-button"><i class="mdi mdi-message"></i></a>
+      <span class="minor">${reserve.name}</span>
+      <a class="lancer-context-menu" data-path="${reserve_path}"">
         <i class="fas fa-ellipsis-v"></i>
       </a>
     </div>
     <div class="flexcol">
       <div class="flexrow">
         <div class="effect-text" style=" padding: 5px">
-          ${reserve.Description}
+          ${reserve.system.description}
         </div>
         ${uses}
       </div>
@@ -691,130 +608,110 @@ export function reserve_refview(reserve_path: string, helper: HelperOptions): st
 
 /**
  * Handlebars helper for a mech weapon preview card. Doubles as a slot. Mech path needed for bonuses
+ * SPECIFICALLY for loadout - expects things to be slot based
  */
-export function mech_weapon_refview(
+export function mechLoadoutWeaponSlot(
   weapon_path: string,
-  mech_path: string | "",
-  options: HelperOptions,
-  registry?: CollapseRegistry,
-  size?: FittingSize
+  mod_path: string,
+  size: FittingSize, // Needed if slot is empty
+  options: HelperOptions
 ): string {
   // Fetch the item(s)
-  let weapon_: MechWeapon | null = resolve_helper_dotpath(options, weapon_path);
-  let mech_: Mech | null = resolve_helper_dotpath(options, mech_path);
-  let mod_path = weapon_path.substr(0, weapon_path.lastIndexOf(".")) + ".Mod";
-  let mod: WeaponMod | null = resolve_helper_dotpath(options, mod_path);
-
-  // Generate commons
-  let cd = ref_commons(weapon_);
-
-  if (!cd) {
+  let weapon: LancerMECH_WEAPON | null = resolveHelperDotpath(options, weapon_path);
+  if (!weapon) {
     // Make an empty ref. Note that it still has path stuff if we are going to be dropping things here
     return `
-      <div class="${EntryType.MECH_WEAPON} ref drop-settable card flexrow" 
+      <div class="${EntryType.MECH_WEAPON} ref slot drop-settable card flexrow" 
            data-path="${weapon_path}" 
-           data-type="${EntryType.MECH_WEAPON}">
+           data-accept-types="${EntryType.MECH_WEAPON}">
         <img class="ref-icon" src="${TypeIcon(EntryType.MECH_WEAPON)}"></img>
         <span class="major">Insert ${size ? size : "any"} weapon</span>
       </div>`;
-  }
-
-  let mod_text: string = "";
-  let cd_mod = ref_commons(mod);
-  if (cd_mod && mod) {
-    mod_text = weapon_mod_ref(mod_path, weapon_path, options);
   } else {
-    // Make a refbox, hidden
-    mod_text = `
-    <div class="${EntryType.WEAPON_MOD} ref drop-settable card flexrow"
-        data-path="${mod_path}"
-        data-type="${EntryType.WEAPON_MOD}">
-      <i class="cci cci-weaponmod i--m i--light"> </i>
-      <span>No Mod Installed</span>
-    </div>`;
+    return mechWeaponDisplay(weapon_path, mod_path, options);
   }
+}
 
-  // Assert not null
-  let weapon = weapon_!;
+export function mechWeaponDisplay(weapon_path: string, mod_path: string | null, options: HelperOptions): string {
+  let actor: LancerActor | null = resolveHelperDotpath(options, "actor");
+  let weapon = resolveHelperDotpath<LancerMECH_WEAPON>(options, weapon_path);
+  let mod_text = mod_path ? weaponModView(mod_path, weapon_path, options) : "";
+  let collapse = resolveHelperDotpath<CollapseRegistry>(options, "collapse");
 
-  let collapseID;
-  if (registry != null) {
-    // On sheet, enable collapse.
-    registry[weapon.LID] == null && (registry[weapon.LID] = 0);
-
-    let collapseNumCheck = ++registry[weapon.LID];
-    collapseID = `${weapon.LID}_${collapseNumCheck}`;
-  }
+  if (!weapon) return "";
 
   // Do we need a profile selector?
   let profiles = "";
-  if (weapon.Profiles.length > 1) {
+  if (weapon.system.profiles.length > 1) {
     profiles = `<div class="flexrow weapon-profile-wrapper">`;
-    for (let i = 0; i < weapon.Profiles.length; i++) {
-      let p = weapon.Profiles[i];
-      profiles += `<a class="gen-control weapon-profile ${i === weapon.SelectedProfileIndex ? "selected-profile" : ""}"
-data-action="set" data-action-value="(int)${i}" data-path="${weapon_path}.SelectedProfileIndex" data-commit-item="${weapon_path}">
-<span class="minor">${p.Name}</span>
+    for (let i = 0; i < weapon.system.profiles.length; i++) {
+      let p = weapon.system.profiles[i];
+      profiles += `<a class="gen-control weapon-profile ${
+        i === weapon.system.selected_profile_index ? "selected-profile" : ""
+      }"
+data-action="set" data-action-value="(int)${i}" data-path="${weapon_path}.system.selected_profile_index">
+<span class="minor">${p.name}</span>
 </a>`;
     }
     profiles += `</div>`;
   }
 
-  let sp = sp_display(weapon.SP ? weapon.SP : 0);
+  let sp = spDisplay(weapon.system.sp ?? 0);
 
   // What profile are we using?
-  let profile = weapon.SelectedProfile;
-  let profile_path = `${weapon_path}.Profiles.${weapon.SelectedProfileIndex}`;
-
-  // Augment ranges
-  let ranges = profile.BaseRange;
-  if (mech_) {
-    ranges = Range.calc_range_with_bonuses(weapon, profile, mech_, mod ?? undefined);
-  }
-
-  // Augment tags
-  let tags = profile.Tags;
-  if (mod) {
-    tags = funcs.merge_tags(tags, mod.AddedTags);
-  }
+  let profile = weapon.system.active_profile;
+  let profile_path = `${weapon_path}.system.profiles.${weapon.system.selected_profile_index}`;
 
   // Generate loading segment as needed
   let loading = "";
-  if (funcs.is_loading(weapon)) loading = loading_indicator(weapon.Loaded, weapon_path);
+  if (weapon.system.all_tags.some(t => t.is_loading)) {
+    loading = loadingIndicator(weapon.system.loaded, weapon_path);
+  }
 
   // Generate effects
-  let effect = profile.Effect ? effect_box("Effect", profile.Effect) : "";
-  let on_attack = profile.OnAttack ? effect_box("On Attack", profile.OnAttack) : "";
-  let on_hit = profile.OnHit ? effect_box("On Hit", profile.OnHit) : "";
-  let on_crit = profile.OnCrit ? effect_box("On Crit", profile.OnCrit) : "";
+  let effect = profile.effect ? effectBox("Effect", profile.effect) : "";
+  let on_attack = profile.on_attack ? effectBox("On Attack", profile.on_attack) : "";
+  let on_hit = profile.on_hit ? effectBox("On Hit", profile.on_hit) : "";
+  let on_crit = profile.on_crit ? effectBox("On Crit", profile.on_crit) : "";
 
-  let limited = is_limited(weapon) ? limited_uses_indicator(weapon, weapon_path) : "";
+  // Generate actions
+  let actions = weapon.system.actions.length > 0 ? buildActionArrayHTML(weapon, `system.actions`) : "";
+  actions +=
+    profile.actions.length > 0
+      ? buildActionArrayHTML(weapon, `system.profiles.${weapon.system.selected_profile_index}.actions`)
+      : "";
+
+  let limited = "";
+  if (weapon.isLimited()) {
+    limited = limitedUsesIndicator(weapon, weapon_path);
+  }
 
   return `
   <div class="mech-weapon-wrapper${mod_text ? "-modded" : ""}">
-    <div class="valid ${EntryType.MECH_WEAPON} 
-    ref drop-settable flexcol lancer-weapon-container macroable item"
-                  ${ref_params(cd.ref, weapon_path)}
+    <div class="ref set drop-settable ${EntryType.MECH_WEAPON} flexcol item"
+                  ${ref_params(weapon, weapon_path)}
+                  data-accept-types="${EntryType.MECH_WEAPON}"
                   style="max-height: fit-content;">
-      <div class="lancer-header ${weapon.Destroyed ? "destroyed" : ""}">
-        <i class="${weapon.Destroyed ? "mdi mdi-cog" : "cci cci-weapon i--m i--light"}"> </i>
-        <span class="minor" ${mech_ ? `data-collapse-store="${mech_.RegistryID}"` : ""}" >
-          ${weapon.Name} // ${weapon.Size.toUpperCase()} ${weapon.SelectedProfile.WepType.toUpperCase()}
+      <div class="lancer-header lancer-weapon ${weapon.system.destroyed ? "destroyed" : ""}">
+        <i class="${weapon.system.destroyed ? "mdi mdi-cog" : "cci cci-weapon i--m i--light"}"> </i>
+        <a class="chat-flow-button"><i class="mdi mdi-message"></i></a>
+        <span class="minor" >
+          ${weapon.name} // ${weapon.system.size.toUpperCase()} ${profile.type.toUpperCase()}
         </span>
-        <i class="mdi mdi-unfold-less-horizontal collapse-trigger collapse-icon" data-collapse-id="${collapseID}"> </i>
-        <a class="lancer-context-menu" data-context-menu="${EntryType.MECH_WEAPON}" data-path="${weapon_path}">
+        ${collapseButton(collapse, weapon)}
+        <a class="lancer-context-menu" data-path="${weapon_path}">
           <i class="fas fa-ellipsis-v"></i>
         </a>
       </div> 
-      <div class="lancer-body collapse" data-collapse-id="${collapseID}">
-        ${weapon.SP ? sp : ""}
+      <div class="lancer-body collapse" ${collapseParam(collapse, weapon, true)}>
+        ${weapon.system.sp ? `<strong>${weapon.system.sp} SP</strong>` : ""}
         ${profiles}
         <div class="flexrow" style="text-align: left; white-space: nowrap;">
-          <a class="roll-attack"><i class="fas fa-dice-d20 i--m i--dark"></i></a>
+          <a class="roll-attack lancer-button"><i class="fas fa-dice-d20 i--m i--dark"></i></a>
           <hr class="vsep">
-          ${show_range_array(ranges, options)}
+          ${rangeArrayView(profile.all_range, options)}
           <hr class="vsep">
-          ${show_damage_array(weapon.SelectedProfile.BaseDamage, options)}
+          ${damageArrayView(profile.all_damage, options)}
 
           ${inc_if(`<hr class="vsep"><div class="uses-wrapper">`, loading || limited)}
           <!-- Loading toggle, if we are loading-->
@@ -829,7 +726,8 @@ data-action="set" data-action-value="(int)${i}" data-path="${weapon_path}.Select
           ${on_attack}
           ${on_hit}
           ${on_crit}
-          ${compact_tag_list(profile_path + ".Tags", tags, false)}
+          ${actions}
+          ${compactTagListHBS(profile_path + ".all_tags", options)}
         </div>
         ${mod_text}
       </div>
@@ -837,66 +735,77 @@ data-action="set" data-action-value="(int)${i}" data-path="${weapon_path}.Select
   </div>`;
 }
 
-export function loading_indicator(loaded: boolean, weapon_path: string): string {
+export function loadingIndicator(loaded: boolean, weapon_path: string): string {
   let loading_icon = `mdi ${loaded ? "mdi-hexagon-slice-6" : "mdi-hexagon-outline"} loaded-hex`;
-  let indicator = `<a class="gen-control" data-action="set" data-action-value="(bool)${!loaded}" data-path="${weapon_path}.Loaded" data-commit-item="${weapon_path}"><i class="${loading_icon} i--m"></i></a>`;
+  let indicator = `<a class="gen-control" data-action="set" data-action-value="(bool)${!loaded}" data-path="${weapon_path}.system.loaded"><i class="${loading_icon} i--m"></i></a>`;
   return `<div class="clipped card limited-card">LOADED ${indicator}</div>`;
 }
 
-export function weapon_mod_ref(mod_path: string, weapon_path: string | null, options: HelperOptions): string {
-  let mod: WeaponMod | null = resolve_helper_dotpath(options, mod_path);
-  let cd = ref_commons(mod);
-  if (!mod || !cd) return "";
+// Renders a weapon mod slot
+export function weaponModView(mod_path: string, weapon_path: string | null, options: HelperOptions): string {
+  let mod: LancerWEAPON_MOD | null = resolveHelperDotpath(options, mod_path);
+  let weapon: LancerMECH_WEAPON | null = weapon_path ? resolveHelperDotpath(options, weapon_path) : null;
+  if (!mod) {
+    return `<div class="${EntryType.WEAPON_MOD} ref slot drop-settable card flexrow"
+        data-path="${mod_path}"
+        data-accept-types="${EntryType.WEAPON_MOD}">
+      <i class="cci cci-weaponmod i--m i--light"> </i>
+      <span>No Mod Installed</span>
+    </div>`;
+  }
 
-  let sp = mod.SP ? sp_display(mod.SP ? mod.SP : 0) : "";
-  let limited = is_limited(mod) ? limited_uses_indicator(mod, mod_path) : "";
+  let sp = mod.system.sp ? spDisplay(mod.system.sp) : "";
+  let limited = mod.system.tags.some(t => t.is_limited) ? limitedUsesIndicator(mod, mod_path) : "";
   let added_range = "";
-  if (mod.AddedRange.length) {
+  if (mod.system.added_range.length) {
     added_range = `
       <div class="effect-box">
         <div class="effect-title clipped-bot">ADDED RANGE</div>
-        ${show_range_array(mod.AddedRange, options)}
+        ${rangeArrayView(mod.system.added_range, options)}
       </div>`;
   }
   let added_damage = "";
-  if (mod.AddedDamage.length) {
+  if (mod.system.added_damage.length) {
     added_damage = `
       <div class="effect-box">
         <div class="effect-title clipped-bot">ADDED DAMAGE</div>
-        ${show_damage_array(mod.AddedDamage, options)}
+        ${damageArrayView(mod.system.added_damage, options)}
       </div>`;
   }
-  let effect = mod.Effect ? effect_box("Effect", mod.Effect) : "";
-  let bonuses = mod.Bonuses.length > 0 ? bonuses_display(`${mod_path}.Bonuses`, mod.Bonuses, false) : "";
+  let effect = mod.system.effect ? effectBox("Effect", mod.system.effect, { flow: true }) : "";
+  let bonuses = mod.system.bonuses.length > 0 ? bonusesDisplay(`${mod_path}.system.bonuses`, false, options) : "";
   let added_tags = "";
-  if (mod.AddedTags.length) {
+  if (mod.system.added_tags.length) {
     added_tags = `
     <div class="effect-box">
       <span class="effect-title clipped-bot">ADDED TAGS</span>
-      ${compact_tag_list(mod_path + ".AddedTags", mod.AddedTags, false)}
+      ${compactTagListHBS(mod_path + ".system.added_tags", options)}
     </div>
     `;
   }
-  let tags = mod.Tags.length ? compact_tag_list(mod_path + ".Tags", mod.Tags, false) : "";
+  let tags = mod.system.tags.length ? compactTagListHBS(`${mod_path}.system.tags`, options) : "";
   let actions = "";
-  if (mod.Actions.length) {
-    actions = mod.Actions.map((a: Action, i: number | undefined) => {
-      return buildActionHTML(a, { full: true, num: i });
-    }).join("");
+  if (mod.system.actions.length) {
+    actions = buildActionArrayHTML(mod, "system.actions");
   }
 
   return `
-  <div class="valid item flexcol clipped-top ref ${EntryType.WEAPON_MOD}"
-      ${weapon_path ? ref_params(cd.ref, weapon_path) : ref_params(cd.ref, cd.uuid)}>
-    <div class="lancer-header">
+  <div class="set flexcol clipped-top ref ${EntryType.WEAPON_MOD} drop-settable" ${ref_params(
+    mod,
+    mod_path
+  )} data-accept-types="${EntryType.WEAPON_MOD}">
+    <div class="lancer-header lancer-mod">
       <i class="cci cci-weaponmod i--m i--light"> </i>
-      <span class="minor">${mod.Name}</span>
-      <a class="lancer-context-menu" data-context-menu="${EntryType.WEAPON_MOD}" data-path="${mod_path}">
+      <span class="minor">${mod.name}</span>
+      <a class="lancer-context-menu" data-path="${mod_path}">
         <i class="fas fa-ellipsis-v"></i>
       </a>
     </div>
     <div class="lancer-body">
-      <div class="flexrow">${sp} ${limited}</div>
+      <div class="flexrow">
+        ${limited}
+        ${sp}
+      </div>
       <div class="flexrow">
         ${added_range}
         ${added_damage}
@@ -910,14 +819,15 @@ export function weapon_mod_ref(mod_path: string, weapon_path: string | null, opt
   </div>`;
 }
 
-// A specific MM ref helper focused on displaying manufacturer info.
-export function manufacturer_ref(source_path: string, helper: HelperOptions): string {
-  let source_: Manufacturer | null = resolve_helper_dotpath(helper, source_path);
-  let cd = ref_commons(source_);
+// A specific ref helper focused on displaying manufacturer info.
+/*
+export function manufacturer_ref(source_path: string, options: HelperOptions): string {
+  let source_: Manufacturer | null = resolveHelperDotpath(options, source_path);
+  let cd = ref_doc_common_attrs(source_);
   // TODO? maybe do a little bit more here, aesthetically speaking
   if (cd) {
     let source = source_!;
-    return `<div class="valid ${EntryType.MANUFACTURER} ref ref-card drop-settable" ${ref_params(cd.ref, source_path)}> 
+    return `<div class="set ${EntryType.MANUFACTURER} ref ref-card drop-settable" ${ref_params(cd.ref, source_path)}> 
               <h3 class="mfr-name" style="color: ${source!.GetColor(false)};">
                 <i class="i--m cci ${source.Logo}"></i>
                 ${source!.LID}
@@ -932,45 +842,40 @@ export function manufacturer_ref(source_path: string, helper: HelperOptions): st
         `;
   }
 }
+*/
 
-// A specific MM ref helper focused on displaying license info.
+// A specific ref helper focused on displaying license info.
 // This if for display purposes and does not provide editable fields
-export function license_ref(license: License | null, level: number, item_path?: string): string {
-  let cd = ref_commons(license);
-  if (cd === null) {
-    return `<div class="valid ${EntryType.LICENSE} ref ref-card"> 
-              <h3 class="license-name">${license!.Name} ${level}</h3>
-            </div>
-        `;
-  } else {
-    return `
-    <li class="card clipped item macroable ref valid" ${ref_params(cd.ref, cd.uuid)}>
-      <div class="lancer-header lancer-license-header medium clipped-top" style="grid-area: 1/1/2/3">
+export function licenseRefView(item_path: string, options: HelperOptions): string {
+  let license = resolveHelperDotpath(options, item_path) as LancerLICENSE;
+  const mfr = manufacturerStyle(license.system.manufacturer);
+  return `
+    <li class="card clipped ref set" ${ref_params(license)}>
+      <div class="lancer-header ${mfr} medium clipped-top" style="grid-area: 1/1/2/3">
         <i class="cci cci-license i--m i--dark"> </i>
-        <div class="major modifier-name">${license!.Name} ${license!.CurrentRank}</div>
-        <div class="ref-list-controls">
-          <a class="lancer-context-menu" data-context-menu="${license!.Type}" data-path="${item_path}"">
+        <div class="major modifier-name">${license.name} ${license.system.curr_rank}</div>
+        <div class="ref-controls">
+          <a class="lancer-context-menu" data-path="${item_path}"">
             <i class="fas fa-ellipsis-v"></i>
           </a>
         </div>
       </div>
     </li>`;
-  }
 }
 
-export function frame_ref(frame: Frame | null, item_path?: string): string {
-  let cd = ref_commons(frame);
-  if (!cd || !frame) {
+export function framePreview(path: string, options: HelperOptions): string {
+  let frame = resolveHelperDotpath<LancerFRAME>(options, path);
+  if (!frame) {
     return "";
   } else {
-    let frame_img = encodeURI(frameToPath[frame.Name.toUpperCase()]);
+    let frame_img = encodeURI(frameToPath(frame.name) ?? "systems/lancer/assets/icons/frame.svg");
     return `
-    <li class="card clipped item ref valid" ${ref_params(cd.ref, cd.uuid)}>
+    <li class="card clipped ref set click-open" ${ref_params(frame)}>
       <div class="compact-frame medium flexrow">
         <span class="img-bar" style="background-image: url(${frame_img})"></span>
-        <div class="major modifier-name i--light">${frame.Source?.LID} ${frame.Name}</div>
-        <div class="ref-list-controls">
-          <a class="lancer-context-menu" data-context-menu="${frame.Type}" data-path="${item_path}"">
+        <div class="major modifier-name i--light">${frame.system.manufacturer} ${frame.name}</div>
+        <div class="ref-controls">
+          <a class="lancer-context-menu" data-path="${path}"">
             <i class="fas fa-ellipsis-v i--light"></i>
           </a>
         </div>
@@ -979,19 +884,18 @@ export function frame_ref(frame: Frame | null, item_path?: string): string {
   }
 }
 
-export function npc_class_ref(npc_class: NpcClass | null, item_path?: string): string {
-  let cd = ref_commons(npc_class);
-  if (!cd || !npc_class) {
+export function npcClassRefView(npc_class: LancerNPC_CLASS | null, item_path?: string): string {
+  if (!npc_class) {
     return "";
   } else {
-    let frame_img = encodeURI(frameToPath[npc_class.Name.toUpperCase()]);
+    let frame_img = encodeURI(npc_class.img ?? "systems/lancer/assets/icons/npc_class.svg");
     return `
-    <div class="card clipped item ref valid" ${ref_params(cd.ref, cd.uuid)}>
+    <div class="card clipped ref set click-open" ${ref_params(npc_class)}>
       <div class="compact-class medium flexrow">
         <span class="img-bar" style="background-image: url(${frame_img})"></span>
-        <div class="major modifier-name i--light">${npc_class.Name} // ${npc_class.Role.toUpperCase()}</div>
-        <div class="ref-list-controls">
-          <a class="lancer-context-menu" data-context-menu="${npc_class.Type}" data-path="${item_path}"">
+        <div class="major modifier-name i--light">${npc_class.name} // ${npc_class.system.role.toUpperCase()}</div>
+        <div class="ref-controls">
+          <a class="lancer-context-menu" data-path="${item_path}"">
             <i class="fas fa-ellipsis-v i--light"></i>
           </a>
         </div>
@@ -1000,18 +904,17 @@ export function npc_class_ref(npc_class: NpcClass | null, item_path?: string): s
   }
 }
 
-export function npc_template_ref(npc_tmpl: NpcTemplate | null, item_path?: string): string {
-  let cd = ref_commons(npc_tmpl);
-  if (!cd || !npc_tmpl) {
+export function npcTemplateRefView(template: LancerNPC_TEMPLATE | null, item_path?: string): string {
+  if (!template) {
     return "";
   } else {
     return `
-    <div class="card clipped item ref valid" ${ref_params(cd.ref, cd.uuid)}>
+    <div class="card clipped ref set click-open" ${ref_params(template)}>
       <div class="compact-template medium flexrow">
-        <span class="img-bar" style="background-image: url(${npc_tmpl.Flags.top_level_data.img})"></span>
-        <div class="major modifier-name i--light">${npc_tmpl.Name}</div>
-        <div class="ref-list-controls">
-          <a class="lancer-context-menu" data-context-menu="${npc_tmpl.Type}" data-path="${item_path}"">
+        <span class="img-bar" style="background-image: url(${template.img})"></span>
+        <div class="major modifier-name i--light">${template.name}</div>
+        <div class="ref-controls">
+          <a class="lancer-context-menu" data-path="${item_path}"">
             <i class="fas fa-ellipsis-v i--light"></i>
           </a>
         </div>
@@ -1020,7 +923,7 @@ export function npc_template_ref(npc_tmpl: NpcTemplate | null, item_path?: strin
   }
 }
 
-export function action_type_icon(a_type: string) {
+export function actionTypeIcon(a_type: string) {
   const a = a_type ? a_type.toLowerCase() : ActivationType.None.toLowerCase();
   let html = "";
   switch (a) {
@@ -1051,257 +954,306 @@ export function action_type_icon(a_type: string) {
 }
 
 /**
- * Builds the HTML for a given action
- * @param action  Standard action to generate in HTML form
+ * Builds the HTML for a given action in a given document
+ * @param doc  Document which holds the action
+ * @param path  Path to the action within the document
  * @param options Options such as:
  *        full    Determines if we should generate full HTML info or just mini version (title & action)
- *        number  If we're building full, we can pass through a number to denote which index of action
- *                this is for macro purposes. Only used for macro-able actions
- *        tags    Array of TagInstances which can optionally be passed
+ *        tags    If we should show tags here
  * @returns Activation HTML in string form
  */
-// TODO: The options are out of control
 export function buildActionHTML(
-  action: Action,
-  options?: { editable?: boolean; path?: string; full?: boolean; num?: number; tags?: TagInstance[] }
+  doc: LancerItem | LancerActor,
+  path: string,
+  options?: { hideChip?: boolean; nonInteractive?: boolean; editable?: boolean; full?: boolean; tags?: boolean }
 ): string {
+  let action = resolveDotpath<ActionData>(doc, path);
+  if (!action) return "";
   let detailText: string | undefined;
   let chip: string | undefined;
   let tags: string | undefined;
   let editor: string | undefined;
 
-  let collID = uuid4();
-  // TODO--can probably do better than this
-  if (options) {
-    // Not using type yet but let's plan forward a bit
-    let type: ActivationOptions;
-    let icon: ChipIcons | undefined;
-
-    // If we don't have a trigger do a simple detail
-    if (!action.Trigger)
-      detailText = `
-        <div class="action-detail collapse ${options.full ? "" : "collapsed"}" data-collapse-id="${collID}">
-          <hr class="hsep">
-          ${action.Detail}
-        </div>`;
-    // Otherwise, look to be explicit about which is which
-    else {
-      detailText = `
-        <div class="action-detail collapse ${options.full ? "" : "collapsed"}" data-collapse-id="${collID}">
-          <hr class="hsep">
-          <div class="overline">${game.i18n.localize("lancer.chat-card.label.trigger")}</div> 
-          <div>${action.Trigger}</div>
-          <div class="overline">${game.i18n.localize("lancer.chat-card.label.effect")}</div> 
-          <div>${action.Detail}</div> 
-        </div>`;
-    }
-
-    if (options.num !== undefined) {
-      switch (action.Activation) {
-        case ActivationType.QuickTech:
-        case ActivationType.FullTech:
-        case ActivationType.Invade:
-          type = ActivationOptions.TECH;
-          icon = ChipIcons.Roll;
-          break;
-        default:
-          type = ActivationOptions.ACTION;
-          icon = ChipIcons.Chat;
-          break;
-      }
-
-      chip = buildChipHTML(action.Activation, { icon: icon, num: options.num });
-
-      if (options.editable) {
-        if (!options.path) throw Error("You're trying to edit an action without a path");
-        // If it's editable, it's deletable
-        editor = `
-        <div class="action-editor-wrapper">
-          <a class="gen-control" data-action="splice" data-path="${options.path}"><i class="fas fa-trash"></i></a>
-          <a class="action-editor fas fa-edit" data-path="${options.path}"></a>
-        </div>`;
-      }
-    }
-
-    if (options.tags !== undefined) {
-      tags = compact_tag_list("", options.tags, false);
-    }
+  if (!options?.hideChip) {
+    chip = buildChipHTML(
+      action.activation,
+      { uuid: doc.uuid, path: path },
+      { nonInteractive: options?.nonInteractive }
+    );
+    chip = `<div class="action-flow-container">${chip}<hr class="vsep"></div>`;
+  } else {
+    chip = "";
   }
 
-  if (!chip) {
-    chip = buildChipHTML(action.Activation);
+  // If we don't have a trigger do a simple detail
+  if (!action.trigger)
+    detailText = `
+      <div class="action-detail">
+        <hr class="hsep">
+        ${chip}
+        ${action.detail || defaultPlaceholder}
+      </div>`;
+  // Otherwise, look to be explicit about which is which
+  else {
+    detailText = `
+      <div class="action-detail ${options?.full ? "" : "collapsed"}">
+        <hr class="hsep">
+        <div>
+          ${chip}
+          <div>
+            <div class="overline">${game.i18n.localize("lancer.chat-card.label.trigger")}</div> 
+            ${action.trigger || defaultPlaceholder}
+            <div class="overline">${game.i18n.localize("lancer.chat-card.label.effect")}</div>
+            ${action.detail || defaultPlaceholder}
+          </div>
+        </div>
+      </div>`;
+  }
+
+  if (options?.editable) {
+    // If it's editable, it's deletable
+    editor = `
+    <div class="action-editor-wrapper">
+      <a class="gen-control" data-uuid="${doc.uuid} data-action="splice" data-path="${path}"><i class="fas fa-trash"></i></a>
+      <a class="action-editor fas fa-edit" data-path="${path}"></a>
+    </div>`;
+  }
+
+  if (options?.tags && doc instanceof LancerItem && doc.getTags()) {
+    tags = compactTagListHBS("tags", spoofHelper({ tags: doc.getTags()! }));
   }
 
   return `
   <div class="action-wrapper">
     <div class="title-wrapper flexrow">
-      ${action_type_icon(action.Activation)}
-      <span class="action-title collapse-trigger" data-collapse-id="${collID}">
-        ${action.Name ? action.Name.toUpperCase() : ""}
+      ${actionTypeIcon(action.activation)}
+      <span class="action-title collapse-trigger">
+        ${action.name?.toUpperCase() ?? doc.name}
       </span>
-      ${editor ? editor : ""}
+      ${editor ?? ""}
     </div>
-    ${detailText ? detailText : ""}
-    ${chip}
-    ${tags ? tags : ""}
+    ${detailText ?? ""}
+    ${tags ?? ""}
   </div>
   `;
 }
 
-/**
- * Wrapper for buildActionHTML that always builds the full card.
- * @param action  Standard action to generate in HTML form
- * @param options Options such as:
- *        number  A number to denote which index of action
- *                this is for macro purposes. Only used for macro-able actions.
- *        tags    Array of TagInstances which can optionally be passed
- * @returns Activation HTML in string form
- */
-export function buildActionFullHTML(
-  action: Action,
-  options?: { editable?: boolean; path?: string; num?: number; tags?: TagInstance[] }
+export function buildActionArrayHTML(
+  doc: LancerActor | LancerItem,
+  path: string,
+  options?: { hideChip?: boolean; nonInteractive?: boolean }
 ): string {
-  return buildActionHTML(action, {
-    editable: options?.editable,
-    path: options?.path,
-    full: true,
-    num: options?.num,
-    tags: options?.tags,
-  });
+  let actions = resolveDotpath<Array<ActionData>>(doc, path, []);
+  let cards = actions.map((_, i) => buildActionHTML(doc, `${path}.${i}`, options));
+  return cards.join("");
 }
 
 /**
- * Builds the HTML for a given in-system deployable
- * @param dep     Deployable to generate in HTML form
- * @param full    Determines if we should generate full HTML info or just mini version (title & action)
- * @param num     If we're building full, we can pass through a number to denote which index of action
- *                this is for macro purposes. Only used for macro-able actions
- * @returns Activation HTML in string form
+ * Handlebars helper to build the HTML for an array of deployable references in another item.
+ * @param item  Path to this item
+ * @param array_path  Path to this deployables (LID) location relative to item
+ * @param options.vertical If true, will use a vertical layout more suitable to narrow views
+ * @param options.nonInteractive If true, will disable or hide any interactive elements
+ * @returns Deployable HTML in string form
  */
-export function buildDeployableHTML(dep: Deployable, full?: boolean, num?: number): string {
-  let detailText: string | undefined;
-  let chip: string;
-  let activation: ActivationType | undefined;
+export function buildDeployablesArrayHBS(
+  item: LancerItem,
+  array_path: string,
+  helperOptions: HelperOptions,
+  options?: { vertical?: boolean; nonInteractive?: boolean }
+): string {
+  let lids = resolveDotpath<Array<string>>(item, array_path, []);
+  let deps: Record<string, LancerDEPLOYABLE> = {};
+  lids.forEach(lid => {
+    let dep = resolveHelperDotpath<LancerDEPLOYABLE>(helperOptions, `deployables.${lid}`);
+    if (dep) {
+      deps[lid] = dep;
+    }
+  });
+  return buildDeployablesArray(item, deps, options);
+}
 
-  let collID = uuid4();
-  detailText = `
-    <div class="deployable-detail collapse ${full ? "" : "collapsed"}" data-collapse-id="${collID}">
-      <hr class="hsep">
-      ${dep.Detail}
-    </div>`;
-  // TODO--can probably do better than this
-  /*
-    Until further notice, Actions in Deployables are just... not
-    if(dep.Actions.length) {
-      detailText += dep.Actions.map((a) => {return buildActionHTML(a)})
-    } */
-
-  // All places we could get our activation, in preferred order
-  let activationSources = [
-    dep.Activation,
-    dep.Redeploy,
-    dep.Recall,
-    dep.Actions.length ? dep.Actions[0].Activation : ActivationType.None,
-  ];
-  for (var i = 0; i < activationSources.length; i++) {
-    if (activationSources[i] !== ActivationType.None) {
-      activation = activationSources[i];
+/**
+ * Build the HTML for an array of deployable actors
+ * @param item The item which the deployables belong to
+ * @param deployables Map of deployable actors, indexed by the owner's LID string
+ * @param options Options to configure the resulting HTML:
+ * @param options.vertical If true, will use a vertical layout more suitable to narrow views
+ * @param options.nonInteractive If true, will disable or hide any interactive elements
+ * @returns Deployable card HTML string
+ */
+export function buildDeployablesArray(
+  item: LancerItem,
+  deployables: Record<string, LancerDEPLOYABLE>,
+  options?: { vertical?: boolean; nonInteractive?: boolean }
+): string {
+  let cards = [] as string[];
+  for (const [lid, dep] of Object.entries(deployables)) {
+    if (dep) {
+      cards.push(
+        buildDeployableHTML(
+          dep,
+          {
+            item,
+            path: `deployables.${lid}`,
+          },
+          options
+        )
+      );
+    } else {
+      cards.push(`<span>Unresolved deployabled LID "${lid}". Re-import + Set yourself as its owner</span>`);
     }
   }
+  return cards.join("");
+}
 
-  if (!activation) activation = ActivationType.Quick;
+/**
+ * Builds the HTML for a given deployable.
+ * @param dep The deployable, already resolved
+ * @param source Information about where it came from, if applicable
+ * @returns Activation HTML in string form
+ */
+export function buildDeployableHTML(
+  dep: LancerDEPLOYABLE,
+  source: {
+    item: LancerItem;
+    path: string;
+  } | null,
+  options?: { vertical?: boolean; nonInteractive?: boolean }
+): string {
+  let detailText: string | undefined;
+  let chips: string[] = [];
+  let actionText: string | undefined;
+  let actionChips: string[] = [];
 
-  if (num !== undefined) {
-    chip = buildChipHTML(activation, { icon: ChipIcons.Deployable, num: num, isDep: true });
-  } else {
-    chip = buildChipHTML(activation);
+  detailText = `
+    <div class="deployable-detail">
+      ${dep.system.detail}
+    </div>`;
+
+  let standardActions = [
+    { label: "ACTIVATE", action: dep.system.activation },
+    { label: "DEACTIVATE", action: dep.system.deactivation },
+    { label: "RECALL", action: dep.system.recall },
+    { label: "REDEPLOY", action: dep.system.redeploy },
+  ].filter(a => !!a.action);
+  standardActions.forEach(a => {
+    chips.push(
+      buildChipHTML(
+        a.action,
+        {
+          label: a.label,
+          uuid: source ? source.item.uuid : undefined,
+          // path: a.path,
+        },
+        options
+      )
+    );
+  });
+  if (dep.system.actions.length) {
+    actionText = `<hr class="hsep">`;
+    dep.system.actions.forEach((_, i) => {
+      actionText += buildActionHTML(dep, `system.actions.${i}`, {
+        full: true,
+        nonInteractive: options?.nonInteractive,
+      });
+    });
   }
 
   return `
-  <div class="deployable-wrapper">
-    <div class="title-wrapper flexrow">
-      ${action_type_icon(activation)}
-      <span class="deployable-title collapse-trigger" data-collapse-id="${collID}">
-        ${dep.Name ? dep.Name.toUpperCase() : ""}
+  <div class="deployable-wrapper ref set ${options?.vertical ? "vertical" : ""}" ${ref_params(dep)}>
+    <img class="deployable-thumbnail" src="${encodeURI(dep.img!)}">
+    <div style="grid-area: title" class="title-wrapper">
+      <span class="deployable-title click-open">
+        ${dep.name ? dep.name.toUpperCase() : ""}
       </span>
+      <hr class="hsep">
     </div>
-    ${detailText ? detailText : ""}
-    ${chip}
+    <div class="deployable-activations">
+      <div class="flexcol">
+        <div class="flexrow">
+          ${chips.join(`</div>\n<div class="flexrow">`)}
+        </div>
+      </div>
+      ${options?.vertical ? "" : `<hr class="vsep">`}
+    </div>
+    <div style="grid-area: desc">${detailText ? detailText : ""}</div>
+    ${
+      actionText
+        ? `
+          <div style="grid-area: action">${actionText}</div>
+          <div style="grid-area: action-chip">${actionChips.join("\n")}</div>
+          `
+        : ""
+    }
   </div>
   `;
 }
 
+/**
+ * Build a little clickable chip to activate an item.
+ * If trying to use a deployable, you should still provide the item uuid & the path to the deployable within it
+ * @param activation The type of activation.
+ * @param flowData Options to configure the chip.
+ * @param flowData.icon The icon to use. Defaults to chat icon if not provided.
+ * @param flowData.label Optional label to prepend to the action type text.
+ * @param flowData.uuid The uuid of the item to activate. Must be provided with path.
+ * @param flowData.path The path to the action within the item. Must be provided with uuid.
+ * @returns
+ */
 export function buildChipHTML(
   activation: ActivationType,
-  macroData?: { icon?: ChipIcons; num?: number; isDep?: boolean; fullData?: LancerMacroData }
+  flowData?: {
+    icon?: ChipIcons | string;
+    label?: string;
+    // These must both be provided in order to use a flow
+    uuid?: string;
+    path?: string;
+  },
+  options?: { nonInteractive?: boolean }
 ): string {
-  if (macroData && (macroData?.fullData || macroData?.num !== undefined)) {
-    if (!macroData.icon) macroData.icon = ChipIcons.Chat;
-    let data: string | undefined;
-    if (macroData?.fullData) data = `data-macro=${encodeMacroData(macroData.fullData)}`;
-    else data = `data-${macroData.isDep ? "deployable" : "activation"}=${macroData.num}`;
-    return `<a class="${macroData?.fullData ? "lancer-macro" : `macroable`} activation-chip activation-${activation
-      .toLowerCase()
-      .replace(/\s+/g, "")}" ${data}>
-            ${macroData.icon ? macroData.icon : ""}
-            ${activation.toUpperCase()}
-          </a>`;
-  } else return `<div class="activation-chip activation-${activation.toLowerCase()}">${activation.toUpperCase()}</div>`;
-}
-
-export function buildSystemHTML(data: MechSystem): string {
-  let eff: string | undefined;
-  let actions: string | undefined;
-  let deployables: string | undefined;
-  let useFirstActivation = false;
-
-  if (data.Effect) eff = data.Effect;
-  else {
-    // If our first action doesn't have a name & we don't have an effect then first action is our "effect"
-    // Always first action? Or a better way?
-    useFirstActivation = data.Actions.length ? !data.Actions[0].Name : false;
+  const activationClass = `activation-${slugify(activation, "-")}`;
+  const themeClass = activationStyle(activation);
+  const interactiveClass = options?.nonInteractive ? "noninteractive" : "";
+  const label = `${
+    flowData?.label ? `${flowData.label.toUpperCase()} - ` : `${!options?.nonInteractive ? "USE " : ""}`
+  }${activation.toUpperCase()}`;
+  if (flowData && flowData.uuid && flowData.path !== undefined) {
+    if (!flowData.icon) flowData.icon = `<i class="${activationIcon(activation)} i--sm"></i>`;
+    let data = `data-uuid=${flowData.uuid} data-path="${flowData.path}"`;
+    return `
+    <a
+      class="activation-flow lancer-button activation-chip ${activationClass} ${themeClass} ${interactiveClass}"
+      ${data}
+    >
+      ${flowData.icon ? flowData.icon : ""}
+      ${label}
+    </a>`;
+  } else {
+    return `
+    <div class="activation-chip ${activationClass} lancer-chip ${themeClass}">
+      ${flowData?.icon ? flowData.icon : ""}
+      ${label}
+    </div>`;
   }
-
-  if (data.Actions) {
-    actions = data.Actions.map((a: Action, i: number) => {
-      // return buildActionHTML(a, { full: !i && useFirstActivation });
-      return buildActionHTML(a, { full: false });
-    }).join("");
-  }
-
-  if (data.Deployables) {
-    deployables = data.Deployables.map((d: Deployable, i: number) => {
-      return buildDeployableHTML(d, false);
-    }).join("");
-  }
-
-  let html = `<div class="card clipped-bot system-wrapper" ${ref_params(
-    data.as_ref(),
-    data.Flags.orig_doc.uuid
-  )} style="margin: 0px;">
-  <div class="lancer-header mech-system">// SYSTEM :: ${data.Name} //</div>
-  ${eff ? eff : ""}
-  ${actions ? actions : ""}
-  ${deployables ? deployables : ""}
-  ${compact_tag_list("data.Tags", data.Tags, false)}
-</div>`;
-  return html;
 }
 
 // This has gotten very messy to account for the pilots, should refactor - TODO
-export function buildCounterHTML(data: Counter, path: string, writeback_path: string, can_delete?: boolean): string {
-  let hexes = [...Array(data.Max)].map((_ele, index) => {
-    const available = index + 1 <= data.Value;
+export function buildCounterHTML(data: CounterData, path: string, can_delete?: boolean): string {
+  let hexes = [...Array(data.max)].map((_ele, index) => {
+    const available = index + 1 <= data.value;
     return `<i class="counter-hex mdi ${
       available ? "mdi-hexagon-slice-6" : "mdi-hexagon-outline"
-    } theme--light" data-available="${available}" data-path="${path}" data-writeback_path="${writeback_path}"></i>`;
+    } theme--light" data-available="${available}" data-path="${path}"></i>`;
   });
 
-  return `${buildCounterHeader(data, path, writeback_path, can_delete)}
+  return `
+  <div class="card clipped-bot counter-wrapper" data-path="${path}">
+    ${buildCounterHeader(data, path, can_delete)}
     <div class="flexrow flex-center no-wrap">
-      <button class="mod-minus-button" type="button">-</button>
+      <button class="clicker-minus-button hex" type="button">‒</button>
       ${hexes.join("")}
-      <button class="mod-plus-button" type="button">+</button>
+      <button class="clicker-plus-button hex" type="button">+</button>
     </div>
   </div>`;
 }
@@ -1309,30 +1261,26 @@ export function buildCounterHTML(data: Counter, path: string, writeback_path: st
 /**
  * NOTE IT DOES NOT INCLUDE TRAILING /div tag!
  */
-export function buildCounterHeader(data: Counter, path: string, writeback_path: string, can_delete?: boolean): string {
+export function buildCounterHeader(data: CounterData, path: string, can_delete?: boolean): string {
   //
   return `
-  <div class="card clipped-bot counter-wrapper" data-path="${path}" data-writeback_path="${writeback_path}">
-    <div class="lancer-header">
-      <span>// ${data.Name} //</span>
-      <a class="lancer-context-menu" data-context-menu="counter" data-path="${path}" data-can-delete="${
-    can_delete ? can_delete : false
-  }">
+    <div class="lancer-header lancer-primary">
+      <span>// ${data.name} //</span>
+      <a class="lancer-context-menu" data-path="${path}" data-can-delete="${can_delete ? can_delete : false}">
         <i class="fas fa-ellipsis-v"></i>
       </a>
     </div>`;
 }
 
 export function buildCounterArrayHTML(
-  counters: Counter[] | { counter: Counter; source: any }[],
+  counters: CounterData[] | { counter: CounterData; source: any }[],
   path: string,
-  custom_path?: string,
   fully_editable?: boolean
 ): string {
   let counter_detail = "";
-  let counter_arr: Counter[] | undefined;
+  let counter_arr: CounterData[] | undefined;
 
-  function isCounters(array: Counter[] | { counter: Counter; source: any }[]): array is Counter[] {
+  function isCounters(array: CounterData[] | { counter: CounterData; source: any }[]): array is CounterData[] {
     return !("counter" in array[0]);
   }
 
@@ -1340,345 +1288,401 @@ export function buildCounterArrayHTML(
   if (counters.length > 0) {
     if (isCounters(counters)) {
       for (let i = 0; i < counters.length; i++) {
-        counter_detail = counter_detail.concat(buildCounterHTML(counters[i], path.concat(`.${i}`), "mm"));
+        counter_detail = counter_detail.concat(buildCounterHTML(counters[i], path.concat(`.${i}`)));
       }
     } else {
       counter_arr = counters.map(x => {
         return x.counter;
       });
       for (let i = 0; i < counters.length; i++) {
-        counter_detail = counter_detail.concat(
-          buildCounterHTML(counter_arr[i], path.concat(`.${i}.counter`), path.concat(`.${i}.source`))
-        );
+        counter_detail = counter_detail.concat(buildCounterHTML(counter_arr[i], path.concat(`.${i}.counter`)));
       }
     }
   }
 
   return `
   <div class="card clipped double">
-    <span class="lancer-header submajor ">
+    <div class="lancer-header lancer-primary submajor ">
       COUNTERS
-      <a class="gen-control fas fa-plus" data-action="append" data-path="${
-        custom_path ? custom_path : path
-      }" data-action-value="(struct)counter"></a>
-    </span>
+      <a class="gen-control fas fa-plus" data-action="append" data-path="${path}"
+       data-action-value="(struct)counter"></a>
+    </div>
     ${counter_detail}
   </div>`;
 }
 
-function _updateButtonSiblingData(button: JQuery<HTMLElement>, delta: number) {
-  const input = button.siblings("input");
-  const curr = Number.parseInt(input.prop("value"));
-  if (!isNaN(curr)) {
-    if (delta > 0) {
-      if (
-        !button[0].dataset["max"] ||
-        button[0].dataset["max"] == "-1" ||
-        curr + delta <= Number.parseInt(button[0].dataset["max"])
-      ) {
-        input.prop("value", curr + delta);
-      } else {
-        input.prop("value", input[0].dataset["max"]);
-      }
-    } else if (delta < 0) {
-      if (curr + delta >= 0) {
-        input.prop("value", curr + delta);
-      } else {
-        input.prop("value", 0);
-      }
-    }
-  }
-}
-
-async function _updateCounterData<T extends LancerActorSheetData<any> | LancerItemSheetData<any>>(
-  data: T,
-  path: string | undefined,
-  writeback_path: string | undefined,
-  delta: number
-) {
-  if (path && writeback_path) {
-    const item = resolve_dotpath(data, path) as Counter;
-    const writeback = resolve_dotpath(data, writeback_path) as RegEntry<any>;
-    const min = item.Min || 0;
-    const max = item.Max || 6;
-
-    if (delta < 0) {
-      // Deduct uses.
-      item.Value = item.Value > min && item.Value + delta > min ? item.Value + delta : min;
-    } else {
-      // Increment uses.
-      item.Value = item.Value < max && item.Value + delta < max ? item.Value + delta : max;
-    }
-
-    await writeback.writeback();
-    console.debug(item);
-  }
-}
-
-export function HANDLER_activate_plus_minus_buttons<T extends LancerActorSheetData<any> | LancerItemSheetData<any>>(
-  html: JQuery,
-  // Retrieves the data that we will operate on
-  data_getter: () => Promise<T> | T,
-  form_callback: () => any
-) {
-  const mod_handler = (delta: number) => async (ev: Event) => {
-    if (!ev.currentTarget) return; // No target, let other handlers take care of it.
-    const button = $(ev.currentTarget as HTMLElement);
-    const writeback_parents = button.parents("div[data-writeback_path]");
-    if (writeback_parents.length > 0) {
-      const params = writeback_parents[0].dataset;
-      const data = await data_getter();
-      _updateCounterData(data, params.path, params.writeback_path, delta);
-    } else {
-      _updateButtonSiblingData(button, delta);
-      form_callback();
-    }
+export function genericCounter(name: string, data: FullBoundedNum, path: string): string {
+  const counterData: CounterData = {
+    name,
+    min: data.min,
+    max: data.max,
+    value: data.value,
+    default_value: data.min,
+    lid: "",
   };
+  return buildCounterHTML(counterData, path, false);
+}
+
+async function _updateCounterData(root_doc: LancerActor | LancerItem, path: string, delta: number) {
+  let dd = drilldownDocument(root_doc, path);
+  const counter = dd.terminus as CounterData;
+  const min = counter.min || 0;
+  const max = counter.max || 6;
+
+  let new_val = counter.value + delta;
+  if (new_val < min) new_val = min;
+  if (new_val > max) new_val = max;
+
+  dd.sub_doc.update({ [dd.sub_path + ".value"]: new_val });
+}
+
+// Handles  +/- buttons around _an input_
+export function handleInputPlusMinusButtons(html: JQuery, root_doc: LancerActor | LancerItem) {
+  const mod_handler =
+    (delta: number) => async (evt: JQuery.ClickEvent<HTMLElement, undefined, HTMLElement, HTMLElement>) => {
+      evt.stopPropagation();
+      const elt = $(evt.currentTarget).siblings("input")[0] as HTMLInputElement;
+      const path = elt.name;
+      if (path) {
+        let dd = drilldownDocument(root_doc, path);
+        dd.sub_doc.update({ [dd.sub_path]: elt.valueAsNumber + delta });
+      }
+    };
 
   // Behavior is identical, just +1 or -1 depending on button
-  let decr = html.find('button[class*="mod-minus-button"]');
+  let decr = html.find('button[class*="clicker-minus-button"].input-update');
   decr.on("click", mod_handler(-1));
-  let incr = html.find('button[class*="mod-plus-button"]');
+  let incr = html.find('button[class*="clicker-plus-button"].input-update');
   incr.on("click", mod_handler(+1));
 }
 
-export function HANDLER_activate_counter_listeners<T extends LancerActorSheetData<any> | LancerItemSheetData<any>>(
-  html: JQuery,
-  // Retrieves the data that we will operate on
-  data_getter: () => Promise<T> | T
-) {
-  let elements = html.find(".counter-hex");
+// Handles +/- buttons and hex clickables for _counters_
+export function handleCounterInteraction(html: JQuery, root_doc: LancerActor | LancerItem) {
+  // Make the hexes themselves clickable
+  html.find(".counter-hex").on("click", async evt => {
+    evt.stopPropagation();
+    const elt = evt.currentTarget;
+    const path = elt.dataset.path;
+    const available = elt.dataset.available === "true";
+    if (path) {
+      _updateCounterData(root_doc, path, available ? -1 : 1);
+    }
+  });
+
+  // Make the +/- buttons clickable
+  const mod_handler =
+    (delta: number) => async (evt: JQuery.ClickEvent<HTMLElement, undefined, HTMLElement, HTMLElement>) => {
+      evt.stopPropagation();
+      const elt = $(evt.currentTarget).siblings(".counter-hex")[0];
+      const path = elt.dataset.path;
+      if (path) {
+        _updateCounterData(root_doc, path, delta);
+      }
+    };
+
+  // Behavior is identical, just +1 or -1 depending on button
+  let decr = html.find('button[class*="clicker-minus-button"].hex');
+  decr.on("click", mod_handler(-1));
+  let incr = html.find('button[class*="clicker-plus-button"].hex');
+  incr.on("click", mod_handler(+1));
+}
+
+export function handlePowerUsesInteraction<T>(html: JQuery, doc: LancerActor | LancerItem) {
+  let elements = html.find(".power-uses-hex");
   elements.on("click", async ev => {
     ev.stopPropagation();
 
     const params = ev.currentTarget.dataset;
-    const available = params.available === "true";
-    const data = await data_getter();
-    _updateCounterData(data, params.path, params.writeback_path, available ? -1 : 1);
+    if (params.path) {
+      const pathParts = params.path.split(".");
+      const powerIndex = parseInt(pathParts[pathParts.length - 1]);
+      const dd = drilldownDocument(doc, params.path);
+      const item = dd.sub_doc as LancerBOND;
+      const power = item.system.powers[powerIndex];
+      const available = params.available === "true";
+      if (!item || !power || !power.uses) return;
+
+      let newUses = power.uses.value;
+      if (available) {
+        // Deduct uses.
+        newUses = Math.max(newUses - 1, power.uses.min);
+      } else {
+        // Increment uses.
+        newUses = Math.min(newUses + 1, power.uses.max);
+      }
+      item.update({ [`system.powers.${powerIndex}.uses.value`]: newUses });
+    }
   });
 }
 
-export function HANDLER_activate_item_context_menus<
-  T extends LancerActorSheetData<any> | LancerItemSheetData<any> | InventoryDialogData
->(
+/**
+ * Attach context menus to the appropriate elements and events
+ * @param html The html to bind listeners to
+ * @param doc Document to be modified
+ * @param view_only If edit options should be presented
+ */
+export function handleContextMenus(html: JQuery, doc: LancerActor | LancerItem, view_only: boolean = false) {
+  _handleContextMenus(html, ".lancer-context-menu", "click", doc, view_only);
+  _handleContextMenus(html, ".weapon-profile-tab", "contextmenu", doc, view_only);
+  _handleContextMenus(html, ".tag-list-append > .editable-tag-instance", "contextmenu", doc, view_only);
+}
+
+/** Handles context menus for
+ * - Viewing an item sheet
+ * - Marking items destroyed
+ * - Deleting items
+ * - Removing items from slots
+ * - Edit counters
+ * - Remove counters/tags
+ * - Rename weapon profiles (and possibly more?)
+ * - TODO: more, perhaps
+ * @param html The html to bind listeners to
+ * @param selector CSS selector to narrow which elements to bind to
+ * @param event The event to listen for
+ * @param doc Document to be modified
+ * @param view_only If edit options should be presented
+ */
+function _handleContextMenus(
   html: JQuery,
-  // Retrieves the data that we will operate on
-  data_getter: () => Promise<T> | T,
-  commit_func: (data: T) => void | Promise<void>,
-  view_only: boolean = false
+  selector: string,
+  event: string,
+  doc: LancerActor | LancerItem,
+  view_only: boolean
 ) {
+  // Define some common utilities
+  const path = (html: JQuery) => (html[0].dataset.path || null) as string | null;
+  const dd = (html: JQuery) => (path(html) ? drilldownDocument(doc, path(html)!) : null);
+
+  // Renders the sheet for the document referenced at data-path
   let edit: ContextMenuEntry = {
     name: view_only ? "View" : "Edit",
     icon: view_only ? `<i class="fas fa-eye"></i>` : `<i class="fas fa-edit"></i>`,
-    callback: async (html: JQuery) => {
-      let element = html.closest(".ref.valid")[0];
-      if (element) {
-        const found_doc = await resolve_ref_element(element);
-        if (!found_doc) return;
-
-        let sheet = (found_doc.Flags as FoundryFlagData).orig_doc.sheet;
+    callback: html => {
+      let found_doc = dd(html)?.terminus as LancerActor | LancerItem | null;
+      if (found_doc) {
+        let sheet = found_doc.sheet;
         // If the sheet is already rendered:
         if (sheet?.rendered) {
-          await sheet.maximize();
-          sheet.bringToTop();
+          sheet.maximize().then(() => sheet!.bringToTop());
         }
         // Otherwise render the sheet
         else sheet?.render(true);
       }
     },
+    condition: html => dd(html)?.terminus instanceof foundry.abstract.Document,
   };
-  let destroy: ContextMenuEntry = {
-    name: "Toggle Destroyed",
-    icon: `<i class="fas fa-fw fa-wrench"></i>`,
-    callback: async (html: JQuery) => {
-      let sheet_data = await data_getter();
-      let path = html[0].dataset.path ?? "";
-      if (path) {
-        let item: MechWeapon | MechSystem | NpcFeature | null = resolve_dotpath(sheet_data, path, null);
-        if (item) {
-          item.Destroyed = !item.Destroyed;
-          await item.writeback();
+
+  // Special case for NPC class/template features. They only track the uuid
+  // of the feature documents, so we need to handle them differently.
+  let editRefItem: ContextMenuEntry = {
+    name: view_only ? "View" : "Edit",
+    icon: view_only ? `<i class="fas fa-eye"></i>` : `<i class="fas fa-edit"></i>`,
+    callback: html => {
+      const uuid = html[0].dataset.uuid;
+      if (!uuid) return;
+      let found_doc = fromUuidSync(uuid) as LancerItem | null;
+      if (found_doc) {
+        let sheet = found_doc.sheet;
+        // If the sheet is already rendered:
+        if (sheet?.rendered) {
+          sheet.maximize().then(() => sheet!.bringToTop());
         }
+        // Otherwise render the sheet
+        else sheet?.render(true);
       }
     },
+    // Normal edit is not visible, and this item has a uuid.
+    condition: html => !(dd(html)?.terminus instanceof foundry.abstract.Document) && html[0].dataset.uuid != undefined,
   };
-  let remove: ContextMenuEntry = {
-    name: "Remove",
-    icon: '<i class="fas fa-fw fa-trash"></i>',
-    callback: async (html: JQuery) => {
-      let sheet_data = await data_getter();
-      let path = html[0].dataset.path ?? "";
-      console.log(sheet_data, html, path);
-      // Delete the weapon
-      if (path) {
-        let item: MechWeapon | MechSystem | NpcFeature | null = resolve_dotpath(sheet_data, path, null);
-        if (item) await item.destroy_entry();
-        // Then commit
-        await commit_func(sheet_data);
+
+  // Renders the editor for the effect referenced at data-path
+  let edit_effect: ContextMenuEntry = {
+    name: view_only ? "View" : "Edit",
+    icon: view_only ? `<i class="fas fa-eye"></i>` : `<i class="fas fa-edit"></i>`,
+    callback: html => {
+      // @ts-expect-error
+      let effects = [...doc.allApplicableEffects()];
+      let index = parseInt(html[0].dataset.activeEffectIndex ?? "-1");
+      if (effects[index]) {
+        let sheet = effects[index].sheet;
+        // If the sheet is already rendered:
+        if (sheet?.rendered) {
+          sheet.maximize().then(() => sheet!.bringToTop());
+        }
+        // Otherwise render the sheet
+        else sheet?.render(true);
       }
     },
+    condition: html => html[0].dataset.activeEffectIndex != undefined,
   };
-  let remove_reference: ContextMenuEntry = {
-    name: "Remove",
-    icon: '<i class="fas fa-fw fa-trash"></i>',
-    callback: async (html: JQuery) => {
-      let sheet_data = await data_getter();
-      let path = html[0].dataset.path ?? "";
-      console.log(sheet_data, html, path);
-      array_path_edit(sheet_data, path, null, "delete");
-      await commit_func(sheet_data);
+
+  // Toggle destroyed status, for items that support it
+  let repair_item: ContextMenuEntry = {
+    name: "Mark Repaired",
+    icon: `<i class="fas fa-fw fa-wrench"></i>`,
+    callback: html => {
+      let item = dd(html)?.terminus as LancerMECH_SYSTEM | LancerMECH_WEAPON | LancerNPC_FEATURE | null;
+      item?.update({ "system.destroyed": !item!.system.destroyed });
+    },
+    condition: html => {
+      let item = dd(html)?.terminus as LancerItem | null;
+      return (
+        !view_only &&
+        item instanceof LancerItem &&
+        (item.is_mech_system() || item.is_mech_weapon() || item.is_npc_feature()) &&
+        item.system.destroyed
+      );
     },
   };
 
-  // Counters are special so they unfortunately need dedicated controls
+  // Toggle destroyed status, for items that support it
+  let destroy_item: ContextMenuEntry = {
+    name: "Mark Destroyed",
+    icon: `<i class="cci cci-eclipse"></i>`,
+    callback: html => {
+      let item = dd(html)?.terminus as LancerMECH_SYSTEM | LancerMECH_WEAPON | LancerNPC_FEATURE | null;
+      item?.update({ "system.destroyed": !item!.system.destroyed });
+    },
+    condition: html => {
+      let item = dd(html)?.terminus as LancerItem | null;
+      return (
+        !view_only &&
+        item instanceof LancerItem &&
+        (item.is_mech_system() || item.is_mech_weapon() || item.is_npc_feature()) &&
+        !item.system.destroyed
+      );
+    },
+  };
+
+  // Fully delete a document
+  let delete_document: ContextMenuEntry = {
+    name: "Delete Document",
+    icon: '<i class="fas fa-fw fa-trash"></i>',
+    callback: async (html: JQuery) => {
+      let item = dd(html)?.terminus as LancerItem | null;
+      if (item instanceof LancerItem && doc instanceof LancerActor) {
+        doc.removeClassFeatures(item);
+      }
+      (dd(html)?.terminus as foundry.abstract.Document<any, any> | null)?.delete();
+    },
+    condition: html => !view_only && dd(html)?.terminus instanceof foundry.abstract.Document,
+  };
+
+  // Sets a reference to null
+  // Logic elsewhere will clean up the array item (if any) if said array item would be problematic left blank
+  let clear_reference: ContextMenuEntry = {
+    name: "Unlink",
+    icon: '<i class="fas fa-times"></i>',
+    callback: async (html: JQuery) => {
+      // Set as null
+      doc.update({ [path(html)!]: null });
+    },
+    condition: html => {
+      if (view_only) return false;
+      let p = path(html);
+      // NPC features in classes/templates
+      if (
+        (p?.startsWith("system.base_features") || p?.startsWith("system.optional_features")) &&
+        !p?.includes("system.tags")
+      )
+        return true;
+      // Other cases - weapons in mounts, others?
+      // We support this if the path ends with a .value, and the ref has a truthy value
+      if (!p?.endsWith(".value")) return false;
+      return !!dd(html)?.terminus;
+    },
+  };
+
+  // Remove an array item (e.x. a counter, tag, or weapon profile)
+  let array_remove: ContextMenuEntry = {
+    name: "Remove",
+    icon: '<i class="fas fa-fw fa-trash"></i>',
+    callback: html => {
+      // Find the counter
+      let dd_ = dd(html);
+      if (dd_) {
+        let change = array_path_edit_changes(dd_.sub_doc, dd_.sub_path, null, "delete");
+        dd_.sub_doc.update({ [change.path]: change.new_val });
+      }
+    },
+    condition: html => {
+      let p = path(html);
+      return !!(
+        !view_only &&
+        ((!p?.includes("system.loadout") &&
+          !p?.includes("itemTypes") &&
+          !p?.includes("system.base_features") &&
+          !p?.includes("system.optional_features") &&
+          p?.includes("tags")) ||
+          p?.includes("counters") ||
+          p?.substring(0, p.length - 2).endsWith("profiles"))
+      );
+    },
+  };
+
+  // Summon counter editor dialogue
   let counter_edit: ContextMenuEntry = {
     name: "Edit",
     icon: `<i class="fas fa-edit"></i>`,
-    callback: async (html: JQuery) => {
-      // Find the counter
-      let counter_el = html.closest(".counter-wrapper")[0];
-      let path = counter_el.dataset.path;
-      let writeback_path = counter_el.dataset.writeback_path;
-      if (!path || !writeback_path) throw "Counters weren't set up right";
-
-      let data = await data_getter();
-
-      let writeback_obj: RegEntry<any> | null = resolve_dotpath(data, writeback_path);
-
-      if (!writeback_obj) throw "Writeback is broken";
-
-      return CounterEditForm.edit_counter(data, path, writeback_obj).catch(e => console.error("Dialog failed", e));
+    callback: html => {
+      CounterEditForm.edit(doc, path(html)!);
     },
+    condition: html =>
+      !view_only &&
+      (!!path(html)?.includes("counters") || !!path(html)?.includes("burdens") || !!path(html)?.includes("clocks")), // Crude but effective
   };
-  let counter_remove: ContextMenuEntry = {
-    name: "Remove",
-    icon: '<i class="fas fa-fw fa-trash"></i>',
-    callback: async (html: JQuery) => {
-      let sheet_data = await data_getter();
 
-      // Find the counter
-      let counter_el = html.closest(".counter-wrapper")[0];
-      let path = counter_el.dataset.path;
-      let writeback_path = counter_el.dataset.writeback_path;
-      if (!path || !writeback_path) throw "Counters weren't set up right";
-
-      let data = await data_getter();
-
-      // Should always be the owning document if we're able to delete
-      let entry: RegEntry<any> = resolve_dotpath(sheet_data, "mm", null);
-      let counter: Counter = resolve_dotpath(sheet_data, path, null);
-
-      // Only allow this on Pilots for now, could plausibly generalize at some point
-      if (!is_reg_pilot(entry)) return;
-
-      let index = entry.CustomCounters.indexOf(counter);
-      entry.CustomCounters.splice(index, 1);
-      entry.writeback();
+  // Summon a tag editor dialog
+  let tag_edit: ContextMenuEntry = {
+    name: "Edit",
+    icon: '<i class="fas fa-edit"></i>',
+    callback: html => {
+      TagEditForm.edit(doc, path(html)!);
+    },
+    condition: html => {
+      const p = path(html);
+      return (
+        !view_only &&
+        !p?.includes("system.loadout") &&
+        !p?.includes("itemTypes") &&
+        !p?.includes("system.base_features") &&
+        !p?.includes("system.optional_features") &&
+        !!p?.includes("tags")
+      ); // Crude but effective
     },
   };
 
-  let e_d_r = view_only ? [edit] : [edit, destroy, remove];
-  let e_d_rr = view_only ? [edit] : [edit, destroy, remove_reference];
-  let e_r = view_only ? [edit] : [edit, remove];
-
-  // Finally, setup the context menu
-  tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"mech_weapon\"]`), "click", e_d_r);
-  tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"mech_system\"]`), "click", e_d_r);
-  if (html.offsetParent().hasClass("item")) {
-    tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"npc_feature\"]`), "click", e_d_rr);
-  } else {
-    tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"npc_feature\"]`), "click", e_d_r);
-  }
-  tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"weapon_mod\"]`), "click", e_r);
-  tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"pilot_weapon\"]`), "click", e_r);
-  tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"pilot_armor\"]`), "click", e_r);
-  tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"pilot_gear\"]`), "click", e_r);
-  tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"reserve\"]`), "click", e_r);
-  tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"talent\"]`), "click", e_r);
-  tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"skill\"]`), "click", e_r);
-  tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"core_bonus\"]`), "click", e_r);
-  tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"license\"]`), "click", e_r);
-  tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"frame\"]`), "click", e_r);
-  tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"npc_class\"]`), "click", e_r);
-  tippy_context_menu(html.find(`.lancer-context-menu[data-context-menu=\"npc_template\"]`), "click", e_r);
-
-  // Only some counters can be deleted
-  tippy_context_menu(
-    html.find(`.lancer-context-menu[data-context-menu=\"counter\"][data-can-delete=\"false\"]`),
-    "click",
-    [counter_edit]
-  );
-  tippy_context_menu(
-    html.find(`.lancer-context-menu[data-context-menu=\"counter\"][data-can-delete=\"true\"]`),
-    "click",
-    [counter_edit, counter_remove]
-  );
-}
-
-// Allows user to remove or rename profiles value via right click
-export function HANDLER_activate_profile_context_menus<T extends LancerItemSheetData<any>>(
-  html: JQuery,
-  // Retrieves the data that we will operate on
-  data_getter: () => Promise<T> | T,
-  commit_func: (data: T) => void | Promise<void>
-) {
-  // This option allows the user to remove the right-profile tag
-  let remove = {
-    name: "Delete Profile",
-    icon: '<i class="fas fa-fw fa-times"></i>',
-    callback: async (html: JQuery) => {
-      let cd = await data_getter();
-      let profile_path = html[0].dataset.path ?? "";
-
-      // Remove the tag from its array
-      if (profile_path) {
-        // Make sure we aren't deleting the last item
-        let profile_path_parts = format_dotpath(profile_path).split(".");
-        let weapon_path = profile_path_parts.slice(0, profile_path_parts.length - 2).join(".");
-        let weapon: MechWeapon | null = resolve_dotpath(cd, weapon_path, null);
-
-        if ((weapon?.Profiles.length ?? 0) <= 1) {
-          ui.notifications!.error("Cannot delete last profile on a weapon");
-          return;
-        }
-
-        // Otherwise its fine
-        array_path_edit(cd, profile_path, null, "delete");
-
-        // Then commit
-        return commit_func(cd);
-      }
-    },
-  };
-
-  // This option pops up a small dialogue that lets the user set the tag instance's value
-  let set_value = {
-    name: "Rename Profile",
+  // If the "renameSubpath" appears in the dataset, allow simple-prompt to change the name
+  let rename: ContextMenuEntry = {
+    name: "Rename",
     icon: '<i class="fas fa-fw fa-edit"></i>',
-    // condition: game.user.isGM,
-    callback: async (html: JQuery) => {
-      let cd = await data_getter();
-      let profile_path = html[0].dataset.path ?? "";
-
-      // Get the profile
-      let profile: MechWeaponProfile = resolve_dotpath(cd, profile_path);
-
-      // Check existence
-      if (!(profile instanceof MechWeaponProfile)) return; // Stinky
-
-      // Spawn the dialogue to edit
-      let new_val = await promptText("Rename profile", (profile.Name ?? "").toString());
-
-      if (new_val !== null) {
-        // Set the name
-        profile.Name = new_val;
-
-        // At last, commit
-        return commit_func(cd);
+    callback: async html => {
+      let full_path = path(html)! + html[0].dataset.renameSubpath;
+      let old_val = drilldownDocument(doc, full_path).terminus as string;
+      let new_val = await promptText("Rename profile", old_val);
+      if (new_val) {
+        doc.update({
+          [full_path]: new_val,
+        });
       }
     },
+    condition: html => !!(!view_only && html[0].dataset.renameSubpath && dd(html)?.terminus),
   };
 
+  let all = [
+    edit,
+    editRefItem,
+    edit_effect,
+    repair_item,
+    destroy_item,
+    delete_document,
+    clear_reference,
+    array_remove,
+    counter_edit,
+    tag_edit,
+    rename,
+  ];
+
   // Finally, setup the context menu
-  tippy_context_menu(html.find(".weapon-profile-tab"), "contextmenu", [remove, set_value]);
+  tippyContextMenu(html.find(selector), event, all);
 }

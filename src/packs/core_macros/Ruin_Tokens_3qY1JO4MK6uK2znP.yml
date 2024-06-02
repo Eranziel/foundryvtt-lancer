@@ -1,0 +1,52 @@
+name: Ruin Tokens
+type: script
+flags:
+  core:
+    sourceId: Macro.UIUpsTwS6c4oYRn9
+  combat-utility-belt:
+    macroTrigger: ""
+scope: global
+command: |-
+  if (game.user.targets.length < 1) {
+    ui.notifications.error("No tokens targeted to wreck! Hover over the victim and press T to target.")
+    return;
+  }
+  game.user.targets.forEach(t => {
+    // CONFIG BELOW:
+    // Number of images per size, going from S1 to S3.
+    let IMAGES_PER_SIZE = [9, 3, 0];
+    // Data path where your images are stored. Image files should be named like 'wreck-s2-1.png'. Last digit should be contiguous (don't have a 'wreck-s1-3.png' if there isn't a 'wreck-s1-2.png')
+    let IMAGE_PATH = "/assets/lancer/wrecks/";
+
+    // Script:
+    let size = Math.ceil(t.actor.system.size);
+    // Get random number between 1 and N, where n is number of images stored for mech size.
+    let rand = Math.ceil(Math.random() * IMAGES_PER_SIZE[size - 1]);
+    
+    let imgString = `${IMAGE_PATH}wreck-s${size}-${rand}.png`;
+    console.log(`Picked ${imgString} for ${t.name}`);
+
+    let data = {
+      img: imgString
+    };
+    t.document.update(data);
+    t.refresh();
+    const combatant = game.combat.getCombatantByToken(t.id)
+    if (combatant) combatant.delete();
+  });
+author: taXAFvhByAtu8MoU
+img: systems/lancer/assets/icons/macro-icons/generic_item.svg
+_id: 3qY1JO4MK6uK2znP
+ownership:
+  default: 0
+  taXAFvhByAtu8MoU: 3
+folder: yxTxiLixDsbyThYC
+sort: 300000
+_stats:
+  systemId: lancer
+  systemVersion: 2.0.0-rc1
+  coreVersion: "11.315"
+  createdTime: null
+  modifiedTime: 1710448436375
+  lastModifiedBy: ci5PqVPSs3DhZWTF
+_key: "!macros!3qY1JO4MK6uK2znP"

@@ -1,32 +1,25 @@
-import { gentle_merge, resolve_dotpath } from "../helpers/commons";
+import { LancerActor } from "../actor/lancer-actor";
+import { resolveDotpath } from "../helpers/commons";
+import { LancerItem } from "../item/lancer-item";
 
 /**
  * A helper Dialog subclass for editing html descriptions, which will automatically fixup html written to it (so the user doesn't just nuke themselves)
  * @extends {Dialog}
  */
-export class HTMLEditDialog<O> extends FormApplication {
-  // The object we're editing
-  target: O;
+export class HTMLEditDialog extends FormApplication {
+  // The document we're editing
+  target: LancerActor | LancerItem;
 
   // The current val of the string we're editing
   text: string;
 
-  // Where this string is
+  // Where this string is within the target
   text_path: string;
-
-  // How we commit our changes
-  commit_callback: (_: any) => void | Promise<void>;
 
   // Promise to signal completion of workflow
   resolve: () => any;
 
-  constructor(
-    target: O,
-    text_path: string,
-    options: any,
-    commit_func: (_: any) => void | Promise<void>,
-    resolve_func: () => any
-  ) {
+  constructor(target: LancerActor | LancerItem, text_path: string, options: any, resolve_func: () => any) {
     super(
       {
         hasPerm: () => true, // We give it a dummy object because we don't want it messing with our shit
@@ -35,8 +28,7 @@ export class HTMLEditDialog<O> extends FormApplication {
     );
     this.target = target;
     this.text_path = text_path;
-    this.text = resolve_dotpath(target, text_path);
-    this.commit_callback = commit_func;
+    this.text = resolveDotpath(target, text_path) as string;
     this.resolve = resolve_func;
   }
 
@@ -49,7 +41,7 @@ export class HTMLEditDialog<O> extends FormApplication {
       width: 650,
       height: "auto" as const,
       resizable: true,
-      classes: ["lancer"],
+      classes: ["lancer", "lancer-text-editor"],
       submitOnChange: false,
       submitOnClose: true,
       closeOnSubmit: true,
@@ -76,9 +68,7 @@ export class HTMLEditDialog<O> extends FormApplication {
     // new_text = doc.innerHTML; // Will have had all tags etc closed
 
     // Do the merge
-    gentle_merge(this.target, { [this.text_path]: new_text });
-    await Promise.resolve(this.commit_callback(this.target));
-    this.resolve();
+    this.target.update({ [this.text_path]: new_text }).then(this.resolve);
   }
 
   /** @override
@@ -96,11 +86,7 @@ export class HTMLEditDialog<O> extends FormApplication {
    * workflow has been resolved.
    * @return {Promise}
    */
-  static async edit_text<T>(
-    in_object: T,
-    at_path: string,
-    commit_callback: (v: T) => void | Promise<void>
-  ): Promise<void> {
+  static async edit_text(in_object: LancerActor | LancerItem, at_path: string): Promise<void> {
     return new Promise((resolve, _reject) => {
       const dlg = new this(
         in_object,
@@ -108,7 +94,6 @@ export class HTMLEditDialog<O> extends FormApplication {
         {
           title: "Edit Text",
         },
-        commit_callback,
         resolve
       );
       dlg.render(true);

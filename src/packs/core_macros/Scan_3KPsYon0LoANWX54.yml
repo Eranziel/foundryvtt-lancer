@@ -1,0 +1,153 @@
+_id: 3KPsYon0LoANWX54
+name: Scan
+type: script
+author: 2a2IgZ2kiAqXSGqu
+img: systems/lancer/assets/icons/macro-icons/tech_quick.svg
+scope: global
+command: |-
+  let targets = Array.from(game.user.targets);
+
+  function sort_features(a, b) {
+    return b.system.origin.base - a.system.origin.base;
+  }
+
+  function construct_features(items, origin) {
+    let sc_list = ``;
+    sc_list += `<p>${origin}</p>`;
+    let sc_features = items
+      .filter((f) => f.system.origin.name === origin)
+      .sort(sort_features);
+    sc_features.forEach((i) => {
+      let sc_name = ``;
+      let sc_desc = ``;
+      if (i.system.origin.name === "EXOTIC" && !i.system.origin.base) {
+        sc_name = '<code class="horus--subtle">UNKNOWN EXOTIC SYSTEM</code>';
+        sc_desc = "???";
+      } else {
+        sc_name = i.name;
+        if (i.system.effect) {
+          sc_desc = i.system.effect;
+        } else {
+          sc_desc = "No description given.";
+        }
+        if (i.system.trigger) {
+          sc_desc = `Trigger:${i.system.trigger}<br>${sc_desc}`;
+        }
+      }
+      let sc_entry = `<details><summary>${sc_name}</summary><p>${sc_desc}</p></details>`;
+      sc_list += sc_entry;
+    });
+    return sc_list;
+  }
+
+  function construct_templates(items) {
+    let sc_templates = ``;
+    if (!items || items.length == 0) {
+      sc_templates += "<p>NONE</p>";
+    } else {
+      items.forEach((i) => {
+        sc_templates += `<p>${i.name}</p>`;
+      });
+    }
+
+    sc_templates += "<br>";
+    return sc_templates;
+  }
+
+  targets.forEach((target) => {
+    let actor = target.actor;
+    let items = actor.items;
+    let hase_table_html = `
+  <table>
+    <tr>
+      <th>HULL</th><th>AGI</th><th>SYS</th><th>ENG</th>
+    </tr>
+    <tr>
+      <td>${actor.system.hull || 0}</td>
+      <td>${actor.system.agi || 0}</td>
+      <td>${actor.system.sys || 0}</td>
+      <td>${actor.system.eng || 0}</td>
+    </tr>
+  </table>`;
+    let stat_table_html = `
+  <table>
+    <tr>
+      <th>Armor</th><th>HP</th><th>Heat</th><th>Speed</th>
+    </tr>
+    <tr>
+      <td>${actor.system.armor}</td>
+      <td>${actor.system.hp.value}/${actor.system.hp.max}</td>
+      <td>${actor.system.heat.value || 0}/${actor.system.heat.max || 0}</td>
+      <td>${actor.system.speed}</td>
+    </tr>
+    <tr>
+      <th>Evasion</th><th>E-Def</th><th>Save</th><th>Sensors</th>
+    </tr>
+    <tr>
+      <td>${actor.system.evasion}</td>
+      <td>${actor.system.edef}</td>
+      <td>${actor.system.save}</td>
+      <td>${actor.system.sensor_range}</td>
+    </tr>
+    <tr>
+      <th>Size</th><th>Activ</th><th>Struct</th><th>Stress</th>
+    </tr>
+    <tr>
+      <td>${actor.system.size}</td>
+      <td>${actor.system.activations || 1}</td>
+      <td>${actor.system.structure.value || 0}/${
+        actor.system.structure.max || 0
+      }</td>
+      <td>${actor.system.stress.value || 0}/${actor.system.stress.max || 0}</td>
+    </tr>
+  </table>`;
+    console.log("Scanning", target);
+    const classes = items.filter((i) => i.is_npc_class());
+    let sc_class = !classes || classes.length === 0 ? "NONE" : classes[0].name;
+    let sc_tier = actor.system.tier;
+    const templates = items.filter((i) => i.is_npc_template());
+    let sc_templates = construct_templates(templates);
+    let sc_list = ``;
+    const features = items.filter((i) => i.is_npc_feature());
+    if (!features || features.length === 0) {
+      sc_list += "<p>NONE</p>";
+    } else {
+      let sc_origins = [];
+      features.forEach((f) => {
+        let origin = f.system.origin.name;
+        if (!sc_origins.includes(origin)) {
+          sc_origins.push(origin);
+        }
+      });
+      sc_origins.forEach((origin) => {
+        sc_list += construct_features(features, origin);
+      });
+    }
+
+    ChatMessage.create({
+      user: game.user._id,
+      content:
+        `<h2>Scan results: ${actor.name}</h2>` +
+        `<h3>Class: ${sc_class}, Tier ${sc_tier}</h3>` +
+        hase_table_html +
+        stat_table_html +
+        `<h3>Templates:</h3>` +
+        sc_templates +
+        `<h3>Systems:</h3>` +
+        sc_list,
+    });
+  });
+folder: yxTxiLixDsbyThYC
+sort: 112500
+flags: {}
+ownership:
+  default: 0
+  2a2IgZ2kiAqXSGqu: 3
+_stats:
+  systemId: lancer
+  systemVersion: 2.0.0
+  coreVersion: "11.315"
+  createdTime: null
+  modifiedTime: 1717340495229
+  lastModifiedBy: RyAORVJNmdo1gq2Z
+_key: "!macros!3KPsYon0LoANWX54"

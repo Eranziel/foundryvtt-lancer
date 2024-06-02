@@ -1,0 +1,81 @@
+{
+  "title": "lancer.tour.pilot-import.title",
+  "description": "lancer.tour.pilot-import.description",
+  "canBeResumed": true,
+  "display": true,
+  "steps": [
+    {
+      "id": "compconLogin",
+      "selector": "#sidebar #settings #settings-game #compcon-login",
+      "title": "lancer.tour.pilot-import.compconLogin.title",
+      "content": "lancer.tour.pilot-import.compconLogin.content",
+      "sidebarTab": "settings"
+    },
+    {
+      "id": "pilotCloudTab",
+      "selector": "#LancerPilotSheet-Actor- nav.lancer-tabs [data-tab='cloud']",
+      "title": "lancer.tour.pilot-import.pilotCloudTab.title",
+      "content": "lancer.tour.pilot-import.pilotCloudTab.content",
+      "sidebarTab": "actors"
+    },
+    {
+      "id": "codeEntry",
+      "selector": "#LancerPilotSheet-Actor- div[data-tab='cloud'] div div:nth-child(1)",
+      "title": "lancer.tour.pilot-import.codeEntry.title",
+      "content": "lancer.tour.pilot-import.codeEntry.content",
+      "sidebarTab": "actors"
+    },
+    {
+      "id": "download",
+      "selector": "#LancerPilotSheet-Actor- div[data-tab='cloud'] div div:nth-child(2)",
+      "title": "lancer.tour.pilot-import.download.title",
+      "content": "lancer.tour.pilot-import.download.content",
+      "sidebarTab": "actors"
+    },
+    {
+      "id": "folders",
+      "selector": "#sidebar #actors header button.create-folder",
+      "title": "lancer.tour.pilot-import.folders.title",
+      "content": "lancer.tour.pilot-import.folders.content",
+      "sidebarTab": "actors"
+    },
+    {
+      "id": "jsonImport",
+      "selector": "#LancerPilotSheet-Actor- div[data-tab='cloud'] div div:nth-child(4)",
+      "title": "lancer.tour.pilot-import.jsonImport.title",
+      "content": "lancer.tour.pilot-import.jsonImport.content",
+      "sidebarTab": "actors"
+    }
+  ],
+  "suggestedNextTours": [],
+  "localization": {
+    "lancer.tour.pilot-import": {
+      "title": "Importing Pilots",
+      "description": "Import a pilot and its mechs from COMP/CON",
+      "compconLogin": {
+        "title": "COMP/CON Login (Optional)",
+        "content": "You may log into a COMP/CON account using this menu. This isn't required."
+      },
+      "pilotCloudTab": {
+        "title": "Sync Tab",
+        "content": "Importing is done from this sheet tab."
+      },
+      "codeEntry": {
+        "title": "Enter Code",
+        "content": "Enter the share code from COMP/CON. If you are logged into COMP/CON in Foundry, the dropdown will have a list of pilots."
+      },
+      "download": {
+        "title": "Download",
+        "content": "One a share code has been entered or a pilot selected in the dropdown, this button will start the process of syncing."
+      },
+      "folders": {
+        "title": "Folders",
+        "content": "If a pilot is inside of a folder, any mechs and deployables owned by the pilot will imported into the same folder"
+      },
+      "jsonImport": {
+        "title": "JSON import",
+        "content": "A Pilot JSON file exported from COMP/CON can be uploaded here instead of using cloud sync."
+      }
+    }
+  }
+}

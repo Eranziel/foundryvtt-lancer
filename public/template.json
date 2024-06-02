@@ -1,92 +1,117 @@
 {
   "Actor": {
-    "types": [
-      "pilot",
-      "mech",
-      "npc",
-      "deployable"
-    ],
+    "types": ["npc", "pilot", "mech", "deployable"],
     "templates": {
+      "universal": {
+        "lid": "",
+        "hp": {
+          "min": 0,
+          "max": 10,
+          "value": 5
+        },
+        "overshield": {
+          "min": 0,
+          "max": 14,
+          "value": 0
+        },
+        "burn": 0,
+
+        "resistances": {
+          "kinetic": false,
+          "energy": false,
+          "explosive": false,
+          "heat": false,
+          "burn": false,
+          "variable": false
+        },
+
+        "activations": 1,
+        "custom_counters": []
+      },
       "action_tracking": {
         "action_tracker": {
           "protocol": true,
           "move": 0,
           "full": true,
           "quick": true,
-          "reaction": true
+          "reaction": true,
+          "free": true,
+          "used_reactions": []
+        }
+      },
+      "heat": {
+        "heat": {
+          "min": 0,
+          "max": 6,
+          "value": 0
+        }
+      },
+      "struss": {
+        "stress": {
+          "min": 0,
+          "max": 1,
+          "value": 1
+        },
+        "structure": {
+          "min": 0,
+          "max": 1,
+          "value": 1
         }
       }
     },
     "pilot": {
-      "templates": ["action_tracking"],
-      "name": "",
+      "templates": ["universal", "action_tracking"],
       "active_mech": null,
       "background": "",
       "callsign": "",
-      "campaign": "",
-      "cc_ver": "",
-      "cloudID": "",
-      "cloudOwnerID": "",
-      "cloud_portrait": "",
-      "hp": 0,
-      "custom_counters": [],
-      "group": "",
+      "cloud_id": "",
       "history": "",
-      "lid": "",
-      "lastCloudUpdate": "",
+      "last_cloud_update": "",
       "level": 0,
       "loadout": {
-        "lid": "",
-        "name": "",
         "armor": [],
         "gear": [],
-        "weapons": [],
-        "extendedGear": [],
-        "extendedWeapons": []
+        "weapons": []
       },
-      "mechSkills": [
-        0,
-        0,
-        0,
-        0
-      ],
+      "hull": 0,
+      "agi": 0,
+      "sys": 0,
+      "eng": 0,
       "mounted": false,
       "notes": "",
-      "overshield": 0,
-      "burn": 0,
       "player_name": "",
-      "portrait": "",
-      "sort_index": 0,
       "status": "",
-      "text_appearance": ""
+      "text_appearance": "",
+      "bond_state": {
+        "xp": {
+          "min": 0,
+          "max": 8,
+          "value": 0
+        },
+        "xp_checklist": {
+          "major_ideals": [false, false, false],
+          "minor_ideal": false,
+          "veteran_power": false
+        },
+        "stress": {
+          "min": 0,
+          "max": 8,
+          "value": 0
+        },
+        "answers": [],
+        "minor_ideal": "",
+        "burdens": [],
+        "clocks": []
+      }
     },
     "npc": {
-      "templates": ["action_tracking"],
-      "actions": {},
-      "lid": "",
-      "name": "",
-      "subtitle": "",
-      "campaign": "",
-      "labels": "",
-      "tag": "",
-      "note": "",
-      "side": "",
-      "cloudImage": "",
-      "localImage": "",
-      "burn": 0,
-      "overshield": 0,
-      "destroyed": false,
-      "defeat": "",
-      "resistances": [],
-      "tier": 1,
-      "custom_counters": [],
-      "hp": 0,
-      "heat": 0,
-      "stress": 0,
-      "structure": 0
+      "templates": ["universal", "action_tracking", "heat", "struss"],
+      "notes": "",
+      "meltdown_timer": null,
+      "tier": 1
     },
     "deployable": {
-      "templates": ["action_tracking"],
+      "templates": ["universal", "statuses", "heat"],
       "actions": [],
       "bonuses": [],
       "counters": [],
@@ -95,79 +120,51 @@
       "activation": "",
       "armor": 0,
       "cost": 1,
+      "max_hp": "5",
+      "max_heat": 5,
+      "size": 0.5,
+      "speed": 0,
+      "edef": 8,
+      "evasion": 5,
       "instances": 1,
-      "hp": 0,
-      "heat": 0,
-      "burn": 0,
       "deactivation": "",
       "detail": "",
-      "edef": 0,
-      "evasion": 0,
-      "heatcap": 0,
-      "max_hp": 0,
-      "name": "",
-      "overshield": 0,
       "recall": "",
       "redeploy": "",
-      "repcap": 0,
-      "save": 0,
-      "sensor_range": 0,
-      "size": 0,
-      "speed": 0,
-      "tech_attack": 0,
       "type": "",
+      "resistances": {
+        "Burn": false,
+        "Energy": false,
+        "Explosive": false,
+        "Heat": false,
+        "Kinetic": false,
+        "Variable": false
+      },
       "avail_mounted": true,
       "avail_unmounted": false,
-      "deployer": null
+      "owner": null
     },
     "mech": {
-      "templates": ["action_tracking"],
-      "actions": {},
-      "activations": 1,
-      "burn": 0,
-      "cc_ver": "",
-      "cloud_portrait": "",
+      "templates": ["universal", "action_tracking", "heat", "struss"],
       "core_active": false,
-      "core_energy": true,
-      "heat": 0,
-      "hp": 0,
+      "core_energy": 1,
       "overcharge": 0,
       "repairs": 0,
-      "stress": 0,
-      "structure": 0,
-      "ejected": false,
-      "gm_note": "",
-      "lid": "",
       "loadout": {
         "frame": null,
         "system_mounts": [],
         "weapon_mounts": []
       },
-      "meltdown_imminent": false,
-      "name": "",
+      "meltdown_timer": null,
       "notes": "",
-      "overshield": 0,
-      "pilot": null,
-      "portrait": "",
-      "reactions": [],
-      "resistances": {
-        "Kinetic": false,
-        "Energy": false,
-        "Explosive": false,
-        "Heat": false,
-        "Burn": false,
-        "Variable": false
-      }
+      "pilot": null
     }
   },
   "Item": {
     "types": [
       "core_bonus",
-      "environment",
-      "faction",
       "frame",
       "license",
-      "manufacturer",
       "npc_class",
       "npc_template",
       "npc_feature",
@@ -179,50 +176,46 @@
       "pilot_gear",
       "pilot_weapon",
       "reserve",
-      "sitrep",
       "status",
       "talent",
-      "quirk",
       "skill",
-      "tag"
+      "bond"
     ],
+    "templates": {
+      "universal": {
+        "lid": ""
+      },
+      "licensed": {
+        "license": "",
+        "license_level": 0,
+        "manufacturer": ""
+      },
+      "bascdt": {
+        "bonuses": [],
+        "actions": [],
+        "synergies": [],
+        "counters": [],
+        "deployables": [],
+        "integrated": [],
+        "tags": []
+      },
+      "destructible": {
+        "cascading": false,
+        "destroyed": false
+      }
+    },
     "core_bonus": {
-      "actions": [],
-      "bonuses": [],
-      "synergies": [],
-      "counters": [],
-      "deployables": [],
+      "templates": ["universal", "bascdt"],
       "description": "",
-      "integrated": [],
-      "name": "New Core Bonus",
       "effect": "",
-      "lid": "",
       "mounted_effect": "",
-      "source": null
-    },
-    "environment": {
-      "description": "",
-      "lid": "",
-      "name": "New Environment"
-    },
-    "faction": {
-      "color": "",
-      "description": "",
-      "lid": "",
-      "logo": "",
-      "name": "New Faction",
-      "logo_url": ""
+      "manufacturer": ""
     },
     "frame": {
+      "templates": ["universal", "licensed"],
       "description": "",
-      "lid": "",
-      "license_level": 2,
-      "mechtype": [
-        "BALANCED"
-      ],
+      "mechtype": ["Balanced"],
       "mounts": [],
-      "name": "New Mech",
-      "source": null,
       "stats": {
         "armor": 0,
         "edef": 0,
@@ -240,13 +233,12 @@
         "tech_attack": 0
       },
       "traits": [],
-      "y_pos": 0,
       "core_system": {
         "name": "",
         "description": "",
         "use": "",
-        "activation": "",
-        "active_name": "",
+        "activation": "Quick",
+        "active_name": "ACTIVE",
         "active_effect": "",
         "active_actions": [],
         "active_bonuses": [],
@@ -257,7 +249,7 @@
         "integrated": [],
         "passive_actions": [],
         "passive_effect": "",
-        "passive_name": "",
+        "passive_name": "PASSIVE",
         "passive_bonuses": [],
         "passive_synergies": [],
         "tags": []
@@ -266,122 +258,45 @@
       "other_art": []
     },
     "license": {
-      "lid": "",
-      "name": "New License",
-      "manufacturer": null,
+      "templates": ["universal"],
+      "manufacturer": "",
       "key": "",
-      "rank": 0
-    },
-    "manufacturer": {
-      "lid": "",
-      "name": "New Manufacturer",
-      "logo": "",
-      "light": "",
-      "description": "",
-      "dark": "",
-      "quote": ""
+      "curr_rank": 1
     },
     "npc_class": {
-      "lid": "",
-      "name": "",
+      "templates": ["universal"],
       "role": "",
       "info": {
         "flavor": "",
         "tactics": ""
       },
-      "power": 100,
       "base_features": [],
       "optional_features": [],
       "base_stats": {
-        "activations": [
-          1,
-          1,
-          1
-        ],
-        "armor": [
-          1,
-          1,
-          1
-        ],
-        "hp": [
-          10,
-          10,
-          10
-        ],
-        "evade": [
-          10,
-          10,
-          10
-        ],
-        "edef": [
-          10,
-          10,
-          10
-        ],
-        "heatcap": [
-          5,
-          5,
-          5
-        ],
-        "speed": [
-          5,
-          5,
-          5
-        ],
-        "sensor": [
-          10,
-          10,
-          10
-        ],
-        "save": [
-          10,
-          10,
-          10
-        ],
-        "hull": [
-          0,
-          0,
-          0
-        ],
-        "agility": [
-          0,
-          0,
-          0
-        ],
-        "systems": [
-          0,
-          0,
-          0
-        ],
-        "engineering": [
-          0,
-          0,
-          0
-        ],
-        "size": [
-          [
-            1
-          ],
-          [
-            1
-          ],
-          [
-            1
-          ]
-        ]
+        "activations": [1, 1, 1],
+        "armor": [1, 1, 1],
+        "hp": [10, 10, 10],
+        "evasion": [10, 10, 10],
+        "edef": [10, 10, 10],
+        "heatcap": [5, 5, 5],
+        "speed": [5, 5, 5],
+        "sensor_range": [10, 10, 10],
+        "save": [10, 10, 10],
+        "hull": [0, 0, 0],
+        "agi": [0, 0, 0],
+        "sys": [0, 0, 0],
+        "eng": [0, 0, 0],
+        "size": [0, 0, 0]
       }
     },
     "npc_template": {
-      "lid": "",
-      "name": "",
+      "templates": ["universal"],
       "description": "",
-      "power": 100,
       "base_features": [],
       "optional_features": []
     },
     "npc_feature": {
-      "lid": "",
-      "name": "",
+      "templates": ["universal", "destructible"],
       "origin": {
         "type": "Class",
         "name": "Some Class",
@@ -393,15 +308,14 @@
       "tags": [],
       "type": "Trait",
       "charged": true,
-      "destroyed": false,
       "loaded": true,
-      "uses": 0,
+      "uses": {
+        "min": 0,
+        "max": 0,
+        "value": 0
+      },
       "weapon_type": "",
-      "damage": [
-        [],
-        [],
-        []
-      ],
+      "damage": [[], [], []],
       "range": [],
       "on_hit": "",
       "accuracy": [],
@@ -411,65 +325,46 @@
       "tier_override": 0
     },
     "weapon_mod": {
+      "templates": ["universal", "bascdt", "destructible", "licensed"],
       "added_tags": [],
       "added_damage": [],
-      "cascading": false,
-      "counters": [],
-      "deployables": [],
-      "destroyed": false,
       "effect": "",
-      "lid": "",
-      "integrated": [],
-      "license": "",
-      "license_level": 0,
-      "name": "New Weapon Mod",
-      "source": null,
-      "tags": [],
       "sp": 0,
-      "uses": 0,
+      "uses": {
+        "min": 0,
+        "max": 0,
+        "value": 0
+      },
       "allowed_sizes": [],
       "allowed_types": [],
-      "actions": [],
-      "added_range": [],
-      "bonuses": [],
-      "synergies": []
+      "added_range": []
     },
     "mech_system": {
-      "cascading": false,
-      "counters": [],
-      "deployables": [],
-      "destroyed": false,
+      "templates": ["universal", "bascdt", "destructible", "licensed"],
       "effect": "",
-      "lid": "",
-      "integrated": [],
-      "license": "",
-      "license_level": 0,
-      "name": "New Mech System",
-      "source": null,
-      "tags": [],
       "sp": 0,
-      "uses": 0,
-      "actions": [],
-      "bonuses": [],
-      "synergies": [],
+      "uses": {
+        "min": 0,
+        "max": 0,
+        "value": 0
+      },
       "description": "",
-      "type": ""
+      "type": "",
+      "ammo": []
     },
     "mech_weapon": {
-      "cascading": false,
+      "templates": ["universal", "destructible", "licensed"],
       "deployables": [],
-      "destroyed": false,
-      "lid": "",
       "integrated": [],
-      "license": "",
-      "license_level": 0,
-      "name": "New Mech Weapon",
-      "source": null,
       "sp": 0,
-      "uses": 0,
+      "uses": {
+        "min": 0,
+        "max": 0,
+        "value": 0
+      },
       "profiles": [],
       "loaded": false,
-      "selected_profile": 0,
+      "selected_profile_index": 0,
       "size": "",
       "no_core_bonuses": false,
       "no_mods": false,
@@ -478,120 +373,79 @@
       "no_attack": false
     },
     "organization": {
+      "templates": ["universal"],
       "actions": "",
       "description": "",
       "efficiency": 0,
       "influence": 0,
-      "name": "New Organization",
       "purpose": "Academic"
     },
     "pilot_armor": {
-      "actions": [],
-      "bonuses": [],
-      "deployables": [],
+      "templates": ["universal", "bascdt"],
       "description": "",
-      "lid": "",
-      "name": "New Pilot Armor",
-      "synergies": [],
-      "tags": [],
-      "uses": 0
+      "uses": {
+        "min": 0,
+        "max": 0,
+        "value": 0
+      }
     },
     "pilot_gear": {
-      "actions": [],
-      "bonuses": [],
-      "deployables": [],
+      "templates": ["universal", "bascdt"],
       "description": "",
-      "lid": "",
-      "name": "New Pilot Gear",
-      "synergies": [],
-      "tags": [],
-      "uses": 0
+      "uses": {
+        "min": 0,
+        "max": 0,
+        "value": 0
+      }
     },
     "pilot_weapon": {
-      "actions": [],
-      "bonuses": [],
-      "deployables": [],
+      "templates": ["universal", "bascdt"],
       "description": "",
-      "lid": "",
-      "name": "New Pilot Weapon",
-      "synergies": [],
-      "tags": [],
       "range": [],
       "damage": [],
       "effect": "",
       "loaded": true,
-      "uses": 0
+      "uses": {
+        "min": 0,
+        "max": 0,
+        "value": 0
+      }
     },
     "reserve": {
-      "name": "New Reserve",
+      "templates": ["universal", "bascdt"],
       "consumable": true,
-      "counters": [],
-      "integrated": [],
       "label": "",
-      "resource_name": "",
-      "resource_note": "",
-      "resource_cost": "",
       "type": "Resources",
       "used": false,
-      "actions": [],
-      "bonuses": [],
-      "deployables": [],
-      "description": "",
-      "lid": "",
-      "synergies": []
-    },
-    "sitrep": {
-      "description": "",
-      "enemyVictory": "The enemy wins when ___",
-      "lid": "",
-      "name": "New Sitrep",
-      "pcVictory": "The PCs win when ___",
-      "controlZone": "",
-      "deployment": "",
-      "extraction": "",
-      "noVictory": "",
-      "objective": ""
+      "description": ""
     },
     "status": {
-      "lid": "",
+      "templates": ["universal"],
       "effects": "",
       "icon": "",
-      "name": "New Status/Condition",
-      "type": "Status"
+      "type": "status"
     },
     "talent": {
+      "templates": ["universal"],
       "curr_rank": 1,
       "description": "",
       "icon": "",
-      "lid": "",
-      "name": "New Talent",
       "ranks": [],
       "terse": ""
     },
-    "quirk": {
-      "actions": [],
-      "bonuses": [],
-      "counters": [],
-      "deployables": [],
-      "description": "",
-      "integrated": [],
-      "name": "New Quirk",
-      "synergies": []
-    },
     "skill": {
-      "lid": "",
+      "templates": ["universal"],
       "description": "",
       "detail": "",
-      "family": "cha",
-      "name": "New Skill",
-      "rank": 1
+      "curr_rank": 1
     },
-    "tag": {
-      "description": "",
-      "lid": "",
-      "name": "New Tag",
-      "hidden": false,
-      "filter_ignore": false
+    "bond": {
+      "templates": ["universal"],
+      "name": "",
+      "major_ideals": [],
+      "minor_ideals": [],
+      "questions": [],
+      "powers": []
     }
   }
 }

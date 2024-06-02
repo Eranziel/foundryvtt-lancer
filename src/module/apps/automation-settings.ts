@@ -6,6 +6,10 @@ import { LANCER } from "../config";
  * tracker
  */
 export class AutomationConfig extends FormApplication<FormApplication.Options, AutomationOptions> {
+  constructor(object?: any, options = {}) {
+    super(object, options);
+  }
+
   /** @override */
   static get defaultOptions(): FormApplication.Options {
     return {
@@ -13,6 +17,7 @@ export class AutomationConfig extends FormApplication<FormApplication.Options, A
       title: "lancer.automation.menu-label",
       id: "lancer-automation-settings",
       template: `systems/${game.system.id}/templates/window/automation-config.hbs`,
+      classes: ["lancer", "automation-config"],
       width: 350,
     };
   }
@@ -35,9 +40,7 @@ export class AutomationConfig extends FormApplication<FormApplication.Options, A
 
   /** @override */
   async _updateObject(_: Event, data: Record<string, unknown>): Promise<void> {
-    const defs = getAutomationOptions(true);
-    const set = foundry.utils.diffObject(defs, data, { inner: true });
-    game.settings.set(game.system.id, LANCER.setting_automation, set);
+    game.settings.set(game.system.id, LANCER.setting_automation, data);
   }
 
   /**

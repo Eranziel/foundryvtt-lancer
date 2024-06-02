@@ -1,0 +1,85 @@
+{
+  "title": "lancer.tour.lcp.title",
+  "description": "lancer.tour.lcp.description",
+  "canBeResumed": true,
+  "display": true,
+  "restricted": true,
+  "steps": [
+    {
+      "id": "compendiumTab",
+      "selector": ".tabs>a[data-tab='compendium']",
+      "title": "lancer.tour.lcp.compendiumTab.title",
+      "content": "lancer.tour.lcp.compendiumTab.content",
+      "sidebarTab": "compendium"
+    },
+    {
+      "id": "compendiumManagerButton",
+      "selector": "button#lcp-manager-button",
+      "title": "lancer.tour.lcp.compendiumManagerButton.title",
+      "content": "lancer.tour.lcp.compendiumManagerButton.content",
+      "sidebarTab": "compendium"
+    },
+    {
+      "id": "lcpFile",
+      "selector": ".lcp-manager .lcp-importer #lcp-file",
+      "title": "lancer.tour.lcp.lcpFile.title",
+      "content": "lancer.tour.lcp.lcpFile.content",
+      "inApp": true
+    },
+    {
+      "id": "lcpImport",
+      "selector": ".lcp-manager button.lcp-import",
+      "title": "lancer.tour.lcp.lcpImport.title",
+      "content": "lancer.tour.lcp.lcpImport.content",
+      "inApp": true
+    },
+    {
+      "id": "clearData",
+      "selector": ".lcp-manager button.lcp-clear-all",
+      "title": "lancer.tour.lcp.clearData.title",
+      "content": "lancer.tour.lcp.clearData.content",
+      "inApp": true
+    },
+    {
+      "id": "rebuildCore",
+      "selector": ".lcp-manager button.lcp-core-update",
+      "title": "lancer.tour.lcp.rebuildCore.title",
+      "content": "lancer.tour.lcp.rebuildCore.content",
+      "inApp": true
+    }
+  ],
+  "suggestedNextTours": [
+    "lancer.npc",
+    "lancer.pilot-import"
+  ],
+  "localization": {
+    "lancer.tour.lcp": {
+      "title": "Importing LCPs",
+      "description": "Import .lcp files to add content",
+      "compendiumTab": {
+        "title": "Compendium Tab",
+        "content": "Content packs are imported from the Compendium Tab"
+      },
+      "compendiumManagerButton": {
+        "title": "LANCER Compendium Manager",
+        "content": "Manage core data and imported LCPs. NPC data is not included in the system and will need to be added here."
+      },
+      "lcpFile": {
+        "title": "Upload",
+        "content": "Upload the .lcp file here."
+      },
+      "lcpImport": {
+        "title": "Import",
+        "content": "Once you've confirmed the lcp, import its contents into the compendiums."
+      },
+      "clearData": {
+        "title": "Clear Data",
+        "content": "Deletes imported content and core data. This CANNOT be undone and the only way to restore is to rebuild the core data and re-import the lcp files."
+      },
+      "rebuildCore": {
+        "title": "Rebuild Core Data",
+        "content": "Imports or updates the core rulebook data. This does not include NPC data."
+      }
+    }
+  }
+}

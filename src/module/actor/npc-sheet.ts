@@ -1,14 +1,12 @@
-import type { GenControlContext, LancerActorSheetData, LancerStatMacroData } from "../interfaces";
+import type { GenControlContext } from "../interfaces";
 import { LANCER } from "../config";
 import { LancerActorSheet } from "./lancer-actor-sheet";
-import { prepareItemMacro, prepareStatMacro } from "../macros";
-import { EntryType, Npc, NpcClass, NpcFeature, NpcTemplate } from "machine-mind";
-import tippy from "tippy.js";
-import { AnyMMItem, is_item_type, LancerItemType } from "../item/lancer-item";
-import type { AnyMMActor } from "./lancer-actor";
-import { mm_resort_item } from "../mm-util/helpers";
-import { resolve_ref_element } from "../helpers/refs";
-import { HANDLER_activate_general_controls } from "../helpers/commons";
+import { LancerItem, LancerNPC_FEATURE } from "../item/lancer-item";
+import { insinuate } from "../util/doc";
+import { LancerNPC } from "./lancer-actor";
+import { ResolvedDropData } from "../helpers/dragdrop";
+import { EntryType } from "../enums";
+import { lookupLID } from "../util/lid";
 const lp = LANCER.log_prefix;
 
 /**
@@ -53,62 +51,35 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
       itemMacros.on("click", (ev: any) => {
         ev.stopPropagation(); // Avoids triggering parent event handlers
 
-        const el = $(ev.currentTarget).closest(".item")[0] as HTMLElement;
-        let id = this.token && !this.token.isLinked ? this.token.id! : this.actor.id!;
-        prepareItemMacro(id, <string>el.getAttribute("data-id")).then();
+        const el = $(ev.currentTarget).closest("[data-uuid]")[0] as HTMLElement;
+        // prepareItemMacro(el.dataset.uuid!, {
+        //   display: true,
+        // });
       });
-
-      // Stat rollers
-      let statMacro = html.find(".roll-stat");
-      statMacro.on("click", ev => {
-        if (!ev.currentTarget) return; // No target, let other handlers take care of it.
-        ev.stopPropagation(); // Avoids triggering parent event handlers
-
-        // Find the stat input to get the stat's key to pass to the macro function
-        const statInput: HTMLInputElement = $(ev.currentTarget)
-          .closest(".stat-container")
-          .find(".lancer-stat")[0] as HTMLInputElement;
-        let tSplit = statInput.name.split(".");
-        let mData: LancerStatMacroData = {
-          title: tSplit[tSplit.length - 1].toUpperCase(),
-          bonus: statInput.value,
-        };
-
-        let id = this.token && !this.token.isLinked ? this.token.id! : this.actor.id!;
-        console.log(`${lp} Rolling ${mData.title} check, bonus: ${mData.bonus}`);
-        prepareStatMacro(id, this.getStatPath(ev)!);
-      });
-
-      // Trigger rollers
-      this.activateTriggerListeners(html);
 
       // Tech rollers
       let techMacro = html.find(".roll-tech");
       techMacro.on("click", ev => {
         if (!ev.currentTarget) return; // No target, let other handlers take care of it.
         ev.stopPropagation();
-        const techElement = $(ev.currentTarget).closest(".item")[0] as HTMLElement;
-        let techId = techElement.getAttribute("data-id");
-        let id = this.token && !this.token.isLinked ? this.token.id! : this.actor.id!;
-        prepareItemMacro(id, techId!);
+        const techElement = $(ev.currentTarget).closest("[data-uuid]")[0] as HTMLElement;
+        let techId = techElement.dataset.uuid;
+        // prepareItemMacro(techId!);
       });
 
       // Item/Macroable Dragging
-      const haseMacroHandler = (e: DragEvent) => this._onDragMacroableStart(e);
       html
         .find('li[class*="item"]')
         .add('span[class*="item"]')
-        .add('[class*="macroable"]')
         .each((_i: number, item: any) => {
           if (item.classList.contains("inventory-header")) return;
-          if (item.classList.contains("roll-stat")) item.addEventListener("dragstart", haseMacroHandler, false);
+          if (item.classList.contains("roll-stat"))
+            item.addEventListener("dragstart", this._onDragMacroableStart, false);
           if (item.classList.contains("item"))
             item.addEventListener("dragstart", (ev: DragEvent) => this._onDragStart(ev), false);
           item.setAttribute("draggable", "true");
         });
     }
-
-    this._activateTooltips();
   }
 
   _onDragMacroableStart(event: DragEvent) {
@@ -128,109 +99,63 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
     event.dataTransfer?.setData("text/plain", JSON.stringify(data));
   }
 
-  private _activateTooltips() {
-    tippy('[data-context-menu="toggle"][data-field="Destroyed"]', {
-      content: "Right Click to Destroy",
-      delay: [300, 100],
-    });
-  }
-
-  // So it can be overridden
-  activate_general_controls(html: JQuery) {
-    let getfunc = () => this.getDataLazy();
-    let commitfunc = (_: any) => this._commitCurrMM();
-
-    // Enable NPC class/template-deletion controls
-    HANDLER_activate_general_controls(html, getfunc, commitfunc, handleClassDelete);
-  }
-
   /* -------------------------------------------- */
 
-  can_root_drop_entry(item: AnyMMItem | AnyMMActor): boolean {
+  canRootDrop(item: ResolvedDropData): boolean {
     // Reject any non npc item
-    if (!LANCER.npc_items.includes(item.Type as LancerItemType)) {
-      return false;
-    }
-
-    // TODO: should the commented code be reinstated?
-    // Reject any non-null, non-owned-by us item
-    // let owner = mm_owner(item);
-    // return !owner || owner == this.actor;
-    return true;
+    return (
+      item.type == "Item" &&
+      (item.document.is_npc_class() || item.document.is_npc_feature() || item.document.is_npc_template())
+    );
   }
 
   // Take ownership of appropriate items. Already filtered by can_drop_entry
-  async on_root_drop(
-    base_drop: AnyMMItem | AnyMMActor,
-    event: JQuery.DropEvent,
-    _dest: JQuery<HTMLElement>
-  ): Promise<void> {
-    let sheet_data = await this.getDataLazy();
-    let this_mm = sheet_data.mm;
-    let ctx = this.getCtx();
+  async onRootDrop(base_drop: ResolvedDropData, event: JQuery.DropEvent, _dest: JQuery<HTMLElement>): Promise<void> {
+    // Type guard
+    if (!this.actor.is_npc()) return;
+    let old_class = this.actor.system.class;
 
     // Take posession
-    let [drop, is_new] = await this.quick_own(base_drop);
+    let [drop, is_new] = await this.quickOwnDrop(base_drop);
 
     // Flag to know if we need to reset stats
     let needs_refresh = false;
 
     // Bring in base features from templates
-    if (is_new && drop.Type == EntryType.NPC_TEMPLATE) {
-      let this_inv = await this_mm.get_inventory();
-      for (let feat of drop.BaseFeatures) {
-        await feat.insinuate(this_inv, ctx);
-      }
-      needs_refresh = true;
-    } else if (is_new && drop.Type == EntryType.NPC_CLASS) {
-      // Bring in base features from classes, if we don't already have an active class
-      let this_inv = await this_mm.get_inventory();
+    if (is_new && drop.type == "Item") {
+      let doc = drop.document;
 
-      // Need to pass this_mm through so we don't overwrite data on our
-      // later update
-      await this.actor.swapFrameImage(this_mm, this_mm.ActiveClass, drop);
-
-      // But before we do that, destroy all old classes
-      for (let clazz of this_mm.Classes) {
-        // If we have a class, get rid of it
-        await removeFeaturesFromNPC(this_mm, [...clazz.BaseFeatures, ...clazz.OptionalFeatures]);
-        await clazz.destroy_entry();
+      if (doc.is_npc_class()) {
+        await this.actor.swapFrameImage(doc);
+        await this.actor.updateTokenSize(doc);
       }
-
-      for (let b of drop.BaseFeatures) {
-        await b.insinuate(this_inv, ctx);
-      }
-      needs_refresh = true;
-    } else if (drop.Type == EntryType.NPC_FEATURE) {
-      // If new we need to update stats
-      needs_refresh = is_new;
     }
 
     // If a new item was added, fill our hp, stress, and structure to match new maxes
     if (needs_refresh) {
       // Update this, to re-populate arrays etc to reflect new item
-      await this_mm.repopulate_inventory();
-      // Npc.recompute_bonuses() was removed in machine-mind v0.2.2
-      // this_mm.recompute_bonuses();
-
-      this_mm.CurrentHP = this_mm.MaxHP;
-      this_mm.CurrentStress = this_mm.MaxStress;
-      this_mm.CurrentStructure = this_mm.MaxStructure;
-      await this_mm.writeback();
+      await this.actor.update({
+        "system.hp.value": this.actor.system.hp.max,
+        "system.stress.value": this.actor.system.stress.max,
+        "system.structure.value": this.actor.system.structure.max,
+      });
     }
 
     // We also may need to sort the item
+    // TODO
+    /*
     if (drop.Type == EntryType.NPC_FEATURE) {
       // Try to find a ref
-      let nearest = $(event.target).closest(".valid.ref");
+      let nearest = $(event.target).closest(".set.ref");
       if (nearest.length) {
         // ok, now try to resolve it
         let target = await resolve_ref_element(nearest[0], ctx);
         if (target && is_item_type(target.Type)) {
-          mm_resort_item(drop, target as AnyMMItem);
+          mm_resort_item(drop, target as LancerItem);
         }
       }
     }
+    */
   }
 }
 
@@ -240,24 +165,4 @@ function getStatInput(event: Event): HTMLInputElement | HTMLDataElement | null {
   return $(event.currentTarget).closest(".stat-container").find(".lancer-stat")[0] as
     | HTMLInputElement
     | HTMLDataElement;
-}
-
-// Removes class/features when a delete happens
-function handleClassDelete(ctx: GenControlContext<LancerActorSheetData<EntryType.NPC>>) {
-  let npc = ctx.data.mm;
-  if (ctx.action == "delete") {
-    if (ctx.path_target instanceof NpcClass || ctx.path_target instanceof NpcTemplate) {
-      removeFeaturesFromNPC(npc, [...ctx.path_target.BaseFeatures, ...ctx.path_target.OptionalFeatures]);
-    }
-  }
-}
-
-export async function removeFeaturesFromNPC(npc: Npc, features: NpcFeature[]) {
-  for (let predicate_feature of features) {
-    for (let candidate_feature of npc.Features) {
-      if (candidate_feature.LID == predicate_feature.LID) {
-        await candidate_feature.destroy_entry();
-      }
-    }
-  }
 }

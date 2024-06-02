@@ -1,6 +1,6 @@
 import { LANCER } from "../config";
 import { StatusIconConfigOptions, getStatusIconConfigOptions } from "../settings";
-import { configureStatusIcons } from "../status-icons";
+import { LancerActiveEffect } from "../effects/lancer-active-effect";
 
 /**
  * Settings form for customizing the icon appearance of the icon used in the
@@ -14,6 +14,7 @@ export class StatusIconConfig extends FormApplication<FormApplication.Options, S
       title: "lancer.statusIconsConfig.menu-label",
       id: "lancer-statusIconsConfig-settings",
       template: `systems/${game.system.id}/templates/window/statusicons-config.hbs`,
+      classes: ["lancer", "status-icon-config"],
       width: 350,
     };
   }
@@ -37,7 +38,7 @@ export class StatusIconConfig extends FormApplication<FormApplication.Options, S
   /** @override */
   async _updateObject(_: Event, data: Record<string, unknown>): Promise<void> {
     await game.settings.set(game.system.id, LANCER.setting_status_icons, data);
-    configureStatusIcons();
+    LancerActiveEffect.populateConfig(true);
   }
 
   /**

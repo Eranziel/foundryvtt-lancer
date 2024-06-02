@@ -1,12 +1,11 @@
 import type { HelperOptions } from "handlebars";
-import { EntryType, funcs, Mech, Npc, Pilot } from "machine-mind";
-import { ext_helper_hash, inc_if, resolve_helper_dotpath, selected, std_num_input, std_x_of_y } from "./commons";
-import { ref_commons, ref_params, simple_mm_ref } from "./refs";
-import { encodeMacroData } from "../macros";
-import { encodeOverchargeMacroData } from "../macros/overcharge";
+import { extendHelper, inc_if, resolveHelperDotpath, selected, std_num_input, std_x_of_y } from "./commons";
+import { ref_params, simple_ref_slot } from "./refs";
 import type { ActionType } from "../action";
-import type { LancerActor } from "../actor/lancer-actor";
+import type { LancerActor, LancerMECH, LancerNPC, LancerPILOT } from "../actor/lancer-actor";
 import { getActionTrackerOptions } from "../settings";
+import { EntryType } from "../enums";
+import { LancerFlowState } from "../flows/interfaces";
 
 // ---------------------------------------
 // Some simple stat editing thingies
@@ -16,18 +15,26 @@ interface ButtonOverrides {
   classes?: string;
 }
 
-function _rollable_macro_button(macroData: string, overrides: ButtonOverrides = {}): string {
-  return `<a class="i--dark i--sm ${overrides.classes ?? ""} lancer-macro" data-macro="${macroData}">
-    <i class="fas ${overrides.icon ?? "fa-dice-d20"}"></i>
+function _flowButton(button_class: string, html_data: string, overrides: ButtonOverrides = {}): string {
+  return `<a class="${button_class} lancer-button ${overrides.classes ?? ""}" ${html_data}>
+    <i class="fas ${overrides.icon ?? "fa-dice-d20"} i--dark i--s"></i>
   </a>`;
 }
 
-export function get_actor_id(options: HelperOptions): string | null {
+function _statFlowButton(uuid: string, path: string, overrides: ButtonOverrides = {}): string {
+  const data = `data-uuid="${uuid}" data-path="${path}" data-flow-args="${""}"`;
+  return _flowButton("roll-stat", data, overrides);
+}
+
+function _basicFlowButton(uuid: string, type = "BasicAttack", overrides: ButtonOverrides = {}): string {
+  const data = `data-uuid="${uuid}" data-flow-type="${type}"`;
+  return _flowButton("lancer-flow-button", data, overrides);
+}
+
+export function getActorUUID(options: HelperOptions): string | null {
   // Determine whether this is an unlinked token, so we can encode the correct id for the macro.
-  const r_actor = options.data.root.actor as LancerActor | undefined;
-  let id = r_actor?.token && !r_actor.token.isLinked ? r_actor.token.id : r_actor?.id!;
-  //console.log(r_actor?.id, id);
-  return id;
+  const rActor = options.data.root.actor as LancerActor | undefined;
+  return rActor?.uuid ?? null;
 }
 
 // Shows an X / MAX clipped card
@@ -38,12 +45,12 @@ export function stat_edit_card_max(
   max_path: string,
   options: HelperOptions
 ): string {
-  let data_val = resolve_helper_dotpath(options, data_path, 0);
-  let max_val = resolve_helper_dotpath(options, max_path, 0);
+  let data_val = resolveHelperDotpath(options, data_path, 0);
+  let max_val = resolveHelperDotpath(options, max_path, 0);
   return `
-    <div class="card clipped">
-      <div class="lancer-header ">
-        <i class="${icon} i--m header-icon"> </i>
+    <div class="stat-card card clipped">
+      <div class="lancer-header lancer-primary ">
+        <i class="${icon} i--m i--light header-icon"> </i>
         <span class="major">${title}</span>
       </div>
       ${std_x_of_y(data_path, data_val, max_val, "lancer-stat")}
@@ -55,11 +62,11 @@ export function stat_edit_card_max(
 export function stat_edit_card(title: string, icon: string, data_path: string, options: HelperOptions): string {
   return `
     <div class="card clipped">
-      <div class="lancer-header ">
-        <i class="${icon} i--m header-icon"> </i>
+      <div class="lancer-header lancer-primary ">
+        <i class="${icon} i--m i--light header-icon"> </i>
         <span class="major">${title}</span>
       </div>
-      ${std_num_input(data_path, ext_helper_hash(options, { classes: "lancer-stat" }))}
+      ${std_num_input(data_path, extendHelper(options, { classes: "lancer-stat" }))}
     </div>
     `;
 }
@@ -71,32 +78,25 @@ export function stat_view_card(
   data_path: string,
   options: HelperOptions & { rollable?: boolean }
 ): string {
-  let data_val = resolve_helper_dotpath(options, data_path);
-  let macro_button: string | undefined;
-  let macroData = encodeMacroData({
-    title: title,
-    fn: "prepareStatMacro",
-    args: [get_actor_id(options), data_path],
-  });
-  let macroBasicData = encodeMacroData({ title: "BASIC ATTACK", fn: "prepareEncodedAttackMacro", args: [] });
-  if (options.rollable) macro_button = _rollable_macro_button(macroData);
-
+  let dataVal = resolveHelperDotpath(options, data_path);
+  let flowButton: string = "";
+  let attackFlowButton: string = "";
+  if (options.rollable) {
+    flowButton = _statFlowButton(getActorUUID(options)!, data_path);
+    if (data_path === "system.grit" || data_path === "system.tier") {
+      attackFlowButton = _basicFlowButton(getActorUUID(options)!, "BasicAttack", { icon: "cci cci-weapon" });
+    }
+  }
   return `
-    <div class="card clipped">
-      <div class="lancer-header ">
+    <div class="stat-card card clipped">
+      <div class="lancer-header lancer-primary ">
         ${inc_if(`<i class="${icon} i--m i--light header-icon"> </i>`, icon)}
         <span class="major">${title}</span>
       </div>
-      <div class="flexrow ${macro_button ? "stat-macro-container" : ""}">
-        ${macro_button ? macro_button : ""}
-        <span class="lancer-stat major" data-path="${data_path}">${data_val}</span>
-        ${
-          macro_button
-            ? data_path == "mm.Pilot.Grit" || data_path === "mm.Tier"
-              ? _rollable_macro_button(macroBasicData, { icon: "cci cci-weapon" })
-              : "<div></div>"
-            : ""
-        }
+      <div class="${flowButton ? "stat-flow-container" : "flexrow flex-center"}">
+        ${flowButton}
+        <span class="lancer-stat major" data-path="${data_path}">${dataVal}</span>
+        ${attackFlowButton}
       </div>
     </div>
     `;
@@ -109,7 +109,7 @@ export function stat_rollable_card(title: string, icon: string, data_path: strin
 
 // Shows a compact readonly value
 export function compact_stat_view(icon: string, data_path: string, options: HelperOptions): string {
-  let data_val = resolve_helper_dotpath(options, data_path);
+  let data_val = resolveHelperDotpath(options, data_path);
   return `        
     <div class="compact-stat">
         <i class="${icon} i--m i--dark"></i>
@@ -120,28 +120,28 @@ export function compact_stat_view(icon: string, data_path: string, options: Help
 
 // Shows a compact editable value
 export function compact_stat_edit(icon: string, data_path: string, max_path: string, options: HelperOptions): string {
-  let data_val = resolve_helper_dotpath(options, data_path);
+  let data_val = resolveHelperDotpath(options, data_path);
   let max_html = ``;
   if (max_path) {
-    let max_val = resolve_helper_dotpath(options, max_path);
-    max_html = `<span class="minor" style="max-width: min-content;" > / </span>
+    let max_val = resolveHelperDotpath(options, max_path);
+    max_html = `<span class="lancer-stat minor" style="max-width: min-content;" > / </span>
     <span class="lancer-stat minor">${max_val}</span>`;
   }
   return `        
         <div class="compact-stat">
           <i class="${icon} i--m i--dark"></i>
-          ${std_num_input(data_path, ext_helper_hash(options, { classes: "lancer-stat minor" }))}
+          ${std_num_input(data_path, extendHelper(options, { classes: "lancer-stat minor" }))}
           ${max_html}
         </div>
     `;
 }
 
 // An editable field with +/- buttons
-export function clicker_num_input(data_path: string, max: number, options: HelperOptions) {
+export function clicker_num_input(data_path: string, options: HelperOptions) {
   return `<div class="flexrow arrow-input-container">
-      <button class="mod-minus-button" type="button">-</button>
-      ${std_num_input(data_path, ext_helper_hash(options, { classes: "lancer-stat minor", default: 0 }))}
-      <button class="mod-plus-button" data-max="${max}" type="button">+</button>
+      <button class="clicker-minus-button input-update" type="button">‒</button>
+      ${std_num_input(data_path, extendHelper(options, { classes: "lancer-stat minor", default: 0 }))}
+      <button class="clicker-plus-button input-update" type="button">+</button>
     </div>`;
 }
 
@@ -153,34 +153,52 @@ export function clicker_stat_card(
   roller: boolean,
   options: HelperOptions
 ): string {
-  let button = "";
-  let id = get_actor_id(options);
-  let macroData = encodeMacroData({
-    title: title,
-    fn: "prepareStatMacro",
-    args: [id, data_path],
-  });
-  let macroBasicData = encodeMacroData({ title: "BASIC ATTACK", fn: "prepareEncodedAttackMacro", args: [] });
-  if (roller)
-    button = `<a class="lancer-macro i--dark i--sm" data-macro="${macroData}"><i class="fas fa-dice-d20"></i></a>`;
+  let uuid = getActorUUID(options) ?? "unknown";
+  let statButton = "";
+  let attackButton = "<div></div>";
+  if (roller) {
+    statButton = `<a class="roll-stat lancer-button" data-uuid="${uuid}" data-path="${data_path}"><i class="fas fa-dice-d20 i--dark i--s"></i></a>`;
+    if (data_path === "system.grit" || data_path === "system.tier") {
+      attackButton = _basicFlowButton(uuid, "BasicAttack", { icon: "cci cci-weapon" });
+    }
+  }
   return `<div class="card clipped stat-container">
-      <div class="lancer-header ">
+      <div class="lancer-header lancer-primary ">
         <i class="${icon} i--m i--light header-icon"> </i>
         <span class="major">${title}</span>
       </div>
       <div class="flexrow">
-        ${button}
-        ${clicker_num_input(data_path, -1, options)}
-        ${
-          button
-            ? data_path == "mm.Pilot.Grit" || data_path === "mm.Tier"
-              ? _rollable_macro_button(macroBasicData, { icon: "cci cci-weapon" })
-              : "<div></div>"
-            : ""
-        }
+        ${statButton}
+        ${clicker_num_input(data_path, options)}
+        ${attackButton}
       </div>
     </div>
   `;
+}
+
+export function bond_answer_selector(pilot: LancerPILOT, index: number): string {
+  const bond = pilot.system.bond;
+  const currentAnswer = pilot.system.bond_state.answers[index];
+  if (!bond || index > bond.system.questions.length - 1) return "";
+  let options = "";
+  bond.system.questions[index].options.forEach(answer => {
+    options += `<option value="${answer}" ${currentAnswer === answer ? "selected" : ""}>${answer}</option>\n`;
+  });
+  return `<select class="bond-question-select" name="system.bond_state.answers.${index}" data-type="String">
+    ${options}
+  </select>`;
+}
+
+export function bond_minor_ideal_selector(pilot: LancerPILOT): string {
+  const bond = pilot.system.bond;
+  const current_ideal = pilot.system.bond_state.minor_ideal;
+  let options = "";
+  bond?.system.minor_ideals.forEach(ideal => {
+    options += `<option value="${ideal}" ${current_ideal === ideal ? "selected" : ""}>${ideal}</option>\n`;
+  });
+  return `<select class="bond-ideal-select" name="system.bond_state.minor_ideal" data-type="String">
+    ${options}
+  </select>`;
 }
 
 export function action_button(
@@ -189,7 +207,7 @@ export function action_button(
   action: ActionType,
   options: HelperOptions & { rollable?: boolean }
 ): string {
-  let action_val = resolve_helper_dotpath(options, data_path);
+  let action_val = resolveHelperDotpath(options, data_path);
   let active: boolean;
   if (action == "move") {
     active = (action_val as number) > 0;
@@ -204,102 +222,112 @@ export function action_button(
   }
 
   return `
-    <button class="lancer-action-button${active ? ` active activation-${action}` : ""}${
-    enabled ? ` enabled` : ""
-  }" data-action="${action}" data-val="${action_val}">
+    <button class="lancer-action-button lancer-button lancer-${action ?? "quick"}${
+    active ? ` active activation-${action}` : ""
+  }${enabled ? ` enabled` : ""}" data-action="${action}" data-val="${action_val}">
       ${title}
     </button>
     `;
 }
 
-export function macro_button(
+// Suitable for any macros that take a single argument: the actor uuid
+export function actor_flow_button(
   title: string,
-  macro: string,
-  data_path: string,
+  type: string,
   options: HelperOptions & { rollable?: boolean }
 ): string {
-  let args = [get_actor_id(options), null];
+  let args = JSON.stringify({});
   let mIcon;
-  switch (macro) {
-    case "fullRepairMacro":
+  const BasicFlowType = LancerFlowState.BasicFlowType;
+  switch (type) {
+    case BasicFlowType.FullRepair:
       mIcon = "cci-repair";
       break;
-    case "stabilizeMacro":
+    case BasicFlowType.Stabilize:
       mIcon = "cci-marker";
       break;
-    case "prepareOverheatMacro":
+    case BasicFlowType.Overheat:
       mIcon = "cci-heat";
       break;
-    case "prepareStructureMacro":
+    case BasicFlowType.Structure:
       mIcon = "cci-condition-shredded";
       break;
-    case "prepareEncodedAttackMacro":
+    case BasicFlowType.BasicAttack:
       mIcon = "cci-weapon";
-      args = [];
       break;
-    case "prepareTechMacro":
+    case BasicFlowType.TechAttack:
       mIcon = "cci-tech-quick";
       break;
   }
 
-  let macroData = encodeMacroData({
-    title: title,
-    fn: macro,
-    args: args,
-  });
-
   return `
-      <button type="button" class="lancer-macro-button lancer-macro activation-quick" data-macro="${macroData}">
+      <button type="button" class="lancer-flow-button lancer-button lancer-secondary" data-flow-type="${type}" data-flow-args=${args}>
         <i class="cci ${mIcon} i--m"></i> ${title}
       </button>
     `;
 }
 
 export function tech_flow_card(title: string, icon: string, data_path: string, options: HelperOptions): string {
-  let data_val = resolve_helper_dotpath(options, data_path);
-
-  let macroData = encodeMacroData({
-    title: title,
-    fn: "prepareTechMacro",
-    args: [get_actor_id(options), null],
-  });
+  let uuid = getActorUUID(options) ?? "unknown";
+  let data_val = resolveHelperDotpath(options, data_path);
 
   return `
-    <div class="card clipped">
-      <div class="lancer-header ">
+    <div class="stat-card card clipped">
+      <div class="lancer-header lancer-primary">
         ${inc_if(`<i class="${icon} i--m i--light header-icon"> </i>`, icon)}
         <span class="major">${title}</span>
       </div>
-      <div class="flexrow stat-macro-container">
-      ${_rollable_macro_button(macroData)}
+      <div class="stat-flow-container">
+        ${_basicFlowButton(uuid, "TechAttack", { icon: "cci cci-tech-quick" })}
         <span class="lancer-stat major" data-path="${data_path}">${data_val}</span>
-        <div></div>
       </div>
     </div>
     `;
 }
 
-export function npc_clicker_stat_card(title: string, data_path: string, options: HelperOptions): string {
-  let data_val_arr: number[] = resolve_helper_dotpath(options, data_path) ?? [];
+export function npc_stat_block_clicker_card(
+  title: string,
+  data_base_path: string,
+  key: string,
+  options: HelperOptions
+): string {
+  let stat_blocks: Array<Record<string, number>> = resolveHelperDotpath(options, data_base_path) ?? [];
   let tier_clickers: string[] = [];
-  let tier = 1;
-
-  // Reset button
 
   // Make a clicker for every tier
-  for (let val of data_val_arr) {
+  for (let tier = 1; tier <= stat_blocks.length; tier++) {
     tier_clickers.push(`
       <div class="flexrow stat-container" style="align-self: center;">
         <i class="cci cci-npc-tier-${tier} i--m i--dark"></i>
-        ${clicker_num_input(`${data_path}.${tier - 1}`, 100, options)}
+        ${clicker_num_input(`${data_base_path}.${tier - 1}.${key}`, options)}
       </div>`);
-    tier++;
+  }
+  return `
+    <div class="card clipped">
+      <div class="flexrow lancer-header lancer-primary major">
+        ${title}
+      </div>
+      ${tier_clickers.join("")}
+    </div>`;
+}
+
+// Simpler case of above. Seem damage for a use case
+export function npc_stat_array_clicker_card(title: string, path: string, options: HelperOptions): string {
+  let stats = resolveHelperDotpath<number[]>(options, path) ?? [];
+  let tier_clickers: string[] = [];
+
+  // Make a clicker for every tier
+  for (let tier = 1; tier <= stats.length; tier++) {
+    tier_clickers.push(`
+      <div class="flexrow stat-container" style="align-self: center;">
+        <i class="cci cci-npc-tier-${tier} i--m i--dark"></i>
+        ${clicker_num_input(`${path}.${tier - 1}`, options)}
+      </div>`);
   }
   return `
     <div class="card clipped">
       <div class="flexrow lancer-header major">
-        <span class="lancer-header major ">${title}</span>
-        <a class="gen-control" data-path="${data_path}" data-action="set" data-action-value="(struct)npc_stat_array"><i class="fas fa-redo"></i></a>
+        ${title}
       </div>
       ${tier_clickers.join("")}
     </div>`;
@@ -310,22 +338,23 @@ export function npc_clicker_stat_card(title: string, data_path: string, options:
  * Currently this is overkill, but eventually we want to support custom overcharge values
  * @param actor Reference to the actor
  * @param overcharge_path Path to current overcharge level, from 0 to 3
- * @param options Options object to pass to resolve_helper_dotpath
+ * @param options Options object to pass to resolveHelperDotpath
  */
-export function overcharge_button(actor: LancerActor, overcharge_path: string, options: HelperOptions): string {
-  const overcharge_sequence = actor.getOverchargeSequence() || ["+1", "+1d3", "+1d6", "+1d6 + 4"];
+export function overchargeButton(actor: LancerMECH, overcharge_path: string, options: HelperOptions): string {
+  const sequence = actor.system.overcharge_sequence;
 
-  let index = resolve_helper_dotpath(options, overcharge_path) as number;
-  index = funcs.bound(index, 0, overcharge_sequence.length - 1);
-  let over_val = overcharge_sequence[index];
+  let index = resolveHelperDotpath(options, overcharge_path) as number;
+  index = Math.max(0, Math.min(sequence.length - 1, index));
+  let overchargeValue = sequence[index];
+  let flowButton = _basicFlowButton(actor.uuid, "Overcharge");
   return `
     <div class="flexcol card clipped">
-      <div class="lancer-header clipped-top flexrow">
+      <div class="lancer-header lancer-primary clipped-top flexrow">
         <span class="major">OVERCHARGE</span>
       </div>
       <div class="overcharge-container">
-        ${_rollable_macro_button(encodeOverchargeMacroData(actor.id!), { classes: "overcharge-macro" })}
-        <a class="overcharge-text">${over_val}</a>
+        ${flowButton}
+        <a class="overcharge-text">${overchargeValue}</a>
         <a class="overcharge-reset mdi mdi-restore"></a>
       </div>
     </div>`;
@@ -335,8 +364,8 @@ export function overcharge_button(actor: LancerActor, overcharge_path: string, o
  * Handlebars helper for an NPC tier selector
  * @param tier The tier ID string
  */
-export function npc_tier_selector(tier_path: string, helper: HelperOptions) {
-  let tier: number = resolve_helper_dotpath(helper, tier_path) ?? 1;
+export function npc_tier_selector(tier_path: string, options: HelperOptions) {
+  let tier = resolveHelperDotpath<number>(options, tier_path) ?? 1;
   let tiers: string[] = [1, 2, 3].map(
     tier_option => `
     <option value="${tier_option}" ${selected(tier_option === tier)}>TIER ${tier_option}</option>
@@ -358,22 +387,17 @@ export function is_combatant(actor: LancerActor) {
 // Create a div with flags for dropping native pilots/mechs/npcs
 export function deployer_slot(data_path: string, options: HelperOptions): string {
   // get the existing
-  let existing = resolve_helper_dotpath<Pilot | Mech | Npc | null>(options, data_path, null);
+  let existing = resolveHelperDotpath<LancerPILOT | LancerMECH | LancerNPC | null>(options, data_path, null);
   if (!existing) {
-    return simple_mm_ref([EntryType.PILOT, EntryType.MECH, EntryType.NPC], existing, "No Deployer", data_path, true);
+    return simple_ref_slot(data_path, [EntryType.PILOT, EntryType.MECH, EntryType.NPC], options);
   }
 
   // Generate commons
-  let cd = ref_commons(existing);
-  if (!cd) {
-    return simple_mm_ref([EntryType.PILOT, EntryType.MECH, EntryType.NPC], existing, "No Deployer", data_path, true);
-  }
-
   return `
-    <div class="card clipped ${cd.ref.type} ref valid clickable-ref" ${ref_params(cd.ref, cd.uuid)}>
+    <div class="card clipped ${existing.type} ref set click-open" ${ref_params(existing)}>
       <div class="compact-deployer medium flexrow" >
-        <span class="img-bar" style="background-image: url(${existing.Flags.top_level_data.img});"> </span>
-        <div class="major modifier-name i--light">${existing.Type.toUpperCase()} ${existing.Name}</div>
+        <span class="img-bar" style="background-image: url(${existing.img});"> </span>
+        <div class="major modifier-name i--light">${existing.type.toUpperCase()} ${existing.name}</div>
       </div>
     </div>`;
 }

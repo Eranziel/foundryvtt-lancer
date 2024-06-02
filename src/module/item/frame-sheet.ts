@@ -1,4 +1,6 @@
-import type { EntryType } from "machine-mind";
+import { EntryType } from "../enums";
+import { LancerItemSheetData } from "../interfaces";
+import { lookupDeployables, lookupLID } from "../util/lid";
 import { LancerItemSheet } from "./item-sheet";
 
 /**
@@ -24,22 +26,16 @@ export class LancerFrameSheet extends LancerItemSheet<EntryType.FRAME> {
     const index = elt.prop("index");
     const value = elt.prop("value");
     if (value == "delete") {
-      // If delete, then delete
-      let data = await this.getDataLazy();
+      // If delete, then circumvent normal update to delete the mount
+      event.stopPropagation();
+      let data = await this.getData();
 
       // Splice it out
-      let mounts = [...data.mm.Mounts];
+      let mounts = [...data.system.mounts];
       mounts.splice(index, 1);
-      data.mm.Mounts = mounts;
-
-      // Save it
-      await data.mm.writeback();
-
-      // No need to submit
-      event.stopPropagation();
-
-      // But do need to refresh
-      this.render();
+      this.item.update({
+        "system.mounts": mounts,
+      });
     }
   }
 
@@ -56,5 +52,11 @@ export class LancerFrameSheet extends LancerItemSheet<EntryType.FRAME> {
 
     // Watch for select delete on mount
     html.find(".mount-selector").on("change", e => this._onChangeMount(e));
+  }
+
+  async getData(): Promise<LancerItemSheetData<EntryType.FRAME>> {
+    let data = await super.getData();
+    (data as any).coreDeployables = await lookupDeployables(data.system.core_system.deployables);
+    return data;
   }
 }

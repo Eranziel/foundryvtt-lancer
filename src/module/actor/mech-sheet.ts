@@ -1,10 +1,12 @@
-import { LANCER } from "../config";
 import { LancerActorSheet } from "./lancer-actor-sheet";
-import { EntryType, MountType, SystemMount, WeaponMount } from "machine-mind";
-import { resolve_dotpath } from "../helpers/commons";
-import type { AnyMMItem, LancerItemType } from "../item/lancer-item";
+import { resolveDotpath } from "../helpers/commons";
 import tippy from "tippy.js";
-import type { AnyMMActor } from "./lancer-actor";
+import type { LancerMECH } from "./lancer-actor";
+import { ResolvedDropData } from "../helpers/dragdrop";
+import { EntryType, fittingsForMount, FittingSize, MountType, SystemType } from "../enums";
+import { SystemData } from "../system-template";
+import { LancerActorSheetData } from "../interfaces";
+import { SourceData } from "../source-template";
 
 /**
  * Extend the basic ActorSheet
@@ -39,8 +41,6 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
   activateListeners(html: JQuery<HTMLElement>) {
     super.activateListeners(html);
 
-    LancerMechSheet._activateTooltips();
-
     // Everything below here is only needed if the sheet is editable
     if (!this.options.editable) return;
 
@@ -51,52 +51,68 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
 
   /* -------------------------------------------- */
 
-  private static _activateTooltips() {
-    tippy('[data-context-menu="toggle"][data-field="Destroyed"]', {
-      content: "Right Click to Destroy",
-      delay: [300, 100],
-    });
-  }
-
-  can_root_drop_entry(item: AnyMMActor | AnyMMItem): boolean {
+  canRootDrop(item: ResolvedDropData): boolean {
     // Reject any non npc / non pilot item
-    if (item.Type == EntryType.PILOT) {
+    if (item.type == "Actor" && item.document.is_pilot()) {
       // For setting pilot
       return true;
+    } else if (item.type == "Item") {
+      return item.document.is_mech_system() || item.document.is_mech_weapon() || item.document.is_frame();
+    } else {
+      return false;
     }
-
-    return LANCER.mech_items.includes(item.Type as LancerItemType);
   }
 
-  async on_root_drop(base_drop: AnyMMItem | AnyMMActor): Promise<void> {
-    let sheet_data = await this.getDataLazy();
-    let this_mm = sheet_data.mm;
-
-    console.log("Mech dropping");
+  async onRootDrop(base_drop: ResolvedDropData): Promise<void> {
     // Take posession
-    let [drop, is_new] = await this.quick_own(base_drop);
+    let [drop, is_new] = await this.quickOwnDrop(base_drop);
 
-    // Now, do sensible things with it
-    if (is_new && drop.Type === EntryType.FRAME) {
+    if (drop.type == "Item" && drop.document.is_frame() && this.actor.is_mech()) {
+      // Find and delete the old frame item, if it exists
+      const oldFrame = this.actor.items.find(i => i.is_frame() && i.id != drop.document.id);
+      if (oldFrame) {
+        await this.actor.deleteEmbeddedDocuments("Item", [oldFrame.id!]);
+      }
       // If new frame, auto swap with prior frame
-      // Need to pass this_mm through so we don't overwrite data on our
-      // later update
-      await this.actor.swapFrameImage(this_mm, this_mm.Loadout.Frame, drop);
-      this_mm.Loadout.Frame = drop;
-
-      // Reset mounts
-      await this_mm.Loadout.reset_weapon_mounts();
-    } else if (is_new && drop.Type === EntryType.MECH_WEAPON) {
-      // If frame, weapon, put it in an available slot
-      await this_mm.Loadout.equip_weapon(drop);
-    } else if (is_new && drop.Type === EntryType.MECH_SYSTEM) {
-      await this_mm.Loadout.equip_system(drop);
-    } else if (drop.Type == EntryType.PILOT) {
-      this_mm.Pilot = drop;
+      await this.actor.swapFrameImage(drop.document);
+      await this.actor.updateTokenSize(drop.document);
+      await this.actor.update({
+        "system.loadout.frame": drop.document.id,
+      });
+      await this.actor.loadoutHelper.resetMounts();
+    } else if (is_new && drop.type == "Item" && drop.document.is_mech_weapon()) {
+      // If frame, weapon, put it in first available slot. Who cares if it fits
+      let currMounts: SourceData.Mech["loadout"]["weapon_mounts"] = foundry.utils.duplicate(
+        // @ts-expect-error
+        this.actor.system._source.loadout.weapon_mounts
+      );
+      let set = false;
+      for (let mount of currMounts) {
+        if (set) break;
+        for (let i = 0; i < mount.slots.length; i++) {
+          if (!mount.slots[i].weapon) {
+            mount.slots[i].weapon = drop.document.id;
+            set = true;
+            break;
+          }
+        }
+      }
+      await this.actor.update({
+        "system.loadout.weapon_mounts": currMounts,
+      });
+    } else if (is_new && drop.type == "Item" && drop.document.is_mech_system()) {
+      let oldSystems: string[] = (this.actor as any).system._source.loadout.systems;
+      await this.actor.update({
+        "system.loadout.systems": [...oldSystems, drop.document.id],
+      });
+    } else if (drop.type == "Actor" && drop.document.is_pilot()) {
+      await this.actor.update({
+        "system.pilot": drop.document.uuid,
+      });
+      await drop.document.update({
+        "system.active_mech": this.actor.uuid,
+      });
     }
-
-    // Writeback when done. Even if nothing explicitly changed, probably good to trigger a redraw (unless this is double-tapping? idk)
-    await this_mm.writeback();
   }
 
   /**
@@ -108,7 +124,6 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
 
     overchargeText.on("click", ev => {
       if (!this.actor.is_mech()) return;
-      // @ts-expect-error Should be fixed with v10 types
       this._setOverchargeLevel(ev, Math.min(this.actor.system.overcharge + 1, 3));
     });
 
@@ -126,10 +141,10 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
    * @param level Level to set overcharge to
    */
   async _setOverchargeLevel(_event: JQuery.ClickEvent, level: number) {
-    let data = await this.getDataLazy();
-    let mech = data.mm;
-    mech.OverchargeCount = level;
-    await this._commitCurrMM();
+    let a = this.actor as LancerMECH;
+    return a.update({
+      "system.overcharge": level,
+    });
   }
 
   /**
@@ -152,28 +167,47 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
   // Allows user to change mount size via right click ctx
   _activateMountContextMenus(html: any) {
     let mount_options: any[] = [];
-    for (let mount_type of Object.values(MountType)) {
+
+    // Handle generic mount type
+    for (let selection of Object.values(MountType)) {
       mount_options.push({
-        name: mount_type,
+        name: selection,
         icon: "",
-        // condition: game.user.isGM,
         callback: async (html: JQuery) => {
-          let cd = await this.getDataLazy();
-          let mount_path = html[0].dataset.path ?? "";
+          let mountPath = html[0].dataset.path ?? "";
 
           // Get the current mount
-          let mount: WeaponMount = resolve_dotpath(cd, mount_path);
+          let mount = resolveDotpath(this.actor, mountPath) as SystemData.Mech["loadout"]["weapon_mounts"][0];
           if (!mount) {
-            console.error("Bad mountpath:", mount_path);
+            console.error("Bad mountpath:", mountPath);
           }
 
-          // Edit it. Someday we'll want to have a way to resize without nuking. that day is not today
-          mount.MountType = mount_type;
-          mount.Bracing = false;
-          mount.reset();
+          // Construct our new slots based on old slots
+          let newSlots: SourceData.Mech["loadout"]["weapon_mounts"][0]["slots"] = [];
+          let newSlotTypes = fittingsForMount(selection);
+          newSlots = newSlots.splice(newSlotTypes.length); // Cut off everything past this end
+          for (let i = 0; i < newSlotTypes.length; i++) {
+            if (mount.slots[i]?.weapon?.value) {
+              newSlots.push({
+                mod: mount.slots[i].mod?.value?.id ?? null,
+                size: newSlotTypes[i],
+                weapon: mount.slots[i].weapon?.value?.id ?? null,
+              });
+            } else {
+              newSlots.push({
+                mod: null,
+                size: newSlotTypes[i],
+                weapon: null,
+              });
+            }
+          }
 
-          // Write back
-          await this._commitCurrMM();
+          // Put the edits
+          this.actor.update({
+            [mountPath + ".type"]: selection,
+            [mountPath + ".bracing"]: false,
+            [mountPath + ".slots"]: newSlots,
+          });
         },
       });
     }
@@ -183,21 +217,21 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
       name: "Superheavy Bracing",
       icon: "",
       callback: async (html: JQuery) => {
-        let cd = await this.getDataLazy();
-        let mount_path = html[0].dataset.path ?? "";
+        let cd = await this.getData();
+        let mountPath = html[0].dataset.path ?? "";
 
         // Get the current mount
-        let mount: WeaponMount = resolve_dotpath(cd, mount_path);
+        let mount = resolveDotpath(cd, mountPath) as SystemData.Mech["loadout"]["weapon_mounts"][0];
         if (!mount) {
-          console.error("Bad mountpath:", mount_path);
+          console.error("Bad mountpath:", mountPath);
         }
 
         // Set as bracing
-        mount.Bracing = true;
-        mount.reset();
-
-        // Write back
-        await this._commitCurrMM();
+        this.actor.update({
+          [mountPath + ".type"]: MountType.Unknown,
+          [mountPath + ".bracing"]: true,
+          [mountPath + ".slots"]: [],
+        });
       },
     });
 
@@ -210,28 +244,34 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
     evt: JQuery.ClickEvent
   ) {
     evt.stopPropagation();
-    let data = await this.getDataLazy();
-    let mech = data.mm;
+    let mech = this.actor as LancerMECH;
     let path = evt.currentTarget?.dataset?.path;
 
     switch (mode) {
       case "reset-all-weapon-mounts":
-        await mech.Loadout.reset_weapon_mounts();
+        await this.actor.loadoutHelper.resetMounts();
         break;
       case "reset-sys":
-        if (!path) return;
-        let sys_mount = resolve_dotpath(data, path) as SystemMount;
-        sys_mount.System = null;
+        this.actor.update({ "system.loadout.systems": [] });
         break;
       case "reset-wep":
         if (!path) return;
-        let wep_mount = resolve_dotpath(data, path) as WeaponMount;
-        wep_mount?.reset();
+        ui.notifications?.info("TODO: Reset the weapons");
+        // let wep_mount = resolveDotpath(data, path) as WeaponMount;
+        // wep_mount?.reset();
         break;
       default:
         return; // no-op
     }
+  }
 
-    await this._commitCurrMM();
+  async getData(): Promise<LancerActorSheetData<EntryType.MECH>> {
+    let data = await super.getData();
+    // @ts-expect-error
+    data.pilot = this.actor.system.pilot?.value;
+    // @ts-expect-error
+    data.is_active = this.actor.system.pilot?.value?.system.active_mech?.value == this.actor;
+    // data.pilot = await this.actor.system.pilot;
+    return data;
   }
 }

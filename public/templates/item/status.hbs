@@ -13,20 +13,22 @@
             />
           </h1>
           <div class="flexrow">
-            <select class="header-field" name="mm.Subtype" data-type="String">
-              {{#select mm.Subtype}}
+            <select class="header-field" name="system.type" data-type="String">
+              {{#select system.type}}
               <option class="i--dark" value="status">STATUS</option>
               <option class="i--dark" value="condition">CONDITION</option>
+              <option class="i--dark" value="effect">EFFECT</option>
               {{/select}}
             </select>
           </div>
         </div>
-        {{{ ref-portrait-img item.img "img" mm }}}
+        {{{ ref-portrait-img item.img "img" item }}}
       </div>
     </header>
   
     {{!-- Sheet Body --}}
     <section class="sheet-body">
-      {{{item-edit-effect               "mm.Effects"}}}
+      {{{item-edit-effect "system.terse"}}}
+      {{{textarea-card "DESCRIPTION" "system.effects"}}}
     </section>
   </form>

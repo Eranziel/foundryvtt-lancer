@@ -1,50 +1,52 @@
 <form class="{{cssClass}} lancer-sheet" autocomplete="off">
-  {{!-- Sheet Header --}}
+  {{! Sheet Header }}
   <header class="sheet-header card clipped-bot">
     <div class="flexcol grow">
-      <h1 class="charname"><input class="header-field" name="name" type="text" value="{{item.name}}" placeholder="{{localize "lancer.placeholder.name"}}"/></h1>
+      <h1 class="charname"><input
+          class="header-field"
+          name="name"
+          type="text"
+          value="{{item.name}}"
+          placeholder="{{localize 'lancer.placeholder.name'}}"
+        /></h1>
     </div>
-    {{{ ref-portrait-img item.img "img" mm }}}
+    {{{ref-portrait-img item.img "img" item}}}
   </header>
 
   <div class="card">
-    <div class="lancer-header stretch">
+    <div class="lancer-header lancer-primary stretch">
       <!-- Put all the system metadata up here -->
-      {{{item-edit-sp                   "mm.SP"}}}
+      {{{item-edit-sp "system.sp"}}}
       <div>
-        {{{sys-type-sel "mm.SysType"}}}
+        {{{sys-type-sel "system.type"}}}
       </div>
       {{{item-edit-license}}}
     </div>
 
-    {{!-- Status --}}
+    {{! Status }}
     <div class="card clipped">
-      <div class="lancer-header major ">STATUS</div>
+      <div class="lancer-header lancer-primary major">STATUS</div>
       <div class="flexrow" style="align-self: center;">
-        {{#if (is-limited mm)}}
-          {{{limited-uses-indicator mm "mm"}}}
+        {{#if (is-limited item)}}
+          {{{limited-uses-indicator item "item"}}}
         {{/if}}
       </div>
     </div>
 
-    {{{textarea-card "DESCRIPTION" "mm.Description"}}}
-    {{{textarea-card "EFFECT" "mm.Effect"}}}
+    {{{textarea-card "DESCRIPTION" "system.description"}}}
+    {{{textarea-card "EFFECT" "system.effect"}}}
 
-    {{!-- Bonuses --}}
-    {{{item-edit-arrayed-actions      "mm.Actions"       "ACTIONS"}}}
-    {{{item-edit-arrayed-bonuses      "mm.Bonuses"}}}
-    {{{counter-array mm.Counters      "mm.Counters"      "mm.Counters" true}}}
-    {{{item-edit-arrayed-deployables  "mm.Deployables"   "DEPLOYABLES"}}}
-    {{{item-edit-arrayed-synergies    "mm.Synergies"     "SYNERGIES"}}}
-    {{{item-edit-arrayed-integrated   "mm.Integrated"    "INTEGRATED ITEMS"}}}
-    <div class="flexrow">
+    {{! Bonuses }}
+    {{!-- prettier-ignore --}}
+    <div>
+      {{{item-edit-arrayed-actions      "system.actions"       "ACTIONS"}}}
+      {{{item-edit-arrayed-bonuses      "system.bonuses"}}}
+      {{{counter-array system.counters  "system.counters"      true}}}
+      {{{item-edit-arrayed-deployables  "system.deployables"   "DEPLOYABLES"}}}
+      {{{item-edit-arrayed-synergies    "system.synergies"     "SYNERGIES"}}}
+      {{{item-edit-arrayed-integrated   "system.integrated"    "INTEGRATED ITEMS"}}}
     </div>
 
-    {{!-- Tags --}}
-    <div class="card">
-      <span class="lancer-header major">TAGS</span>
-      {{{mm-tag-list "mm.Tags" mm.Tags editable}}}
-    </div>
-
+    {{{item-edit-arrayed-tags "system.tags" "TAGS"}}}
   </div>
 </form>

@@ -1,24 +1,26 @@
-import { EntryType, RegEntry, RegRef } from "machine-mind";
-import type { LancerActor, LancerActorType } from "../actor/lancer-actor";
+import { LancerActor, LancerActorType } from "../actor/lancer-actor";
 import type { LancerItem, LancerItemType } from "../item/lancer-item";
 
 export const DEBOUNCE_TIMEOUT = 500; // An update propagation hook will fire at most once every this many MS.
 // Triggers on falling edge (meaning will wait for updates to stop pouring in before firing
-type RegDocument<T extends EntryType> = foundry.abstract.Document<any, any> | RegEntry<T> | RegRef<T>;
+// type RegDocument<T extends EntryType> = foundry.abstract.Document<any, any> | RegEntry<T> | RegRef<T>;
 
 export class LancerHooks {
-  static call(doc: foundry.abstract.Document<any, any>) {
+  static call(doc: LancerActor) {
     var id = doc.id!;
     // return Hooks.call(id, doc)
     debounce_trigger(id, doc);
   }
 
-  static on<E extends foundry.abstract.Document<any, any>>(doc: E, callback: (arg: E) => any): LancerSubscription;
-  static on<T extends LancerActorType>(doc: RegDocument<T>, callback: (arg: LancerActor) => any): LancerSubscription;
-  static on<T extends LancerItemType>(doc: RegDocument<T>, callback: (arg: LancerItem) => any): LancerSubscription;
+  // static on<E extends foundry.abstract.Document<any, any>>(doc: E, callback: (arg: E) => any): LancerSubscription;
+  // static on<T extends LancerActorType>(doc: RegDocument<T>, callback: (arg: LancerActor) => any): LancerSubscription;
+  // static on<T extends LancerItemType>(doc: RegDocument<T>, callback: (arg: LancerItem) => any): LancerSubscription;
 
-  static on<T extends EntryType>(doc: RegDocument<T>, callback: (arg: any) => any): LancerSubscription {
-    var id: string;
+  // static on<T extends EntryType>(doc: RegDocument<T>, callback: (arg: any) => any): LancerSubscription {
+  static on(doc: LancerActor, callback: (arg: any) => any): LancerSubscription {
+    // TODO
+    /*
+    var id: number;
     if (doc instanceof RegEntry) {
       id = doc.RegistryID;
     } else {
@@ -26,22 +28,26 @@ export class LancerHooks {
     }
     let subId = Hooks.on(id, callback);
     return new LancerSubscription(id, subId);
+    */
+    ui.notifications?.info("Subscriptions aren't made atm");
+    return null as any;
   }
 
-  static off(sub: LancerSubscription): void;
-  static off(doc: RegDocument<any>, callback: number): void;
-  static off(doc: RegDocument<any>, callback: (arg: foundry.abstract.Document<any, any>) => any): void;
-  static off<T extends LancerActorType>(doc: RegDocument<T>, callback: (arg: LancerActor) => any): void;
-  static off<T extends LancerItemType>(doc: RegDocument<T>, callback: (arg: LancerItem) => any): void;
+  // static off(sub: LancerSubscription): void;
+  // static off(doc: RegDocument<any>, callback: number): void;
+  // static off(doc: RegDocument<any>, callback: (arg: foundry.abstract.Document<any, any>) => any): void;
+  // static off<T extends LancerActorType>(doc: RegDocument<T>, callback: (arg: LancerActor) => any): void;
+  // static off<T extends LancerItemType>(doc: RegDocument<T>, callback: (arg: LancerItem) => any): void;
 
-  static off(entityOrSub: LancerSubscription | RegDocument<any>, callback?: number | ((arg: any) => any)): void {
+  // static off(entityOrSub: LancerSubscription | RegDocument<any>, callback?: number | ((arg: any) => any)): void {
+  static off(entityOrSub: LancerSubscription | LancerActor, callback?: number | ((arg: any) => any)): void {
     var id: string;
     if (entityOrSub instanceof LancerSubscription) {
       return entityOrSub.unsubscribe();
-    } else if (entityOrSub instanceof RegEntry) {
-      id = entityOrSub.RegistryID;
-    } else {
+    } else if (entityOrSub instanceof LancerActor) {
       id = entityOrSub.id!;
+    } else {
+      return;
     }
     if (callback) {
       return Hooks.off(id, callback);

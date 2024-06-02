@@ -25,7 +25,7 @@
  // @hmr:keep
  let huds: {
    [key: string]: {
-     open: number | null,
+     open: number | null, // Time of opening, if applicable
      data?: any,
    }
  } = {
@@ -45,7 +45,7 @@
  }
 
  export function open(key: string, data: any) {
-   dispatch(`${key}.cancel`);
+   dispatch(`${key}.cancel`); // Re-opening closes the previous instance of this hud
    huds[key].open = (new Date()).getTime();
    huds[key].data = data;
  }
@@ -64,8 +64,8 @@
    if (huds[key] && huds[key].data) { return huds[key].data; }
  }
 
- export function isOpen(key: string) {
-   return huds[key] && huds[key].open;
+ export function isOpen(key: string): boolean {
+   return (huds[key] && huds[key].open) !== null;
  }
 
  export let faded: boolean = false;

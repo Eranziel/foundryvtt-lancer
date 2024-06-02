@@ -1,0 +1,164 @@
+name: LANCER System Information
+_id: JDfVPzoWPOLyhCCa
+pages:
+  - sort: 0
+    name: Migrating from Earlier Versions
+    type: text
+    _id: gotpldNfOwLxauXi
+    title:
+      show: true
+      level: 1
+    image: {}
+    text:
+      format: 1
+      content: >-
+        <div class="desc-text"><p><span class="horus--subtle"
+        style="white-space:pre">      WELCOME, LANCER.
+        </span></p>
+        <p><span class="horus--subtle" style="white-space:pre">
+        PLEASE STAND BY WHILE WE MAKE SOME CHANGES.</span></p>
+        <p><span class="horus--subtle"
+        style="white-space:pre">               (this won't hurt a bit)
+        </span></p></div>
+
+        <p></p>
+
+        <p>If this journal popped up automatically, migration of Actors,
+        Items, Scenes, and Tokens is ongoing in the background.</p>
+
+        <p></p>
+
+        <p><strong>DO
+        NOT LOG OFF OR CLOSE THE GAME WHILE MIGRATIONS ARE IN
+        PROGRESS!</strong></p>
+
+        <p></p>
+
+        <p>Please be patient and wait until you see
+        the notification "<em>LANCER System Migration to version X.Y.Z
+        completed</em>".</p><p>
+
+        </p><p>
+
+        </p><p>For more information on what has
+        changed recently, read the other pages in this journal and <a
+        href="https://github.com/Eranziel/foundryvtt-lancer/blob/master/CHANGELOG.md">check
+        the changelog</a>.</p>
+    video:
+      controls: true
+      volume: 0.5
+    src: null
+    system: {}
+    ownership:
+      default: -1
+      s7zimNuhog9aoiot: 3
+    flags: {}
+    _stats:
+      systemId: lancer
+      systemVersion: 2.0.0-rc1
+      coreVersion: "11.315"
+      createdTime: 1717039148554
+      modifiedTime: 1717039451373
+      lastModifiedBy: s7zimNuhog9aoiot
+    _key: "!journal.pages!JDfVPzoWPOLyhCCa.gotpldNfOwLxauXi"
+  - sort: 100000
+    name: Welcome to Lancer 2.0!
+    type: text
+    _id: 3VVd9FeG9bFeRzkv
+    title:
+      show: true
+      level: 1
+    image: {}
+    text:
+      format: 1
+      content: >-
+        <h2>Migration from 1.X - what you need to know</h2>
+
+        <p>The Lancer system
+        has undergone a fairly significant change since the 1.x versions,
+        including simplifications of most of of the data model, as well as the
+        removal of our machine-minds. More importantly, Foundry has evolved
+        significantly as a platform, allowing us to do a lot of nice cleanup in
+        how we store and work with data. As such, we once again need to migrate!
+        Improvements in how Foundry tracks and validates data should make this a
+        fairly painless operation.</p>
+
+        <p>Unfortunately, your Lancer compendiums
+        will be cleared to prevent issues from old data, so you will need to
+        re-import your LCPs. Some things are also not fully migratable, so you
+        may need to do a bit of reconnecting:</p>
+
+        <ul>
+        <li>Existing mechs may not
+        be set as active mechs for their pilots, and will not get HASE bonuses
+        etc... You can set a pilot's active mech in the "MECH//ACTIVE" tab on
+        their sheet.</li>
+        <li>Deployables will likely lose the link to their
+        deployers, and will need to be reconnected.</li><li>Deployable tokens in
+        existing scenes may not be the correct size
+        post-migration.</li>
+        </ul>
+
+        <h2>What Happened to All the
+        Compendiums?</h2>
+
+        <p>We have consolidated the Lancer compendiums, making
+        use of the new feature of folders within compendiums. They are now
+        grouped by which type of actor will use the items in the
+        compendium.</p>
+
+        <p>Also, after lengthy debate, we have trimmed some of
+        the fat in our item types. The following item types are now
+        deprecated:</p>
+
+        <ul>
+        <li><code>tag</code>s - which are now tracked via the
+        world settings for efficiency and
+        consistency.</li>
+        <li><code>manufacturer</code>s - which never really
+        warranted an "item", and are now just a string on licensed
+        items.</li>
+        <li><code>sitreps</code>s - which were barely supported to
+        begin with, and didn't make sense to keep as an
+        item.</li>
+        <li><code>environments</code>s - which may see an eventual
+        return, were not supported or implemented to our
+        liking.</li>
+        <li><code>factions</code>s - which may see an eventual
+        return as a journal entry type when those are
+        supported</li>
+        <li><code>quirks</code>s - which seemed to fit better as
+        just a text box.</li>
+        </ul>
+      markdown: ""
+    video:
+      controls: true
+      volume: 0.5
+    src: null
+    system: {}
+    ownership:
+      default: -1
+      s7zimNuhog9aoiot: 3
+    flags: {}
+    _stats:
+      systemId: lancer
+      systemVersion: 2.0.0-rc1
+      coreVersion: "11.315"
+      createdTime: 1717031277945
+      modifiedTime: 1717039472920
+      lastModifiedBy: s7zimNuhog9aoiot
+    _key: "!journal.pages!JDfVPzoWPOLyhCCa.3VVd9FeG9bFeRzkv"
+folder: null
+sort: 0
+ownership:
+  default: 0
+  s7zimNuhog9aoiot: 3
+flags: {}
+_stats:
+  systemId: lancer
+  systemVersion: 2.0.0-rc1
+  coreVersion: "11.315"
+  createdTime: 1717031272559
+  modifiedTime: 1717039520390
+  lastModifiedBy: s7zimNuhog9aoiot
+_key: "!journal!JDfVPzoWPOLyhCCa"
