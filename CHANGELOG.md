@@ -1,3 +1,49 @@
+# 2.0.0 (2024-06-02)
+
+_IT'S FINALLY HERE!_
+
+This update to the system has been a long labour of love for myself and the rest of the team. Of course this includes long-awaited support for Foundry v11, but also a large refactor of the bones of the system. Largely this will be invisible to you as users, but it will make for easier maintenance of the system, development of modules to support Lancer, and expansions of the system automation. We hope you all enjoy!
+
+Here is a summary of the changes, though in any refactor this large some items will get missed.
+
+## Features
+
+- #577 - Support for Foundry v11.
+- #429 - The system's data model has been migrated away from the bespoke `machine-mind` library, now using Foundry's standardized `DataModel` framework. This will make future development, maintenance, module development, and macro writing much easier and Foundry-standard.
+- #412 - Bond support! We now fully support the Bonds system, introduced in "Field Guide to the Karrakin Trade Baronies". Bond items can be added to Pilot actors. This includes some light automation for tallying XP.
+- System automation rework. We designed and implemented a framework we call `Flows` for handling automation sequences, which is designed to be flexible and extensible. This will make adding to the automation in the future easier, as well as allow module developers to make targeted alterations to the automation, or even replace entire Flows wholesale. We are very excited to see what the community does with these!
+- #574 - We now have themes! These echo the themes in Comp/Con and include: GMS Red (default, theme from 1.X and earlier), GMS Dark (same, but with dark background and light text), MSMC Solarized, HORUS Terminal, Harrison Armory Ras Shamra, SSC Constellar Congress, IPS-N Carina, FORECAST/GALSIM.
+- #328 - When importing an LCP which includes NPC classes, basic actors for each of those classes are generated inside the "Premade NPCs" compendium.
+- #573 - The compendiums have fancy custom banners!
+- #580 - The compendiums have been condensed to make use of folders, reducing clutter.
+- #496 - Counters on pilot sheets can now be deleted.
+- #550 - The create actor dialog defaults to NPC now as it is the most common actor type to create, saving GMs a couple clicks.
+- #594 - Structure and Overheat results now include a button to roll for Cascade if the mech has a system with the AI tag.
+- Removed the Sitrep, Environment, Manufacturer, and Quirk item types. These all either had poor support in the system, or were better served as simple text fields. Sitreps and Environments may see a return as Journals one day.
+- Tags have been moved from a compendium of items to a system-level setting. This allows more consistent and tightly-bound behaviour.
+
+## Bug Fixes
+
+- #311 - Tech actions which are not tech attacks no longer trigger an attack roll.
+- #324 - The Engineering mech skill no longer gives bonus uses to pilot gear.
+- #338 - Integrated weapons are properly copied to mechs on import, instead of referring back to the uneditable compendium copy of the item.
+- #350 - Added save target and sensors (for searching) to pilot stats.
+- #352 - Text-only NPC features now consume charge/uses when used.
+- #372 - Re-importing an LCP now updates the relevant items in the compendiums, instead of ignoring them.
+- #399 - Dragging a Pilot, Mech, or NPC actor onto a Deployable updates the deployer correctly.
+- #403 - Deployable cards shown on pilot and mech sheets now list all of their associated actions correctly, fixing the long-standing issue of Jericho displaying a full action to deploy.
+- #416 - Chat message right-click menu is no longer hidden.
+- #424 - Removing a class or template from an NPC now also removes all related features.
+- #432 - Importing an LCP with special characters in an item ID (e.g. the Störtebeker) now correctly preserves those characters. Importing pilots who use the affected items should now import those items correctly.
+- #489 - Pilot armor can now be increased past 1.
+- #597 - Mech armor is no longer capped at 4, for all you White Witch pilots.
+- #498 - Actions from mech core system actives/passives can now be used properly.
+- #513 - dragging a weapon onto an occupied mount slot will now replace the original weapon.
+- #524 - Reserves now save categories other than "resources".
+- #549 - The Lock On status is now automatically removed from tokens when consumed during a tech attack.
+- #616 - Weapons with the Limited tag now show a uses tracker on mech sheets.
+- Actions inside mech weapons are now rendered on mech sheets.
+
 # 1.6.1 (2023-07-16)
 
 ## Bug Fixes
