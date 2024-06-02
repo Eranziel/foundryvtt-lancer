@@ -42,7 +42,10 @@ const config: UserConfig = {
       fileName: "lancer",
     },
   },
-  esbuild: { keepNames: true },
+  esbuild: {
+    minifyIdentifiers: false,
+    keepNames: true,
+  },
   plugins: [
     svelte({
       preprocess: preprocess(),
