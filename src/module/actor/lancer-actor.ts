@@ -786,8 +786,6 @@ export class LancerActor extends Actor {
     if (!this.is_npc() || (!newClass.is_npc_class() && !newClass.is_npc_template())) return;
     // Flag to know if we need to reset stats
     let needsRefresh = false;
-    // If the classes are the same, do nothing
-    if (oldClass?.system.lid === newClass.system.lid) return;
 
     // If this NPC has an existing class, remove it and all its features
     if (oldClass) {

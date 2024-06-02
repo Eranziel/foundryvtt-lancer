@@ -232,7 +232,7 @@ export function npcWeaponView(path: string, options: HelperOptions): string {
       <div>
         <span>${featureData.weapon_type} // ${npcFeature.system.origin.name} ${
       npcFeature.system.origin.type
-    } Feature (TODO ORIGIN)</span>
+    } Feature</span>
       </div>
       ${effectBox("ON HIT", featureData.on_hit)}
       ${effectBox("EFFECT", featureData.effect)}

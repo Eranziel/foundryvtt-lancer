@@ -134,17 +134,6 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
         await old_class.delete();
       }
 
-      // And add all new features
-      if (doc.is_npc_template() || doc.is_npc_class()) {
-        let baseFeatures = (await Promise.all(
-          doc.system.base_features.map(lid => lookupLID(lid, EntryType.NPC_FEATURE))
-        )) as LancerItem[];
-        await insinuate(
-          baseFeatures.filter(x => x),
-          this.actor as LancerNPC
-        );
-        needs_refresh = true;
-      }
       if (doc.is_npc_class()) {
         await this.actor.swapFrameImage(doc);
         await this.actor.updateTokenSize(doc);
