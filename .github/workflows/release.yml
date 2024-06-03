@@ -21,23 +21,24 @@ jobs:
 
       # Set up variables for future use
       - name: Set up variables
-        id: get_vars
+        id: vars
         # Remove the 'v' from the tag for versioning
         run: |
-          echo "VERSION=${GITHUB_REF_NAME#v}" >> $GITHUB_ENV
-          echo "TAG_NAME=v${{ env.VERSION }}" >> $GITHUB_ENV
-          echo "ZIP_NAME=lancer-${{ env.TAG_NAME }}.zip" >> $GITHUB_ENV
+          VERSION=${GITHUB_REF_NAME#v}
+          TAG_NAME=test-$VERSION
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "tag_name=$TAG_NAME" >> $GITHUB_OUTPUT
+          echo "zip_name=lancer-$TAG_NAME.zip" >> $GITHUB_OUTPUT
 
       # Verify correct naming
       - name: Verify correct naming
         env:
-          TAG_NAME: ${{ env.TAG_NAME }}
           PACKAGE_VERSION: ${{ steps.manifest.outputs.version }}
         run: |
-          if [[ ! $VERSION == test-$PACKAGE_VERSION ]]; then
+          if [[ ! ${{ steps.vars.outputs.version }} == test-$PACKAGE_VERSION ]]; then
             echo "The system.json version does not match tag name."
             echo "system.json: $PACKAGE_VERSION"
-            echo "tag name: $TAG_NAME"
+            echo "tag name: ${{ steps.vars.outputs.tag_name }}"
             echo "Please fix this and push the tag again."
             exit 1
           fi
@@ -68,14 +69,14 @@ jobs:
         uses: ncipollo/release-action@v1
         with:
           allowUpdates: true
-          name: ${{ env.TAG_NAME }}
+          name: ${{ steps.vars.outputs.tag_name }}
           draft: true
           prerelease: true
           omitDraftDuringUpdate: true
           omitPrereleaseDuringUpdate: true
           token: ${{ secrets.GITHUB_TOKEN }}
-          artifacts: "./public/system.json, ./${{ env.ZIP_NAME }}"
-          tag: ${{ env.TAG_NAME }}
+          artifacts: "./public/system.json, ./${{ steps.vars.outputs.zip_name }}"
+          tag: ${{ steps.vars.outputs.tag_name }}
           # TODO: can we automatically extract the changelog for this release?
           body: |
             **Installation:** To manually install this release, please use the following manifest URL: ${{ env.RELEASE_MANIFEST_URL }}
