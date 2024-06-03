@@ -32,10 +32,8 @@ jobs:
 
       # Verify correct naming
       - name: Verify correct naming
-        env:
-          PACKAGE_VERSION: ${{ steps.manifest.outputs.version }}
         run: |
-          if [[ ! ${{ steps.vars.outputs.version }} == v$PACKAGE_VERSION ]]; then
+          if [[ ! v${{ steps.vars.outputs.version }} == ${{ steps.vars.outputs.tag_name }} ]]; then
             echo "The system.json version does not match tag name."
             echo "system.json: $PACKAGE_VERSION"
             echo "tag name: ${{ steps.vars.outputs.tag_name }}"
