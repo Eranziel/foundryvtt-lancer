@@ -25,8 +25,8 @@ jobs:
         # Remove the 'v' from the tag for versioning
         run: |
           echo "VERSION=${GITHUB_REF_NAME#v}" >> $GITHUB_ENV
-          echo "TAG_NAME=v${{ steps.manifest.outputs.version }}" >> $GITHUB_ENV
-          echo "ZIP_NAME=lancer-$TAG_NAME.zip" >> $GITHUB_ENV
+          echo "TAG_NAME=v${{ env.VERSION }}" >> $GITHUB_ENV
+          echo "ZIP_NAME=lancer-${{ env.TAG_NAME }}.zip" >> $GITHUB_ENV
 
       # Verify correct naming
       - name: Verify correct naming
