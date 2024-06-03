@@ -25,10 +25,8 @@ jobs:
         # Remove the 'v' from the tag for versioning
         run: |
           echo "VERSION=${GITHUB_REF_NAME#v}" >> $GITHUB_ENV
-          echo "TAG_NAME=v$VERSION" >> $GITHUB_ENV
+          echo "TAG_NAME=v${{ steps.manifest.outputs.version }}" >> $GITHUB_ENV
           echo "ZIP_NAME=lancer-$TAG_NAME.zip" >> $GITHUB_ENV
-        #  echo "RELEASE_DOWNLOAD_URL=https://github.com/${{github.repository}}/releases/download/$TAG_NAME/$ZIP_NAME" >> $GITHUB_ENV
-        #  echo "RELEASE_MANIFEST_URL=https://github.com/${{github.repository}}/releases/download/$TAG_NAME/system.json" >> $GITHUB_ENV
 
       # Verify correct naming
       - name: Verify correct naming
@@ -76,7 +74,7 @@ jobs:
           omitDraftDuringUpdate: true
           omitPrereleaseDuringUpdate: true
           token: ${{ secrets.GITHUB_TOKEN }}
-          artifacts: "./system.json, ./${{ env.ZIP_NAME }}"
+          artifacts: "./public/system.json, ./${{ env.ZIP_NAME }}"
           tag: ${{ env.TAG_NAME }}
           # TODO: can we automatically extract the changelog for this release?
           body: |
