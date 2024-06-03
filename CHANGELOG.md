@@ -8,9 +8,9 @@ Here is a summary of the changes, though in any refactor this large some items w
 
 ## Features
 
-- #577 - Support for Foundry v11.
+- #577 - Support for Foundry v11! We recommend using the latest stable version, 11.315+.
 - #429 - The system's data model has been migrated away from the bespoke `machine-mind` library, now using Foundry's standardized `DataModel` framework. This will make future development, maintenance, module development, and macro writing much easier and Foundry-standard.
-- #412 - Bond support! We now fully support the Bonds system, introduced in "Field Guide to the Karrakin Trade Baronies". Bond items can be added to Pilot actors. This includes some light automation for tallying XP.
+- #412 - Bond support! We now fully support the Bonds system, introduced in "Field Guide to the Karrakin Trade Baronies". Bond items can be added to Pilot actors. This includes some light automation for tallying XP. You can also select Stress and XP as token bar resources on pilot tokens.
 - System automation rework. We designed and implemented a framework we call `Flows` for handling automation sequences, which is designed to be flexible and extensible. This will make adding to the automation in the future easier, as well as allow module developers to make targeted alterations to the automation, or even replace entire Flows wholesale. We are very excited to see what the community does with these!
 - #574 - We now have themes! These echo the themes in Comp/Con and include: GMS Red (default, theme from 1.X and earlier), GMS Dark (same, but with dark background and light text), MSMC Solarized, HORUS Terminal, Harrison Armory Ras Shamra, SSC Constellar Congress, IPS-N Carina, FORECAST/GALSIM.
 - #328 - When importing an LCP which includes NPC classes, basic actors for each of those classes are generated inside the "Premade NPCs" compendium.
