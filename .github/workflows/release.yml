@@ -73,7 +73,7 @@ jobs:
           omitDraftDuringUpdate: true
           omitPrereleaseDuringUpdate: true
           token: ${{ secrets.GITHUB_TOKEN }}
-          artifacts: "./public/system.json, ./${{ steps.vars.outputs.zip_name }}"
+          artifacts: "./package/system.json, ./package/${{ steps.vars.outputs.zip_name }}"
           tag: ${{ steps.vars.outputs.tag_name }}
           # TODO: can we automatically extract the changelog for this release?
           body: |
