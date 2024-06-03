@@ -17,7 +17,7 @@ jobs:
         id: manifest
         uses: zoexx/github-action-json-file-properties@release
         with:
-          file_path: "./system.json"
+          file_path: "./public/system.json"
 
       # Set up variables for future use
       - name: Set up variables
