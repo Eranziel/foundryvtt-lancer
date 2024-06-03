@@ -3,108 +3,80 @@ name: Release Creation
 on:
   push:
     tags:
-      - 'test-*'
+      - "test-*"
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    # Load the system.json manifest into memory
-    - name: Load system manifest
-      id: manifest
-      uses: zoexx/github-action-json-file-properties@release
-      with:
-        file_path: "./system.json"
+      # Load the system.json manifest into memory
+      - name: Load system manifest
+        id: manifest
+        uses: zoexx/github-action-json-file-properties@release
+        with:
+          file_path: "./system.json"
 
-    # Set up variables for future use
-    - name: Set up variables
-      id: get_vars
-      run: |
-        TAG=${GITHUB_REF/refs\/tags\//}
-        echo "TAG_NAME=$TAG" >> $GITHUB_ENV
-        echo "ZIP_NAME=lancer-$TAG.zip" >> $GITHUB_ENV
-        echo "RELEASE_DOWNLOAD_URL=https://github.com/${{github.repository}}/releases/download/$TAG/lancer-$TAG.zip" >> $GITHUB_ENV
-        echo "RELEASE_INSTALL_URL=https://github.com/${{github.repository}}/releases/download/$TAG/system.json" >> $GITHUB_ENV
+      # Set up variables for future use
+      - name: Set up variables
+        id: get_vars
+        # Remove the 'v' from the tag for versioning
+        run: |
+          echo "VERSION=${GITHUB_REF_NAME#v}" >> $GITHUB_ENV
+          echo "TAG_NAME=v$VERSION" >> $GITHUB_ENV
+          echo "ZIP_NAME=lancer-$TAG_NAME.zip" >> $GITHUB_ENV
+        #  echo "RELEASE_DOWNLOAD_URL=https://github.com/${{github.repository}}/releases/download/$TAG_NAME/$ZIP_NAME" >> $GITHUB_ENV
+        #  echo "RELEASE_MANIFEST_URL=https://github.com/${{github.repository}}/releases/download/$TAG_NAME/system.json" >> $GITHUB_ENV
 
-    # Verify correct naming
-    - name: Verify correct naming
-      env:
-        TAG_NAME: ${{ env.TAG_NAME }}
-        RELEASE_DOWNLOAD: ${{ env.RELEASE_DOWNLOAD_URL }}
-        PACKAGE_VERSION: ${{ steps.manifest.outputs.version }}
-        PACKAGE_DOWNLOAD: ${{ steps.manifest.outputs.download }}
-      run: |
-        if [[ ! $TAG_NAME == release-$PACKAGE_VERSION ]]; then
-          echo "The system.json version does not match tag name."
-          echo "system.json: $PACKAGE_VERSION"
-          echo "tag name: $TAG_NAME"
-          echo "Please fix this and push the tag again."
-          exit 1
+      # Verify correct naming
+      - name: Verify correct naming
+        env:
+          TAG_NAME: ${{ env.TAG_NAME }}
+          PACKAGE_VERSION: ${{ steps.manifest.outputs.version }}
+        run: |
+          if [[ ! $TAG_NAME == test-$PACKAGE_VERSION ]]; then
+            echo "The system.json version does not match tag name."
+            echo "system.json: $PACKAGE_VERSION"
+            echo "tag name: $TAG_NAME"
+            echo "Please fix this and push the tag again."
+            exit 1
 
-    # Set up Node
-    - name: Use Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '18.x'
-        cache: 'npm'
+      # Set up Node
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+          cache: "npm"
 
-    # Install Dependencies
-    - name: Install Dependencies
-      run: npm ci
+      # Install Dependencies
+      - name: Install Dependencies
+        run: npm ci
 
-    # Update manifest version
-    - name: Update Manifest Version
-      run: gulp manifest -u ${{ env.TAG_NAME }}
+      # Build the code and packs for distribution
+      - name: Build For Distribution
+        run: |
+          gulp build
+          gulp build_packs
 
-    # Run the build script
-    - name: Build All
-      run: gulp build
+      # Package the built files
+      - name: Package Files
+        run: gulp package
 
-    # Build packs
-    - name: Build Packs
-      run: gulp build_packs
-
-    # Package the built files
-    - name: Package Files
-      run: gulp package
-
-    # Run git operations
-    - name: Git Operations
-      run: gulp git
-
-    # Create ZIP package of the necessary files
-    - name: Create ZIP package
-      run: |
-        zip ${{ env.ZIP_NAME }} -r dist/* system.json README.md CHANGELOG.md
-
-    # Fetch the body from the release
-    - name: Fetch Release Body
-      id: release
-      uses: cardinalby/git-get-release-action@v1
-      env:
-        GITHUB_TOKEN: ${{ github.token }}
-      with:
-        tag: ${{ env.TAG_NAME }}
-        doNotFailIfNotFound: true
-
-    # Create a release for this specific version
-    - name: Update Release with Files
-      id: create_version_release
-      uses: ncipollo/release-action@v1
-      with:
-        allowUpdates: true
-        name: ${{ env.TAG_NAME }}
-        draft: false
-        prerelease: true
-        omitDraftDuringUpdate: true
-        omitPrereleaseDuringUpdate: true
-        token: ${{ secrets.GITHUB_TOKEN }}
-        artifacts: './system.json, ./${{ env.ZIP_NAME }}'
-        tag: ${{ env.TAG_NAME }}
-        body: |
-          ${{ steps.release.outputs.body }}
-          
-          **Installation:** To manually install this release, please use the following manifest URL: ${{ env.RELEASE_INSTALL_URL }}
+      # Create a release for this specific version
+      - name: Create Release with Files
+        id: create_version_release
+        uses: ncipollo/release-action@v1
+        with:
+          allowUpdates: true
+          name: ${{ env.TAG_NAME }}
+          draft: true
+          prerelease: true
+          omitDraftDuringUpdate: true
+          omitPrereleaseDuringUpdate: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+          artifacts: "./system.json, ./${{ env.ZIP_NAME }}"
+          tag: ${{ env.TAG_NAME }}
+          # TODO: can we automatically extract the changelog for this release?
+          body: |
+            **Installation:** To manually install this release, please use the following manifest URL: ${{ env.RELEASE_MANIFEST_URL }}
