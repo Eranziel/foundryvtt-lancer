@@ -322,7 +322,7 @@ function updateManifest(cb) {
 }
 
 function gitAdd() {
-  return gulp.src("package").pipe(git.add({ args: "--no-all" }));
+  return gulp.src(["./public/system.json", "./package.json"]).pipe(git.add({ args: "--no-all" }));
 }
 
 function gitCommit() {
