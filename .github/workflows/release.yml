@@ -42,6 +42,7 @@ jobs:
             echo "tag name: $TAG_NAME"
             echo "Please fix this and push the tag again."
             exit 1
+          fi
 
       # Set up Node
       - uses: actions/setup-node@v4
