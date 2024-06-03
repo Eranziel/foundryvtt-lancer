@@ -14,11 +14,16 @@ Here is a summary of the changes, though in any refactor this large some items w
 - System automation rework. We designed and implemented a framework we call `Flows` for handling automation sequences, which is designed to be flexible and extensible. This will make adding to the automation in the future easier, as well as allow module developers to make targeted alterations to the automation, or even replace entire Flows wholesale. We are very excited to see what the community does with these!
 - #574 - We now have themes! These echo the themes in Comp/Con and include: GMS Red (default, theme from 1.X and earlier), GMS Dark (same, but with dark background and light text), MSMC Solarized, HORUS Terminal, Harrison Armory Ras Shamra, SSC Constellar Congress, IPS-N Carina, FORECAST/GALSIM.
 - #328 - When importing an LCP which includes NPC classes, basic actors for each of those classes are generated inside the "Premade NPCs" compendium.
+- #475 - We have added Tours for the main features of the Lancer system.
 - #573 - The compendiums have fancy custom banners!
 - #580 - The compendiums have been condensed to make use of folders, reducing clutter.
 - #496 - Counters on pilot sheets can now be deleted.
 - #550 - The create actor dialog defaults to NPC now as it is the most common actor type to create, saving GMs a couple clicks.
+- #582 - Lancer's measured templates now properly support gridless scenes.
+- #601 - Tokens and prototype tokens automatically have the appropriate size set when the actor's frame or class changes.
+- #605 - Carousel Combat Tracker integration.
 - #594 - Structure and Overheat results now include a button to roll for Cascade if the mech has a system with the AI tag.
+- Added a `fromLidMany` helper for use in chat messages and journals, allowing quick creation of references to Lancer compendium items.
 - Removed the Sitrep, Environment, Manufacturer, and Quirk item types. These all either had poor support in the system, or were better served as simple text fields. Sitreps and Environments may see a return as Journals one day.
 - Tags have been moved from a compendium of items to a system-level setting. This allows more consistent and tightly-bound behaviour.
 
@@ -41,6 +46,7 @@ Here is a summary of the changes, though in any refactor this large some items w
 - #513 - dragging a weapon onto an occupied mount slot will now replace the original weapon.
 - #524 - Reserves now save categories other than "resources".
 - #549 - The Lock On status is now automatically removed from tokens when consumed during a tech attack.
+- #581 - Improved the performance of target acquisition when placing Lancer measured templates.
 - #616 - Weapons with the Limited tag now show a uses tracker on mech sheets.
 - Actions inside mech weapons are now rendered on mech sheets.
 
