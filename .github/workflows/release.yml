@@ -3,7 +3,7 @@ name: Release Creation
 on:
   push:
     tags:
-      - "test-*"
+      - "v*"
 
 jobs:
   build:
@@ -25,7 +25,7 @@ jobs:
         # Remove the 'v' from the tag for versioning
         run: |
           VERSION=${GITHUB_REF_NAME#v}
-          TAG_NAME=test-$VERSION
+          TAG_NAME=${GITHUB_REF_NAME}
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "tag_name=$TAG_NAME" >> $GITHUB_OUTPUT
           echo "zip_name=lancer-$TAG_NAME.zip" >> $GITHUB_OUTPUT
@@ -35,7 +35,7 @@ jobs:
         env:
           PACKAGE_VERSION: ${{ steps.manifest.outputs.version }}
         run: |
-          if [[ ! ${{ steps.vars.outputs.version }} == test-$PACKAGE_VERSION ]]; then
+          if [[ ! ${{ steps.vars.outputs.version }} == v$PACKAGE_VERSION ]]; then
             echo "The system.json version does not match tag name."
             echo "system.json: $PACKAGE_VERSION"
             echo "tag name: ${{ steps.vars.outputs.tag_name }}"
@@ -79,4 +79,5 @@ jobs:
           tag: ${{ steps.vars.outputs.tag_name }}
           # TODO: can we automatically extract the changelog for this release?
           body: |
-            **Installation:** To manually install this release, please use the following manifest URL: ${{ env.RELEASE_MANIFEST_URL }}
+
+            [Full changelog](https://github.com/Eranziel/foundryvtt-lancer/blob/master/CHANGELOG.md)
