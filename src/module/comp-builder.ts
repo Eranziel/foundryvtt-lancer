@@ -83,6 +83,10 @@ export async function importCP(
     totalItems += cp.data.talents?.length ?? 0;
     totalItems += cp.data.bonds?.length ?? 0;
     totalItems += cp.data.weapons?.length ?? 0;
+    // We need to double count NPC classes since we'll also be creating actors for them,
+    // And then add again all the base features.
+    totalItems += cp.data.npcClasses?.length ?? 0;
+    totalItems += cp.data.npcClasses?.reduce((acc, nc) => acc + (nc.base_features?.length ?? 0), 0) ?? 0;
 
     // Iterate over everything in core, collecting all lids into a map of LID -> document
     let existingLids: Map<string, LancerItem | LancerActor> = new Map();
@@ -221,14 +225,12 @@ export async function importCP(
       if (!classLid) continue;
       let thisClass = (await fromLid(classLid, { source: "compendium" })) as LancerItem;
       if (thisClass) {
-        console.log("Adding class to NPC: ", npc);
+        console.log(`Adding ${npc.name} class to NPC: `, npc);
         await npc.quickOwn(thisClass);
         npcPromises.push(...npc.npcClassSwapPromises);
       }
     }
-    console.time(`Waiting for ${npcPromises.length} class swaps`);
     await Promise.all(npcPromises);
-    console.timeEnd(`Waiting for ${npcPromises.length} class swaps`);
 
     // Tags are stored in config
     let newTagConfig = foundry.utils.duplicate(game.settings.get(game.system.id, LANCER.setting_tag_config)) as Record<
