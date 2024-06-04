@@ -309,6 +309,7 @@ export class LancerActor extends Actor {
       this.system.structure_repair_cost = 2;
     } else if (this.is_npc()) {
       this.system.class = this.items.find(i => i.is_npc_class()) as unknown as LancerNPC_CLASS;
+      this.system.templates = this.items.filter(i => i.is_npc_template()) as unknown as LancerNPC_TEMPLATE[];
     } else if (this.is_deployable()) {
       sys.armor = this.system.stats.armor;
       sys.edef = this.system.stats.edef;

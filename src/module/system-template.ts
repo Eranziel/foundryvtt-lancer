@@ -22,6 +22,7 @@ import {
   LancerMECH_SYSTEM,
   LancerMECH_WEAPON,
   LancerNPC_CLASS,
+  LancerNPC_TEMPLATE,
   LancerPILOT_ARMOR,
   LancerPILOT_GEAR,
   LancerPILOT_WEAPON,
@@ -452,6 +453,7 @@ export namespace SystemData {
     tier: number;
 
     class: LancerNPC_CLASS | null;
+    templates: LancerNPC_TEMPLATE[];
   }
   export interface NpcClass extends SystemTemplates.item_universal {
     role: string;
