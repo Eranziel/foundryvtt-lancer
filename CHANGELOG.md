@@ -1,3 +1,14 @@
+# 2.0.1 (2024-06-03)
+
+## Bug Fixes
+
+- #641 - Fix error thrown on combat creation.
+- #643 - Fix display of NPC Class flavour and tactics fields on the item sheet.
+- Add `templates` property to NPC system data, to match the existing `class` property.
+- Remove a duplicate and typo'd status name.
+- Gracefully handle verbose action names during LCP import. (e.g. "Full Action" instead of "Full".)
+- Fix an issue causing LCP import progress bar to finish too early if the LCP includes NPCs.
+
 # 2.0.0 (2024-06-02)
 
 _IT'S FINALLY HERE!_
