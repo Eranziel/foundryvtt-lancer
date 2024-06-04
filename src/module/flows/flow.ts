@@ -164,19 +164,27 @@ export class Flow<StateData> {
         console.log(`${lp} Flow aborted when ${key} was not found. All steps in this flow:`, this.steps);
         return false;
       }
+      const allowed = Hooks.call(`preFlowStep${key.titleCase()}`, this, this.state.data, step);
+      // Hook explicitly cancelled the flow
+      if (allowed === false) {
+        return false;
+      }
       if (step instanceof Flow) {
         // Start the sub-flow
         if ((await step.begin()) === false) {
           console.log(`${lp} flow aborted when ${key} returned false`);
+          Hooks.callAll(`postFlowStep${key.titleCase()}`, this, this.state.data, step);
           return false;
         }
       } else {
         // Execute the step. The step function will modify the flow state as needed.
         if ((await step(this.state, data)) === false) {
           console.log(`${lp} flow aborted when ${key} returned false`);
+          Hooks.callAll(`postFlowStep${key.titleCase()}`, this, this.state.data, step);
           return false;
         }
       }
+      Hooks.callAll(`postFlowStep${key.titleCase()}`, this, this.state.data, step);
     }
     return true;
   }
