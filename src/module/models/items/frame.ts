@@ -3,7 +3,7 @@ import { restrict_enum } from "../../helpers/commons";
 import { SourceData } from "../../source-template";
 import { PackedFrameData } from "../../util/unpacking/packed-types";
 import { unpackDeployable } from "../actors/deployable";
-import { ActionField, unpackAction } from "../bits/action";
+import { ActionField, repairActivationType, unpackAction } from "../bits/action";
 import { BonusField, unpackBonus } from "../bits/bonus";
 import { CounterField, unpackCounter } from "../bits/counter";
 import { SynergyField, unpackSynergy } from "../bits/synergy";
@@ -104,13 +104,14 @@ export function unpackFrame(
 } {
   let cs = data.core_system;
   const frameImg = frameToPath(data.name);
+  let csActivation = repairActivationType(cs.activation ?? ActivationType.Quick);
   return {
     name: data.name,
     type: EntryType.FRAME,
     img: frameImg ?? undefined,
     system: {
       core_system: {
-        activation: cs.activation,
+        activation: csActivation,
         active_actions: cs.active_actions?.map(unpackAction),
         active_bonuses: cs.active_bonuses?.map(unpackBonus),
         active_effect: cs.active_effect,

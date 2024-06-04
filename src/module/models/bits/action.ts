@@ -121,8 +121,9 @@ export class ActionField extends fields.SchemaField {
 
 // Converts an lcp action into our expected format
 export function unpackAction(data: PackedActionData): ActionData {
+  let activation = repairActivationType(data.activation ?? ActivationType.Quick);
   return {
-    activation: data.activation ?? ActivationType.Quick,
+    activation,
     cost: data.cost ?? 0,
     damage: data.damage?.map(unpackDamage) ?? [],
     detail: data.detail ?? "",
@@ -139,4 +140,15 @@ export function unpackAction(data: PackedActionData): ActionData {
     trigger: data.trigger ?? "",
     tech_attack: data.tech_attack ?? false,
   };
+}
+
+export function repairActivationType(activation: string): ActivationType {
+  if (activation.toLowerCase() === "full action") {
+    return ActivationType.Full;
+  } else if (activation.toLowerCase() === "quick action") {
+    return ActivationType.Quick;
+  } else if (activation.toLowerCase() === "free action") {
+    return ActivationType.Free;
+  }
+  return ActivationType.Quick;
 }
