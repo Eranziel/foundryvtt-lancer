@@ -17,6 +17,13 @@ export class LancerCombat extends Combat {
     return super._preCreate(data, options, user);
   }
 
+  async _manageTurnEvents(adjustedTurn: any) {
+    // Avoid the Foundry bug where this is called on create, before this.previous is set.
+    if (!this.previous) return;
+    // @ts-expect-error v10 types
+    super._manageTurnEvents(adjustedTurn);
+  }
+
   /**
    * Set all combatants to their max activations
    */
