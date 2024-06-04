@@ -6,7 +6,7 @@
   "steps": [
     {
       "id": "compconLogin",
-      "selector": "#sidebar #settings #settings-game #compcon-login",
+      "selector": "#sidebar #settings #compcon-login",
       "title": "lancer.tour.pilot-import.compconLogin.title",
       "content": "lancer.tour.pilot-import.compconLogin.content",
       "sidebarTab": "settings"
