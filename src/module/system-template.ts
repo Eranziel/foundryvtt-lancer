@@ -104,7 +104,6 @@ export namespace SystemTemplates {
       slowed: boolean;
       stunned: boolean;
       hidden: boolean;
-      invisibe: boolean;
     };
     resistances: {
       // These can be set by active effects
