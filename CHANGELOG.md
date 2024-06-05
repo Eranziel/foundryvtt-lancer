@@ -1,3 +1,11 @@
+# 2.0.2 (2024-06-04)
+
+## Bug Fixes
+
+- Make some improvements to the public `Flow` API for module developers to use.
+- Fix pilot import tour. It was not updated after the Comp/Con login button was moved.
+- Fix editing the "Notes" field on NPC actors.
+
 # 2.0.1 (2024-06-03)
 
 ## Bug Fixes
