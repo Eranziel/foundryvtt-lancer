@@ -182,7 +182,7 @@ import { ReserveModel } from "./module/models/items/reserve";
 import { OrganizationModel } from "./module/models/items/organization";
 import { StatusModel } from "./module/models/items/status";
 import { BondModel } from "./module/models/items/bond";
-import { Flow, Step } from "./module/flows/flow";
+import { Flow } from "./module/flows/flow";
 import { beginSecondaryStructureFlow } from "./module/flows/structure";
 import { beginCascadeFlow } from "./module/flows/cascade";
 import { get_pack_id } from "./module/util/doc";
@@ -336,6 +336,7 @@ Hooks.once("init", async function () {
       lookupOwnedDeployables,
     },
     flowSteps,
+    Flow,
     beginItemChatFlow,
     // prepareItemMacro: macros.prepareItemMacro,
     // prepareStatMacro: macros.prepareStatMacro,

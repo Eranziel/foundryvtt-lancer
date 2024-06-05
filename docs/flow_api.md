@@ -91,6 +91,10 @@ There is also a `Flow#removeStep` static method that can delete a step, but be a
 
 Finally it is possible to override a step by registering your custom step as the name of the existing step you want to override, but be aware that if another module also overrides that step, there's no defined order for conflict resolution. In general, it is best to add new steps rather than change existing steps wherever possible.
 
+### Custom Flows
+
+The Flow class is available at `game.lancer.Flow` for modules wishing to write custom flows. Flow steps for custom flows need to be registered in the flowSteps mapping in the `lancer.registerFlows` Hook similar to custom steps.
+
 ## Overview
 
 ### Rolls
