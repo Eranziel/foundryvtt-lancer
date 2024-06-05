@@ -143,7 +143,9 @@ export function unpackAction(data: PackedActionData): ActionData {
 }
 
 export function repairActivationType(activation: string): ActivationType {
-  if (activation.toLowerCase() === "full action") {
+  if (ActivationType[activation as keyof typeof ActivationType]) {
+    return ActivationType[activation as keyof typeof ActivationType];
+  } else if (activation.toLowerCase() === "full action") {
     return ActivationType.Full;
   } else if (activation.toLowerCase() === "quick action") {
     return ActivationType.Quick;
