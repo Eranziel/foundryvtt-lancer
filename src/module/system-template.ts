@@ -365,7 +365,7 @@ export namespace SystemData {
     meltdown_timer: number | null;
     notes: string;
     pilot: SystemTemplates.ResolvedSyncUuidRef<LancerPILOT> | null; // UUID to a LancerPILOT
-    overcharge_sequence: string[]; // Derived so its overrideable
+    overcharge_sequence: string; // Derived so its overrideable
 
     structure_repair_cost: number;
     stress_repair_cost: number;

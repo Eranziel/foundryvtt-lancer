@@ -575,7 +575,10 @@ export function convertBonus(origin: string, name: string, bonus: BonusData): nu
       target_type = EntryType.MECH;
       changes.push({ mode, value: 1 as any, priority, key: "system.stress_repair_cost" });
       break;
-    // case "overcharge":
+    case "overcharge":
+      target_type = EntryType.MECH;
+      changes.push({ mode, value, priority, key: "system.overcharge_sequence" });
+      break;
     // case "limited_bonus":
     case "pilot_hp":
       target_type = EntryType.PILOT;
