@@ -76,6 +76,8 @@ const frame_to_path: Record<string, string> = {
   CALIBAN: "systems/lancer/assets/retrograde-minis/Retrograde-Minis-IPS-N-CALIBAN.png",
   "WHITE WITCH": "systems/lancer/assets/retrograde-minis/Retrograde-Minis-SSC-WHITE WITCH.png",
   EMPEROR: "systems/lancer/assets/retrograde-minis/Retrograde-Minis-SSC-EMPEROR.png",
+  LEECH: "systems/lancer/assets/retrograde-minis/Retrograde-Minis-Corpro-LEECH.png",
+  TEMPEST: "systems/lancer/assets/retrograde-minis/Retrograde-Minis-Corpro-TEMPEST.png",
 };
 
 export function frameToPath(name: string | null | undefined): string | null {
