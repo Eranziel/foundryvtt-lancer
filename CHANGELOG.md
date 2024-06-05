@@ -2,7 +2,7 @@
 
 ## Bug Fixes
 
-- Fix an issue causing nearly all actions to be imported as Quick.
+- #657 - Fix an issue causing nearly all actions to be imported as Quick.
 
 # 2.0.2 (2024-06-04)
 
