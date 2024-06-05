@@ -15,8 +15,7 @@ export function registerFullRepairSteps(flowSteps: Map<string, Step<any, any> | 
 }
 
 export class FullRepairFlow extends Flow<LancerFlowState.TextRollData> {
-  name = "FullRepairFlow";
-  steps = ["displayFullRepairDialog", "executeFullRepair"];
+  static steps = ["displayFullRepairDialog", "executeFullRepair"];
 
   constructor(uuid: UUIDRef | LancerItem | LancerActor, data?: Partial<LancerFlowState.TextRollData>) {
     // Initialize data if not provided

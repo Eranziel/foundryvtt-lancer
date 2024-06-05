@@ -20,8 +20,7 @@ export function registerStatSteps(flowSteps: Map<string, Step<any, any> | Flow<a
 }
 
 export class StatRollFlow extends Flow<LancerFlowState.StatRollData> {
-  name = "StatRollFlow";
-  steps = ["initStatRollData", "showStatRollHUD", "rollCheck", "printStatRollCard"];
+  static steps = ["initStatRollData", "showStatRollHUD", "rollCheck", "printStatRollCard"];
 
   constructor(uuid: UUIDRef | LancerItem | LancerActor, data: Partial<LancerFlowState.StatRollData>) {
     const state: LancerFlowState.StatRollData = {

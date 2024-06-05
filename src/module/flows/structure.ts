@@ -26,8 +26,7 @@ export function registerStructureSteps(flowSteps: Map<string, Step<any, any> | F
  * StructureFlow manages all the steps necessary for the initial structure rolls and outcomes.
  */
 export class StructureFlow extends Flow<LancerFlowState.PrimaryStructureRollData> {
-  name = "StructureFlow";
-  steps = [
+  static steps = [
     "preStructureRollChecks",
     "rollStructureTable",
     "noStructureRemaining",
@@ -362,8 +361,7 @@ export async function beginSecondaryStructureFlow(
  * Flow for managing secondary structure rolls and effects
  */
 export class SecondaryStructureFlow extends Flow<LancerFlowState.SecondaryStructureRollData> {
-  name = "SecondaryStructureFlow";
-  steps = ["secondaryStructureRoll", "printSecondaryStructureCard"];
+  static steps = ["secondaryStructureRoll", "printSecondaryStructureCard"];
 
   constructor(uuid: UUIDRef | LancerActor, data?: Partial<LancerFlowState.SecondaryStructureRollData>) {
     const initialData: LancerFlowState.SecondaryStructureRollData = {

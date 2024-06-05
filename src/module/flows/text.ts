@@ -16,8 +16,7 @@ export function registerTextSteps(flowSteps: Map<string, Step<any, any> | Flow<a
 }
 
 export class SimpleTextFlow extends Flow<LancerFlowState.TextRollData> {
-  name = "TextFlow";
-  steps = ["printGenericCard"];
+  static steps = ["printGenericCard"];
 
   constructor(uuid: UUIDRef | LancerItem | LancerActor, data: Partial<LancerFlowState.TextRollData>) {
     const state: LancerFlowState.TextRollData = {
@@ -42,8 +41,7 @@ export async function printGenericCard(state: FlowState<any>, options?: { templa
 }
 
 export class SimpleHTMLFlow extends Flow<LancerFlowState.HTMLToChatData> {
-  name = "HTMLFlow";
-  steps = ["printGenericHTML"];
+  static steps = ["printGenericHTML"];
 
   constructor(uuid: UUIDRef | LancerItem | LancerActor, data: Partial<LancerFlowState.HTMLToChatData>) {
     const state: LancerFlowState.HTMLToChatData = {

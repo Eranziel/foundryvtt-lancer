@@ -12,8 +12,7 @@ export function registerTalentSteps(flowSteps: Map<string, Step<any, any> | Flow
 }
 
 export class TalentFlow extends Flow<LancerFlowState.TalentUseData> {
-  name = "TalentFlow";
-  steps = ["printTalentCard"];
+  static steps = ["printTalentCard"];
 
   constructor(uuid: string | LancerItem, data: Partial<LancerFlowState.TalentUseData>) {
     const state: LancerFlowState.TalentUseData = {

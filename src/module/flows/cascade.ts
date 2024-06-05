@@ -31,8 +31,7 @@ export async function beginCascadeFlow(actorUuid: UUIDRef, flowArgs?: Partial<La
  * Flow for managing secondary structure rolls and effects
  */
 export class CascadeFlow extends Flow<LancerFlowState.CascadeRollData> {
-  name = "CascadeFlow";
-  steps = ["initCascadeData", "cascadeRoll", "cascadeUpdateItems", "printCascadeCards"];
+  static steps = ["initCascadeData", "cascadeRoll", "cascadeUpdateItems", "printCascadeCards"];
 
   constructor(uuid: UUIDRef | LancerActor, data?: Partial<LancerFlowState.CascadeRollData>) {
     const initialData: LancerFlowState.CascadeRollData = {

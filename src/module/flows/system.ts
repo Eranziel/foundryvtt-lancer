@@ -15,8 +15,7 @@ export function registerSystemSteps(flowSteps: Map<string, any>) {
 }
 
 export class SystemFlow extends Flow<LancerFlowState.SystemUseData> {
-  name = "SystemFlow";
-  steps = [
+  static steps = [
     "initSystemUseData",
     "checkItemDestroyed",
     "checkItemLimited",

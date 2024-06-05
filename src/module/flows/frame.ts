@@ -14,11 +14,10 @@ export function registerCoreActiveSteps(flowSteps: Map<string, any>) {
 }
 
 export class CoreActiveFlow extends ActivationFlow {
-  name = "CoreActiveFlow";
   // Same as ActivationFlow, except:
   //  - Add "checkCorePower" after "checkItemCharged"
   //  - Add "consumeCorePower" before "printActionUseCard"
-  steps = [
+  static steps = [
     "initActivationData",
     "checkItemDestroyed",
     "checkItemLimited",

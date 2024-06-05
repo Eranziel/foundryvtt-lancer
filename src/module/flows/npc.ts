@@ -12,8 +12,7 @@ export function registerNPCSteps(flowSteps: Map<string, Step<any, any> | Flow<an
 }
 
 export class NPCRechargeFlow extends Flow<LancerFlowState.RechargeRollData> {
-  name = "NPCRechargeFlow";
-  steps = ["findRechargeableSystems", "rollRecharge", "applyRecharge", "printRechargeCard"];
+  static steps = ["findRechargeableSystems", "rollRecharge", "applyRecharge", "printRechargeCard"];
 
   constructor(uuid: LancerActor, data?: Partial<LancerFlowState.RechargeRollData>) {
     const initialData: LancerFlowState.RechargeRollData = {

@@ -22,8 +22,7 @@ export function registerOverheatSteps(flowSteps: Map<string, Step<any, any> | Fl
  * OverheatFlow manages all the steps necessary for the initial overheat rolls and outcomes.
  */
 export class OverheatFlow extends Flow<LancerFlowState.OverheatRollData> {
-  name = "OverheatFlow";
-  steps = [
+  static steps = [
     "preOverheatRollChecks",
     "rollOverheatTable",
     "noStressRemaining",

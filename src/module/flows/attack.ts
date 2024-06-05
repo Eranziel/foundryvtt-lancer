@@ -69,7 +69,7 @@ export function registerAttackSteps(flowSteps: Map<string, Step<any, any> | Flow
 
 export class BasicAttackFlow extends Flow<LancerFlowState.AttackRollData> {
   name = "BasicAttackFlow";
-  steps = [
+  static steps = [
     "initAttackData",
     "setAttackTags",
     "setAttackEffects",
@@ -111,8 +111,7 @@ export class BasicAttackFlow extends Flow<LancerFlowState.AttackRollData> {
  * Flow for rolling weapon attacks against one or more targets
  */
 export class WeaponAttackFlow extends Flow<LancerFlowState.WeaponRollData> {
-  name = "WeaponAttackFlow";
-  steps = [
+  static steps = [
     "initAttackData",
     "checkItemDestroyed",
     "checkWeaponLoaded",

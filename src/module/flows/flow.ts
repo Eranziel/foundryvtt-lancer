@@ -39,11 +39,9 @@ export interface FlowState<T> {
  * application).
  */
 export class Flow<StateData> {
-  // The name of this flow. Used for logging and debugging.
-  name: string = "UnnamedFlow";
   // The Steps involved in this flow, signified by key name in game.lancer.flowSteps.
   // Steps are fetched from the registry and resolved in the order they appear in the array.
-  steps: Array<string> = ["emptyStep"];
+  static steps: Array<string> = ["emptyStep"];
   // State tracking object. Passed to each step for it to modify and then return.
   state: FlowState<StateData>;
 
@@ -85,7 +83,7 @@ export class Flow<StateData> {
     }
 
     this.state = {
-      name: this.name,
+      name: this.constructor.name,
       actor,
       item,
       currentStep: "",
@@ -117,7 +115,7 @@ export class Flow<StateData> {
    * @param key Existing step key to insert newKey before
    * @param newKey New step key
    */
-  insertStepBefore(key: string, newKey: string) {
+  static insertStepBefore(key: string, newKey: string) {
     const keyIndex = this.steps.indexOf(key);
     if (keyIndex == -1) {
       // If the key doesn't exist, add the new step at the end.
@@ -131,7 +129,7 @@ export class Flow<StateData> {
    * @param key Existing step key to insert newKey after
    * @param newKey New step key
    */
-  insertStepAfter(key: string, newKey: string) {
+  static insertStepAfter(key: string, newKey: string) {
     const keyIndex = this.steps.indexOf(key);
     if (keyIndex == -1) {
       // If the key doesn't exist, add the new step at the end.
@@ -144,7 +142,7 @@ export class Flow<StateData> {
    * Remove the given step from the steps to execute
    * @param key Existing step key to delete
    */
-  removeStep(key: string) {
+  static removeStep(key: string) {
     const keyIndex = this.steps.indexOf(key);
     this.steps.splice(keyIndex, 1);
   }
@@ -155,29 +153,35 @@ export class Flow<StateData> {
    */
   async begin(data?: StateData): Promise<boolean> {
     this.state.data = data || this.state.data;
-    for (const key of this.steps) {
+    Hooks.callAll(`lancer.preFlow.${this.constructor.name}`, this);
+    // @ts-expect-error Static
+    for (const key of this.constructor.steps) {
       console.log(`${lp} running flow step ${key}`);
       this.state.currentStep = key;
       const step = this.getStep(key);
       if (!step) {
         ui.notifications!.error(`Lancer flow error: ${key} is not a valid step`);
-        console.log(`${lp} Flow aborted when ${key} was not found. All steps in this flow:`, this.steps);
+        // @ts-expect-error Static
+        console.log(`${lp} Flow aborted when ${key} was not found. All steps in this flow:`, this.constructor.steps);
         return false;
       }
       if (step instanceof Flow) {
         // Start the sub-flow
         if ((await step.begin()) === false) {
           console.log(`${lp} flow aborted when ${key} returned false`);
+          Hooks.callAll(`lancer.postFlow.${this.constructor.name}`, this, false);
           return false;
         }
       } else {
         // Execute the step. The step function will modify the flow state as needed.
         if ((await step(this.state, data)) === false) {
           console.log(`${lp} flow aborted when ${key} returned false`);
+          Hooks.callAll(`lancer.postFlow.${this.constructor.name}`, this, false);
           return false;
         }
       }
     }
+    Hooks.callAll(`lancer.postFlow.${this.constructor.name}`, this, true);
     return true;
   }
 

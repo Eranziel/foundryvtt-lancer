@@ -182,29 +182,14 @@ import { ReserveModel } from "./module/models/items/reserve";
 import { OrganizationModel } from "./module/models/items/organization";
 import { StatusModel } from "./module/models/items/status";
 import { BondModel } from "./module/models/items/bond";
-import { Flow, FlowState, Step } from "./module/flows/flow";
-import { registerAttackSteps } from "./module/flows/attack";
-import { registerTechAttackSteps } from "./module/flows/tech";
-import { registerActivationSteps } from "./module/flows/activation";
-import { registerItemUtilSteps } from "./module/flows/item-utils";
-import { registerBondPowerSteps } from "./module/flows/bond";
-import { registerCoreActiveSteps } from "./module/flows/frame";
-import { registerFullRepairSteps } from "./module/flows/full-repair";
-import { registerTextSteps } from "./module/flows/text";
-import { registerTalentSteps } from "./module/flows/talent";
-import { registerStatSteps } from "./module/flows/stat";
-import { registerOverchargeSteps } from "./module/flows/overcharge";
-import { registerSystemSteps } from "./module/flows/system";
-import { beginSecondaryStructureFlow, registerStructureSteps } from "./module/flows/structure";
-import { registerOverheatSteps } from "./module/flows/overheat";
-import { beginCascadeFlow, registerCascadeSteps } from "./module/flows/cascade";
-import { registerNPCSteps } from "./module/flows/npc";
-import { registerActionTrackSteps } from "./module/flows/action-track";
+import { Flow, Step } from "./module/flows/flow";
+import { beginSecondaryStructureFlow } from "./module/flows/structure";
+import { beginCascadeFlow } from "./module/flows/cascade";
 import { get_pack_id } from "./module/util/doc";
 import { registerTours } from "./module/tours/register-tours";
-import { registerStabilizeSteps } from "./module/flows/stabilize";
 import { beginItemChatFlow } from "./module/flows/item";
 import { onHotbarDrop } from "./module/flows/hotbar";
+import { registerFlows } from "./module/flows/register-flows";
 
 const lp = LANCER.log_prefix;
 
@@ -327,27 +312,9 @@ Hooks.once("init", async function () {
   // it can happen in the background
   configureAmplify();
 
-  const flowSteps: Map<string, Step<any, any> | Flow<any>> = new Map();
   // Register flow steps
-  flowSteps.set("emptyStep", async (state: FlowState<any>) => !!state);
-  registerTextSteps(flowSteps);
-  registerSystemSteps(flowSteps);
-  registerItemUtilSteps(flowSteps);
-  registerAttackSteps(flowSteps);
-  registerTechAttackSteps(flowSteps);
-  registerActivationSteps(flowSteps);
-  registerCoreActiveSteps(flowSteps);
-  registerStatSteps(flowSteps);
-  registerStructureSteps(flowSteps);
-  registerOverheatSteps(flowSteps);
-  registerCascadeSteps(flowSteps);
-  registerOverchargeSteps(flowSteps);
-  registerStabilizeSteps(flowSteps);
-  registerTalentSteps(flowSteps);
-  registerBondPowerSteps(flowSteps);
-  registerFullRepairSteps(flowSteps);
-  registerNPCSteps(flowSteps);
-  registerActionTrackSteps(flowSteps);
+  const flowSteps = registerFlows();
+
   // Assign custom classes and constants here
   // Create a Lancer namespace within the game global
   game.lancer = {
