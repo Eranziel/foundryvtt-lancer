@@ -15,8 +15,7 @@ export function registerOverchargeSteps(flowSteps: Map<string, any>) {
 }
 
 export class OverchargeFlow extends Flow<LancerFlowState.OverchargeRollData> {
-  name = "OverchargeFlow";
-  steps = ["initOverchargeData", "rollOvercharge", "updateOverchargeActor", "printOverchargeCard"];
+  static steps = ["initOverchargeData", "rollOvercharge", "updateOverchargeActor", "printOverchargeCard"];
 
   constructor(uuid: UUIDRef | LancerItem | LancerActor, data?: Partial<LancerFlowState.OverchargeRollData>) {
     // Initialize data if not provided

@@ -1,0 +1,70 @@
+import { ActionTrackFlow, registerActionTrackSteps } from "./action-track";
+import { ActivationFlow, registerActivationSteps } from "./activation";
+import { BasicAttackFlow, registerAttackSteps, WeaponAttackFlow } from "./attack";
+import { BondPowerFlow, registerBondPowerSteps } from "./bond";
+import { CascadeFlow, registerCascadeSteps } from "./cascade";
+// import { DamageApplyFlow } from "./damage";
+import type { Flow, FlowState, Step } from "./flow";
+import { CoreActiveFlow, registerCoreActiveSteps } from "./frame";
+import { FullRepairFlow, registerFullRepairSteps } from "./full-repair";
+import { registerItemUtilSteps } from "./item-utils";
+import { NPCRechargeFlow, registerNPCSteps } from "./npc";
+import { OverchargeFlow, registerOverchargeSteps } from "./overcharge";
+import { OverheatFlow, registerOverheatSteps } from "./overheat";
+import { registerStabilizeSteps, StabilizeFlow } from "./stabilize";
+import { registerStatSteps, StatRollFlow } from "./stat";
+import { registerStructureSteps, SecondaryStructureFlow, StructureFlow } from "./structure";
+import { registerSystemSteps, SystemFlow } from "./system";
+import { registerTalentSteps, TalentFlow } from "./talent";
+import { registerTechAttackSteps, TechAttackFlow } from "./tech";
+import { registerTextSteps, SimpleHTMLFlow, SimpleTextFlow } from "./text";
+
+export function registerFlows() {
+  const flows = new Map<string, typeof Flow<any>>();
+  const flowSteps = new Map<string, Step<any, any> | Flow<any>>();
+
+  flows.set(ActionTrackFlow.name, ActionTrackFlow);
+  flows.set(ActivationFlow.name, ActivationFlow);
+  flows.set(BasicAttackFlow.name, BasicAttackFlow);
+  flows.set(BondPowerFlow.name, BondPowerFlow);
+  flows.set(CascadeFlow.name, CascadeFlow);
+  flows.set(CoreActiveFlow.name, CoreActiveFlow);
+  // flows.set(DamageApplyFlow.name, DamageApplyFlow);
+  flows.set(FullRepairFlow.name, FullRepairFlow);
+  flows.set(NPCRechargeFlow.name, NPCRechargeFlow);
+  flows.set(OverchargeFlow.name, OverchargeFlow);
+  flows.set(OverheatFlow.name, OverheatFlow);
+  flows.set(SecondaryStructureFlow.name, SecondaryStructureFlow);
+  flows.set(SimpleHTMLFlow.name, SimpleHTMLFlow);
+  flows.set(SimpleTextFlow.name, SimpleTextFlow);
+  flows.set(StabilizeFlow.name, StabilizeFlow);
+  flows.set(StatRollFlow.name, StatRollFlow);
+  flows.set(StructureFlow.name, StructureFlow);
+  flows.set(SystemFlow.name, SystemFlow);
+  flows.set(TalentFlow.name, TalentFlow);
+  flows.set(TechAttackFlow.name, TechAttackFlow);
+  flows.set(WeaponAttackFlow.name, WeaponAttackFlow);
+
+  flowSteps.set("emptyStep", async (state: FlowState<any>) => !!state);
+  registerTextSteps(flowSteps);
+  registerSystemSteps(flowSteps);
+  registerItemUtilSteps(flowSteps);
+  registerAttackSteps(flowSteps);
+  registerTechAttackSteps(flowSteps);
+  registerActivationSteps(flowSteps);
+  registerCoreActiveSteps(flowSteps);
+  registerStatSteps(flowSteps);
+  registerStructureSteps(flowSteps);
+  registerOverheatSteps(flowSteps);
+  registerCascadeSteps(flowSteps);
+  registerOverchargeSteps(flowSteps);
+  registerStabilizeSteps(flowSteps);
+  registerTalentSteps(flowSteps);
+  registerBondPowerSteps(flowSteps);
+  registerFullRepairSteps(flowSteps);
+  registerNPCSteps(flowSteps);
+  registerActionTrackSteps(flowSteps);
+
+  Hooks.callAll("lancer.registerFlows", flowSteps, flows);
+  return flowSteps;
+}

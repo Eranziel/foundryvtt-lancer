@@ -11,8 +11,7 @@ export function registerActionTrackSteps(flowSteps: Map<string, Step<any, any> |
 }
 
 export class ActionTrackFlow extends Flow<LancerFlowState.ActionTrackData> {
-  name = "ActionTrackFlow";
-  steps = ["checkActions", "printActionTrackCard"];
+  static steps = ["checkActions", "printActionTrackCard"];
 
   constructor(uuid: LancerActor, data?: Partial<LancerFlowState.ActionTrackData>) {
     const initialData: LancerFlowState.ActionTrackData = {

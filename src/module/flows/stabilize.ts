@@ -17,8 +17,7 @@ export function registerStabilizeSteps(flowSteps: Map<string, Step<any, any> | F
 }
 
 export class StabilizeFlow extends Flow<LancerFlowState.StabilizeData> {
-  name = "StabilizeFlow";
-  steps = ["initializeStabilize", "renderStabilizePrompt", "applyStabilizeUpdates", "printStabilizeResult"];
+  static steps = ["initializeStabilize", "renderStabilizePrompt", "applyStabilizeUpdates", "printStabilizeResult"];
 
   constructor(uuid: UUIDRef | LancerActor, data?: Partial<LancerFlowState.StabilizeData>) {
     const initialData: LancerFlowState.StabilizeData = {

@@ -17,8 +17,7 @@ export function registerBondPowerSteps(flowSteps: Map<string, Step<any, any> | F
 }
 
 export class BondPowerFlow extends Flow<LancerFlowState.BondPowerUseData> {
-  name = "BondPowerFlow";
-  steps = ["initPowerData", "updatePowerUses", "printPowerCard"];
+  static steps = ["initPowerData", "updatePowerUses", "printPowerCard"];
 
   constructor(uuid: UUIDRef | LancerItem | LancerActor, data?: Partial<LancerFlowState.BondPowerUseData>) {
     if (!data?.powerIndex || typeof data?.powerIndex != "number" || data?.powerIndex < 0) {

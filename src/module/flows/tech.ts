@@ -19,8 +19,7 @@ export function registerTechAttackSteps(flowSteps: Map<string, Step<any, any> | 
 }
 
 export class TechAttackFlow extends Flow<LancerFlowState.TechAttackRollData> {
-  name = "TechAttackFlow";
-  steps = [
+  static steps = [
     "initTechAttackData",
     "checkItemDestroyed",
     "checkItemLimited",
