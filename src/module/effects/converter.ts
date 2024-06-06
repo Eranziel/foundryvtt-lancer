@@ -577,7 +577,9 @@ export function convertBonus(origin: string, name: string, bonus: BonusData): nu
       break;
     case "overcharge":
       target_type = EntryType.MECH;
-      changes.push({ mode, value, priority, key: "system.overcharge_sequence" });
+      // Hardwire overcharge to use override mode
+      // Heatfall doesn't have overwrite or replace set in lancer-data, but that's how it needs to work.
+      changes.push({ mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE, value, priority, key: "system.overcharge_sequence" });
       break;
     case "limited_bonus":
       target_type = EntryType.MECH;
