@@ -133,9 +133,9 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
           pilot.createEmbeddedDocuments("Item", [
             {
               type: EntryType.SKILL,
-              name: skill.custom_desc ?? "Custom Skill",
+              name: skill.id ?? "Custom Skill",
               "system.rank": skill.rank,
-              "system.detail": skill.custom_detail,
+              "system.description": skill.custom_desc || skill.custom_detail || "",
             },
           ]);
         } else {
