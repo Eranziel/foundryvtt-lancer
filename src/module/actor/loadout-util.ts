@@ -63,7 +63,14 @@ export class LoadoutHelper {
       if (this.actor.system.class) result.push(this.actor.system.class);
       result.push(...it.npc_class, ...it.npc_template, ...it.npc_feature);
     } else if (this.actor.is_pilot()) {
-      // result.push(...ent.OwnedPilotWeapons, ...ent.OwnedPilotArmor, ...ent.OwnedPilotGear); // TODO
+      result.push(
+        ...it.pilot_armor,
+        ...it.pilot_gear,
+        ...it.pilot_weapon,
+        ...it.talent,
+        ...it.core_bonus,
+        ...it.reserve
+      );
     } else {
     }
     return result;
