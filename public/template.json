@@ -149,7 +149,11 @@
       "core_active": false,
       "core_energy": 1,
       "overcharge": 0,
-      "repairs": 0,
+      "repairs": {
+        "min": 0,
+        "max": 6,
+        "value": 6
+      },
       "loadout": {
         "frame": null,
         "system_mounts": [],

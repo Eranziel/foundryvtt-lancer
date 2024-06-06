@@ -1,19 +1,13 @@
-import {
-  template_action_tracking,
-  template_heat,
-  template_statuses,
-  template_struss,
-  template_universal_actor,
-} from "./shared";
+import { template_action_tracking, template_heat, template_struss, template_universal_actor } from "./shared";
 
-import { FakeBoundedNumberField, LancerDataModel, EmbeddedRefField, SyncUUIDRefField } from "../shared";
+import { LancerDataModel, EmbeddedRefField, SyncUUIDRefField, FullBoundedNumberField } from "../shared";
 import { EntryType, FittingSize, MountType } from "../../enums";
 
 const fields: any = foundry.data.fields;
 
 const mech_schema = {
   overcharge: new fields.NumberField({ min: 0, integer: true, nullable: false, initial: 0 }),
-  repairs: new FakeBoundedNumberField(),
+  repairs: new FullBoundedNumberField(),
   core_active: new fields.BooleanField({ initial: false }),
   core_energy: new fields.NumberField({ min: 0, integer: true, initial: 1 }),
   loadout: new fields.SchemaField({

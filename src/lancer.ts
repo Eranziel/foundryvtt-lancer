@@ -284,7 +284,7 @@ Hooks.once("init", async function () {
       value: [...base.value, "cost", "instances"],
     },
     ["mech"]: {
-      bar: [...base.bar, "structure", "stress"],
+      bar: [...base.bar, "structure", "stress", "repairs"],
       value: [...base.value, "action_tracker.move", "core_energy", "grit", "meltdown_timer", "overcharge"],
     },
     ["npc"]: {
