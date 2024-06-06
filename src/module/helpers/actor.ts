@@ -341,7 +341,7 @@ export function npc_stat_array_clicker_card(title: string, path: string, options
  * @param options Options object to pass to resolveHelperDotpath
  */
 export function overchargeButton(actor: LancerMECH, overcharge_path: string, options: HelperOptions): string {
-  const sequence = actor.system.overcharge_sequence;
+  const sequence = actor.system.overcharge_sequence.split(",");
 
   let index = resolveHelperDotpath(options, overcharge_path) as number;
   index = Math.max(0, Math.min(sequence.length - 1, index));

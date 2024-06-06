@@ -36,7 +36,10 @@ async function initOverchargeData(state: FlowState<LancerFlowState.OverchargeRol
 
   state.data.title = options?.title || state.data.title || `${state.actor.name!.toUpperCase()} is OVERCHARGING`;
   state.data.roll_str = state.actor.strussHelper.getOverchargeRoll()!;
-  state.data.level = Math.min(state.actor.system.overcharge + 1, state.actor.system.overcharge_sequence.length - 1);
+  state.data.level = Math.min(
+    state.actor.system.overcharge + 1,
+    state.actor.system.overcharge_sequence.split(",").length - 1
+  );
 
   return state;
 }

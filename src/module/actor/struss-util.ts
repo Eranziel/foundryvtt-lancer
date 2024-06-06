@@ -72,7 +72,7 @@ export class StrussHelper {
     if (this.actor.is_npc()) {
       return "1d6"; // Some veterans can
     } else if (this.actor.is_mech()) {
-      const oc_rolls = this.actor.system.overcharge_sequence;
+      const oc_rolls = this.actor.system.overcharge_sequence.split(",");
       return oc_rolls[this.actor.system.overcharge];
     } else {
       return null;

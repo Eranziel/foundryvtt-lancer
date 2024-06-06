@@ -35,7 +35,7 @@ import { rollEvalSync } from "../util/misc";
 
 const lp = LANCER.log_prefix;
 
-const DEFAULT_OVERCHARGE_SEQUENCE = ["+1", "+1d3", "+1d6", "+1d6+4"];
+const DEFAULT_OVERCHARGE_SEQUENCE = "+1,+1d3,+1d6,+1d6+4" as const;
 
 interface LancerActorDataSource<T extends EntryType> {
   type: T;
