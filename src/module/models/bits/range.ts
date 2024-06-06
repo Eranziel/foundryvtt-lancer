@@ -62,60 +62,6 @@ export class Range implements Required<RangeData> {
     return `cci-${rt.toLowerCase()}`;
   }
 
-  // Gives the bonus-included ranges for the given mech weapon
-  public static CalcTotalRangeWithBonuses(
-    weapon: LancerMECH_WEAPON,
-    profile_index: number,
-    mech: LancerMECH,
-    mod?: LancerWEAPON_MOD
-  ): Range[] {
-    /* TODO 
-    // Select the profile
-    let profile = weapon.system.profiles[profile_index];
-
-    // Cut down to bonuses that affect ranges
-    let all_bonuses = mech.AllBonuses.concat(mod?.Bonuses ?? []).filter(x => x.LID === "range");
-
-    // Start building our output
-    const output: Range[] = [];
-    const ctx = mech.Pilot ? Bonus.ContextFor(mech.Pilot) : {};
-
-    // Combine the ranges
-    let base_ranges = profile.BaseRange;
-    if (mod) {
-      base_ranges = Range.CombineLists(base_ranges, mod.AddedRange);
-    }
-
-    for (let base_range of base_ranges) {
-      // Further narrow down to bonuses to this specific range/weapon combo
-      let range_specific_bonuses = all_bonuses.filter(b => b.applies_to_weapon(weapon, profile, base_range));
-
-      // Compute them vals
-      let bonus_summary: BonusSummary<number>;
-      let base_as_num = parseInt(base_range.Value);
-      let fallback_base: string; //
-      if (Number.isNaN(base_as_num)) {
-        fallback_base = base_range.Value + " + ";
-        bonus_summary = Bonus.Accumulate(0, range_specific_bonuses, ctx);
-      } else {
-        fallback_base = "";
-        bonus_summary = Bonus.Accumulate(base_as_num, range_specific_bonuses, ctx);
-      }
-
-      // Push the augmented range
-      let new_range = new Range({
-        type: base_range.RangeType,
-        val: fallback_base + bonus_summary.final_value,
-      });
-      new_range.Bonuses = bonus_summary.contributors.map(b => `+${b.value} :: ${b.bonus.Title}`); // TODO: make this format more cases, such as overwrites and replaces
-
-      output.push(new_range);
-    }
-    return output;
-    */
-    return [];
-  }
-
   // Convert a range type array to a checklist. If no range types provided, assume all
   public static MakeChecklist(ranges: RangeType[]): RangeTypeChecklist {
     let override = ranges.length == 0;

@@ -373,7 +373,6 @@ export namespace SystemData {
     // Set by pilot active effect
     level: number;
     grit: number;
-    all_bonuses: BonusData[]; // All compcon bonuses across everything. In general, prefer more specific mechanisms than thjis
   }
 
   export interface MechSystem
@@ -535,7 +534,6 @@ export namespace SystemData {
 
     // Derived attributes
     grit: number;
-    all_bonuses: BonusData[]; // All bonuses across everything
   }
   export interface Reserve extends SourceData.Reserve {}
   export interface Skill extends SourceData.Skill {}
