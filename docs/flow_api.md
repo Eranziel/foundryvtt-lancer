@@ -57,3 +57,27 @@ Finally it is possible to override a step by registering your custom step as the
 ### Custom Flows
 
 The Flow class is available at `game.lancer.Flow` for modules wishing to write custom flows. Flow steps for custom flows need to be registered in the flowSteps mapping in the `lancer.registerFlows` Hook similar to custom steps.
+
+## Base Flows
+
+The list of flows provided by the Lancer system are:
+
+- `ActionTrackFlow` - used for printing the state of a combatant's actions on turn change.
+- `ActivationFlow` - use an action of some type. This is usually coming from a mech system or mech weapon, and includes automation for checking whether the parent item is destroyed, consuming limited uses, applying self heat, and so on.
+- `BasicAttackFlow` - make a basic attack using the attack HUD. This is for things such as a ram, grapple, or improvised attack, i.e. an attack with no weapon.
+- `WeaponAttackFlow` - make an attack with a weapon using the attack HUD. This could be a pilot weapon, mech weapon, or NPC feature.
+- `BondPowerFlow` - use a pilot bond power.
+- `CascadeFlow` - roll a cascade check as a consequence from a structure or overheat check.
+- `CoreActiveFlow` - use a mech's core system. This is an extension of `ActivationFlow`, adding consumption of the mech's core power.
+- `FullRepairFlow` - perform a full repair, resetting all of a mech or pilot's stats.
+- `NPCRechargeFlow` - check whether an NPC's features with the recharge X+ tag have recharged.
+- `OverchargeFlow` - overcharge a mech, applying heat and advancing the overcharge track.
+- `OverheatFlow` - perform an overheat check for a mech or NPC.
+- `StabilizeFlow` - perform the stabilize action for a mech.
+- `StatRollFlow` - perform a check or save with HASE, Grit, or a pilot skill trigger.
+- `StructureFlow` - perform a structure check for a mech or NPC.
+- `SecondaryStructureFlow` - perform the 1d6 roll for system destruction.
+- `SystemFlow` - generically "use" a mech system or weapon mod. This is generally for systems which do not have attached action data.
+- `TalentFlow` - use a specific rank of a pilot talent.
+- `TechAttackFlow` - make a tech attack using the attack HUD, either generic (e.g. Invade) or from a mech system or NPC feature.
+- `SimpleTextFlow` - the simplest flow, for printing a card in chat with title, description, and optionally a list of tags.
