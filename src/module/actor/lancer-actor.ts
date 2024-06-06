@@ -333,8 +333,6 @@ export class LancerActor extends Actor {
    *  - Finalize derived data on weaponry based on fully prepared actor statistics
    */
   prepareDerivedData() {
-    this._gatherAllBonuses();
-
     // Ask items to prepare their final attributes using weapon_bonuses / equip information
     for (let item of this.items.contents) {
       item.prepareFinalAttributes();
@@ -398,27 +396,6 @@ export class LancerActor extends Actor {
           if (slot.weapon?.value) slot.weapon.value.system.equipped = true;
           if (slot.mod?.value) slot.mod.value.system.equipped = true;
         }
-      }
-    }
-  }
-
-  /**
-   * Populate system.all_bonuses
-   * TODO - eventually we would rather have these handled via active effects, or moved into model
-   */
-  _gatherAllBonuses() {
-    if (this.is_pilot()) {
-      // Collect all bonuses
-      this.system.all_bonuses = [];
-      for (let item of this.loadoutHelper.listLoadout()) {
-        this.system.all_bonuses.push(...(item.getBonuses() ?? []));
-      }
-    } else if (this.is_mech()) {
-      // Collect all bonuses
-      this.system.all_bonuses = [];
-      // Ensure loadout helper is initialized.
-      for (let item of this.loadoutHelper.listLoadout()) {
-        this.system.all_bonuses.push(...(item.getBonuses() ?? []));
       }
     }
   }
