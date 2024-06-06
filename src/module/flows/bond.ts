@@ -20,7 +20,13 @@ export class BondPowerFlow extends Flow<LancerFlowState.BondPowerUseData> {
   static steps = ["initPowerData", "updatePowerUses", "printPowerCard"];
 
   constructor(uuid: UUIDRef | LancerItem | LancerActor, data?: Partial<LancerFlowState.BondPowerUseData>) {
-    if (!data?.powerIndex || typeof data?.powerIndex != "number" || data?.powerIndex < 0) {
+    // Can't just check !data?.powerIndex because it could be 0
+    if (
+      data?.powerIndex === undefined ||
+      data?.powerIndex === null ||
+      typeof data?.powerIndex != "number" ||
+      data?.powerIndex < 0
+    ) {
       throw new Error(`Bond Power Flow requires a valid power index to be provided in data!`);
     }
     const initialData: LancerFlowState.BondPowerUseData = {
