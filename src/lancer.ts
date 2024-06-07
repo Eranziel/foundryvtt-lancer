@@ -716,9 +716,18 @@ Hooks.once("ready", async function () {
   game.action_manager!.init();
 
   // Set up compendium-based statuses icons
-  LancerActiveEffect.populateConfig(true);
+  LancerActiveEffect.populateConfig(true).then(() => {
+    //@ts-expect-error v11 types
+    CONFIG.statusEffects.forEach(e => (e.name = game.i18n.localize(e.name)));
+    console.log(CONFIG.statusEffects);
+  });
   Hooks.on("updateCompendium", collection => {
-    if (collection?.metadata?.id == get_pack_id(EntryType.STATUS)) LancerActiveEffect.populateConfig(true);
+    if (collection?.metadata?.id == get_pack_id(EntryType.STATUS)) {
+      LancerActiveEffect.populateConfig(true).then(() => {
+        //@ts-expect-error v11 types
+        CONFIG.statusEffects.forEach(e => (e.name = game.i18n.localize(e.name)));
+      });
+    }
   });
 });
 
