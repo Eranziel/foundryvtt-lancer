@@ -12,6 +12,7 @@ import {
   PackedNpcClassData,
   PackedNpcTemplateData,
   PackedPilotEquipmentData,
+  PackedSkillData,
   PackedTagTemplateData,
   PackedTalentData,
   PackedWeaponModData,
@@ -91,6 +92,7 @@ export async function parseContentPack(binString: Buffer | string): Promise<ICon
   const systems = generateIDs(await getZipData<PackedMechSystemData>(zip, "systems.json"), "ms");
   const mods = generateIDs(await getZipData<PackedWeaponModData>(zip, "mods.json"), "wm");
   const pilotGear = generateIDs(await getZipData<PackedPilotEquipmentData>(zip, "pilot_gear.json"), "pg");
+  const skills = generateIDs(await getZipData<PackedSkillData>(zip, "skills.json"), "sk");
   const talents = generateIDs(await getZipData<PackedTalentData>(zip, "talents.json"), "t");
   const bonds = generateIDs(await getZipData<PackedBondData>(zip, "bonds.json"), "bond");
   const tags = generateIDs(await getZipData<PackedTagTemplateData>(zip, "tags.json"), "tg");
@@ -114,6 +116,7 @@ export async function parseContentPack(binString: Buffer | string): Promise<ICon
       systems,
       mods,
       pilotGear,
+      skills,
       talents,
       bonds,
       tags,
