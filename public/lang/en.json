@@ -207,6 +207,27 @@
       "tommyConditionsStatus": "Tommy's Condition & Status",
       "tommyConditionsStatus-desc": "Enable Tommy's icon set for conditions & status"
     },
+    "statusIconsNames": {
+      "immobilized": "Immobilized",
+      "impaired": "Impaired",
+      "jammed": "Jammed",
+      "lockon": "Lock On",
+      "shredded": "Shredded",
+      "slow": "Slowed",
+      "stunned": "Stunned",
+      "dangerzone": "Danger Zone",
+      "downandout": "Down and Out",
+      "engaged": "Engaged",
+      "exposed": "Exposed",
+      "hidden": "Hidden",
+      "invisible": "Invisible",
+      "intangible": "Intangible",
+      "prone": "Prone",
+      "shutdown": "Shut Down",
+      "npc_tier_1": "Tier 1",
+      "npc_tier_2": "Tier 2",
+      "npc_tier_3": "Tier 3"
+    },
     "automation": {
       "menu-name": "Automation",
       "menu-label": "System Automation Settings",
