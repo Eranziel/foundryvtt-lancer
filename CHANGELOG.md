@@ -1,3 +1,19 @@
+# 2.0.4 (2024-06-06)
+
+## Bug Fixes
+
+- #644 - Enable limited system bonus from pilot gear (Integrated Ammo Feeds core bonus).
+- #647 - Fix actor image mangling when importing actors from compendiums or moving them between compendiums.
+- #655 - Enable overcharge sequence bonuses (Heatfall core bonus).
+- #660 - Fix parsing of custom skills when importing pilots from Comp/Con.
+- #662 - Fix broken links in Lancer Help dialog.
+- #663 - Fix error when using the first power in a bond.
+- #664 - Allow repairs to be used as a bar resource again.
+- #665 - Increase background/text contrast in HA (purple) and GALSIM (orange) themes.
+- #668 - Import pilot skills from LCPs. Also added item type counts to LCP description pre-import.
+- #670 - Disable core Foundry vision mechanics attached to special status names ("Invisible" and "Blind").
+- #672 - Fix bug causing all new actors to have name display as "Hovered by Anyone" regardless of core token defaults settings.
+
 # 2.0.3 (2024-06-05)
 
 ## Bug Fixes
