@@ -460,14 +460,7 @@ export class LancerActor extends Actor {
   protected async _preCreate(...[data, options, user]: Parameters<Actor["_preCreate"]>): Promise<void> {
     await super._preCreate(data, options, user);
 
-    // @ts-expect-error Should be fixed with v10 types
-    if (data.system?.lid) {
-      if (!data.img || data.img == "icons/svg/mystery-man.svg") {
-        // @ts-expect-error Should be fixed with v10 types
-        this.updateSource({ img: TypeIcon(this.type) });
-      }
-      return;
-    }
+    let img = data.img || TypeIcon(this.type);
 
     let disposition: ValueOf<typeof CONST["TOKEN_DISPOSITIONS"]> =
       {
@@ -480,12 +473,11 @@ export class LancerActor extends Actor {
     // Put in the basics
     // @ts-expect-error Should be fixed with v10 types
     this.updateSource({
-      img: TypeIcon(this.type),
+      img,
       // Link the token to the Actor for pilots and mechs, but not for NPCs or deployables
       prototypeToken: {
         actorLink: [EntryType.PILOT, EntryType.MECH].includes(this.type),
         disposition: disposition,
-        displayName: CONST.TOKEN_DISPLAY_MODES.HOVER,
       },
     });
   }
