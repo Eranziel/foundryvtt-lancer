@@ -690,6 +690,13 @@ ul.items-list {
   width: auto;
 }
 
+.lcp-manifest-badge {
+  background: var(--primary-color);
+  color: var(--light-text);
+  padding: 0em 0.5em;
+  border-radius: 1em;
+}
+
 table.lcp-index {
   margin: 10px;
   width: auto;

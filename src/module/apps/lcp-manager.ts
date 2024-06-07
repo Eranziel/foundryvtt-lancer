@@ -191,7 +191,7 @@ class LCPManager extends Application {
       frames: this.cp.data.frames?.length,
       systems: this.cp.data.systems?.length,
       weapons: this.cp.data.weapons?.length,
-      // mods: this.cp.WeaponMods.length,
+      mods: this.cp.data.mods?.length,
       npc_classes: this.cp.data.npcClasses?.length,
       npc_templates: this.cp.data.npcTemplates?.length,
       npc_features: this.cp.data.npcFeatures?.length,
