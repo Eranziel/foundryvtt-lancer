@@ -60,7 +60,6 @@ export enum StabOptions2 {
 
 export enum EntryType {
   CORE_BONUS = "core_bonus",
-  // CORE_SYSTEM = "core_system", // -- Merged into frame
   DEPLOYABLE = "deployable",
   FRAME = "frame",
   MECH = "mech", // Mech actors

@@ -808,7 +808,7 @@ export function std_enum_select<T extends string>(path: string, enum_: { [key: s
   let entries = Object.entries(enum_);
   // Sort the entries
   if (!options.hash["presorted"]) {
-    entries.sort((a, b) => a[1].localeCompare(b[1]));
+    entries.sort((a, b) => a[0].localeCompare(b[0]));
   }
   // Get the classes to add
   let select_classes: string = options.hash["select_classes"] || "";
@@ -833,7 +833,7 @@ export function std_enum_select<T extends string>(path: string, enum_: { [key: s
   let choices: string[] = [];
   for (let choice of entries) {
     choices.push(
-      `<option value="${choice[0]}" ${selected(choice[0] === currentVal)}>${choice[1].toUpperCase()}</option>`
+      `<option value="${choice[1]}" ${selected(choice[1] === currentVal)}>${choice[0].toUpperCase()}</option>`
     );
   }
 

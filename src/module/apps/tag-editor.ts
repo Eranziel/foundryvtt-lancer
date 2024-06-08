@@ -21,7 +21,7 @@ export class TagEditForm extends TargetedEditForm<TagData> {
   getData() {
     let tc = game.settings.get(game.system.id, LANCER.setting_tag_config) as Record<string, TagTemplateData>;
     let lid_options: { [key: string]: string } = {};
-    Object.entries(tc).forEach(tag => (lid_options[tag[0]] = tag[1].name));
+    Object.entries(tc).forEach(tag => (lid_options[tag[1].name] = tag[0]));
     return {
       ...super.getData(),
       lid: super.getData().value.lid, // Compat thing for std-select
