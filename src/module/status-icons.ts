@@ -31,7 +31,7 @@ export const defaultStatuses = [
   },
   {
     id: "slow",
-    name: "lancer.statusIconsNames.slowed",
+    name: "lancer.statusIconsNames.slow",
     icon: `systems/lancer/assets/icons/white/condition_slow.svg`,
   },
   {
@@ -179,7 +179,7 @@ export const cancerConditionsStatus = [
   },
   {
     id: "slow",
-    name: "lancer.statusIconsNames.slowed",
+    name: "lancer.statusIconsNames.slow",
     icon: "systems/lancer/assets/icons/alt-status/cancercondstat/slowed.svg",
   },
   {
@@ -320,7 +320,7 @@ export const hayleyConditionsStatus = [
   },
   {
     id: "slow",
-    name: "lancer.statusIconsNames.slowed",
+    name: "lancer.statusIconsNames.slow",
     icon: "systems/lancer/assets/icons/alt-status/hayleycondstat/slowed.webp",
   },
   {
@@ -697,7 +697,7 @@ export const tommyConditionsStatus = [
   },
   {
     id: "slow",
-    name: "lancer.statusIconsNames.slowed",
+    name: "lancer.statusIconsNames.slow",
     icon: "systems/lancer/assets/icons/alt-status/tommystat/Slowed.webp",
   },
   {
