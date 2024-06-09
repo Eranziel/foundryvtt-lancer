@@ -1,3 +1,15 @@
+# 2.1.0 (2024-06-08)
+
+## Features
+
+- #360 - Add tooltips to tags in chat and Actor sheets.
+- Add localization for status names.
+
+## Bug Fixes
+
+- #638 - Fix an issue which caused automation settings to be disabled when migrating worlds from v10.
+- #666 - Fix the tag editor not having the current tag selected by default.
+
 # 2.0.4 (2024-06-06)
 
 ## Bug Fixes
