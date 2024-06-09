@@ -1424,7 +1424,7 @@ export function handlePowerUsesInteraction<T>(html: JQuery, doc: LancerActor | L
 export function handleContextMenus(html: JQuery, doc: LancerActor | LancerItem, view_only: boolean = false) {
   _handleContextMenus(html, ".lancer-context-menu", "click", doc, view_only);
   _handleContextMenus(html, ".weapon-profile-tab", "contextmenu", doc, view_only);
-  _handleContextMenus(html, ".tag-list-append > .editable-tag-instance", "contextmenu", doc, view_only);
+  _handleContextMenus(html, ".tag-list-append > .editable-tag-instance.compact-tag", "contextmenu", doc, view_only);
 }
 
 /** Handles context menus for

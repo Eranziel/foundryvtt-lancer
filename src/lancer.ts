@@ -35,7 +35,7 @@ import { WeaponRangeTemplate } from "./module/pixi/weapon-range-template";
 import { preloadTemplates } from "./module/preload-templates";
 import { getAutomationOptions, registerSettings } from "./module/settings";
 import { applyTheme } from "./module/themes";
-import { compactTagListHBS, itemEditTags } from "./module/helpers/tags";
+import { attachTagTooltips, compactTagListHBS, itemEditTags } from "./module/helpers/tags";
 import * as migrations from "./module/world_migration";
 import { addLCPManager, updateCore, core_update } from "./module/apps/lcp-manager";
 
@@ -833,6 +833,7 @@ Hooks.on("renderChatMessage", async (cm: ChatMessage, html: JQuery, data: any) =
   // Reapply listeners.
   initializeCollapses(html);
   applyCollapseListeners(html);
+  attachTagTooltips(html);
 
   // Handle old macro buttons
   html.find(".chat-button").on("click", async ev => {

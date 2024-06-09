@@ -20,6 +20,7 @@ import { EntryType } from "../enums";
 import { LancerDEPLOYABLE } from "../actor/lancer-actor";
 import { BonusEditDialog } from "../apps/bonus-editor";
 import { OrgType } from "../enums";
+import { handleTagEditButtons } from "../helpers/tags";
 
 const lp = LANCER.log_prefix;
 
@@ -76,6 +77,8 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet<ItemShe
   _activateContextListeners(html: JQuery) {
     // Enable custom context menu triggers. If the sheet is not editable, show only the "view" option.
     handleContextMenus(html, this.item, !this.options.editable);
+    // Enable tag edit buttons
+    handleTagEditButtons(html, this.item);
   }
 
   /**

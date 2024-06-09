@@ -20,6 +20,7 @@ import { LancerFlowState } from "../flows/interfaces";
 import { lookupOwnedDeployables } from "../util/lid";
 import { beginItemChatFlow } from "../flows/item";
 import { DroppableFlowType } from "../helpers/dragdrop";
+import { attachTagTooltips } from "../helpers/tags";
 const lp = LANCER.log_prefix;
 
 /**
@@ -46,6 +47,9 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
    */
   activateListeners(html: JQuery) {
     super.activateListeners(html);
+
+    // Add tooltips to tags
+    attachTagTooltips(html);
 
     // Enable collapse triggers.
     initializeCollapses(html);

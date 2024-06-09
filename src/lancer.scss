@@ -480,6 +480,7 @@ $theme-types: "primary" "secondary" "dark-gray" "light-gray" "tooltip"    // Gen
   background-color: var(--primary-color, fuchsia);
   max-height: 20px;
   align-items: center;
+  align-content: center;
   border-radius: 5px;
   padding: 0px 5px;
   margin: 3px 5px;
@@ -492,6 +493,46 @@ $theme-types: "primary" "secondary" "dark-gray" "light-gray" "tooltip"    // Gen
   flex-wrap: wrap;
   justify-content: flex-end;
   flex: 1;
+  margin: 3px;
+  min-height: 1em;
+}
+
+.large-tag {
+  color: var(--dark-text, fuchsia);
+  align-items: center;
+  border: 1px solid var(--primary-color, fuchsia);
+  border-radius: 5px;
+  margin: 3px 5px;
+  font-size: 1.1em;
+
+  .tag-header {
+    color: var(--light-text, fuchsia);
+    background-color: var(--primary-color, fuchsia);
+    text-align: left;
+
+    .tag-controls {
+      max-width: fit-content;
+      align-content: center;
+
+      a {
+        padding-right: 0.3em;
+      }
+    }
+  }
+
+  .tag-description {
+    margin: 0.2em 0.5em;
+    text-align: left;
+    font-size: 0.9em;
+    max-height: 14.15em;
+    overflow-y: scroll;
+  }
+}
+
+.large-tag-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-rows: auto;
   margin: 3px;
   min-height: 1em;
 }
