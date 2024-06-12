@@ -287,6 +287,7 @@ export class LancerActor extends Actor {
             equipped_sp += slot.weapon.value.system.sp;
           }
           if (slot.mod?.status == "resolved") {
+            equipped_sp += slot.mod.value.system.sp;
             equipped_ai += slot.mod.value.system.tags.some(t => t.is_ai) ? 1 : 0;
             if (slot.weapon?.value) {
               slot.weapon.value.system.mod = slot.mod.value;
