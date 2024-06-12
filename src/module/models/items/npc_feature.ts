@@ -126,6 +126,7 @@ export function unpackNpcFeature(
     bs.accuracy = data.accuracy ?? [];
     bs.attack_bonus = data.attack_bonus ?? [];
     bs.weapon_type = data.weapon_type;
+    bs.on_hit = data.on_hit;
 
     // Build out damage
     bs.damage = [];
