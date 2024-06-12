@@ -50,6 +50,7 @@ export class NpcFeatureModel extends LancerDataModel<"NpcFeatureModel"> {
 
       // Tech - mostly covered by weapon
       tech_type: new fields.StringField({ choices: Object.values(NpcTechType), initial: NpcTechType.Quick }),
+      tech_attack: new fields.BooleanField({ nullable: true, initial: null }),
 
       // Origin data - track where it came from
       origin: new fields.SchemaField({
@@ -72,6 +73,14 @@ export class NpcFeatureModel extends LancerDataModel<"NpcFeatureModel"> {
     }
     if (typeof data.override == "object" && !Array.isArray(data.override)) {
       data.override = convertNpcStats(data.override)[0];
+    }
+    // Non-tech features should not have tech_attack
+    if (data.type !== NpcFeatureType.Tech) {
+      data.tech_attack = false;
+    }
+    // Populate tech_attack if missing
+    if (!data.tech_attack && data.tech_attack !== false) {
+      data.tech_attack = !!data.attack_bonus || !!data.accuracy;
     }
 
     // @ts-expect-error
@@ -121,6 +130,7 @@ export function unpackNpcFeature(
     bs.tech_type = restrict_enum(NpcTechType, NpcTechType.Quick, data.tech_type);
     bs.accuracy = data.accuracy ?? [];
     bs.attack_bonus = data.attack_bonus ?? [];
+    bs.tech_attack = !!data.attack_bonus || !!data.accuracy;
   } else if (data.type == NpcFeatureType.Weapon) {
     let bs = base.system as Partial<SourceTemplates.NPC.WeaponData>;
     bs.accuracy = data.accuracy ?? [];

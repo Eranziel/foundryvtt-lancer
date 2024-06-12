@@ -171,8 +171,9 @@ export namespace SourceTemplates {
     export interface TechData extends BaseFeatureData {
       type: NpcFeatureType.Tech;
       tech_type: NpcTechType;
-      accuracy: number[]; // Accuracy by tier
-      attack_bonus: number[]; // Attack bonus by tier
+      tech_attack: boolean;
+      accuracy: number[] | null; // Accuracy by tier
+      attack_bonus: number[] | null; // Attack bonus by tier
     }
 
     export type AnyFeature = TechData | SystemData | ReactionData | TraitData | WeaponData;

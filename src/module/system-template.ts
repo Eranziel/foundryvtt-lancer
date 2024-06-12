@@ -190,12 +190,6 @@ export namespace SystemTemplates {
     export interface WeaponData extends NPCFixup<SourceTemplates.NPC.WeaponData> {
       range: Range[];
       damage: Damage[][];
-
-      // The current tier's values for these
-      // tier_damage: Damage[];
-      // tier_range: Range[];
-      // tier_accuracy: number;
-      // tier_attack_bonus: number;
     }
 
     export interface TraitData extends NPCFixup<SourceTemplates.NPC.TraitData> {}
@@ -204,10 +198,7 @@ export namespace SystemTemplates {
 
     export interface SystemData extends NPCFixup<SourceTemplates.NPC.SystemData> {}
 
-    export interface TechData extends NPCFixup<SourceTemplates.NPC.TechData> {
-      // tier_accuracy: number;
-      // tier_attack_bonus: number;
-    }
+    export interface TechData extends NPCFixup<SourceTemplates.NPC.TechData> {}
 
     export type AnyFeature = TechData | SystemData | ReactionData | TraitData | WeaponData;
     export type AllFeature = TechData & SystemData & ReactionData & TraitData & WeaponData;

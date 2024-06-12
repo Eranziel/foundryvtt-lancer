@@ -98,23 +98,33 @@
     {{! Tech }}
     {{#if (eq system.type "Tech")}}
       <div class="wraprow triple">
-        <div class="flexrow" style="align-items: center;">
-          <span class="medium" style="text-align: right; max-width: fit-content; padding-right: 1em;">
-            TECH
-          </span>
-          <select name="system.techType" data-type="String" style="align-self: center;">
-            {{#select system.techType}}
-              <option value="Quick">
-                QUICK
-              </option>
-              <option value="Full">
-                FULL
-              </option>
-            {{/select}}
-          </select>
+        <div class="flexcol">
+          <div class="flexrow" style="align-items: center;">
+            <span class="medium" style="text-align: right; max-width: fit-content; padding-right: 1em;">
+              TECH
+            </span>
+            <select name="system.techType" data-type="String" style="align-self: center;">
+              {{#select system.techType}}
+                <option value="Quick">
+                  QUICK
+                </option>
+                <option value="Full">
+                  FULL
+                </option>
+              {{/select}}
+            </select>
+          </div>
+          <div class="flexrow" style="align-items: center;">
+            <span class="medium" style="text-align: right; max-width: fit-content; padding-right: 1em;">
+              TECH ATTACK?
+            </span>
+            <input type="checkbox" name="system.tech_attack" {{checked system.tech_attack}} />
+          </div>
         </div>
-        {{{npc-clicker-statarr-card "ATTACK BONUS" "system.attack_bonus"}}}
-        {{{npc-clicker-statarr-card "ACCURACY" "system.accuracy"}}}
+        {{#if system.tech_attack}}
+          {{{npc-clicker-statarr-card "ATTACK BONUS" "system.attack_bonus"}}}
+          {{{npc-clicker-statarr-card "ACCURACY" "system.accuracy"}}}
+        {{/if}}
         {{{textarea-card "EFFECT" "system.effect"}}}
       </div>
     {{/if}}

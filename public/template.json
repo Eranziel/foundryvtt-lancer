@@ -326,6 +326,7 @@
       "attack_bonus": [],
       "trigger": "",
       "tech_type": "Quick",
+      "tech_attack": false,
       "tier_override": 0
     },
     "weapon_mod": {

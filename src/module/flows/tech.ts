@@ -101,8 +101,8 @@ export async function initTechAttackData(
       }
       let tier_index: number = state.item.system.tier_override || state.actor.system.tier - 1;
       let asTech = state.item.system as SystemTemplates.NPC.TechData;
-      acc = asTech.accuracy[tier_index] ?? 0;
-      state.data.flat_bonus = asTech.attack_bonus[tier_index] ?? 0;
+      acc = asTech.accuracy ? asTech.accuracy[tier_index] ?? 0 : 0;
+      state.data.flat_bonus = asTech.attack_bonus ? asTech.attack_bonus[tier_index] ?? 0 : 0;
       state.data.acc_diff = options?.acc_diff
         ? AccDiffData.fromObject(options.acc_diff)
         : AccDiffData.fromParams(state.item, asTech.tags, state.data.title, Array.from(game.user!.targets), acc);

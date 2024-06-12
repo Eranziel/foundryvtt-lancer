@@ -140,22 +140,17 @@ export function npcTechView(path: string, options: HelperOptions) {
   let tierIndex: number = (options.hash["tier"] ?? 1) - 1;
 
   let sep = `<hr class="vsep">`;
-  let subheaderItems = [`<a class="roll-tech lancer-button"><i class="fas fa-dice-d20 i--m"></i></a>`];
-
-  let attackBonus = featureData.attack_bonus[tierIndex];
-  let fromSys = false;
-
-  // If we didn't find one, retrieve. Maybe check for undefined as we want an explicit 0 to be a true 0? How to support this in UI?
-  if (!attackBonus) {
-    resolveHelperDotpath(options, "system.systems", 0, true); // A bit lazy. Expand this to cover more cases if needed
-    fromSys = true;
+  let subheaderItems = [];
+  if (featureData.tech_attack) {
+    subheaderItems.push(`<a class="roll-tech lancer-button"><i class="fas fa-dice-d20 i--m"></i></a>`);
   }
-  if (attackBonus) {
-    subheaderItems.push(npcAttackBonusView(attackBonus, fromSys ? "ATK (SYS)" : "ATTACK"));
+
+  if (featureData.tech_attack && featureData.attack_bonus && featureData.attack_bonus[tierIndex]) {
+    subheaderItems.push(npcAttackBonusView(featureData.attack_bonus[tierIndex], "ATTACK"));
   }
 
   // Accuracy much simpler. If we got it, we got it
-  if (featureData.accuracy[tierIndex]) {
+  if (featureData.tech_attack && featureData.accuracy && featureData.accuracy[tierIndex]) {
     subheaderItems.push(npcAccuracyView(featureData.accuracy[tierIndex]));
   }
 
@@ -172,7 +167,7 @@ export function npcTechView(path: string, options: HelperOptions) {
         ${subheaderItems.join(sep)}
       </div>
       <div class="flexcol" style="padding: 0 10px;">
-        ${effectBox("EFFECT", featureData.effect)}
+        ${effectBox("EFFECT", featureData.effect, { flow: !featureData.tech_attack })}
         ${compactTagListHBS(path + ".system.tags", options)}
       </div>
     </div>
