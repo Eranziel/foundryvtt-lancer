@@ -190,6 +190,7 @@ import { registerTours } from "./module/tours/register-tours";
 import { beginItemChatFlow } from "./module/flows/item";
 import { onHotbarDrop } from "./module/flows/hotbar";
 import { registerFlows } from "./module/flows/register-flows";
+import { LancerNPCFeatureSheet } from "./module/item/npc-feature-sheet";
 
 const lp = LANCER.log_prefix;
 
@@ -988,6 +989,7 @@ function setupSheets() {
     types: [EntryType.NPC_CLASS, EntryType.NPC_TEMPLATE],
     makeDefault: true,
   });
+  Items.registerSheet("lancer", LancerNPCFeatureSheet, { types: [EntryType.NPC_FEATURE], makeDefault: true });
 }
 
 /**
