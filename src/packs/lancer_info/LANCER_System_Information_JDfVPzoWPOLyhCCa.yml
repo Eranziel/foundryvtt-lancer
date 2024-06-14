@@ -44,6 +44,36 @@ pages:
         changed recently, read the other pages in this journal and <a
         href="https://github.com/Eranziel/foundryvtt-lancer/blob/master/CHANGELOG.md">check
         the changelog</a>.</p>
+
+        <h2>Migration Troubleshooting</h2>
+
+        <p>If the migration seems to never finish, or if it runs every time you
+        load Foundry, then most likely it is encountering errors during the
+        migration process and not finishing properly. Here are some common
+        issues:</p>
+
+        <ul>
+        <li><b>Unlinked tokens inside of scenes inside of compendiums.</b> If
+        you have a compendium of old scenes from v10 or earlier, you should:
+        <ul><li>import them in your v10 world</li>
+        <li>remove them from the compendium</li>
+        <li>migrate to Lancer 2.X/Foundry v11</li>
+        <li>move them back to the compendium</li>
+        </ul></li>
+        <li><b>Items of invalid types.</b> As detailed in the next page of this
+        journal, the Tag, Manufacturer, Sitrep, Environment, Faction, and Quirk
+        item types have been deprecated in Lancer 2.0. If you had items of
+        these types in your world, they will show up in Settings tab -> Support
+        & Issues -> Document Issues.
+        <ul><li>If you wish to get rid of these items, you can do so by copying
+        the following code into a new script macro and running it, then
+        refreshing the page.
+        <code>game.items.invalidDocumentIds.map(id => game.items.getInvalid(id).delete())</code></li>
+        </ul></li>
+        <li><b>Some modules can interfere with the migration process.</b> If
+        none of the above apply to you, disable all modules and let the
+        migration finish, then re-enable your desired modules.</li>
+        </ul>
     video:
       controls: true
       volume: 0.5
