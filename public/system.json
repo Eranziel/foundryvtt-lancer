@@ -64,12 +64,17 @@
   "media": [
     {
       "type": "cover",
-      "url": "https://massifpress.com/_next/image?url=%2Fimages%2Flegal%2Fpowered_by_Lancer-01.svg&w=640&q=75",
+      "url": "https://massifpress.com/_next/image?url=%2Fimages%2Flegal%2Fpowered_by_Lancer-02.svg&w=640&q=75",
+      "caption": "Powered by Lancer"
+    },
+    {
+      "type": "setup",
+      "url": "https://massifpress.com/_next/image?url=%2Fimages%2Flegal%2Fpowered_by_Lancer-02.svg&w=640&q=75",
       "caption": "Powered by Lancer"
     },
     {
       "type": "icon",
-      "url": "https://massifpress.com/_next/image?url=%2Fimages%2Flegal%2Fpowered_by_Lancer-01.svg&w=640&q=75",
+      "url": "https://massifpress.com/_next/image?url=%2Fimages%2Flegal%2Fpowered_by_Lancer-02.svg&w=640&q=75",
       "caption": "Powered by Lancer"
     }
   ]
