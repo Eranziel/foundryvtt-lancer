@@ -63,34 +63,27 @@ export class DeployableModel extends LancerDataModel<"DeployableModel"> {
     if (data.type && data.type[0] == data.type[0].toLowerCase()) {
       data.type = restrict_enum(DeployableType, DeployableType.Deployable, data.type);
     }
-    if (!data.stats)
-      // Populate with defaults. They will be overwritten with the old values if they exist.
+    if (!data.stats) {
+      // v1.X had the config values in the base level of the system data object. 2.0 keeps them in
+      // a `stats` object.
       data.stats = {
-        armor: 0,
-        edef: 10,
-        evasion: 10,
-        heatcap: 5,
-        hp: "5",
-        save: 10,
-        size: 0.5,
-        speed: 0,
+        armor: data.armor || 0,
+        edef: data.edef || 8,
+        evasion: data.evasion || 5,
+        heatcap: data.heatcap || 0,
+        hp: fixCCFormula(data.max_hp?.toString() || "5"),
+        save: data.save || 10,
+        size: data.size || 0.5,
+        speed: data.speed || 0,
       };
+    }
     if (data.hp && typeof data.hp == "string") {
       data.stats.hp = fixCCFormula(data.hp);
-      // Having a string data.hp will cause an error later in data preparation, so we need
-      // to delete it.
+      // Having a string data.hp instead of object will cause an error later in
+      // data preparation, so we need to delete it. It will get populated
+      // correctly later.
       delete data.hp;
     }
-    // v1.X had the config values in the base level of the system data object. 2.0 keeps them in
-    // a `stats` object.
-    if (data.armor !== undefined) data.stats.armor = data.armor;
-    if (data.edef !== undefined) data.stats.edef = data.edef;
-    if (data.evasion !== undefined) data.stats.evasion = data.evasion;
-    if (data.heatcap !== undefined) data.stats.heatcap = data.heatcap;
-    if (data.max_hp !== undefined) data.stats.hp = fixCCFormula(data.max_hp?.toString() || "5");
-    if (data.save !== undefined) data.stats.save = data.save;
-    if (data.size !== undefined) data.stats.size = data.size;
-    if (data.speed !== undefined) data.stats.speed = data.speed;
 
     // @ts-expect-error v11
     return super.migrateData(data);
