@@ -506,6 +506,15 @@ export class LancerActor extends Actor {
     // Any update could change our innate effects which would then need to be passed down
     this.effectHelper.propagateEffects(changing_active_mech);
 
+    // Assigning a pilot to a mech or a deployer to a deployable should trigger effect propagation in the new owner
+    if ((this.is_mech() || this.is_deployable()) && (changed as any).system?.owner) {
+      const owner = LancerActor.fromUuid((changed as any).system.owner).then((a: LancerActor) => {
+        if (a) {
+          a.effectHelper.propagateEffects(true);
+        }
+      });
+    }
+
     // Many of the operations below MIGHT cause DB operations (async operations!).
     // We can't really await them here, nor should we - they will re-trigger an onUpdate as necessary
     // Remove unresolved references.
