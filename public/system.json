@@ -11,22 +11,18 @@
     "maximum": 11
   },
   "authors": [
-    {"name": "Eranziel"},
-    {"name": "Whitespine"},
-    {"name": "BoltsJ"},
-    {"name": "Valkyrion"},
-    {"name": "Kuenaimaku"},
-    {"name": "dodgepong"},
-    {"name": "Grygon"},
-    {"name": "SohumB"}
+    { "name": "Eranziel" },
+    { "name": "Whitespine" },
+    { "name": "BoltsJ" },
+    { "name": "Valkyrion" },
+    { "name": "Kuenaimaku" },
+    { "name": "dodgepong" },
+    { "name": "Grygon" },
+    { "name": "SohumB" }
   ],
   "scripts": [],
   "esmodules": ["lancer.mjs"],
-  "styles": [
-    "style.css",
-    "fonts/compcon/glyphs.css",
-    "fonts/mdi.css"
-  ],
+  "styles": ["style.css", "fonts/compcon/glyphs.css", "fonts/mdi.css"],
   "packs": [
     {
       "name": "core_macros",
