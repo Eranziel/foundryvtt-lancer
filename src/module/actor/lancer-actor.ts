@@ -551,10 +551,18 @@ export class LancerActor extends Actor {
     if (document.parent != this) {
       let results = await insinuate([document], this);
       for (let newItem of results) {
+        const updates: any = {};
         if (newItem.isLimited()) {
-          await newItem.update({
-            "system.uses.value": newItem.system.uses.max,
-          });
+          updates["system.uses.value"] = newItem.system.uses.max;
+        }
+        if (newItem.isLoading()) {
+          updates["system.loaded"] = true;
+        }
+        if (newItem.isRecharge()) {
+          updates["system.charged"] = true;
+        }
+        if (Object.values(updates).length > 0) {
+          await newItem.update(updates);
         }
       }
       return [results[0], true];
