@@ -212,7 +212,7 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
 
       // Do licenses
       for (let license of data.licenses) {
-        let t = (await getPilotItemByLid(license.id.replace("mf", "lic"), EntryType.LICENSE)) as LancerLICENSE | null;
+        let t = (await getPilotItemByLid(`lic_${license.id}`, EntryType.LICENSE)) as LancerLICENSE | null;
         if (t) {
           itemUpdates.push({
             _id: t.id,

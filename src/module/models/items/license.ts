@@ -42,7 +42,7 @@ export function unpackLicense(
     name,
     type: EntryType.LICENSE,
     system: {
-      lid: key.replace("mf", "lic"),
+      lid: `lic_${key}`,
       key,
       manufacturer,
     },
