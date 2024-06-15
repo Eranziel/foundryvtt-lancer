@@ -113,7 +113,8 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
     let [drop, is_new] = await this.quickOwnDrop(base_drop);
 
     // Flag to know if we need to reset stats
-    let needs_refresh = false;
+    let needs_refresh =
+      is_new && drop.type == "Item" && (drop.document.is_npc_class() || drop.document.is_npc_template());
 
     // Bring in base features from templates
     if (is_new && drop.type == "Item") {
