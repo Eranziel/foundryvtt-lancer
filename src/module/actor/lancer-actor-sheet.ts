@@ -556,6 +556,9 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
     // @ts-expect-error
     data.system = this.actor.system; // Alias
     data.itemTypes = this.actor.itemTypes;
+    for (const [key, value] of Object.entries(data.itemTypes)) {
+      data.itemTypes[key] = (value as LancerItem[]).sort((a: any, b: any) => a.sort - b.sort);
+    }
     data.effect_categories = LancerActiveEffect.prepareActiveEffectCategories(this.actor);
     data.deployables = lookupOwnedDeployables(this.actor);
     console.log(`${lp} Rendering with following actor ctx: `, data);

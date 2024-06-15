@@ -1,12 +1,7 @@
-import type { GenControlContext } from "../interfaces";
 import { LANCER } from "../config";
 import { LancerActorSheet } from "./lancer-actor-sheet";
-import { LancerItem, LancerNPC_FEATURE } from "../item/lancer-item";
-import { insinuate } from "../util/doc";
-import { LancerNPC } from "./lancer-actor";
 import { ResolvedDropData } from "../helpers/dragdrop";
 import { EntryType } from "../enums";
-import { lookupLID } from "../util/lid";
 const lp = LANCER.log_prefix;
 
 /**
@@ -113,7 +108,6 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
   async onRootDrop(base_drop: ResolvedDropData, event: JQuery.DropEvent, _dest: JQuery<HTMLElement>): Promise<void> {
     // Type guard
     if (!this.actor.is_npc()) return;
-    let old_class = this.actor.system.class;
 
     // Take posession
     let [drop, is_new] = await this.quickOwnDrop(base_drop);
@@ -141,21 +135,11 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
       });
     }
 
-    // We also may need to sort the item
-    // TODO
-    /*
-    if (drop.Type == EntryType.NPC_FEATURE) {
-      // Try to find a ref
-      let nearest = $(event.target).closest(".set.ref");
-      if (nearest.length) {
-        // ok, now try to resolve it
-        let target = await resolve_ref_element(nearest[0], ctx);
-        if (target && is_item_type(target.Type)) {
-          mm_resort_item(drop, target as LancerItem);
-        }
-      }
+    // If this isn't a new item and it's an NPC feature, we need to update the sorting
+    if (this.isEditable && !is_new && drop.type === "Item" && drop.document.is_npc_feature()) {
+      // @ts-expect-error v11 types
+      this._onSortItem(event, drop.document.toObject());
     }
-    */
   }
 }
 
