@@ -489,20 +489,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
   // The second return value indicates whether a new copy was made (true), or if we already owned it/it is an actor (false)
   // Note: this operation also fixes limited to be the full capability of our actor
   async quickOwn(document: LancerItem): Promise<[LancerItem, boolean]> {
-    if (document.parent != this.actor) {
-      let results = await insinuate([document], this.actor);
-      for (let newItem of results) {
-        if (newItem.isLimited()) {
-          await newItem.update({
-            "system.uses.value": newItem.system.uses.max,
-          });
-        }
-      }
-      return [results[0], true];
-    } else {
-      // Its already owned
-      return [document, false];
-    }
+    return this.actor.quickOwn(document);
   }
 
   // As quick_own, but for any drop. Maintains drop structure, since not necessarily guaranteed to have made an item
