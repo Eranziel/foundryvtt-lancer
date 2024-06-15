@@ -297,6 +297,18 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
     } else if (drop.type == "Actor" && drop.document.is_mech()) {
       this.activateMech(drop.document);
     }
+
+    // TODO
+    // If this isn't a new item and it's an NPC feature, we need to update the sorting
+    // if (
+    //   this.isEditable &&
+    //   !is_new &&
+    //   drop.type === "Item" &&
+    //   (drop.document.is_pilot_gear() || drop.document.is_pilot_weapon() || drop.document.is_reserve())
+    // ) {
+    //   // @ts-expect-error v11 types
+    //   this._onSortItem(event, drop.document.toObject());
+    // }
   }
 
   /* -------------------------------------------- */

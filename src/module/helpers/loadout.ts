@@ -88,6 +88,7 @@ export function mechSystemView(
     class="ref set card clipped-top lancer-system lancer-border-system ${
       doc.system.type === SystemType.Tech ? "tech-item" : ""
     }"
+    data-item-id="${doc.id}"
     ${ref_params(doc)}
     style="margin: 0.3em;"
   >
@@ -189,7 +190,7 @@ function allWeaponMountView(loadout_path: string, options: HelperOptions) {
 }
 
 // Helper to display all systems mounted on a mech loadout
-function all_system_view(loadout_path: string, options: HelperOptions) {
+function allMechSystemsView(loadout_path: string, options: HelperOptions) {
   let loadout = resolveHelperDotpath(options, loadout_path) as LancerMECH["system"]["loadout"];
   const system_views = loadout.systems.map((_sys, index) =>
     mechSystemViewHBS(`${loadout_path}.systems.${index}.value`, options)
@@ -221,7 +222,7 @@ export function mechLoadout(options: HelperOptions): string {
   return `
     <div class="flexcol">
         ${allWeaponMountView(loadout_path, options)}
-        ${all_system_view(loadout_path, options)}
+        ${allMechSystemsView(loadout_path, options)}
     </div>`;
 }
 

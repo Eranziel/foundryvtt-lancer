@@ -63,7 +63,7 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
     }
   }
 
-  async onRootDrop(base_drop: ResolvedDropData): Promise<void> {
+  async onRootDrop(base_drop: ResolvedDropData, event: JQuery.DropEvent, _dest: JQuery<HTMLElement>): Promise<void> {
     // Take posession
     let [drop, is_new] = await this.quickOwnDrop(base_drop);
 
@@ -112,6 +112,12 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
       await drop.document.update({
         "system.active_mech": this.actor.uuid,
       });
+    }
+
+    // If this isn't a new item and it's an NPC feature, we need to update the sorting
+    if (this.isEditable && !is_new && drop.type === "Item" && drop.document.is_mech_system()) {
+      // @ts-expect-error v11 types
+      this._onSortItem(event, drop.document.toObject());
     }
   }
 

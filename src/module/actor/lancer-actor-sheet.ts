@@ -555,6 +555,18 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
     data.collapse = {};
     // @ts-expect-error
     data.system = this.actor.system; // Alias
+    // @ts-expect-error
+    if (data.system.loadout) {
+      // @ts-expect-error
+      for (const [key, value] of Object.entries(data.system.loadout)) {
+        console.log("Sorting loadout key: ", key, value);
+        if (!Array.isArray(value)) continue;
+        // @ts-expect-error
+        data.system.loadout[key] = (value as { id: string; status: string; value: LancerItem }[]).sort(
+          (a: any, b: any) => a.value?.sort - b.value?.sort
+        );
+      }
+    }
     data.itemTypes = this.actor.itemTypes;
     for (const [key, value] of Object.entries(data.itemTypes)) {
       data.itemTypes[key] = (value as LancerItem[]).sort((a: any, b: any) => a.sort - b.sort);
