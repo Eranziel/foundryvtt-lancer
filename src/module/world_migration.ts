@@ -181,15 +181,15 @@ export async function migrateCompendium(pack: Compendium) {
   if (pack.documentName == "Actor") {
     let documents = (await pack.getDocuments()) as LancerActor[];
     let updates = await Promise.all(documents.map(migrateActor));
-    await Actor.updateDocuments(updates, { pack: pack.collection });
+    await Actor.updateDocuments(updates, { pack: pack.collection, diff: false, recursive: false, noHook: true });
   } else if (pack.documentName == "Item") {
     let documents = (await pack.getDocuments()) as LancerItem[];
     let updates = await Promise.all(documents.map(migrateItem));
-    await Item.updateDocuments(updates, { pack: pack.collection });
+    await Item.updateDocuments(updates, { pack: pack.collection, diff: false, recursive: false, noHook: true });
   } else if (pack.documentName == "Scene") {
     let documents = (await pack.getDocuments()) as Scene[];
     let updates = await Promise.all(documents.map(migrateScene));
-    await Scene.updateDocuments(updates, { pack: pack.collection });
+    await Scene.updateDocuments(updates, { pack: pack.collection, diff: false, recursive: false, noHook: true });
   } else {
     // We don't migrate macros or journals
   }
@@ -242,8 +242,12 @@ export async function migrateItem(item: LancerItem): Promise<object> {
   };
 
   let currVersion = game.settings.get(game.system.id, LANCER.setting_migration_version);
-  if (foundry.utils.isNewerVersion("2.0", currVersion)) {
-    // ...
+  if (item.type === "license") {
+    // #687 was a bug until 2.1.1. If the data is from before that, we need to fix it.
+    if (foundry.utils.isNewerVersion("2.1.1", currVersion)) {
+      console.log(`Fixing license lid for ${item.system.key}`);
+      updateData.system.lid = `lic_${item.system.key}`;
+    }
   }
 
   // Return the migrated update data
