@@ -132,7 +132,7 @@ export function unpackAction(data: PackedActionData): ActionData {
     init: data.init ?? "",
     lid: data.id ?? "",
     mech: data.mech ?? true,
-    name: data.name ?? "New Action",
+    name: data.name ?? "Action",
     pilot: data.pilot ?? false,
     range: data.range?.map(unpackRange) ?? [],
     synergy_locations: data.synergy_locations ?? [],
@@ -143,14 +143,19 @@ export function unpackAction(data: PackedActionData): ActionData {
 }
 
 export function repairActivationType(activation: string): ActivationType {
-  if (ActivationType[activation as keyof typeof ActivationType]) {
-    return ActivationType[activation as keyof typeof ActivationType];
-  } else if (activation.toLowerCase() === "full action") {
+  for (const value of Object.values(ActivationType)) {
+    if (value === activation) {
+      return value;
+    }
+  }
+  // It didn't match a standard action type string, so try some common alternates
+  if (activation.toLowerCase() === "full action") {
     return ActivationType.Full;
   } else if (activation.toLowerCase() === "quick action") {
     return ActivationType.Quick;
   } else if (activation.toLowerCase() === "free action") {
     return ActivationType.Free;
   }
+  // Still couldn't match an action type, so default to quick.
   return ActivationType.Quick;
 }
