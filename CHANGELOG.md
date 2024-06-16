@@ -1,3 +1,10 @@
+# 2.1.2 (2024-06-16)
+
+## Bug Fixes
+
+- #688 - Fix issues interacting with items after drag-and-drop sorting. Item context menus, limited uses, loading, and charged toggles affected the wrong items; this is now fixed.
+- #690 - Fix parsing of quick tech / full tech actions during LCP import. You will need to rebuild/re-import your LCPs to repair the affected items.
+
 # 2.1.1 (2024-06-15)
 
 ## Misc
