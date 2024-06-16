@@ -2077,7 +2077,8 @@ a.activation-chip > i.mdi {
 .uses-hex,
 .power-uses-hex,
 .counter-hex,
-.loaded-hex {
+.loaded-hex,
+.charged-hex {
   cursor: pointer;
   font-size: 2em;
   color: var(--light-text);

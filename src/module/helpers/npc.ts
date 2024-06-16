@@ -1,19 +1,12 @@
 import type { HelperOptions } from "handlebars";
-import { ActivationType, EntryType, NpcFeatureType } from "../enums";
+import { ActivationType, NpcFeatureType } from "../enums";
 import { LancerNPC_FEATURE } from "../item/lancer-item";
-import { SystemData, SystemTemplates } from "../system-template";
+import { SystemTemplates } from "../system-template";
 import { slugify } from "../util/lid";
-import { chargedBox, effectBox, resolveHelperDotpath } from "./commons";
-import {
-  actionTypeIcon,
-  loadingIndicator,
-  npcAccuracyView,
-  npcAttackBonusView,
-  damageArrayView,
-  rangeArrayView,
-} from "./item";
-import { limitedUsesIndicator, ref_params } from "./refs";
-import { compactTagList, compactTagListHBS } from "./tags";
+import { effectBox, resolveHelperDotpath } from "./commons";
+import { actionTypeIcon, npcAccuracyView, npcAttackBonusView, damageArrayView, rangeArrayView } from "./item";
+import { chargedIndicator, limitedUsesIndicator, loadingIndicator, ref_params } from "./refs";
+import { compactTagListHBS } from "./tags";
 
 export const EffectIcons = {
   Generic: `systems/lancer/assets/icons/generic_item.svg`,
@@ -96,9 +89,7 @@ export function npcReactionView(path: string, options: HelperOptions): string {
     path,
     npcFeature,
     `<div class="flexcol lancer-body">
-      ${
-        npcFeature.system.tags.find(tag => tag.lid === "tg_recharge") ? chargedBox(npcFeature.system.charged, path) : ""
-      }
+      ${npcFeature.system.tags.find(tag => tag.lid === "tg_recharge") ? chargedIndicator(npcFeature, path) : ""}
       ${effectBox("TRIGGER", (npcFeature.system as SystemTemplates.NPC.ReactionData).trigger, { flow: true })}
       ${effectBox("EFFECT", npcFeature.system.effect)}
       ${compactTagListHBS(path + ".system.tags", options)}
@@ -118,9 +109,7 @@ export function npcSystemTraitView(path: string, options: HelperOptions): string
     npcFeature,
     `<div class="flexcol lancer-body">
       ${npcFeature.system.tags.find(tag => tag.lid === "tg_limited") ? limitedUsesIndicator(npcFeature, path) : ""}
-      ${
-        npcFeature.system.tags.find(tag => tag.lid === "tg_recharge") ? chargedBox(npcFeature.system.charged, path) : ""
-      }
+      ${npcFeature.system.tags.find(tag => tag.lid === "tg_recharge") ? chargedIndicator(npcFeature, path) : ""}
       ${effectBox("EFFECT", npcFeature.system.effect, { flow: true })}
       ${compactTagListHBS(path + ".system.tags", options)}
     </div>`,
@@ -155,7 +144,7 @@ export function npcTechView(path: string, options: HelperOptions) {
   }
 
   if (featureData.tags.find(tag => tag.is_recharge)) {
-    subheaderItems.push(chargedBox(featureData.charged, path));
+    subheaderItems.push(chargedIndicator(npcFeature, path));
   }
 
   return npcFeatureScaffold(
@@ -180,7 +169,7 @@ export function npcWeaponView(path: string, options: HelperOptions): string {
   // Get the feature
   let npcFeature =
     (options.hash["item"] as LancerNPC_FEATURE) ?? resolveHelperDotpath<LancerNPC_FEATURE>(options, path);
-  if (!npcFeature) return "";
+  if (!npcFeature || !npcFeature.is_weapon()) return "";
   options.hash["tags"] = npcFeature.system.tags;
   let featureData = npcFeature.system as SystemTemplates.NPC.WeaponData;
 
@@ -211,10 +200,10 @@ export function npcWeaponView(path: string, options: HelperOptions): string {
   }
 
   if (featureData.tags.find(t => t.is_recharge)) {
-    subheaderItems.push(chargedBox(featureData.charged, path));
+    subheaderItems.push(chargedIndicator(npcFeature, path));
   }
 
-  if (npcFeature.system.tags.some(t => t.is_loading)) subheaderItems.push(loadingIndicator(featureData.loaded, path));
+  if (npcFeature.system.tags.some(t => t.is_loading)) subheaderItems.push(loadingIndicator(npcFeature, path));
 
   return npcFeatureScaffold(
     path,

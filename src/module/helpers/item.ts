@@ -26,7 +26,7 @@ import {
   activationStyle,
   activationIcon,
 } from "./commons";
-import { limitedUsesIndicator, ref_params, reserveUsesIndicator } from "./refs";
+import { limitedUsesIndicator, loadingIndicator, ref_params, reserveUsesIndicator } from "./refs";
 import {
   ActivationType,
   ChipIcons,
@@ -427,7 +427,7 @@ export function pilotWeaponRefview(weapon_path: string, options: HelperOptions):
   let loading = "";
   // Generate loading segment as needed
   if (weapon.system.tags.some(t => t.is_loading)) {
-    loading = loadingIndicator(weapon.system.loaded, weapon_path);
+    loading = loadingIndicator(weapon, weapon_path);
   }
   // Generate limited segment as needed
   let limited = "";
@@ -665,7 +665,7 @@ data-action="set" data-action-value="(int)${i}" data-path="${weapon_path}.system
   // Generate loading segment as needed
   let loading = "";
   if (weapon.system.all_tags.some(t => t.is_loading)) {
-    loading = loadingIndicator(weapon.system.loaded, weapon_path);
+    loading = loadingIndicator(weapon, weapon_path);
   }
 
   // Generate effects
@@ -733,12 +733,6 @@ data-action="set" data-action-value="(int)${i}" data-path="${weapon_path}.system
       </div>
     </div>
   </div>`;
-}
-
-export function loadingIndicator(loaded: boolean, weapon_path: string): string {
-  let loading_icon = `mdi ${loaded ? "mdi-hexagon-slice-6" : "mdi-hexagon-outline"} loaded-hex`;
-  let indicator = `<a class="gen-control" data-action="set" data-action-value="(bool)${!loaded}" data-path="${weapon_path}.system.loaded"><i class="${loading_icon} i--m"></i></a>`;
-  return `<div class="clipped card limited-card">LOADED ${indicator}</div>`;
 }
 
 // Renders a weapon mod slot

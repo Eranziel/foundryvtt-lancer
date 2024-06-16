@@ -235,6 +235,34 @@ export function limitedUsesIndicator(
   return `<div class="clipped card limited-card ${nonInteractive}">USES ${hexes.join("")}</div>`;
 }
 
+export function loadingIndicator(
+  item: LancerMECH_WEAPON | LancerPILOT_WEAPON | LancerWEAPON_MOD | LancerNPC_FEATURE,
+  path: string,
+  options?: { nonInteractive?: boolean }
+): string {
+  if (!item.is_weapon()) return "";
+  const loaded = item.system.loaded;
+  const nonInteractive = options?.nonInteractive ? "non-interactive" : "";
+  const hexes = hex_array(loaded ? 1 : 0, 1, path, "loaded-hex");
+
+  return `<div class="clipped card limited-card ${nonInteractive}">LOADED ${hexes.join("")}</div>`;
+}
+
+export function chargedIndicator(
+  item: LancerNPC_FEATURE,
+  path: string,
+  options?: { nonInteractive?: boolean }
+): string {
+  const charged = item.system.charged;
+  const nonInteractive = options?.nonInteractive ? "non-interactive" : "";
+  const hexes = hex_array(charged ? 1 : 0, 1, path, "charged-hex");
+
+  return `<div class="clipped card charged-box ${nonInteractive}">
+    <span style="margin:4px;">CHARGED</span>
+    ${hexes.join("")}
+  </div>`;
+}
+
 export function reserveUsesIndicator(path: string, options: HelperOptions): string {
   let used = resolveHelperDotpath(options, path) as LancerRESERVE;
   const hexes = hex_array(used ? 0 : 1, 1, path, "uses-hex");
@@ -327,32 +355,58 @@ export function handleUsesInteraction<T>(html: JQuery, doc: LancerActor | Lancer
   let elements = html.find(".uses-hex");
   elements.on("click", async ev => {
     ev.stopPropagation();
-
+    const itemElement = ev.currentTarget.closest(".set[data-uuid*='Item']") as HTMLElement;
+    const uuid = itemElement.dataset.uuid;
     const params = ev.currentTarget.dataset;
-    if (params.path) {
-      const dd = drilldownDocument(doc, params.path);
-      const item = dd.sub_doc as
-        | LancerMECH_SYSTEM
-        | LancerMECH_WEAPON
-        | LancerPILOT_GEAR
-        | LancerRESERVE
-        | LancerNPC_FEATURE;
-      const available = params.available === "true";
+    if (!uuid) return;
+    const item = (await fromUuid(uuid)) as
+      | LancerMECH_SYSTEM
+      | LancerMECH_WEAPON
+      | LancerPILOT_GEAR
+      | LancerRESERVE
+      | LancerNPC_FEATURE;
+    const available = params.available === "true";
 
-      if (item.is_reserve()) {
-        item.update({ "system.used": available });
+    if (item.is_reserve()) {
+      item.update({ "system.used": available });
+    } else {
+      let newUses = item.system.uses.value;
+      if (available) {
+        // Deduct uses.
+        newUses = Math.max(newUses - 1, item.system.uses.min);
       } else {
-        let newUses = item.system.uses.value;
-        if (available) {
-          // Deduct uses.
-          newUses = Math.max(newUses - 1, item.system.uses.min);
-        } else {
-          // Increment uses.
-          newUses = Math.min(newUses + 1, item.system.uses.max);
-        }
-        item.update({ "system.uses": newUses });
+        // Increment uses.
+        newUses = Math.min(newUses + 1, item.system.uses.max);
       }
+      item.update({ "system.uses": newUses });
     }
+  });
+}
+
+export function handleLoadedInteraction(html: JQuery, _doc: LancerActor | LancerItem) {
+  let elements = html.find(".loaded-hex");
+  elements.on("click", async ev => {
+    ev.stopPropagation();
+    const itemElement = ev.currentTarget.closest(".set[data-uuid*='Item']") as HTMLElement;
+    const uuid = itemElement.dataset.uuid;
+    if (!uuid) return;
+    const item = (await fromUuid(uuid)) as LancerMECH_WEAPON | LancerPILOT_WEAPON | LancerWEAPON_MOD;
+
+    if (item.is_weapon()) {
+      item.update({ "system.loaded": !item.system.loaded });
+    }
+  });
+}
+
+export function handleChargedInteraction(html: JQuery, _doc: LancerActor | LancerItem) {
+  let elements = html.find(".charged-hex");
+  elements.on("click", async ev => {
+    ev.stopPropagation();
+    const itemElement = ev.currentTarget.closest(".set[data-uuid*='Item']") as HTMLElement;
+    const uuid = itemElement.dataset.uuid;
+    if (!uuid) return;
+    const item = (await fromUuid(uuid)) as LancerNPC_FEATURE;
+    item.update({ "system.charged": !item.system.charged });
   });
 }
 

@@ -52,7 +52,7 @@
         <div class="lancer-header lancer-primary major">STATUS</div>
         <div class="flexrow" style="align-self: center;">
           {{#if (is-loading item)}}
-            {{{loading-indicator system.loaded "item"}}}
+            {{{loading-indicator item "item"}}}
           {{/if}}
           {{#if (is-limited item)}}
             {{{limited-uses-indicator item "item"}}}

@@ -80,7 +80,6 @@ import {
   licenseRefView,
   usesControl,
   buildCounterArrayHTML,
-  loadingIndicator,
   actionTypeIcon,
   npcClassRefView,
   npcTemplateRefView,
@@ -118,6 +117,7 @@ import {
   limitedUsesIndicator,
   reserveUsesIndicator,
   handleRefClickOpen,
+  loadingIndicator,
 } from "./module/helpers/refs";
 import { mechLoadout, pilotSlot, frameView } from "./module/helpers/loadout";
 import {
