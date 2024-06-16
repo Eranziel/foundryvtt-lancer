@@ -1525,7 +1525,9 @@ function _handleContextMenus(
       item?.update({ "system.destroyed": !item!.system.destroyed });
     },
     condition: html => {
-      const uuid = html.closest(".set")[0].dataset.uuid;
+      const refElement = html.closest(".set")[0];
+      if (!refElement) return false;
+      const uuid = refElement.dataset.uuid;
       let item = uuid ? (fromUuidSync(uuid) as LancerItem | null) : (dd(html)?.terminus as LancerItem | null);
       return (
         !view_only &&
@@ -1550,7 +1552,9 @@ function _handleContextMenus(
       item?.update({ "system.destroyed": !item!.system.destroyed });
     },
     condition: html => {
-      const uuid = html.closest(".set")[0].dataset.uuid;
+      const refElement = html.closest(".set")[0];
+      if (!refElement) return false;
+      const uuid = refElement.dataset.uuid;
       let item = (uuid ? fromUuidSync(uuid) : dd(html)?.terminus) as LancerItem | null;
       return (
         !view_only &&
