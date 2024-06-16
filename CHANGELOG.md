@@ -1,3 +1,9 @@
+# 2.1.3 (2024-06-16)
+
+## Bug Fixes
+
+- Fix some visual issues with NPC feature limited, loading, and charged cards.
+
 # 2.1.2 (2024-06-16)
 
 ## Bug Fixes
