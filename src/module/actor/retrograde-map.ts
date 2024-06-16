@@ -62,6 +62,7 @@ const frameImageMap: Record<string, string> = {
   HIVE: "systems/lancer/assets/retrograde-minis/Retrograde-Minis-Corpro-HIVE.png",
   HORNET: "systems/lancer/assets/retrograde-minis/Retrograde-Minis-Corpro-HORNET.png",
   HUMAN: "systems/lancer/assets/retrograde-minis/Retrograde-Minis-Misc-HUMAN.png",
+  LEECH: "systems/lancer/assets/retrograde-minis/Retrograde-Minis-Corpro-LEECH.png",
   LURKER: "systems/lancer/assets/retrograde-minis/Retrograde-Minis-Corpro-LURKER.png",
   MIRAGE: "systems/lancer/assets/retrograde-minis/Retrograde-Minis-Corpro-MIRAGE.png",
   MONSTROSITY: "systems/lancer/assets/retrograde-minis/Retrograde-Minis-Kaiju-RUGAM.png",
@@ -80,9 +81,8 @@ const frameImageMap: Record<string, string> = {
   STRIDER: "systems/lancer/assets/retrograde-minis/Retrograde-Minis-Corpro-STRIDER.png",
   SQUAD: "systems/lancer/assets/retrograde-minis/Retrograde-Minis-Misc-INFANTRY.png",
   SUPPORT: "systems/lancer/assets/retrograde-minis/Retrograde-Minis-Corpro-SUPPORT.png",
-  WITCH: "systems/lancer/assets/retrograde-minis/Retrograde-Minis-Corpro-WITCH.png",
-  LEECH: "systems/lancer/assets/retrograde-minis/Retrograde-Minis-Corpro-LEECH.png",
   TEMPEST: "systems/lancer/assets/retrograde-minis/Retrograde-Minis-Corpro-TEMPEST.png",
+  WITCH: "systems/lancer/assets/retrograde-minis/Retrograde-Minis-Corpro-WITCH.png",
 };
 
 export function frameToPath(name: string | null | undefined): string | null {
