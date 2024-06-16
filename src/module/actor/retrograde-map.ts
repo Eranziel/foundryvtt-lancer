@@ -81,6 +81,8 @@ const frameImageMap: Record<string, string> = {
   SQUAD: "systems/lancer/assets/retrograde-minis/Retrograde-Minis-Misc-INFANTRY.png",
   SUPPORT: "systems/lancer/assets/retrograde-minis/Retrograde-Minis-Corpro-SUPPORT.png",
   WITCH: "systems/lancer/assets/retrograde-minis/Retrograde-Minis-Corpro-WITCH.png",
+  LEECH: "systems/lancer/assets/retrograde-minis/Retrograde-Minis-Corpro-LEECH.png",
+  TEMPEST: "systems/lancer/assets/retrograde-minis/Retrograde-Minis-Corpro-TEMPEST.png",
 };
 
 export function frameToPath(name: string | null | undefined): string | null {
