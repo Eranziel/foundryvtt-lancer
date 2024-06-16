@@ -1,3 +1,23 @@
+# 2.1.1 (2024-06-15)
+
+## Misc
+
+- Add a migration troubleshooting section to welcome journal.
+- Add a banner image for the system card on the setup screen.
+- Add default sprites for Calendula, Empakaai, Stortebeker, Orchis, Viceroy, Tempest, and Leech. Thanks, Retrograde!
+- Update default sprites for Goblin, Pegasus, Nelson, Vlad, Metalmark, and Swallowtail. Thanks, Retrograde!
+
+## Bug Fixes
+
+- #676 - Fix import of NPC "on hit" effects. Requires re-importing LCPs to update compendium data.
+- #679 - Ensure weapon damage can be edited on new NPC features.
+- #678 - Fix bug causing all NPC tech actions to be treated as attacks. Requires re-importing LCPs to update compendium data.
+- #683 - Include weapon mods in used SP calculation for mechs.
+- #669 - Fix deployable stats reverting to defaults on refresh.
+- #687 - Fix issues re-importing some third-party LCPs.
+- #677 - Fix drag-and-drop sorting of mech systems and NPC features on actor sheets.
+- Ensure bonuses are propagated to mechs and deployables when pilot or deployer are set.
+
 # 2.1.0 (2024-06-08)
 
 ## Features
