@@ -180,6 +180,7 @@ export function npcWeaponView(path: string, options: HelperOptions): string {
   let subheaderItems = [
     `<a class="roll-attack lancer-button no-grow"><i class="fas fa-dice-d20 i--m i--dark"></i></a>`,
   ];
+  let subheader2Items = [];
 
   // Weapon info
 
@@ -199,11 +200,12 @@ export function npcWeaponView(path: string, options: HelperOptions): string {
     subheaderItems.push(damageArrayView(featureData.damage[tierIndex], options));
   }
 
+  // Bookkeeping stuff
   if (featureData.tags.find(t => t.is_recharge)) {
-    subheaderItems.push(chargedIndicator(npcFeature, path));
+    subheader2Items.push(chargedIndicator(npcFeature, path));
   }
-
-  if (npcFeature.system.tags.some(t => t.is_loading)) subheaderItems.push(loadingIndicator(npcFeature, path));
+  if (npcFeature.system.tags.some(t => t.is_loading)) subheader2Items.push(loadingIndicator(npcFeature, path));
+  if (npcFeature.system.tags.some(t => t.is_limited)) subheader2Items.push(limitedUsesIndicator(npcFeature, path));
 
   return npcFeatureScaffold(
     path,
@@ -212,6 +214,9 @@ export function npcWeaponView(path: string, options: HelperOptions): string {
     <div class="lancer-body flex-col">
       <div class="flexrow no-wrap">
         ${subheaderItems.join(sep)}
+      </div>
+      <div class="flexrow no-wrap">
+        ${subheader2Items.join()}
       </div>
       <div>
         <span>${featureData.weapon_type} // ${npcFeature.system.origin.name} ${

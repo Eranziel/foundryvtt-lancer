@@ -1188,7 +1188,7 @@ tr.lcp-index-header {
   color: var(--light-text);
   background-color: var(--primary-color, fuchsia);
   flex-grow: unset;
-  min-width: 8em;
+  min-width: 9em;
   max-height: 3em;
 }
 
@@ -2573,6 +2573,10 @@ a.action {
   align-items: center;
   color: var(--light-text);
   background-color: var(--dark-gray-color);
+
+  span {
+    min-width: fit-content;
+  }
 
   &.non-interactive a,
   &.non-interactive .uses-hex {
