@@ -1458,7 +1458,8 @@ function _handleContextMenus(
     name: view_only ? "View" : "Edit",
     icon: view_only ? `<i class="fas fa-eye"></i>` : `<i class="fas fa-edit"></i>`,
     callback: html => {
-      let found_doc = dd(html)?.terminus as LancerActor | LancerItem | null;
+      const uuid = html.closest(".set")[0].dataset.uuid;
+      let found_doc = (uuid ? fromUuidSync(uuid) : dd(html)?.terminus) as LancerActor | LancerItem | null;
       if (found_doc) {
         let sheet = found_doc.sheet;
         // If the sheet is already rendered:
@@ -1496,7 +1497,7 @@ function _handleContextMenus(
   };
 
   // Renders the editor for the effect referenced at data-path
-  let edit_effect: ContextMenuEntry = {
+  let editEffect: ContextMenuEntry = {
     name: view_only ? "View" : "Edit",
     icon: view_only ? `<i class="fas fa-eye"></i>` : `<i class="fas fa-edit"></i>`,
     callback: html => {
@@ -1517,15 +1518,21 @@ function _handleContextMenus(
   };
 
   // Toggle destroyed status, for items that support it
-  let repair_item: ContextMenuEntry = {
+  let repairItem: ContextMenuEntry = {
     name: "Mark Repaired",
     icon: `<i class="fas fa-fw fa-wrench"></i>`,
     callback: html => {
-      let item = dd(html)?.terminus as LancerMECH_SYSTEM | LancerMECH_WEAPON | LancerNPC_FEATURE | null;
+      const uuid = html.closest(".set")[0].dataset.uuid;
+      let item = (uuid ? fromUuidSync(uuid) : dd(html)?.terminus) as
+        | LancerMECH_SYSTEM
+        | LancerMECH_WEAPON
+        | LancerNPC_FEATURE
+        | null;
       item?.update({ "system.destroyed": !item!.system.destroyed });
     },
     condition: html => {
-      let item = dd(html)?.terminus as LancerItem | null;
+      const uuid = html.closest(".set")[0].dataset.uuid;
+      let item = uuid ? (fromUuidSync(uuid) as LancerItem | null) : (dd(html)?.terminus as LancerItem | null);
       return (
         !view_only &&
         item instanceof LancerItem &&
@@ -1536,15 +1543,21 @@ function _handleContextMenus(
   };
 
   // Toggle destroyed status, for items that support it
-  let destroy_item: ContextMenuEntry = {
+  let destroyItem: ContextMenuEntry = {
     name: "Mark Destroyed",
     icon: `<i class="cci cci-eclipse"></i>`,
     callback: html => {
-      let item = dd(html)?.terminus as LancerMECH_SYSTEM | LancerMECH_WEAPON | LancerNPC_FEATURE | null;
+      const uuid = html.closest(".set")[0].dataset.uuid;
+      let item = (uuid ? fromUuidSync(uuid) : dd(html)?.terminus) as
+        | LancerMECH_SYSTEM
+        | LancerMECH_WEAPON
+        | LancerNPC_FEATURE
+        | null;
       item?.update({ "system.destroyed": !item!.system.destroyed });
     },
     condition: html => {
-      let item = dd(html)?.terminus as LancerItem | null;
+      const uuid = html.closest(".set")[0].dataset.uuid;
+      let item = (uuid ? fromUuidSync(uuid) : dd(html)?.terminus) as LancerItem | null;
       return (
         !view_only &&
         item instanceof LancerItem &&
@@ -1555,22 +1568,23 @@ function _handleContextMenus(
   };
 
   // Fully delete a document
-  let delete_document: ContextMenuEntry = {
+  let deleteDocument: ContextMenuEntry = {
     name: "Delete Document",
     icon: '<i class="fas fa-fw fa-trash"></i>',
     callback: async (html: JQuery) => {
-      let item = dd(html)?.terminus as LancerItem | null;
+      const uuid = html.closest(".set")[0].dataset.uuid;
+      let item = (uuid ? fromUuidSync(uuid) : dd(html)?.terminus) as LancerItem | null;
       if (item instanceof LancerItem && doc instanceof LancerActor) {
         doc.removeClassFeatures(item);
       }
-      (dd(html)?.terminus as foundry.abstract.Document<any, any> | null)?.delete();
+      item?.delete();
     },
     condition: html => !view_only && dd(html)?.terminus instanceof foundry.abstract.Document,
   };
 
   // Sets a reference to null
   // Logic elsewhere will clean up the array item (if any) if said array item would be problematic left blank
-  let clear_reference: ContextMenuEntry = {
+  let clearReference: ContextMenuEntry = {
     name: "Unlink",
     icon: '<i class="fas fa-times"></i>',
     callback: async (html: JQuery) => {
@@ -1594,7 +1608,7 @@ function _handleContextMenus(
   };
 
   // Remove an array item (e.x. a counter, tag, or weapon profile)
-  let array_remove: ContextMenuEntry = {
+  let arrayRemove: ContextMenuEntry = {
     name: "Remove",
     icon: '<i class="fas fa-fw fa-trash"></i>',
     callback: html => {
@@ -1621,7 +1635,7 @@ function _handleContextMenus(
   };
 
   // Summon counter editor dialogue
-  let counter_edit: ContextMenuEntry = {
+  let counterEdit: ContextMenuEntry = {
     name: "Edit",
     icon: `<i class="fas fa-edit"></i>`,
     callback: html => {
@@ -1633,7 +1647,7 @@ function _handleContextMenus(
   };
 
   // Summon a tag editor dialog
-  let tag_edit: ContextMenuEntry = {
+  let tagEdit: ContextMenuEntry = {
     name: "Edit",
     icon: '<i class="fas fa-edit"></i>',
     callback: html => {
@@ -1672,14 +1686,14 @@ function _handleContextMenus(
   let all = [
     edit,
     editRefItem,
-    edit_effect,
-    repair_item,
-    destroy_item,
-    delete_document,
-    clear_reference,
-    array_remove,
-    counter_edit,
-    tag_edit,
+    editEffect,
+    repairItem,
+    destroyItem,
+    deleteDocument,
+    clearReference,
+    arrayRemove,
+    counterEdit,
+    tagEdit,
     rename,
   ];
 
