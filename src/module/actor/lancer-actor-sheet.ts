@@ -572,7 +572,6 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
     if (data.system.loadout) {
       // @ts-expect-error
       for (const [key, value] of Object.entries(data.system.loadout)) {
-        console.log("Sorting loadout key: ", key, value);
         if (!Array.isArray(value)) continue;
         // @ts-expect-error
         data.system.loadout[key] = (value as { id: string; status: string; value: LancerItem }[]).sort(
