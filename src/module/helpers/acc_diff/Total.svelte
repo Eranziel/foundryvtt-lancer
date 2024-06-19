@@ -59,7 +59,7 @@
     <img
       class="lancer-hit-thumb accdiff-target-has-dropdown"
       alt={target.target.name ?? undefined}
-      src={target.target.document.texture?.src}
+      src={target.target.actor?.img}
       bind:this={imgElement}
     />
     <label
