@@ -116,7 +116,7 @@
 
       {{!-- Bond --}}
       {{#if system.bond}}
-        <div class="card clipped">
+        <div class="card clipped ref set" data-uuid="{{ system.bond.uuid }}">
           <h2 class="lancer-header lancer-primary clipped">
             <span>{{upper-case (localize "lancer.pilot-sheet.narrative.bond" bondName=system.bond.name)}}</span>
             <a class="lancer-context-menu" data-path="itemTypes.bond.0">
