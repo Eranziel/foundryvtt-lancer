@@ -75,11 +75,10 @@ export class NpcFeatureModel extends LancerDataModel<"NpcFeatureModel"> {
       data.override = convertNpcStats(data.override)[0];
     }
     // Non-tech features should not have tech_attack
-    if (data.type !== NpcFeatureType.Tech) {
+    if (data.type && data.type !== NpcFeatureType.Tech) {
       data.tech_attack = false;
-    }
-    // Populate tech_attack if missing
-    if (!data.tech_attack && data.tech_attack !== false) {
+    } else if (data.tech_attack === null) {
+      // Populate tech_attack if missing
       data.tech_attack = !!data.attack_bonus || !!data.accuracy;
     }
 
