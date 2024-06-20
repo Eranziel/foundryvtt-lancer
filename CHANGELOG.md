@@ -1,3 +1,14 @@
+# 2.1.4 (2024-06-19)
+
+## Bug Fixes
+
+- #696 - Use actor image instead of token image in attack HUD and attack chat cards to avoid broken images with animated tokens.
+- #697 - Fix NPC tech attack features being modified to non-attacks after attacking.
+- #698 - Fix Bond context menu on pilot sheets.
+- #674 - Attempt to fix adding custom NPC features to NPC classes/templates by using the item ID as a default LID.
+- #692 - Hide superheavy bracing warning for integrated superheavy weapons.
+- #673 - Fix invade actions from Hacker talent.
+
 # 2.1.3 (2024-06-16)
 
 ## Bug Fixes

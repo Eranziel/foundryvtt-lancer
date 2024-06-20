@@ -3,7 +3,7 @@
   "name": "lancer",
   "title": "LANCER",
   "description": "<p>A Foundry VTT game system for <a href=\"https://massif-press.itch.io/corebook-pdf\">Lancer</a> by <a href=\"https://massif-press.itch.io/\">Massif Press</a>, a mud-and-lasers tactical mech RPG.</p><p>\"Lancer for FoundryVTT\" is not an official <i>Lancer</i> product; it is a third party work, and is not affiliated with Massif Press. \"Lancer for FoundryVTT\" is published via the <i>Lancer</i> Third Party License.</p><p><i>Lancer</i> is copyright Massif Press.</p>",
-  "version": "2.1.3",
+  "version": "2.1.4",
   "minimumCoreVersion": "11",
   "compatibility": {
     "minimum": 11,
@@ -59,7 +59,7 @@
   "secondaryTokenAttribute": "",
   "url": "https://github.com/Eranziel/foundryvtt-lancer",
   "manifest": "https://github.com/Eranziel/foundryvtt-lancer/releases/latest/download/system.json",
-  "download": "https://github.com/Eranziel/foundryvtt-lancer/releases/download/v2.1.3/lancer-v2.1.3.zip",
+  "download": "https://github.com/Eranziel/foundryvtt-lancer/releases/download/v2.1.4/lancer-v2.1.4.zip",
   "license": "GNU GPLv3",
   "readme": "https://github.com/Eranziel/foundryvtt-lancer/blob/master/README.md",
   "bugs": "https://github.com/Eranziel/foundryvtt-lancer/issues/new/choose",
