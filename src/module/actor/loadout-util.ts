@@ -303,7 +303,10 @@ export class LoadoutHelper {
           hasFlexMain = true;
         }
         if (slot.weapon.value.system.size == WeaponSize.Superheavy) {
-          hasSuper = true;
+          const frame = this.actor.system.loadout.frame?.value;
+          if (!frame || !frame.system.core_system.integrated.includes(slot.weapon.value.system.lid)) {
+            hasSuper = true;
+          }
         }
       }
 
