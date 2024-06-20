@@ -63,14 +63,44 @@ export class TechAttackFlow extends Flow<LancerFlowState.TechAttackRollData> {
   }
 }
 
+function commonMechTechAttackInit(
+  state: FlowState<LancerFlowState.TechAttackRollData>,
+  options?: { title?: string; flat_bonus?: number; acc_diff?: AccDiffDataSerialized; action_path?: string }
+) {
+  if (!state.data) throw new TypeError(`Tech attack flow state missing!`);
+  if (!state.item) throw new TypeError(`Tech attack flow state missing item!`);
+
+  // Get the action if possible
+  if (options?.action_path) {
+    state.data.action = resolveDotpath(state.item, options.action_path);
+  }
+  state.data.flat_bonus = state.actor.system.tech_attack;
+  if (state.data.action) {
+    // Use the action data
+    state.data.title =
+      state.data.action.name == ActivationType.Invade ? `INVADE // ${state.data.action.name}` : state.data.action.name;
+    state.data.effect = state.data.action.detail;
+  }
+
+  // TODO: check bonuses for flat attack bonus
+  state.data.acc_diff = options?.acc_diff
+    ? AccDiffData.fromObject(options.acc_diff)
+    : AccDiffData.fromParams(
+        state.item,
+        state.item.getTags() ?? [],
+        state.data.title,
+        Array.from(game.user!.targets),
+        // TODO: is there a bonus we can check for this type of effect?
+        // Add 1 accuracy for all you goblins
+        state.actor.is_mech() && state.actor.system.loadout.frame?.value?.system.lid == "mf_goblin" ? 1 : 0
+      );
+}
+
 export async function initTechAttackData(
   state: FlowState<LancerFlowState.TechAttackRollData>,
   options?: { title?: string; flat_bonus?: number; acc_diff?: AccDiffDataSerialized; action_path?: string }
 ): Promise<boolean> {
   if (!state.data) throw new TypeError(`Tech attack flow state missing!`);
-  // TODO: is there a bonus we can check for this type of effect?
-  // Add 1 accuracy for all you goblins
-  let acc = state.actor.is_mech() && state.actor.system.loadout.frame?.value?.system.lid == "mf_goblin" ? 1 : 0;
   // If we only have an actor, it's a basic attack
   if (!state.item) {
     if (!state.actor.is_mech() && !state.actor.is_npc()) {
@@ -101,7 +131,7 @@ export async function initTechAttackData(
       }
       let tier_index: number = state.item.system.tier_override || state.actor.system.tier - 1;
       let asTech = state.item.system as SystemTemplates.NPC.TechData;
-      acc = asTech.accuracy ? asTech.accuracy[tier_index] ?? 0 : 0;
+      let acc = asTech.accuracy ? asTech.accuracy[tier_index] ?? 0 : 0;
       state.data.flat_bonus = asTech.attack_bonus ? asTech.attack_bonus[tier_index] ?? 0 : 0;
       state.data.acc_diff = options?.acc_diff
         ? AccDiffData.fromObject(options.acc_diff)
@@ -117,35 +147,25 @@ export async function initTechAttackData(
         ui.notifications?.warn("Cannot use a system on a non-piloted mech!");
         return false;
       }
-
-      // Get the action if possible
-      if (options?.action_path) {
-        state.data.action = resolveDotpath(state.item, options.action_path);
-      }
-      state.data.flat_bonus = state.actor.system.tech_attack;
+      commonMechTechAttackInit(state, options);
       state.data.tags = state.item.getTags() ?? undefined;
-      if (state.data.action) {
-        // Use the action data
-        state.data.title =
-          state.data.action.name == ActivationType.Invade
-            ? `INVADE // ${state.data.action.name}`
-            : state.data.action.name;
-        state.data.effect = state.data.action.detail;
-      } else if (!state.data.effect) {
+      if (!state.data.action && !state.data.effect) {
         if (state.item.is_mech_system()) state.data.effect = state.item.system.effect;
         else state.data.effect = state.item.system.core_system.active_effect;
       }
-
-      // TODO: check bonuses for flat attack bonus
-      state.data.acc_diff = options?.acc_diff
-        ? AccDiffData.fromObject(options.acc_diff)
-        : AccDiffData.fromParams(
-            state.item,
-            state.item.getTags() ?? [],
-            state.data.title,
-            Array.from(game.user!.targets),
-            acc
-          );
+      return true;
+    } else if (state.item.is_talent()) {
+      if (!state.actor.is_pilot()) {
+        ui.notifications?.warn("Non-pilot cannot use a pilot talent!");
+        return false;
+      }
+      if (!state.actor.system.active_mech?.value) {
+        ui.notifications?.warn("Cannot use a talent without an active mech!");
+        return false;
+      }
+      // Override the flow's actor to the active mech
+      state.actor = state.actor.system.active_mech.value;
+      commonMechTechAttackInit(state, options);
       return true;
     }
     ui.notifications!.error(`Error in tech attack flow - ${state.item.name} is an invalid type!`);

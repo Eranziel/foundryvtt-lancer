@@ -331,6 +331,9 @@ export async function setAttackEffects(
   } else if (state.item.is_mech_system()) {
     state.data.effect = state.data.action?.detail ?? state.item.system.effect;
     return true;
+  } else if (state.item.is_talent()) {
+    state.data.effect = state.data.action?.detail ?? "";
+    return true;
   } else if (state.item.is_frame()) {
     // Frame attacks should only be tech attacks from core systems
     state.data.effect = state.data.action?.detail ?? state.item.system.core_system.active_effect;
@@ -344,6 +347,7 @@ export async function setAttackEffects(
     state.data.effect = state.item.system.effect;
     return true;
   }
+  ui.notifications!.error(`Error in attack flow - ${state.item.name} is an invalid type!`);
   return false;
 }
 
