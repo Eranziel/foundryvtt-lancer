@@ -158,6 +158,7 @@ export async function updateItemAfterAction(
     if (state.item.isLimited()) item_changes.uses = { value: Math.max(state.item.system.uses.value - 1, 0) };
     if (state.item.is_npc_feature() && state.item.isRecharge())
       (item_changes as DeepPartial<SourceData.NpcFeature>).charged = false;
+    if (Object.keys(item_changes).length === 0) return true;
     await state.item.update({ system: item_changes });
   }
   return true;
