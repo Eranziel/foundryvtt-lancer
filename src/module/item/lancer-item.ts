@@ -189,9 +189,14 @@ export class LancerItem extends Item {
         p.all_range = [];
         p.all_damage = [];
       }
-    } else if (this.is_npc_feature() && this.system.type === NpcFeatureType.Weapon) {
-      if (!this.system.damage || this.system.damage.length < 3) {
-        this.system.damage = [[], [], []];
+    } else if (this.is_npc_feature()) {
+      if (this.system.lid === "") {
+        this.system.lid = this.id!;
+      }
+      if (this.system.type === NpcFeatureType.Weapon) {
+        if (!this.system.damage || this.system.damage.length < 3) {
+          this.system.damage = [[], [], []];
+        }
       }
     } else if (this.is_talent()) {
       // Talent apply unlocked items
