@@ -80,15 +80,6 @@ export const registerSettings = function () {
     },
   });
 
-  game.settings.registerMenu(game.system.id, LANCER.setting_compcon_login, {
-    name: "Comp/Con Login",
-    label: "Log in to Comp/Con",
-    hint: "Log in to Comp/Con to automatically load any pilots and mechs you have access to",
-    icon: "fas fa-bars",
-    type: CompconLoginForm,
-    restricted: false,
-  });
-
   game.settings.registerMenu(game.system.id, LANCER.setting_status_icons, {
     name: "lancer.statusIconsConfig.menu-name",
     label: "lancer.statusIconsConfig.menu-label",
