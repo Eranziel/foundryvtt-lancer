@@ -43,7 +43,7 @@
     "svelte-preprocess": "^5.0.4",
     "tslib": "^1.14.1",
     "typescript": "^4.7.3",
-    "vite": "^4.4.9",
+    "vite": "^4.5.3",
     "vite-plugin-checker": "^0.6.2",
     "yargs": "^15.4.1"
   },
