@@ -4,6 +4,11 @@ import { importCP, clearCompendiumData, setAllLock } from "../comp-builder";
 import { IContentPack, IContentPackManifest } from "../util/unpacking/packed-types";
 import { getBaseContentPack, parseContentPack } from "../util/lcp-parser";
 import * as lancerDataPackage from "@massif/lancer-data/package.json";
+import * as longRimPackage from "../../../node_modules/@massif/long-rim-data/package.json";
+import * as wallflowerPackage from "../../../node_modules/@massif/wallflower-data/package.json";
+import * as ktbPackage from "../../../node_modules/@massif/ktb-data/package.json";
+import * as osrPackage from "../../../node_modules/@massif/osr-data/package.json";
+import * as dustgravePackage from "../../../node_modules/@massif/dustgrave-data/package.json";
 
 export const core_update = lancerDataPackage.version;
 
@@ -64,6 +69,7 @@ class LCPManager extends Application {
   manifest: any;
   coreVersion: string;
   coreUpdate: string | null;
+  officialData: { id: string; name: string; version: string; url?: string }[];
   lcpIndex: LCPIndex;
 
   constructor(...args: any[]) {
@@ -74,6 +80,49 @@ class LCPManager extends Application {
     this.coreVersion = game.settings.get(game.system.id, LANCER.setting_core_data);
     this.coreUpdate = core_update;
     console.log(`${lp} Lancer Data version:`, this.coreVersion);
+    this.officialData = [
+      {
+        id: "core-data",
+        name: "Lancer Core Data",
+        version: lancerDataPackage.version,
+        url: "https://massif-press.itch.io/corebook-pdf-free",
+      },
+      {
+        id: "long-rim",
+        // name: "The Long Rim: a Lancer Setting",
+        name: "Lancer Long Rim Data",
+        version: longRimPackage.version,
+        url: "https://massif-press.itch.io/the-long-rim",
+      },
+      {
+        id: "wallflower",
+        // name: "No Room for a Wallflower: Act 1",
+        name: "Lancer Wallflower Data",
+        version: wallflowerPackage.version,
+        url: "https://massif-press.itch.io/no-room-for-a-wallflower-act-1",
+      },
+      {
+        id: "ktb",
+        // name: "The Karrakin Trade Baronies: a Lancer Setting",
+        name: "Lancer KTB Data",
+        version: ktbPackage.version,
+        url: "https://massif-press.itch.io/field-guide-the-karrakin-trade-baronies",
+      },
+      {
+        id: "osr",
+        // name: "Operation Solstice Rain",
+        name: "Operation Solstice Rain Data",
+        version: osrPackage.version,
+        url: "https://massif-press.itch.io/operation-solstice-rain",
+      },
+      {
+        id: "dustgrave",
+        // name: "Dustgrave",
+        name: "LANCER: Dustgrave",
+        version: dustgravePackage.version,
+        url: "https://massif-press.itch.io/dustgrave",
+      },
+    ];
     this.lcpIndex = new LCPIndex(game.settings.get(game.system.id, LANCER.setting_lcps).index);
   }
 
@@ -92,6 +141,7 @@ class LCPManager extends Application {
     const data = {
       coreVersion: this.coreVersion,
       coreUpdate: this.coreUpdate,
+      officialData: this.officialData,
       manifest: this.manifest,
       lcps: this.lcpIndex,
     };
@@ -136,6 +186,7 @@ class LCPManager extends Application {
   }
 
   async _onCoreUpdateButtonClick(ev: MouseEvent) {
+    // TODO: build all selected official data
     if (!game.user?.isGM) return ui.notifications!.warn(`Only GM can modify the Compendiums.`);
     if (!ev.currentTarget || !this.coreUpdate) return;
 
