@@ -81,5 +81,6 @@
       "url": "https://massifpress.com/_next/image?url=%2Fimages%2Flegal%2Fpowered_by_Lancer-02.svg&w=640&q=75",
       "caption": "Powered by Lancer"
     }
-  ]
+  ],
+  "flags": { "hotReload": { "extensions": ["json", "hbs"], "paths": ["lang", "templates"] } }
 }

@@ -169,7 +169,7 @@ import { PilotGearModel } from "./module/models/items/pilot_gear";
 import { PilotWeaponModel } from "./module/models/items/pilot_weapon";
 import { importCC } from "./module/actor/import";
 
-import "./module/helpers/text-enrichers";
+import { addEnrichers } from "./module/helpers/text-enrichers";
 import { fromLid, fromLidMany, fromLidSync } from "./module/helpers/from-lid";
 import { SkillModel } from "./module/models/items/skill";
 import { LicenseModel } from "./module/models/items/license";
@@ -202,6 +202,7 @@ window.addEventListener("unhandledrejection", function (event) {
 /* ------------------------------------ */
 /* Initialize system                    */
 /* ------------------------------------ */
+addEnrichers();
 Hooks.once("init", async function () {
   console.log(`Initializing LANCER RPG System ${LANCER.ASCII}`);
 
