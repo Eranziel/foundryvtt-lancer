@@ -36,6 +36,8 @@ import { preloadTemplates } from "./module/preload-templates";
 import { getAutomationOptions, registerSettings } from "./module/settings";
 import { applyTheme } from "./module/themes";
 import * as migrations from "./module/world_migration";
+import { addLCPManager, updateCore, core_update } from "./module/apps/lcp-manager";
+import { addLCPManager2 } from "./module/apps/lcp-manager/lcp-manager-2";
 
 // Import sliding HUD (used for accuracy/difficulty windows)
 import * as slidingHUD from "./module/apps/slidinghud";
@@ -418,7 +420,7 @@ Hooks.on("updateCombat", (_combat: Combat, changes: object) => {
 
 // Create sidebar button to import LCP
 Hooks.on("renderSidebarTab", async (app: Application, html: HTMLElement) => {
-  addLCPManager(app, html);
+  addLCPManager2(app, html);
 });
 
 // TODO: keep or remove?
