@@ -159,7 +159,7 @@ class LCPManager2 extends Application {
       title: "LANCER Compendium Manager",
       id: "lcp-manager",
       classes: ["lancer", "lcp-manager"],
-      width: 800,
+      width: 1200,
       height: 800,
     });
   }
