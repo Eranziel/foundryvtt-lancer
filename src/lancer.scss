@@ -899,33 +899,6 @@ ul.items-list {
   -webkit-clip-path: var(--bottom-dogear-path);
 }
 
-.lancer-content-manager {
-  .massif-content-table {
-    display: grid;
-    grid-template-columns: 3em 3fr 1fr 3em 1fr;
-    grid-template-rows: auto;
-
-    .massif-content-checkbox {
-    }
-
-    .massif-content-label {
-      margin: 5px 10px;
-    }
-
-    .massif-content-curr-version {
-      margin: 5px 10px;
-    }
-
-    .massif-content-avail-version {
-      margin: 5px 10px;
-    }
-
-    .massif-content-icon {
-      margin: 5px 10px;
-    }
-  }
-}
-
 .lcp-importer {
   display: grid;
   grid-template: 1fr / 1fr 1fr;

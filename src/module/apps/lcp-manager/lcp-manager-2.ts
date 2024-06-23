@@ -11,14 +11,22 @@ import * as dustgravePackage from "@massif/dustgrave-data/package.json";
 
 export const core_update = lancerDataPackage.version;
 
-// TODO: create a svelte component for the LCP Manager
 let lcpManager: LCPManager;
 
-async function attachLCPManager(target: HTMLElement) {
+type LCPManagerData = {
+  coreVersion: string;
+  coreUpdate: string | null;
+  officialData: { id: string; name: string; url?: string; currentVersion: string; availableVersion: string }[];
+  manifest: any;
+  lcps: LCPIndex;
+};
+
+async function attachLCPManager(target: HTMLElement, initialData: LCPManagerData) {
   if (!lcpManager) {
     let LCPManager = (await import("./LCPManager.svelte")).default;
     lcpManager = new LCPManager({
       target,
+      props: initialData,
     });
   }
   return lcpManager;
@@ -99,7 +107,7 @@ class LCPManager2 extends Application {
         id: "core-data",
         name: "Lancer Core Data",
         availableVersion: lancerDataPackage.version,
-        currentVersion: this.lcpIndex.index?.find(m => m.name === "Lancer Core Data")?.version || "--",
+        currentVersion: game.settings.get(game.system.id, LANCER.setting_core_data) || "--",
         url: "https://massif-press.itch.io/corebook-pdf-free",
       },
       {
@@ -156,7 +164,7 @@ class LCPManager2 extends Application {
     });
   }
 
-  getData() {
+  getData(): LCPManagerData {
     const data = {
       coreVersion: this.coreVersion,
       coreUpdate: this.coreUpdate,
@@ -164,7 +172,6 @@ class LCPManager2 extends Application {
       manifest: this.manifest,
       lcps: this.lcpIndex,
     };
-    console.log(`${lp} LCP Manager template data:`, data);
     return data;
   }
 
@@ -172,6 +179,6 @@ class LCPManager2 extends Application {
     super.activateListeners(html);
     const mount = html.closest(".lcp-manager-mount");
     if (!mount || !mount.length) return;
-    attachLCPManager(mount[0]);
+    attachLCPManager(mount[0], this.getData());
   }
 }
