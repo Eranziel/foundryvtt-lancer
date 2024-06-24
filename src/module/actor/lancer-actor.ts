@@ -715,7 +715,8 @@ export class LancerActor extends Actor {
    * @returns         The newFrame if any updates were performed
    */
   async swapFrameImage(newFrame: LancerFRAME | LancerNPC_CLASS): Promise<void> {
-    if (!(this.is_mech() || this.is_npc())) return;
+    // @ts-expect-error v10 types
+    if (!game.users.activeGM?.isSelf || !(this.is_mech() || this.is_npc())) return;
 
     let new_frame_path = frameToPath(newFrame?.name);
     let default_img = this.is_mech()
@@ -770,7 +771,9 @@ export class LancerActor extends Actor {
    * @param newClass The new class which is being added
    */
   async _swapNpcClass(oldClass: LancerNPC_CLASS | null, newClass: LancerNPC_CLASS | LancerNPC_TEMPLATE): Promise<void> {
-    if (!this.is_npc() || (!newClass.is_npc_class() && !newClass.is_npc_template())) return;
+    // @ts-expect-error v10 types
+    if (!game.users.activeGM?.isSelf || !this.is_npc() || (!newClass.is_npc_class() && !newClass.is_npc_template()))
+      return;
     // Flag to know if we need to reset stats
     let needsRefresh = false;
 
