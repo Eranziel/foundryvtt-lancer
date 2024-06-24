@@ -486,9 +486,9 @@ export class LancerActor extends Actor {
   /** @override
    * Upon an actor being updated, we want to trigger automated cleanup, effect generation, etc
    */
-  protected _onUpdate(...[changed, options, user]: Parameters<Actor["_onUpdate"]>) {
-    super._onUpdate(changed, options, user);
-    let cause_updates = game.userId == user;
+  protected _onUpdate(...[changed, options, userId]: Parameters<Actor["_onUpdate"]>) {
+    super._onUpdate(changed, options, userId);
+    let cause_updates = game.userId == userId;
 
     // If changing active mech, all mechs need to render to recompute if they are the active mech
     let changing_active_mech = (changed as any).system?.active_mech !== undefined;
@@ -599,6 +599,8 @@ export class LancerActor extends Actor {
     // @ts-expect-error
     super._onCreateDescendantDocuments(parent, collection, documents, changes, options, userId);
 
+    if (game.userId != userId) return;
+
     // If an NPC class or template was added, add and remove the relevant features.
     if (this.is_npc() && itemDocs.some(d => d.is_npc_class() || d.is_npc_template())) {
       itemDocs = itemDocs.filter(d => d.is_npc_class() || d.is_npc_template());
@@ -608,10 +610,7 @@ export class LancerActor extends Actor {
       let newTemplates = itemDocs.filter(d => d.is_npc_template()) as LancerNPC_TEMPLATE[];
       newTemplates.forEach(t => this.npcClassSwapPromises.push(this._swapNpcClass(null, t)));
     }
-
-    if (game.userId == userId) {
-      this.effectHelper.propagateEffects(false); // Items / Effects have changed - may need to propagate
-    }
+    this.effectHelper.propagateEffects(false); // Items / Effects have changed - may need to propagate
   }
 
   /** @inheritdoc */
