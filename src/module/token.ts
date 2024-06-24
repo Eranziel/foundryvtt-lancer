@@ -27,8 +27,10 @@ function cubesBySize({
   alt: boolean;
   columns: boolean;
 }): { q: number; r: number; s: number }[] {
-  if (size % 2 === 1) {
-    let l = Math.floor(size / 2);
+  // Safeguard against infinite recursion due to non-integer sizes
+  const _size = Math.ceil(size);
+  if (_size % 2 === 1) {
+    let l = Math.floor(_size / 2);
     let res = [];
     for (let q = -l; q <= l; ++q) {
       for (let r = Math.max(-l, -q - l); r <= Math.min(l, -q + l); ++r) {
@@ -39,9 +41,9 @@ function cubesBySize({
   } else {
     // Even size. Get the next larger size and remove spaces on the edge at and below the centerline
     return (
-      cubesBySize({ size: size + 1, alt, columns })
+      cubesBySize({ size: _size + 1, alt, columns })
         // non-negative r is the center line and below, edge is size/2 spaces from the "center"
-        .filter(c => !(c.r >= 0 && (Math.abs(c.q) + Math.abs(c.r) + Math.abs(c.s)) / 2 === size / 2))
+        .filter(c => !(c.r >= 0 && (Math.abs(c.q) + Math.abs(c.r) + Math.abs(c.s)) / 2 === _size / 2))
         // Rotate based on token and grid settings
         .map(c => {
           if (!alt && !columns) return c;
