@@ -1487,7 +1487,13 @@ function _handleContextMenus(
       }
     },
     // Normal edit is not visible, and this item has a uuid.
-    condition: html => !(dd(html)?.terminus instanceof foundry.abstract.Document) && html[0].dataset.uuid != undefined,
+    condition: html => {
+      const uuid = html[0].dataset.uuid;
+      // If a uuid is not provided, rely on dd.
+      if (!uuid) return !(dd(html)?.terminus instanceof LancerItem);
+      const foundDoc = fromUuidSync(uuid) as LancerItem | null;
+      return foundDoc instanceof LancerItem;
+    },
   };
 
   // Renders the editor for the effect referenced at data-path
