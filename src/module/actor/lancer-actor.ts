@@ -519,25 +519,6 @@ export class LancerActor extends Actor {
     // We can't really await them here, nor should we - they will re-trigger an onUpdate as necessary
     // Remove unresolved references.
     this.loadoutHelper.cleanupUnresolvedReferences();
-
-    // Check for overheating / structure
-    if (
-      getAutomationOptions().structure &&
-      this.isOwner &&
-      !(
-        game.users?.players.reduce((a, u) => a || (u.active && this.testUserPermission(u, "OWNER")), false) &&
-        game.user?.isGM
-      ) &&
-      (this.is_mech() || this.is_npc())
-    ) {
-      const data = changed as any; // DeepPartial<RegMechData | RegNpcData>;
-      if ((data.system?.heat?.value ?? 0) > this.system.heat.max && this.system.stress.value > 0) {
-        this.beginOverheatFlow();
-      }
-      if ((data.system?.hp?.value ?? 1) <= 0 && this.system.structure.value > 0) {
-        this.beginStructureFlow();
-      }
-    }
   }
 
   /**

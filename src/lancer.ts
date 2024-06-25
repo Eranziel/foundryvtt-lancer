@@ -183,7 +183,7 @@ import { OrganizationModel } from "./module/models/items/organization";
 import { StatusModel } from "./module/models/items/status";
 import { BondModel } from "./module/models/items/bond";
 import { Flow } from "./module/flows/flow";
-import { beginSecondaryStructureFlow } from "./module/flows/structure";
+import { beginSecondaryStructureFlow, triggerStrussFlow } from "./module/flows/structure";
 import { beginCascadeFlow } from "./module/flows/cascade";
 import { get_pack_id } from "./module/util/doc";
 import { registerTours } from "./module/tours/register-tours";
@@ -747,8 +747,9 @@ Hooks.on("updateToken", (_scene: Scene, _token: Token, diff: any, _options: any,
   if (diff.hasOwnProperty("y") || diff.hasOwnProperty("x")) return;
   game.action_manager?.update();
 });
-Hooks.on("updateActor", (_actor: Actor) => {
+Hooks.on("updateActor", (_actor: LancerActor, changes: DeepPartial<LancerActor["data"]>): void => {
   game.action_manager?.update();
+  triggerStrussFlow(_actor, changes);
 });
 Hooks.on("closeSettingsConfig", () => {
   game.action_manager?.updateConfig();

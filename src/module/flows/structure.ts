@@ -418,3 +418,28 @@ async function printSecondaryStructureCard(
   await renderTemplateStep(state.actor, template, state.data);
   return true;
 }
+
+/**
+ * This function should be attached to the actor update hook to trigger structure/stress flows
+ */
+export function triggerStrussFlow(actor: LancerActor, changed: DeepPartial<LancerActor["data"]>) {
+  if (!actor.is_mech() && !actor.is_npc()) return;
+  // Check for overheating / structure
+  if (
+    getAutomationOptions().structure &&
+    actor.isOwner &&
+    !(
+      game.users?.players.reduce((a, u) => a || (u.active && actor.testUserPermission(u, "OWNER")), false) &&
+      game.user?.isGM
+    ) &&
+    (actor.is_mech() || actor.is_npc())
+  ) {
+    const data = changed as any; // DeepPartial<RegMechData | RegNpcData>;
+    if ((data.system?.heat?.value ?? 0) > actor.system.heat.max && actor.system.stress.value > 0) {
+      actor.beginOverheatFlow();
+    }
+    if ((data.system?.hp?.value ?? 1) <= 0 && actor.system.structure.value > 0) {
+      actor.beginStructureFlow();
+    }
+  }
+}
