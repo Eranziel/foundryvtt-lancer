@@ -226,7 +226,8 @@ $theme-types: "primary" "secondary" "dark-gray" "light-gray" "tooltip"    // Gen
   background: var(--background-color);
 }
 
-.lancer-sheet {
+.lancer-sheet,
+.lancer.app {
   &.editable {
     height: 100%;
   }
@@ -2246,6 +2247,13 @@ a.activation-chip > i.mdi {
 .action-editor-wrapper {
   float: right;
   margin-right: 0.5em;
+  max-width: fit-content;
+}
+
+.action-editor {
+  .flexrow {
+    padding-bottom: 0.5em;
+  }
 }
 
 // Stabilize dialog

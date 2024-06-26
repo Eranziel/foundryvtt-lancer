@@ -310,7 +310,6 @@ export function singleActionEditor(path: string, options: HelperOptions) {
   return `<div class="card" style="align-content: flex-start">
       ${id_input}
       ${name_input}
-     
     </div>`;
 }
 
@@ -979,12 +978,17 @@ export function buildActionHTML(
     chip = "";
   }
 
+  let editDetails = options?.editable
+    ? `<a class="fas fa-edit popout-text-edit-button" data-path="${path}.detail"></a>`
+    : "";
+
   // If we don't have a trigger do a simple detail
   if (!action.trigger)
     detailText = `
       <div class="action-detail">
         <hr class="hsep">
         ${chip}
+        ${editDetails}
         ${action.detail || defaultPlaceholder}
       </div>`;
   // Otherwise, look to be explicit about which is which
@@ -997,7 +1001,7 @@ export function buildActionHTML(
           <div>
             <div class="overline">${game.i18n.localize("lancer.chat-card.label.trigger")}</div> 
             ${action.trigger || defaultPlaceholder}
-            <div class="overline">${game.i18n.localize("lancer.chat-card.label.effect")}</div>
+            <div class="overline">${game.i18n.localize("lancer.chat-card.label.effect")} ${editDetails}</div>
             ${action.detail || defaultPlaceholder}
           </div>
         </div>
@@ -1008,7 +1012,7 @@ export function buildActionHTML(
     // If it's editable, it's deletable
     editor = `
     <div class="action-editor-wrapper">
-      <a class="gen-control" data-uuid="${doc.uuid} data-action="splice" data-path="${path}"><i class="fas fa-trash"></i></a>
+      <a class="gen-control" data-uuid="${doc.uuid}" data-action="splice" data-path="${path}"><i class="fas fa-trash"></i></a>
       <a class="action-editor fas fa-edit" data-path="${path}"></a>
     </div>`;
   }
@@ -1035,7 +1039,7 @@ export function buildActionHTML(
 export function buildActionArrayHTML(
   doc: LancerActor | LancerItem,
   path: string,
-  options?: { hideChip?: boolean; nonInteractive?: boolean }
+  options?: { editable?: boolean; hideChip?: boolean; nonInteractive?: boolean }
 ): string {
   let actions = resolveDotpath<Array<ActionData>>(doc, path, []);
   let cards = actions.map((_, i) => buildActionHTML(doc, `${path}.${i}`, options));

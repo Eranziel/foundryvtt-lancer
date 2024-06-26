@@ -129,7 +129,7 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet<ItemShe
 
     // Enable our subform editors editors
     BonusEditDialog.handle(html, ".editable.bonus", this.item);
-    ActionEditDialog.handle(html, ".editable.action", this.item);
+    ActionEditDialog.handle(html, ".action-editor", this.item);
 
     // Enable popout editors
     handlePopoutTextEditor(html, this.item);

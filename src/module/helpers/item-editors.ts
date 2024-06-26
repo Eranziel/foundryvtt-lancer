@@ -10,12 +10,11 @@ import {
   std_enum_select,
   std_num_input,
 } from "./commons";
-import { ref_params } from "./refs";
-import { LancerItem, LancerLICENSE } from "../item/lancer-item";
+import { LancerItem } from "../item/lancer-item";
 import { ActionData } from "../models/bits/action";
 import { BonusData } from "../models/bits/bonus";
 import { SynergyData } from "../models/bits/synergy";
-import { ActivationType, EntryType, ReserveType, WeaponSize, WeaponType } from "../enums";
+import { ActivationType, ReserveType, WeaponSize, WeaponType } from "../enums";
 import { RangeData } from "../models/bits/range";
 
 export function item_edit_arrayed_actions(path: string, title: string, options: HelperOptions): string {
@@ -25,7 +24,7 @@ export function item_edit_arrayed_actions(path: string, title: string, options: 
   let action_detail = "";
 
   if (dd.terminus) {
-    action_detail = buildActionArrayHTML(dd.sub_doc, dd.sub_path);
+    action_detail = buildActionArrayHTML(dd.sub_doc, dd.sub_path, { editable: true });
   }
 
   return `

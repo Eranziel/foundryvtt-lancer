@@ -2,17 +2,21 @@
     <div class="flexcol">
         {{{std-text-input "action.name" label="ACTION NAME"}}}
         {{{std-text-input "action.lid" label="ACTION ID"}}}
-        {{{std-select "action.activation" activation_type label="TYPE"}}}
+        <div class="flexrow">
+            {{{std-select "action.activation" activation_type label="TYPE"}}}
+            {{{std-checkbox "action.tech_attack" label="IS TECH ATTACK?"}}}
+        </div>
+        {{{std-text-input "action.init" label="REACTION INIT"}}}
+        {{{std-text-input "action.trigger" label="REACTION TRIGGER"}}}
         {{{std-num-input "action.cost" label="COST"}}}
-        {{{std-num-input "action.frequency" label="FREQUENCY"}}}
-        <!--{{{std-text-input "action.init" label="FREQUENCY"}}}-->
-        {{{std-text-input "action.trigger" label="TRIGGER"}}}
-        {{{std-text-input "action.terse" label="TERSE"}}} 
-        {{{textarea-card "DETAILS" "action.detail"}}} 
+        {{{std-text-input "action.frequency" label="FREQUENCY"}}}
         {{{std-num-input "action.heat_cost" label="HEAT COST"}}}
+        {{{std-text-input "action.terse" label="TERSE DESCRIPTION"}}}
         <!-- TODO: Synergy --> 
+        <!-- TODO: damage and range
         {{{item-edit-arrayed-damage "action.damage" "DAMAGE"}}}
         {{{item-edit-arrayed-range "action.range" "RANGE"}}}
+        -->
     </div>
 
     {{> dialog-save-buttons}}
