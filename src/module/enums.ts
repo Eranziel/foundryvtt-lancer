@@ -21,6 +21,12 @@ export enum EffectType {
   Profile = "Profile",
 }
 
+export enum StatusConditionType {
+  Condition = "Condition",
+  Status = "Status",
+  Effect = "Effect",
+}
+
 export enum ChargeType {
   Grenade = "Grenade",
   Mine = "Mine",

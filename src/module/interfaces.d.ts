@@ -18,6 +18,7 @@ export interface LancerItemSheetData<T extends LancerItemType> extends ItemSheet
   collapse: CollapseRegistry;
   deployables: Record<string, LancerDEPLOYABLE>;
   org_types?: { [key: string]: string }; // Organization types, only provided on org sheets
+  status_types?: { [key: string]: string }; // Status types, only provided on status sheets
 }
 
 export type CachedCloudPilot = {

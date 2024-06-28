@@ -719,7 +719,7 @@ function std_input(path: string, type: string, options: HelperOptions) {
 
   if (label) {
     return `
-    <label class="flexrow no-wrap ${label_classes}">
+    <label class="flexrow no-wrap flex-center ${label_classes}">
       <span class="no-grow" style="padding: 2px 5px;">${label}</span> 
       ${input}
     </label>`;

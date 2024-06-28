@@ -16,7 +16,7 @@ import { applyCollapseListeners, CollapseHandler, initializeCollapses } from "..
 import { ActionEditDialog } from "../apps/action-editor";
 import { find_license_for, get_pack_id } from "../util/doc";
 import { lookupOwnedDeployables } from "../util/lid";
-import { EntryType } from "../enums";
+import { EffectType, EntryType, StatusConditionType } from "../enums";
 import { LancerDEPLOYABLE } from "../actor/lancer-actor";
 import { BonusEditDialog } from "../apps/bonus-editor";
 import { OrgType } from "../enums";
@@ -186,6 +186,13 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet<ItemShe
     if (this.item.is_organization()) {
       // console.log(OrgType);
       data.org_types = OrgType;
+    }
+
+    if (this.item.is_status()) {
+      data.status_types = StatusConditionType;
+      if (!data.system.lid) {
+        data.system.lid = `status-${data.document.id}`;
+      }
     }
 
     console.log(`${lp} Rendering with following item ctx: `, data);
