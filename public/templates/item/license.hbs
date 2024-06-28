@@ -1,29 +1,30 @@
 <form class="{{cssClass}} lancer-sheet" autocomplete="off">
   {{! Sheet Header }}
   <header class="sheet-header card clipped-bot">
-    <h1 class="charname grow">
-      <input
-        class="header-field"
-        name="name"
-        type="text"
-        value="{{item.name}}"
-        placeholder="{{localize 'lancer.placeholder.name'}}"
-      />
-    </h1>
+    <div class="flexcol grow">
+      <h1 class="charname">
+        <input
+          class="header-field"
+          name="name"
+          type="text"
+          value="{{item.name}}"
+          placeholder="{{localize 'lancer.placeholder.name'}}"
+        />
+      </h1>
+      {{#if item.isOwned}}
+        <div class="flexrow flex-center">
+          <span style="max-width: fit-content;">
+            UNLOCKED RANK:
+          </span>
+          <div style="max-width: fit-content;">
+            {{{l-num-input "system.curr_rank"}}}
+          </div>
+        </div>
+      {{/if}}
+    </div>
     {{{ref-portrait-img item.img "img" item}}}
   </header>
-  <div>
-    {{#if item.isOwned}}
-      <div class="flexrow" style="align-items:center;margin-right:8px;">
-        <span style="text-align: right;padding: 4px;">
-          RANK:
-        </span>
-        {{{l-num-input "system.curr_rank"}}}
-      </div>
-    {{/if}}
-  </div>
   <div class="flexcol">
-    {{{std-num-input "system.curr_rank" label="RANK"}}}
     {{#each unlocks as |unlock_array rank|}}
       <div class="card">
         <div class="lancer-header lancer-primary">

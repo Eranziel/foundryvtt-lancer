@@ -11,12 +11,14 @@
           placeholder="{{localize 'lancer.placeholder.name'}}"
         />
       </h1>
-      {{#if item.actor}}
-        <div class="flexrow">
-          <span>
-            RANK:
+      {{#if item.isOwned}}
+        <div class="flexrow flex-center">
+          <span style="max-width: fit-content;">
+            UNLOCKED RANK:
           </span>
-          {{{l-num-input "system.curr_rank"}}}
+          <div style="max-width: fit-content;">
+            {{{l-num-input "system.curr_rank"}}}
+          </div>
         </div>
       {{/if}}
     </div>
