@@ -1,3 +1,15 @@
+# 2.1.5 (2024-06-28)
+
+## Bug Fixes
+
+- #634 - Allow editing and deleting actions on items.
+- #653 - Fix 2nd non-functional "Edit" option in 3-dot menu for active effects on mech sheets.
+- #700 - Avoid unnecessary errors by ensuring only one client runs certain code on NPC and mech updates.
+- #707 - Fix bug causing GM-initiated hp/heat changes from triggering structure/stress prompts for connected players.
+- #709 - Fix size 0.5 PC tokens breaking the attack HUD.
+- #712 - Properly import 2nd+ weapons on mounts (aux/aux and flex) during Comp/Con import.
+- #713 - Remove non-functional "EFFECT" field from Status/Condition sheets.
+
 # 2.1.4 (2024-06-19)
 
 ## Bug Fixes
