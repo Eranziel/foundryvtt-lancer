@@ -366,8 +366,8 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
       flatMounts.push(...loadout.mounts);
       let populatedMounts: SourceData.Mech["loadout"]["weapon_mounts"] = [];
       for (let mount of flatMounts) {
-        let slots: typeof populatedMounts[0]["slots"] = [];
-        for (let slot of mount.slots) {
+        let populatedSlots: typeof populatedMounts[0]["slots"] = [];
+        for (const slot of mount.slots) {
           let weapon = slot.weapon
             ? ((await getMechItemByLid(slot.weapon.id, EntryType.MECH_WEAPON)) as LancerMECH_WEAPON | null)
             : null;
@@ -375,18 +375,33 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
             weapon && slot.weapon?.mod
               ? ((await getMechItemByLid(slot.weapon.mod.id, EntryType.WEAPON_MOD)) as LancerWEAPON_MOD | null)
               : null;
-          slots.push({
+          populatedSlots.push({
             mod: mod?.id ?? null,
             weapon: weapon?.id ?? null,
             size: slot.size,
           });
+          // 2nd weapons are in extra, e.g. aux/aux and flex mounts
+          for (const extraSlot of mount.extra) {
+            let weapon = extraSlot.weapon
+              ? ((await getMechItemByLid(extraSlot.weapon.id, EntryType.MECH_WEAPON)) as LancerMECH_WEAPON | null)
+              : null;
+            let mod =
+              weapon && extraSlot.weapon?.mod
+                ? ((await getMechItemByLid(extraSlot.weapon.mod.id, EntryType.WEAPON_MOD)) as LancerWEAPON_MOD | null)
+                : null;
+            populatedSlots.push({
+              mod: mod?.id ?? null,
+              weapon: weapon?.id ?? null,
+              size: slot.size,
+            });
+          }
           if (weapon) assocWeaponData.set(weapon.id!, slot.weapon!);
           if (mod) assocSystemData.set(weapon!.id!, slot.weapon!.mod!);
         }
         populatedMounts.push({
           bracing: mount.lock ?? false,
           type: mount.mount_type as MountType,
-          slots,
+          slots: populatedSlots,
         });
       }
 
