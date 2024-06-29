@@ -2,7 +2,6 @@ import { getTrackerAppearance, setAppearance } from "./combat/lancer-combat-trac
 import type { LancerCombat, LancerCombatant } from "./combat/lancer-combat";
 import { LANCER } from "./config";
 import { AutomationConfig } from "./apps/automation-settings";
-import CompconLoginForm from "./helpers/compcon-login-form";
 import { ActionTrackerConfig } from "./apps/action-tracker-settings";
 import { StatusIconConfig } from "./apps/status-icon-config";
 import { applyTheme } from "./themes";
@@ -67,15 +66,6 @@ export const registerSettings = function () {
       if (!["gms", "gmsDark", "msmc", "horus", "ha", "ssc", "ipsn", "gal"].includes(v as string)) applyTheme("gms");
       applyTheme(v as any);
     },
-  });
-
-  game.settings.registerMenu(game.system.id, LANCER.setting_compcon_login, {
-    name: "Comp/Con Login",
-    label: "Log in to Comp/Con",
-    hint: "Log in to Comp/Con to automatically load any pilots and mechs you have access to",
-    icon: "fas fa-bars",
-    type: CompconLoginForm,
-    restricted: false,
   });
 
   game.settings.registerMenu(game.system.id, "StatusIconConfig", {
