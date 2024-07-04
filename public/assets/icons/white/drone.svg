@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   version="1.1"
+   viewBox="0 -64 1024 1024"
+   width="512"
+   height="512"
+   id="svg1"
+   sodipodi:docname="drone.svg"
+   inkscape:version="1.3.1 (91b66b0783, 2023-11-16)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs1" />
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="1.6230469"
+     inkscape:cx="255.69194"
+     inkscape:cy="256"
+     inkscape:window-width="1920"
+     inkscape:window-height="1009"
+     inkscape:window-x="3832"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg1" />
+  <g
+     transform="matrix(1 0 0 -1 0 960)"
+     id="g1"
+     style="fill:#ffffff">
+    <path
+       fill="currentColor"
+       d="M290 789q-49 0 -84 -35t-35 -84t35 -84.5t84 -35.5q15 0 29.5 4.5t26.5 10.5l57 -56l-28 -27h-68v-68h68l28 -27l-56 -56q-13 7 -27.5 11t-29.5 4q-49 0 -84 -35.5t-35 -84.5t35 -84t84 -35t84.5 35t35.5 84q0 15 -4 29.5t-11 26.5l56 57l27 -28h68l27 27l56 -56 q-7 -12 -11 -26.5t-4 -29.5q0 -49 35.5 -84t84.5 -35t84 35t35 84t-35 84.5t-84 35.5q-15 0 -29.5 -4t-26.5 -11l-56 56l27 27h68v68h-68l-28 27l57 56q12 -7 26.5 -11t29.5 -4q49 0 84 35.5t35 84.5t-35 84t-84 35t-84.5 -35t-35.5 -84q0 -15 4 -29.5t11 -27.5l-56 -56 l-27 28h-68l-27 -28l-56 57q7 12 11 26.5t4 29.5q0 49 -35.5 84t-84.5 35v0zM290 721q22 0 36.5 -15t14.5 -36q0 -22 -14.5 -36.5t-36.5 -14.5q-21 0 -36 14.5t-15 36.5q0 21 15 36t36 15zM734 721q21 0 36 -15t15 -36q0 -22 -15 -36.5t-36 -14.5q-22 0 -36.5 14.5 t-14.5 36.5q0 21 14.5 36t36.5 15zM290 277q22 0 36.5 -14.5t14.5 -36.5q0 -21 -14.5 -36t-36.5 -15q-21 0 -36 15t-15 36q0 22 15 36.5t36 14.5zM734 277q21 0 36 -14.5t15 -36.5q0 -21 -15 -36t-36 -15q-22 0 -36.5 15t-14.5 36q0 22 14.5 36.5t36.5 14.5z"
+       id="path1"
+       style="fill:#ffffff" />
+  </g>
+</svg>
