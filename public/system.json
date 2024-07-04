@@ -53,6 +53,10 @@
     }
   ],
   "socket": true,
+  "grid": {
+    "distance": 1,
+    "units": ""
+  },
   "gridDistance": 1,
   "gridUnits": "",
   "primaryTokenAttribute": "",
