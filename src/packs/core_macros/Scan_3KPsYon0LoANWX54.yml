@@ -6,7 +6,7 @@ img: systems/lancer/assets/icons/macro-icons/tech_quick.svg
 scope: global
 command: |-
   let targets = Array.from(game.user.targets);
-  const actorPermissionLevel = -1
+  const actorPermissionLevel = -1;
   function sort_features(a, b) {
     return b.system.origin.base - a.system.origin.base;
   }
@@ -14,10 +14,8 @@ command: |-
   function construct_features(items, origin) {
     let sc_list = ``;
     sc_list += `<p>${origin}</p>`;
-    let sc_features = items
-      .filter((f) => f.system.origin.name === origin)
-      .sort(sort_features);
-    sc_features.forEach((i) => {
+    let sc_features = items.filter(f => f.system.origin.name === origin).sort(sort_features);
+    sc_features.forEach(i => {
       let sc_name = ``;
       let sc_desc = ``;
       if (i.system.origin.name === "EXOTIC" && !i.system.origin.base) {
@@ -45,7 +43,7 @@ command: |-
     if (!items || items.length == 0) {
       sc_templates += "<p>NONE</p>";
     } else {
-      items.forEach((i) => {
+      items.forEach(i => {
         sc_templates += `<p>${i.name}</p>`;
       });
     }
@@ -54,11 +52,11 @@ command: |-
     return sc_templates;
   }
 
-  targets.forEach((target) => {
+  targets.forEach(target => {
     let actor = target.actor;
     if (actorPermissionLevel >= 0) {
-      const actorId = actor.system.parent._id
-      const parentActor = game.actors.get(actorId)
+      const actorId = actor.system.parent._id;
+      const parentActor = game.actors.get(actorId);
       parentActor.update({ ownership: { default: actorPermissionLevel } });
     }
     let items = actor.items;
@@ -100,31 +98,29 @@ command: |-
     <tr>
       <td>${actor.system.size}</td>
       <td>${actor.system.activations || 1}</td>
-      <td>${actor.system.structure.value || 0}/${
-        actor.system.structure.max || 0
-      }</td>
+      <td>${actor.system.structure.value || 0}/${actor.system.structure.max || 0}</td>
       <td>${actor.system.stress.value || 0}/${actor.system.stress.max || 0}</td>
     </tr>
   </table>`;
     console.log("Scanning", target);
-    const classes = items.filter((i) => i.is_npc_class());
+    const classes = items.filter(i => i.is_npc_class());
     let sc_class = !classes || classes.length === 0 ? "NONE" : classes[0].name;
     let sc_tier = actor.system.tier;
-    const templates = items.filter((i) => i.is_npc_template());
+    const templates = items.filter(i => i.is_npc_template());
     let sc_templates = construct_templates(templates);
     let sc_list = ``;
-    const features = items.filter((i) => i.is_npc_feature());
+    const features = items.filter(i => i.is_npc_feature());
     if (!features || features.length === 0) {
       sc_list += "<p>NONE</p>";
     } else {
       let sc_origins = [];
-      features.forEach((f) => {
+      features.forEach(f => {
         let origin = f.system.origin.name;
         if (!sc_origins.includes(origin)) {
           sc_origins.push(origin);
         }
       });
-      sc_origins.forEach((origin) => {
+      sc_origins.forEach(origin => {
         sc_list += construct_features(features, origin);
       });
     }
@@ -153,6 +149,6 @@ _stats:
   systemVersion: 2.1.5
   coreVersion: '11.315'
   createdTime: null
-  modifiedTime: 1720297619727
+  modifiedTime: 1720298842906
   lastModifiedBy: VTqqjv3vCWDxBIi5
 _key: '!macros!3KPsYon0LoANWX54'
