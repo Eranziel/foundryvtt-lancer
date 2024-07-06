@@ -19,7 +19,7 @@ This is necessary to import and export the macro from the compendium.
 ### 2. Rebuild the packs
 
 ```sh
-$ npx gulp build_packs
+$ npm run build:packs
 ```
 
 This ensures that the packs are up to date.
@@ -53,7 +53,7 @@ errors.
 ### 7. Extract the compendium
 
 ```sh
-$ npx gulp extract_packs
+$ npm run generate:yml
 ```
 
 This will extract the macros into yaml files for inclusion in the repository
@@ -61,7 +61,8 @@ allowing for easier tracking of the edit history of the individual macros.
 
 ### 8. Commit the modified macro
 
-Commit the new or modified file corresponding to the macro you were working on.
-Other files may show as changed after unpacking, but those can be ignored
-safely.
+Copy the macro yml file from the `dist/packs/core_macros/_source/` folder to
+`src/packs/core_macros`. Commit the new or modified file corresponding to the
+macro you were working on. Other files may show as changed after unpacking, but
+those can be ignored safely.
 
