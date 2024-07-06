@@ -5,9 +5,7 @@ author: jE81C9hyfb9evTbT
 img: systems/lancer/assets/icons/macro-icons/tech_quick.svg
 scope: global
 command: >-
-  //Sanity Check - Can this user even create folders and journal entries? Does
-  the folder journal folder exist?
-
+  //Sanity Check - Can this user even create folders and journal entries? Does the folder journal folder exist?
   if (JournalEntry.canUserCreate(game.user) == false) {
     ui.notifications.error(
       `${game.user.name} attempted to run SCAN to Journal but lacks proper permissions. Please correct and try again.`
@@ -15,96 +13,53 @@ command: >-
     return;
   }
 
-
   // ======================================================
-
   //Variables - Change these to control the macro
-
   // ======================================================
-
 
   // outputToChat - if set to true, also send the scan results to chat.
-
   const outputToChat = false;
-
-  //journalFolderName - The name, as displayed in foundry, of the folder you
-  want the journal entries to save to. Remember to enclose in quotes: 'example'
-
+  //journalFolderName - The name, as displayed in foundry, of the folder you want the journal entries to save to. Remember to enclose in quotes: 'example'
   const journalFolderName = "SCAN Database";
-
-  //nameTemplate - The text before the scan number and target name. Remember to
-  enclose in quotes: 'example'
-
+  //nameTemplate - The text before the scan number and target name. Remember to enclose in quotes: 'example'
   const nameTemplate = "SCAN: ";
-
-  //numberLength - The total length of the scan number, extra spaces are filled
-  with 0s. Setting this to 3, for example would produce scan number 001 on your
-  first scan. Integers only and no quotes.
-
+  //numberLength - The total length of the scan number, extra spaces are filled with 0s. Setting this to 3, for example would produce scan number 001 on your first scan. Integers only and no quotes.
   const numberLength = 3;
-
-  //startingNumber - If you want the scan number to start at something other
-  than 1 then change this. Integers only and no quotes.
-
+  //startingNumber - If you want the scan number to start at something other than 1 then change this. Integers only and no quotes.
   const startingNumber = 1;
-
-  //permissionLevel - This sets the default permission level of the scan entry.
-  This must be an integer between 0 and 3 where 0 is "None", 1 is "Limited", 2
-  is "Observer", and 3 is "Owner"
-
+  //permissionLevel - This sets the default permission level of the scan entry. This must be an integer between 0 and 3 where 0 is "None", 1 is "Limited", 2 is "Observer", and 3 is "Owner"
   const permissionLevel = 3;
-
-  //updateExisting - This macro will check if a scan journal entry exists and
-  update it, set this to false if you want it to create a new scan journal
-  entry.
-
+  //updateExisting - This macro will check if a scan journal entry exists and update it, set this to false if you want it to create a new scan journal entry.
   const updateExisting = true;
-
-  //targets - Gets the data for your currently selected target(s) and stores it
-  for later use. Do not change.
-
+  //actorPermissionLevel - This sets the permission level for the parent actor of a token. This must be an integer between -1 and 3 where -1 is "No change", 0 is "None", 1 is "Limited", 2 is "Observer", and 3 is "Owner"
+  const actorPermissionLevel = -1
+  //targets - Gets the data for your currently selected target(s) and stores it for later use. Do not change.
   let targets = Array.from(game.user.targets);
 
-
   // ===========================================================
-
   // DO NOT MODIFY BELOW HERE UNLESS YOU KNOW WHAT YOU'RE DOING
-
   // ===========================================================
 
-
   // ======================================================
-
   //Functions
-
   // ======================================================
 
-
-  //zeroPad - Adds a set number 0s to the fed number to produce a consistent
-  length number.
-
+  //zeroPad - Adds a set number 0s to the fed number to produce a consistent length number.
   function zeroPad(num, places) {
     return String(num).padStart(places, "0");
   }
 
-
   //findItemByType - To find specific items in the .item array.
-
   function findItemByType(array, itemType) {
     return array.filter((item) => item.type === itemType);
   }
 
-
   //sort_features - Sorts the feature list for the scanned target
-
   function sort_features(a, b) {
     return b.system.origin.base - a.system.origin.base;
   }
 
-
-  //construct_features - Builds out the list of selectable features for the
-  scanned target, includes support for exotics.
-
+  //construct_features - Builds out the list of selectable features for the scanned target, includes support for exotics.
   function construct_features(items, origin) {
     let sc_list = ``;
     sc_list += `<p>${origin}</p>`;
@@ -137,7 +92,6 @@ command: >-
     });
     return sc_list;
   }
-
 
   function construct_weapons(items, origin, tier) {
     let sc_weapons = ``;
@@ -226,9 +180,7 @@ command: >-
     return sc_weapons;
   }
 
-
   //construct_templates
-
   function construct_templates(items) {
     let templatefind = findItemByType(items, "npc_template");
     let sc_templates = ``;
@@ -244,11 +196,8 @@ command: >-
     return sc_templates;
   }
 
-
   // Find or create the Scans folder
-
   let journalFolder = game.folders.getName(journalFolderName);
-
   if (!journalFolder && journalFolderName.length > 0) {
     try {
       journalFolder = await Folder.create({
@@ -263,20 +212,21 @@ command: >-
     }
   }
 
-
   // Create the journal for each targeted token
-
   targets.forEach(async (target) => {
     let actor = target.actor;
+    if (actorPermissionLevel >= 0) {
+      const actorId = actor.system.parent._id
+      const parentActor = game.actors.get(actorId)
+      parentActor.update({ ownership: { default: actorPermissionLevel } });
+    }
     console.log("Scanning target:", actor);
     let items = actor.items;
     let hase_table_html = `
-  <p><img style="border: 3px dashed #000000; float: left; margin-right: 5px;
-  margin-left: 5px;" src="${
+  <p><img style="border: 3px dashed #000000; float: left; margin-right: 5px; margin-left: 5px;" src="${
       target.document.actor.img
     }" width="30%" height="30%" /></p>
   <div style="color: #000000; width: 65%; float: right; text-align: left;">
-
   <table>
     <tr>
       <th>HULL</th><th>AGI</th><th>SYS</th><th>ENG</th>

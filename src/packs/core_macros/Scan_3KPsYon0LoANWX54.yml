@@ -6,7 +6,7 @@ img: systems/lancer/assets/icons/macro-icons/tech_quick.svg
 scope: global
 command: |-
   let targets = Array.from(game.user.targets);
-
+  const actorPermissionLevel = -1
   function sort_features(a, b) {
     return b.system.origin.base - a.system.origin.base;
   }
@@ -56,6 +56,11 @@ command: |-
 
   targets.forEach((target) => {
     let actor = target.actor;
+    if (actorPermissionLevel >= 0) {
+      const actorId = actor.system.parent._id
+      const parentActor = game.actors.get(actorId)
+      parentActor.update({ ownership: { default: actorPermissionLevel } });
+    }
     let items = actor.items;
     let hase_table_html = `
   <table>
