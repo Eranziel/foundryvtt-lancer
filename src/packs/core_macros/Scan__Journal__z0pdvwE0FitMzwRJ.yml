@@ -48,11 +48,11 @@ command: >-
 
   const startingNumber = 1;
 
-  //permissionLevel - This sets the default permission level of the scan entry.
-  This must be an integer between 0 and 3 where 0 is "None", 1 is "Limited", 2
-  is "Observer", and 3 is "Owner"
+  //permissionLevel - This sets the default permission level of the scan entry
+  (from CONST.DOCUMENT_PERMISSION_LEVELS, use NONE, LIMITED, OBSERVER, or
+  OWNER).
 
-  const permissionLevel = 3;
+  const permissionLevel = CONST.DOCUMENT_PERMISSION_LEVELS.OWNER;
 
   //updateExisting - This macro will check if a scan journal entry exists and
   update it, set this to false if you want it to create a new scan journal
@@ -61,10 +61,10 @@ command: >-
   const updateExisting = true;
 
   //actorPermissionLevel - This sets the permission level for the parent actor
-  of a token. This must be an integer between -1 and 3 where -1 is "No change",
-  0 is "None", 1 is "Limited", 2 is "Observer", and 3 is "Owner"
+  of a token (from CONST.DOCUMENT_PERMISSION_LEVELS, use NONE, LIMITED,
+  OBSERVER, or OWNER). If set to `null`, no change is made.
 
-  const actorPermissionLevel = -1;
+  const actorPermissionLevel = null;
 
   //targets - Gets the data for your currently selected target(s) and stores it
   for later use. Do not change.
@@ -254,7 +254,7 @@ command: >-
 
   targets.forEach(async target => {
     let actor = target.actor;
-    if (actorPermissionLevel >= 0) {
+    if (actorPermissionLevel !== null) {
       const actorId = actor.system.parent._id;
       const parentActor = game.actors.get(actorId);
       parentActor.update({ ownership: { default: actorPermissionLevel } });
@@ -409,6 +409,6 @@ _stats:
   systemVersion: 2.1.5
   coreVersion: '11.315'
   createdTime: null
-  modifiedTime: 1720298820356
+  modifiedTime: 1720304546588
   lastModifiedBy: VTqqjv3vCWDxBIi5
 _key: '!macros!z0pdvwE0FitMzwRJ'

@@ -4,12 +4,21 @@ type: script
 author: 2a2IgZ2kiAqXSGqu
 img: systems/lancer/assets/icons/macro-icons/tech_quick.svg
 scope: global
-command: |-
+command: >-
   let targets = Array.from(game.user.targets);
-  const actorPermissionLevel = -1;
+
+
+  //actorPermissionLevel - This sets the permission level for the parent actor
+  of a token (from CONST.DOCUMENT_PERMISSION_LEVELS, use NONE, LIMITED,
+  OBSERVER, or OWNER). If set to `null`, no change is made.
+
+  const actorPermissionLevel = null;
+
+
   function sort_features(a, b) {
     return b.system.origin.base - a.system.origin.base;
   }
+
 
   function construct_features(items, origin) {
     let sc_list = ``;
@@ -38,6 +47,7 @@ command: |-
     return sc_list;
   }
 
+
   function construct_templates(items) {
     let sc_templates = ``;
     if (!items || items.length == 0) {
@@ -52,9 +62,10 @@ command: |-
     return sc_templates;
   }
 
+
   targets.forEach(target => {
     let actor = target.actor;
-    if (actorPermissionLevel >= 0) {
+    if (actorPermissionLevel !== null) {
       const actorId = actor.system.parent._id;
       const parentActor = game.actors.get(actorId);
       parentActor.update({ ownership: { default: actorPermissionLevel } });
@@ -149,6 +160,6 @@ _stats:
   systemVersion: 2.1.5
   coreVersion: '11.315'
   createdTime: null
-  modifiedTime: 1720298842906
+  modifiedTime: 1720304531394
   lastModifiedBy: VTqqjv3vCWDxBIi5
 _key: '!macros!3KPsYon0LoANWX54'
