@@ -6,7 +6,7 @@
    height="512"
    id="svg1"
    sodipodi:docname="role_striker.svg"
-   inkscape:version="1.3.1 (91b66b0783, 2023-11-16)"
+   inkscape:version="1.2.2 (732a01da63, 2022-12-09)"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns="http://www.w3.org/2000/svg"
@@ -23,21 +23,22 @@
      inkscape:pagecheckerboard="0"
      inkscape:deskcolor="#d1d1d1"
      inkscape:zoom="1.5742188"
-     inkscape:cx="256"
-     inkscape:cy="255.68238"
+     inkscape:cx="235.99007"
+     inkscape:cy="255.99999"
      inkscape:window-width="1920"
      inkscape:window-height="1009"
-     inkscape:window-x="3832"
+     inkscape:window-x="-8"
      inkscape:window-y="-8"
      inkscape:window-maximized="1"
-     inkscape:current-layer="svg1" />
+     inkscape:current-layer="svg1"
+     showgrid="false" />
   <g
-     transform="matrix(1 0 0 -1 0 960)"
+     transform="matrix(1,0,0,-1,0,896.5)"
      id="g1"
      style="fill:#ffffff">
     <path
        fill="currentColor"
-       d="M512 824l-102 -205l68 -69v-443l34 -34l34 34v443l68 69zM847 652l-166 -157l41 -88l-94 -257l21 -43l43 20l94 257l87 40zM177 652l-26 -228l87 -40l94 -257l43 -20l21 43l-93 257l40 88z"
+       d="M 512,824 410,619 478,550 V 107 l 34,-34 34,34 v 443 l 68,69 z M 847,652 681,495 l 41,-88 -94,-257 21,-43 43,20 94,257 87,40 z m -670,0 -26,-228 87,-40 94,-257 43,-20 21,43 -93,257 40,88 z"
        id="path1"
        style="fill:#ffffff" />
   </g>

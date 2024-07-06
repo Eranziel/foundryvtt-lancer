@@ -6,7 +6,7 @@
    height="512"
    id="svg1"
    sodipodi:docname="overcharge.svg"
-   inkscape:version="1.3.1 (91b66b0783, 2023-11-16)"
+   inkscape:version="1.2.2 (732a01da63, 2022-12-09)"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns="http://www.w3.org/2000/svg"
@@ -23,21 +23,22 @@
      inkscape:pagecheckerboard="0"
      inkscape:deskcolor="#d1d1d1"
      inkscape:zoom="1.5742188"
-     inkscape:cx="256"
-     inkscape:cy="255.68238"
+     inkscape:cx="235.99007"
+     inkscape:cy="255.99999"
      inkscape:window-width="1920"
      inkscape:window-height="1009"
-     inkscape:window-x="3832"
+     inkscape:window-x="-8"
      inkscape:window-y="-8"
      inkscape:window-maximized="1"
-     inkscape:current-layer="svg1" />
+     inkscape:current-layer="svg1"
+     showgrid="false" />
   <g
-     transform="matrix(1 0 0 -1 0 960)"
+     transform="matrix(1,0,0,-1,0,914.5)"
      id="g1"
      style="fill:#ffffff">
     <path
        fill="currentColor"
-       d="M611 653l194 29l-71 -183l144 -134l-188 -59l-15 -196l-163 110l-163 -110l-15 196l-188 59l144 134l-71 183l194 -29l99 170zM449 579l-124 18l46 -117l-92 -85l120 -38l9 -125l104 71l104 -71l10 125l119 38l-91 85l45 117l-124 -18l-63 108zM580 448q0 -28 -20 -48 t-48 -20v0q-28 0 -48 20t-20 48v0q0 28 20 48t48 20v0q28 0 48 -20t20 -48v0z"
+       d="M 611,653 805,682 734,499 878,365 690,306 675,110 512,220 349,110 334,306 146,365 290,499 219,682 413,653 512,823 Z m -162,-74 -124,18 46,-117 -92,-85 120,-38 9,-125 104,71 104,-71 10,125 119,38 -91,85 45,117 -124,-18 -63,108 z M 580,448 q 0,-28 -20,-48 -20,-20 -48,-20 v 0 q -28,0 -48,20 -20,20 -20,48 v 0 q 0,28 20,48 20,20 48,20 v 0 q 28,0 48,-20 20,-20 20,-48 z"
        id="path1"
        style="fill:#ffffff" />
   </g>

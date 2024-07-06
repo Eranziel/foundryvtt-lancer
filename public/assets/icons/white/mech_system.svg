@@ -6,7 +6,7 @@
    height="512"
    id="svg1"
    sodipodi:docname="mech_system.svg"
-   inkscape:version="1.3.1 (91b66b0783, 2023-11-16)"
+   inkscape:version="1.2.2 (732a01da63, 2022-12-09)"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns="http://www.w3.org/2000/svg"
@@ -23,21 +23,22 @@
      inkscape:pagecheckerboard="0"
      inkscape:deskcolor="#d1d1d1"
      inkscape:zoom="1.5742188"
-     inkscape:cx="256"
-     inkscape:cy="255.68238"
+     inkscape:cx="235.99007"
+     inkscape:cy="255.99999"
      inkscape:window-width="1920"
      inkscape:window-height="1009"
-     inkscape:window-x="3832"
+     inkscape:window-x="-8"
      inkscape:window-y="-8"
      inkscape:window-maximized="1"
-     inkscape:current-layer="svg1" />
+     inkscape:current-layer="svg1"
+     showgrid="false" />
   <g
-     transform="matrix(1 0 0 -1 0 960)"
+     transform="matrix(1,0,0,-1,0,896)"
      id="g1"
      style="fill:#ffffff">
     <path
        fill="currentColor"
-       d="M580 789l-61 -61l-51 51l-48 -48l51 -51l-71 -71l-52 51l-48 -48l51 -52l-71 -71l-51 51l-48 -48l51 -51l-61 -61v-34l239 -239h34l61 61l51 -51l48 48l-51 51l72 71l51 -51l48 48l-51 52l71 71l51 -51l48 48l-51 51l61 61v34l-239 239h-34zM580 619l103 -103l-239 -239 l-103 103z"
+       d="m 580,789 -61,-61 -51,51 -48,-48 51,-51 -71,-71 -52,51 -48,-48 51,-52 -71,-71 -51,51 -48,-48 51,-51 -61,-61 V 346 L 410,107 h 34 l 61,61 51,-51 48,48 -51,51 72,71 51,-51 48,48 -51,52 71,71 51,-51 48,48 -51,51 61,61 v 34 L 614,789 Z M 580,619 683,516 444,277 341,380 Z"
        id="path1"
        style="fill:#ffffff" />
   </g>

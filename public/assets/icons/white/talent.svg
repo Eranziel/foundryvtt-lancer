@@ -6,7 +6,7 @@
    height="512"
    id="svg1"
    sodipodi:docname="talent.svg"
-   inkscape:version="1.3.1 (91b66b0783, 2023-11-16)"
+   inkscape:version="1.2.2 (732a01da63, 2022-12-09)"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns="http://www.w3.org/2000/svg"
@@ -23,21 +23,22 @@
      inkscape:pagecheckerboard="0"
      inkscape:deskcolor="#d1d1d1"
      inkscape:zoom="1.5742188"
-     inkscape:cx="256"
-     inkscape:cy="255.68238"
+     inkscape:cx="235.99007"
+     inkscape:cy="255.99999"
      inkscape:window-width="1920"
      inkscape:window-height="1009"
-     inkscape:window-x="3832"
+     inkscape:window-x="-8"
      inkscape:window-y="-8"
      inkscape:window-maximized="1"
-     inkscape:current-layer="svg1" />
+     inkscape:current-layer="svg1"
+     showgrid="false" />
   <g
-     transform="matrix(1 0 0 -1 0 960)"
+     transform="matrix(1,0,0,-1,0,896)"
      id="g1"
      style="fill:#ffffff">
     <path
        fill="currentColor"
-       d="M512 707l-156 -157l156 -156l156 156zM307 502l-156 -156l156 -157l147 147v0l10 10zM717 502l-157 -156l10 -10v0l147 -147l156 157z"
+       d="M 512,707 356,550 512,394 668,550 Z M 307,502 151,346 307,189 454,336 v 0 l 10,10 z m 410,0 -157,-156 10,-10 v 0 L 717,189 873,346 Z"
        id="path1"
        style="fill:#ffffff" />
   </g>

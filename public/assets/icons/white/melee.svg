@@ -6,7 +6,7 @@
    height="512"
    id="svg1"
    sodipodi:docname="melee.svg"
-   inkscape:version="1.3.1 (91b66b0783, 2023-11-16)"
+   inkscape:version="1.2.2 (732a01da63, 2022-12-09)"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns="http://www.w3.org/2000/svg"
@@ -23,21 +23,22 @@
      inkscape:pagecheckerboard="0"
      inkscape:deskcolor="#d1d1d1"
      inkscape:zoom="1.5742188"
-     inkscape:cx="256"
-     inkscape:cy="255.68238"
+     inkscape:cx="235.99007"
+     inkscape:cy="255.99999"
      inkscape:window-width="1920"
      inkscape:window-height="1009"
-     inkscape:window-x="3832"
+     inkscape:window-x="-8"
      inkscape:window-y="-8"
      inkscape:window-maximized="1"
-     inkscape:current-layer="svg1" />
+     inkscape:current-layer="svg1"
+     showgrid="false" />
   <g
-     transform="matrix(1 0 0 -1 0 960)"
+     transform="matrix(1,0,0,-1,-22,918)"
      id="g1"
      style="fill:#ffffff">
     <path
        fill="currentColor"
-       d="M853 789l-170 -68l-308 -307l103 -103l307 308zM602 563l24 -25l-170 -170l-24 24zM215 199l205 205l48 -48l-205 -205zM365 472l171 -171l-48 -48l-171 171z"
+       d="M 853,789 683,721 375,414 478,311 785,619 Z M 602,563 626,538 456,368 432,392 Z M 215,199 420,404 468,356 263,151 Z M 365,472 536,301 488,253 317,424 Z"
        id="path1"
        style="fill:#ffffff" />
   </g>

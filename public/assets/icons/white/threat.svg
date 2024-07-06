@@ -6,7 +6,7 @@
    height="512"
    id="svg1"
    sodipodi:docname="threat.svg"
-   inkscape:version="1.3.1 (91b66b0783, 2023-11-16)"
+   inkscape:version="1.2.2 (732a01da63, 2022-12-09)"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns="http://www.w3.org/2000/svg"
@@ -23,21 +23,22 @@
      inkscape:pagecheckerboard="0"
      inkscape:deskcolor="#d1d1d1"
      inkscape:zoom="1.5742188"
-     inkscape:cx="256"
-     inkscape:cy="255.68238"
+     inkscape:cx="235.99007"
+     inkscape:cy="255.99999"
      inkscape:window-width="1920"
      inkscape:window-height="1009"
-     inkscape:window-x="3832"
+     inkscape:window-x="-8"
      inkscape:window-y="-8"
      inkscape:window-maximized="1"
-     inkscape:current-layer="svg1" />
+     inkscape:current-layer="svg1"
+     showgrid="false" />
   <g
-     transform="matrix(1 0 0 -1 0 960)"
+     transform="matrix(1,0,0,-1,0,896)"
      id="g1"
      style="fill:#ffffff">
     <path
        fill="currentColor"
-       d="M512 651l77 -77l113 113l-44 44l48 48l137 -136l-48 -48l-44 44l-114 -113l78 -78l-78 -77l114 -114l44 45l48 -49l-137 -136l-48 48l44 44l-113 113l-77 -77l-77 77l-114 -113l44 -44l-48 -48l-136 136l48 48l44 -44l114 114l-78 77l78 77l-114 114l-44 -44l-48 48 l136 136l48 -48l-44 -44l114 -114zM512 309l139 139l-139 139l-139 -139z"
+       d="m 512,651 77,-77 113,113 -44,44 48,48 137,-136 -48,-48 -44,44 -114,-113 78,-78 -78,-77 114,-114 44,45 48,-49 -137,-136 -48,48 44,44 -113,113 -77,-77 -77,77 -114,-113 44,-44 -48,-48 -136,136 48,48 44,-44 114,114 -78,77 78,77 -114,114 -44,-44 -48,48 136,136 48,-48 -44,-44 114,-114 z M 512,309 651,448 512,587 373,448 Z"
        id="path1"
        style="fill:#ffffff" />
   </g>

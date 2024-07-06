@@ -6,7 +6,7 @@
    height="512"
    id="svg1"
    sodipodi:docname="npc_template.svg"
-   inkscape:version="1.3.1 (91b66b0783, 2023-11-16)"
+   inkscape:version="1.2.2 (732a01da63, 2022-12-09)"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns="http://www.w3.org/2000/svg"
@@ -23,21 +23,22 @@
      inkscape:pagecheckerboard="0"
      inkscape:deskcolor="#d1d1d1"
      inkscape:zoom="1.5742188"
-     inkscape:cx="256"
-     inkscape:cy="255.68238"
+     inkscape:cx="235.99007"
+     inkscape:cy="255.99999"
      inkscape:window-width="1920"
      inkscape:window-height="1009"
-     inkscape:window-x="3832"
+     inkscape:window-x="-8"
      inkscape:window-y="-8"
      inkscape:window-maximized="1"
-     inkscape:current-layer="svg1" />
+     inkscape:current-layer="svg1"
+     showgrid="false" />
   <g
-     transform="matrix(1 0 0 -1 0 960)"
+     transform="matrix(1,0,0,-1,0,896)"
      id="g1"
      style="fill:#ffffff">
     <path
        fill="currentColor"
-       d="M512 858l-84 -72l-109 -8l-9 -110l-71 -83l71 -84l9 -110l109 -8l84 -72l84 72l109 8l9 110l71 84l-71 83l-9 110l-109 8zM512 755q70 0 120.5 -50t50.5 -121q0 -70 -50.5 -120t-120.5 -50t-120.5 50t-50.5 120q0 71 50.5 121t120.5 50zM512 687q-43 0 -72.5 -30 t-29.5 -73q0 -42 29.5 -72t72.5 -30t72.5 30t29.5 72q0 43 -29.5 73t-72.5 30v0zM375 335v-297l137 103l137 -103v297l-33 -2l-104 -89l-104 89z"
+       d="m 512,858 -84,-72 -109,-8 -9,-110 -71,-83 71,-84 9,-110 109,-8 84,-72 84,72 109,8 9,110 71,84 -71,83 -9,110 -109,8 z m 0,-103 q 70,0 120.5,-50 Q 683,655 683,584 683,514 632.5,464 582,414 512,414 442,414 391.5,464 341,514 341,584 q 0,71 50.5,121 50.5,50 120.5,50 z m 0,-68 q -43,0 -72.5,-30 -29.5,-30 -29.5,-73 0,-42 29.5,-72 29.5,-30 72.5,-30 43,0 72.5,30 29.5,30 29.5,72 0,43 -29.5,73 Q 555,687 512,687 Z M 375,335 V 38 L 512,141 649,38 v 297 l -33,-2 -104,-89 -104,89 z"
        id="path1"
        style="fill:#ffffff" />
   </g>

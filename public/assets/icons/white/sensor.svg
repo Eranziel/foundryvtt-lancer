@@ -6,7 +6,7 @@
    height="512"
    id="svg1"
    sodipodi:docname="sensor.svg"
-   inkscape:version="1.3.1 (91b66b0783, 2023-11-16)"
+   inkscape:version="1.2.2 (732a01da63, 2022-12-09)"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns="http://www.w3.org/2000/svg"
@@ -23,21 +23,22 @@
      inkscape:pagecheckerboard="0"
      inkscape:deskcolor="#d1d1d1"
      inkscape:zoom="1.5742188"
-     inkscape:cx="256"
-     inkscape:cy="255.68238"
+     inkscape:cx="235.99007"
+     inkscape:cy="255.99999"
      inkscape:window-width="1920"
      inkscape:window-height="1009"
-     inkscape:window-x="3832"
+     inkscape:window-x="-8"
      inkscape:window-y="-8"
      inkscape:window-maximized="1"
-     inkscape:current-layer="svg1" />
+     inkscape:current-layer="svg1"
+     showgrid="false" />
   <g
-     transform="matrix(1 0 0 -1 0 960)"
+     transform="matrix(1,0,0,-1,0.06060606,896.02564)"
      id="g1"
      style="fill:#ffffff">
     <path
        fill="currentColor"
-       d="M507 789q-60 -1 -118.5 -21t-108.5 -59q-38 -30 -67 -68q-28 -37 -46 -80t-26 -89q-7 -46 -3 -92h69q-9 78 21 151.5t95 124.5q40 32 88 48t97 17t97 -14q48 -16 90 -47q34 -25 59 -56q25 -32 40.5 -68.5t21.5 -76.5q6 -39 1 -79h69q4 48 -4 95t-27 90.5t-49 81.5 q-30 39 -70 68q-51 38 -110 56.5t-119 17.5v0zM510 653q-38 -1 -75.5 -13.5t-69.5 -37.5q-52 -40 -75 -100t-14 -122h69q-10 47 6.5 92.5t55.5 75.5q46 36 104 36.5t104 -34.5q40 -30 57 -76.5t7 -93.5h69q9 63 -15 123.5t-76 100.5q-33 25 -70.5 37t-76.5 12v0zM512 516 q-42 0 -72 -30t-30 -72q0 -34 19.5 -61t52.5 -37v-107l-72 -68v-34h204v34l-72 68v107q33 10 52.5 37t19.5 61q0 42 -30 72t-72 30v0z"
+       d="M 507,789 Q 447,788 388.5,768 330,748 280,709 q -38,-30 -67,-68 -28,-37 -46,-80 -18,-43 -26,-89 -7,-46 -3,-92 h 69 q -9,78 21,151.5 30,73.5 95,124.5 40,32 88,48 48,16 97,17 49,1 97,-14 48,-16 90,-47 34,-25 59,-56 25,-32 40.5,-68.5 Q 810,499 816,459 q 6,-39 1,-79 h 69 q 4,48 -4,95 -8,47 -27,90.5 -19,43.5 -49,81.5 -30,39 -70,68 -51,38 -110,56.5 Q 567,790 507,789 Z m 3,-136 Q 472,652 434.5,639.5 397,627 365,602 313,562 290,502 267,442 276,380 h 69 q -10,47 6.5,92.5 16.5,45.5 55.5,75.5 46,36 104,36.5 58,0.5 104,-34.5 40,-30 57,-76.5 17,-46.5 7,-93.5 h 69 q 9,63 -15,123.5 Q 709,564 657,604 624,629 586.5,641 549,653 510,653 Z m 2,-137 q -42,0 -72,-30 -30,-30 -30,-72 0,-34 19.5,-61 Q 449,326 482,316 V 209 l -72,-68 v -34 h 204 v 34 l -72,68 v 107 q 33,10 52.5,37 19.5,27 19.5,61 0,42 -30,72 -30,30 -72,30 z"
        id="path1"
        style="fill:#ffffff" />
   </g>

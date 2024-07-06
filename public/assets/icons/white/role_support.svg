@@ -6,7 +6,7 @@
    height="512"
    id="svg1"
    sodipodi:docname="role_support.svg"
-   inkscape:version="1.3.1 (91b66b0783, 2023-11-16)"
+   inkscape:version="1.2.2 (732a01da63, 2022-12-09)"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns="http://www.w3.org/2000/svg"
@@ -23,21 +23,22 @@
      inkscape:pagecheckerboard="0"
      inkscape:deskcolor="#d1d1d1"
      inkscape:zoom="1.5742188"
-     inkscape:cx="256"
-     inkscape:cy="255.68238"
+     inkscape:cx="235.99007"
+     inkscape:cy="255.99999"
      inkscape:window-width="1920"
      inkscape:window-height="1009"
-     inkscape:window-x="3832"
+     inkscape:window-x="-8"
      inkscape:window-y="-8"
      inkscape:window-maximized="1"
-     inkscape:current-layer="svg1" />
+     inkscape:current-layer="svg1"
+     showgrid="false" />
   <g
-     transform="matrix(1 0 0 -1 0 960)"
+     transform="matrix(1,0,0,-1,0,915)"
      id="g1"
      style="fill:#ffffff">
     <path
        fill="currentColor"
-       d="M157 428l355 355l355 -355l-96 -97l-259 259l-259 -259zM283 199l229 229l229 -229l-48 -48l-181 180l-181 -180z"
+       d="M 157,428 512,783 867,428 771,331 512,590 253,331 Z M 283,199 512,428 741,199 693,151 512,331 331,151 Z"
        id="path1"
        style="fill:#ffffff" />
   </g>

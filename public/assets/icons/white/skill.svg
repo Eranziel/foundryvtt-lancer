@@ -6,7 +6,7 @@
    height="512"
    id="svg1"
    sodipodi:docname="skill.svg"
-   inkscape:version="1.3.1 (91b66b0783, 2023-11-16)"
+   inkscape:version="1.2.2 (732a01da63, 2022-12-09)"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns="http://www.w3.org/2000/svg"
@@ -23,21 +23,22 @@
      inkscape:pagecheckerboard="0"
      inkscape:deskcolor="#d1d1d1"
      inkscape:zoom="1.5742188"
-     inkscape:cx="256"
-     inkscape:cy="255.68238"
+     inkscape:cx="235.99007"
+     inkscape:cy="255.99999"
      inkscape:window-width="1920"
      inkscape:window-height="1009"
-     inkscape:window-x="3832"
+     inkscape:window-x="-8"
      inkscape:window-y="-8"
      inkscape:window-maximized="1"
-     inkscape:current-layer="svg1" />
+     inkscape:current-layer="svg1"
+     showgrid="false" />
   <g
-     transform="matrix(1 0 0 -1 0 960)"
+     transform="matrix(1,0,0,-1,0,896)"
      id="g1"
      style="fill:#ffffff">
     <path
        fill="currentColor"
-       d="M512 789q-71 0 -133 -27q-62 -26 -108.5 -72.5t-72.5 -108.5q-27 -62 -27 -133q0 -70 27 -133q26 -62 72.5 -108.5t108.5 -72.5q62 -27 133 -27q70 0 133 27q62 26 108.5 72.5t72.5 108.5q27 63 27 133q0 71 -27 133q-26 62 -72.5 108.5t-108.5 72.5q-63 27 -133 27v0z M512 721q57 0 106 -21q50 -22 87 -59t59 -86q21 -50 21 -107t-21 -106q-22 -50 -59 -87t-87 -59q-49 -21 -106 -21t-106 21q-50 22 -87 59t-59 87q-21 49 -21 106t21 107q22 49 59 86t87 59q49 21 106 21zM512 619l-50 -102l-112 -16l81 -79l-19 -112l100 53l100 -53 l-19 112l81 79l-112 16z"
+       d="M 512,789 Q 441,789 379,762 317,736 270.5,689.5 224,643 198,581 171,519 171,448 171,378 198,315 224,253 270.5,206.5 317,160 379,134 q 62,-27 133,-27 70,0 133,27 62,26 108.5,72.5 Q 800,253 826,315 q 27,63 27,133 0,71 -27,133 -26,62 -72.5,108.5 Q 707,736 645,762 582,789 512,789 Z m 0,-68 q 57,0 106,-21 50,-22 87,-59 37,-37 59,-86 21,-50 21,-107 0,-57 -21,-106 -22,-50 -59,-87 -37,-37 -87,-59 -49,-21 -106,-21 -57,0 -106,21 -50,22 -87,59 -37,37 -59,87 -21,49 -21,106 0,57 21,107 22,49 59,86 37,37 87,59 49,21 106,21 z m 0,-102 -50,-102 -112,-16 81,-79 -19,-112 100,53 100,-53 -19,112 81,79 -112,16 z"
        id="path1"
        style="fill:#ffffff" />
   </g>

@@ -6,7 +6,7 @@
    height="512"
    id="svg1"
    sodipodi:docname="damage_heat.svg"
-   inkscape:version="1.3.1 (91b66b0783, 2023-11-16)"
+   inkscape:version="1.2.2 (732a01da63, 2022-12-09)"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns="http://www.w3.org/2000/svg"
@@ -23,21 +23,22 @@
      inkscape:pagecheckerboard="0"
      inkscape:deskcolor="#d1d1d1"
      inkscape:zoom="1.6230469"
-     inkscape:cx="255.69194"
-     inkscape:cy="256"
+     inkscape:cx="236.28399"
+     inkscape:cy="256.30806"
      inkscape:window-width="1920"
      inkscape:window-height="1009"
-     inkscape:window-x="3832"
+     inkscape:window-x="-8"
      inkscape:window-y="-8"
      inkscape:window-maximized="1"
-     inkscape:current-layer="svg1" />
+     inkscape:current-layer="svg1"
+     showgrid="false" />
   <g
-     transform="matrix(1 0 0 -1 0 960)"
+     transform="matrix(1,0,0,-1,-68,896)"
      id="g1"
      style="fill:#ffffff">
     <path
        fill="currentColor"
-       d="M512 858q-43 0 -72.5 -30t-29.5 -73v-410q-33 -24 -51 -60t-18 -76q0 -71 50 -121t121 -50t121 50t50 121q0 40 -18 76t-51 60v410q0 43 -29.5 73t-72.5 30zM478 550h68v-245q31 -10 49.5 -36.5t18.5 -59.5q0 -42 -30 -72t-72 -30t-72 30t-30 72q0 33 18.5 59.5 t49.5 36.5v245zM683 516h136v-68h-136v68v0zM683 687h136v-68h-136v68z"
+       d="M 512,858 Q 469,858 439.5,828 410,798 410,755 V 345 q -33,-24 -51,-60 -18,-36 -18,-76 0,-71 50,-121 50,-50 121,-50 71,0 121,50 50,50 50,121 0,40 -18,76 -18,36 -51,60 v 410 q 0,43 -29.5,73 Q 555,858 512,858 Z M 478,550 h 68 V 305 Q 577,295 595.5,268.5 614,242 614,209 q 0,-42 -30,-72 -30,-30 -72,-30 -42,0 -72,30 -30,30 -30,72 0,33 18.5,59.5 Q 447,295 478,305 Z M 683,516 H 819 V 448 H 683 Z m 0,171 H 819 V 619 H 683 Z"
        id="path1"
        style="fill:#ffffff" />
   </g>

@@ -6,7 +6,7 @@
    height="512"
    id="svg1"
    sodipodi:docname="grenade.svg"
-   inkscape:version="1.3.1 (91b66b0783, 2023-11-16)"
+   inkscape:version="1.2.2 (732a01da63, 2022-12-09)"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns="http://www.w3.org/2000/svg"
@@ -23,21 +23,22 @@
      inkscape:pagecheckerboard="0"
      inkscape:deskcolor="#d1d1d1"
      inkscape:zoom="1.5742188"
-     inkscape:cx="256"
-     inkscape:cy="255.68238"
+     inkscape:cx="235.99007"
+     inkscape:cy="255.99999"
      inkscape:window-width="1920"
      inkscape:window-height="1009"
-     inkscape:window-x="3832"
+     inkscape:window-x="-8"
      inkscape:window-y="-8"
      inkscape:window-maximized="1"
-     inkscape:current-layer="svg1" />
+     inkscape:current-layer="svg1"
+     showgrid="false" />
   <g
-     transform="matrix(1 0 0 -1 0 960)"
+     transform="matrix(1,0,0,-1,-34,896)"
      id="g1"
      style="fill:#ffffff">
     <path
        fill="currentColor"
-       d="M307 755v-68h68v-68h205v34l137 -171v-205l34 -34h34v239l-136 182v91h-342zM375 550q-51 -51 -61 -107q-11 -56 2 -110.5t40 -103.5q28 -50 54 -88h136q26 38 53 88q28 49 41 103.5t2 110.5t-62 107h-205z"
+       d="m 307,755 v -68 h 68 v -68 h 205 v 34 L 717,482 V 277 l 34,-34 h 34 V 482 L 649,664 v 91 z M 375,550 Q 324,499 314,443 303,387 316,332.5 329,278 356,229 q 28,-50 54,-88 h 136 q 26,38 53,88 28,49 41,103.5 13,54.5 2,110.5 -11,56 -62,107 z"
        id="path1"
        style="fill:#ffffff" />
   </g>

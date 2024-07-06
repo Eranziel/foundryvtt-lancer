@@ -6,7 +6,7 @@
    height="512"
    id="svg1"
    sodipodi:docname="repair.svg"
-   inkscape:version="1.3.1 (91b66b0783, 2023-11-16)"
+   inkscape:version="1.2.2 (732a01da63, 2022-12-09)"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns="http://www.w3.org/2000/svg"
@@ -23,21 +23,22 @@
      inkscape:pagecheckerboard="0"
      inkscape:deskcolor="#d1d1d1"
      inkscape:zoom="1.5742188"
-     inkscape:cx="256"
-     inkscape:cy="255.68238"
+     inkscape:cx="235.99007"
+     inkscape:cy="255.99999"
      inkscape:window-width="1920"
      inkscape:window-height="1009"
-     inkscape:window-x="1912"
+     inkscape:window-x="-8"
      inkscape:window-y="-8"
      inkscape:window-maximized="1"
-     inkscape:current-layer="svg1" />
+     inkscape:current-layer="svg1"
+     showgrid="false" />
   <g
-     transform="matrix(1 0 0 -1 0 960)"
+     transform="matrix(1,0,0,-1,0,896)"
      id="g1"
      style="fill:#ffffff">
     <path
        fill="currentColor"
-       d="M218 254l136 136q26 26 34.5 85.5t33.5 85.5q26 26 55.5 33.5t81.5 0.5l-89 -87l15 -89l88 -15l88 89q7 -46 -0.5 -78.5t-33.5 -58.5q-25 -25 -85 -33.5t-85 -34.5l-82 -79h-68zM842 638v-380l-330 -191l-330 191v380l330 191zM251 599v-302l261 -151l262 151v302 l-262 151z"
+       d="m 218,254 136,136 q 26,26 34.5,85.5 8.5,59.5 33.5,85.5 26,26 55.5,33.5 29.5,7.5 81.5,0.5 l -89,-87 15,-89 88,-15 88,89 q 7,-46 -0.5,-78.5 Q 653,382 627,356 602,331 542,322.5 482,314 457,288 L 375,209 H 307 Z M 842,638 V 258 L 512,67 182,258 V 638 L 512,829 Z M 251,599 V 297 L 512,146 774,297 V 599 L 512,750 Z"
        id="path1"
        style="fill:#ffffff" />
   </g>

@@ -6,7 +6,7 @@
    height="512"
    id="svg1"
    sodipodi:docname="rank_3.svg"
-   inkscape:version="1.3.1 (91b66b0783, 2023-11-16)"
+   inkscape:version="1.2.2 (732a01da63, 2022-12-09)"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns="http://www.w3.org/2000/svg"
@@ -23,21 +23,22 @@
      inkscape:pagecheckerboard="0"
      inkscape:deskcolor="#d1d1d1"
      inkscape:zoom="1.5742188"
-     inkscape:cx="256"
-     inkscape:cy="255.68238"
+     inkscape:cx="235.99007"
+     inkscape:cy="255.99999"
      inkscape:window-width="1920"
      inkscape:window-height="1009"
-     inkscape:window-x="1912"
+     inkscape:window-x="-8"
      inkscape:window-y="-8"
      inkscape:window-maximized="1"
-     inkscape:current-layer="svg1" />
+     inkscape:current-layer="svg1"
+     showgrid="false" />
   <g
-     transform="matrix(1 0 0 -1 0 960)"
+     transform="matrix(1,0,0,-1,0,896)"
      id="g1"
      style="fill:#ffffff">
     <path
        fill="currentColor"
-       d="M510 18l-327 168v692h658v-692zM215 205l295 -151l299 152v640h-594v-641v0zM591 542l-29 92l77 58h-96l-31 92l-31 -91l-96 -1l77 -58l-29 -92l79 56zM508 337l197 100v100l-196 -100l-190 97v-100zM509 272l-190 97v-100l189 -97l197 100v99z"
+       d="M 510,18 183,186 V 878 H 841 V 186 Z M 215,205 510,54 809,206 V 846 H 215 V 205 Z m 376,337 -29,92 77,58 h -96 l -31,92 -31,-91 -96,-1 77,-58 -29,-92 79,56 z M 508,337 705,437 V 537 L 509,437 319,534 V 434 Z m 1,-65 -190,97 V 269 l 189,-97 197,100 v 99 z"
        id="path1"
        style="fill:#ffffff" />
   </g>

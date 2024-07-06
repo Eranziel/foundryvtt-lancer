@@ -6,7 +6,7 @@
    height="512"
    id="svg1"
    sodipodi:docname="damage_variable.svg"
-   inkscape:version="1.3.1 (91b66b0783, 2023-11-16)"
+   inkscape:version="1.2.2 (732a01da63, 2022-12-09)"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns="http://www.w3.org/2000/svg"
@@ -23,21 +23,22 @@
      inkscape:pagecheckerboard="0"
      inkscape:deskcolor="#d1d1d1"
      inkscape:zoom="1.6230469"
-     inkscape:cx="255.69194"
-     inkscape:cy="256"
+     inkscape:cx="236.28399"
+     inkscape:cy="256.30806"
      inkscape:window-width="1920"
      inkscape:window-height="1009"
-     inkscape:window-x="3832"
+     inkscape:window-x="-8"
      inkscape:window-y="-8"
      inkscape:window-maximized="1"
-     inkscape:current-layer="svg1" />
+     inkscape:current-layer="svg1"
+     showgrid="false" />
   <g
-     transform="matrix(1 0 0 -1 0 960)"
+     transform="matrix(1,0,0,-1,-1,898.5)"
      id="g1"
      style="fill:#ffffff">
     <path
        fill="currentColor"
-       d="M375 214q0 -42 -29.5 -71.5t-70.5 -29.5v0q-41 0 -70.5 29.5t-29.5 71.5v0q0 42 29.5 71.5t70.5 29.5v0q41 0 70.5 -29.5t29.5 -71.5v0zM851 687q0 -42 -29.5 -71.5t-70.5 -29.5v0q-41 0 -70.5 29.5t-29.5 71.5v0q0 42 29.5 71.5t70.5 29.5v0q41 0 70.5 -29.5t29.5 -71.5 v0zM612 448q0 -42 -29.5 -71.5t-70.5 -29.5v0q-41 0 -70.5 29.5t-29.5 71.5v0q0 42 29.5 71.5t70.5 29.5v0q41 0 70.5 -29.5t29.5 -71.5v0z"
+       d="M 375,214 Q 375,172 345.5,142.5 316,113 275,113 v 0 q -41,0 -70.5,29.5 Q 175,172 175,214 v 0 q 0,42 29.5,71.5 Q 234,315 275,315 v 0 q 41,0 70.5,-29.5 Q 375,256 375,214 Z M 851,687 Q 851,645 821.5,615.5 792,586 751,586 v 0 q -41,0 -70.5,29.5 Q 651,645 651,687 v 0 q 0,42 29.5,71.5 Q 710,788 751,788 v 0 q 41,0 70.5,-29.5 Q 851,729 851,687 Z M 612,448 Q 612,406 582.5,376.5 553,347 512,347 v 0 q -41,0 -70.5,29.5 Q 412,406 412,448 v 0 q 0,42 29.5,71.5 Q 471,549 512,549 v 0 q 41,0 70.5,-29.5 Q 612,490 612,448 Z"
        id="path1"
        style="fill:#ffffff" />
   </g>

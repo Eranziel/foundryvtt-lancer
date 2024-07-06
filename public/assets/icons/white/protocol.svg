@@ -6,7 +6,7 @@
    height="512"
    id="svg1"
    sodipodi:docname="protocol.svg"
-   inkscape:version="1.3.1 (91b66b0783, 2023-11-16)"
+   inkscape:version="1.2.2 (732a01da63, 2022-12-09)"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns="http://www.w3.org/2000/svg"
@@ -23,21 +23,22 @@
      inkscape:pagecheckerboard="0"
      inkscape:deskcolor="#d1d1d1"
      inkscape:zoom="1.5742188"
-     inkscape:cx="256"
-     inkscape:cy="255.68238"
+     inkscape:cx="235.99007"
+     inkscape:cy="255.99999"
      inkscape:window-width="1920"
      inkscape:window-height="1009"
-     inkscape:window-x="3832"
+     inkscape:window-x="-8"
      inkscape:window-y="-8"
      inkscape:window-maximized="1"
-     inkscape:current-layer="svg1" />
+     inkscape:current-layer="svg1"
+     showgrid="false" />
   <g
-     transform="matrix(1 0 0 -1 0 960)"
+     transform="matrix(1,0,0,-1,0,896)"
      id="g1"
      style="fill:#ffffff">
     <path
        fill="currentColor"
-       d="M512 755q-61 0 -117 -25t-98 -67t-67 -98t-25 -117h68q0 46 20 89t53.5 76.5t76.5 53.5t89 20q48 0 92.5 -22t77.5 -58l-68 -22l171 -69v196l-45 -63q-43 48 -102.5 77t-125.5 29v0zM512 516v0v0q-28 0 -48 -20t-20 -48v0v0v0v0v0q0 -28 20 -48t48 -20v0v0v0v0v0 q28 0 48 20t20 48v0v0v0v0v0q0 28 -20 48t-48 20v0v0v0v0zM751 448v0q0 -46 -20 -89t-53.5 -76.5t-76.5 -53.5t-89 -20q-48 0 -92.5 22t-77.5 58l68 22l-171 69v-196l45 63q43 -48 102.5 -77t125.5 -29q61 0 117 25t98 67t67 98t25 117v0h-68z"
+       d="m 512,755 q -61,0 -117,-25 -56,-25 -98,-67 -42,-42 -67,-98 -25,-56 -25,-117 h 68 q 0,46 20,89 20,43 53.5,76.5 33.5,33.5 76.5,53.5 43,20 89,20 48,0 92.5,-22 Q 649,643 682,607 L 614,585 785,516 V 712 L 740,649 Q 697,697 637.5,726 578,755 512,755 Z m 0,-239 v 0 0 q -28,0 -48,-20 -20,-20 -20,-48 v 0 0 0 0 0 q 0,-28 20,-48 20,-20 48,-20 v 0 0 0 0 0 q 28,0 48,20 20,20 20,48 v 0 0 0 0 0 q 0,28 -20,48 -20,20 -48,20 v 0 0 0 z m 239,-68 v 0 Q 751,402 731,359 711,316 677.5,282.5 644,249 601,229 558,209 512,209 464,209 419.5,231 375,253 342,289 l 68,22 -171,69 V 184 l 45,63 q 43,-48 102.5,-77 59.5,-29 125.5,-29 61,0 117,25 56,25 98,67 42,42 67,98 25,56 25,117 v 0 z"
        id="path1"
        style="fill:#ffffff" />
   </g>
