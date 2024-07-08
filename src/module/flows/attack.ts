@@ -12,6 +12,7 @@ import { LancerFlowState } from "./interfaces";
 import { openSlidingHud } from "../helpers/slidinghud";
 import { Flow, FlowState, Step } from "./flow";
 import { AttackType, RangeType, WeaponType } from "../enums";
+import { Range } from "../models/bits/range";
 
 const lp = LANCER.log_prefix;
 
@@ -204,7 +205,13 @@ export async function initAttackData(
       let profile = state.item.system.active_profile;
       state.data.attack_type = profile.type === WeaponType.Melee ? AttackType.Melee : AttackType.Ranged;
       state.data.flat_bonus = state.actor.system.grit;
-      // TODO: check bonuses for flat attack bonus
+      // Add a +1 flat bonus for Death's Heads. This data isn't in lancer-data, so has to be hard-coded.
+      if (state.actor.system.loadout.frame?.value?.system.lid == "mf_deaths_head") {
+        // Death's Head gets +1 to all ranged attacks, which means if there's a non-threat range, it gets the bonus
+        if (state.item.system.active_profile.range.some(r => r.type !== RangeType.Threat)) {
+          state.data.flat_bonus += 1;
+        }
+      }
       state.data.acc_diff = options?.acc_diff
         ? AccDiffData.fromObject(options.acc_diff)
         : AccDiffData.fromParams(state.item, profile.all_tags, state.data.title, Array.from(game.user!.targets));
