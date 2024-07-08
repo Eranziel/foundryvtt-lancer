@@ -211,6 +211,8 @@ export async function noStructureRemaining(
   state.data.title = structTableTitles[0];
   state.data.desc = structTableDescriptions(0, 0);
   state.data.result = undefined;
+  // Subtract the hp which was added in the preStructureRollChecks step.
+  await actor.update({ "system.hp.value": actor.system.hp.value - actor.system.hp.max });
 
   printCard(state);
   // This flow is finished now, so we return false to stop the flow.
@@ -238,6 +240,8 @@ export async function checkStructureMultipleOnes(
   if (one_count > 1) {
     state.data.title = structTableTitles[0];
     state.data.desc = structTableDescriptions(roll.total ?? 1, 1);
+    // Subtract the hp which was added in the preStructureRollChecks step.
+    await actor.update({ "system.hp.value": actor.system.hp.value - actor.system.hp.max });
   }
 
   return true;
