@@ -3,6 +3,9 @@ import { modAction } from "../../action/action-tracker";
 import { LancerActor } from "../../actor/lancer-actor";
 import { ActionTrackFlow } from "../../flows/action-track";
 import { getActionTrackerOptions, getAutomationOptions } from "../../settings";
+import { LANCER } from "../../config";
+
+const lp = LANCER.log_prefix;
 
 export async function handleCombatUpdate(...[combat, changed]: Parameters<Hooks.UpdateDocument<typeof Combat>>) {
   if (game.user?.isGM) {
@@ -28,7 +31,7 @@ export async function handleCombatUpdate(...[combat, changed]: Parameters<Hooks.
 }
 
 function processStartTurn(actor: LancerActor) {
-  console.log(`Processing start-of-turn combat automation for ${actor.name}`);
+  console.log(`${lp} Processing start-of-turn combat automation for ${actor.name}`);
 
   const automation = getAutomationOptions();
 
@@ -51,10 +54,15 @@ function processStartTurn(actor: LancerActor) {
 }
 
 function processEndTurn(actor: LancerActor) {
-  console.log(`Processing end-of-turn combat automation for ${actor.name}`);
+  console.log(`${lp} Processing end-of-turn combat automation for ${actor.name}`);
 
   // Dump extra actions.
   modAction(actor, true);
+
+  // Handle Burn
+  if (actor.system.burn > 0) {
+    actor.beginBurnFlow("BURN :: ENG");
+  }
 
   // Print chat messages.
   if (getActionTrackerOptions().printMessages) {

@@ -32,6 +32,7 @@ import { NPCRechargeFlow } from "../flows/npc";
 import * as lancer_data from "@massif/lancer-data";
 import { StabilizeFlow } from "../flows/stabilize";
 import { rollEvalSync } from "../util/misc";
+import { BurnFlow } from "../flows/burn";
 
 const lp = LANCER.log_prefix;
 
@@ -885,6 +886,11 @@ export class LancerActor extends Actor {
 
   async beginStatFlow(path: string, title?: string): Promise<boolean> {
     const flow = new StatRollFlow(this, { path, title });
+    return await flow.begin();
+  }
+
+  async beginBurnFlow(title?: string): Promise<boolean> {
+    const flow = new BurnFlow(this, { title });
     return await flow.begin();
   }
 

@@ -2,6 +2,7 @@ import { ActionTrackFlow, registerActionTrackSteps } from "./action-track";
 import { ActivationFlow, registerActivationSteps } from "./activation";
 import { BasicAttackFlow, registerAttackSteps, WeaponAttackFlow } from "./attack";
 import { BondPowerFlow, registerBondPowerSteps } from "./bond";
+import { registerBurnSteps } from "./burn";
 import { CascadeFlow, registerCascadeSteps } from "./cascade";
 // import { DamageApplyFlow } from "./damage";
 import type { Flow, FlowState, Step } from "./flow";
@@ -54,6 +55,7 @@ export function registerFlows() {
   registerActivationSteps(flowSteps);
   registerCoreActiveSteps(flowSteps);
   registerStatSteps(flowSteps);
+  registerBurnSteps(flowSteps);
   registerStructureSteps(flowSteps);
   registerOverheatSteps(flowSteps);
   registerCascadeSteps(flowSteps);
