@@ -4,20 +4,27 @@ type: script
 author: 2a2IgZ2kiAqXSGqu
 img: systems/lancer/assets/icons/macro-icons/tech_quick.svg
 scope: global
-command: |-
+command: >-
   let targets = Array.from(game.user.targets);
+
+
+  //actorPermissionLevel - This sets the permission level for the parent actor
+  of a token (from CONST.DOCUMENT_PERMISSION_LEVELS, use NONE, LIMITED,
+  OBSERVER, or OWNER). If set to `null`, no change is made.
+
+  const actorPermissionLevel = null;
+
 
   function sort_features(a, b) {
     return b.system.origin.base - a.system.origin.base;
   }
 
+
   function construct_features(items, origin) {
     let sc_list = ``;
     sc_list += `<p>${origin}</p>`;
-    let sc_features = items
-      .filter((f) => f.system.origin.name === origin)
-      .sort(sort_features);
-    sc_features.forEach((i) => {
+    let sc_features = items.filter(f => f.system.origin.name === origin).sort(sort_features);
+    sc_features.forEach(i => {
       let sc_name = ``;
       let sc_desc = ``;
       if (i.system.origin.name === "EXOTIC" && !i.system.origin.base) {
@@ -40,12 +47,13 @@ command: |-
     return sc_list;
   }
 
+
   function construct_templates(items) {
     let sc_templates = ``;
     if (!items || items.length == 0) {
       sc_templates += "<p>NONE</p>";
     } else {
-      items.forEach((i) => {
+      items.forEach(i => {
         sc_templates += `<p>${i.name}</p>`;
       });
     }
@@ -54,8 +62,14 @@ command: |-
     return sc_templates;
   }
 
-  targets.forEach((target) => {
+
+  targets.forEach(target => {
     let actor = target.actor;
+    if (actorPermissionLevel !== null) {
+      const actorId = actor.system.parent._id;
+      const parentActor = game.actors.get(actorId);
+      parentActor.update({ ownership: { default: actorPermissionLevel } });
+    }
     let items = actor.items;
     let hase_table_html = `
   <table>
@@ -95,31 +109,29 @@ command: |-
     <tr>
       <td>${actor.system.size}</td>
       <td>${actor.system.activations || 1}</td>
-      <td>${actor.system.structure.value || 0}/${
-        actor.system.structure.max || 0
-      }</td>
+      <td>${actor.system.structure.value || 0}/${actor.system.structure.max || 0}</td>
       <td>${actor.system.stress.value || 0}/${actor.system.stress.max || 0}</td>
     </tr>
   </table>`;
     console.log("Scanning", target);
-    const classes = items.filter((i) => i.is_npc_class());
+    const classes = items.filter(i => i.is_npc_class());
     let sc_class = !classes || classes.length === 0 ? "NONE" : classes[0].name;
     let sc_tier = actor.system.tier;
-    const templates = items.filter((i) => i.is_npc_template());
+    const templates = items.filter(i => i.is_npc_template());
     let sc_templates = construct_templates(templates);
     let sc_list = ``;
-    const features = items.filter((i) => i.is_npc_feature());
+    const features = items.filter(i => i.is_npc_feature());
     if (!features || features.length === 0) {
       sc_list += "<p>NONE</p>";
     } else {
       let sc_origins = [];
-      features.forEach((f) => {
+      features.forEach(f => {
         let origin = f.system.origin.name;
         if (!sc_origins.includes(origin)) {
           sc_origins.push(origin);
         }
       });
-      sc_origins.forEach((origin) => {
+      sc_origins.forEach(origin => {
         sc_list += construct_features(features, origin);
       });
     }
@@ -145,9 +157,9 @@ ownership:
   2a2IgZ2kiAqXSGqu: 3
 _stats:
   systemId: lancer
-  systemVersion: 2.0.0
-  coreVersion: "11.315"
+  systemVersion: 2.1.5
+  coreVersion: '11.315'
   createdTime: null
-  modifiedTime: 1717340495229
-  lastModifiedBy: RyAORVJNmdo1gq2Z
-_key: "!macros!3KPsYon0LoANWX54"
+  modifiedTime: 1720304531394
+  lastModifiedBy: VTqqjv3vCWDxBIi5
+_key: '!macros!3KPsYon0LoANWX54'

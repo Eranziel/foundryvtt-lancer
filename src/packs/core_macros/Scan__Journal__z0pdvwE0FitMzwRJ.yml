@@ -48,17 +48,23 @@ command: >-
 
   const startingNumber = 1;
 
-  //permissionLevel - This sets the default permission level of the scan entry.
-  This must be an integer between 0 and 3 where 0 is "None", 1 is "Limited", 2
-  is "Observer", and 3 is "Owner"
+  //permissionLevel - This sets the default permission level of the scan entry
+  (from CONST.DOCUMENT_PERMISSION_LEVELS, use NONE, LIMITED, OBSERVER, or
+  OWNER).
 
-  const permissionLevel = 3;
+  const permissionLevel = CONST.DOCUMENT_PERMISSION_LEVELS.OWNER;
 
   //updateExisting - This macro will check if a scan journal entry exists and
   update it, set this to false if you want it to create a new scan journal
   entry.
 
   const updateExisting = true;
+
+  //actorPermissionLevel - This sets the permission level for the parent actor
+  of a token (from CONST.DOCUMENT_PERMISSION_LEVELS, use NONE, LIMITED,
+  OBSERVER, or OWNER). If set to `null`, no change is made.
+
+  const actorPermissionLevel = null;
 
   //targets - Gets the data for your currently selected target(s) and stores it
   for later use. Do not change.
@@ -91,7 +97,7 @@ command: >-
   //findItemByType - To find specific items in the .item array.
 
   function findItemByType(array, itemType) {
-    return array.filter((item) => item.type === itemType);
+    return array.filter(item => item.type === itemType);
   }
 
 
@@ -108,14 +114,8 @@ command: >-
   function construct_features(items, origin) {
     let sc_list = ``;
     sc_list += `<p>${origin}</p>`;
-    let sc_features = items
-      .filter(
-        (f) =>
-          f.system.origin &&
-          f.system.origin.name === origin
-      )
-      .sort(sort_features);
-    sc_features.forEach((i) => {
+    let sc_features = items.filter(f => f.system.origin && f.system.origin.name === origin).sort(sort_features);
+    sc_features.forEach(i => {
       let sc_name = ``;
       let sc_desc = ``;
       if (i.system.origin.name == "EXOTIC" && !i.system.origin.base) {
@@ -142,14 +142,9 @@ command: >-
   function construct_weapons(items, origin, tier) {
     let sc_weapons = ``;
     let sc_features = items
-      .filter(
-        (i) =>
-          i.system.origin &&
-          i.system.origin.name === origin &&
-          i.system.type === "Weapon"
-      )
+      .filter(i => i.system.origin && i.system.origin.name === origin && i.system.type === "Weapon")
       .sort(sort_features);
-    sc_features.forEach((i) => {
+    sc_features.forEach(i => {
       let sc_name = ``;
       let sc_desc = ``;
       let sc_entry = ``;
@@ -161,8 +156,7 @@ command: >-
       }
       sc_weapons += `<table>`;
       if (i.system.origin.name == "EXOTIC" && !i.system.origin.base) {
-        sc_name =
-          '<tr><th><code class="horus--subtle">UNKNOWN EXOTIC WEAPON</code></th></tr>';
+        sc_name = '<tr><th><code class="horus--subtle">UNKNOWN EXOTIC WEAPON</code></th></tr>';
         sc_desc = "<tr><td>???</td></tr>";
         sc_entry = sc_name + sc_desc;
       } else {
@@ -172,24 +166,18 @@ command: >-
         sc_desc += `<td>+${i.system.attack_bonus[tier - 1]} ATTACK</td>`;
         if (i.system.accuracy[tier - 1]) {
           let acc = i.system.accuracy[tier - 1];
-          sc_accuracy = `${acc > 0 ? "+" : ""}${acc} ${
-            acc > 0 ? "ACCURACY" : "DIFFICULTY"
-          }`;
+          sc_accuracy = `${acc > 0 ? "+" : ""}${acc} ${acc > 0 ? "ACCURACY" : "DIFFICULTY"}`;
         }
         sc_desc += `<td>${sc_accuracy}</td>`;
         if (i.system.range.length > 0) {
-          i.system.range.forEach(
-            (r) => (sc_range += r.type + " " + r.val + "&nbsp&nbsp&nbsp")
-          );
+          i.system.range.forEach(r => (sc_range += r.type + " " + r.val + "&nbsp&nbsp&nbsp"));
         }
         sc_desc += `<td>${sc_range}</td>`;
         if (i.system.damage.length > 0) {
-          i.system.damage[tier - 1].forEach(
-            (d) => (sc_damage += d.val + " " + d.type + "&nbsp&nbsp&nbsp")
-          );
+          i.system.damage[tier - 1].forEach(d => (sc_damage += d.val + " " + d.type + "&nbsp&nbsp&nbsp"));
         }
         sc_desc += `<td>${sc_damage}</td>`;
-        if (i.system.tags.some((t) => t.is_loading)) {
+        if (i.system.tags.some(t => t.is_loading)) {
           if (i.system.loaded) {
             sc_desc += `<td>LOADED</td>`;
           } else {
@@ -213,9 +201,7 @@ command: >-
         }
         if (i.system.tags.length > 0) {
           sc_desc += `<tr><td colspan="6">Tags: `;
-          sc_desc += i.system.tags
-            .map((t) => `${t.name.replace("{VAL}", t.val)}`)
-            .join(", ");
+          sc_desc += i.system.tags.map(t => `${t.name.replace("{VAL}", t.val)}`).join(", ");
           sc_desc += `</td></tr>`;
         }
         sc_entry += sc_desc;
@@ -236,7 +222,7 @@ command: >-
     if (!sc_temp || sc_temp.length == 0) {
       sc_templates += "<p>NONE</p>";
     } else {
-      sc_temp.forEach((i) => {
+      sc_temp.forEach(i => {
         let sc_entry = `<p>${i.name}</p>`;
         sc_templates += sc_entry;
       });
@@ -266,8 +252,13 @@ command: >-
 
   // Create the journal for each targeted token
 
-  targets.forEach(async (target) => {
+  targets.forEach(async target => {
     let actor = target.actor;
+    if (actorPermissionLevel !== null) {
+      const actorId = actor.system.parent._id;
+      const parentActor = game.actors.get(actorId);
+      parentActor.update({ ownership: { default: actorPermissionLevel } });
+    }
     console.log("Scanning target:", actor);
     let items = actor.items;
     let hase_table_html = `
@@ -314,9 +305,7 @@ command: >-
     <tr>
       <td>${actor.system.size}</td>
       <td>${actor.system.activations || 1}</td>
-      <td>${actor.system.structure.value || 0}/${
-      actor.system.structure.max || 0
-    }</td>
+      <td>${actor.system.structure.value || 0}/${actor.system.structure.max || 0}</td>
       <td>${actor.system.stress.value || 0}/${actor.system.stress.max || 0}</td>
     </tr>
   </table> `;
@@ -332,14 +321,14 @@ command: >-
     } else {
       let sc_origins = [];
 
-      items.forEach((f) => {
+      items.forEach(f => {
         let origin = f.system.origin?.name;
         if (origin && !sc_origins.includes(origin)) {
           sc_origins.push(origin);
         }
       });
 
-      sc_origins.forEach((origin) => {
+      sc_origins.forEach(origin => {
         sc_list += construct_features(items, origin);
         sc_weapons += construct_weapons(items, origin, sc_tier);
       });
@@ -348,8 +337,7 @@ command: >-
     if (outputToChat) {
       ChatMessage.create({
         user: game.user._id,
-        content:
-          `<h2>Scan results: ${actor.name}</h2>
+        content: `<h2>Scan results: ${actor.name}</h2>
           <h3>Class: ${sc_class}, Tier ${sc_tier}</h3>
           ${hase_table_html}
           ${stat_table_html}
@@ -382,9 +370,7 @@ command: >-
 
     let scanEntry;
 
-    let matchingJournalEntries = journalFolder.contents.filter((e) =>
-      e.name.match(actor.name)
-    );
+    let matchingJournalEntries = journalFolder.contents.filter(e => e.name.match(actor.name));
 
     if (matchingJournalEntries.length == 1 && updateExisting === true) {
       console.log("Updating an existing scan");
@@ -399,8 +385,7 @@ command: >-
     } else {
       console.log("Creating a new scan");
       let scanCount = zeroPad(
-        journalFolder.contents.filter((e) => e.name.startsWith(nameTemplate))
-          .length + startingNumber,
+        journalFolder.contents.filter(e => e.name.startsWith(nameTemplate)).length + startingNumber,
         numberLength
       );
       scanObj.name = nameTemplate + scanCount + ` - ` + actor.name;
@@ -415,15 +400,15 @@ folder: yxTxiLixDsbyThYC
 sort: 125000
 flags:
   combat-utility-belt:
-    macroTrigger: ""
+    macroTrigger: ''
 ownership:
   default: 0
   jE81C9hyfb9evTbT: 3
 _stats:
   systemId: lancer
-  systemVersion: 2.0.0
-  coreVersion: "11.315"
+  systemVersion: 2.1.5
+  coreVersion: '11.315'
   createdTime: null
-  modifiedTime: 1717341303401
-  lastModifiedBy: RyAORVJNmdo1gq2Z
-_key: "!macros!z0pdvwE0FitMzwRJ"
+  modifiedTime: 1720304546588
+  lastModifiedBy: VTqqjv3vCWDxBIi5
+_key: '!macros!z0pdvwE0FitMzwRJ'
