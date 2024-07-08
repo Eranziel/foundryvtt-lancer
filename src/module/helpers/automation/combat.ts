@@ -30,8 +30,11 @@ export async function handleCombatUpdate(...[combat, changed]: Parameters<Hooks.
 function processStartTurn(actor: LancerActor) {
   console.log(`Processing start-of-turn combat automation for ${actor.name}`);
 
-  // Handle NPC charges.
-  if (actor.is_npc()) {
+  const automation = getAutomationOptions();
+
+  // Handle NPC feature recharge
+  // @ts-expect-error v10 types
+  if (automation.enabled && automation.npc_recharge && actor.is_npc() && game.users?.activeGM?.isSelf) {
     actor.beginRechargeFlow();
   }
 

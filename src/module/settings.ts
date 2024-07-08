@@ -208,6 +208,7 @@ export function getAutomationOptions(useDefault = false): AutomationOptions {
     overcharge_heat: true,
     attack_self_heat: true,
     limited_loading: true,
+    npc_recharge: true,
     remove_templates: false,
     token_size: true,
   };
@@ -227,6 +228,7 @@ export function getAutomationOptions(useDefault = false): AutomationOptions {
       overcharge_heat: false,
       attack_self_heat: false,
       limited_loading: false,
+      npc_recharge: false,
       remove_templates: false,
       token_size: false,
     };
@@ -270,6 +272,11 @@ export interface AutomationOptions {
    * @defaultValue `true`
    */
   limited_loading: boolean;
+  /**
+   * Automatically recharge NPC systems at the start of their turn
+   * @defaultValue `true`
+   */
+  npc_recharge: boolean;
   /**
    * Remove measured templates created by attacks when the turn changes
    * @defaultValue `false`

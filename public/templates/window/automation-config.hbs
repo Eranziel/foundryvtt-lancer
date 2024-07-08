@@ -61,6 +61,17 @@
     <p class="notes">{{ localize "lancer.automation.limited_loading-desc" }}</p>
   </div>
   <div class="form-group">
+    <label>{{ localize "lancer.automation.npc_recharge" }}</label>
+    <input
+        type="checkbox"
+        name="npc_recharge"
+        {{#if npc_recharge}}checked{{/if}}
+        {{#unless enabled}}disabled{{/unless}}
+        data-dtype="Boolean"
+    />
+    <p class="notes">{{ localize "lancer.automation.npc_recharge-desc" }}</p>
+  </div>
+  <div class="form-group">
     <label>{{ localize "lancer.automation.remove_templates" }}</label>
     <input
         type="checkbox"
