@@ -27,7 +27,7 @@ This ensures that the packs are up to date.
 ### 3. Edit the macro inside foundry
 
 Unlock the compendium by right clicking on it and selectiong "Toggle Edit
-Lock". Foundry will war about editing a compendium that does not belong to the
+Lock". Foundry will warn about editing a compendium that does not belong to the
 world. Select yes, and then open the macro from the compendium. If you are
 adding a new macro, you'll want to drag the macro into the compendium. Make
 sure that it's in the correct folder.
@@ -47,8 +47,8 @@ a wide variety of cases.
 ### 6. Shutdown foundry
 
 Re-lock the compendium and shut down foundry. This is important, since the
-foundry database engine locks the files when in use, potentially causing
-errors.
+foundry database engine locks the files when in use, which will prevent the
+next step from working.
 
 ### 7. Extract the compendium
 
@@ -65,4 +65,3 @@ Copy the macro yml file from the `dist/packs/core_macros/_source/` folder to
 `src/packs/core_macros`. Commit the new or modified file corresponding to the
 macro you were working on. Other files may show as changed after unpacking, but
 those can be ignored safely.
-
