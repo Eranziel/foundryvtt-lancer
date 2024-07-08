@@ -34,7 +34,7 @@ export function unpackStatus(
   img: string;
   system: DeepPartial<SourceData.Status>;
 } {
-  let lid = data.icon.replace("-", "");
+  let lid = data.id || data.icon.replace("-", "") || data.name.toLowerCase();
   let img = `systems/lancer/assets/icons/white/${data.type.toLowerCase()}_${lid}.svg`;
   return {
     name: data.name,

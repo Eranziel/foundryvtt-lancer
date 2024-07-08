@@ -14,6 +14,7 @@ import {
   PackedPilotEquipmentData,
   PackedSkillData,
   PackedTagTemplateData,
+  PackedStatusData,
   PackedTalentData,
   PackedWeaponModData,
 } from "./unpacking/packed-types";
@@ -96,6 +97,13 @@ export async function parseContentPack(binString: Buffer | string): Promise<ICon
   const talents = generateIDs(await getZipData<PackedTalentData>(zip, "talents.json"), "t");
   const bonds = generateIDs(await getZipData<PackedBondData>(zip, "bonds.json"), "bond");
   const tags = generateIDs(await getZipData<PackedTagTemplateData>(zip, "tags.json"), "tg");
+  const statuses = generateIDs(
+    (await getZipData<PackedStatusData>(zip, "statuses.json")).map(status => ({
+      id: status.name.toLowerCase(),
+      ...status,
+    })),
+    ""
+  );
 
   const npcClasses = (await readZipJSON<PackedNpcClassData[]>(zip, "npc_classes.json")) || [];
   const npcFeatures = (await readZipJSON<AnyPackedNpcFeatureData[]>(zip, "npc_features.json")) || [];
@@ -120,6 +128,7 @@ export async function parseContentPack(binString: Buffer | string): Promise<ICon
       talents,
       bonds,
       tags,
+      statuses,
       npcClasses,
       npcFeatures,
       npcTemplates,

@@ -83,6 +83,12 @@
                     {{#if manifest.mods}}
                       <li><span class="lcp-manifest-badge">{{manifest.mods}}</span> weapon mods</li>
                     {{/if}}
+                    {{#if manifest.tags}}
+                      <li><span class="lcp-manifest-badge">{{manifest.tags}}</span> tags</li>
+                    {{/if}}
+                    {{#if manifest.statuses}}
+                      <li><span class="lcp-manifest-badge">{{manifest.statuses}}</span> statuses/conditions</li>
+                    {{/if}}
                     {{#if manifest.npc_classes}}
                       <li><span class="lcp-manifest-badge">{{manifest.npc_classes}}</span> NPC classes</li>
                     {{/if}}

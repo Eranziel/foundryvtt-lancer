@@ -192,6 +192,8 @@ class LCPManager extends Application {
       systems: this.cp.data.systems?.length,
       weapons: this.cp.data.weapons?.length,
       mods: this.cp.data.mods?.length,
+      tags: this.cp.data.tags?.length,
+      statuses: this.cp.data.statuses?.length,
       npc_classes: this.cp.data.npcClasses?.length,
       npc_templates: this.cp.data.npcTemplates?.length,
       npc_features: this.cp.data.npcFeatures?.length,
@@ -205,7 +207,6 @@ class LCPManager extends Application {
       ui.notifications!.warn(`Only GM can modify the Compendiums.`);
       return;
     }
-    console.log("Core version: ", this.coreVersion);
     if (!this.coreVersion) {
       ui.notifications!.warn(`Please update the Core data before importing LCPs.`);
       return;
@@ -220,11 +221,12 @@ class LCPManager extends Application {
     if (!cp || !manifest) return;
 
     ui.notifications!.info(`Starting import of ${cp.manifest.name} v${cp.manifest.version}. Please wait.`);
+    this.updateProgressBar(0, 1);
     console.log(`${lp} Starting import of ${cp.manifest.name} v${cp.manifest.version}.`);
     console.log(`${lp} Parsed content pack:`, cp);
     await importCP(cp, (x, y) => this.updateProgressBar(x, y));
     this.updateProgressBar(1, 1);
-    console.log(`Import of ${cp.manifest.name} v${cp.manifest.version} complete.`);
+    console.log(`${lp} Import of ${cp.manifest.name} v${cp.manifest.version} complete.`);
 
     this.updateLcpIndex(manifest);
   }

@@ -826,6 +826,7 @@ export interface PackedNpcTemplateData {
 export interface PackedStatusData {
   name: string;
   icon: string;
+  id?: string;
   terse?: string;
   effects: string | string[];
   type: "Status" | "Condition";
