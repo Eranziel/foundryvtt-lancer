@@ -10,11 +10,13 @@
   "scripts": {
     "package": "gulp package",
     "build": "gulp build",
+    "build:packs": "gulp build_packs",
     "link": "gulp link",
     "build:watch": "gulp watch",
     "watch": "gulp watch",
     "serve": "gulp serve",
     "format": "prettier --write --config .prettierrc.json 'src/**/*.ts'",
+    "generate:yml": "gulp export_packs",
     "clean": "rm -fR dist && gulp link --clean",
     "prepare": "husky install"
   },
