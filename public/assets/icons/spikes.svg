@@ -1,11 +1,43 @@
-<?xml version="1.0" standalone="no"?>
-<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd" >
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" viewBox="0 -64 1024 1024" width="512" height="512">
-  <g transform="matrix(1 0 0 -1 0 960)">
-   <path fill="currentColor"
-d="M512 928q-9 -77 -31 -140t-35 -109q-13 -4 -25.5 -9t-24.5 -12q-42 23 -102.5 52t-120.5 77q48 -60 77 -120.5t52 -102.5q-7 -12 -12 -24.5t-9 -25.5q-46 -13 -109 -35t-140 -31q77 -9 140 -31t109 -35q4 -13 9 -25.5t12 -24.5q-23 -42 -52 -102.5t-77 -120.5
-q60 48 120.5 77t102.5 52q12 -7 24.5 -12t25.5 -9q13 -46 35 -109t31 -140q9 77 31 140t35 109q13 4 25.5 9t24.5 12q42 -23 102.5 -52t120.5 -77q-48 60 -77 120.5t-52 102.5q7 12 12 24.5t9 25.5q46 13 109 35t140 31q-77 9 -140 31t-109 35q-4 13 -9 25.5t-12 24.5
-q23 42 52 102.5t77 120.5q-60 -48 -120.5 -77t-102.5 -52q-12 7 -24.5 12t-25.5 9q-13 46 -35 109t-31 140zM512 568q25 0 47 -9t38 -26q17 -16 26 -38t9 -47t-9 -47t-26 -38q-16 -17 -38 -26t-47 -9t-47 9t-38 26q-17 16 -26 38t-9 47t9 47t26 38q16 17 38 26t47 9z" />
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   version="1.1"
+   viewBox="0 -64 1024 1024"
+   width="512"
+   height="512"
+   id="svg383"
+   sodipodi:docname="spikes.svg"
+   inkscape:version="1.2.2 (732a01da63, 2022-12-09)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs387" />
+  <sodipodi:namedview
+     id="namedview385"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     showgrid="false"
+     inkscape:zoom="1.6191406"
+     inkscape:cx="236.23643"
+     inkscape:cy="256.30881"
+     inkscape:window-width="1920"
+     inkscape:window-height="1009"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg383" />
+  <g
+     transform="matrix(1,0,0,-1,0,896)"
+     id="g381">
+    <path
+       fill="currentColor"
+       d="M 512,928 Q 503,851 481,788 459,725 446,679 433,675 420.5,670 408,665 396,658 354,681 293.5,710 233,739 173,787 221,727 250,666.5 279,606 302,564 295,552 290,539.5 285,527 281,514 235,501 172,479 109,457 32,448 q 77,-9 140,-31 63,-22 109,-35 4,-13 9,-25.5 Q 295,344 302,332 279,290 250,229.5 221,169 173,109 q 60,48 120.5,77 60.5,29 102.5,52 12,-7 24.5,-12 12.5,-5 25.5,-9 13,-46 35,-109 22,-63 31,-140 9,77 31,140 22,63 35,109 13,4 25.5,9 12.5,5 24.5,12 42,-23 102.5,-52 Q 791,157 851,109 803,169 774,229.5 745,290 722,332 q 7,12 12,24.5 5,12.5 9,25.5 46,13 109,35 63,22 140,31 -77,9 -140,31 -63,22 -109,35 -4,13 -9,25.5 -5,12.5 -12,24.5 23,42 52,102.5 Q 803,727 851,787 791,739 730.5,710 670,681 628,658 q -12,7 -24.5,12 -12.5,5 -25.5,9 -13,46 -35,109 -22,63 -31,140 z m 0,-360 q 25,0 47,-9 22,-9 38,-26 17,-16 26,-38 9,-22 9,-47 0,-25 -9,-47 -9,-22 -26,-38 -16,-17 -38,-26 -22,-9 -47,-9 -25,0 -47,9 -22,9 -38,26 -17,16 -26,38 -9,22 -9,47 0,25 9,47 9,22 26,38 16,17 38,26 22,9 47,9 z"
+       id="path379" />
   </g>
-
 </svg>

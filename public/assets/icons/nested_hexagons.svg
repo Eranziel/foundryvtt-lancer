@@ -1,10 +1,43 @@
-<?xml version="1.0" standalone="no"?>
-<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd" >
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" viewBox="0 -64 1024 1024" width="512" height="512">
-  <g transform="matrix(1 0 0 -1 0 960)">
-   <path fill="currentColor"
-d="M512 917l-406 -235v-468l406 -235l406 235v468l-406 235v0zM512 875l370 -213v-428l-370 -213l-370 213v428l370 213v0zM512 814l-317 -183v-366l317 -183l317 183v366l-317 183v0zM512 772l281 -162v-324l-281 -162l-281 162v324l281 162v0zM512 710l-227 -131v-262
-l227 -131l227 131v262l-227 131v0zM512 669l191 -111v-220l-191 -111l-191 111v220l191 111v0zM512 607l-137 -80v-158l137 -80l137 80v158l-137 80v0zM512 565l101 -58v-118l-101 -58l-101 58v118l101 58v0zM512 503l-48 -27v-56l48 -27l48 27v56l-48 27v0z" />
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   version="1.1"
+   viewBox="0 -64 1024 1024"
+   width="512"
+   height="512"
+   id="svg1138"
+   sodipodi:docname="nested_hexagons.svg"
+   inkscape:version="1.2.2 (732a01da63, 2022-12-09)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs1142" />
+  <sodipodi:namedview
+     id="namedview1140"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     showgrid="false"
+     inkscape:zoom="1.6191406"
+     inkscape:cx="236.23643"
+     inkscape:cy="256.30881"
+     inkscape:window-width="1920"
+     inkscape:window-height="1009"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg1138" />
+  <g
+     transform="matrix(1,0,0,-1,0,896)"
+     id="g1136">
+    <path
+       fill="currentColor"
+       d="M 512,917 106,682 V 214 L 512,-21 918,214 V 682 L 512,917 Z m 0,-42 370,-213 V 234 L 512,21 142,234 V 662 L 512,875 Z M 512,814 195,631 V 265 L 512,82 829,265 V 631 L 512,814 Z m 0,-42 281,-162 V 286 L 512,124 231,286 V 610 L 512,772 Z M 512,710 285,579 V 317 L 512,186 739,317 V 579 L 512,710 Z m 0,-41 191,-111 V 338 L 512,227 321,338 v 220 l 191,111 z m 0,-62 -137,-80 V 369 l 137,-80 137,80 v 158 l -137,80 z m 0,-42 101,-58 V 389 L 512,331 411,389 v 118 l 101,58 z m 0,-62 -48,-27 v -56 l 48,-27 48,27 v 56 l -48,27 z"
+       id="path1134" />
   </g>
-
 </svg>

@@ -1,10 +1,43 @@
-<?xml version="1.0" standalone="no"?>
-<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd" >
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" viewBox="0 -64 1024 1024" width="512" height="512">
-  <g transform="matrix(1 0 0 -1 0 960)">
-   <path fill="currentColor"
-d="M512 789l-118 -68l34 -59l84 48l84 -48l34 59zM335 687l-119 -68v-137h69v97l84 49zM689 687l-34 -59l84 -49v-97h69v137zM216 414v-137l119 -68l34 59l-84 49v97h-69zM739 414v-97l-84 -49l34 -59l119 68v137h-69zM428 234l-34 -59l118 -68l118 68l-34 59l-84 -49z
-M512 585l118 -69v-136l-118 -69l-118 69v136z" />
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   version="1.1"
+   viewBox="0 -64 1024 1024"
+   width="512"
+   height="512"
+   id="svg1093"
+   sodipodi:docname="trait.svg"
+   inkscape:version="1.2.2 (732a01da63, 2022-12-09)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs1097" />
+  <sodipodi:namedview
+     id="namedview1095"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     showgrid="false"
+     inkscape:zoom="1.6191406"
+     inkscape:cx="236.23643"
+     inkscape:cy="256.30881"
+     inkscape:window-width="1920"
+     inkscape:window-height="1009"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg1093" />
+  <g
+     transform="matrix(1,0,0,-1,0,896)"
+     id="g1091">
+    <path
+       fill="currentColor"
+       d="m 512,789 -118,-68 34,-59 84,48 84,-48 34,59 z M 335,687 216,619 V 482 h 69 v 97 l 84,49 z m 354,0 -34,-59 84,-49 v -97 h 69 V 619 Z M 216,414 V 277 l 119,-68 34,59 -84,49 v 97 z m 523,0 v -97 l -84,-49 34,-59 119,68 v 137 z m -311,-180 -34,-59 118,-68 118,68 -34,59 -84,-49 z m 84,351 118,-69 V 380 L 512,311 394,380 v 136 z"
+       id="path1089" />
   </g>
-
 </svg>

@@ -1,9 +1,43 @@
-<?xml version="1.0" standalone="no"?>
-<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd" >
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" viewBox="0 -64 1024 1024" width="512" height="512">
-  <g transform="matrix(1 0 0 -1 0 960)">
-   <path fill="currentColor"
-d="M510 18l-327 168v692h658v-692zM215 205l295 -151l299 152v640h-594v-641zM509 272l-190 97v-100l189 -97l197 100v99z" />
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   version="1.1"
+   viewBox="0 -64 1024 1024"
+   width="512"
+   height="512"
+   id="svg1707"
+   sodipodi:docname="rank_1.svg"
+   inkscape:version="1.2.2 (732a01da63, 2022-12-09)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs1711" />
+  <sodipodi:namedview
+     id="namedview1709"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     showgrid="false"
+     inkscape:zoom="1.6191406"
+     inkscape:cx="236.23643"
+     inkscape:cy="256.30881"
+     inkscape:window-width="1920"
+     inkscape:window-height="1009"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg1707" />
+  <g
+     transform="matrix(1,0,0,-1,0,896)"
+     id="g1705">
+    <path
+       fill="currentColor"
+       d="M 510,18 183,186 V 878 H 841 V 186 Z M 215,205 510,54 809,206 V 846 H 215 Z m 294,67 -190,97 V 269 l 189,-97 197,100 v 99 z"
+       id="path1703" />
   </g>
-
 </svg>
