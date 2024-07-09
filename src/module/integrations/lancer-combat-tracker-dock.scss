@@ -1,10 +1,22 @@
-/* Custom CSS */
-#combat-dock .combatant-wrapper .tracked-attribute-text-container {
-  background: rgba(0, 0, 0, 0.5);
-  border: 1px solid black;
-  width: 80%;
+/* Add a background for resources text */
+#combat-dock .combatant-wrapper {
+  .tracked-attribute-text-container {
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid black;
+    border-radius: 5px;
+    width: 70%;
+  }
+  .tracked-attribute-text-container:has(+ .tracked-attribute-text-container) {
+    border-bottom: none;
+    border-radius: 5px 5px 0px 0px;
+  }
+  .tracked-attribute-text-container + .tracked-attribute-text-container {
+    border-top: none;
+    border-radius: 0px 0px 5px 5px;
+  }
 }
 
+/* Tooltip */
 #tooltip.combat-dock-tooltip {
   border: none;
   border-radius: 10px;
