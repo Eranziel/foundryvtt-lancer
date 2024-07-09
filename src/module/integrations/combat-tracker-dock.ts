@@ -1,6 +1,8 @@
 import type { LancerActor } from "../actor/lancer-actor";
 import type { LancerCombatant } from "../combat/lancer-combat";
 import { getTrackerAppearance } from "../combat/lancer-combat-tracker";
+// Import our customized CSS
+import "./lancer-combat-tracker-dock.scss";
 
 /**
  * Creates a short description to be displayed under the name of the combatant
