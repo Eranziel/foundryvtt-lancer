@@ -42,7 +42,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
   protected collapse_handler = new CollapseHandler();
 
   static get defaultOptions(): ActorSheet.Options {
-    return mergeObject(super.defaultOptions, {
+    return foundry.utils.mergeObject(super.defaultOptions, {
       scrollY: [".scroll-body"],
     });
   }

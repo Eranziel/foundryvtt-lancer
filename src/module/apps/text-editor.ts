@@ -55,7 +55,7 @@ export class HTMLEditDialog extends FormApplication {
     let new_data = {
       text: this.text,
     };
-    return mergeObject(super.getData(), new_data);
+    return foundry.utils.mergeObject(super.getData(), new_data);
   }
 
   /** @override */

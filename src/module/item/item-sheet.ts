@@ -46,7 +46,7 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet<ItemShe
    * Extend and override the default options used by the Item Sheet
    */
   static get defaultOptions(): ItemSheet.Options {
-    return mergeObject(super.defaultOptions, {
+    return foundry.utils.mergeObject(super.defaultOptions, {
       classes: ["lancer", "sheet", "item"],
       width: 700,
       height: 700,
