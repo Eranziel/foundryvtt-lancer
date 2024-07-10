@@ -1,8 +1,10 @@
+import { LancerActor } from "../actor/lancer-actor";
 import { AttackType, DamageType, NpcFeatureType, StabOptions1, StabOptions2, SystemType } from "../enums";
 import { AccDiffData } from "../helpers/acc_diff";
 import { ActionData } from "../models/bits/action";
 import { DamageData } from "../models/bits/damage";
 import { Tag, TagData } from "../models/bits/tag";
+import { LancerToken } from "../token";
 
 // -------- Flow state data types -------------------------------------
 // Each flow uses one of these data types to track its state.
@@ -14,6 +16,7 @@ export namespace LancerFlowState {
     title: string;
     roll_str: string;
     result?: RollResult;
+    icon?: string;
   }
 
   export interface RollResult {
@@ -38,7 +41,7 @@ export namespace LancerFlowState {
   export type AttackRolls = {
     roll: string;
     targeted: {
-      target: Token;
+      target: LancerToken;
       roll: string;
       usedLockOn: boolean | null;
     }[];
@@ -60,8 +63,15 @@ export namespace LancerFlowState {
     tt: string | HTMLElement | JQuery<HTMLElement>; // Tooltip
   };
 
+  export type ResultToken = {
+    name: string;
+    img: string;
+    token?: LancerToken;
+    actor?: LancerActor;
+  };
+
   export type HitResult = {
-    token: { name: string; img: string };
+    token: ResultToken;
     total: string;
     hit: boolean;
     crit: boolean;
@@ -119,8 +129,23 @@ export namespace LancerFlowState {
     destroyed?: boolean;
   }
 
-  export interface DamageRollData extends Omit<BaseRollData, "type"> {
-    // TODO
+  export interface DamageRollData extends Omit<Omit<BaseRollData, "type">, "roll_str"> {
+    type: "damage";
+    configurable: boolean;
+    overkill?: boolean;
+    overkill_heat?: number;
+    damage_by_type: DamageData[];
+    attack_results: AttackResult[];
+    damage_results: DamageResult[];
+    crit_damage_results: DamageResult[];
+    damage_total: number;
+    crit_total: number;
+    targets: ResultToken[];
+  }
+
+  export interface BurnCheckData extends DamageRollData {
+    result?: RollResult;
+    amount: number;
   }
 
   // Configuration passed to initiate the use of an action
