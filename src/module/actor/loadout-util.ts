@@ -293,6 +293,7 @@ export class LoadoutHelper {
             [FittingSize.Main]: 2,
             [FittingSize.Flex]: 2,
             [FittingSize.Heavy]: 3,
+            [FittingSize.Superheavy]: 3,
             [FittingSize.Integrated]: 4,
           }[slot.size] ?? 0;
         if (weaponSizeScore > fittingSizeScore) {

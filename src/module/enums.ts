@@ -98,6 +98,7 @@ export enum MountType {
   MainAux = "Main/Aux",
   Flex = "Flex",
   Integrated = "Integrated",
+  Superheavy = "Superheavy",
   // This is just to handle undetermined, e.g. by auto addition
   Unknown = "Unknown",
 }
@@ -141,6 +142,7 @@ export enum FittingSize {
   Main = "Main",
   Flex = "Flex", // Behaves as a main, but allows us to complain if used as a main with a sibling slot
   Heavy = "Heavy",
+  Superheavy = "Superheavy",
   Integrated = "Integrated", // wildcard basically
 }
 
@@ -159,6 +161,8 @@ export function fittingsForMount(mount: MountType): FittingSize[] {
       return [FittingSize.Main, FittingSize.Auxiliary];
     case MountType.Heavy:
       return [FittingSize.Heavy];
+    case MountType.Superheavy:
+      return [FittingSize.Superheavy];
     case MountType.Integrated:
     case MountType.Unknown:
       return [FittingSize.Integrated];

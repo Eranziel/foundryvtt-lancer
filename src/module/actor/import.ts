@@ -347,6 +347,7 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
       let assocWeaponData = new Map<string, PackedMechWeaponSaveData>();
       if (loadout.integratedWeapon?.slots.some(x => x.weapon)) flatMounts.push(loadout.integratedWeapon);
       if (loadout.improved_armament?.slots.some(x => x.weapon)) flatMounts.push(loadout.improved_armament);
+      if (loadout.superheavy_mounting?.slots.some(x => x.weapon)) flatMounts.push(loadout.superheavy_mounting);
       flatMounts.push(
         ...loadout.integratedMounts
           .map(im => ({

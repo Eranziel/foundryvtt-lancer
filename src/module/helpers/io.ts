@@ -282,6 +282,7 @@ function handlePilotExport(actor: LegacyLancerActor) {
       }),
     improved_armament: { bonus_effects: [], extra: [], lock: false, mount_type: "Flex", slots: [] },
     integratedWeapon: { bonus_effects: [], extra: [], lock: false, mount_type: "Aux", slots: [] },
+    superheavy_mounting: { bonus_effects: [], extra: [], lock: false, mount_type: "Superheavy", slots: [] },
   };
 
   const frame = items.find((item: Item) => item.type === "frame");

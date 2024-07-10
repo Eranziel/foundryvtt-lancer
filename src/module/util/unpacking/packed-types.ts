@@ -352,6 +352,7 @@ export interface PackedMechLoadoutData {
   integratedMounts: { weapon: PackedMechWeaponSaveData }[];
   improved_armament: PackedMountData;
   integratedWeapon: PackedMountData;
+  superheavy_mounting: PackedMountData;
 }
 
 export interface PackedEquipmentData {
