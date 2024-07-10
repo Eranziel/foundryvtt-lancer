@@ -61,7 +61,7 @@ function processEndTurn(actor: LancerActor) {
 
   // Handle Burn
   if (actor.system.burn > 0) {
-    actor.beginBurnFlow("BURN :: ENG");
+    actor.beginBurnFlow();
   }
 
   // Print chat messages.

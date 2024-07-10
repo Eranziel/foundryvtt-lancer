@@ -415,7 +415,7 @@ export async function rollAttacks(
         return {
           attack: { roll: attack_roll, tt: attack_tt },
           hit: {
-            token: { name: target.name!, img: target.actor?.img ?? "" },
+            token: { name: target.name!, img: target.actor?.img ?? "", token: target },
             total: String(attack_roll.total).padStart(2, "0"),
             hit: await checkForHit(state.data?.is_smart ?? false, attack_roll, actor),
             crit: (attack_roll.total || 0) >= 20,

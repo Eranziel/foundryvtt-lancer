@@ -2,8 +2,9 @@ import { ActionTrackFlow, registerActionTrackSteps } from "./action-track";
 import { ActivationFlow, registerActivationSteps } from "./activation";
 import { BasicAttackFlow, registerAttackSteps, WeaponAttackFlow } from "./attack";
 import { BondPowerFlow, registerBondPowerSteps } from "./bond";
-import { registerBurnSteps } from "./burn";
+import { BurnFlow, registerBurnSteps } from "./burn";
 import { CascadeFlow, registerCascadeSteps } from "./cascade";
+import { registerDamageSteps } from "./damage";
 // import { DamageApplyFlow } from "./damage";
 import type { Flow, FlowState, Step } from "./flow";
 import { CoreActiveFlow, registerCoreActiveSteps } from "./frame";
@@ -30,7 +31,6 @@ export function registerFlows() {
   flows.set(BondPowerFlow.name, BondPowerFlow);
   flows.set(CascadeFlow.name, CascadeFlow);
   flows.set(CoreActiveFlow.name, CoreActiveFlow);
-  // flows.set(DamageApplyFlow.name, DamageApplyFlow);
   flows.set(FullRepairFlow.name, FullRepairFlow);
   flows.set(NPCRechargeFlow.name, NPCRechargeFlow);
   flows.set(OverchargeFlow.name, OverchargeFlow);
@@ -45,6 +45,8 @@ export function registerFlows() {
   flows.set(TalentFlow.name, TalentFlow);
   flows.set(TechAttackFlow.name, TechAttackFlow);
   flows.set(WeaponAttackFlow.name, WeaponAttackFlow);
+  flows.set(BurnFlow.name, BurnFlow);
+  // flows.set(DamageApplyFlow.name, DamageApplyFlow);
 
   flowSteps.set("emptyStep", async (state: FlowState<any>) => !!state);
   registerTextSteps(flowSteps);
@@ -52,10 +54,11 @@ export function registerFlows() {
   registerItemUtilSteps(flowSteps);
   registerAttackSteps(flowSteps);
   registerTechAttackSteps(flowSteps);
+  registerDamageSteps(flowSteps);
+  registerBurnSteps(flowSteps);
   registerActivationSteps(flowSteps);
   registerCoreActiveSteps(flowSteps);
   registerStatSteps(flowSteps);
-  registerBurnSteps(flowSteps);
   registerStructureSteps(flowSteps);
   registerOverheatSteps(flowSteps);
   registerCascadeSteps(flowSteps);
