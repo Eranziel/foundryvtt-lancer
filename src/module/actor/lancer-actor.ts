@@ -104,10 +104,10 @@ export class LancerActor extends Actor {
     this.strussHelper = new StrussHelper(this);
   }
 
-  async damage_calc(damage: AppliedDamage, ap = false, paracausal = false): Promise<number> {
-    const armored_damage_types = ["Kinetic", "Energy", "Explosive", "Variable"] as const;
+  async damageCalc(damage: AppliedDamage, ap = false, paracausal = false): Promise<number> {
+    const armoredDamageTypes = ["Kinetic", "Energy", "Explosive", "Variable"] as const;
 
-    const ap_damage_types = [DamageType.Burn, DamageType.Heat] as const;
+    const apDamageTypes = [DamageType.Burn, DamageType.Heat] as const;
 
     let changes = {} as Record<string, number>;
 
@@ -119,7 +119,7 @@ export class LancerActor extends Actor {
 
     // Step 1: Exposed doubles non-burn, non-heat damage
     if (this.system.statuses.exposed) {
-      armored_damage_types.forEach(d => (damage[d] *= 2));
+      armoredDamageTypes.forEach(d => (damage[d] *= 2));
     }
 
     /**
@@ -129,44 +129,44 @@ export class LancerActor extends Actor {
      * Default is "favors defender".
      */
     if (!paracausal && !this.system.statuses.shredded) {
-      const defense_favor = true; // getAutomationOptions().defenderArmor
+      const defenseFavor = true; // getAutomationOptions().defenderArmor
       // TODO: figure out how to fix this typing
       // @ts-expect-error
-      const resist_armor_damage = armored_damage_types.filter(t => this.system.resistances[t.toLowerCase()]);
+      const resistArmorDamage = armoredDamageTypes.filter(t => this.system.resistances[t.toLowerCase()]);
       // @ts-expect-error
-      const normal_armor_damage = armored_damage_types.filter(t => !this.system.resistances[t.toLowerCase()]);
+      const normalArmorDamage = armoredDamageTypes.filter(t => !this.system.resistances[t.toLowerCase()]);
       // @ts-expect-error
-      const resist_ap_damage = ap_damage_types.filter(t => this.system.resistances[t.toLowerCase()]);
+      const resistApDamage = apDamageTypes.filter(t => this.system.resistances[t.toLowerCase()]);
       let armor = ap ? 0 : this.system.armor;
-      let leftover_armor: number; // Temp 'storage' variable for tracking used armor
+      let leftoverArmor: number; // Temp 'storage' variable for tracking used armor
 
       // Defender-favored: Deduct Armor from non-resisted damages first
-      if (defense_favor) {
-        for (const t of normal_armor_damage) {
-          leftover_armor = Math.max(armor - damage[t], 0);
+      if (defenseFavor) {
+        for (const t of normalArmorDamage) {
+          leftoverArmor = Math.max(armor - damage[t], 0);
           damage[t] = Math.max(damage[t] - armor, 0);
-          armor = leftover_armor;
+          armor = leftoverArmor;
         }
       }
 
       // Deduct Armor from resisted damage
-      for (const t of resist_armor_damage) {
-        leftover_armor = Math.max(armor - damage[t], 0);
+      for (const t of resistArmorDamage) {
+        leftoverArmor = Math.max(armor - damage[t], 0);
         damage[t] = Math.max(damage[t] - armor, 0) / 2;
-        armor = leftover_armor;
+        armor = leftoverArmor;
       }
 
       // Attacker-favored: Deduct Armor from non-resisted damages first
-      if (!defense_favor) {
-        for (const t of normal_armor_damage) {
-          leftover_armor = Math.max(armor - damage[t], 0);
+      if (!defenseFavor) {
+        for (const t of normalArmorDamage) {
+          leftoverArmor = Math.max(armor - damage[t], 0);
           damage[t] = Math.max(damage[t] - armor);
-          armor = leftover_armor;
+          armor = leftoverArmor;
         }
       }
 
       // Resist Burn & Heat, unaffected by Armor
-      for (const t of resist_ap_damage) {
+      for (const t of resistApDamage) {
         damage[t] = damage[t] / 2;
       }
     }
@@ -176,19 +176,19 @@ export class LancerActor extends Actor {
       changes["system.heat.value"] = this.system.heat.value + damage.Heat;
     }
 
-    const armor_damage = Math.ceil(damage.Kinetic + damage.Energy + damage.Explosive + damage.Variable);
-    let total_damage = armor_damage + damage.Burn;
+    const armorDamage = Math.ceil(damage.Kinetic + damage.Energy + damage.Explosive + damage.Variable);
+    let totalDamage = armorDamage + damage.Burn;
 
     // Reduce Overshield first
     if (this.system.overshield.value) {
-      const leftover_overshield = Math.max(this.system.overshield.value - total_damage, 0);
-      total_damage = Math.max(total_damage - this.system.overshield.value, 0);
+      const leftover_overshield = Math.max(this.system.overshield.value - totalDamage, 0);
+      totalDamage = Math.max(totalDamage - this.system.overshield.value, 0);
       changes["system.overshield.value"] = leftover_overshield;
     }
 
     // Finally reduce HP by remaining damage
-    if (total_damage) {
-      changes["system.hp.value"] = this.system.hp.value - total_damage;
+    if (totalDamage) {
+      changes["system.hp.value"] = this.system.hp.value - totalDamage;
     }
 
     // Add to Burn stat
@@ -198,7 +198,7 @@ export class LancerActor extends Actor {
 
     await this.update(changes);
 
-    return total_damage;
+    return totalDamage;
   }
 
   /* -------------------------------------------- */
