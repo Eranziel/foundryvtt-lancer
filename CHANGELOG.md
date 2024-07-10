@@ -1,3 +1,22 @@
+# 2.1.6 (2024-07-10)
+
+## Bug Fixes
+
+- #117 - Automatically add +1 attack bonus for Death's Head ranged attacks.
+- #546 - Add an automation setting to control whether NPCs automatically roll for recharge at start of turn.
+- #714 - Do not refill hp after losing last structure.
+- #721 - Fix LCP imports missing Statuses.
+- #723 - Fix missing import of superheavy mount from Comp/Con pilots, for those who have the Superheavy Mounting core bonus.
+
+## Misc
+
+- Add configuration options in the "Scan" and "Scan (Journal)" macros to modify scan target permissions (for example, so you can give all players Observer permission after scanning).
+- Add custom styling for Carousel Combat Tracker tooltips.
+- Center all icon SVGs in `systems/lancer/assets/icons/`
+- Add white versions of all icons in `systems/lancer/assets/icons/white/`
+- Add text files to system assets folders which hopefully will warn some people to not upload custom assets to those folders.
+- Add documentation about the development workflow for contributing to the system macros compendium
+
 # 2.1.5 (2024-06-28)
 
 ## Bug Fixes
