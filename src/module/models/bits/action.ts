@@ -38,7 +38,7 @@ export interface ActionData {
 class FrequencyField extends fields.StringField {
   /** @inheritdoc */
   static get _defaults() {
-    return mergeObject(super._defaults, {
+    return foundry.utils.mergeObject(super._defaults, {
       required: true,
       blank: false,
       nullable: true,
