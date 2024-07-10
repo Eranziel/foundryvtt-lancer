@@ -12,7 +12,7 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
    * Extend and override the default options used by the NPC Sheet
    */
   static get defaultOptions(): ActorSheet.Options {
-    return mergeObject(super.defaultOptions, {
+    return foundry.utils.mergeObject(super.defaultOptions, {
       classes: ["lancer", "sheet", "actor", "npc"],
       template: `systems/${game.system.id}/templates/actor/npc.hbs`,
       width: 800,
