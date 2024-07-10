@@ -1,26 +1,23 @@
 {
   "id": "lancer",
-  "name": "lancer",
   "title": "LANCER",
   "description": "<p>A Foundry VTT game system for <a href=\"https://massif-press.itch.io/corebook-pdf\">Lancer</a> by <a href=\"https://massif-press.itch.io/\">Massif Press</a>, a mud-and-lasers tactical mech RPG.</p><p>\"Lancer for FoundryVTT\" is not an official <i>Lancer</i> product; it is a third party work, and is not affiliated with Massif Press. \"Lancer for FoundryVTT\" is published via the <i>Lancer</i> Third Party License.</p><p><i>Lancer</i> is copyright Massif Press.</p>",
-  "version": "2.5.0",
-  "minimumCoreVersion": "11",
+  "version": "2.4.3",
   "compatibility": {
-    "minimum": 11,
-    "verified": "11.315",
-    "maximum": 11
+    "minimum": 12,
+    "verified": 12,
+    "maximum": 12
   },
   "authors": [
-    {"name": "Eranziel"},
-    {"name": "Whitespine"},
-    {"name": "BoltsJ"},
-    {"name": "Valkyrion"},
-    {"name": "Kuenaimaku"},
-    {"name": "dodgepong"},
-    {"name": "Grygon"},
-    {"name": "SohumB"}
+    { "name": "Eranziel" },
+    { "name": "Whitespine" },
+    { "name": "BoltsJ" },
+    { "name": "Valkyrion" },
+    { "name": "Kuenaimaku" },
+    { "name": "dodgepong" },
+    { "name": "Grygon" },
+    { "name": "SohumB" }
   ],
-  "scripts": [],
   "esmodules": ["lancer.mjs"],
   "styles": [
     "style.css",
@@ -53,8 +50,12 @@
     }
   ],
   "socket": true,
-  "gridDistance": 1,
-  "gridUnits": "",
+  "grid": {
+    "distance": 1,
+    "units": "",
+    "type": 2,
+    "diagonals": 0
+  },
   "primaryTokenAttribute": "",
   "secondaryTokenAttribute": "",
   "url": "https://github.com/Eranziel/foundryvtt-lancer",
@@ -64,7 +65,6 @@
   "readme": "https://github.com/Eranziel/foundryvtt-lancer/blob/master/README.md",
   "bugs": "https://github.com/Eranziel/foundryvtt-lancer/issues/new/choose",
   "changelog": "https://github.com/Eranziel/foundryvtt-lancer/blob/master/CHANGELOG.md",
-  "manifestPlusVersion": "1.2.0",
   "media": [
     {
       "type": "cover",
@@ -84,14 +84,8 @@
   ],
   "flags": {
     "hotReload": {
-      "extensions": [
-        "json",
-        "hbs"
-      ],
-      "paths": [
-        "lang",
-        "templates"
-      ]
+      "extensions": ["json", "hbs"],
+      "paths": ["lang", "templates"]
     }
   }
 }
