@@ -3,38 +3,48 @@
     <i class="cci cci-large-beam i--m i--light"> </i>
     <span>{{ title }}</span>
   </div>
-  <div class="lancer-mini-header collapse-trigger" data-collapse-id="{{_uuid}}-attacks">{{localize "lancer.chat-card.title.attack"}}</div>
-  <div class="collapse" data-collapse-id="{{_uuid}}-damage">
-    {{#each damage_results as |damage key|}}
-      {{{lancer-dice-roll damage.roll damage.tt (concat "cci cci-" (lower-case damage.d_type) " i--m damage--" (lower-case damage.d_type))}}}
-    {{/each}}
-  </div>
-  {{#if crit_damage_results}}
-    <div class="lancer-mini-header collapse-trigger" data-collapse-id="{{_uuid}}-crit-damage">{{localize "lancer.chat-card.title.crit-damage"}}</div>
-    <div class="collapse" data-collapse-id="{{_uuid}}-crit-damage">
-      {{#each crit_damage_results as |damage key|}}
+  <div class="card clipped">
+    <div class="lancer-mini-header collapse-trigger" data-collapse-id="{{_uuid}}-attacks">{{localize "lancer.chat-card.title.attack"}}</div>
+    <div class="collapse" data-collapse-id="{{_uuid}}-damage">
+      {{#each damage_results as |damage key|}}
         {{{lancer-dice-roll damage.roll damage.tt (concat "cci cci-" (lower-case damage.d_type) " i--m damage--" (lower-case damage.d_type))}}}
       {{/each}}
+    </div>
+  </div>
+  {{#if crit_damage_results}}
+    <div class="card clipped">
+      <div class="lancer-mini-header collapse-trigger" data-collapse-id="{{_uuid}}-crit-damage">{{localize "lancer.chat-card.title.crit-damage"}}</div>
+      <div class="collapse" data-collapse-id="{{_uuid}}-crit-damage">
+        {{#each crit_damage_results as |damage key|}}
+          {{{lancer-dice-roll damage.roll damage.tt (concat "cci cci-" (lower-case damage.d_type) " i--m damage--" (lower-case damage.d_type))}}}
+        {{/each}}
+      </div>
     </div>
   {{/if}}
   {{#if targets}}
     <div class="card clipped">
-      <div class="lancer-mini-header collapse-trigger" data-collapse-id="{{_uuid}}-hits">{{localize "lancer.chat-card.title.defense-hit" defense=defense}}</div>
-      <div class="collapse" data-collapse-id="{{_uuid}}-hits">
-        {{#each hit_results as |hit key|}}
-          <div class="lancer-hit">
+      <div class="collapse" data-collapse-id="{{_uuid}}-targets">
+        {{#each targets as |target key|}}
+          <div class="lancer-damage-row">
             <div>
-              <img class="lancer-hit-thumb" src="{{hit.token.img}}" />
+              <img class="lancer-hit-thumb" src="{{target.token.img}}" />
             </div>
             <div class="lancer-hit-text">
-              <span class="lancer-hit-text-name">{{hit.token.name}}</span>
-              {{#if hit.crit}}
-                <span class="card clipped lancer-hit-chip crit">{{localize "lancer.chat-card.attack.crit" total=hit.total}}</span>
-              {{else}}{{#if hit.hit}}
-                <span class="card clipped lancer-hit-chip hit">{{localize "lancer.chat-card.attack.hit" total=hit.total}}</span>
-              {{else}}
-                <span class="card clipped lancer-hit-chip miss">{{localize "lancer.chat-card.attack.miss" total=hit.total}}</span>
-              {{/if}}{{/if}}
+              <span class="lancer-hit-text-name">{{target.token.name}}</span>
+              {{!-- TODO: show total of each type of damage between name and buttons --}}
+              {{#if configurable}}
+                {{!-- TODO: put the default as a button, with the rest in a select attached to the button --}}
+                {{!-- TODO: add option for crit damage --}}
+                <button class="lancer-button lancer-damage-apply" title="Apply 2×">
+                </button>
+                <button class="lancer-button lancer-damage-apply" title="Apply 1×">
+                </button>
+                <button class="lancer-button lancer-damage-apply" title="Apply ½×">
+                </button>
+              {{#else}}
+                <button class="lancer-button lancer-damage-apply" title="Apply">
+                </button>
+              {{/if}}
             </div>
           </div>
         {{/each}}
