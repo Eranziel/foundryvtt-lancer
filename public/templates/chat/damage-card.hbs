@@ -40,33 +40,49 @@
             {{!-- TODO: add option for crit damage --}}
             <button
               class="lancer-button lancer-damage-apply"
-              title="Apply 2×"
+              title="Apply double damage"
               data-target="{{target.actor.uuid}}"
               data-multiple="2"
               data-total="{{../damage_total}}"
-            >Apply 2×</button>
+            >
+              2× {{#each ../damage_results as |damage key|}}
+                <i class="{{{concat "cci cci-" (lower-case damage.d_type) " i--sm damage--" (lower-case damage.d_type)}}}"></i>
+              {{/each}}
+            </button>
             <button
               class="lancer-button lancer-damage-apply"
-              title="Apply 1×"
+              title="Apply full damage"
               data-target="{{target.actor.uuid}}"
               data-multiple="1"
               data-total="{{../damage_total}}"
-            >Apply 1×</button>
+            >
+              1× {{#each ../damage_results as |damage key|}}
+                <i class="{{{concat "cci cci-" (lower-case damage.d_type) " i--sm damage--" (lower-case damage.d_type)}}}"></i>
+              {{/each}}
+            </button>
             <button
               class="lancer-button lancer-damage-apply"
-              title="Apply ½×"
+              title="Apply half damage"
               data-target="{{target.actor.uuid}}"
               data-multiple="0.5"
               data-total="{{../damage_total}}"
-            >Apply ½×</button>
+            >
+              ½× {{#each ../damage_results as |damage key|}}
+                <i class="{{{concat "cci cci-" (lower-case damage.d_type) " i--sm damage--" (lower-case damage.d_type)}}}"></i>
+              {{/each}}
+            </button>
           {{else}}
             <button
               class="lancer-button lancer-damage-apply"
-              title="Apply"
+              title="Apply full damage"
               data-target="{{target.actor.uuid}}"
               data-multiple="1"
               data-total="{{../damage_total}}"
-            >Apply</button>
+            >
+              {{#each ../damage_results as |damage key|}}
+                <i class="{{{concat "cci cci-" (lower-case damage.d_type) " i--sm damage--" (lower-case damage.d_type)}}}"></i>
+              {{/each}}
+            </button>
           {{/if}}
         </div>
       {{/each}}
