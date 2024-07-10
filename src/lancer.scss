@@ -222,6 +222,11 @@ $theme-types: "primary" "secondary" "dark-gray" "light-gray" "tooltip"    // Gen
   /* An exception for each icon font */
   font-family: var(--main-font-family);
 }
+
+#chat-log .message-content {
+  padding: 5px !important;
+}
+
 /* Default text and background color for sheets */
 .lancer.sheet .window-content {
   color: var(--dark-text);
@@ -428,9 +433,12 @@ $theme-types: "primary" "secondary" "dark-gray" "light-gray" "tooltip"    // Gen
   width: 50px;
   min-width: 50px;
   margin-right: 4px;
+  border: 2px solid var(--dark-gray-color);
+  border-radius: 5px;
   border-right: none;
   border-left: none;
 }
+
 .lancer-hit-text {
   display: inline-grid;
   text-align: start;
@@ -441,6 +449,18 @@ $theme-types: "primary" "secondary" "dark-gray" "light-gray" "tooltip"    // Gen
   overflow: hidden;
   text-wrap: nowrap;
   text-overflow: ellipsis;
+}
+
+.lancer-damage-targets {
+  margin: 0px 0.25em;
+  display: grid;
+  grid-template-columns: 55px auto auto;
+  grid-template-rows: auto;
+  align-items: center;
+
+  .lancer-hit-text-name {
+    text-align: left;
+  }
 }
 
 .card.lancer-charge-chip {
@@ -2409,6 +2429,13 @@ a.activation-chip > i.mdi {
     cursor: default;
     text-shadow: none;
     box-shadow: none;
+  }
+
+  // TODO: make all chat buttons tighter. Needs alignment
+  // work in other styles/chat cards.
+  .chat-message .lancer-damage-buttons & {
+    width: fit-content;
+    float: right;
   }
 }
 
