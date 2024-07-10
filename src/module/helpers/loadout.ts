@@ -1,5 +1,5 @@
 import type { HelperOptions } from "handlebars";
-import { EntryType, SystemType } from "../enums";
+import { EntryType, FittingSize, MountType, SystemType, WeaponSize } from "../enums";
 import {
   inc_if,
   resolveHelperDotpath,
@@ -146,6 +146,21 @@ function weaponMount(mount_path: string, options: HelperOptions): string {
       options
     )
   );
+  // Add an empty aux slot for flex mounts with 1 aux
+  if (
+    mount.type === "Flex" &&
+    mount.slots.length === 1 &&
+    mount.slots[0].weapon?.value?.system.size === WeaponSize.Aux
+  ) {
+    slots.push(
+      mechLoadoutWeaponSlot(
+        `${mount_path}.slots.1.weapon.value`,
+        `${mount_path}.slots.1.mod.value`,
+        FittingSize.Auxiliary,
+        options
+      )
+    );
+  }
   let err = mech.loadoutHelper.validateMount(mount) ?? "";
 
   // FLEX mount: Don't show the empty aux if a main is equipped.

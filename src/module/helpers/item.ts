@@ -619,12 +619,17 @@ export function mechLoadoutWeaponSlot(
   let weapon: LancerMECH_WEAPON | null = resolveHelperDotpath(options, weapon_path);
   if (!weapon) {
     // Make an empty ref. Note that it still has path stuff if we are going to be dropping things here
+    const slotSize = size
+      ? size === FittingSize.Flex
+        ? `${FittingSize.Main} || ${FittingSize.Auxiliary}`
+        : size
+      : "any";
     return `
       <div class="${EntryType.MECH_WEAPON} ref slot drop-settable card flexrow" 
            data-path="${weapon_path}" 
            data-accept-types="${EntryType.MECH_WEAPON}">
         <img class="ref-icon" src="${TypeIcon(EntryType.MECH_WEAPON)}"></img>
-        <span class="major">Insert ${size ? size : "any"} weapon</span>
+        <span class="major">Insert ${slotSize} weapon</span>
       </div>`;
   } else {
     return mechWeaponDisplay(weapon_path, mod_path, options);
