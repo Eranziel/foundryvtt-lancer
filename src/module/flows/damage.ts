@@ -1,10 +1,21 @@
+import { AppliedDamage } from "../actor/damage-calc";
 import { LancerActor } from "../actor/lancer-actor";
 import { LancerItem } from "../item/lancer-item";
+import { Damage } from "../models/bits/damage";
 import { UUIDRef } from "../source-template";
 import { LancerToken } from "../token";
 import { renderTemplateStep } from "./_render";
 import { Flow, FlowState, Step } from "./flow";
 import { LancerFlowState } from "./interfaces";
+
+type DamageFlag = {
+  damageResults: LancerFlowState.DamageResult[];
+  critDamageResults: LancerFlowState.DamageResult[];
+  // TODO: AP and paracausal flags
+  ap: boolean;
+  paracausal: boolean;
+  targetsApplied: Record<string, boolean>;
+};
 
 export function registerDamageSteps(flowSteps: Map<string, Step<any, any> | Flow<any>>) {
   flowSteps.set("rollDamage", rollDamage);
@@ -49,40 +60,57 @@ async function printDamageCard(
 ): Promise<boolean> {
   if (!state.data) throw new TypeError(`Damage flow state missing!`);
   const template = options?.template || `systems/${game.system.id}/templates/chat/damage-card.hbs`;
-  // const flags = {
-  //   attackData: {
-  //     origin: state.actor.id,
-  //     targets: state.data.attack_rolls.targeted.map(t => {
-  //       return { id: t.target.id, setConditions: !!t.usedLockOn ? { lockon: !t.usedLockOn } : undefined };
-  //     }),
-  //   },
-  // };
-  await renderTemplateStep(state.actor, template, state.data);
+  const damageData: DamageFlag = {
+    damageResults: state.data.damage_results,
+    critDamageResults: state.data.crit_damage_results,
+    // TODO: AP and paracausal flags
+    ap: false,
+    paracausal: false,
+    targetsApplied: state.data.targets.reduce((acc: Record<string, boolean>, t) => {
+      const uuid = t.actor?.uuid || t.token?.actor?.uuid || null;
+      if (!uuid) return acc;
+      // We need to replace the dots in the UUID, otherwise Foundry will expand it into a nested object
+      acc[uuid.replaceAll(".", "_")] = false;
+      return acc;
+    }, {}),
+  };
+  const flags = {
+    damageData,
+  };
+  await renderTemplateStep(state.actor, template, state.data, flags);
   return true;
 }
 
 // ======== Chat button handler ==========
 export async function applyDamage(event: JQuery.ClickEvent) {
+  const chatMessageElement = event.currentTarget.closest(".chat-message.message");
+  if (!chatMessageElement) {
+    ui.notifications?.error("Damage application button not in chat message");
+    return;
+  }
+  const chatMessage = game.messages?.get(chatMessageElement.dataset.messageId);
+  // @ts-expect-error v10 types
+  const damageData = chatMessage?.flags.lancer?.damageData as DamageFlag;
+  if (!chatMessage || !damageData) {
+    ui.notifications?.error("Damage application button has no damage data available");
+    return;
+  }
   const data = event.currentTarget.dataset;
   if (!data.target) {
     ui.notifications?.error("No target for damage application");
     return;
   }
-  if (!data.total) {
-    ui.notifications?.error("No damage total for damage application");
-    return;
-  }
-  let total, multiple: number;
+  let multiple: number;
   try {
     multiple = parseFloat(data.multiple || 1);
   } catch (err) {
     ui.notifications?.error("Data multiplaction factor is not a number!");
     return;
   }
-  try {
-    total = parseFloat(data.total || 0);
-  } catch (err) {
-    ui.notifications?.error("Data total is not a number!");
+  // Replace underscores with dots to turn it back into a valid UUID
+  const targetFlagKey = data.target.replaceAll(".", "_");
+  if (damageData.targetsApplied[targetFlagKey]) {
+    ui.notifications?.warn("Damage has already been applied to this target");
     return;
   }
   const target = await fromUuid(data.target);
@@ -93,5 +121,16 @@ export async function applyDamage(event: JQuery.ClickEvent) {
     ui.notifications?.error("Invalid target for damage application");
     return;
   }
-  await actor.update({ "system.hp.value": actor.system.hp.value - multiple * total });
+
+  // Apply the damage
+  await actor.damageCalc(
+    new AppliedDamage(
+      damageData.damageResults.map(dr => new Damage({ type: dr.d_type, val: (dr.roll.total || 0).toString() }))
+    ),
+    { multiple, addBurn: false }
+  );
+
+  // Update the flags on the chat message to indicate the damage has been applied
+  damageData.targetsApplied[targetFlagKey] = true;
+  await chatMessage.setFlag("lancer", "damageData", damageData);
 }

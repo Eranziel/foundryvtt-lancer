@@ -33,6 +33,7 @@ import * as lancer_data from "@massif/lancer-data";
 import { StabilizeFlow } from "../flows/stabilize";
 import { rollEvalSync } from "../util/misc";
 import { BurnFlow } from "../flows/burn";
+import { createChatMessageStep } from "../flows/_render";
 
 const lp = LANCER.log_prefix;
 
@@ -104,12 +105,18 @@ export class LancerActor extends Actor {
     this.strussHelper = new StrussHelper(this);
   }
 
-  async damageCalc(damage: AppliedDamage, ap = false, paracausal = false): Promise<number> {
+  async damageCalc(
+    damage: AppliedDamage,
+    { multiple = 1, ap = false, paracausal = false, addBurn = true }
+  ): Promise<number> {
     const armoredDamageTypes = ["Kinetic", "Energy", "Explosive", "Variable"] as const;
 
     const apDamageTypes = [DamageType.Burn, DamageType.Heat] as const;
 
     let changes = {} as Record<string, number>;
+
+    // Ensure the multiple is valid, default to 1x
+    if (![0.5, 1, 2].includes(multiple)) multiple = 1;
 
     // Entities without Heat Caps take Energy Damage instead
     if (this.is_pilot()) {
@@ -118,7 +125,7 @@ export class LancerActor extends Actor {
     }
 
     // Step 1: Exposed doubles non-burn, non-heat damage
-    if (this.system.statuses.exposed) {
+    if (this.system.statuses.exposed || multiple === 2) {
       armoredDamageTypes.forEach(d => (damage[d] *= 2));
     }
 
@@ -181,9 +188,9 @@ export class LancerActor extends Actor {
 
     // Reduce Overshield first
     if (this.system.overshield.value) {
-      const leftover_overshield = Math.max(this.system.overshield.value - totalDamage, 0);
+      const leftoverOvershield = Math.max(this.system.overshield.value - totalDamage, 0);
       totalDamage = Math.max(totalDamage - this.system.overshield.value, 0);
-      changes["system.overshield.value"] = leftover_overshield;
+      changes["system.overshield.value"] = leftoverOvershield;
     }
 
     // Finally reduce HP by remaining damage
@@ -192,11 +199,43 @@ export class LancerActor extends Actor {
     }
 
     // Add to Burn stat
-    if (damage.Burn) {
+    if (damage.Burn && addBurn) {
       changes["system.burn"] = this.system.burn + damage.Burn;
     }
 
     await this.update(changes);
+
+    // Create a chat message which reports the applied damage
+    const damageStrings = [];
+    let totalTypes = 0;
+    if (damage.Kinetic) {
+      damageStrings.push(`${damage.Kinetic}<i class="cci cci-kinetic damage--kinetic i--s"></i>`);
+      totalTypes += 1;
+    }
+    if (damage.Energy) {
+      damageStrings.push(`${damage.Energy}<i class="cci cci-energy damage--energy i--s"></i>`);
+      totalTypes += 1;
+    }
+    if (damage.Explosive) {
+      damageStrings.push(`${damage.Explosive}<i class="cci cci-explosive damage--explosive i--s"></i>`);
+      totalTypes += 1;
+    }
+    if (damage.Variable) {
+      damageStrings.push(`${damage.Variable}<i class="cci cci-variable damage--variable i--s"></i>`);
+      totalTypes += 1;
+    }
+    if (damage.Burn) {
+      damageStrings.push(`${damage.Burn}<i class="cci cci-burn damage--burn i--s"></i>`);
+      totalTypes += 1;
+    }
+    if (damage.Heat) {
+      damageStrings.push(`${damage.Heat}<i class="cci cci-heat damage--heat i--s"></i>`);
+      totalTypes += 1;
+    }
+    const chatContent = `${this.token ? this.token.name : this.name} took ${damageStrings.join()} ${
+      totalTypes > 1 ? `(${totalDamage} total) ` : ""
+    }damage!`;
+    await createChatMessageStep(this, chatContent);
 
     return totalDamage;
   }
