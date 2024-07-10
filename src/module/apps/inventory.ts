@@ -29,7 +29,7 @@ export class InventoryDialog extends Dialog {
 
   /** @override */
   static get defaultOptions() {
-    return mergeObject(super.defaultOptions, {
+    return foundry.utils.mergeObject(super.defaultOptions, {
       template: `systems/${game.system.id}/templates/window/inventory.hbs`,
       width: 600,
       height: "auto",

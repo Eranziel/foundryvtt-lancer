@@ -15,7 +15,7 @@ export class LancerLicenseSheet extends LancerItemSheet<EntryType.LICENSE> {
    * Extend and override the default options used by the generic Lancer item sheet
    */
   static get defaultOptions(): ItemSheet.Options {
-    return mergeObject(super.defaultOptions, {
+    return foundry.utils.mergeObject(super.defaultOptions, {
       width: 700,
       height: 750,
     });

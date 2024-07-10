@@ -372,10 +372,6 @@ Hooks.once("ready", () => {
   });
 });
 
-Hooks.once("canvasInit", () => {
-  SquareGrid.prototype.measureDistances = measureDistances;
-});
-
 // Action Manager hooks.
 Hooks.on("controlToken", () => {
   game.action_manager?.update();

@@ -41,7 +41,7 @@ export class LancerActionManager extends Application {
 
   /** @override */
   static get defaultOptions() {
-    return mergeObject(super.defaultOptions, {
+    return foundry.utils.mergeObject(super.defaultOptions, {
       template: `systems/${game.system.id}/templates/window/action_manager.hbs`,
       width: 310,
       height: 70,
