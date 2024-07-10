@@ -1,3 +1,9 @@
+# 2.1.7 (2024-07-10)
+
+## Bug Fixes
+
+- #712 - Show an empty Aux slot on Flex mounts with only one Aux mounted, and allow populating it with drag-drop.
+
 # 2.1.6 (2024-07-10)
 
 ## Bug Fixes
