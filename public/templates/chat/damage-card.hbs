@@ -1,0 +1,56 @@
+<div class="card clipped-bot" {{#if item_uuid}} data-uuid="{{item_uuid}}" {{/if}} style="margin: 0px;">
+  <div class="lancer-header lancer-primary medium">
+    <i class="cci cci-large-beam i--m i--light"> </i>
+    <span>{{ title }}</span>
+  </div>
+  <div class="lancer-mini-header collapse-trigger" data-collapse-id="{{_uuid}}-attacks">{{localize "lancer.chat-card.title.attack"}}</div>
+  <div class="collapse" data-collapse-id="{{_uuid}}-damage">
+    {{#each damage_results as |damage key|}}
+      {{{lancer-dice-roll damage.roll damage.tt (concat "cci cci-" (lower-case damage.d_type) " i--m damage--" (lower-case damage.d_type))}}}
+    {{/each}}
+  </div>
+  {{#if crit_damage_results}}
+    <div class="lancer-mini-header collapse-trigger" data-collapse-id="{{_uuid}}-crit-damage">{{localize "lancer.chat-card.title.crit-damage"}}</div>
+    <div class="collapse" data-collapse-id="{{_uuid}}-crit-damage">
+      {{#each crit_damage_results as |damage key|}}
+        {{{lancer-dice-roll damage.roll damage.tt (concat "cci cci-" (lower-case damage.d_type) " i--m damage--" (lower-case damage.d_type))}}}
+      {{/each}}
+    </div>
+  {{/if}}
+  {{#if targets}}
+    <div class="card clipped">
+      <div class="lancer-mini-header collapse-trigger" data-collapse-id="{{_uuid}}-hits">{{localize "lancer.chat-card.title.defense-hit" defense=defense}}</div>
+      <div class="collapse" data-collapse-id="{{_uuid}}-hits">
+        {{#each hit_results as |hit key|}}
+          <div class="lancer-hit">
+            <div>
+              <img class="lancer-hit-thumb" src="{{hit.token.img}}" />
+            </div>
+            <div class="lancer-hit-text">
+              <span class="lancer-hit-text-name">{{hit.token.name}}</span>
+              {{#if hit.crit}}
+                <span class="card clipped lancer-hit-chip crit">{{localize "lancer.chat-card.attack.crit" total=hit.total}}</span>
+              {{else}}{{#if hit.hit}}
+                <span class="card clipped lancer-hit-chip hit">{{localize "lancer.chat-card.attack.hit" total=hit.total}}</span>
+              {{else}}
+                <span class="card clipped lancer-hit-chip miss">{{localize "lancer.chat-card.attack.miss" total=hit.total}}</span>
+              {{/if}}{{/if}}
+            </div>
+          </div>
+        {{/each}}
+      </div>
+    </div>
+  {{/if}}
+  {{#if overkill_heat}}
+    <div class="card clipped">
+      <div class="lancer-mini-header collapse-trigger" data-collapse-id="{{_uuid}}-self-heat">{{localize "lancer.chat-card.title.self-heat"}}</div>
+      <div class="collapse" data-collapse-id="{{_uuid}}-self-heat">
+        <div class="lancer-dice-total flexrow">
+          <span style="text-align: left; margin-left: 5px;">{{localize "lancer.chat-card.exclamation.overkill"}}</span>
+          <span class="dice-total lancer-dice-total major">{{ overkill_heat }}</span>
+          <i class="cci cci-heat i--m damage--heat"> </i>
+        </div>
+      </div>
+    </div>
+  {{/if}}
+</div>
