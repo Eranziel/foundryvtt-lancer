@@ -153,7 +153,7 @@ export class EmbeddedRefField extends fields.StringField {
 
   /** @inheritdoc */
   static get _defaults() {
-    return mergeObject(super._defaults, {
+    return foundry.utils.mergeObject(super._defaults, {
       initial: null,
       blank: false,
       trim: true,
@@ -227,7 +227,7 @@ export class SyncUUIDRefField extends fields.StringField {
 
   /** @inheritdoc */
   static get _defaults() {
-    return mergeObject(super._defaults, {
+    return foundry.utils.mergeObject(super._defaults, {
       initial: null,
       blank: false,
       trim: true,
@@ -251,7 +251,7 @@ export class SyncUUIDRefField extends fields.StringField {
       super._validateType(value);
       if (value) {
         //@ts-expect-error  Missing type
-        parseUuid(value);
+        foundry.utils.parseUuid(value);
         return true; // A definitive success
       }
     } catch (e) {

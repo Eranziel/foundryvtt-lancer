@@ -12,7 +12,7 @@ export class LancerDeployableSheet extends LancerActorSheet<EntryType.DEPLOYABLE
    * Extend and override the default options used by the NPC Sheet
    */
   static get defaultOptions(): ActorSheet.Options {
-    return mergeObject(super.defaultOptions, {
+    return foundry.utils.mergeObject(super.defaultOptions, {
       classes: ["lancer", "sheet", "actor", "deployable"],
       template: `systems/${game.system.id}/templates/actor/deployable.hbs`,
       width: 800,

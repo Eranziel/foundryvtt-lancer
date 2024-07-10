@@ -26,7 +26,7 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
    * @returns {Object}
    */
   static get defaultOptions(): ActorSheet.Options {
-    return mergeObject(super.defaultOptions, {
+    return foundry.utils.mergeObject(super.defaultOptions, {
       classes: ["lancer", "sheet", "actor", "pilot"],
       template: `systems/${game.system.id}/templates/actor/pilot.hbs`,
       width: 800,

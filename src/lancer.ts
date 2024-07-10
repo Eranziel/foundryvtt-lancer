@@ -740,10 +740,6 @@ Hooks.once("ready", () => {
 // Migrate settings from Lancer Condition Icons and disable the module
 Hooks.once("ready", migrateLancerConditions);
 
-Hooks.once("canvasInit", () => {
-  SquareGrid.prototype.measureDistances = measureDistances;
-});
-
 // Action Manager hooks.
 Hooks.on("controlToken", () => {
   game.action_manager?.update();
