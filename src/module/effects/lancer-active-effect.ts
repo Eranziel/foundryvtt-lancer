@@ -180,18 +180,18 @@ export class LancerActiveEffect extends ActiveEffect {
     function _swapIcons(
       // @ts-expect-error v10 types
       statuses: StatusEffect[],
-      swapWith: { id: string; name: string; icon: string }[]
+      swapWith: { id: string; name: string; img: string }[]
       // @ts-expect-error v10 types
     ): StatusEffect[] {
       for (let icon of swapWith) {
         let status = statuses.find(s => s.id === icon.id);
         if (status) {
-          status.icon = icon.icon;
+          status.img = icon.img;
         } else {
           statuses.push({
             id: icon.id,
             name: icon.name,
-            icon: icon.icon,
+            img: icon.img,
           });
         }
       }
@@ -230,9 +230,9 @@ export class LancerActiveEffect extends ActiveEffect {
     CONFIG.statusEffects = configStatuses;
     // Disable the vision mechanics Foundry applies to certain status names
     // @ts-expect-error v10 types
-    CONFIG.specialStatusEffects.INVISIBLE = "ignored";
+    CONFIG.specialStatusEffects.INVISIBLE = null;
     // @ts-expect-error v10 types
-    CONFIG.specialStatusEffects.BLIND = "ignored";
+    CONFIG.specialStatusEffects.BLIND = null;
 
     Hooks.callAll("lancer.statusInitComplete");
   }
