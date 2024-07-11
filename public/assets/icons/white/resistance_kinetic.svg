@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   version="1.1"
+   width="512"
+   height="512"
+   viewBox="0 0 24 24"
+   id="svg639"
+   sodipodi:docname="resistance_kinetic.svg"
+   inkscape:version="1.2.2 (732a01da63, 2022-12-09)"
+   inkscape:export-filename="resistance_kinetic.png"
+   inkscape:export-xdpi="96"
+   inkscape:export-ydpi="96"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs643" />
+  <sodipodi:namedview
+     id="namedview641"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     showgrid="false"
+     inkscape:zoom="1.6191406"
+     inkscape:cx="219.86972"
+     inkscape:cy="256.30881"
+     inkscape:window-width="1920"
+     inkscape:window-height="1009"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg639" />
+  <path
+     id="path637"
+     d="M 12 1.0000305 L 3 4.9999695 L 3 10.999969 C 3 13.225004 3.6173306 15.392151 4.6893311 17.271423 C 5.1122883 16.667903 5.5508835 16.075568 5.9987183 15.490265 C 5.3678239 14.142368 4.9999695 12.673232 4.9999695 11.219971 L 4.9999695 6.3000183 L 12 3.1799927 L 16.55072 5.2083435 C 17.181231 4.7503726 17.821049 4.3055251 18.471313 3.8760681 L 12 1.0000305 z M 20.58609 4.81604 C 20.078537 5.6114719 19.549293 6.392835 19.000031 7.1600647 L 19.000031 11.219971 C 19.000031 15.539966 15.749996 20.000001 12 21 C 10.519055 20.605081 9.1161164 19.670467 7.9605103 18.41803 C 7.4328202 18.811031 6.8967714 19.192462 6.3547668 19.56546 C 7.8738325 21.232682 9.8189893 22.467397 12 22.999969 C 17.159995 21.739971 21 16.549964 21 10.999969 L 21 4.9999695 L 20.58609 4.81604 z "
+     style="fill:#ffffff" />
+  <g
+     transform="matrix(0.0234375,0,0,-0.0234375,0,22.5)"
+     id="g169"
+     style="fill:#ffffff">
+    <path
+       fill="currentColor"
+       d="M 751,448 Q 751,400 731.5,355 712,310 681,279 650,248 605,228.5 560,209 512,209 q -48,0 -93,19.5 -45,19.5 -76,50.5 -31,31 -50.5,76 -19.5,45 -19.5,93 0,48 19.5,93 19.5,45 50.5,76 31,31 76,50.5 45,19.5 93,19.5 48,0 93,-19.5 Q 650,648 681,617 712,586 731.5,541 751,496 751,448 Z M 633,569 Q 608,593 578.5,606 549,619 512,619 475,619 445.5,606 416,593 391,569 367,544 354,514.5 341,485 341,448 q 0,-37 13,-66.5 13,-29.5 37,-54.5 25,-24 54.5,-37 29.5,-13 66.5,-13 37,0 66.5,13 29.5,13 54.5,37 24,25 37,54.5 13,29.5 13,66.5 0,37 -13,66.5 Q 657,544 633,569 Z M 171,107 q 102,64 198,140 95,76 181.5,162.5 Q 637,496 713,591 789,687 853,789 751,725 655,649 560,573 473.5,486.5 387,400 311,305 235,209 171,107 Z"
+       id="path167"
+       style="fill:#ffffff" />
+  </g>
+  <g
+     transform="matrix(0.0234375,0,0,-0.0234375,0,22.5)"
+     id="g169-1"
+     style="fill:#ffffff" />
+</svg>
