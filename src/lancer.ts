@@ -151,7 +151,6 @@ import { LancerCombatTrackerConfig } from "./module/helpers/lancer-initiative-co
 import { MechModel } from "./module/models/actors/mech";
 import { MechSystemModel } from "./module/models/items/mech_system";
 import { handleRenderCombatCarousel } from "./module/helpers/combat-carousel";
-import { measureDistances } from "./module/grid";
 import { EntryType } from "./module/enums";
 import { FrameModel } from "./module/models/items/frame";
 import { PilotModel } from "./module/models/actors/pilot";
