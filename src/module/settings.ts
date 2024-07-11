@@ -114,21 +114,6 @@ export const registerSettings = function () {
     default: false,
   });
 
-  game.settings.register(game.system.id, LANCER.setting_square_grid_diagonals, {
-    name: "lancer.squaregriddiagonals.name",
-    hint: "lancer.squaregriddiagonals.hint",
-    scope: "world",
-    config: true,
-    type: String,
-    choices: {
-      "111": "lancer.squaregriddiagonals.111",
-      "121": "lancer.squaregriddiagonals.121",
-      "222": "lancer.squaregriddiagonals.222",
-      euc: "lancer.squaregriddiagonals.euc",
-    },
-    default: "111",
-  });
-
   game.settings.register(game.system.id, LANCER.setting_status_icons, {
     scope: "world",
     config: false,
