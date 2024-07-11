@@ -165,18 +165,15 @@ export class LancerToken extends Token {
     if (this._spaces.spaces.length === 0) {
       // @ts-expect-error v12
       if (canvas.grid?.isHexagonal) {
-        // const alt = altOrientation(this);
-        // // @ts-expect-error v12
-        // const symmetrical = this.document.width !== this.document.height;
-        // // @ts-expect-error v12
-        // const even = symmetrical && this.document.width % 2 === 0;
+        // @ts-expect-error v12
+        const regular = this.document.width === this.document.height;
 
         const basis = getBasis(this);
         // @ts-expect-error v12
         const base_cube = canvas.grid.pointToCube(basis);
         const cubes = cubesBySize({
           // @ts-expect-error
-          size: this.document.width,
+          size: regular ? this.document.width : 1,
           alt: altOrientation(this),
           // @ts-expect-error
           columns: canvas.grid!.columns,
@@ -185,10 +182,8 @@ export class LancerToken extends Token {
           r: c.r + base_cube.r,
           s: c.s + base_cube.s,
         }));
-        this._spaces.spaces = cubes.map(c => {
-          // @ts-expect-error v12
-          return canvas.grid!.cubeToPoint(c);
-        });
+        // @ts-expect-error v12
+        this._spaces.spaces = cubes.map(c => canvas.grid!.cubeToPoint(c));
 
         // // @ts-expect-error
         // const cube_space = HexagonalGrid.offsetToCube(
