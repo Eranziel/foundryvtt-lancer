@@ -225,8 +225,9 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
    * Snapping function to only snap to the center of spaces rather than corners.
    */
   private snapToCenter({ x, y }: { x: number; y: number }): { x: number; y: number } {
-    const snapped = canvas.grid!.getCenter(x, y);
-    return { x: snapped[0], y: snapped[1] };
+    // @ts-expect-error v12
+    const snapped = canvas.grid!.getCenterPoint({ x, y });
+    return snapped;
   }
 
   /**
