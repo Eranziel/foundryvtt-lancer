@@ -333,7 +333,7 @@ export function statusConfigEffect(status: LancerSTATUS): any {
     name: base.name,
     changes: base.changes,
     origin: base.origin,
-    icon: base.icon,
+    img: base.icon,
     flags: {
       lancer: {
         status_type: status.system.type,

@@ -56,8 +56,8 @@
     "type": 2,
     "diagonals": 0
   },
-  "primaryTokenAttribute": "",
-  "secondaryTokenAttribute": "",
+  "primaryTokenAttribute": "hp",
+  "secondaryTokenAttribute": "heat",
   "url": "https://github.com/Eranziel/foundryvtt-lancer",
   "manifest": "https://github.com/Eranziel/foundryvtt-lancer/releases/latest/download/system.json",
   "download": "https://github.com/Eranziel/foundryvtt-lancer/releases/download/v2.5.0/lancer-v2.5.0.zip",
