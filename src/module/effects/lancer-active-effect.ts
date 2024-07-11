@@ -211,9 +211,9 @@ export class LancerActiveEffect extends ActiveEffect {
     CONFIG.statusEffects = configStatuses;
     // Disable the vision mechanics Foundry applies to certain status names
     // @ts-expect-error v10 types
-    CONFIG.specialStatusEffects.INVISIBLE = "ignored";
+    CONFIG.specialStatusEffects.INVISIBLE = null;
     // @ts-expect-error v10 types
-    CONFIG.specialStatusEffects.BLIND = "ignored";
+    CONFIG.specialStatusEffects.BLIND = null;
   }
 }
 

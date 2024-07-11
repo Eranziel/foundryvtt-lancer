@@ -24,6 +24,7 @@ export function targetsFromTemplate(templateId: string): void {
     test_token = (token: LancerToken) => {
       // @ts-expect-error v10/v11 document changes
       const token_radius = token.document.width / 2;
+      // @ts-expect-error v12 grid
       const range: number = canvas.grid!.measurePath([token.center, template]).distance;
 
       if (template.t === "circle") {
