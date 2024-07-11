@@ -100,6 +100,16 @@ export const defaultStatuses = [
     icon: `systems/lancer/assets/icons/white/npc_tier_3.svg`,
   },
   {
+    id: "cover_hard",
+    name: "lancer.statusIconsNames.cover_hard",
+    icon: `systems/lancer/assets/icons/white/cover_hard.svg`,
+  },
+  {
+    id: "cover_soft",
+    name: "lancer.statusIconsNames.cover_soft",
+    icon: `systems/lancer/assets/icons/white/cover_soft.svg`,
+  },
+  {
     id: "resistance_burn",
     name: "lancer.statusIconsNames.resistance_burn",
     icon: `systems/lancer/assets/icons/white/resistance_burn.svg`,
@@ -211,6 +221,16 @@ export const cancerConditionsStatus = [
     id: "stunned",
     name: "lancer.statusIconsNames.stunned",
     icon: "systems/lancer/assets/icons/alt-status/cancercondstat/stunned.svg",
+  },
+  {
+    id: "cover_hard",
+    name: "lancer.statusIconsNames.cover_hard",
+    icon: `systems/lancer/assets/icons/white/cover_hard.svg`,
+  },
+  {
+    id: "cover_soft",
+    name: "lancer.statusIconsNames.cover_soft",
+    icon: `systems/lancer/assets/icons/white/cover_soft.svg`,
   },
   {
     id: "resistance_burn",
@@ -789,6 +809,16 @@ export const tommyConditionsStatus = [
     id: "tiercust",
     name: "lancer.statusIconsNames.tiercust",
     icon: "systems/lancer/assets/icons/alt-status/tommystat/Tier Custom.webp",
+  },
+  {
+    id: "cover_hard",
+    name: "lancer.statusIconsNames.cover_hard",
+    icon: `systems/lancer/assets/icons/white/cover_hard.svg`,
+  },
+  {
+    id: "cover_soft",
+    name: "lancer.statusIconsNames.cover_soft",
+    icon: `systems/lancer/assets/icons/white/cover_soft.svg`,
   },
   {
     id: "resistance_burn",
