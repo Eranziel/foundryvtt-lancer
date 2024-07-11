@@ -32,7 +32,7 @@ export const registerSettings = function () {
     name: "Installed LCPs",
     scope: "world",
     config: false,
-    // @ts-ignore There's probably a fix for this
+    // @ts-expect-error There's probably a fix for this
     type: Object,
     default: { index: [] },
   });
@@ -41,7 +41,6 @@ export const registerSettings = function () {
     name: "Tags",
     scope: "world",
     config: false,
-    // @ts-ignore There's probably a fix for this
     type: Object,
     default: {},
   });

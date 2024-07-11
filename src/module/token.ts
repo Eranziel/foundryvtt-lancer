@@ -184,34 +184,6 @@ export class LancerToken extends Token {
         }));
         // @ts-expect-error v12
         this._spaces.spaces = cubes.map(c => canvas.grid!.cubeToPoint(c));
-
-        // // @ts-expect-error
-        // const cube_space = HexagonalGrid.offsetToCube(
-        //   // @ts-expect-error
-        //   HexagonalGrid.pixelsToOffset(this.center, canvas.grid.grid.options),
-        //   // @ts-expect-error
-        //   canvas.grid.grid.options
-        // );
-        // const cubes = cubesbysize({
-        //   // @ts-expect-error
-        //   size: this.document.width,
-        //   alt: altorientation(this),
-        //   columns: canvas.grid!.grid!.options.columns!,
-        // }).map(c => ({
-        //   q: c.q + cube_space.q,
-        //   r: c.r + cube_space.r,
-        //   s: c.s + cube_space.s,
-        // }));
-        // this._spaces.spaces = cubes.map(c => {
-        //   // @ts-expect-error
-        //   const p = HexagonalGrid.offsetToPixels(
-        //     // @ts-expect-error
-        //     HexagonalGrid.cubeToOffset(c, canvas.grid.grid.options),
-        //     // @ts-expect-error
-        //     canvas.grid.grid.options
-        //   );
-        //   return { x: p.x + Math.floor(canvas.grid!.grid!.w / 2), y: p.y + Math.floor(canvas.grid!.grid!.h / 2) };
-        // });
       } else if (canvas.grid?.type === CONST.GRID_TYPES.SQUARE) {
         // @ts-expect-error
         for (let i = 0; i < this.document.width; ++i) {
