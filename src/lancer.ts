@@ -331,22 +331,15 @@ Hooks.once("ready", async function () {
 
   // Set up status icons from compendium and world items
   await LancerActiveEffect.populateFromItems();
-  // TODO: V12 Should automatically localize these, so this can get removed then
-  //@ts-expect-error v11 types
-  CONFIG.statusEffects.forEach(e => (e.name = game.i18n.localize(e.name)));
 
   Hooks.on("updateCompendium", async collection => {
     if (collection?.metadata?.id == get_pack_id(EntryType.STATUS)) {
       await LancerActiveEffect.populateFromItems();
-      //@ts-expect-error v11 types
-      CONFIG.statusEffects.forEach(e => (e.name = game.i18n.localize(e.name)));
     }
   });
   Hooks.on("itemCreated", async (item: LancerItem) => {
     if (!item.is_status()) return;
     await LancerActiveEffect.populateFromItems();
-    //@ts-expect-error v11 types
-    CONFIG.statusEffects.forEach(e => (e.name = game.i18n.localize(e.name)));
   });
 });
 
