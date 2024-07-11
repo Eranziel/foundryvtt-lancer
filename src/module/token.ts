@@ -144,6 +144,18 @@ export class LancerToken extends Token {
     };
   }
 
+  /** @override */
+  getShape() {
+    // @ts-expect-error v12
+    const size: { width: number; height: number } = this.getSize();
+    // @ts-expect-error v12
+    if (canvas.grid!.isGridless && size.width === size.height) {
+      return new PIXI.Circle(size.width / 2, size.height / 2, size.width / 2);
+    }
+    // @ts-expect-error v12
+    return super.getShape() as PIXI.Polygon | PIXI.Rectangle;
+  }
+
   /**
    * Cached occupied spaces
    */
