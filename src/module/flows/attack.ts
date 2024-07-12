@@ -460,65 +460,6 @@ export async function printAttackCard(
   return true;
 }
 
-/**
- * Given an evaluated roll, create a new roll that doubles the dice and reuses
- * the dice from the original roll.
- * @param normal The orignal Roll
- * @returns An evaluated Roll
- */
-export async function getCritRoll(normal: Roll) {
-  const t_roll = new Roll(normal.formula);
-  await t_roll.evaluate({ async: true });
-
-  const dice_rolls = Array<DiceTerm.Result[]>(normal.terms.length);
-  const keep_dice: number[] = Array(normal.terms.length).fill(0);
-  normal.terms.forEach((term, i) => {
-    if (term instanceof Die) {
-      dice_rolls[i] = term.results.map(r => {
-        return { ...r };
-      });
-      const kh = parseInt(term.modifiers.find(m => m.startsWith("kh"))?.substr(2) ?? "0");
-      keep_dice[i] = kh || term.number;
-    }
-  });
-  t_roll.terms.forEach((term, i) => {
-    if (term instanceof Die) {
-      dice_rolls[i].push(...term.results);
-    }
-  });
-
-  // Just hold the active results in a sorted array, then mutate them
-  const actives: DiceTerm.Result[][] = Array(normal.terms.length).fill([]);
-  dice_rolls.forEach((dice, i) => {
-    actives[i] = dice.filter(d => d.active).sort((a, b) => a.result - b.result);
-  });
-  actives.forEach((dice, i) =>
-    dice.forEach((d, j) => {
-      d.active = j >= keep_dice[i];
-      d.discarded = j < keep_dice[i];
-    })
-  );
-
-  // We can rebuild him. We have the technology. We can make him better than he
-  // was. Better, stronger, faster
-  const terms = normal.terms.map((t, i) => {
-    if (t instanceof Die) {
-      return new Die({
-        ...t,
-        modifiers: (t.modifiers.filter(m => m.startsWith("kh")).length
-          ? t.modifiers
-          : [...t.modifiers, `kh${t.number}`]) as (keyof Die.Modifiers)[],
-        results: dice_rolls[i],
-        number: t.number * 2,
-      });
-    } else {
-      return t;
-    }
-  });
-
-  return Roll.fromTerms(terms);
-}
-
 // If user is GM, apply status changes to attacked tokens
 Hooks.on("createChatMessage", async (cm: ChatMessage, options: any, id: string) => {
   // Consume lock-on if we are a GM
