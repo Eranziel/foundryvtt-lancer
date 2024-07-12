@@ -1,39 +1,34 @@
 import * as t from "io-ts";
 
 import type { LancerActor } from "../../actor/lancer-actor";
-import type { AccDiffPlugin, AccDiffPluginData, AccDiffPluginCodec } from "./plugin";
-import { enclass, encode, decode } from "./serde";
+import { DamageHudPlugin, DamageHudPluginCodec, DamageHudPluginData } from "./plugin";
+import { enclass, encode, decode } from "../acc_diff/serde";
 import { LancerItem } from "../../item/lancer-item";
-
-import Invisibility from "./invisibility";
-import Spotter from "./spotter";
 import { LancerToken } from "../../token";
 import { Tag } from "../../models/bits/tag";
-
-export enum Cover {
-  None = 0,
-  Soft = 1,
-  Hard = 2,
-}
-let coverSchema = t.union([t.literal(0), t.literal(1), t.literal(2)]);
+import { DamageData } from "../../models/bits/damage";
 
 // so normally you wouldn't keep the codecs with the classes like this
 // the entire point of io-ts is that the co/dec logic is separable
 // but here we want plugins to actually modify the codecs, so, sigh
-export class AccDiffWeapon {
-  accurate: boolean;
-  inaccurate: boolean;
-  seeking: boolean;
-  #data!: AccDiffData; // never use this class before calling hydrate
-  plugins: { [k: string]: AccDiffPluginData };
+export class DamageHudWeapon {
+  ap: boolean;
+  paracausal: boolean;
+  halfDamage: boolean;
+  // damage: DamageData[];
+  // bonusDamage: DamageData[];
+  #data!: DamageHudData; // never use this class before calling hydrate
+  plugins: { [k: string]: DamageHudPluginData };
 
-  static pluginSchema: { [k: string]: AccDiffPluginCodec<any, any, any> } = {};
+  static pluginSchema: { [k: string]: DamageHudPluginCodec<any, any, any> } = {};
 
   static get schema() {
     return {
-      accurate: t.boolean,
-      inaccurate: t.boolean,
-      seeking: t.boolean,
+      ap: t.boolean,
+      paracausal: t.boolean,
+      halfDamage: t.boolean,
+      // damage: t.array(DamageData),
+      // bonusDamage: t.array(DamageData),
       plugins: t.type(this.pluginSchema),
     };
   }
@@ -42,35 +37,35 @@ export class AccDiffWeapon {
     return t.type(this.schema);
   }
   static get codec() {
-    return enclass(this.schemaCodec, AccDiffWeapon);
+    return enclass(this.schemaCodec, DamageHudWeapon);
   }
 
-  constructor(obj: t.TypeOf<typeof AccDiffWeapon.schemaCodec>) {
-    this.accurate = obj.accurate;
-    this.inaccurate = obj.inaccurate;
-    this.seeking = obj.seeking;
+  constructor(obj: t.TypeOf<typeof DamageHudWeapon.schemaCodec>) {
+    this.ap = obj.ap;
+    this.paracausal = obj.paracausal;
+    this.halfDamage = obj.halfDamage;
+    // this.damage = obj.damage;
+    // this.bonusDamage = obj.bonusDamage;
     this.plugins = obj.plugins;
   }
 
   get raw() {
     return {
-      accurate: this.accurate,
-      inaccurate: this.inaccurate,
-      seeking: this.seeking,
+      ap: this.ap,
+      paracausal: this.paracausal,
+      halfDamage: this.halfDamage,
+      // damage: this.damage,
+      // bonusDamage: this.bonusDamage,
       plugins: this.plugins,
     };
   }
 
-  get impaired(): ActiveEffect | null {
-    // @ts-expect-error
-    return !!this.#data?.lancerActor?.system?.statuses.impaired;
-  }
+  // TODO: refactor to damage specs
+  // total(cover: number) {
+  //   return (this.accurate ? 1 : 0) - (this.inaccurate ? 1 : 0) - (this.seeking ? 0 : cover) - (this.impaired ? 1 : 0);
+  // }
 
-  total(cover: number) {
-    return (this.accurate ? 1 : 0) - (this.inaccurate ? 1 : 0) - (this.seeking ? 0 : cover) - (this.impaired ? 1 : 0);
-  }
-
-  hydrate(d: AccDiffData) {
+  hydrate(d: DamageHudData) {
     for (let key of Object.keys(this.plugins)) {
       this.plugins[key].hydrate(d);
     }
@@ -78,20 +73,20 @@ export class AccDiffWeapon {
   }
 }
 
-export class AccDiffBase {
-  accuracy: number;
-  difficulty: number;
-  cover: Cover;
-  plugins: { [k: string]: AccDiffPluginData };
-  #weapon!: AccDiffWeapon; // never use this class before calling hydrate
+export class DamageHudBase {
+  // accuracy: number;
+  // difficulty: number;
+  // cover: Cover;
+  plugins: { [k: string]: DamageHudPluginData };
+  #weapon!: DamageHudWeapon; // never use this class before calling hydrate
 
-  static pluginSchema: { [k: string]: AccDiffPluginCodec<any, any, any> } = {};
+  static pluginSchema: { [k: string]: DamageHudPluginCodec<any, any, any> } = {};
 
   static get schema() {
     return {
-      accuracy: t.number,
-      difficulty: t.number,
-      cover: coverSchema,
+      // accuracy: t.number,
+      // difficulty: t.number,
+      // cover: coverSchema,
       plugins: t.type(this.pluginSchema),
     };
   }
@@ -99,22 +94,26 @@ export class AccDiffBase {
     return t.type(this.schema);
   }
   static get codec() {
-    return enclass(this.schemaCodec, AccDiffBase);
+    return enclass(this.schemaCodec, DamageHudBase);
   }
 
-  constructor(obj: t.TypeOf<typeof AccDiffBase.schemaCodec>) {
-    this.accuracy = obj.accuracy;
-    this.difficulty = obj.difficulty;
-    this.cover = obj.cover;
+  constructor(obj: t.TypeOf<typeof DamageHudBase.schemaCodec>) {
+    // this.accuracy = obj.accuracy;
+    // this.difficulty = obj.difficulty;
+    // this.cover = obj.cover;
     this.plugins = obj.plugins;
-    // this.#weapon = weapon;
   }
 
   get raw() {
-    return { accuracy: this.accuracy, difficulty: this.difficulty, cover: this.cover, plugins: this.plugins };
+    return {
+      // accuracy: this.accuracy,
+      // difficulty: this.difficulty,
+      // cover: this.cover,
+      plugins: this.plugins,
+    };
   }
 
-  hydrate(d: AccDiffData) {
+  hydrate(d: DamageHudData) {
     this.#weapon = d.weapon;
     for (let key of Object.keys(this.plugins)) {
       this.plugins[key].hydrate(d, this);
@@ -122,33 +121,33 @@ export class AccDiffBase {
   }
 
   get total() {
-    return this.accuracy - this.difficulty + this.#weapon.total(this.cover);
+    return 0; // this.accuracy - this.difficulty// + this.#weapon.total(this.cover);
   }
 }
 
-// we _want_ to extend AccDiffBase
+// we _want_ to extend DamageBase
 // but ... typescript checks type compatibility between _static_ methods
 // and that + io-ts I think has the variance wrong
-// so if you extend AccDiffBase it's trying to assign AccDiffBase to AccDiffTarget
-export class AccDiffTarget {
+// so if you extend DamageBase it's trying to assign DamageBase to DamageTarget
+export class DamageHudTarget {
   target: LancerToken;
-  accuracy: number;
-  difficulty: number;
-  cover: Cover;
-  consumeLockOn: boolean;
+  // accuracy: number;
+  // difficulty: number;
+  // cover: Cover;
+  // consumeLockOn: boolean;
   plugins: { [k: string]: any };
-  #weapon!: AccDiffWeapon; // never use this class before calling hydrate
-  #base!: AccDiffBase; // never use this class before calling hydrate
+  #weapon!: DamageHudWeapon; // never use this class before calling hydrate
+  #base!: DamageHudBase; // never use this class before calling hydrate
 
-  static pluginSchema: { [k: string]: AccDiffPluginCodec<any, any, any> } = {};
+  static pluginSchema: { [k: string]: DamageHudPluginCodec<any, any, any> } = {};
 
   static get schema() {
     return {
       target_id: t.string,
-      accuracy: t.number,
-      difficulty: t.number,
-      cover: coverSchema,
-      consumeLockOn: t.boolean,
+      // accuracy: t.number,
+      // difficulty: t.number,
+      // cover: coverSchema,
+      // consumeLockOn: t.boolean,
       plugins: t.type(this.pluginSchema),
     };
   }
@@ -157,10 +156,10 @@ export class AccDiffTarget {
     return t.type(this.schema);
   }
   static get codec() {
-    return enclass(this.schemaCodec, AccDiffTarget);
+    return enclass(this.schemaCodec, DamageHudTarget);
   }
 
-  constructor(obj: t.TypeOf<typeof AccDiffTarget.schemaCodec>) {
+  constructor(obj: t.TypeOf<typeof DamageHudTarget.schemaCodec>) {
     let target = canvas!.scene!.tokens.get(obj.target_id);
     if (!target) {
       ui.notifications!.error("Trying to access tokens from a different scene!");
@@ -168,11 +167,12 @@ export class AccDiffTarget {
     }
 
     this.target = target.object! as LancerToken;
-    this.accuracy = obj.accuracy;
-    this.difficulty = obj.difficulty;
-    this.cover = obj.cover;
-    this.consumeLockOn = obj.consumeLockOn;
+    // this.accuracy = obj.accuracy;
+    // this.difficulty = obj.difficulty;
+    // this.cover = obj.cover;
+    // this.consumeLockOn = obj.consumeLockOn;
     this.plugins = obj.plugins;
+
     // this.#weapon = weapon;
     // this.#base = base;
   }
@@ -180,30 +180,30 @@ export class AccDiffTarget {
   get raw() {
     return {
       target_id: this.target.id,
-      accuracy: this.accuracy,
-      difficulty: this.difficulty,
-      cover: this.cover,
-      consumeLockOn: this.consumeLockOn,
+      // accuracy: this.accuracy,
+      // difficulty: this.difficulty,
+      // cover: this.cover,
+      // consumeLockOn: this.consumeLockOn,
       plugins: this.plugins,
     };
   }
 
-  static fromParams(t: Token): AccDiffTarget {
+  static fromParams(t: Token): DamageHudTarget {
     let ret = {
       target_id: t.id,
-      accuracy: 0,
-      difficulty: 0,
-      cover: Cover.None,
-      consumeLockOn: true,
+      // accuracy: 0,
+      // difficulty: 0,
+      // cover: Cover.None,
+      // consumeLockOn: true,
       plugins: {} as { [k: string]: any },
     };
-    for (let plugin of AccDiffData.targetedPlugins) {
+    for (let plugin of DamageHudData.targetedPlugins) {
       ret.plugins[plugin.slug] = encode(plugin.perTarget!(t), plugin.codec);
     }
-    return decode(ret, AccDiffTarget.codec);
+    return decode(ret, DamageHudTarget.codec);
   }
 
-  hydrate(d: AccDiffData) {
+  hydrate(d: DamageHudData) {
     this.#weapon = d.weapon;
     this.#base = d.base;
     for (let key of Object.keys(this.plugins)) {
@@ -212,7 +212,7 @@ export class AccDiffTarget {
   }
 
   get usingLockOn(): null | boolean {
-    return (this.consumeLockOn && this.lockOnAvailable) || null;
+    return null; //(this.consumeLockOn && this.lockOnAvailable) || null;
   }
 
   get lockOnAvailable(): null | boolean {
@@ -220,30 +220,31 @@ export class AccDiffTarget {
   }
 
   get total() {
-    let base = this.accuracy - this.difficulty + this.#weapon.total(this.cover);
+    let base = 0; //this.accuracy - this.difficulty + this.#weapon.total(this.cover);
     // the only thing we actually use base for is the untyped bonuses
-    let raw = base + this.#base.accuracy - this.#base.difficulty;
-    let lockon = this.usingLockOn ? 1 : 0;
+    let raw = base; // + this.#base.accuracy - this.#base.difficulty;
+    // let lockon = this.usingLockOn ? 1 : 0;
 
-    return raw + lockon;
+    return raw; // + lockon;
   }
 }
 
-export type AccDiffDataSerialized = t.OutputOf<typeof AccDiffData.schemaCodec>;
-export class AccDiffData {
+export type DamageHudDataSerialized = t.OutputOf<typeof DamageHudData.schemaCodec>;
+// TODO: this guy needs a new name
+export class DamageHudData {
   title: string;
-  weapon: AccDiffWeapon;
-  base: AccDiffBase;
-  targets: AccDiffTarget[];
+  weapon: DamageHudWeapon;
+  base: DamageHudBase;
+  targets: DamageHudTarget[];
   lancerItem?: LancerItem; // not persisted, needs to be hydrated
   lancerActor?: LancerActor; // not persisted, needs to be hydrated
 
   static get schema() {
     return {
       title: t.string,
-      weapon: AccDiffWeapon.codec,
-      base: AccDiffBase.codec,
-      targets: t.array(AccDiffTarget.codec),
+      weapon: DamageHudWeapon.codec,
+      base: DamageHudBase.codec,
+      targets: t.array(DamageHudTarget.codec),
     };
   }
 
@@ -251,10 +252,10 @@ export class AccDiffData {
     return t.type(this.schema);
   }
   static get codec() {
-    return enclass(this.schemaCodec, AccDiffData);
+    return enclass(this.schemaCodec, DamageHudData);
   }
 
-  constructor(obj: t.TypeOf<typeof AccDiffData.schemaCodec>) {
+  constructor(obj: t.TypeOf<typeof DamageHudData.schemaCodec>) {
     this.title = obj.title;
     this.weapon = obj.weapon;
     this.base = obj.base;
@@ -277,13 +278,13 @@ export class AccDiffData {
     }
   }
 
-  replaceTargets(ts: Token[]): AccDiffData {
-    let oldTargets: { [key: string]: AccDiffTarget } = {};
+  replaceTargets(ts: Token[]): DamageHudData {
+    let oldTargets: { [key: string]: DamageHudTarget } = {};
     for (let data of this.targets) {
       oldTargets[data.target.id] = data;
     }
 
-    this.targets = ts.map(t => oldTargets[t.id] ?? AccDiffTarget.fromParams(t));
+    this.targets = ts.map(t => oldTargets[t.id] ?? DamageHudTarget.fromParams(t));
 
     for (let target of this.targets) {
       target.hydrate(this);
@@ -301,27 +302,27 @@ export class AccDiffData {
   }
 
   // Decode from a serialized object, optionally populating remaining data from an item
-  static fromObject(obj: AccDiffDataSerialized, runtimeData?: LancerItem | LancerActor): AccDiffData {
-    let ret = decode(obj, AccDiffData.codec);
+  static fromObject(obj: DamageHudDataSerialized, runtimeData?: LancerItem | LancerActor): DamageHudData {
+    let ret = decode(obj, DamageHudData.codec);
     ret.hydrate(runtimeData);
     return ret;
   }
 
-  toObject(): t.OutputOf<typeof AccDiffData.codec> {
-    return encode(this, AccDiffData.codec);
+  toObject(): t.OutputOf<typeof DamageHudData.codec> {
+    return encode(this, DamageHudData.codec);
   }
 
-  static plugins: AccDiffPlugin<AccDiffPluginData>[] = [];
-  static targetedPlugins: AccDiffPlugin<AccDiffPluginData>[] = [];
-  static registerPlugin<D extends AccDiffPluginData, P extends AccDiffPlugin<D>>(plugin: P) {
+  static plugins: DamageHudPlugin<DamageHudPluginData>[] = [];
+  static targetedPlugins: DamageHudPlugin<DamageHudPluginData>[] = [];
+  static registerPlugin<D extends DamageHudPluginData, P extends DamageHudPlugin<D>>(plugin: P) {
     if (plugin.perRoll) {
-      AccDiffWeapon.pluginSchema[plugin.slug] = plugin.codec;
+      DamageHudWeapon.pluginSchema[plugin.slug] = plugin.codec;
     }
     if (plugin.perUnknownTarget) {
-      AccDiffBase.pluginSchema[plugin.slug] = plugin.codec;
+      DamageHudBase.pluginSchema[plugin.slug] = plugin.codec;
     }
     if (plugin.perTarget) {
-      AccDiffTarget.pluginSchema[plugin.slug] = plugin.codec;
+      DamageHudTarget.pluginSchema[plugin.slug] = plugin.codec;
       this.targetedPlugins.push(plugin);
     }
     this.plugins.push(plugin);
@@ -333,11 +334,11 @@ export class AccDiffData {
     title?: string,
     targets?: Token[],
     starting?: [number, number] | number
-  ): AccDiffData {
+  ): DamageHudData {
     let weapon = {
-      accurate: false,
-      inaccurate: false,
-      seeking: false,
+      ap: false,
+      paracausal: false,
+      halfDamage: false,
       plugins: {} as { [k: string]: any },
     };
 
@@ -350,35 +351,30 @@ export class AccDiffData {
 
     for (let tag of tags || []) {
       switch (tag.lid) {
-        case "tg_accurate":
-          weapon.accurate = true;
-          break;
-        case "tg_inaccurate":
-          weapon.inaccurate = true;
-          break;
-        case "tg_seeking":
-          weapon.seeking = true;
+        case "tg_ap":
+          weapon.ap = true;
           break;
       }
     }
+    // TODO: check for paracausal and half damage
 
     let base = {
-      cover: Cover.None,
-      accuracy: starting[0],
-      difficulty: starting[1],
+      // cover: Cover.None,
+      // accuracy: starting[0],
+      // difficulty: starting[1],
       plugins: {} as { [k: string]: any },
     };
 
-    let obj: AccDiffDataSerialized = {
+    let obj: DamageHudDataSerialized = {
       title: title ? title : "Accuracy and Difficulty",
       weapon,
       base,
       targets: (targets || []).map(t => {
         let ret = {
           target_id: t.id,
-          accuracy: 0,
-          difficulty: 0,
-          cover: Cover.None,
+          // accuracy: 0,
+          // difficulty: 0,
+          // cover: Cover.None,
           consumeLockOn: true,
           plugins: {} as { [k: string]: any },
         };
@@ -398,12 +394,8 @@ export class AccDiffData {
       }
     }
 
-    // for now this isn't using AccDiffTarget.fromParams, which means the code is duplicated
+    // for now this isn't using DamageTarget.fromParams, which means the code is duplicated
     // that's a relatively contained bit of tech debt, but let's handle it next time this is touched
-    return AccDiffData.fromObject(obj, runtimeData);
+    return DamageHudData.fromObject(obj, runtimeData);
   }
 }
-
-// side effects for importing, yes, yes, I know
-AccDiffData.registerPlugin(Invisibility);
-AccDiffData.registerPlugin(Spotter);
