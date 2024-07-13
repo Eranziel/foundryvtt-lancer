@@ -1,7 +1,7 @@
 <script lang="ts">
   import { slide } from "svelte/transition";
-  import type { AccDiffPluginData } from "./plugin";
-  export let data: AccDiffPluginData;
+  import type { AccDiffHudPluginData } from "./plugin";
+  export let data: AccDiffHudPluginData;
 </script>
 
 {#if data.uiElement == "checkbox" && data.visible}

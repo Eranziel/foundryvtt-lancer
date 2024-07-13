@@ -1,6 +1,6 @@
 import { LancerActor } from "../actor/lancer-actor";
 import { AttackType, DamageType, NpcFeatureType, StabOptions1, StabOptions2, SystemType } from "../enums";
-import { AccDiffData } from "../helpers/acc_diff";
+import { AccDiffHudData } from "../helpers/acc_diff";
 import { ActionData } from "../models/bits/action";
 import { DamageData } from "../models/bits/damage";
 import { Tag, TagData } from "../models/bits/tag";
@@ -29,7 +29,7 @@ export namespace LancerFlowState {
     type: "stat";
     path: string; // The dotpath to the stat in the item or actor
     bonus: string | number;
-    acc_diff?: AccDiffData;
+    acc_diff?: AccDiffHudData;
     effect?: string;
   }
 
@@ -81,7 +81,7 @@ export namespace LancerFlowState {
   export interface AttackRollData extends Omit<BaseRollData, "type"> {
     type: "attack";
     flat_bonus: number;
-    acc_diff?: AccDiffData;
+    acc_diff?: AccDiffHudData;
 
     attack_type: AttackType; // Melee, Ranged, Quick Tech, Full Tech
     action: ActionData | null;

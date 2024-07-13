@@ -1,7 +1,7 @@
 import * as t from "io-ts";
 import { LancerActor } from "../../actor/lancer-actor";
-import { AccDiffPlugin, AccDiffCheckboxPluginData, AccDiffPluginCodec } from "./plugin";
-import { AccDiffData, AccDiffTarget } from "./index";
+import { AccDiffHudPlugin, AccDiffHudCheckboxPluginData, AccDiffHudPluginCodec } from "./plugin";
+import { AccDiffHudData, AccDiffHudTarget } from "./index";
 import { enclass } from "./serde";
 
 // you don't need to explicitly type the serialized data,
@@ -17,7 +17,7 @@ export enum InvisibilityEnum {
   ForceInvisibility = 1,
 }
 
-export default class Invisibility implements AccDiffCheckboxPluginData {
+export default class Invisibility implements AccDiffHudCheckboxPluginData {
   data: InvisibilityEnum;
   token?: Token;
 
@@ -30,12 +30,12 @@ export default class Invisibility implements AccDiffCheckboxPluginData {
   }
 
   // as you may have guessed, the codec just stores the enum
-  static get codec(): AccDiffPluginCodec<Invisibility, InvisibilityEnum, unknown> {
+  static get codec(): AccDiffHudPluginCodec<Invisibility, InvisibilityEnum, unknown> {
     return enclass(t.union([t.literal(-1), t.literal(0), t.literal(1)]), Invisibility);
   }
 
   // store a reference to the current token when rehydrated
-  hydrate(_d: AccDiffData, t?: AccDiffTarget) {
+  hydrate(_d: AccDiffHudData, t?: AccDiffHudTarget) {
     if (t) {
       this.token = t.target;
     }
@@ -105,4 +105,4 @@ export default class Invisibility implements AccDiffCheckboxPluginData {
 }
 
 // to check whether the static methods match the interface
-const _klass: AccDiffPlugin<Invisibility> = Invisibility;
+const _klass: AccDiffHudPlugin<Invisibility> = Invisibility;

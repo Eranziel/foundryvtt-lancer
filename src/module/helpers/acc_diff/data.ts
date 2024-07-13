@@ -1,7 +1,7 @@
 import * as t from "io-ts";
 
 import type { LancerActor } from "../../actor/lancer-actor";
-import type { AccDiffPlugin, AccDiffPluginData, AccDiffPluginCodec } from "./plugin";
+import type { AccDiffHudPlugin, AccDiffHudPluginData, AccDiffHudPluginCodec } from "./plugin";
 import { enclass, encode, decode } from "./serde";
 import { LancerItem } from "../../item/lancer-item";
 
@@ -9,7 +9,6 @@ import Invisibility from "./invisibility";
 import Spotter from "./spotter";
 import { LancerToken } from "../../token";
 import { Tag } from "../../models/bits/tag";
-import { LancerActiveEffect } from "../../effects/lancer-active-effect";
 
 export enum Cover {
   None = 0,
@@ -21,14 +20,14 @@ let coverSchema = t.union([t.literal(0), t.literal(1), t.literal(2)]);
 // so normally you wouldn't keep the codecs with the classes like this
 // the entire point of io-ts is that the co/dec logic is separable
 // but here we want plugins to actually modify the codecs, so, sigh
-export class AccDiffWeapon {
+export class AccDiffHudWeapon {
   accurate: boolean;
   inaccurate: boolean;
   seeking: boolean;
-  #data!: AccDiffData; // never use this class before calling hydrate
-  plugins: { [k: string]: AccDiffPluginData };
+  #data!: AccDiffHudData; // never use this class before calling hydrate
+  plugins: { [k: string]: AccDiffHudPluginData };
 
-  static pluginSchema: { [k: string]: AccDiffPluginCodec<any, any, any> } = {};
+  static pluginSchema: { [k: string]: AccDiffHudPluginCodec<any, any, any> } = {};
 
   static get schema() {
     return {
@@ -43,10 +42,10 @@ export class AccDiffWeapon {
     return t.type(this.schema);
   }
   static get codec() {
-    return enclass(this.schemaCodec, AccDiffWeapon);
+    return enclass(this.schemaCodec, AccDiffHudWeapon);
   }
 
-  constructor(obj: t.TypeOf<typeof AccDiffWeapon.schemaCodec>) {
+  constructor(obj: t.TypeOf<typeof AccDiffHudWeapon.schemaCodec>) {
     this.accurate = obj.accurate;
     this.inaccurate = obj.inaccurate;
     this.seeking = obj.seeking;
@@ -71,7 +70,7 @@ export class AccDiffWeapon {
     return (this.accurate ? 1 : 0) - (this.inaccurate ? 1 : 0) - (this.seeking ? 0 : cover) - (this.impaired ? 1 : 0);
   }
 
-  hydrate(d: AccDiffData) {
+  hydrate(d: AccDiffHudData) {
     for (let key of Object.keys(this.plugins)) {
       this.plugins[key].hydrate(d);
     }
@@ -79,14 +78,14 @@ export class AccDiffWeapon {
   }
 }
 
-export class AccDiffBase {
+export class AccDiffHudBase {
   accuracy: number;
   difficulty: number;
   cover: Cover;
-  plugins: { [k: string]: AccDiffPluginData };
-  #weapon!: AccDiffWeapon; // never use this class before calling hydrate
+  plugins: { [k: string]: AccDiffHudPluginData };
+  #weapon!: AccDiffHudWeapon; // never use this class before calling hydrate
 
-  static pluginSchema: { [k: string]: AccDiffPluginCodec<any, any, any> } = {};
+  static pluginSchema: { [k: string]: AccDiffHudPluginCodec<any, any, any> } = {};
 
   static get schema() {
     return {
@@ -100,22 +99,21 @@ export class AccDiffBase {
     return t.type(this.schema);
   }
   static get codec() {
-    return enclass(this.schemaCodec, AccDiffBase);
+    return enclass(this.schemaCodec, AccDiffHudBase);
   }
 
-  constructor(obj: t.TypeOf<typeof AccDiffBase.schemaCodec>) {
+  constructor(obj: t.TypeOf<typeof AccDiffHudBase.schemaCodec>) {
     this.accuracy = obj.accuracy;
     this.difficulty = obj.difficulty;
     this.cover = obj.cover;
     this.plugins = obj.plugins;
-    // this.#weapon = weapon;
   }
 
   get raw() {
     return { accuracy: this.accuracy, difficulty: this.difficulty, cover: this.cover, plugins: this.plugins };
   }
 
-  hydrate(d: AccDiffData) {
+  hydrate(d: AccDiffHudData) {
     this.#weapon = d.weapon;
     for (let key of Object.keys(this.plugins)) {
       this.plugins[key].hydrate(d, this);
@@ -131,17 +129,17 @@ export class AccDiffBase {
 // but ... typescript checks type compatibility between _static_ methods
 // and that + io-ts I think has the variance wrong
 // so if you extend AccDiffBase it's trying to assign AccDiffBase to AccDiffTarget
-export class AccDiffTarget {
+export class AccDiffHudTarget {
   target: LancerToken;
   accuracy: number;
   difficulty: number;
   cover: Cover;
   consumeLockOn: boolean;
   plugins: { [k: string]: any };
-  #weapon!: AccDiffWeapon; // never use this class before calling hydrate
-  #base!: AccDiffBase; // never use this class before calling hydrate
+  #weapon!: AccDiffHudWeapon; // never use this class before calling hydrate
+  #base!: AccDiffHudBase; // never use this class before calling hydrate
 
-  static pluginSchema: { [k: string]: AccDiffPluginCodec<any, any, any> } = {};
+  static pluginSchema: { [k: string]: AccDiffHudPluginCodec<any, any, any> } = {};
 
   static get schema() {
     return {
@@ -158,10 +156,10 @@ export class AccDiffTarget {
     return t.type(this.schema);
   }
   static get codec() {
-    return enclass(this.schemaCodec, AccDiffTarget);
+    return enclass(this.schemaCodec, AccDiffHudTarget);
   }
 
-  constructor(obj: t.TypeOf<typeof AccDiffTarget.schemaCodec>) {
+  constructor(obj: t.TypeOf<typeof AccDiffHudTarget.schemaCodec>) {
     let target = canvas!.scene!.tokens.get(obj.target_id);
     if (!target) {
       ui.notifications!.error("Trying to access tokens from a different scene!");
@@ -174,8 +172,6 @@ export class AccDiffTarget {
     this.cover = obj.cover;
     this.consumeLockOn = obj.consumeLockOn;
     this.plugins = obj.plugins;
-    // this.#weapon = weapon;
-    // this.#base = base;
   }
 
   get raw() {
@@ -189,7 +185,7 @@ export class AccDiffTarget {
     };
   }
 
-  static fromParams(t: Token): AccDiffTarget {
+  static fromParams(t: Token): AccDiffHudTarget {
     let ret = {
       target_id: t.id,
       accuracy: 0,
@@ -198,13 +194,13 @@ export class AccDiffTarget {
       consumeLockOn: true,
       plugins: {} as { [k: string]: any },
     };
-    for (let plugin of AccDiffData.targetedPlugins) {
+    for (let plugin of AccDiffHudData.targetedPlugins) {
       ret.plugins[plugin.slug] = encode(plugin.perTarget!(t), plugin.codec);
     }
-    return decode(ret, AccDiffTarget.codec);
+    return decode(ret, AccDiffHudTarget.codec);
   }
 
-  hydrate(d: AccDiffData) {
+  hydrate(d: AccDiffHudData) {
     this.#weapon = d.weapon;
     this.#base = d.base;
     for (let key of Object.keys(this.plugins)) {
@@ -230,21 +226,21 @@ export class AccDiffTarget {
   }
 }
 
-export type AccDiffDataSerialized = t.OutputOf<typeof AccDiffData.schemaCodec>;
-export class AccDiffData {
+export type AccDiffHudDataSerialized = t.OutputOf<typeof AccDiffHudData.schemaCodec>;
+export class AccDiffHudData {
   title: string;
-  weapon: AccDiffWeapon;
-  base: AccDiffBase;
-  targets: AccDiffTarget[];
+  weapon: AccDiffHudWeapon;
+  base: AccDiffHudBase;
+  targets: AccDiffHudTarget[];
   lancerItem?: LancerItem; // not persisted, needs to be hydrated
   lancerActor?: LancerActor; // not persisted, needs to be hydrated
 
   static get schema() {
     return {
       title: t.string,
-      weapon: AccDiffWeapon.codec,
-      base: AccDiffBase.codec,
-      targets: t.array(AccDiffTarget.codec),
+      weapon: AccDiffHudWeapon.codec,
+      base: AccDiffHudBase.codec,
+      targets: t.array(AccDiffHudTarget.codec),
     };
   }
 
@@ -252,10 +248,10 @@ export class AccDiffData {
     return t.type(this.schema);
   }
   static get codec() {
-    return enclass(this.schemaCodec, AccDiffData);
+    return enclass(this.schemaCodec, AccDiffHudData);
   }
 
-  constructor(obj: t.TypeOf<typeof AccDiffData.schemaCodec>) {
+  constructor(obj: t.TypeOf<typeof AccDiffHudData.schemaCodec>) {
     this.title = obj.title;
     this.weapon = obj.weapon;
     this.base = obj.base;
@@ -278,13 +274,13 @@ export class AccDiffData {
     }
   }
 
-  replaceTargets(ts: Token[]): AccDiffData {
-    let oldTargets: { [key: string]: AccDiffTarget } = {};
+  replaceTargets(ts: Token[]): AccDiffHudData {
+    let oldTargets: { [key: string]: AccDiffHudTarget } = {};
     for (let data of this.targets) {
       oldTargets[data.target.id] = data;
     }
 
-    this.targets = ts.map(t => oldTargets[t.id] ?? AccDiffTarget.fromParams(t));
+    this.targets = ts.map(t => oldTargets[t.id] ?? AccDiffHudTarget.fromParams(t));
 
     for (let target of this.targets) {
       target.hydrate(this);
@@ -302,27 +298,27 @@ export class AccDiffData {
   }
 
   // Decode from a serialized object, optionally populating remaining data from an item
-  static fromObject(obj: AccDiffDataSerialized, runtimeData?: LancerItem | LancerActor): AccDiffData {
-    let ret = decode(obj, AccDiffData.codec);
+  static fromObject(obj: AccDiffHudDataSerialized, runtimeData?: LancerItem | LancerActor): AccDiffHudData {
+    let ret = decode(obj, AccDiffHudData.codec);
     ret.hydrate(runtimeData);
     return ret;
   }
 
-  toObject(): t.OutputOf<typeof AccDiffData.codec> {
-    return encode(this, AccDiffData.codec);
+  toObject(): t.OutputOf<typeof AccDiffHudData.codec> {
+    return encode(this, AccDiffHudData.codec);
   }
 
-  static plugins: AccDiffPlugin<AccDiffPluginData>[] = [];
-  static targetedPlugins: AccDiffPlugin<AccDiffPluginData>[] = [];
-  static registerPlugin<D extends AccDiffPluginData, P extends AccDiffPlugin<D>>(plugin: P) {
+  static plugins: AccDiffHudPlugin<AccDiffHudPluginData>[] = [];
+  static targetedPlugins: AccDiffHudPlugin<AccDiffHudPluginData>[] = [];
+  static registerPlugin<D extends AccDiffHudPluginData, P extends AccDiffHudPlugin<D>>(plugin: P) {
     if (plugin.perRoll) {
-      AccDiffWeapon.pluginSchema[plugin.slug] = plugin.codec;
+      AccDiffHudWeapon.pluginSchema[plugin.slug] = plugin.codec;
     }
     if (plugin.perUnknownTarget) {
-      AccDiffBase.pluginSchema[plugin.slug] = plugin.codec;
+      AccDiffHudBase.pluginSchema[plugin.slug] = plugin.codec;
     }
     if (plugin.perTarget) {
-      AccDiffTarget.pluginSchema[plugin.slug] = plugin.codec;
+      AccDiffHudTarget.pluginSchema[plugin.slug] = plugin.codec;
       this.targetedPlugins.push(plugin);
     }
     this.plugins.push(plugin);
@@ -334,7 +330,7 @@ export class AccDiffData {
     title?: string,
     targets?: Token[],
     starting?: [number, number] | number
-  ): AccDiffData {
+  ): AccDiffHudData {
     let weapon = {
       accurate: false,
       inaccurate: false,
@@ -370,7 +366,7 @@ export class AccDiffData {
       plugins: {} as { [k: string]: any },
     };
 
-    let obj: AccDiffDataSerialized = {
+    let obj: AccDiffHudDataSerialized = {
       title: title ? title : "Accuracy and Difficulty",
       weapon,
       base,
@@ -401,10 +397,10 @@ export class AccDiffData {
 
     // for now this isn't using AccDiffTarget.fromParams, which means the code is duplicated
     // that's a relatively contained bit of tech debt, but let's handle it next time this is touched
-    return AccDiffData.fromObject(obj, runtimeData);
+    return AccDiffHudData.fromObject(obj, runtimeData);
   }
 }
 
 // side effects for importing, yes, yes, I know
-AccDiffData.registerPlugin(Invisibility);
-AccDiffData.registerPlugin(Spotter);
+AccDiffHudData.registerPlugin(Invisibility);
+AccDiffHudData.registerPlugin(Spotter);

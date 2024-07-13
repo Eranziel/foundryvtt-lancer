@@ -1,14 +1,14 @@
-export type { AccDiffDataSerialized } from "./data";
-export { Cover, AccDiffWeapon, AccDiffBase, AccDiffTarget, AccDiffData } from "./data";
+export type { AccDiffHudDataSerialized } from "./data";
+export { Cover, AccDiffHudWeapon, AccDiffHudBase, AccDiffHudTarget, AccDiffHudData } from "./data";
 export type {
   CheckboxUI,
   NoUI,
   RollModifier,
   Dehydrated,
-  AccDiffPluginData,
-  AccDiffCheckboxPluginData,
-  AccDiffNoUIPluginData,
-  AccDiffPluginCodec,
-  AccDiffPlugin,
+  AccDiffHudPluginData,
+  AccDiffHudCheckboxPluginData,
+  AccDiffHudNoUIPluginData,
+  AccDiffHudPluginCodec,
+  AccDiffHudPlugin,
   Data as AccDiffPluginDataOf,
 } from "./plugin";

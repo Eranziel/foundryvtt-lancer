@@ -4,8 +4,8 @@ import { LancerActor } from "../actor/lancer-actor";
 import { resolveDotpath } from "../helpers/commons";
 import { renderTemplateStep } from "./_render";
 import { LancerFlowState } from "./interfaces";
-import { LancerItem, LancerSKILL } from "../item/lancer-item";
-import { AccDiffData, AccDiffDataSerialized } from "../helpers/acc_diff";
+import { LancerItem } from "../item/lancer-item";
+import { AccDiffHudData, AccDiffHudDataSerialized } from "../helpers/acc_diff";
 import { openSlidingHud } from "../helpers/slidinghud";
 import { UUIDRef } from "../source-template";
 import { Flow, FlowState, Step } from "./flow";
@@ -40,7 +40,7 @@ export class StatRollFlow extends Flow<LancerFlowState.StatRollData> {
 
 async function initStatRollData(
   state: FlowState<LancerFlowState.StatRollData>,
-  options?: { title?: string; acc_diff?: AccDiffDataSerialized }
+  options?: { title?: string; acc_diff?: AccDiffHudDataSerialized }
 ): Promise<boolean> {
   if (!state.data) throw new TypeError(`Stat roll flow state missing!`);
   // If we only have an actor, it's a HASE roll
@@ -49,8 +49,8 @@ async function initStatRollData(
     state.data.title = options?.title || state.data.title || pathParts[pathParts.length - 1].toUpperCase();
     state.data.bonus = resolveDotpath(state.actor, state.data.path) as number;
     state.data.acc_diff = options?.acc_diff
-      ? AccDiffData.fromObject(options.acc_diff)
-      : AccDiffData.fromParams(state.actor, undefined, state.data.title);
+      ? AccDiffHudData.fromObject(options.acc_diff)
+      : AccDiffHudData.fromParams(state.actor, undefined, state.data.title);
     state.data.effect = undefined; // HASE rolls don't have effects
     return true;
   } else {
@@ -61,8 +61,8 @@ async function initStatRollData(
     state.data.path = "system.curr_rank";
     state.data.bonus = state.item.system.curr_rank * 2;
     state.data.acc_diff = options?.acc_diff
-      ? AccDiffData.fromObject(options.acc_diff)
-      : AccDiffData.fromParams(state.actor, undefined, state.data.title);
+      ? AccDiffHudData.fromObject(options.acc_diff)
+      : AccDiffHudData.fromParams(state.actor, undefined, state.data.title);
     // I guess we don't show skill descriptions in the chat cards.
     // state.data.effect = state.item.system.description;
     return true;

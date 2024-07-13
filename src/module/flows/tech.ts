@@ -1,7 +1,7 @@
 // Import TypeScript modules
 import { LANCER } from "../config";
 import { LancerActor } from "../actor/lancer-actor";
-import { AccDiffData, AccDiffDataSerialized } from "../helpers/acc_diff";
+import { AccDiffHudData, AccDiffHudDataSerialized } from "../helpers/acc_diff";
 import { renderTemplateStep } from "./_render";
 import { SystemTemplates } from "../system-template";
 import { LancerFlowState } from "./interfaces";
@@ -65,7 +65,7 @@ export class TechAttackFlow extends Flow<LancerFlowState.TechAttackRollData> {
 
 function commonMechTechAttackInit(
   state: FlowState<LancerFlowState.TechAttackRollData>,
-  options?: { title?: string; flat_bonus?: number; acc_diff?: AccDiffDataSerialized; action_path?: string }
+  options?: { title?: string; flat_bonus?: number; acc_diff?: AccDiffHudDataSerialized; action_path?: string }
 ) {
   if (!state.data) throw new TypeError(`Tech attack flow state missing!`);
   if (!state.item) throw new TypeError(`Tech attack flow state missing item!`);
@@ -84,8 +84,8 @@ function commonMechTechAttackInit(
 
   // TODO: check bonuses for flat attack bonus
   state.data.acc_diff = options?.acc_diff
-    ? AccDiffData.fromObject(options.acc_diff)
-    : AccDiffData.fromParams(
+    ? AccDiffHudData.fromObject(options.acc_diff)
+    : AccDiffHudData.fromParams(
         state.item,
         state.item.getTags() ?? [],
         state.data.title,
@@ -98,7 +98,7 @@ function commonMechTechAttackInit(
 
 export async function initTechAttackData(
   state: FlowState<LancerFlowState.TechAttackRollData>,
-  options?: { title?: string; flat_bonus?: number; acc_diff?: AccDiffDataSerialized; action_path?: string }
+  options?: { title?: string; flat_bonus?: number; acc_diff?: AccDiffHudDataSerialized; action_path?: string }
 ): Promise<boolean> {
   if (!state.data) throw new TypeError(`Tech attack flow state missing!`);
   // If we only have an actor, it's a basic attack
@@ -116,8 +116,8 @@ export async function initTechAttackData(
       state.data.flat_bonus = state.actor.system.sys;
     }
     state.data.acc_diff = options?.acc_diff
-      ? AccDiffData.fromObject(options.acc_diff)
-      : AccDiffData.fromParams(state.actor, [], state.data.title, Array.from(game.user!.targets));
+      ? AccDiffHudData.fromObject(options.acc_diff)
+      : AccDiffHudData.fromParams(state.actor, [], state.data.title, Array.from(game.user!.targets));
     return true;
   } else {
     // This title works for everything
@@ -134,8 +134,8 @@ export async function initTechAttackData(
       let acc = asTech.accuracy ? asTech.accuracy[tier_index] ?? 0 : 0;
       state.data.flat_bonus = asTech.attack_bonus ? asTech.attack_bonus[tier_index] ?? 0 : 0;
       state.data.acc_diff = options?.acc_diff
-        ? AccDiffData.fromObject(options.acc_diff)
-        : AccDiffData.fromParams(state.item, asTech.tags, state.data.title, Array.from(game.user!.targets), acc);
+        ? AccDiffHudData.fromObject(options.acc_diff)
+        : AccDiffHudData.fromParams(state.item, asTech.tags, state.data.title, Array.from(game.user!.targets), acc);
       return true;
     } else if (state.item.is_mech_system() || state.item.is_frame()) {
       // Tech attack system

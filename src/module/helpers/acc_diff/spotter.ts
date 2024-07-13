@@ -1,6 +1,6 @@
 import { stateless } from "./serde";
-import type { AccDiffPlugin, AccDiffPluginData } from "./plugin";
-import type { AccDiffData, AccDiffTarget } from "./index";
+import type { AccDiffHudPlugin, AccDiffHudPluginData } from "./plugin";
+import type { AccDiffHudData, AccDiffHudTarget } from "./index";
 import type { LancerActor, LancerMECH, LancerPILOT } from "../../actor/lancer-actor";
 import type { LancerToken } from "../../token";
 import { LancerTALENT } from "../../item/lancer-item";
@@ -33,10 +33,10 @@ function adjacentSpotter(actor: LancerActor): boolean {
   return adjacentPilots.some(p => p?.itemTypes.talent.find(t => (t as LancerTALENT).system.lid == "t_spotter"));
 }
 
-function spotter(): AccDiffPluginData {
+function spotter(): AccDiffHudPluginData {
   let sp = {
     actor: null as LancerActor | null,
-    target: null as AccDiffTarget | null,
+    target: null as AccDiffHudTarget | null,
     uiElement: "checkbox" as "checkbox",
     slug: "spotter",
     humanLabel: "Spotter (*)",
@@ -58,7 +58,7 @@ function spotter(): AccDiffPluginData {
       }
     },
     rollPrecedence: -100, // after numeric modifiers
-    hydrate(data: AccDiffData, target?: AccDiffTarget) {
+    hydrate(data: AccDiffHudData, target?: AccDiffHudTarget) {
       this.actor = data.lancerActor || null;
       this.target = target || null;
     },
@@ -67,11 +67,11 @@ function spotter(): AccDiffPluginData {
   return sp;
 }
 
-const Spotter: AccDiffPlugin<AccDiffPluginData> = {
+const Spotter: AccDiffHudPlugin<AccDiffHudPluginData> = {
   slug: "spotter",
   codec: stateless(
     "Spotter",
-    (t: unknown): t is AccDiffPluginData => typeof t == "object" && (t as any)?.slug == "spotter",
+    (t: unknown): t is AccDiffHudPluginData => typeof t == "object" && (t as any)?.slug == "spotter",
     spotter
   ),
   perTarget(_t: Token) {

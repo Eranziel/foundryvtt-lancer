@@ -1,5 +1,5 @@
 import type HUDZone from "./SlidingHUDZone.svelte";
-import type { AccDiffData } from "../acc_diff";
+import type { AccDiffHudData } from "../acc_diff";
 import type { StructStressData } from "../struct_stress/data";
 
 let hud: HUDZone;
@@ -53,4 +53,4 @@ export async function fade(dir: "out" | "in" = "out") {
   hud.fade(dir);
 }
 
-type HUDData = { attack: AccDiffData; hase: AccDiffData; struct: StructStressData; stress: StructStressData };
+type HUDData = { attack: AccDiffHudData; hase: AccDiffHudData; struct: StructStressData; stress: StructStressData };

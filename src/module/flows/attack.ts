@@ -4,7 +4,7 @@ import { getAutomationOptions } from "../settings";
 import { LancerItem } from "../item/lancer-item";
 import { LancerActor, LancerNPC } from "../actor/lancer-actor";
 import { checkForHit } from "../helpers/automation/targeting";
-import { AccDiffData, AccDiffDataSerialized, RollModifier } from "../helpers/acc_diff";
+import { AccDiffHudData, AccDiffHudDataSerialized, RollModifier } from "../helpers/acc_diff";
 import { renderTemplateStep } from "./_render";
 import { SystemTemplates } from "../system-template";
 import { UUIDRef } from "../source-template";
@@ -32,7 +32,7 @@ function applyPluginsToRoll(str: string, plugins: RollModifier[]): string {
 }
 
 /** Create the attack roll(s) for a given attack configuration */
-export function attackRolls(flat_bonus: number, acc_diff: AccDiffData): LancerFlowState.AttackRolls {
+export function attackRolls(flat_bonus: number, acc_diff: AccDiffHudData): LancerFlowState.AttackRolls {
   let perRoll = Object.values(acc_diff.weapon.plugins);
   let base = perRoll.concat(Object.values(acc_diff.base.plugins));
   return {
@@ -170,7 +170,7 @@ export async function initAttackData(
   state: FlowState<
     LancerFlowState.AttackRollData | LancerFlowState.WeaponRollData | LancerFlowState.TechAttackRollData
   >,
-  options?: { title?: string; flat_bonus?: number; acc_diff?: AccDiffDataSerialized }
+  options?: { title?: string; flat_bonus?: number; acc_diff?: AccDiffHudDataSerialized }
 ): Promise<boolean> {
   if (!state.data) throw new TypeError(`Attack flow state missing!`);
   // If we only have an actor, it's a basic attack
@@ -187,8 +187,8 @@ export async function initAttackData(
     }
     // TODO: check bonuses for flat attack bonus
     state.data.acc_diff = options?.acc_diff
-      ? AccDiffData.fromObject(options.acc_diff)
-      : AccDiffData.fromParams(state.actor, [], state.data.title, Array.from(game.user!.targets));
+      ? AccDiffHudData.fromObject(options.acc_diff)
+      : AccDiffHudData.fromParams(state.actor, [], state.data.title, Array.from(game.user!.targets));
     return true;
   } else {
     // This title works for everything
@@ -213,8 +213,8 @@ export async function initAttackData(
         }
       }
       state.data.acc_diff = options?.acc_diff
-        ? AccDiffData.fromObject(options.acc_diff)
-        : AccDiffData.fromParams(state.item, profile.all_tags, state.data.title, Array.from(game.user!.targets));
+        ? AccDiffHudData.fromObject(options.acc_diff)
+        : AccDiffHudData.fromParams(state.item, profile.all_tags, state.data.title, Array.from(game.user!.targets));
       return true;
     } else if (state.item.is_mech_system()) {
       // Tech attack system
@@ -229,8 +229,13 @@ export async function initAttackData(
       state.data.flat_bonus = state.actor.system.tech_attack;
       // TODO: check bonuses for flat attack bonus
       state.data.acc_diff = options?.acc_diff
-        ? AccDiffData.fromObject(options.acc_diff)
-        : AccDiffData.fromParams(state.item, state.item.system.tags, state.data.title, Array.from(game.user!.targets));
+        ? AccDiffHudData.fromObject(options.acc_diff)
+        : AccDiffHudData.fromParams(
+            state.item,
+            state.item.system.tags,
+            state.data.title,
+            Array.from(game.user!.targets)
+          );
       return true;
     } else if (state.item.is_npc_feature()) {
       if (!state.actor.is_npc()) {
@@ -243,8 +248,8 @@ export async function initAttackData(
       state.data.attack_type = asWeapon.weapon_type === WeaponType.Melee ? AttackType.Melee : AttackType.Ranged;
       state.data.flat_bonus = asWeapon.attack_bonus[tier_index] ?? 0;
       state.data.acc_diff = options?.acc_diff
-        ? AccDiffData.fromObject(options.acc_diff)
-        : AccDiffData.fromParams(
+        ? AccDiffHudData.fromObject(options.acc_diff)
+        : AccDiffHudData.fromParams(
             state.item,
             asWeapon.tags,
             state.data.title,
@@ -264,8 +269,13 @@ export async function initAttackData(
       state.item.system;
       state.data.flat_bonus = state.actor.system.grit;
       state.data.acc_diff = options?.acc_diff
-        ? AccDiffData.fromObject(options.acc_diff)
-        : AccDiffData.fromParams(state.item, state.item.system.tags, state.data.title, Array.from(game.user!.targets));
+        ? AccDiffHudData.fromObject(options.acc_diff)
+        : AccDiffHudData.fromParams(
+            state.item,
+            state.item.system.tags,
+            state.data.title,
+            Array.from(game.user!.targets)
+          );
       return true;
     }
     ui.notifications!.error(`Error in attack flow - ${state.item.name} is an invalid type!`);
@@ -286,7 +296,7 @@ export async function checkWeaponLoaded(state: FlowState<LancerFlowState.WeaponR
   return true;
 }
 
-// TODO: AccDiffData does not allow changing tags after instantiation
+// TODO: AccDiffHudData does not allow changing tags after instantiation
 export async function setAttackTags(
   state: FlowState<
     LancerFlowState.AttackRollData | LancerFlowState.WeaponRollData | LancerFlowState.TechAttackRollData
@@ -365,7 +375,7 @@ export async function setAttackTargets(
   options?: {}
 ): Promise<boolean> {
   if (!state.data) throw new TypeError(`Attack flow state missing!`);
-  // TODO: AccDiffData does not facilitate setting targets after instantiation?
+  // TODO: AccDiffHudData does not facilitate setting targets after instantiation?
   // TODO: set metadata for origin and target spaces
   // state.data.target_spaces;
   return true;

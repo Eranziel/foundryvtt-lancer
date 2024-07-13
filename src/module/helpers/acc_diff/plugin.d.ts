@@ -40,16 +40,16 @@ declare interface Dehydrated {
   hydrate(data: AccDiffData, target?: AccDiffTarget);
 }
 
-export type AccDiffPluginData = UIBehaviour & RollModifier & Dehydrated;
-export type AccDiffCheckboxPluginData = CheckboxUI & RollModifier & Dehydrated;
-export type AccDiffNoUIPluginData = NoUI & RollModifier & Dehydrated;
+export type AccDiffHudPluginData = UIBehaviour & RollModifier & Dehydrated;
+export type AccDiffHudCheckboxPluginData = CheckboxUI & RollModifier & Dehydrated;
+export type AccDiffHudNoUIPluginData = NoUI & RollModifier & Dehydrated;
 
-export type AccDiffPluginCodec<C extends AccDiffPluginData, O, I> = Codec<C, O, I>;
+export type AccDiffHudPluginCodec<C extends AccDiffHudPluginData, O, I> = Codec<C, O, I>;
 
-declare interface AccDiffPlugin<Data extends AccDiffPluginData> {
+declare interface AccDiffHudPlugin<Data extends AccDiffHudPluginData> {
   slug: string;
   // the codec lets us know how to persist whatever data you need for rerolls
-  codec: AccDiffPluginCodec<Data, O, I>;
+  codec: AccDiffHudPluginCodec<Data, O, I>;
   // these constructors handle creating the initial data for a plugin
   // the presence of these three constructors also indicates what scopes the plugin lives in
   // a "perRoll" plugin applies to all rolls, like weapon seeking
@@ -64,4 +64,4 @@ declare interface AccDiffPlugin<Data extends AccDiffPluginData> {
   // will be called twice on the same roll, so watch out for that
 }
 
-export type Data<T> = T extends AccDiffPlugin<infer D> ? D : never;
+export type Data<T> = T extends AccDiffHudPlugin<infer D> ? D : never;
