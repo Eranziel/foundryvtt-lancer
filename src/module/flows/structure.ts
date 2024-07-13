@@ -162,7 +162,8 @@ export async function rollStructureTable(state: FlowState<LancerFlowState.Primar
   ) {
     formula = `{${formula}, ${formula}}kh`;
   }
-  let roll: Roll = await new Roll(formula).evaluate({ async: true });
+  // This is really async despit the warning
+  let roll: Roll = await new Roll(formula).evaluate();
 
   let result = roll.total;
   if (result === undefined) return false;
@@ -393,8 +394,8 @@ export async function secondaryStructureRoll(
     return false;
   }
 
-  // @ts-ignore
-  let roll = await new Roll(state.data.roll_str).evaluate({ async: true });
+  // This is really async despit the warning
+  let roll = await new Roll(state.data.roll_str).evaluate();
   let result = roll.total!;
   state.data.result = {
     roll,
