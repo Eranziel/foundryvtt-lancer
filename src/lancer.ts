@@ -717,7 +717,11 @@ Hooks.once("ready", async function () {
 
 // Set up Dice So Nice to icrementally show attacks then damge rolls
 Hooks.once("ready", () => {
-  if (game.modules.get("dice-so-nice")?.active && !game.settings.get(game.system.id, LANCER.setting_dsn_setup)) {
+  if (
+    game.user!.isGM &&
+    game.modules.get("dice-so-nice")?.active &&
+    !game.settings.get(game.system.id, LANCER.setting_dsn_setup)
+  ) {
     console.log(`${lp} First login setup for Dice So Nice`);
     game.settings.set("dice-so-nice", "enabledSimultaneousRollForMessage", false);
     game.settings.set(game.system.id, LANCER.setting_dsn_setup, true);
