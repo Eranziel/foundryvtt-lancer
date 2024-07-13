@@ -64,7 +64,7 @@ export function registerAttackSteps(flowSteps: Map<string, Step<any, any> | Flow
   flowSteps.set("setAttackTargets", setAttackTargets);
   flowSteps.set("showAttackHUD", showAttackHUD);
   flowSteps.set("rollAttacks", rollAttacks);
-  flowSteps.set("rollDamages", rollDamages);
+  // flowSteps.set("rollDamages", rollDamages);
   flowSteps.set("printAttackCard", printAttackCard);
 }
 

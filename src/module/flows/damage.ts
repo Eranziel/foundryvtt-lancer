@@ -1,5 +1,5 @@
 import { AppliedDamage } from "../actor/damage-calc";
-import { LancerActor } from "../actor/lancer-actor";
+import { LancerActor, LancerNPC } from "../actor/lancer-actor";
 import { LancerItem } from "../item/lancer-item";
 import { Damage } from "../models/bits/damage";
 import { UUIDRef } from "../source-template";
@@ -18,7 +18,13 @@ type DamageFlag = {
 };
 
 export function registerDamageSteps(flowSteps: Map<string, Step<any, any> | Flow<any>>) {
-  flowSteps.set("rollDamage", rollDamage);
+  flowSteps.set("initDamageData", initDamageData);
+  flowSteps.set("setDamageTags", setDamageTags);
+  flowSteps.set("setDamageTargets", setDamageTargets);
+  flowSteps.set("showDamageHUD", showDamageHUD);
+  flowSteps.set("rollDamage", rollDamage); // TODO: combine/replace with rollDamages
+  flowSteps.set("rollDamages", rollDamages);
+  flowSteps.set("applyOverkillHeat", applyOverkillHeat);
   flowSteps.set("printDamageCard", printDamageCard);
 }
 
@@ -27,24 +33,99 @@ export function registerDamageSteps(flowSteps: Map<string, Step<any, any> | Flow
  */
 export class DamageRollFlow extends Flow<LancerFlowState.DamageRollData> {
   static steps = [
-    "emptyStep",
-    // this.constructor.steps.set("getDamages", dummyDamageStep);
-    // this.constructor.steps.set("checkTargetImmunity", dummyDamageStep);
-    // this.constructor.steps.set("checkTargetResist", dummyDamageStep);
-    // this.constructor.steps.set("promptDamageConfig", dummyDamageStep); // Includes bonus damage config?
-    // this.constructor.steps.set("rollDamages", dummyDamageStep);
-    // this.constructor.steps.set("applyOverkill", dummyDamageStep);
-    // this.constructor.steps.set("applyDamages", dummyDamageStep);
+    "initDamageData",
+    "setDamageTags", // Move some tags from setAttackTags to here
+    "setDamageTargets", // Can we reuse setAttackTargets?
+    "showDamageHUD",
+    "rollDamages",
+    "applyOverkillHeat",
+    "printDamageCard",
   ];
   constructor(uuid: UUIDRef | LancerItem | LancerActor, data?: LancerFlowState.DamageRollData) {
-    super(uuid, data);
+    const initialData: LancerFlowState.DamageRollData = {
+      type: "damage",
+      title: data?.title || "Damage Roll",
+      configurable: data?.configurable !== undefined ? data.configurable : true,
+      ap: data?.ap || false,
+      overkill: data?.overkill || false,
+      overkill_heat: data?.overkill_heat,
+      reliable: data?.reliable || false,
+      hit_results: data?.hit_results || [],
+      has_normal_hit: false,
+      has_crit_hit: false,
+      damage: data?.damage || [],
+      bonus_damage: data?.bonus_damage || [],
+      damage_results: [],
+      crit_damage_results: [],
+      damage_total: 0,
+      crit_total: 0,
+      targets: [],
+    };
+    super(uuid, initialData);
   }
+}
+
+async function initDamageData(state: FlowState<LancerFlowState.DamageRollData>): Promise<boolean> {
+  if (!state.data) throw new TypeError(`Damage flow state missing!`);
+
+  if (state.item?.is_mech_weapon()) {
+    const profile = state.item.system.active_profile;
+    state.data.damage = state.data.damage.length ? state.data.damage : profile.damage;
+    state.data.bonus_damage = state.data.bonus_damage?.length ? state.data.bonus_damage : profile.bonus_damage;
+  } else if (state.item?.is_npc_feature() && state.item.system.type === "Weapon") {
+    state.data.damage = state.data.damage.length
+      ? state.data.damage
+      : state.item.system.damage[state.item.system.tier_override || (state.actor as LancerNPC).system.tier - 1];
+  } else if (state.item?.is_pilot_weapon()) {
+    state.data.damage = state.data.damage.length ? state.data.damage : state.item.system.damage;
+  } else if (state.data.damage.length === 0) {
+    ui.notifications!.warn(
+      state.item ? `Item ${state.item.id} is not a weapon!` : `Damage flow is missing damage to roll!`
+    );
+    return false;
+  }
+
+  // Check whether we have any normal or crit hits
+  state.data.has_normal_hit =
+    state.data.hit_results.length === 0 || state.data.hit_results.some(hit => hit.hit && !hit.crit);
+  state.data.has_crit_hit = state.data.hit_results.length > 0 && state.data.hit_results.some(hit => hit.crit);
+
+  return true;
+}
+
+async function setDamageTags(state: FlowState<LancerFlowState.DamageRollData>): Promise<boolean> {
+  if (!state.data) throw new TypeError(`Damage flow state missing!`);
+  // If the damage roll has no item, it has no tags.
+  if (!state.item) return true;
+  if (!state.item.is_mech_weapon() || !state.item.is_npc_feature() || !state.item.is_pilot_weapon())
+    throw new TypeError(`Item ${state.item.id} is not a weapon!`);
+  state.data.ap = state.item.isAP();
+  state.data.overkill = state.item.isOverkill();
+  state.data.reliable = state.item.isReliable();
+  const reliableTag = state.item.system.tags.find(t => t.is_reliable);
+  const reliableVal = parseInt(reliableTag?.val || "0");
+  if (reliableTag && !Number.isNaN(reliableVal)) {
+    state.data.reliable_val = reliableVal;
+  }
+  // TODO: build state.data.damage_hud_data
+  return true;
+}
+
+async function setDamageTargets(state: FlowState<LancerFlowState.DamageRollData>): Promise<boolean> {
+  if (!state.data) throw new TypeError(`Damage flow state missing!`);
+  // TODO: DamageHudData does not facilitate setting targets after instantiation?
+  return true;
+}
+
+async function showDamageHUD(state: FlowState<LancerFlowState.DamageRollData>): Promise<boolean> {
+  // TODO: Placeholder for now
+  return true;
 }
 
 async function rollDamage(state: FlowState<LancerFlowState.DamageRollData>): Promise<boolean> {
   if (!state.data) throw new TypeError(`Damage flow state missing!`);
   // Roll each damage type
-  for (const damage of state.data.damage_by_type) {
+  for (const damage of state.data.damage) {
     const roll = await new Roll(damage.val).evaluate({ async: true });
     const tt = await roll.getTooltip();
     state.data.damage_results.push({ roll, tt, d_type: damage.type });
@@ -54,36 +135,12 @@ async function rollDamage(state: FlowState<LancerFlowState.DamageRollData>): Pro
   return true;
 }
 
-export async function rollDamages(state: FlowState<LancerFlowState.WeaponRollData>, options?: {}): Promise<boolean> {
+export async function rollDamages(state: FlowState<LancerFlowState.DamageRollData>): Promise<boolean> {
   if (!state.data) throw new TypeError(`Attack flow state missing!`);
 
-  if (state.item?.is_mech_weapon()) {
-    const profile = state.item.system.active_profile;
-    state.data.damage = profile.damage;
-    state.data.bonus_damage = profile.bonus_damage;
-  } else if (state.item?.is_npc_feature() && state.item.system.type === "Weapon") {
-    state.data.damage =
-      state.item.system.damage[state.item.system.tier_override || (state.actor as LancerNPC).system.tier - 1];
-  } else if (state.item?.is_pilot_weapon()) {
-    state.data.damage = state.item.system.damage;
-  } else {
-    ui.notifications!.warn(
-      state.item ? `Item ${state.item.id} is not a weapon!` : `Weapon attack flow is missing item!`
-    );
-    return false;
-  }
-
-  const has_normal_hit =
-    (state.data.hit_results.length === 0 && state.data.attack_results.some(attack => (attack.roll.total ?? 0) < 20)) ||
-    state.data.hit_results.some(hit => hit.hit && !hit.crit);
-  const has_crit_hit =
-    (state.data.hit_results.length === 0 && state.data.attack_results.some(attack => (attack.roll.total ?? 0) >= 20)) ||
-    state.data.hit_results.some(hit => hit.crit);
-
-  // TODO: move damage rolling into its own flow
-  // If we hit evaluate normal damage, even if we only crit, we'll use this in
+  // Evaluate normal damage. Even if every hit was a crit, we'll use this in
   // the next step for crits
-  if (has_normal_hit || has_crit_hit) {
+  if (state.data.has_normal_hit || state.data.has_crit_hit) {
     for (const x of state.data.damage ?? []) {
       if (!x.val || x.val == "0") continue; // Skip undefined and zero damage
       let damageRoll: Roll | undefined = new Roll(x.val);
@@ -107,8 +164,9 @@ export async function rollDamages(state: FlowState<LancerFlowState.WeaponRollDat
     }
   }
 
+  // TODO: should crit damage rolling be a separate step?
   // If there is at least one crit hit, evaluate crit damage
-  if (has_crit_hit) {
+  if (state.data.has_crit_hit) {
     // NPCs do not follow the normal crit rules. They only get bonus damage from Deadly etc...
     if (!state.actor.is_npc()) {
       await Promise.all(
@@ -131,12 +189,13 @@ export async function rollDamages(state: FlowState<LancerFlowState.WeaponRollDat
     }
   }
   // If there were only crit hits and no normal hits, don't show normal damage in the results
-  state.data.damage_results = has_normal_hit ? state.data.damage_results : [];
+  state.data.damage_results = state.data.has_normal_hit ? state.data.damage_results : [];
 
+  // TODO: should overkill calculation be moved to applyOverkillHeat? Or a separate step between this and that?
   // Calculate overkill heat
   if (state.data.overkill) {
     state.data.overkill_heat = 0;
-    (has_crit_hit ? state.data.crit_damage_results : state.data.damage_results).forEach(result => {
+    (state.data.has_crit_hit ? state.data.crit_damage_results : state.data.damage_results).forEach(result => {
       result.roll.terms.forEach(p => {
         if (p instanceof DiceTerm) {
           p.results.forEach(r => {
@@ -146,6 +205,10 @@ export async function rollDamages(state: FlowState<LancerFlowState.WeaponRollDat
       });
     });
   }
+  return true;
+}
+
+async function applyOverkillHeat(state: FlowState<LancerFlowState.DamageRollData>): Promise<boolean> {
   return true;
 }
 

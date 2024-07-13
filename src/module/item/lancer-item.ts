@@ -599,6 +599,18 @@ export class LancerItem extends Item {
     return (this.getTags() ?? []).some(t => t.is_smart);
   }
 
+  isAP(): boolean {
+    return (this.getTags() ?? []).some(t => t.is_ap);
+  }
+
+  isOverkill(): boolean {
+    return (this.getTags() ?? []).some(t => t.is_overkill);
+  }
+
+  isReliable(): boolean {
+    return (this.getTags() ?? []).some(t => t.is_reliable);
+  }
+
   // Returns true & type information if this item has action data
   hasActions(): this is { system: { actions: ActionData[] } } {
     return (this as any).system.actions !== undefined;

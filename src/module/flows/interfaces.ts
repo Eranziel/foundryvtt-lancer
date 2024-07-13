@@ -5,6 +5,7 @@ import { ActionData } from "../models/bits/action";
 import { DamageData } from "../models/bits/damage";
 import { Tag, TagData } from "../models/bits/tag";
 import { LancerToken } from "../token";
+import { DamageHudData } from "../apps/damage";
 
 // -------- Flow state data types -------------------------------------
 // Each flow uses one of these data types to track its state.
@@ -132,12 +133,20 @@ export namespace LancerFlowState {
   export interface DamageRollData extends Omit<Omit<BaseRollData, "type">, "roll_str"> {
     type: "damage";
     configurable: boolean;
-    overkill?: boolean;
+    damage_hud_data?: DamageHudData;
+    ap: boolean;
+    overkill: boolean;
     overkill_heat?: number;
-    damage_by_type: DamageData[];
-    attack_results: AttackResult[];
+    reliable: boolean;
+    reliable_val?: number;
+    damage: DamageData[];
+    bonus_damage?: DamageData[];
+    hit_results: HitResult[];
+    has_normal_hit: boolean;
+    has_crit_hit: boolean;
     damage_results: DamageResult[];
     crit_damage_results: DamageResult[];
+    // TODO: do we need these totals??
     damage_total: number;
     crit_total: number;
     targets: ResultToken[];
