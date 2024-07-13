@@ -47,7 +47,8 @@ async function findRechargeableSystems(state: FlowState<LancerFlowState.Recharge
 
 async function rollRecharge(state: FlowState<LancerFlowState.RechargeRollData>): Promise<boolean> {
   if (!state.data) throw new TypeError(`Recharge flow state missing!`);
-  const roll = await new Roll(state.data.roll_str).evaluate({ async: true });
+  // This is really async despit the warning
+  const roll = await new Roll(state.data.roll_str).evaluate();
   const tt = await roll.getTooltip();
   state.data.result = { roll, tt };
   return true;

@@ -83,8 +83,8 @@ export async function cascadeRoll(state: FlowState<LancerFlowState.CascadeRollDa
     return false;
   }
 
-  // @ts-ignore
-  let roll = await new Roll(state.data.roll_str).evaluate({ async: true });
+  // This is really async despit the warning
+  let roll = await new Roll(state.data.roll_str).evaluate();
   let result = roll.total!;
   state.data.result = {
     roll,
