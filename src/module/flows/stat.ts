@@ -85,8 +85,8 @@ async function showStatRollHUD(state: FlowState<LancerFlowState.StatRollData>): 
 async function rollCheck(state: FlowState<LancerFlowState.StatRollData>): Promise<boolean> {
   if (!state.data) throw new TypeError(`Stat roll flow state missing!`);
   if (!state.data.acc_diff) throw new TypeError(`Stat roll acc/diff data missing!`);
-  // Do the roll
-  let roll = await new Roll(state.data.roll_str).evaluate({ async: true });
+  // Do the roll, this really is async despite the warning
+  let roll = await new Roll(state.data.roll_str).evaluate();
   state.data.result = {
     roll,
     tt: await roll.getTooltip(),
