@@ -1,7 +1,7 @@
 <svelte:options accessors={true} />
 
 <script lang="ts">
-  import type { AccDiffWeapon, AccDiffBase, AccDiffTarget } from "./index";
+  import type { AccDiffHudWeapon, AccDiffHudBase, AccDiffHudTarget } from "./index";
 
   import { slide } from "svelte/transition";
   import { flip } from "svelte/animate";
@@ -19,9 +19,9 @@
   import { targetsFromTemplate } from "../../flows/_template";
   import type { LancerActor } from "../../actor/lancer-actor";
 
-  export let weapon: AccDiffWeapon;
-  export let base: AccDiffBase;
-  export let targets: AccDiffTarget[];
+  export let weapon: AccDiffHudWeapon;
+  export let base: AccDiffHudBase;
+  export let targets: AccDiffHudTarget[];
   export let title: string;
   export let lancerItem: LancerItem | null;
   export let lancerActor: LancerActor | null;

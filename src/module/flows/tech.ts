@@ -1,7 +1,7 @@
 // Import TypeScript modules
 import { LANCER } from "../config";
 import { LancerActor } from "../actor/lancer-actor";
-import { AccDiffHudData, AccDiffHudDataSerialized } from "../helpers/acc_diff";
+import { AccDiffHudData, AccDiffHudDataSerialized } from "../apps/acc_diff";
 import { renderTemplateStep } from "./_render";
 import { SystemTemplates } from "../system-template";
 import { LancerFlowState } from "./interfaces";

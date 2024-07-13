@@ -66,7 +66,7 @@ export async function preOverheatRollChecks(state: FlowState<LancerFlowState.Ove
       ui.notifications!.info("Token is not at heat cap. No need to roll stress.");
       return false;
     }
-    const { openSlidingHud: open } = await import("../helpers/slidinghud");
+    const { openSlidingHud: open } = await import("../apps/slidinghud");
     try {
       await open("stress", { stat: "stress", title: "Stress Damage", lancerActor: actor });
     } catch (_e) {

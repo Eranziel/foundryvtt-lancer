@@ -40,7 +40,7 @@ import * as migrations from "./module/world_migration";
 import { addLCPManager, updateCore, core_update } from "./module/apps/lcp-manager";
 
 // Import sliding HUD (used for accuracy/difficulty windows)
-import * as slidingHUD from "./module/helpers/slidinghud";
+import * as slidingHUD from "./module/apps/slidinghud";
 
 // Import Tippy.js
 import tippy from "tippy.js";

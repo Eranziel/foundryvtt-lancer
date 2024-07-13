@@ -5,8 +5,8 @@ import { resolveDotpath } from "../helpers/commons";
 import { renderTemplateStep } from "./_render";
 import { LancerFlowState } from "./interfaces";
 import { LancerItem } from "../item/lancer-item";
-import { AccDiffHudData, AccDiffHudDataSerialized } from "../helpers/acc_diff";
-import { openSlidingHud } from "../helpers/slidinghud";
+import { AccDiffHudData, AccDiffHudDataSerialized } from "../apps/acc_diff";
+import { openSlidingHud } from "../apps/slidinghud";
 import { UUIDRef } from "../source-template";
 import { Flow, FlowState, Step } from "./flow";
 
