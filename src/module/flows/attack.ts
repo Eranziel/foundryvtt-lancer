@@ -403,7 +403,8 @@ export async function rollAttacks(
       state.data.attack_rolls.targeted.map(async targetingData => {
         let target = targetingData.target;
         let actor = target.actor as LancerActor;
-        let attack_roll = await new Roll(targetingData.roll).evaluate({ async: true });
+        // This is really async despit the warning
+        let attack_roll = await new Roll(targetingData.roll).evaluate();
         // @ts-expect-error DSN options aren't typed
         attack_roll.dice.forEach(d => (d.options.rollOrder = 1));
         const attack_tt = await attack_roll.getTooltip();
@@ -428,7 +429,8 @@ export async function rollAttacks(
     state.data.hit_results = data.map(d => d.hit);
     return true;
   } else {
-    let attack_roll = await new Roll(state.data.attack_rolls.roll).evaluate({ async: true });
+    // This is really async despit the warning
+    let attack_roll = await new Roll(state.data.attack_rolls.roll).evaluate();
     const attack_tt = await attack_roll.getTooltip();
     state.data.attack_results = [{ roll: attack_roll, tt: attack_tt }];
     state.data.hit_results = [];
@@ -476,7 +478,8 @@ export async function rollDamages(state: FlowState<LancerFlowState.WeaponRollDat
         });
       }
 
-      await damageRoll.evaluate({ async: true });
+      // This is really async despit the warning
+      await damageRoll.evaluate();
       // @ts-expect-error DSN options aren't typed
       damageRoll.dice.forEach(d => (d.options.rollOrder = 2));
       const tooltip = await damageRoll.getTooltip();
@@ -563,7 +566,8 @@ export async function printAttackCard(
  */
 export async function getCritRoll(normal: Roll) {
   const t_roll = new Roll(normal.formula);
-  await t_roll.evaluate({ async: true });
+  // This is really async despit the warning
+  await t_roll.evaluate();
 
   const dice_rolls = Array<DiceTerm.Result[]>(normal.terms.length);
   const keep_dice: number[] = Array(normal.terms.length).fill(0);
