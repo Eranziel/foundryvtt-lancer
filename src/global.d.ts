@@ -92,6 +92,7 @@ declare global {
       "lancer.autoCalcStructure": boolean;
       "lancer.squareGridDiagonals": "111" | "121" | "222" | "euc";
       "lancer.statusIconConfig": StatusIconConfigOptions;
+      "lancer.uiTheme": "gms" | "gmsDark" | "msmc" | "horus" | "ha" | "ssc" | "ipsn" | "gal";
       // "lancer.warningFor120": boolean; // Old setting, currently unused.
       // "lancer.warningForBeta": boolean; // Old setting, currently unused.
       "lancer.combatTrackerConfig": { sortTracker: boolean } | ClientSettings.Values["lancer.combatTrackerConfig"];
