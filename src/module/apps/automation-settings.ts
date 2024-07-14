@@ -1,4 +1,3 @@
-import { getAutomationOptions } from "../settings";
 import { AutomationOptions } from "../settings";
 import { LANCER } from "../config";
 
@@ -47,10 +46,6 @@ export class AutomationConfig extends FormApplication<AutomationConfigOptions, A
 
   /** @override */
   activateListeners(html: JQuery<HTMLFormElement>): void {
-    html.find("input[name=enabled]").on("change", e => {
-      const val = (<HTMLInputElement>e.target).checked;
-      html.find("input:not([name=enabled])").prop("disabled", !val);
-    });
     html.find("button[name=reset]").on("click", this.resetSettings.bind(this));
     html.find("button[name=loadDefault]").on("click", this.loadDefault.bind(this));
     html.find("button[name=clear]").on("click", this.loadEmpty.bind(this));
