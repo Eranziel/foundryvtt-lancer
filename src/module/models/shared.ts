@@ -10,7 +10,7 @@ import { SystemTemplates } from "../system-template";
 const fields: any = foundry.data.fields;
 
 // @ts-expect-error
-export class LancerDataModel<T> extends foundry.abstract.DataModel<T> {
+export class LancerDataModel<T> extends foundry.abstract.TypeDataModel<T> {
   /**
    * Create a full update payload, e.g. to preserve arrays
    * @param update_data the update data to apply
