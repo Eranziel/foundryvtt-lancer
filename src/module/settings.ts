@@ -89,6 +89,13 @@ export const registerSettings = function () {
     restricted: true,
   });
 
+  game.settings.register(game.system.id, LANCER.setting_status_icons, {
+    scope: "world",
+    config: false,
+    type: StatusIconConfigOptions,
+    default: new StatusIconConfigOptions(),
+  });
+
   game.settings.registerMenu(game.system.id, LANCER.setting_automation, {
     name: "lancer.automation.menu-name",
     label: "lancer.automation.menu-label",
@@ -96,6 +103,13 @@ export const registerSettings = function () {
     icon: "mdi mdi-state-machine",
     type: AutomationConfig,
     restricted: true,
+  });
+
+  game.settings.register(game.system.id, LANCER.setting_automation, {
+    scope: "world",
+    config: false,
+    type: AutomationOptions,
+    default: new AutomationOptions(),
   });
 
   game.settings.registerMenu(game.system.id, LANCER.setting_actionTracker, {
@@ -107,6 +121,13 @@ export const registerSettings = function () {
     restricted: true,
   });
 
+  game.settings.register(game.system.id, LANCER.setting_actionTracker, {
+    scope: "world",
+    config: false,
+    type: Object,
+    default: {},
+  });
+
   game.settings.register(game.system.id, LANCER.setting_welcome, {
     name: "Hide Welcome Message",
     hint: "Hide the welcome message for the latest update to the Lancer system.",
@@ -114,27 +135,6 @@ export const registerSettings = function () {
     config: true,
     type: Boolean,
     default: false,
-  });
-
-  game.settings.register(game.system.id, LANCER.setting_status_icons, {
-    scope: "world",
-    config: false,
-    type: Object,
-    default: {},
-  });
-
-  game.settings.register(game.system.id, LANCER.setting_automation, {
-    scope: "world",
-    config: false,
-    type: AutomationOptions,
-    default: getAutomationOptions(true),
-  });
-
-  game.settings.register(game.system.id, LANCER.setting_actionTracker, {
-    scope: "world",
-    config: false,
-    type: Object,
-    default: {},
   });
 
   game.settings.register(game.system.id, LANCER.setting_dsn_setup, {
@@ -185,13 +185,9 @@ export const registerSettings = function () {
 /**
  * Retrieve the automation settings for the system. If automation is turned
  * off, all keys will be `false`.
- * @param useDefault - Control if the returned value is the default.
- *                     (default: `false`)
  */
-export function getAutomationOptions(useDefault = false): AutomationOptions {
-  if (useDefault) return new AutomationOptions();
-  const settings = game.settings.get(game.system.id, LANCER.setting_automation) ?? {};
-  return settings;
+export function getAutomationOptions(): AutomationOptions {
+  return game.settings.get(game.system.id, LANCER.setting_automation) ?? new AutomationOptions();
 }
 
 /**
@@ -311,30 +307,6 @@ export interface ActionTrackerOptions {
 //
 // > STATUS ICON CONFIGURATION
 /**
- * Retrieve the status icon configuration for the system.
- * @param useDefault - Control if the returned value is the default.
- *                     (default: `false`)
- */
-export function getStatusIconConfigOptions(useDefault = false): StatusIconConfigOptions {
-  const def: StatusIconConfigOptions = {
-    defaultConditionsStatus: true,
-    cancerConditionsStatus: false,
-    cancerNPCTemplates: false,
-    hayleyConditionsStatus: false,
-    hayleyPC: false,
-    hayleyNPC: false,
-    hayleyUtility: false,
-    tommyConditionsStatus: false,
-  };
-  if (useDefault) return def;
-  const set = game.settings.get(game.system.id, LANCER.setting_status_icons) as Partial<StatusIconConfigOptions>;
-  return {
-    ...def,
-    ...set,
-  };
-}
-
-/**
  * Object for the various automation settings in the system
  */
 export interface StatusIconConfigOptions {
@@ -378,6 +350,23 @@ export interface StatusIconConfigOptions {
    * @defaultValue `false`
    */
   tommyConditionsStatus: boolean;
+}
+
+// @ts-expect-error v12
+export class StatusIconConfigOptions extends foundry.abstract.DataModel {
+  static defineSchema() {
+    const fields: any = foundry.data.fields;
+    return {
+      defaultConditionsStatus: new fields.BooleanField({ required: true, initial: true }),
+      cancerConditionsStatus: new fields.BooleanField({ required: true, initial: false }),
+      cancerNPCTemplates: new fields.BooleanField({ required: true, initial: false }),
+      hayleyConditionsStatus: new fields.BooleanField({ required: true, initial: false }),
+      hayleyPC: new fields.BooleanField({ required: true, initial: false }),
+      hayleyNPC: new fields.BooleanField({ required: true, initial: false }),
+      hayleyUtility: new fields.BooleanField({ required: true, initial: false }),
+      tommyConditionsStatus: new fields.BooleanField({ required: true, initial: false }),
+    };
+  }
 }
 
 //
