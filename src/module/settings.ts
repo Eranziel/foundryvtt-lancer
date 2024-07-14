@@ -66,8 +66,8 @@ export const registerSettings = function () {
       initial: "gms",
     }),
     onChange: v => {
-      if (!["gms", "gmsDark", "msmc", "horus", "ha", "ssc", "ipsn", "gal"].includes(v as string)) applyTheme("gms");
-      applyTheme(v as any);
+      if (!["gms", "gmsDark", "msmc", "horus", "ha", "ssc", "ipsn", "gal"].includes(v)) applyTheme("gms");
+      applyTheme(v);
     },
   });
 
@@ -185,6 +185,7 @@ export const registerSettings = function () {
 /**
  * Retrieve the automation settings for the system. If automation is turned
  * off, all keys will be `false`.
+ * @deprecated Get the setting directly instead.
  */
 export function getAutomationOptions(): AutomationOptions {
   return game.settings.get(game.system.id, LANCER.setting_automation) ?? new AutomationOptions();
