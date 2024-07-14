@@ -4,7 +4,6 @@ import { fix_modify_token_attribute } from "../token";
 import { AppliedDamage } from "./damage-calc";
 import { SystemData, SystemDataType, SystemTemplates } from "../system-template";
 import { SourceDataType } from "../source-template";
-import { getAutomationOptions } from "../settings";
 import {
   LancerBOND,
   LancerFRAME,
