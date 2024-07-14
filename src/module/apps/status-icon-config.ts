@@ -1,14 +1,18 @@
 import { LANCER } from "../config";
-import { StatusIconConfigOptions, getStatusIconConfigOptions } from "../settings";
+import { StatusIconConfigOptions } from "../settings";
 import { LancerActiveEffect } from "../effects/lancer-active-effect";
+
+interface StatusIconConfigAppOptions extends FormApplication.Options {
+  loadDefault: boolean;
+}
 
 /**
  * Settings form for customizing the icon appearance of the icon used in the
  * tracker
  */
-export class StatusIconConfig extends FormApplication<FormApplication.Options, StatusIconConfigOptions> {
+export class StatusIconConfig extends FormApplication<StatusIconConfigAppOptions, StatusIconConfigOptions> {
   /** @override */
-  static get defaultOptions(): FormApplication.Options {
+  static get defaultOptions(): StatusIconConfigAppOptions {
     return {
       ...super.defaultOptions,
       title: "lancer.statusIconsConfig.menu-label",
@@ -16,28 +20,25 @@ export class StatusIconConfig extends FormApplication<FormApplication.Options, S
       template: `systems/${game.system.id}/templates/window/statusicons-config.hbs`,
       classes: ["lancer", "status-icon-config"],
       width: 350,
+      loadDefault: false,
     };
   }
 
   /** @override */
-  getData(): StatusIconConfigOptions {
-    return {
-      ...getStatusIconConfigOptions(true),
-      ...(game.settings.get(game.system.id, LANCER.setting_status_icons) as Partial<StatusIconConfigOptions>),
-    };
+  getData(options: StatusIconConfigAppOptions): StatusIconConfigOptions {
+    if (options.loadDefault) return new StatusIconConfigOptions();
+    return game.settings.get(game.system.id, LANCER.setting_status_icons);
   }
 
   /** @override */
   activateListeners(html: JQuery<HTMLFormElement>): void {
-    html.find("input[name=enabled]").on("change", e => {
-      const val = (<HTMLInputElement>e.target).checked;
-      html.find("input:not([name=enabled])").prop("disabled", !val);
-    });
+    html.find("button[name=reset]").on("click", this.resetSettings.bind(this));
+    html.find("button[name=loadDefault]").on("click", this.loadDefault.bind(this));
   }
 
   /** @override */
   async _updateObject(_: Event, data: Record<string, unknown>): Promise<void> {
-    await game.settings.set(game.system.id, LANCER.setting_status_icons, data);
+    await game.settings.set(game.system.id, LANCER.setting_status_icons, data as any);
     LancerActiveEffect.populateConfig(true);
   }
 
@@ -46,7 +47,10 @@ export class StatusIconConfig extends FormApplication<FormApplication.Options, S
    * their default values.
    */
   async resetSettings(): Promise<unknown> {
-    await game.settings.set(game.system.id, LANCER.setting_status_icons, {});
     return this.render();
+  }
+
+  async loadDefault(): Promise<unknown> {
+    return this.render(false, { loadDefault: true });
   }
 }
