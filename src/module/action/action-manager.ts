@@ -25,8 +25,8 @@ export class LancerActionManager extends Application {
 
   target: LancerActor | null = null;
 
-  constructor() {
-    super();
+  constructor(...args: any) {
+    super(...args);
   }
 
   async init() {
@@ -57,13 +57,15 @@ export class LancerActionManager extends Application {
 
   /** @override */
   getData(_options = {}) {
-    return {
+    const data = {
       position: this.position,
       // @ts-expect-error Should be fixed with v10 types
       name: this.target && this.target.name.toLocaleUpperCase(),
       actions: this.getActions(),
       clickable: game.user?.isGM || getActionTrackerOptions().allowPlayers,
     };
+    console.log(this.target);
+    return data;
   }
 
   // DATA BINDING
@@ -112,7 +114,7 @@ export class LancerActionManager extends Application {
       const actor = token.actor as LancerActor;
       // TODO: Remove when action data is properly within MM.
       // @ts-expect-error Should be fixed with v10 types
-      if ((actor.is_mech() || actor.is_npc()) && token.actor.system.action_tracker === undefined) {
+      if ((actor.is_mech() || actor.is_npc()) && token.actor.system.action_tracker !== undefined) {
         this.target = token.actor;
         return this.updateActions(token.actor, _defaultActionData(token.actor));
       }
@@ -161,10 +163,10 @@ export class LancerActionManager extends Application {
 
   private loadUserPos() {
     // @ts-expect-error Should be fixed with v10 types
-    if (!(game.user?.flags["action-manager"] && game.user.flags["action-manager"].pos)) return;
+    if (!game.user.getFlag(game.system.id, "action-manager.pos")) return;
 
     // @ts-expect-error Should be fixed with v10 types
-    const pos = game.user.flags["action-manager"].pos;
+    const pos: any = game.user.getFlag(game.system.id, "action-manager.pos");
     const appPos = this.position;
     return new Promise(resolve => {
       function loop() {
