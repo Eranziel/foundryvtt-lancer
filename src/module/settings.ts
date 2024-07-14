@@ -50,18 +50,21 @@ export const registerSettings = function () {
     hint: "lancer.uiTheme.hint",
     scope: "user",
     config: true,
-    type: String,
-    choices: {
-      gms: "lancer.uiTheme.gms",
-      gmsDark: "lancer.uiTheme.gmsDark",
-      msmc: "lancer.uiTheme.msmc",
-      horus: "lancer.uiTheme.horus",
-      ha: "lancer.uiTheme.ha",
-      ssc: "lancer.uiTheme.ssc",
-      ipsn: "lancer.uiTheme.ipsn",
-      gal: "lancer.uiTheme.gal",
-    },
-    default: "gms",
+    // @ts-expect-error v12
+    type: new foundry.data.fields.StringField({
+      required: true,
+      choices: {
+        gms: "lancer.uiTheme.gms",
+        gmsDark: "lancer.uiTheme.gmsDark",
+        msmc: "lancer.uiTheme.msmc",
+        horus: "lancer.uiTheme.horus",
+        ha: "lancer.uiTheme.ha",
+        ssc: "lancer.uiTheme.ssc",
+        ipsn: "lancer.uiTheme.ipsn",
+        gal: "lancer.uiTheme.gal",
+      },
+      initial: "gms",
+    }),
     onChange: v => {
       if (!["gms", "gmsDark", "msmc", "horus", "ha", "ssc", "ipsn", "gal"].includes(v as string)) applyTheme("gms");
       applyTheme(v as any);
@@ -77,7 +80,7 @@ export const registerSettings = function () {
     restricted: false,
   });
 
-  game.settings.registerMenu(game.system.id, "StatusIconConfig", {
+  game.settings.registerMenu(game.system.id, LANCER.setting_status_icons, {
     name: "lancer.statusIconsConfig.menu-name",
     label: "lancer.statusIconsConfig.menu-label",
     hint: "lancer.statusIconsConfig.menu-hint",
@@ -86,7 +89,7 @@ export const registerSettings = function () {
     restricted: true,
   });
 
-  game.settings.registerMenu(game.system.id, "AutomationMenu", {
+  game.settings.registerMenu(game.system.id, LANCER.setting_automation, {
     name: "lancer.automation.menu-name",
     label: "lancer.automation.menu-label",
     hint: "lancer.automation.menu-hint",
@@ -95,7 +98,7 @@ export const registerSettings = function () {
     restricted: true,
   });
 
-  game.settings.registerMenu(game.system.id, "ActionTrackerMenu", {
+  game.settings.registerMenu(game.system.id, LANCER.setting_actionTracker, {
     name: "lancer.actionTracker.menu-name",
     label: "lancer.actionTracker.menu-label",
     hint: "lancer.actionTracker.menu-hint",
@@ -123,7 +126,7 @@ export const registerSettings = function () {
   game.settings.register(game.system.id, LANCER.setting_automation, {
     scope: "world",
     config: false,
-    type: Object,
+    type: AutomationOptions,
     default: getAutomationOptions(true),
   });
 
@@ -186,38 +189,9 @@ export const registerSettings = function () {
  *                     (default: `false`)
  */
 export function getAutomationOptions(useDefault = false): AutomationOptions {
-  const def: AutomationOptions = {
-    enabled: true,
-    attacks: true,
-    structure: true,
-    overcharge_heat: true,
-    attack_self_heat: true,
-    limited_loading: true,
-    npc_recharge: true,
-    remove_templates: false,
-    token_size: true,
-  };
-  if (useDefault) return def;
-  const settings = (game.settings.get(game.system.id, LANCER.setting_automation) as Record<string, boolean>) ?? {};
-  if (settings == null || (typeof settings == "object" && (settings.enabled ?? true))) {
-    return {
-      ...def,
-      ...settings,
-    };
-  } else {
-    // Return all falses if automation is off
-    return {
-      enabled: false,
-      attacks: false,
-      structure: false,
-      overcharge_heat: false,
-      attack_self_heat: false,
-      limited_loading: false,
-      npc_recharge: false,
-      remove_templates: false,
-      token_size: false,
-    };
-  }
+  if (useDefault) return new AutomationOptions();
+  const settings = game.settings.get(game.system.id, LANCER.setting_automation) ?? {};
+  return settings;
 }
 
 /**
@@ -228,7 +202,7 @@ export interface AutomationOptions {
    * Master switch for automation
    * @defaultValue `true`
    */
-  enabled: boolean;
+  // enabled: boolean;
   /**
    * Toggle for whether or not you want the system to auto-calculate hits,
    * damage, and other attack related checks.
@@ -272,6 +246,23 @@ export interface AutomationOptions {
    * @defaultValue `true`
    */
   token_size: boolean;
+}
+
+// @ts-expect-error v12
+export class AutomationOptions extends foundry.abstract.DataModel {
+  static defineSchema() {
+    const fields: any = foundry.data.fields;
+    return {
+      attacks: new fields.BooleanField({ required: true, initial: true }),
+      structure: new fields.BooleanField({ required: true, initial: true }),
+      overcharge_heat: new fields.BooleanField({ required: true, initial: true }),
+      attack_self_heat: new fields.BooleanField({ required: true, initial: true }),
+      limited_loading: new fields.BooleanField({ required: true, initial: true }),
+      npc_recharge: new fields.BooleanField({ required: true, initial: true }),
+      remove_templates: new fields.BooleanField({ required: true, initial: false }),
+      token_size: new fields.BooleanField({ required: true, initial: true }),
+    };
+  }
 }
 
 //
