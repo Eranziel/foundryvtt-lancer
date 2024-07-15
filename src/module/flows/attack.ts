@@ -12,7 +12,6 @@ import { LancerFlowState } from "./interfaces";
 import { openSlidingHud } from "../apps/slidinghud";
 import { Flow, FlowState, Step } from "./flow";
 import { AttackType, RangeType, WeaponType } from "../enums";
-import { Range } from "../models/bits/range";
 
 const lp = LANCER.log_prefix;
 
@@ -48,11 +47,16 @@ export function attackRolls(flat_bonus: number, acc_diff: AccDiffHudData): Lance
   };
 }
 
-type AttackFlag = {
-  origin: string;
+export type AttackFlag = {
+  origin: string; // Attacker's ID. Somewhat deprecated, kept because LWFX is probably using it.
+  attackerUuid: string; // Attacker's UUID
+  attackerItemUuid?: string; // Item UUID used for the attack, if applicable
   targets: {
     id: string;
     setConditions?: object; // keys are statusEffect ids, values are boolean to indicate whether to apply or remove
+    total: string;
+    hit: boolean;
+    crit: boolean;
   }[];
 };
 
@@ -427,6 +431,7 @@ export async function rollAttacks(
           hit: {
             token: { name: target.name!, img: target.actor?.img ?? "", token: target },
             total: String(attack_roll.total).padStart(2, "0"),
+            usedLockOn: !!targetingData.usedLockOn,
             hit: await checkForHit(state.data?.is_smart ?? false, attack_roll, actor),
             crit: (attack_roll.total || 0) >= 20,
           },
@@ -452,11 +457,19 @@ export async function printAttackCard(
 ): Promise<boolean> {
   if (!state.data) throw new TypeError(`Attack flow state missing!`);
   const template = options?.template || `systems/${game.system.id}/templates/chat/attack-card.hbs`;
-  const flags = {
+  const flags: { attackData: AttackFlag } = {
     attackData: {
-      origin: state.actor.id,
-      targets: state.data.attack_rolls.targeted.map(t => {
-        return { id: t.target.id, setConditions: !!t.usedLockOn ? { lockon: !t.usedLockOn } : undefined };
+      origin: state.actor.id!,
+      attackerUuid: state.actor.uuid!,
+      attackerItemUuid: state.item?.uuid,
+      targets: state.data.hit_results.map(hr => {
+        return {
+          id: hr.token.actor?.uuid || hr.token.token?.actor?.uuid || "",
+          setConditions: !!hr.usedLockOn ? { lockon: !hr.usedLockOn } : undefined,
+          total: hr.total,
+          hit: hr.hit,
+          crit: hr.crit,
+        };
       }),
     },
   };

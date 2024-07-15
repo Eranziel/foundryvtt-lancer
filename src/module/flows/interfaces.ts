@@ -74,9 +74,14 @@ export namespace LancerFlowState {
   export type HitResult = {
     token: ResultToken;
     total: string;
+    usedLockOn: boolean;
     hit: boolean;
     crit: boolean;
   };
+
+  export interface DamageTargetResult extends ResultToken {
+    damage: { type: DamageType; amount: number }[];
+  }
 
   // Configuration passed to initiate an attack roll
   export interface AttackRollData extends Omit<BaseRollData, "type"> {
@@ -149,7 +154,7 @@ export namespace LancerFlowState {
     // TODO: do we need these totals??
     damage_total: number;
     crit_total: number;
-    targets: ResultToken[];
+    targets: DamageTargetResult[];
   }
 
   export interface BurnCheckData extends DamageRollData {

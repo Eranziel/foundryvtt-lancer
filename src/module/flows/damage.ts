@@ -5,6 +5,7 @@ import { Damage } from "../models/bits/damage";
 import { UUIDRef } from "../source-template";
 import { LancerToken } from "../token";
 import { renderTemplateStep } from "./_render";
+import { AttackFlag } from "./attack";
 import { Flow, FlowState, Step } from "./flow";
 import { LancerFlowState } from "./interfaces";
 
@@ -22,7 +23,6 @@ export function registerDamageSteps(flowSteps: Map<string, Step<any, any> | Flow
   flowSteps.set("setDamageTags", setDamageTags);
   flowSteps.set("setDamageTargets", setDamageTargets);
   flowSteps.set("showDamageHUD", showDamageHUD);
-  flowSteps.set("rollDamage", rollDamage); // TODO: combine/replace with rollDamages
   flowSteps.set("rollDamages", rollDamages);
   flowSteps.set("applyOverkillHeat", applyOverkillHeat);
   flowSteps.set("printDamageCard", printDamageCard);
@@ -41,18 +41,17 @@ export class DamageRollFlow extends Flow<LancerFlowState.DamageRollData> {
     "applyOverkillHeat",
     "printDamageCard",
   ];
-  constructor(uuid: UUIDRef | LancerItem | LancerActor, data?: LancerFlowState.DamageRollData) {
+  constructor(uuid: UUIDRef | LancerItem | LancerActor, data?: Partial<LancerFlowState.DamageRollData>) {
     const initialData: LancerFlowState.DamageRollData = {
       type: "damage",
       title: data?.title || "Damage Roll",
       configurable: data?.configurable !== undefined ? data.configurable : true,
       ap: data?.ap || false,
       overkill: data?.overkill || false,
-      overkill_heat: data?.overkill_heat,
       reliable: data?.reliable || false,
       hit_results: data?.hit_results || [],
-      has_normal_hit: false,
-      has_crit_hit: false,
+      has_normal_hit: data?.has_normal_hit || false,
+      has_crit_hit: data?.has_crit_hit || false,
       damage: data?.damage || [],
       bonus_damage: data?.bonus_damage || [],
       damage_results: [],
@@ -122,19 +121,6 @@ async function showDamageHUD(state: FlowState<LancerFlowState.DamageRollData>): 
   return true;
 }
 
-async function rollDamage(state: FlowState<LancerFlowState.DamageRollData>): Promise<boolean> {
-  if (!state.data) throw new TypeError(`Damage flow state missing!`);
-  // Roll each damage type
-  for (const damage of state.data.damage) {
-    const roll = await new Roll(damage.val).evaluate({ async: true });
-    const tt = await roll.getTooltip();
-    state.data.damage_results.push({ roll, tt, d_type: damage.type });
-    state.data.damage_total += roll.total || 0;
-  }
-  // TODO: crit damage
-  return true;
-}
-
 export async function rollDamages(state: FlowState<LancerFlowState.DamageRollData>): Promise<boolean> {
   if (!state.data) throw new TypeError(`Attack flow state missing!`);
 
@@ -162,6 +148,15 @@ export async function rollDamages(state: FlowState<LancerFlowState.DamageRollDat
         d_type: x.type,
       });
     }
+
+    for (const hitTarget of state.data.hit_results) {
+      if (hitTarget.hit && !hitTarget.crit) {
+        state.data.targets.push({
+          ...hitTarget.token,
+          damage: state.data.damage_results.map(dr => ({ type: dr.d_type, amount: dr.roll.total || 0 })),
+        });
+      }
+    }
   }
 
   // TODO: should crit damage rolling be a separate step?
@@ -187,28 +182,47 @@ export async function rollDamages(state: FlowState<LancerFlowState.DamageRollDat
       // TODO: automation for Deadly
       // Find any Deadly features and add a d6 for each
     }
+
+    for (const hitTarget of state.data.hit_results) {
+      if (hitTarget.crit) {
+        state.data.targets.push({
+          ...hitTarget.token,
+          damage: state.data.damage_results.map(dr => ({ type: dr.d_type, amount: dr.roll.total || 0 })),
+        });
+      }
+    }
   }
+
   // If there were only crit hits and no normal hits, don't show normal damage in the results
   state.data.damage_results = state.data.has_normal_hit ? state.data.damage_results : [];
 
-  // TODO: should overkill calculation be moved to applyOverkillHeat? Or a separate step between this and that?
-  // Calculate overkill heat
-  if (state.data.overkill) {
-    state.data.overkill_heat = 0;
-    (state.data.has_crit_hit ? state.data.crit_damage_results : state.data.damage_results).forEach(result => {
-      result.roll.terms.forEach(p => {
-        if (p instanceof DiceTerm) {
-          p.results.forEach(r => {
-            if (r.exploded) state.data!.overkill_heat! += 1;
-          });
-        }
-      });
-    });
-  }
   return true;
 }
 
 async function applyOverkillHeat(state: FlowState<LancerFlowState.DamageRollData>): Promise<boolean> {
+  if (!state.data) throw new TypeError(`Damage flow state missing!`);
+
+  // Skip this step if the damage roll doesn't have overkill
+  if (!state.data.overkill) return true;
+  // Calculate overkill heat
+  state.data.overkill_heat = 0;
+  (state.data.has_crit_hit ? state.data.crit_damage_results : state.data.damage_results).forEach(result => {
+    result.roll.terms.forEach(p => {
+      if (p instanceof DiceTerm) {
+        p.results.forEach(r => {
+          if (r.exploded) state.data!.overkill_heat! += 1;
+        });
+      }
+    });
+  });
+  if (
+    (state.actor.is_mech() || state.actor.is_npc() || state.actor.is_deployable()) &&
+    state.actor.system.heat.max > 0
+  ) {
+    await state.actor.update({ "system.heat.value": state.actor.system.heat.value + state.data.overkill_heat });
+  } else {
+    // TODO: add a damage application row to apply energy damage to the attacker?
+  }
   return true;
 }
 

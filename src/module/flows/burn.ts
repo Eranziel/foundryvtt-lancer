@@ -45,17 +45,22 @@ async function initBurnCheckData(state: FlowState<LancerFlowState.BurnCheckData>
   if (!state.data) throw new TypeError(`Burn flow state missing!`);
   state.data.amount = state.actor.system.burn;
   state.data.damage = [{ type: DamageType.Burn, val: state.actor.system.burn.toString() }];
-  state.data.hit_results = [];
+  // Burn tick damage is always self-targeted, so construct a "hit" result for the actor
+  const target: LancerFlowState.ResultToken = state.actor.token
+    ? {
+        name: state.actor.token.name!,
+        img: state.actor.img!,
+        actor: state.actor,
+      }
+    : {
+        name: state.actor.name!,
+        img: state.actor.img!,
+        actor: state.actor,
+      };
+  state.data.hit_results = [{ token: target, total: "10", usedLockOn: false, hit: true, crit: false }];
   state.data.damage_results = [];
   state.data.crit_damage_results = [];
-  // Burn tick damage is always self-targeted
-  state.data.targets = [
-    {
-      name: state.actor.name!,
-      img: state.actor.img!,
-      actor: state.actor,
-    },
-  ];
+  state.data.targets = [];
   return true;
 }
 
@@ -75,12 +80,11 @@ async function checkBurnResult(state: FlowState<LancerFlowState.BurnCheckData>):
     state.data.title = `BURN CLEARED!`;
     state.data.icon = "mdi mdi-shield";
     await state.actor.update({ "system.burn": 0 });
+    return true;
   } else {
-    // TODO: replace with rollDamages
-    const rollDamageStep = (game.lancer.flowSteps as Map<string, Step<any, any> | Flow<any>>).get("rollDamage");
-    if (!rollDamageStep || typeof rollDamageStep !== "function")
+    const rollDamagesStep = (game.lancer.flowSteps as Map<string, Step<any, any> | Flow<any>>).get("rollDamages");
+    if (!rollDamagesStep || typeof rollDamagesStep !== "function")
       throw new TypeError(`Couldn't get rollDamage flow step!`);
-    return await rollDamageStep(state);
+    return await rollDamagesStep(state);
   }
-  return true;
 }
