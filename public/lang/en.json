@@ -175,7 +175,8 @@
       "attack": {
         "crit": "{total} - CRIT",
         "hit": "{total} - HIT",
-        "miss": "{total} - MISS"
+        "miss": "{total} - MISS",
+        "roll-all-damage": "ROLL DAMAGE"
       },
       "exclamation": {
         "overkill": "OVERKILL!"

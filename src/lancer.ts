@@ -104,7 +104,7 @@ import { beginItemChatFlow } from "./module/flows/item";
 import { onHotbarDrop } from "./module/flows/hotbar";
 import { registerFlows } from "./module/flows/register-flows";
 import { LancerNPCFeatureSheet } from "./module/item/npc-feature-sheet";
-import { applyDamage } from "./module/flows/damage";
+import { applyDamage, rollDamage } from "./module/flows/damage";
 
 const lp = LANCER.log_prefix;
 
@@ -542,6 +542,8 @@ Hooks.on("renderChatMessage", async (cm: ChatMessage, html: JQuery, data: any) =
       return true;
     }
   });
+
+  html.find(".lancer-damage-flow").on("click", rollDamage);
 
   html.find(".lancer-damage-apply").on("click", applyDamage);
 

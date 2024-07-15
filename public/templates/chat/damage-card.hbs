@@ -28,14 +28,14 @@
       <span class="effect-text">{{message}}</span>
     </div>
   {{/if}}
-  {{#if (and targets (or damage_total crit_total))}}
+  {{#if targets.length}}
     <div class="lancer-damage-targets">
       {{#each targets as |target key|}}
         <img class="lancer-hit-thumb" src="{{target.img}}" />
         <span class="lancer-hit-text-name">{{target.name}}</span>
         <div class="lancer-damage-buttons">
           {{!-- TODO: show total of each type of damage between name and buttons --}}
-          {{#if configurable}}
+          {{#if ../configurable}}
             {{!-- TODO: put the default as a button, with the rest in a select attached to the button --}}
             {{!-- TODO: add option for crit damage --}}
             <button

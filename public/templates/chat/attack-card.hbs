@@ -42,43 +42,6 @@
     </div>
   </div>
   {{/if}}
-  {{#if damage_results}}
-  <div class="card clipped">
-    <div class="lancer-mini-header collapse-trigger" data-collapse-id="{{_uuid}}-damage">{{localize "lancer.chat-card.title.damage"}}</div>
-    <div class="collapse" data-collapse-id="{{_uuid}}-damage">
-      {{#each damage_results as |damage key|}}
-        {{{lancer-dice-roll damage.roll damage.tt (concat "cci cci-" (lower-case damage.d_type) " i--m damage--" (lower-case damage.d_type))}}}
-      {{/each}}
-    </div>
-  </div>
-  {{/if}}
-  {{#if crit_damage_results}}
-    <div class="card clipped">
-      <div class="lancer-mini-header collapse-trigger" data-collapse-id="{{_uuid}}-crit-damage">{{localize "lancer.chat-card.title.crit-damage"}}</div>
-      <div class="collapse" data-collapse-id="{{_uuid}}-crit-damage">
-        {{#each crit_damage_results as |damage key|}}
-          {{{lancer-dice-roll damage.roll damage.tt (concat "cci cci-" (lower-case damage.d_type) " i--m damage--" (lower-case damage.d_type))}}}
-        {{/each}}
-      </div>
-    </div>
-  {{/if}}
-  {{#if (or overkill_heat self_heat_result)}}
-    <div class="card clipped">
-      <div class="lancer-mini-header collapse-trigger" data-collapse-id="{{_uuid}}-self-heat">{{localize "lancer.chat-card.title.self-heat"}}</div>
-      <div class="collapse" data-collapse-id="{{_uuid}}-self-heat">
-        {{#if overkill_heat}}
-          <div class="lancer-dice-total flexrow">
-            <span style="text-align: left; margin-left: 5px;">{{localize "lancer.chat-card.exclamation.overkill"}}</span>
-            <span class="dice-total lancer-dice-total major">{{ overkill_heat }}</span>
-            <i class="cci cci-heat i--m damage--heat"> </i>
-          </div>
-        {{/if}}
-        {{#if self_heat_result}}
-          {{{lancer-dice-roll self_heat_result.roll self_heat_result.tt "cci cci-heat i--m damage--heat"}}}
-        {{/if}}
-      </div>
-    </div>
-  {{/if}}
   {{#if effect}}
     <div class="card clipped">
       <div class="lancer-mini-header">{{localize "lancer.chat-card.title.effect"}}</div>
@@ -106,4 +69,8 @@
     </div>
   {{/if}}
   {{{tag-list "tags"}}}
+  <button
+    class="lancer-button lancer-damage-flow"
+    label="lancer.chat-card.attack.roll-all-damage"
+  ><i class="fas fa-dice i--s i--light"></i>  {{localize "lancer.chat-card.attack.roll-all-damage"}}</button>
 </div>

@@ -312,7 +312,111 @@ export async function getCritRoll(normal: Roll) {
   return Roll.fromTerms(terms);
 }
 
-// ======== Chat button handler ==========
+/*********************************************
+    ======== Chat button handlers ==========
+*********************************************/
+
+/**
+ * This function is attached to damage roll buttons in chat. It constructs the initial
+ * data for a DamageFlow, then begins the flow.
+ * @param event Click event on a button in a chat message
+ */
+export async function rollDamage(event: JQuery.ClickEvent) {
+  const chatMessageElement = event.currentTarget.closest(".chat-message.message");
+  if (!chatMessageElement) {
+    ui.notifications?.error("Damage roll button not in chat message");
+    return;
+  }
+  const chatMessage = game.messages?.get(chatMessageElement.dataset.messageId);
+  // Get attack data from the chat message
+  // @ts-expect-error v10 types
+  const attackData = chatMessage?.flags.lancer?.attackData as AttackFlag;
+  if (!chatMessage || !attackData) {
+    ui.notifications?.error("Damage roll button has no attack data available");
+    return;
+  }
+
+  // Get the attacker and weapon/system from the attack data
+  const actor = (await fromUuid(attackData.attackerUuid)) as LancerActor | null;
+  if (!actor) {
+    ui.notifications?.error("Invalid attacker for damage roll");
+    return;
+  }
+  const item = (await fromUuid(attackData.attackerItemUuid || "")) as LancerItem | null;
+  if (item && item.parent !== actor) {
+    ui.notifications?.error(`Item ${item.uuid} is not owned by actor ${actor.uuid}!`);
+    return;
+  }
+  const hit_results: LancerFlowState.HitResult[] = [];
+  for (const t of attackData.targets) {
+    const target = await fromUuid(t.id);
+    if (!target || !(target instanceof LancerActor || target instanceof LancerToken)) {
+      ui.notifications?.error("Invalid target for damage roll");
+      continue;
+    }
+
+    // Find the target's image
+    let img = "";
+    if (target instanceof LancerActor) img = target.img!;
+    // @ts-expect-error v10 types
+    else if (target instanceof LancerToken) img = target.texture.src;
+
+    // Determine whether lock on was used
+    let usedLockOn = false;
+    if (t.setConditions) {
+      // @ts-expect-error v10 types
+      usedLockOn = t.setConditions.lockOn === false ? true : false;
+    }
+
+    hit_results.push({
+      token: {
+        name: target.name!,
+        img,
+        actor: target instanceof LancerActor ? target : target.actor || undefined,
+        token: target instanceof LancerToken ? target : undefined,
+      },
+      total: t.total,
+      usedLockOn,
+      hit: t.hit,
+      crit: t.crit,
+    });
+  }
+
+  // Collect damage from the item
+  const damage = [];
+  const bonus_damage = [];
+  if (item) {
+    if (item.is_mech_weapon()) {
+      const profile = item.system.active_profile;
+      damage.push(...profile.damage);
+      bonus_damage.push(...profile.bonus_damage);
+    } else if (item.is_npc_feature() && item.system.type === "Weapon") {
+      const npcDamage: Damage[] = item.system.damage[item.system.tier_override || (actor as LancerNPC).system.tier - 1];
+      damage.push(...npcDamage);
+    } else if (item.is_pilot_weapon()) {
+      damage.push(...item.system.damage);
+    }
+  }
+
+  // Start a damage flow, prepopulated with the attack data
+  const flow = new DamageRollFlow(attackData.attackerUuid, {
+    title: `${item?.name || actor.name} DAMAGE`,
+    configurable: true,
+    hit_results,
+    has_normal_hit: hit_results.some(hr => hr.hit && !hr.crit),
+    has_crit_hit: hit_results.some(hr => hr.crit),
+    damage,
+    bonus_damage,
+  });
+  flow.begin();
+}
+
+/**
+ * This function is attached to damage application buttons in chat. It performs calls
+ * LancerActor.damageCalc to calculate and apply the final damage, and sets a flag
+ * on the chat message to indicate the damage for this target has been applied.
+ * @param event Click event on a button in a chat message
+ */
 export async function applyDamage(event: JQuery.ClickEvent) {
   const chatMessageElement = event.currentTarget.closest(".chat-message.message");
   if (!chatMessageElement) {
