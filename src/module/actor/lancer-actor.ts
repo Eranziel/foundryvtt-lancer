@@ -125,9 +125,10 @@ export class LancerActor extends Actor {
     }
 
     // Step 1: Exposed doubles non-burn, non-heat damage
-    if (this.system.statuses.exposed || multiple === 2) {
-      armoredDamageTypes.forEach(d => (damage[d] *= 2));
+    if (this.system.statuses.exposed) {
+      multiple = 2;
     }
+    armoredDamageTypes.forEach(d => (damage[d] *= multiple));
 
     /**
      * Step 2: Reduce damage due to armor.
@@ -232,8 +233,8 @@ export class LancerActor extends Actor {
       damageStrings.push(`${damage.Heat}<i class="cci cci-heat damage--heat i--s"></i>`);
       totalTypes += 1;
     }
-    const chatContent = `${this.token ? this.token.name : this.name} took ${damageStrings.join()} ${
-      totalTypes > 1 ? `(${totalDamage} total) ` : ""
+    const chatContent = `${this.token ? this.token.name : this.name} took ${damageStrings.join(", ")} ${
+      totalTypes > 1 ? ` (${totalDamage} total) ` : ""
     }damage!`;
     await createChatMessageStep(this, chatContent);
 

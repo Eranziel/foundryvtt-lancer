@@ -81,6 +81,8 @@ export namespace LancerFlowState {
 
   export interface DamageTargetResult extends ResultToken {
     damage: { type: DamageType; amount: number }[];
+    hit: boolean;
+    crit: boolean;
   }
 
   // Configuration passed to initiate an attack roll
@@ -138,6 +140,7 @@ export namespace LancerFlowState {
   export interface DamageRollData extends Omit<Omit<BaseRollData, "type">, "roll_str"> {
     type: "damage";
     configurable: boolean;
+    add_burn: boolean;
     damage_hud_data?: DamageHudData;
     ap: boolean;
     overkill: boolean;

@@ -7,7 +7,7 @@
     {{/if}}
     <span>{{ title }}</span>
   </div>
-  {{#if crit_damage_results}}
+  {{#if (and damage_results.length crit_damage_results.length)}}
     <div class="lancer-mini-header" >{{localize "lancer.chat-card.title.damage"}}</div>
   {{/if}}
   <div>
@@ -33,57 +33,39 @@
       {{#each targets as |target key|}}
         <img class="lancer-hit-thumb" src="{{target.img}}" />
         <span class="lancer-hit-text-name">{{target.name}}</span>
-        <div class="lancer-damage-buttons">
+        <div
+          class="lancer-damage-button-group"
+          data-target="{{target.actor.uuid}}"
+          data-hit="{{target.hit}}"
+          data-crit="{{target.crit}}"
+          data-add-burn="{{../add_burn}}"
+        >
           {{!-- TODO: show total of each type of damage between name and buttons --}}
           {{#if ../configurable}}
             {{!-- TODO: put the default as a button, with the rest in a select attached to the button --}}
             {{!-- TODO: add option for crit damage --}}
-            <button
-              class="lancer-button lancer-damage-apply"
-              title="Apply double damage"
-              data-target="{{target.actor.uuid}}"
-              data-multiple="2"
-              data-total="{{../damage_total}}"
-            >
-              2× {{#each ../damage_results as |damage key|}}
-                <i class="{{{concat "cci cci-" (lower-case damage.d_type) " i--sm damage--" (lower-case damage.d_type)}}}"></i>
-              {{/each}}
-            </button>
-            <button
-              class="lancer-button lancer-damage-apply"
-              title="Apply full damage"
-              data-target="{{target.actor.uuid}}"
-              data-multiple="1"
-              data-total="{{../damage_total}}"
-            >
-              1× {{#each ../damage_results as |damage key|}}
-                <i class="{{{concat "cci cci-" (lower-case damage.d_type) " i--sm damage--" (lower-case damage.d_type)}}}"></i>
-              {{/each}}
-            </button>
-            <button
-              class="lancer-button lancer-damage-apply"
-              title="Apply half damage"
-              data-target="{{target.actor.uuid}}"
-              data-multiple="0.5"
-              data-total="{{../damage_total}}"
-            >
-              ½× {{#each ../damage_results as |damage key|}}
-                <i class="{{{concat "cci cci-" (lower-case damage.d_type) " i--sm damage--" (lower-case damage.d_type)}}}"></i>
-              {{/each}}
-            </button>
-          {{else}}
-            <button
-              class="lancer-button lancer-damage-apply"
-              title="Apply full damage"
-              data-target="{{target.actor.uuid}}"
-              data-multiple="1"
-              data-total="{{../damage_total}}"
-            >
-              {{#each ../damage_results as |damage key|}}
-                <i class="{{{concat "cci cci-" (lower-case damage.d_type) " i--sm damage--" (lower-case damage.d_type)}}}"></i>
-              {{/each}}
-            </button>
+            <select class="lancer-damage-apply-select" title="Select damage multiplier">
+              <option value="2">2×</option>
+              <option value="1" selected>1×</option>
+              <option value="0.5">½×</option>
+            </select>
           {{/if}}
+          <button
+            class="lancer-button lancer-damage-apply"
+            title="Apply damage"
+          >
+            {{!-- Doesn't really matter whether we use damage_results or crit_damage_results here --}}
+            {{!-- We just need a consistent set of damage types --}}
+            {{#if ../damage_results.length}}
+              {{#each ../damage_results as |damage key|}}
+                <i class="{{{concat "cci cci-" (lower-case damage.d_type) " i--s damage--" (lower-case damage.d_type)}}}"></i>
+              {{/each}}
+            {{else}}
+              {{#each ../crit_damage_results as |damage key|}}<i
+                class="{{{concat "cci cci-" (lower-case damage.d_type) " i--s damage--" (lower-case damage.d_type)}}}"
+              ></i>{{/each}}
+            {{/if}}
+          </button>
         </div>
       {{/each}}
     </div>

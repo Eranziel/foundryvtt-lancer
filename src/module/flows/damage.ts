@@ -46,6 +46,7 @@ export class DamageRollFlow extends Flow<LancerFlowState.DamageRollData> {
       type: "damage",
       title: data?.title || "Damage Roll",
       configurable: data?.configurable !== undefined ? data.configurable : true,
+      add_burn: data?.add_burn !== undefined ? data.add_burn : true,
       ap: data?.ap || false,
       overkill: data?.overkill || false,
       reliable: data?.reliable || false,
@@ -154,6 +155,8 @@ export async function rollDamages(state: FlowState<LancerFlowState.DamageRollDat
         state.data.targets.push({
           ...hitTarget.token,
           damage: state.data.damage_results.map(dr => ({ type: dr.d_type, amount: dr.roll.total || 0 })),
+          hit: hitTarget.hit,
+          crit: hitTarget.crit,
         });
       }
     }
@@ -188,6 +191,8 @@ export async function rollDamages(state: FlowState<LancerFlowState.DamageRollDat
         state.data.targets.push({
           ...hitTarget.token,
           damage: state.data.damage_results.map(dr => ({ type: dr.d_type, amount: dr.roll.total || 0 })),
+          hit: hitTarget.hit,
+          crit: hitTarget.crit,
         });
       }
     }
@@ -430,18 +435,25 @@ export async function applyDamage(event: JQuery.ClickEvent) {
     ui.notifications?.error("Damage application button has no damage data available");
     return;
   }
-  const data = event.currentTarget.dataset;
+  const buttonGroup = event.currentTarget.closest(".lancer-damage-button-group");
+  if (!buttonGroup) {
+    ui.notifications?.error("No target for damage application");
+    return;
+  }
+  const data = buttonGroup.dataset;
   if (!data.target) {
     ui.notifications?.error("No target for damage application");
     return;
   }
-  let multiple: number;
-  try {
-    multiple = parseFloat(data.multiple || 1);
-  } catch (err) {
-    ui.notifications?.error("Data multiplaction factor is not a number!");
-    return;
+  let multiple: number = 1;
+  const multipleSelect = buttonGroup.querySelector("select");
+  if (multipleSelect) {
+    multiple = parseFloat(multipleSelect.value);
+    multiple = Number.isNaN(multiple) ? 1 : multiple;
   }
+  const addBurn = data.addBurn === "true";
+  const isCrit = data.crit === "true";
+  const isHit = data.hit === "true";
   // Replace underscores with dots to turn it back into a valid UUID
   const targetFlagKey = data.target.replaceAll(".", "_");
   if (damageData.targetsApplied[targetFlagKey]) {
@@ -458,11 +470,11 @@ export async function applyDamage(event: JQuery.ClickEvent) {
   }
 
   // Apply the damage
+  // TODO: if not crit and not hit, use reliable damage
+  const damage = isCrit ? damageData.critDamageResults : damageData.damageResults;
   await actor.damageCalc(
-    new AppliedDamage(
-      damageData.damageResults.map(dr => new Damage({ type: dr.d_type, val: (dr.roll.total || 0).toString() }))
-    ),
-    { multiple, addBurn: false }
+    new AppliedDamage(damage.map(dr => new Damage({ type: dr.d_type, val: (dr.roll.total || 0).toString() }))),
+    { multiple, addBurn }
   );
 
   // Update the flags on the chat message to indicate the damage has been applied

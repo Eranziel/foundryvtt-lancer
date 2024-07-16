@@ -24,6 +24,7 @@ export class BurnFlow extends DamageRollFlow {
       amount: data?.amount ?? 0,
       damage: data?.damage ?? [{ type: DamageType.Burn, val: "1" }],
       configurable: data?.configurable !== undefined ? data.configurable : true,
+      add_burn: false, // Burn ticks don't increase the burn
       ap: true, // Burn ticks are always AP
       overkill: false, // Burn ticks aren't overkill
       reliable: false, // Burn ticks aren't reliable

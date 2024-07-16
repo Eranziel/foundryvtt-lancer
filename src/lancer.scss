@@ -433,6 +433,7 @@ $theme-types: "primary" "secondary" "dark-gray" "light-gray" "tooltip"    // Gen
   width: 50px;
   min-width: 50px;
   margin-right: 4px;
+  margin-top: 2px;
   border: 2px solid var(--dark-gray-color);
   border-radius: 5px;
   border-right: none;
@@ -454,7 +455,7 @@ $theme-types: "primary" "secondary" "dark-gray" "light-gray" "tooltip"    // Gen
 .lancer-damage-targets {
   margin: 0px 0.25em;
   display: grid;
-  grid-template-columns: 55px auto auto;
+  grid-template-columns: 55px auto min-content;
   grid-template-rows: auto;
   align-items: center;
 
@@ -2433,15 +2434,72 @@ a.activation-chip > i.mdi {
 
   // TODO: make all chat buttons tighter. Needs alignment
   // work in other styles/chat cards.
-  .chat-message .lancer-damage-buttons & {
+  .chat-message .lancer-damage-button-group & {
     width: fit-content;
-    float: right;
     display: flex;
 
     & i {
       margin: 0;
-      text-shadow: 0 0 1px black;
+
+      &.damage--kinetic {
+        color: var(--light-text);
+      }
+
+      & ~ i {
+        margin-left: -0.4em;
+      }
     }
+  }
+}
+
+.lancer-damage-button-group {
+  display: flex;
+  align-items: center;
+  max-width: min-content;
+  border-radius: 5px;
+  box-shadow: var(--button-shadow);
+
+  .lancer-damage-apply-select {
+    width: min-content;
+    max-width: 3em;
+    border: 1px solid var(--darken-3);
+    border-radius: 5px;
+    padding: 0.25em;
+    background: var(--light-gray-color);
+    color: var(--dark-text);
+
+    & option {
+      background: var(--light-gray-color);
+      color: var(--dark-text);
+    }
+
+    &:has(+ .lancer-button) {
+      border-top-right-radius: 0px;
+      border-bottom-right-radius: 0px;
+      margin-right: 0px;
+      padding-right: 0px;
+      height: 29px;
+    }
+
+    & + .lancer-button {
+      border-top-left-radius: 0px;
+      border-bottom-left-radius: 0px;
+      margin-left: 0px;
+      padding-left: 0px;
+      margin-right: 0px;
+      height: 29px;
+      box-shadow: none;
+
+      &:hover {
+        box-shadow: var(--hover-bright);
+      }
+    }
+  }
+}
+
+.chat-message .lancer-damage-applied {
+  & i.cci {
+    margin-right: -0.2em;
   }
 }
 
