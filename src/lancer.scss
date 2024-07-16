@@ -461,6 +461,18 @@ $theme-types: "primary" "secondary" "dark-gray" "light-gray" "tooltip"    // Gen
 
   .lancer-hit-text-name {
     text-align: left;
+    height: 100%;
+    align-content: center;
+
+    & ~ .lancer-hit-text-name {
+      border-top: 1px dashed var(--dark-gray-color);
+    }
+  }
+
+  /* Add a small margin below the last target if there's another
+      header following*/
+  &:has(+ .lancer-mini-header) {
+    margin-bottom: 4px;
   }
 }
 
@@ -1592,7 +1604,8 @@ code.horus:hover {
 }
 
 .lancer-dice-roll {
-  padding: 3px;
+  padding-left: 3px;
+  padding-right: 3px;
 }
 
 .lancer-dice-formula,
@@ -2461,7 +2474,6 @@ a.activation-chip > i.mdi {
 
   .lancer-damage-apply-select {
     width: min-content;
-    max-width: 3em;
     border: 1px solid var(--darken-3);
     border-radius: 5px;
     padding: 0.25em;

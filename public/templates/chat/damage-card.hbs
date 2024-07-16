@@ -15,6 +15,51 @@
       {{{lancer-dice-roll damage.roll damage.tt (concat "cci cci-" (lower-case damage.d_type) " i--m damage--" (lower-case damage.d_type))}}}
     {{/each}}
   </div>
+  {{!-- Regular damage targets only --}}
+  {{#if targets.length}}
+    <div class="lancer-damage-targets">
+      {{#each targets as |target key|}}
+        {{#if (and target.hit (not target.crit))}}
+          <img class="lancer-hit-thumb" src="{{target.img}}" />
+          <span class="lancer-hit-text-name">{{target.name}}</span>
+          <div
+            class="lancer-damage-button-group"
+            data-target="{{target.actor.uuid}}"
+            data-hit="{{target.hit}}"
+            data-crit="{{target.crit}}"
+            data-add-burn="{{../add_burn}}"
+          >
+            {{!-- TODO: show total of each type of damage between name and buttons --}}
+            {{#if ../configurable}}
+              {{!-- TODO: put the default as a button, with the rest in a select attached to the button --}}
+              {{!-- TODO: add option for crit damage --}}
+              <select class="lancer-damage-apply-select" title="Select damage multiplier">
+                <option value="2">2×</option>
+                <option value="1" selected>1×</option>
+                <option value="0.5">½×</option>
+              </select>
+            {{/if}}
+            <button
+              class="lancer-button lancer-damage-apply"
+              title="Apply damage"
+            >
+              {{!-- Doesn't really matter whether we use damage_results or crit_damage_results here --}}
+              {{!-- We just need a consistent set of damage types --}}
+              {{#if ../damage_results.length}}
+                {{#each ../damage_results as |damage key|}}
+                  <i class="{{{concat "cci cci-" (lower-case damage.d_type) " i--s damage--" (lower-case damage.d_type)}}}"></i>
+                {{/each}}
+              {{else}}
+                {{#each ../crit_damage_results as |damage key|}}<i
+                  class="{{{concat "cci cci-" (lower-case damage.d_type) " i--s damage--" (lower-case damage.d_type)}}}"
+                ></i>{{/each}}
+              {{/if}}
+            </button>
+          </div>
+        {{/if}}
+      {{/each}}
+    </div>
+  {{/if}}
   {{#if crit_damage_results}}
     <div class="lancer-mini-header">{{localize "lancer.chat-card.title.crit-damage"}}</div>
     <div>
@@ -23,51 +68,54 @@
       {{/each}}
     </div>
   {{/if}}
-  {{#if message}}
-    <div>
-      <span class="effect-text">{{message}}</span>
-    </div>
-  {{/if}}
+  {{!-- Crit damage targets only --}}
   {{#if targets.length}}
     <div class="lancer-damage-targets">
       {{#each targets as |target key|}}
-        <img class="lancer-hit-thumb" src="{{target.img}}" />
-        <span class="lancer-hit-text-name">{{target.name}}</span>
-        <div
-          class="lancer-damage-button-group"
-          data-target="{{target.actor.uuid}}"
-          data-hit="{{target.hit}}"
-          data-crit="{{target.crit}}"
-          data-add-burn="{{../add_burn}}"
-        >
-          {{!-- TODO: show total of each type of damage between name and buttons --}}
-          {{#if ../configurable}}
-            {{!-- TODO: put the default as a button, with the rest in a select attached to the button --}}
-            {{!-- TODO: add option for crit damage --}}
-            <select class="lancer-damage-apply-select" title="Select damage multiplier">
-              <option value="2">2×</option>
-              <option value="1" selected>1×</option>
-              <option value="0.5">½×</option>
-            </select>
-          {{/if}}
-          <button
-            class="lancer-button lancer-damage-apply"
-            title="Apply damage"
+        {{#if target.crit}}
+          <img class="lancer-hit-thumb" src="{{target.img}}" />
+          <span class="lancer-hit-text-name">{{target.name}}</span>
+          <div
+            class="lancer-damage-button-group"
+            data-target="{{target.actor.uuid}}"
+            data-hit="{{target.hit}}"
+            data-crit="{{target.crit}}"
+            data-add-burn="{{../add_burn}}"
           >
-            {{!-- Doesn't really matter whether we use damage_results or crit_damage_results here --}}
-            {{!-- We just need a consistent set of damage types --}}
-            {{#if ../damage_results.length}}
-              {{#each ../damage_results as |damage key|}}
-                <i class="{{{concat "cci cci-" (lower-case damage.d_type) " i--s damage--" (lower-case damage.d_type)}}}"></i>
-              {{/each}}
-            {{else}}
-              {{#each ../crit_damage_results as |damage key|}}<i
-                class="{{{concat "cci cci-" (lower-case damage.d_type) " i--s damage--" (lower-case damage.d_type)}}}"
-              ></i>{{/each}}
+            {{!-- TODO: show total of each type of damage between name and buttons --}}
+            {{#if ../configurable}}
+              {{!-- TODO: put the default as a button, with the rest in a select attached to the button --}}
+              {{!-- TODO: add option for crit damage --}}
+              <select class="lancer-damage-apply-select" title="Select damage multiplier">
+                <option value="2">2×</option>
+                <option value="1" selected>1×</option>
+                <option value="0.5">½×</option>
+              </select>
             {{/if}}
-          </button>
-        </div>
+            <button
+              class="lancer-button lancer-damage-apply"
+              title="Apply damage"
+            >
+              {{!-- Doesn't really matter whether we use damage_results or crit_damage_results here --}}
+              {{!-- We just need a consistent set of damage types --}}
+              {{#if ../damage_results.length}}
+                {{#each ../damage_results as |damage key|}}
+                  <i class="{{{concat "cci cci-" (lower-case damage.d_type) " i--s damage--" (lower-case damage.d_type)}}}"></i>
+                {{/each}}
+              {{else}}
+                {{#each ../crit_damage_results as |damage key|}}<i
+                  class="{{{concat "cci cci-" (lower-case damage.d_type) " i--s damage--" (lower-case damage.d_type)}}}"
+                ></i>{{/each}}
+              {{/if}}
+            </button>
+          </div>
+        {{/if}}
       {{/each}}
+    </div>
+  {{/if}}
+  {{#if message}}
+    <div>
+      <span class="effect-text">{{message}}</span>
     </div>
   {{/if}}
   {{#if overkill_heat}}
