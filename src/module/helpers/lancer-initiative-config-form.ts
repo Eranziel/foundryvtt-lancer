@@ -1,5 +1,4 @@
-import { getTrackerAppearance } from "../combat/lancer-combat-tracker";
-type Appearance = NonNullable<typeof CONFIG.LancerInitiative.def_appearance>;
+import { CombatTrackerAppearance } from "../settings";
 
 export class LancerCombatTrackerConfig extends CombatTrackerConfig<
   FormApplication.Options,
@@ -37,7 +36,7 @@ export class LancerCombatTrackerConfig extends CombatTrackerConfig<
  * Settings form for customizing the icon appearance of the icon used in the
  * tracker
  */
-class LancerCombatAppearanceConfig extends FormApplication<FormApplication.Options, Appearance> {
+class LancerCombatAppearanceConfig extends FormApplication<FormApplication.Options, CombatTrackerAppearance> {
   static get defaultOptions(): FormApplication.Options {
     return {
       ...super.defaultOptions,
@@ -48,8 +47,8 @@ class LancerCombatAppearanceConfig extends FormApplication<FormApplication.Optio
     };
   }
 
-  getData(): Appearance {
-    return getTrackerAppearance();
+  getData() {
+    return game.settings.get(game.system.id, "combat-tracker-appearance");
   }
 
   activateListeners(html: JQuery<HTMLElement>): void {
@@ -80,11 +79,7 @@ class LancerCombatAppearanceConfig extends FormApplication<FormApplication.Optio
 
   async _updateObject(_: Event, data: Record<string, unknown>): Promise<void> {
     const config = CONFIG.LancerInitiative;
-    game.settings.set(
-      config.module,
-      "combat-tracker-appearance",
-      foundry.utils.diffObject(config.def_appearance!, data, { inner: true })
-    );
+    game.settings.set(config.module, "combat-tracker-appearance", data as any);
   }
 
   /**
@@ -93,7 +88,7 @@ class LancerCombatAppearanceConfig extends FormApplication<FormApplication.Optio
    */
   async resetSettings(): Promise<unknown> {
     const config = CONFIG.LancerInitiative;
-    await game.settings.set(config.module, "combat-tracker-appearance", {});
+    await game.settings.set(config.module, "combat-tracker-appearance", new CombatTrackerAppearance());
     return this.render();
   }
 }
