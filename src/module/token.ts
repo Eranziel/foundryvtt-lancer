@@ -196,14 +196,17 @@ export class LancerToken extends Token {
         }));
         // @ts-expect-error v12
         this._spaces.spaces = cubes.map(c => canvas.grid!.cubeToPoint(c));
-      } else if (canvas.grid?.type === CONST.GRID_TYPES.SQUARE) {
+        // @ts-expect-error v12
+      } else if (canvas.grid?.isSquare) {
         // @ts-expect-error
         for (let i = 0; i < this.document.width; ++i) {
           // @ts-expect-error
           for (let j = 0; j < this.document.height; ++j) {
             this._spaces.spaces.push({
-              x: this.position.x + (i + 0.5) * canvas.grid.w,
-              y: this.position.y + (j + 0.5) * canvas.grid.h,
+              // @ts-expect-error v12
+              x: this.position.x + (i + 0.5) * canvas.grid.sizeX,
+              // @ts-expect-error v12
+              y: this.position.y + (j + 0.5) * canvas.grid.sizeY,
             });
           }
         }

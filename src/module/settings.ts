@@ -1,4 +1,4 @@
-import { getTrackerAppearance, setAppearance } from "./combat/lancer-combat-tracker";
+import { setAppearance } from "./combat/lancer-combat-tracker";
 import type { LancerCombat, LancerCombatant } from "./combat/lancer-combat";
 import { LANCER } from "./config";
 import { AutomationConfig } from "./apps/automation-settings";
@@ -148,24 +148,13 @@ export const registerSettings = function () {
   CONFIG.LancerInitiative = {
     module: game.system.id,
     templatePath: `systems/${game.system.id}/templates/combat/combat-tracker.hbs`,
-    def_appearance: {
-      icon: "cci cci-activate",
-      deactivate: "cci cci-deactivate",
-      icon_size: 2,
-      player_color: "#44abe0",
-      friendly_color: "#44abe0",
-      neutral_color: "#146464",
-      enemy_color: "#d98f30",
-      done_color: "#aaaaaa",
-    },
-    activations: "system.activations",
   };
   game.settings.register(game.system.id, "combat-tracker-appearance", {
     scope: "world",
     config: false,
-    type: Object,
+    type: CombatTrackerAppearance,
     onChange: setAppearance,
-    default: {},
+    default: new CombatTrackerAppearance(),
   });
   game.settings.register(game.system.id, "combat-tracker-sort", {
     scope: "world",
@@ -178,7 +167,7 @@ export const registerSettings = function () {
     default: true,
   });
   Hooks.callAll("LancerInitiativeInit");
-  setAppearance(getTrackerAppearance());
+  setAppearance(game.settings.get(game.system.id, "combat-tracker-appearance"));
 };
 
 // > GENERAL AUTOMATION
@@ -264,6 +253,7 @@ export class AutomationOptions extends foundry.abstract.DataModel {
 
 //
 // > ACTION TRACKER AUTOMATION
+// TODO Move this to a DataModel once the action tracker is working again
 /**
  * Retrieve the automation settings for the system. If automation is turned
  * off, all keys will be `false`.
@@ -366,6 +356,70 @@ export class StatusIconConfigOptions extends foundry.abstract.DataModel {
       hayleyNPC: new fields.BooleanField({ required: true, initial: false }),
       hayleyUtility: new fields.BooleanField({ required: true, initial: false }),
       tommyConditionsStatus: new fields.BooleanField({ required: true, initial: false }),
+    };
+  }
+}
+
+//
+// > LANCER INITIATIVE CONFIG
+//
+
+export interface CombatTrackerAppearance {
+  /**
+   * Css class to specify the icon
+   * @default `cci cci-activate`
+   */
+  icon: string;
+  /**
+      * Css class to specify deactivation icon
+  * @default `cci cci-deactivate`
+  */
+  deactivate: string;
+  /**
+   * Size of the icon in rem
+   * @default `2`
+   */
+  icon_size: number;
+  /**
+   * Color for players in the tracker
+   * @default `#44abe0`
+   */
+  player_color: string;
+  /**
+   * Color for friendly npcs
+   * @default `#44abe0`
+   */
+  friendly_color: string;
+  /**
+   * Color for neutral npcs
+   * @default `#146464`
+   */
+  neutral_color: string;
+  /**
+   * Color for enemy npcs
+   * @default `#d98f30`
+   */
+  enemy_color: string;
+  /**
+   * Color for units that have finished their turn
+   * @default `#444444`
+   */
+  done_color: string;
+}
+
+// @ts-expect-error v12
+export class CombatTrackerAppearance extends foundry.abstract.DataModel {
+  static defineSchema() {
+    const fields: any = foundry.data.fields;
+    return {
+      icon: new fields.StringField({ required: true, initial: "cci cci-activate" }),
+      deactivate: new fields.StringField({ required: true, initial: "cci cci-deactivate" }),
+      icon_size: new fields.NumberField({ required: true, initial: 2, integer: false }),
+      player_color: new fields.ColorField({ required: true, initial: "#44abe0" }),
+      friendly_color: new fields.ColorField({ required: true, initial: "#44abe0" }),
+      neutral_color: new fields.ColorField({ required: true, initial: "#146464" }),
+      enemy_color: new fields.ColorField({ required: true, initial: "#d98f30" }),
+      done_color: new fields.ColorField({ required: true, initial: "#444444" }),
     };
   }
 }

@@ -1,3 +1,4 @@
+import type { CombatTrackerAppearance } from "../settings.js";
 import type { LancerCombat, LancerCombatant } from "./lancer-combat.js";
 
 /**
@@ -25,7 +26,7 @@ export class LancerCombatTracker extends CombatTracker {
    */
   override async getData(options?: Partial<CombatTracker.Options>): Promise<CombatTracker.Data> {
     const config = CONFIG.LancerInitiative;
-    const appearance = getTrackerAppearance();
+    const appearance = game.settings.get(game.system.id, "combat-tracker-appearance");
     const data = (await super.getData(options)) as {
       turns: {
         id: string;
@@ -141,45 +142,15 @@ export class LancerCombatTracker extends CombatTracker {
   }
 }
 
-/**
- * Get the current appearance data from settings
- */
-export function getTrackerAppearance(): NonNullable<CONFIG["LancerInitiative"]["def_appearance"]> {
-  const config = CONFIG.LancerInitiative;
-  if (!config.def_appearance) throw new Error("No default appearance specified in CONFIG.LancerInitiative");
-  return {
-    ...config.def_appearance,
-    ...(game.settings.get(config.module, "combat-tracker-appearance") as Appearance),
-  };
-}
-
-export function setAppearance(val: Partial<Appearance>): void {
-  const defaults = CONFIG.LancerInitiative.def_appearance!;
-  document.documentElement.style.setProperty(
-    "--lancer-initiative-icon-size",
-    `${val?.icon_size ?? defaults.icon_size}rem`
-  );
-  document.documentElement.style.setProperty(
-    "--lancer-initiative-player-color",
-    val?.player_color ?? defaults.player_color
-  );
-  document.documentElement.style.setProperty(
-    "--lancer-initiative-friendly-color",
-    val?.friendly_color ?? defaults.friendly_color
-  );
-  document.documentElement.style.setProperty(
-    "--lancer-initiative-neutral-color",
-    val?.neutral_color ?? defaults.neutral_color
-  );
-  document.documentElement.style.setProperty(
-    "--lancer-initiative-enemy-color",
-    val?.enemy_color ?? defaults.enemy_color
-  );
-  document.documentElement.style.setProperty("--lancer-initiative-done-color", val?.done_color ?? defaults.done_color);
+export function setAppearance(val: CombatTrackerAppearance): void {
+  document.documentElement.style.setProperty("--lancer-initiative-icon-size", `${val.icon_size}rem`);
+  document.documentElement.style.setProperty("--lancer-initiative-player-color", val.player_color);
+  document.documentElement.style.setProperty("--lancer-initiative-friendly-color", val.friendly_color);
+  document.documentElement.style.setProperty("--lancer-initiative-neutral-color", val?.neutral_color);
+  document.documentElement.style.setProperty("--lancer-initiative-enemy-color", val?.enemy_color);
+  document.documentElement.style.setProperty("--lancer-initiative-done-color", val?.done_color);
   game.combats?.render();
 }
-
-type Appearance = Partial<CONFIG["LancerInitiative"]["def_appearance"]>;
 
 /**
  * Register the helper we use to print the icon the correnct number of times
