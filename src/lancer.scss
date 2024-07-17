@@ -414,18 +414,17 @@ $theme-types: "primary" "secondary" "dark-gray" "light-gray" "tooltip"    // Gen
 
 .card.lancer-hit-chip {
   float: right;
-  width: 90px;
+  width: 100%;
+  margin: 3px 0;
   color: var(--light-text);
   background-color: var(--miss-color);
 
   &.hit {
     background-color: var(--hit-color);
-    width: 75px;
   }
 
   &.crit {
     background-color: var(--crit-color);
-    width: 75px;
   }
 }
 
@@ -450,6 +449,42 @@ $theme-types: "primary" "secondary" "dark-gray" "light-gray" "tooltip"    // Gen
   overflow: hidden;
   text-wrap: nowrap;
   text-overflow: ellipsis;
+
+.lancer-hit-target {
+  margin: 0.1em 0;
+  display: grid;
+  grid-template-areas:
+    "img name hit"
+    "img roll roll";
+  grid-template-columns: 55px 1fr 1fr;
+  align-items: center;
+
+  .lancer-hit-thumb {
+    grid-area: img;
+    margin: 0;
+  }
+
+  .lancer-hit-text-name {
+    grid-area: name;
+  }
+
+  .lancer-hit-chip {
+    grid-area: hit;
+  }
+
+  .lancer-hit-roll {
+    grid-area: roll;
+  }
+
+  &:has(+ .lancer-hit-target) {
+    .lancer-hit-roll {
+      border-bottom: 1px dashed var(--dark-gray-color);
+    }
+  }
+}
+
+.lancer-damage-flow i {
+  margin-right: 0.5em;
 }
 
 .lancer-damage-targets {
@@ -469,8 +504,8 @@ $theme-types: "primary" "secondary" "dark-gray" "light-gray" "tooltip"    // Gen
     }
   }
 
-  /* Add a small margin below the last target if there's another
-      header following*/
+  // Add a small margin below the last target if there's another
+  // header following
   &:has(+ .lancer-mini-header) {
     margin-bottom: 4px;
   }

@@ -79,6 +79,11 @@ export namespace LancerFlowState {
     crit: boolean;
   };
 
+  export interface HitResultWithRoll extends HitResult {
+    roll: Roll;
+    tt: string | HTMLElement | JQuery<HTMLElement>;
+  }
+
   export interface DamageTargetResult extends ResultToken {
     damage: { type: DamageType; amount: number }[];
     hit: boolean;

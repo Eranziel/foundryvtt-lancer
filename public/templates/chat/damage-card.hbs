@@ -1,5 +1,5 @@
 <div class="card clipped-bot" {{#if item_uuid}} data-uuid="{{item_uuid}}" {{/if}} style="margin: 0px;">
-  <div class="lancer-header lancer-primary medium">
+  <div class="lancer-header lancer-weapon medium">
     {{#if icon}}
       <i class="{{icon}} i--m i--light"> </i>
     {{else}}
@@ -21,7 +21,7 @@
       {{#each targets as |target key|}}
         {{#if (and target.hit (not target.crit))}}
           <img class="lancer-hit-thumb" src="{{target.img}}" />
-          <span class="lancer-hit-text-name">{{target.name}}</span>
+          <span class="lancer-hit-text-name"><b>{{target.name}}</b></span>
           <div
             class="lancer-damage-button-group"
             data-target="{{target.actor.uuid}}"

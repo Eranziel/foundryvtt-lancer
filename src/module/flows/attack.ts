@@ -474,8 +474,17 @@ export async function printAttackCard(
     },
   };
   state.data.defense = state.data.is_smart ? "E-DEF" : "EVASION";
+  // Add roll data to the hit results for the HBS template
+  const hitResultsWithRolls: LancerFlowState.HitResultWithRoll[] = [];
+  for (const [index, hitResult] of state.data.hit_results.entries()) {
+    hitResultsWithRolls.push({
+      ...hitResult,
+      ...state.data.attack_results[index],
+    });
+  }
   const templateData = {
     ...state.data,
+    hit_results: hitResultsWithRolls,
     item_uuid: state.item?.uuid,
     profile: state.item?.currentProfile(),
   };
