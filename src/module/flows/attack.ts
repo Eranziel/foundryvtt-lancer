@@ -51,6 +51,7 @@ export type AttackFlag = {
   origin: string; // Attacker's ID. Somewhat deprecated, kept because LWFX is probably using it.
   attackerUuid: string; // Attacker's UUID
   attackerItemUuid?: string; // Item UUID used for the attack, if applicable
+  invade?: boolean;
   targets: {
     id: string;
     setConditions?: object; // keys are statusEffect ids, values are boolean to indicate whether to apply or remove

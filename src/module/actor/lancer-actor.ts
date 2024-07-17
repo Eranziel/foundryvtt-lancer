@@ -944,7 +944,11 @@ export class LancerActor extends Actor {
       ui.notifications!.warn(`Only mechs and NPCs can tech attack!`);
       return false;
     }
-    const flow = new TechAttackFlow(this, title ? { title } : undefined);
+    const params = {
+      title,
+      invade: true,
+    };
+    const flow = new TechAttackFlow(this, params);
     return await flow.begin();
   }
 

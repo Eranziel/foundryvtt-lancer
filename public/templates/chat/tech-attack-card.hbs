@@ -76,7 +76,11 @@
       <span class="effect-text collapse" data-collapse-id="{{_uuid}}-effect">{{{effect}}}</span>
     </div>
   {{/if}}
-  <div class="flexrow" style="justify-content: flex-end; flex-wrap: wrap;">
-    {{{tag-list "tags"}}}
-  </div>
+  {{{tag-list "tags"}}}
+  {{#if invade}}
+    <button
+      class="lancer-button lancer-damage-flow"
+      label="lancer.chat-card.attack.roll-all-damage"
+    ><i class="mdi mdi-dice-multiple i--sm i--light"></i>&nbsp;{{localize "lancer.chat-card.attack.roll-all-damage"}}</button>
+  {{/if}}
 </div>

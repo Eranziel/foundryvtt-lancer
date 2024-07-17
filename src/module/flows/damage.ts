@@ -1,5 +1,6 @@
 import { AppliedDamage } from "../actor/damage-calc";
 import { LancerActor, LancerNPC } from "../actor/lancer-actor";
+import { DamageType } from "../enums";
 import { LancerItem } from "../item/lancer-item";
 import { Damage } from "../models/bits/damage";
 import { UUIDRef } from "../source-template";
@@ -47,6 +48,7 @@ export class DamageRollFlow extends Flow<LancerFlowState.DamageRollData> {
       title: data?.title || "Damage Roll",
       configurable: data?.configurable !== undefined ? data.configurable : true,
       add_burn: data?.add_burn !== undefined ? data.add_burn : true,
+      invade: data?.invade || false,
       ap: data?.ap || false,
       overkill: data?.overkill || false,
       reliable: data?.reliable || false,
@@ -402,11 +404,15 @@ export async function rollDamage(event: JQuery.ClickEvent) {
       damage.push(...item.system.damage);
     }
   }
+  if (attackData.invade) {
+    damage.push({ type: DamageType.Heat, val: "2" });
+  }
 
   // Start a damage flow, prepopulated with the attack data
   const flow = new DamageRollFlow(attackData.attackerUuid, {
     title: `${item?.name || actor.name} DAMAGE`,
     configurable: true,
+    invade: attackData.invade,
     hit_results,
     has_normal_hit: hit_results.some(hr => hr.hit && !hr.crit),
     has_crit_hit: hit_results.some(hr => hr.crit),

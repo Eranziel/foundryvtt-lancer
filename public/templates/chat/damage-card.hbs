@@ -1,5 +1,5 @@
 <div class="card clipped-bot" {{#if item_uuid}} data-uuid="{{item_uuid}}" {{/if}} style="margin: 0px;">
-  <div class="lancer-header lancer-weapon medium">
+  <div class="lancer-header {{#if invade}}lancer-tech{{else}}lancer-weapon{{/if}} medium">
     {{#if icon}}
       <i class="{{icon}} i--m i--light"> </i>
     {{else}}

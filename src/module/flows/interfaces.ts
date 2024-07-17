@@ -147,6 +147,7 @@ export namespace LancerFlowState {
     configurable: boolean;
     add_burn: boolean;
     damage_hud_data?: DamageHudData;
+    invade?: boolean;
     ap: boolean;
     overkill: boolean;
     overkill_heat?: number;
