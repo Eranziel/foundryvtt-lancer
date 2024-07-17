@@ -1,7 +1,6 @@
 import { EntryType, OrgType } from "../../enums";
 import { SourceData } from "../../source-template";
 import { PackedOrganizationData } from "../../util/unpacking/packed-types";
-import { ActionField, unpackAction } from "../bits/action";
 import { LancerDataModel, UnpackContext } from "../shared";
 import { template_universal_item } from "./shared";
 
