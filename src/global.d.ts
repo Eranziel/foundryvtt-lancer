@@ -1,4 +1,4 @@
-import type { AutomationOptions, StatusIconConfigOptions } from "./module/settings";
+import type { AutomationOptions, CombatTrackerAppearance, StatusIconConfigOptions } from "./module/settings";
 import type { LancerActionManager } from "./module/action/action-manager";
 import type { TerrainHeightToolsAPI } from "./types/terrain-height-tools";
 
@@ -13,26 +13,6 @@ interface LancerInitiativeConfig<T extends string = string> {
    * omitted if LancerCombatTracker is not used.
    */
   templatePath?: string;
-  /**
-   * Default appearance settings for LancerCombatTracker. Can be omitted if
-   * LancerCombatTracker is not used.
-   */
-  def_appearance?: {
-    icon: string;
-    deactivate: string;
-    icon_size: number;
-    player_color: string;
-    friendly_color: string;
-    neutral_color: string;
-    enemy_color: string;
-    done_color: string;
-  };
-  /**
-   * Activations for each unit.  If a string, path to the activation parameter
-   * in actor.getRollData(), if a number, that value. Otherwise 1
-   * @defaultValue `1`
-   */
-  activations?: string | number;
   /**
    * Whether to enable the initiative rolling buttons in the tracker. Only
    * needed if LancerCombatTracker or a subclass is used for the tracker and
@@ -97,7 +77,7 @@ declare global {
       // "lancer.warningForBeta": boolean; // Old setting, currently unused.
       "lancer.combatTrackerConfig": { sortTracker: boolean } | ClientSettings.Values["lancer.combatTrackerConfig"];
       "lancer.dsnSetup": boolean;
-      "lancer.combat-tracker-appearance": Partial<LancerInitiativeConfig["def_appearance"]>;
+      "lancer.combat-tracker-appearance": CombatTrackerAppearance;
     }
   }
 
