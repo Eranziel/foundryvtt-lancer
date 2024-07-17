@@ -1,8 +1,9 @@
 import { AppliedDamage } from "../actor/damage-calc";
 import { LancerActor, LancerNPC } from "../actor/lancer-actor";
 import { DamageType } from "../enums";
-import { LancerItem } from "../item/lancer-item";
-import { Damage } from "../models/bits/damage";
+import { LancerItem, LancerMECH_WEAPON, LancerNPC_FEATURE, LancerPILOT_WEAPON } from "../item/lancer-item";
+import { Damage, DamageData } from "../models/bits/damage";
+import { Tag } from "../models/bits/tag";
 import { UUIDRef } from "../source-template";
 import { LancerToken } from "../token";
 import { renderTemplateStep } from "./_render";
@@ -95,19 +96,32 @@ async function initDamageData(state: FlowState<LancerFlowState.DamageRollData>):
   return true;
 }
 
+function checkForProfileTags(item: LancerItem, check: (tag: Tag) => boolean) {
+  if (!item.is_mech_weapon()) return false;
+  return item.system.active_profile.tags.some(check);
+}
+
 async function setDamageTags(state: FlowState<LancerFlowState.DamageRollData>): Promise<boolean> {
   if (!state.data) throw new TypeError(`Damage flow state missing!`);
   // If the damage roll has no item, it has no tags.
   if (!state.item) return true;
-  if (!state.item.is_mech_weapon() || !state.item.is_npc_feature() || !state.item.is_pilot_weapon())
+  if (!state.item.is_mech_weapon() && !state.item.is_npc_feature() && !state.item.is_pilot_weapon())
     throw new TypeError(`Item ${state.item.id} is not a weapon!`);
-  state.data.ap = state.item.isAP();
-  state.data.overkill = state.item.isOverkill();
-  state.data.reliable = state.item.isReliable();
-  const reliableTag = state.item.system.tags.find(t => t.is_reliable);
-  const reliableVal = parseInt(reliableTag?.val || "0");
-  if (reliableTag && !Number.isNaN(reliableVal)) {
-    state.data.reliable_val = reliableVal;
+  const weapon = state.item as LancerMECH_WEAPON | LancerNPC_FEATURE | LancerPILOT_WEAPON;
+  state.data.ap = weapon.isAP() || checkForProfileTags(weapon, t => t.is_ap);
+  state.data.overkill = weapon.isOverkill() || checkForProfileTags(weapon, t => t.is_overkill);
+  if (weapon.isReliable()) {
+    let reliableTag;
+    if (weapon.is_mech_weapon()) {
+      reliableTag = weapon.system.active_profile.tags.find(t => t.is_reliable);
+    } else {
+      reliableTag = weapon.system.tags.find(t => t.is_reliable);
+    }
+    const reliableVal = parseInt(reliableTag?.val || "0");
+    if (reliableTag && !Number.isNaN(reliableVal)) {
+      state.data.reliable_val = reliableVal;
+      state.data.reliable = true;
+    }
   }
   // TODO: build state.data.damage_hud_data
   return true;
@@ -390,26 +404,14 @@ export async function rollDamage(event: JQuery.ClickEvent) {
   }
 
   // Collect damage from the item
-  const damage = [];
-  const bonus_damage = [];
-  if (item) {
-    if (item.is_mech_weapon()) {
-      const profile = item.system.active_profile;
-      damage.push(...profile.damage);
-      bonus_damage.push(...profile.bonus_damage);
-    } else if (item.is_npc_feature() && item.system.type === "Weapon") {
-      const npcDamage: Damage[] = item.system.damage[item.system.tier_override || (actor as LancerNPC).system.tier - 1];
-      damage.push(...npcDamage);
-    } else if (item.is_pilot_weapon()) {
-      damage.push(...item.system.damage);
-    }
-  }
+  const damage: DamageData[] = [];
+  const bonus_damage: DamageData[] = [];
   if (attackData.invade) {
     damage.push({ type: DamageType.Heat, val: "2" });
   }
 
   // Start a damage flow, prepopulated with the attack data
-  const flow = new DamageRollFlow(attackData.attackerUuid, {
+  const flow = new DamageRollFlow(item ? item.uuid : attackData.attackerUuid, {
     title: `${item?.name || actor.name} DAMAGE`,
     configurable: true,
     invade: attackData.invade,
