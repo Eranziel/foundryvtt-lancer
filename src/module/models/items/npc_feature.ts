@@ -35,7 +35,7 @@ export class NpcFeatureModel extends LancerDataModel<"NpcFeatureModel"> {
       weapon_type: new fields.StringField(),
       damage: new fields.ArrayField(new fields.ArrayField(new DamageField())),
       range: new fields.ArrayField(new RangeField()),
-      on_hit: new fields.StringField(),
+      on_hit: new fields.HTMLField(),
       accuracy: new ControlledLengthArrayField(new fields.NumberField({ integer: true, initial: 0 }), { length: 3 }),
       attack_bonus: new ControlledLengthArrayField(new fields.NumberField({ integer: true, initial: 0 }), {
         length: 3,
