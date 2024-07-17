@@ -12,7 +12,9 @@
   {{/if}}
   {{#if (not hit_results.length)}}
     <div class="card clipped">
-      <div class="lancer-mini-header collapse-trigger" data-collapse-id="{{_uuid}}-attacks">{{localize "lancer.chat-card.title.attack"}}</div>
+      <div class="lancer-mini-header collapse-trigger" data-collapse-id="{{_uuid}}-attacks">
+        {{localize "lancer.chat-card.title.attack"}}
+      </div>
       <div class="collapse" data-collapse-id="{{_uuid}}-attacks">
         {{#each attack_results as |attack key|}}
           {{{lancer-dice-roll attack.roll attack.tt "cci cci-reticule i--m"}}}
@@ -21,7 +23,9 @@
     </div>
   {{/if}}
   {{#if hit_results.length}}
-    <div class="lancer-mini-header collapse-trigger" data-collapse-id="{{_uuid}}-hits">{{localize "lancer.chat-card.title.defense-hit" defense=defense}}</div>
+    <div class="lancer-mini-header collapse-trigger" data-collapse-id="{{_uuid}}-hits">
+      {{localize "lancer.chat-card.title.defense-hit" defense=defense}}
+    </div>
     <div class="collapse" data-collapse-id="{{_uuid}}-hits">
       {{#each hit_results as |hit key|}}
         <div class="lancer-hit-target">
@@ -39,6 +43,16 @@
           </div>
         </div>
       {{/each}}
+    </div>
+  {{/if}}
+  {{#if self_heat_result}}
+    <div class="card clipped">
+      <div class="lancer-mini-header collapse-trigger" data-collapse-id="{{_uuid}}-self-heat">
+        {{localize "lancer.chat-card.title.self-heat"}}
+      </div>
+      <div class="collapse" data-collapse-id="{{_uuid}}-self-heat">
+        {{{lancer-dice-roll self_heat_result.roll self_heat_result.tt "cci cci-heat i--m damage--heat"}}}
+      </div>
     </div>
   {{/if}}
   {{#if effect}}
