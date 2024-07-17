@@ -15,10 +15,7 @@ const dispositions: Record<number, string> = {
  * @param html - The jquery data for the form
  */
 export function handleRenderCombatCarousel(...[app, html]: Parameters<Hooks.RenderApplication<CombatCarousel>>) {
-  const icon = {
-    ...CONFIG.LancerInitiative.def_appearance,
-    ...(game.settings.get(CONFIG.LancerInitiative.module, "combat-tracker-appearance") ?? {}),
-  }.icon!;
+  const icon = game.settings.get(game.system.id, "combat-tracker-appearance").icon;
   html.addClass("lancer");
   html.find("li.card").each((_, e) => {
     const combatant_id = $(e).data("combatant-id");
