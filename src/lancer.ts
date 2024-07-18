@@ -715,21 +715,26 @@ Hooks.once("ready", async function () {
   });
 });
 
-// Set up Dice So Nice to icrementally show attacks then damge rolls
 Hooks.once("ready", () => {
   if (
     game.user!.isGM &&
     game.modules.get("dice-so-nice")?.active &&
     !game.settings.get(game.system.id, LANCER.setting_dsn_setup)
   ) {
+    // Set up Dice So Nice to icrementally show attacks then damge rolls
     console.log(`${lp} First login setup for Dice So Nice`);
     game.settings.set("dice-so-nice", "enabledSimultaneousRollForMessage", false);
     game.settings.set(game.system.id, LANCER.setting_dsn_setup, true);
   }
-});
 
-// Migrate settings from Lancer Condition Icons and disable the module
-Hooks.once("ready", migrateLancerConditions);
+  // Migrate settings from Lancer Condition Icons and disable the module
+  migrateLancerConditions();
+
+  // Grid based template shapes
+  if (game.user!.isGM && game.settings.get("core", "gridTemplates") == false) {
+    game.settings.set("core", "gridTemplates", true);
+  }
+});
 
 // Action Manager hooks.
 Hooks.on("controlToken", () => {
