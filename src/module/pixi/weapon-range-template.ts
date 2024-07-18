@@ -36,17 +36,19 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
 
   /**
    * Creates a new WeaponRangeTemplate from a provided range object
-   * @param type - Type of template. A RangeType in typescript, or a string in js.
-   * @param val  - Size of template. A numeric string
-   * @param creator - A token that is designated as the owner of the template.
-   *                  Used to deterimine the character sheet to close as well
-   *                  as a default ignore target for Cones and Lines.
+   * @param range      - Range data
+   * @param range.type - Type of template. A RangeType in typescript, or a string in js.
+   * @param range.val  - Size of template. A numeric string
+   * @param creator    - A token that is designated as the owner of the template.
+   *                     Used to deterimine the character sheet to close as well
+   *                     as a default ignore target for Cones and Lines.
    */
   static fromRange({ type, val }: WeaponRangeTemplate["range"], creator?: Token): WeaponRangeTemplate | null {
     if (!canvas.ready) return null;
     const dist = val;
     if (isNaN(dist)) return null;
-    const hex: boolean = (canvas.grid?.type ?? 0) >= 2;
+    // @ts-expect-error v12
+    const square: boolean = canvas.grid?.isSquare;
     const grid_distance = (canvas.scene?.dimensions as Partial<Canvas.Dimensions> | undefined)?.distance ?? 1;
 
     let shape: "cone" | "ray" | "circle";
@@ -65,16 +67,15 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
         return null;
     }
 
-    const scale = 1; // hex ? Math.sqrt(3) / 2 : 1;
     const templateData = {
       t: shape,
       user: game.user!.id,
-      distance: (dist + 0.1) * scale * grid_distance,
-      width: scale * grid_distance,
+      distance: dist * grid_distance,
+      width: grid_distance,
       direction: 0,
       x: 0,
       y: 0,
-      angle: 58,
+      angle: square ? 51 : 59,
       fillColor: game.user!.color,
       flags: {
         [game.system.id]: {
@@ -247,7 +248,8 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
         if (
           r === null ||
           r === undefined ||
-          canvas.grid!.measureDistance({ x, y }, t.center) < canvas.grid!.measureDistance({ x, y }, r.center)
+          // @ts-expect-error v12
+          canvas.grid!.measurePath([{ x, y }, t.center]) < canvas.grid!.measurePath([{ x, y }, r.center])
         )
           return t;
         else return r;
@@ -271,18 +273,7 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
    * Get fine-tuned sizing data for Burst templates
    */
   private getBurstDistance(size: number): number {
-    const hex = canvas.grid!.type > 1;
-    let val = this.range.val;
-    if (hex) {
-      if (size === 2) val += 0.7 - (val > 2 ? 0.1 : 0);
-      if (size === 3) val += 1.2;
-      if (size === 4) val += 1.5;
-    } else {
-      if (size === 2) val += 0.9;
-      if (size === 3) val += 1.4;
-      if (size === 4) val += 1.9;
-    }
-    return val + 0.1;
+    return this.range.val + size / 2;
   }
 }
 
