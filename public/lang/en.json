@@ -148,6 +148,7 @@
       "title": {
         "attack": "// ATTACK //",
         "damage": "// DAMAGE //",
+        "reliable": "// RELIABLE //",
         "crit-damage": "// CRIT DAMAGE //",
         "self-heat": "// SELF HEAT //",
         "defense-hit": "// ATTACK VS {defense} //",

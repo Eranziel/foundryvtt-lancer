@@ -14,7 +14,7 @@ import { LancerFlowState } from "./interfaces";
 type DamageFlag = {
   damageResults: LancerFlowState.DamageResult[];
   critDamageResults: LancerFlowState.DamageResult[];
-  targetDamageResults: LancerFlowState.DamageTargetResult[];
+  targetDamageResults: LancerFlowState.DamageTargetResultSerialized[];
   // TODO: AP and paracausal flags
   ap: boolean;
   paracausal: boolean;
@@ -226,6 +226,47 @@ export async function rollDamages(state: FlowState<LancerFlowState.DamageRollDat
     }
   }
 
+  // Include reliable data if the attack was made with no targets or at least one target was missed
+  if (
+    state.data.reliable &&
+    state.data.reliable_val &&
+    (!state.data.hit_results.length || state.data.hit_results.some(h => !h.hit && !h.crit))
+  ) {
+    state.data.reliable_results = state.data.reliable_results || [];
+    // Find the first non-heat non-burn damage type
+    for (const x of state.data.damage ?? []) {
+      if (!x.val || x.val == "0") continue; // Skip undefined and zero damage
+      if (x.type === DamageType.Burn || x.type === DamageType.Heat) continue; // Skip burn and heat
+      let damageRoll: Roll | undefined = new Roll(state.data.reliable_val.toString());
+
+      await damageRoll.evaluate({ async: true });
+      const tooltip = await damageRoll.getTooltip();
+
+      state.data.reliable_results.push({
+        roll: damageRoll,
+        tt: tooltip,
+        d_type: x.type,
+      });
+      state.data.reliable_total = damageRoll.total;
+      break;
+    }
+
+    for (const hitTarget of state.data.hit_results) {
+      if (!hitTarget.hit && !hitTarget.crit) {
+        state.data.targets.push({
+          ...hitTarget.token,
+          damage: state.data.reliable_results.map(dr => ({ type: dr.d_type, amount: dr.roll.total || 0 })),
+          hit: hitTarget.hit,
+          crit: hitTarget.crit,
+          // TODO: target-specific AP and Paracausal from damage HUD
+          ap: state.data.ap,
+          paracausal: state.data.paracausal,
+          half_damage: state.data.half_damage,
+        });
+      }
+    }
+  }
+
   // If there were only crit hits and no normal hits, don't show normal damage in the results
   state.data.damage_results = state.data.has_normal_hit ? state.data.damage_results : [];
 
@@ -268,7 +309,10 @@ async function printDamageCard(
   const damageData: DamageFlag = {
     damageResults: state.data.damage_results,
     critDamageResults: state.data.crit_damage_results,
-    targetDamageResults: state.data.targets,
+    targetDamageResults: state.data.targets.map(t => ({
+      ...t,
+      actor: t.actor ? { ...t.actor.toObject(), uuid: t.actor.uuid } : undefined,
+    })),
     // TODO: AP and paracausal flags
     ap: state.data.ap,
     paracausal: state.data.paracausal,

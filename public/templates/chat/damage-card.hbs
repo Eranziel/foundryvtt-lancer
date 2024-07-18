@@ -7,7 +7,29 @@
     {{/if}}
     <span>{{ title }}</span>
   </div>
-  {{#if (and damage_results.length crit_damage_results.length)}}
+
+  {{!-- Reliable damage --}}
+  {{#if reliable_results}}
+    <div class="lancer-mini-header" >{{localize "lancer.chat-card.title.reliable"}}</div>
+  {{/if}}
+  <div>
+    {{#each reliable_results as |damage key|}}
+      {{{lancer-dice-roll damage.roll damage.tt (concat "cci cci-" (lower-case damage.d_type) " i--m damage--" (lower-case damage.d_type))}}}
+    {{/each}}
+  </div>
+  {{!-- Miss/reliable damage targets only --}}
+  {{#if targets.length}}
+    <div class="lancer-damage-targets">
+      {{#each targets as |target key|}}
+        {{#if (and (not target.hit) (not target.crit))}}
+          {{{damage-target target ../this}}}
+        {{/if}}
+      {{/each}}
+    </div>
+  {{/if}}
+
+  {{!-- Regular damage --}}
+  {{#if (or (and damage_results.length crit_damage_results.length) (and damage_results.length reliable_results.length))}}
     <div class="lancer-mini-header" >{{localize "lancer.chat-card.title.damage"}}</div>
   {{/if}}
   <div>

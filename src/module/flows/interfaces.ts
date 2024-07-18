@@ -93,6 +93,11 @@ export namespace LancerFlowState {
     half_damage: boolean;
   }
 
+  export interface DamageTargetResultSerialized extends Omit<DamageTargetResult, "actor"> {
+    // Thanks, I hate it  >:(
+    actor: any;
+  }
+
   // Configuration passed to initiate an attack roll
   export interface AttackRollData extends Omit<BaseRollData, "type"> {
     type: "attack";
@@ -163,8 +168,10 @@ export namespace LancerFlowState {
     hit_results: HitResult[];
     has_normal_hit: boolean;
     has_crit_hit: boolean;
+    reliable_results?: DamageResult[];
     damage_results: DamageResult[];
     crit_damage_results: DamageResult[];
+    reliable_total?: number;
     damage_total: number;
     crit_total: number;
     targets: DamageTargetResult[];
