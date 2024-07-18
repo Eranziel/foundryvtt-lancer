@@ -105,6 +105,7 @@ import { onHotbarDrop } from "./module/flows/hotbar";
 import { registerFlows } from "./module/flows/register-flows";
 import { LancerNPCFeatureSheet } from "./module/item/npc-feature-sheet";
 import { applyDamage, rollDamage } from "./module/flows/damage";
+import { miniProfile, attackTarget, damageTarget } from "./module/helpers/chat";
 
 const lp = LANCER.log_prefix;
 
@@ -287,6 +288,10 @@ Hooks.once("init", async function () {
   registerHandlebarsHelpers();
 
   // ------------------------------------------------------------------------
+  // ------------------------------------------------------------------------
+  // Chat helpers
+  Handlebars.registerHelper("attack-target", attackTarget);
+  Handlebars.registerHelper("damage-target", damageTarget);
   // Sliding HUD Zone, including accuracy/difficulty window
   Hooks.on("renderHeadsUpDisplay", slidingHUD.attach);
 

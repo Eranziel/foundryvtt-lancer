@@ -1,4 +1,6 @@
 import type { HelperOptions } from "handlebars";
+import { LancerFlowState } from "../flows/interfaces";
+import { lancerDiceRoll } from "./commons";
 import { DamageData } from "../models/bits/damage";
 import { RangeData } from "../models/bits/range";
 
@@ -54,5 +56,86 @@ export function miniProfile(
       </div>`
           : ""
       }
+    </div>`;
+}
+
+export function attackTarget(hit: LancerFlowState.HitResultWithRoll, options: HelperOptions): string {
+  const hitChip = hit.crit
+    ? `<span class="card clipped lancer-hit-chip crit">${game.i18n.format("lancer.chat-card.attack.crit", {
+        total: hit.total,
+      })}</span>`
+    : hit.hit
+    ? `<span class="card clipped lancer-hit-chip hit">${game.i18n.format("lancer.chat-card.attack.hit", {
+        total: hit.total,
+      })}</span>`
+    : `<span class="card clipped lancer-hit-chip miss">${game.i18n.format("lancer.chat-card.attack.miss", {
+        total: hit.total,
+      })}</span>`;
+  return `
+    <div class="lancer-hit-target">
+      <img class="lancer-hit-thumb" src="${hit.token.img}" />
+      <span class="lancer-hit-text-name"><b>${hit.token.name}</b></span>
+      ${hitChip}
+      <div class="lancer-hit-roll">
+        ${lancerDiceRoll(hit.roll, hit.tt as string, "cci cci-reticule i--sm")}
+      </div>
+    </div>`;
+}
+
+export function damageTarget(
+  target: LancerFlowState.DamageTargetResult,
+  context: LancerFlowState.DamageRollData,
+  options: HelperOptions
+): string {
+  const actor = target.actor || target.token?.actor;
+  if (!actor) return "";
+
+  // TODO: put the default as a button, with the rest in a select attached to the button
+  // TODO: add option for crit damage
+  const select = context.configurable
+    ? `
+          <select class="lancer-damage-apply-select" title="Select damage multiplier">
+            <option value="2">2×</option>
+            <option value="1" selected>1×</option>
+            <option value="0.5">½×</option>
+          </select>`
+    : "";
+
+  // Doesn't really matter whether we use damage_results or crit_damage_results here
+  // We just need a consistent set of damage types
+  const damageResults =
+    !target.hit && !target.crit && context.reliable_results
+      ? context.reliable_results
+      : context.damage_results.length
+      ? context.damage_results
+      : context.crit_damage_results;
+  const damageTypes = damageResults
+    .map(d => `<i class="cci cci-${d.d_type.toLowerCase()} i--s damage--${d.d_type.toLowerCase()}"></i>`)
+    .join("");
+
+  const damageTags: string[] = [];
+  if (context.ap) damageTags.push(`<span class="lancer-damage-tag">AP</span>`);
+  if (context.paracausal) damageTags.push(`<span class="lancer-damage-tag">PARACAUSAL</span>`);
+  if (context.half_damage) damageTags.push(`<span class="lancer-damage-tag">HALF-DMG</span>`);
+  const damageTagsDisplay = `<div class="lancer-damage-tags">${damageTags.join("")}</div>`;
+
+  return `
+    <div class="lancer-damage-target">
+      <img class="lancer-hit-thumb" src="${target.img}" />
+      <span class="lancer-hit-text-name"><b>${target.name}</b></span>
+      <div
+        class="lancer-damage-button-group"
+        data-target="${actor.uuid}"
+        data-hit="${target.hit}"
+        data-crit="${target.crit}"
+        data-add-burn="${context.add_burn}"
+      >
+        ${select}
+        <button
+          class="lancer-button lancer-damage-apply"
+          title="Apply damage"
+        >${damageTypes}</button>
+      </div>
+      ${damageTagsDisplay}
     </div>`;
 }
