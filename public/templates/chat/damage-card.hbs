@@ -20,41 +20,48 @@
     <div class="lancer-damage-targets">
       {{#each targets as |target key|}}
         {{#if (and target.hit (not target.crit))}}
-          <img class="lancer-hit-thumb" src="{{target.img}}" />
-          <span class="lancer-hit-text-name"><b>{{target.name}}</b></span>
-          <div
-            class="lancer-damage-button-group"
-            data-target="{{target.actor.uuid}}"
-            data-hit="{{target.hit}}"
-            data-crit="{{target.crit}}"
-            data-add-burn="{{../add_burn}}"
-          >
-            {{!-- TODO: show total of each type of damage between name and buttons --}}
-            {{#if ../configurable}}
-              {{!-- TODO: put the default as a button, with the rest in a select attached to the button --}}
-              {{!-- TODO: add option for crit damage --}}
-              <select class="lancer-damage-apply-select" title="Select damage multiplier">
-                <option value="2">2×</option>
-                <option value="1" selected>1×</option>
-                <option value="0.5">½×</option>
-              </select>
-            {{/if}}
-            <button
-              class="lancer-button lancer-damage-apply"
-              title="Apply damage"
+          <div class="lancer-damage-target">
+            <img class="lancer-hit-thumb" src="{{target.img}}" />
+            <span class="lancer-hit-text-name"><b>{{target.name}}</b></span>
+            <div
+              class="lancer-damage-button-group"
+              data-target="{{target.actor.uuid}}"
+              data-hit="{{target.hit}}"
+              data-crit="{{target.crit}}"
+              data-add-burn="{{../add_burn}}"
             >
-              {{!-- Doesn't really matter whether we use damage_results or crit_damage_results here --}}
-              {{!-- We just need a consistent set of damage types --}}
-              {{#if ../damage_results.length}}
-                {{#each ../damage_results as |damage key|}}
-                  <i class="{{{concat "cci cci-" (lower-case damage.d_type) " i--s damage--" (lower-case damage.d_type)}}}"></i>
-                {{/each}}
-              {{else}}
-                {{#each ../crit_damage_results as |damage key|}}<i
-                  class="{{{concat "cci cci-" (lower-case damage.d_type) " i--s damage--" (lower-case damage.d_type)}}}"
-                ></i>{{/each}}
+              {{!-- TODO: show total of each type of damage between name and buttons --}}
+              {{#if ../configurable}}
+                {{!-- TODO: put the default as a button, with the rest in a select attached to the button --}}
+                {{!-- TODO: add option for crit damage --}}
+                <select class="lancer-damage-apply-select" title="Select damage multiplier">
+                  <option value="2">2×</option>
+                  <option value="1" selected>1×</option>
+                  <option value="0.5">½×</option>
+                </select>
               {{/if}}
-            </button>
+              <button
+                class="lancer-button lancer-damage-apply"
+                title="Apply damage"
+              >
+                {{!-- Doesn't really matter whether we use damage_results or crit_damage_results here --}}
+                {{!-- We just need a consistent set of damage types --}}
+                {{#if ../damage_results.length}}
+                  {{#each ../damage_results as |damage key|}}
+                    <i class="{{{concat "cci cci-" (lower-case damage.d_type) " i--s damage--" (lower-case damage.d_type)}}}"></i>
+                  {{/each}}
+                {{else}}
+                  {{#each ../crit_damage_results as |damage key|}}<i
+                    class="{{{concat "cci cci-" (lower-case damage.d_type) " i--s damage--" (lower-case damage.d_type)}}}"
+                  ></i>{{/each}}
+                {{/if}}
+              </button>
+            </div>
+            <div class="lancer-damage-tags">
+              {{#if ../ap}}<span class="lancer-damage-tag">AP</span>{{/if}}
+              {{#if ../paracausal}}<span class="lancer-damage-tag">PARACAUSAL</span>{{/if}}
+              {{#if ../half_damage}}<span class="lancer-damage-tag">HALF DMG</span>{{/if}}
+            </div>
           </div>
         {{/if}}
       {{/each}}
@@ -73,41 +80,48 @@
     <div class="lancer-damage-targets">
       {{#each targets as |target key|}}
         {{#if target.crit}}
-          <img class="lancer-hit-thumb" src="{{target.img}}" />
-          <span class="lancer-hit-text-name">{{target.name}}</span>
-          <div
-            class="lancer-damage-button-group"
-            data-target="{{target.actor.uuid}}"
-            data-hit="{{target.hit}}"
-            data-crit="{{target.crit}}"
-            data-add-burn="{{../add_burn}}"
-          >
-            {{!-- TODO: show total of each type of damage between name and buttons --}}
-            {{#if ../configurable}}
-              {{!-- TODO: put the default as a button, with the rest in a select attached to the button --}}
-              {{!-- TODO: add option for crit damage --}}
-              <select class="lancer-damage-apply-select" title="Select damage multiplier">
-                <option value="2">2×</option>
-                <option value="1" selected>1×</option>
-                <option value="0.5">½×</option>
-              </select>
-            {{/if}}
-            <button
-              class="lancer-button lancer-damage-apply"
-              title="Apply damage"
+          <div class="lancer-damage-target">
+            <img class="lancer-hit-thumb" src="{{target.img}}" />
+            <span class="lancer-hit-text-name"><b>{{target.name}}</b></span>
+            <div
+              class="lancer-damage-button-group"
+              data-target="{{target.actor.uuid}}"
+              data-hit="{{target.hit}}"
+              data-crit="{{target.crit}}"
+              data-add-burn="{{../add_burn}}"
             >
-              {{!-- Doesn't really matter whether we use damage_results or crit_damage_results here --}}
-              {{!-- We just need a consistent set of damage types --}}
-              {{#if ../damage_results.length}}
-                {{#each ../damage_results as |damage key|}}
-                  <i class="{{{concat "cci cci-" (lower-case damage.d_type) " i--s damage--" (lower-case damage.d_type)}}}"></i>
-                {{/each}}
-              {{else}}
-                {{#each ../crit_damage_results as |damage key|}}<i
-                  class="{{{concat "cci cci-" (lower-case damage.d_type) " i--s damage--" (lower-case damage.d_type)}}}"
-                ></i>{{/each}}
+              {{!-- TODO: show total of each type of damage between name and buttons --}}
+              {{#if ../configurable}}
+                {{!-- TODO: put the default as a button, with the rest in a select attached to the button --}}
+                {{!-- TODO: add option for crit damage --}}
+                <select class="lancer-damage-apply-select" title="Select damage multiplier">
+                  <option value="2">2×</option>
+                  <option value="1" selected>1×</option>
+                  <option value="0.5">½×</option>
+                </select>
               {{/if}}
-            </button>
+              <button
+                class="lancer-button lancer-damage-apply"
+                title="Apply damage"
+              >
+                {{!-- Doesn't really matter whether we use damage_results or crit_damage_results here --}}
+                {{!-- We just need a consistent set of damage types --}}
+                {{#if ../damage_results.length}}
+                  {{#each ../damage_results as |damage key|}}
+                    <i class="{{{concat "cci cci-" (lower-case damage.d_type) " i--s damage--" (lower-case damage.d_type)}}}"></i>
+                  {{/each}}
+                {{else}}
+                  {{#each ../crit_damage_results as |damage key|}}<i
+                    class="{{{concat "cci cci-" (lower-case damage.d_type) " i--s damage--" (lower-case damage.d_type)}}}"
+                  ></i>{{/each}}
+                {{/if}}
+              </button>
+            </div>
+            <div class="lancer-damage-tags">
+              {{#if ../ap}}<span class="lancer-damage-tag">AP</span>{{/if}}
+              {{#if ../paracausal}}<span class="lancer-damage-tag">PARACAUSAL</span>{{/if}}
+              {{#if ../half_damage}}<span class="lancer-damage-tag">HALF DMG</span>{{/if}}
+            </div>
           </div>
         {{/if}}
       {{/each}}

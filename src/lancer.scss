@@ -466,6 +466,9 @@ $theme-types: "primary" "secondary" "dark-gray" "light-gray" "tooltip"    // Gen
 
   .lancer-hit-text-name {
     grid-area: name;
+    overflow: hidden;
+    text-wrap: nowrap;
+    text-overflow: ellipsis;
   }
 
   .lancer-hit-chip {
@@ -483,31 +486,74 @@ $theme-types: "primary" "secondary" "dark-gray" "light-gray" "tooltip"    // Gen
   }
 }
 
-.lancer-damage-flow i {
-  margin-right: 0.25em;
+.lancer-damage-flow {
+  margin: 0 0.5em 0.25em 0.5em;
+  width: calc(100% - 1em);
+
+  i {
+    margin-right: 0.25em;
+  }
 }
 
 .lancer-damage-targets {
   margin: 0px 0.25em;
-  display: grid;
-  grid-template-columns: 55px auto min-content;
-  grid-template-rows: auto;
-  align-items: center;
 
-  .lancer-hit-text-name {
-    text-align: left;
-    height: 100%;
-    align-content: center;
+  .lancer-damage-target {
+    margin: 0.3em 0;
+    display: grid;
+    grid-template-areas:
+      "img name button"
+      "img name tags";
+    grid-template-columns: 55px auto min-content;
+    align-items: center;
 
-    & ~ .lancer-hit-text-name {
-      border-top: 1px dashed var(--dark-gray-color);
+    .lancer-hit-thumb {
+      grid-area: img;
+      margin: 0;
     }
-  }
 
-  // Add a small margin below the last target if there's another
-  // header following
-  &:has(+ .lancer-mini-header) {
-    margin-bottom: 4px;
+    .lancer-hit-text-name {
+      grid-area: name;
+      text-align: left;
+      height: 100%;
+      align-content: center;
+
+      & ~ .lancer-hit-text-name {
+        border-top: 1px dashed var(--dark-gray-color);
+      }
+    }
+
+    .lancer-damage-button-group {
+      grid-area: button;
+    }
+
+    .lancer-damage-tags {
+      grid-area: tags;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      align-items: center;
+
+      .lancer-damage-tag {
+        padding: 0.1em 0.5em;
+        background-color: var(--primary-color);
+        color: var(--light-text);
+        border-radius: 0.5em;
+        font-size: 0.8em;
+      }
+    }
+
+    &:has(+ .lancer-damage-target) {
+      .lancer-hit-text-name {
+        border-bottom: 1px dashed var(--dark-gray-color);
+      }
+    }
+
+    // Add a small margin below the last target if there's another
+    // header following
+    &:has(+ .lancer-mini-header) {
+      margin-bottom: 4px;
+    }
   }
 }
 

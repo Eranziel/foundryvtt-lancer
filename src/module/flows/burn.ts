@@ -81,7 +81,7 @@ async function checkBurnResult(state: FlowState<LancerFlowState.BurnCheckData>):
   const result = state.data.result.roll.total;
   if (result >= 10) {
     state.data.title = `BURN CLEARED!`;
-    state.data.icon = "mdi mdi-shield";
+    state.data.icon = "mdi mdi-fire-extinguisher";
     await state.actor.update({ "system.burn": 0 });
     return true;
   } else {
