@@ -14,9 +14,11 @@ import { LancerFlowState } from "./interfaces";
 type DamageFlag = {
   damageResults: LancerFlowState.DamageResult[];
   critDamageResults: LancerFlowState.DamageResult[];
+  targetDamageResults: LancerFlowState.DamageTargetResult[];
   // TODO: AP and paracausal flags
   ap: boolean;
   paracausal: boolean;
+  half_damage: boolean;
   targetsApplied: Record<string, boolean>;
 };
 
@@ -51,6 +53,8 @@ export class DamageRollFlow extends Flow<LancerFlowState.DamageRollData> {
       add_burn: data?.add_burn !== undefined ? data.add_burn : true,
       invade: data?.invade || false,
       ap: data?.ap || false,
+      paracausal: data?.paracausal || false,
+      half_damage: data?.half_damage || false,
       overkill: data?.overkill || false,
       reliable: data?.reliable || false,
       hit_results: data?.hit_results || [],
@@ -173,6 +177,10 @@ export async function rollDamages(state: FlowState<LancerFlowState.DamageRollDat
           damage: state.data.damage_results.map(dr => ({ type: dr.d_type, amount: dr.roll.total || 0 })),
           hit: hitTarget.hit,
           crit: hitTarget.crit,
+          // TODO: target-specific AP and Paracausal from damage HUD
+          ap: state.data.ap,
+          paracausal: state.data.paracausal,
+          half_damage: state.data.half_damage,
         });
       }
     }
@@ -209,6 +217,10 @@ export async function rollDamages(state: FlowState<LancerFlowState.DamageRollDat
           damage: state.data.damage_results.map(dr => ({ type: dr.d_type, amount: dr.roll.total || 0 })),
           hit: hitTarget.hit,
           crit: hitTarget.crit,
+          // TODO: target-specific AP and Paracausal from damage HUD
+          ap: state.data.ap,
+          paracausal: state.data.paracausal,
+          half_damage: state.data.half_damage,
         });
       }
     }
@@ -256,9 +268,11 @@ async function printDamageCard(
   const damageData: DamageFlag = {
     damageResults: state.data.damage_results,
     critDamageResults: state.data.crit_damage_results,
+    targetDamageResults: state.data.targets,
     // TODO: AP and paracausal flags
-    ap: false,
-    paracausal: false,
+    ap: state.data.ap,
+    paracausal: state.data.paracausal,
+    half_damage: state.data.half_damage,
     targetsApplied: state.data.targets.reduce((acc: Record<string, boolean>, t) => {
       const uuid = t.actor?.uuid || t.token?.actor?.uuid || null;
       if (!uuid) return acc;
@@ -477,12 +491,44 @@ export async function applyDamage(event: JQuery.ClickEvent) {
     return;
   }
 
-  // Apply the damage
+  // Get the targeted damage result, or construct one
+  let damage: LancerFlowState.DamageTargetResult;
+  // Try to find target-specific damage data first
+  const targetDamage = damageData.targetDamageResults.find(
+    tdr => tdr.actor?.uuid === data.target || tdr.token?.actor?.uuid === data.target
+  );
+  if (targetDamage) {
+    damage = targetDamage;
+  } else if (isCrit) {
+    // If we can't find this specific target, check whether it's a crit or regular hit
+    damage = {
+      name: actor.name!,
+      img: actor.img!,
+      damage: damageData.critDamageResults.map(dr => ({ type: dr.d_type, amount: dr.roll.total || 0 })),
+      hit: true,
+      crit: true,
+      ap: damageData.ap,
+      paracausal: damageData.paracausal,
+      half_damage: damageData.half_damage,
+    };
+  } else {
+    damage = {
+      name: actor.name!,
+      img: actor.img!,
+      damage: damageData.damageResults.map(dr => ({ type: dr.d_type, amount: dr.roll.total || 0 })),
+      hit: true,
+      crit: false,
+      ap: damageData.ap,
+      paracausal: damageData.paracausal,
+      half_damage: damageData.half_damage,
+    };
+  }
   // TODO: if not crit and not hit, use reliable damage
-  const damage = isCrit ? damageData.critDamageResults : damageData.damageResults;
+
+  // Apply the damage to the target
   await actor.damageCalc(
-    new AppliedDamage(damage.map(dr => new Damage({ type: dr.d_type, val: (dr.roll.total || 0).toString() }))),
-    { multiple, addBurn }
+    new AppliedDamage(damage.damage.map(d => new Damage({ type: d.type, val: d.amount.toString() }))),
+    { multiple, addBurn, ap: damage.ap, paracausal: damage.paracausal }
   );
 
   // Update the flags on the chat message to indicate the damage has been applied

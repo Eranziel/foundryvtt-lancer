@@ -88,6 +88,9 @@ export namespace LancerFlowState {
     damage: { type: DamageType; amount: number }[];
     hit: boolean;
     crit: boolean;
+    ap: boolean;
+    paracausal: boolean;
+    half_damage: boolean;
   }
 
   // Configuration passed to initiate an attack roll
@@ -149,6 +152,8 @@ export namespace LancerFlowState {
     damage_hud_data?: DamageHudData;
     invade?: boolean;
     ap: boolean;
+    paracausal: boolean;
+    half_damage: boolean;
     overkill: boolean;
     overkill_heat?: number;
     reliable: boolean;
@@ -160,7 +165,6 @@ export namespace LancerFlowState {
     has_crit_hit: boolean;
     damage_results: DamageResult[];
     crit_damage_results: DamageResult[];
-    // TODO: do we need these totals??
     damage_total: number;
     crit_total: number;
     targets: DamageTargetResult[];
