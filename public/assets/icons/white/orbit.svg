@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   version="1.1"
+   viewBox="0 -64 1024 1024"
+   width="512"
+   height="512"
+   id="svg1"
+   sodipodi:docname="orbit.svg"
+   inkscape:version="1.2.2 (732a01da63, 2022-12-09)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs1" />
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="1.5742188"
+     inkscape:cx="235.99007"
+     inkscape:cy="255.99999"
+     inkscape:window-width="1920"
+     inkscape:window-height="1009"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg1"
+     showgrid="false" />
+  <g
+     transform="matrix(1,0,0,-1,0,896)"
+     id="g1"
+     style="fill:#ffffff">
+    <path
+       fill="currentColor"
+       d="M 499,908 Q 453,907 410,897 366,887 326.5,869.5 287,852 252,828 217,803 187,773 v 0 Q 155,742 131,705 106,668 88.5,627 71,586 61,541 52,496 52,448 52,353 88,269 124,185 186.5,122.5 249,60 333,24 q 84,-36 179,-36 55,0 106,12 51,12 97,35 l -3,-2 Q 720,24 731.5,18.5 743,13 757,13 q 25,0 42.5,18 17.5,18 17.5,43 0,6 -1.5,12.5 Q 814,93 811,99 v 0 q 7,5 13.5,11 6.5,6 12.5,13 31,31 56,67 25,37 42.5,78 17.5,41 27.5,86 9,45 9,93 v 0.5 0.5 0 0 0 q 0,95 -36,179 -36,84 -98.5,146.5 Q 775,836 691,872 607,908 512,908 h -7.5 -6.5 1 z m 16,-30 q 88,-1 166,-35 77,-34 135,-92 58,-58 91,-136 34,-78 34,-167 0,-44 -9,-86 -9,-42 -25,-80.5 Q 891,243 868,209 844,174 815,145 v 0 q -5,-6 -11,-11 -6,-5 -12,-11 h -1 q -7,5 -15.5,7.5 Q 767,133 757,133 732,133 714.5,115.5 697,98 697,73 v -6 q 0,0 1,-6 v 1 Q 657,41 609.5,30 562,19 511,19 422,19 344,53 266,86 207.5,144.5 149,203 115,281 81,360 81,448 q 0,89 34,168 34,78 92.5,136.5 Q 266,811 344,844 q 78,34 167,34 h 2 2 v 0 z M 499,753 q -62,-3 -115,-28 -53,-25 -93,-67 v 0 -13 h 50 l 15,-33 41,9 51,4 54,-26 27,-27 -17,-24 -54,-10 28,-39 9,-14 -25,-37 -38,11 -32,-14 -12,-24 h -51 l -21,26 v 47 l -38,5 -20,-40 -6,-52 17,-42 32,-37 15,-46 -13,-15 -46,14 Q 298,218 365,180.5 432,143 512,143 q 63,0 119,24 55,24 96.5,65.5 41.5,41.5 65.5,97.5 24,55 24,119 0,23 -3.5,45 -3.5,22 -9.5,42 l 1,-2 -24,-67 -111,-102 -22,30 49,89 -2,55 -47,-31 -14,54 61,128 h 3 Q 660,719 612.5,736 565,753 512,753 h -7.5 -6.5 1 z m 64,-342 37,-9 12,-59 -59,-55 -10,-100 -38,-23 -27,60 -58,34 -27,74 25,56 145,22 z"
+       id="path1"
+       style="fill:#ffffff" />
+  </g>
+</svg>

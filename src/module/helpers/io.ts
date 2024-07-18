@@ -1,19 +1,18 @@
 // TODO: This needs a complete once-over as a lot of the stuff in here appears broken
-import type {
-  EntryType,
+import { nanoid } from "nanoid";
+import type { LancerActor } from "../actor/lancer-actor";
+import {
   PackedMechData,
   PackedMechLoadoutData,
   PackedPilotData,
   PackedPilotLoadoutData,
-} from "machine-mind";
-import { nanoid } from "nanoid";
-import type { LancerActor } from "../actor/lancer-actor";
+} from "../util/unpacking/packed-types";
 
 // GOODBYE LEGACY TYPES
 type LegacyLancerActor = {
   name: string;
   data: {
-    type: EntryType;
+    type: string;
     data?: {
       cc_ver?: string;
     };
@@ -79,8 +78,6 @@ export function addExportButton(actor: LegacyLancerActor | LancerActor, html: JQ
     html.parent().parent().find(".window-title").after(link);
   }
 }
-
-// TODO: replace my legacy type fakes with MM proper Packed types.
 
 //
 // Pilot
@@ -285,6 +282,7 @@ function handlePilotExport(actor: LegacyLancerActor) {
       }),
     improved_armament: { bonus_effects: [], extra: [], lock: false, mount_type: "Flex", slots: [] },
     integratedWeapon: { bonus_effects: [], extra: [], lock: false, mount_type: "Aux", slots: [] },
+    superheavy_mounting: { bonus_effects: [], extra: [], lock: false, mount_type: "Superheavy", slots: [] },
   };
 
   const frame = items.find((item: Item) => item.type === "frame");
@@ -369,6 +367,17 @@ function handlePilotExport(actor: LegacyLancerActor) {
     ],
     counter_data: [],
     custom_counters: [],
+    // TODO: bond state isn't properly populated here
+    bondId: "",
+    xp: 0,
+    stress: 0,
+    maxStress: 8,
+    burdens: [],
+    clocks: [],
+    bondPowers: [],
+    powerSelections: 0,
+    bondAnswers: ["", ""],
+    minorIdeal: "",
   };
 
   console.debug(exportPilot);

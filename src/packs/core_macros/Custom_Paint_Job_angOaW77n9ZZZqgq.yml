@@ -1,0 +1,80 @@
+_id: angOaW77n9ZZZqgq
+name: Custom Paint Job
+type: script
+author: 2a2IgZ2kiAqXSGqu
+img: systems/lancer/assets/icons/macro-icons/system.svg
+scope: global
+command: >-
+  // This macro is designed to be used with Triggler from Combat Utility Belt.
+  // Otherwise, it can be used as an alternative to manually using the Structure macro.
+  // It also includes "destroying" the Custom Paint Job system in order to check if
+  // it's been used between full repairs.
+
+  let cpjActor = game.actors.get(canvas.tokens.controlled[0].actor.id);
+  //console.log(cpjActor);
+
+  async function scratchedThePaint(cpjId) {
+      await cpjActor.update({"system.hp.value": 1});
+      await cpjActor.updateEmbeddedDocuments("Item", [{_id: cpjId, 'system.destroyed': true}])
+      return "Done.";
+  };
+
+  if (canvas.tokens.controlled.length !== 1) {
+      ui.notifications.error("Select one and only one token");
+      return;
+  }
+
+  let cpj = cpjActor.items.find(
+      i => i.system.lid === "ms_custom_paint_job"
+  );
+  if (cpj) {
+    if (!cpj.system.destroyed) {
+        console.log("Custom Paint Job found.");
+        let roll = new Roll('1d6');
+        await roll.roll();
+      const html = await renderTemplate(
+        `systems/${game.system.id}/templates/chat/generic-card.hbs`,
+      {
+        title: "CUSTOM PAINT JOB",
+        description: "",
+        roll,
+        roll_tt: await roll.getTooltip(),
+      });
+      const chatData = {
+        type: CONST.CHAT_MESSAGE_TYPES.ROLL,
+        roll: roll,
+        speaker: {
+        actor: cpjActor,
+        token: cpjActor?.token,
+        alias: !!cpjActor?.token ? cpjActor.token.name : null,
+        },
+        content: html,
+      }
+      await ChatMessage.create(chatData);
+      console.log(`CPJ rolled ${roll.total}`);
+      if (roll.total === 6) {
+        await scratchedThePaint(cpj._id)
+      } else {
+        await cpjActor.beginStructureFlow();
+      }
+      return;
+    } else {
+      console.log("Custom Paint Job has already been used.");
+    }
+  }
+  // If we reach here, either the actor doesn't have CPJ or it's already been used.
+  canvas.tokens.controlled[0].actor.beginStructureFlow();
+folder: yxTxiLixDsbyThYC
+sort: 100000
+flags: {}
+ownership:
+  default: 0
+  2a2IgZ2kiAqXSGqu: 3
+_stats:
+  systemId: lancer
+  systemVersion: 2.0.0-rc1
+  coreVersion: "11.315"
+  createdTime: null
+  modifiedTime: 1710448405568
+  lastModifiedBy: ci5PqVPSs3DhZWTF
+_key: "!macros!angOaW77n9ZZZqgq"

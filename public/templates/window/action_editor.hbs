@@ -1,37 +1,24 @@
 <form>
     <div class="flexcol">
-        {{{std-string-input "action.Name" label="ACTION NAME"}}}
+        {{{std-text-input "action.name" label="ACTION NAME"}}}
+        {{{std-text-input "action.lid" label="ACTION ID"}}}
         <div class="flexrow">
-            <div class="flexcol">
-                <span>AVAILABLE MOUNTED:</span>
-                <input type="checkbox" name="action.AvailableMounted" {{checked action.AvailableMounted}}>
-            </div>
-            <div class="flexcol">
-                <span>AVAILABLE UNMOUNTED:</span>
-                <input type="checkbox" name=" action.AvailableUnmounted" {{checked action.AvailableUnmounted}}>
-            </div>
-            {{{item-edit-enum "action.Activation" "ActivationType" label="Activation Type"}}}
+            {{{std-select "action.activation" activation_type label="TYPE"}}}
+            {{{std-checkbox "action.tech_attack" label="IS TECH ATTACK?"}}}
         </div>
-        {{!-- Need to have an array of strings for ConfirmText --}}
-        {{{std-num-input "action.Cost" label="COST"}}}
-        {{{std-num-input "action.HeatCost" label="HEAT COST"}}}
-        {{{item-edit-arrayed-damage "action.Damage" "DAMAGE"}}}
-        {{{item-edit-arrayed-range "action.Range" "RANGE"}}}
-        {{{textarea-card "DETAILS" "action.Detail"}}} 
-        {{{textarea-card "TERSE DESCRIPTION" "action.Terse"}}} 
-        {{{std-num-input "action.Trigger" label="TRIGGER"}}}
-
+        {{{std-text-input "action.init" label="REACTION INIT"}}}
+        {{{std-text-input "action.trigger" label="REACTION TRIGGER"}}}
+        {{{std-num-input "action.cost" label="COST"}}}
+        {{{std-text-input "action.frequency" label="FREQUENCY"}}}
+        {{{std-num-input "action.heat_cost" label="HEAT COST"}}}
+        {{{std-text-input "action.terse" label="TERSE DESCRIPTION"}}}
+        <!-- TODO: Synergy --> 
+        <!-- TODO: damage and range
+        {{{item-edit-arrayed-damage "action.damage" "DAMAGE"}}}
+        {{{item-edit-arrayed-range "action.range" "RANGE"}}}
+        -->
     </div>
+
+    {{> dialog-save-buttons}}
 </form>
 
-{{!-- Just hard-code the buttons for now... --}}
-<div class="dialog-buttons">
-    <button class="dialog-button confirm" data-button="confirm">
-        <i class="fas fa-save"></i>
-        Save
-    </button>
-    <button class="dialog-button cancel" data-button="cancel">
-        <i class="fas fa-times"></i>
-        Cancel
-    </button>
-</div>

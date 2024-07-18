@@ -1,0 +1,40 @@
+name: Dismount/Eject
+type: script
+scope: global
+author: ci5PqVPSs3DhZWTF
+img: icons/skills/movement/figure-running-gray.webp
+command: |-
+  if (!actor?.is_mech()) return;
+  const pilot = await fromUuid(actor.system.pilot?.id);
+  if (!pilot) return;
+
+  game.lancer.canvas.WeaponRangeTemplate.fromRange({
+      type: "Blast",
+      val: 0.1,
+  })
+      .placeTemplate()
+      .then(async t => {
+          if (!t) return;
+          const [x, y] = canvas.grid.getTopLeft(t.x, t.y);
+          await TokenDocument.create(
+              { ...pilot.prototypeToken, actorId: pilot.id, x, y },
+              { parent: canvas.scene }
+          );
+          await t.delete();
+      });
+folder: yxTxiLixDsbyThYC
+ownership:
+  default: 0
+  ci5PqVPSs3DhZWTF: 3
+flags:
+  core: {}
+_stats:
+  systemId: lancer
+  systemVersion: 2.0.0-rc1
+  coreVersion: '11.315'
+  createdTime: 1711203090894
+  modifiedTime: 1711205065151
+  lastModifiedBy: ci5PqVPSs3DhZWTF
+_id: JEdudHJ1d7YR88sE
+sort: 0
+_key: '!macros!JEdudHJ1d7YR88sE'

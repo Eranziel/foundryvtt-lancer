@@ -1,0 +1,100 @@
+name: Ruin Tokens
+type: script
+flags:
+  core:
+    sourceId: Macro.UIUpsTwS6c4oYRn9
+  combat-utility-belt:
+    macroTrigger: ''
+scope: global
+command: |-
+  function isBiological(token) {
+    let actorItems = game.actors.filter(x => x.id === token.document.actorId)[0].items;
+    for (let item of actorItems.entries()) {
+      if (item[1].type === "npc_class" && item[1].system.role === "biological") {
+        console.log(`${token.name} is biological.`);
+        return true;
+      } else {
+        console.log(`${token.name} is not biological.`);
+        return false;
+      }
+    }
+  }
+
+  if (canvas.tokens.controlled.length === 0) {
+    ui.notifications.error("Please select one or more tokens.");
+    return;
+  }
+  canvas.tokens.controlled.forEach(async t => {
+    if (isBiological(t)) {
+      ui.notifications.info(`${t.name} is biological. Skipping.`);
+      return;
+    }
+    // CONFIG BELOW:
+    // Data path where your images are stored.
+    let IMAGE_PATH = "lancer-wrecks";
+
+    // Dictionary for mapping sizes to subdirectories under IMAGE_PATH.
+    // Keys are the potential sizes a LancerActor may have; values are the subdirectory names.
+    // Store your images by size in each subdirectory.
+    let SIZE_PATHS = {
+      0.5: "S-HALF",
+      1: "S1",
+      2: "S2",
+      3: "S3",
+      4: "S4",
+    };
+
+    // Script:
+    let size = t.actor.system.size;
+    let sizePath = SIZE_PATHS[size];
+    var imgString;
+    if (!!sizePath) {
+      var wreckFileList;
+      try {
+        let wreckFilePicker = await FilePicker.browse("data", `/${IMAGE_PATH}/${sizePath}`);
+        wreckFileList = wreckFilePicker.files;
+        console.log(wreckFileList);
+        let numImages = wreckFileList.length;
+        // Get random number between 1 and N, where n is number of images stored for mech size.
+        let rand = Math.floor(Math.random() * numImages);
+        imgString = wreckFileList[rand];
+      } catch (error) {
+        ui.notifications.warn(`${error}. Skipping image replacement.`);
+      }
+    } else {
+      ui.notifications.warn(
+        `Missing size path configuration for Size ${size} for ${t.name}. Skipping image replacement.`
+      );
+    }
+
+    console.log(`Picked ${imgString} for ${t.name}`);
+
+    let data = [
+      {
+        _id: t.id,
+        "texture.src": imgString,
+      },
+    ];
+
+    canvas.scene.updateEmbeddedDocuments("Token", data);
+    t.actor.update({ "system.hp": size * 10, "system.heat": 0, "system.burn": 0 });
+    game.combat.getCombatantByToken(t.id)?.delete();
+    // t.update(data);
+    // t.refresh();
+  });
+author: taXAFvhByAtu8MoU
+img: systems/lancer/assets/icons/macro-icons/generic_item.svg
+_id: 3qY1JO4MK6uK2znP
+ownership:
+  default: 0
+  taXAFvhByAtu8MoU: 3
+folder: yxTxiLixDsbyThYC
+sort: 300000
+_stats:
+  systemId: lancer
+  systemVersion: 2.1.7
+  coreVersion: '11.315'
+  createdTime: null
+  modifiedTime: 1721274674816
+  lastModifiedBy: RyAORVJNmdo1gq2Z
+_key: '!macros!3qY1JO4MK6uK2znP'

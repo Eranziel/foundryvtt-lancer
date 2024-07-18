@@ -1,10 +1,43 @@
-<?xml version="1.0" standalone="no"?>
-<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd" >
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" viewBox="0 -64 1024 1024" width="512" height="512">
-  <g transform="matrix(1 0 0 -1 0 960)">
-   <path fill="currentColor"
-d="M478 823v-273l34 -34l34 34v273h-68v0zM273 687v-137h68v69h69v68h-137v0zM614 687v-68h69v-69h68v137h-137v0zM410 482h-273v-68h273l34 34l-34 34v0zM614 482l-34 -34l34 -34h273v68h-273v0zM512 380l-34 -34v-273h68v273l-34 34v0zM273 346v-137h137v68h-69v69h-68v0z
-M683 346v-69h-69v-68h137v137h-68v0z" />
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   version="1.1"
+   viewBox="0 -64 1024 1024"
+   width="512"
+   height="512"
+   id="svg555"
+   sodipodi:docname="condition_lockon.svg"
+   inkscape:version="1.2.2 (732a01da63, 2022-12-09)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs559" />
+  <sodipodi:namedview
+     id="namedview557"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     showgrid="false"
+     inkscape:zoom="1.6191406"
+     inkscape:cx="236.23643"
+     inkscape:cy="256.30881"
+     inkscape:window-width="1920"
+     inkscape:window-height="1009"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg555" />
+  <g
+     transform="matrix(1,0,0,-1,0,896)"
+     id="g553">
+    <path
+       fill="currentColor"
+       d="M 478,823 V 550 l 34,-34 34,34 V 823 H 478 Z M 273,687 V 550 h 68 v 69 h 69 v 68 H 273 Z m 341,0 v -68 h 69 v -69 h 68 V 687 H 614 Z M 410,482 H 137 v -68 h 273 l 34,34 -34,34 z m 204,0 -34,-34 34,-34 h 273 v 68 H 614 Z M 512,380 478,346 V 73 h 68 v 273 l -34,34 z M 273,346 V 209 h 137 v 68 h -69 v 69 h -68 z m 410,0 v -69 h -69 v -68 h 137 v 137 h -68 z"
+       id="path551" />
   </g>
-
 </svg>

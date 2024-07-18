@@ -1,39 +1,41 @@
 import { LANCER, TypeIcon } from "../config";
+import { SystemData, SystemDataType, SystemTemplates } from "../system-template";
+import { SourceDataType } from "../source-template";
+import { DamageType, EntryType, NpcFeatureType, RangeType, WeaponType } from "../enums";
+import { ActionData } from "../models/bits/action";
+import { RangeData, Range } from "../models/bits/range";
+import { Tag } from "../models/bits/tag";
+import { LancerActiveEffect, LancerActiveEffectConstructorData } from "../effects/lancer-active-effect";
 import {
-  EntryType,
-  funcs,
-  LiveEntryTypes,
-  MechSystem,
-  MechWeapon,
-  NpcFeature,
-  NpcFeatureType,
-  OpCtx,
-  RangeType,
-  RegEntry,
-  RegEntryTypes,
-  RegRangeData,
-} from "machine-mind";
-import { system_ready } from "../../lancer";
-import { mm_wrap_item } from "../mm-util/helpers";
+  bonusAffectsWeapon,
+  convertBonus,
+  frameInnateEffect as frameInnate,
+  npcClassInnateEffect as npcClassInnate,
+  npcFeatureBonusEffects,
+  npcFeatureOverrideEffects,
+} from "../effects/converter";
+import { BonusData } from "../models/bits/bonus";
+import { LancerMECH } from "../actor/lancer-actor";
+import { Damage } from "../models/bits/damage";
+import { WeaponAttackFlow } from "../flows/attack";
+import { TechAttackFlow } from "../flows/tech";
+import { fixupPowerUses } from "../models/bits/power";
+import { BondPowerFlow } from "../flows/bond";
+import { ActivationFlow } from "../flows/activation";
+import { CoreActiveFlow } from "../flows/frame";
+import { SimpleTextFlow } from "../flows/text";
+import { StatRollFlow } from "../flows/stat";
+import { SystemFlow } from "../flows/system";
 
 const lp = LANCER.log_prefix;
 
-interface DerivedProperties<T extends LancerItemType> {
-  // license: RegRef<EntryType.LICENSE> | null; // The license granting this item, if one could be found
-  max_uses: number; // The max uses, augmented to also include any actor bonuses
-  mm: LiveEntryTypes<T> | null;
-  mm_promise: Promise<LiveEntryTypes<T>>; // The above, in promise form. More robust
-}
-
 interface LancerItemDataSource<T extends LancerItemType> {
   type: T;
-  data: RegEntryTypes<T>;
+  data: SourceDataType<T>;
 }
 interface LancerItemDataProperties<T extends LancerItemType> {
   type: T;
-  data: RegEntryTypes<T> & {
-    derived: DerivedProperties<T>;
-  };
+  data: SystemDataType<T>;
 }
 
 /**
@@ -41,11 +43,8 @@ interface LancerItemDataProperties<T extends LancerItemType> {
  */
 type LancerItemSource =
   | LancerItemDataSource<EntryType.CORE_BONUS>
-  | LancerItemDataSource<EntryType.ENVIRONMENT>
-  | LancerItemDataSource<EntryType.FACTION>
   | LancerItemDataSource<EntryType.FRAME>
   | LancerItemDataSource<EntryType.LICENSE>
-  | LancerItemDataSource<EntryType.MANUFACTURER>
   | LancerItemDataSource<EntryType.MECH_SYSTEM>
   | LancerItemDataSource<EntryType.MECH_WEAPON>
   | LancerItemDataSource<EntryType.NPC_CLASS>
@@ -55,13 +54,11 @@ type LancerItemSource =
   | LancerItemDataSource<EntryType.PILOT_ARMOR>
   | LancerItemDataSource<EntryType.PILOT_GEAR>
   | LancerItemDataSource<EntryType.PILOT_WEAPON>
-  | LancerItemDataSource<EntryType.QUIRK>
   | LancerItemDataSource<EntryType.RESERVE>
-  | LancerItemDataSource<EntryType.SITREP>
   | LancerItemDataSource<EntryType.SKILL>
   | LancerItemDataSource<EntryType.STATUS>
-  | LancerItemDataSource<EntryType.TAG>
   | LancerItemDataSource<EntryType.TALENT>
+  | LancerItemDataSource<EntryType.BOND>
   | LancerItemDataSource<EntryType.WEAPON_MOD>;
 
 /**
@@ -70,11 +67,8 @@ type LancerItemSource =
  */
 type LancerItemProperties =
   | LancerItemDataProperties<EntryType.CORE_BONUS>
-  | LancerItemDataProperties<EntryType.ENVIRONMENT>
-  | LancerItemDataProperties<EntryType.FACTION>
   | LancerItemDataProperties<EntryType.FRAME>
   | LancerItemDataProperties<EntryType.LICENSE>
-  | LancerItemDataProperties<EntryType.MANUFACTURER>
   | LancerItemDataProperties<EntryType.MECH_SYSTEM>
   | LancerItemDataProperties<EntryType.MECH_WEAPON>
   | LancerItemDataProperties<EntryType.NPC_CLASS>
@@ -84,13 +78,11 @@ type LancerItemProperties =
   | LancerItemDataProperties<EntryType.PILOT_ARMOR>
   | LancerItemDataProperties<EntryType.PILOT_GEAR>
   | LancerItemDataProperties<EntryType.PILOT_WEAPON>
-  | LancerItemDataProperties<EntryType.QUIRK>
   | LancerItemDataProperties<EntryType.RESERVE>
-  | LancerItemDataProperties<EntryType.SITREP>
   | LancerItemDataProperties<EntryType.SKILL>
   | LancerItemDataProperties<EntryType.STATUS>
-  | LancerItemDataProperties<EntryType.TAG>
   | LancerItemDataProperties<EntryType.TALENT>
+  | LancerItemDataProperties<EntryType.BOND>
   | LancerItemDataProperties<EntryType.WEAPON_MOD>;
 
 declare global {
@@ -106,15 +98,38 @@ declare global {
 }
 
 export class LancerItem extends Item {
+  // @ts-expect-error - Foundry initializes this.
+  system:
+    | SystemData.CoreBonus
+    | SystemData.Frame
+    | SystemData.License
+    | SystemData.MechSystem
+    | SystemData.MechWeapon
+    | SystemData.WeaponMod
+    | SystemData.NpcClass
+    | SystemData.NpcFeature
+    | SystemData.NpcTemplate
+    | SystemData.Organization
+    | SystemData.PilotArmor
+    | SystemData.PilotGear
+    | SystemData.PilotWeapon
+    | SystemData.Reserve
+    | SystemData.Skill
+    | SystemData.Status
+    | SystemData.Talent
+    | SystemData.Bond;
+
   /**
    * Returns all ranges for the item that match the provided range types
    */
-  rangesFor(types: Set<RangeType> | RangeType[]): RegRangeData[] {
+  rangesFor(types: Set<RangeType> | RangeType[]): RangeData[] {
+    const i = null as unknown as Item; // TODO remove
+
     const filter = new Set(types);
     switch (this.type) {
       case EntryType.MECH_WEAPON:
         // @ts-expect-error Should be fixed with v10 types
-        const p = this.system.selected_profile;
+        const p = this.system.selected_profile_index;
         // @ts-expect-error Should be fixed with v10 types
         return this.system.profiles[p].range.filter(r => filter.has(r.type));
       case EntryType.PILOT_WEAPON:
@@ -130,130 +145,245 @@ export class LancerItem extends Item {
     }
   }
 
-  // Use this to prevent race conditions / carry over data
-  private _current_prepare_job_id!: number;
-  private _job_tracker!: Map<number, Promise<AnyMMItem>>;
-  private _prev_derived: this["data"]["data"]["derived"] | undefined;
+  /** Sets this item to its default equipped state */
+  _resetEquipped() {
+    // Default equipped based on if its something that must manually be equipped,
+    // or is just inherently equipped
+    switch (this.type) {
+      case EntryType.MECH_SYSTEM:
+      case EntryType.MECH_WEAPON:
+      case EntryType.WEAPON_MOD:
+      case EntryType.FRAME:
+      case EntryType.PILOT_GEAR:
+      case EntryType.PILOT_ARMOR:
+      case EntryType.PILOT_WEAPON:
+        // @ts-expect-error
+        this.system.equipped = false;
+        break;
+      default:
+        // @ts-expect-error
+        this.system.equipped = true;
+        break;
+    }
+  }
 
   /**
-   * Force name down to item,
-   * And more importantly, perform MM workflow
+   * Perform preliminary item preparation.
+   * Set equipped to its initial value (to be later finalized)
+   * Set active weapon profile
+   * Set limited max based on tags
    */
-  prepareData() {
-    super.prepareData();
+  prepareBaseData() {
+    super.prepareBaseData();
 
-    // If no id, leave
-    if (!this.id) return;
-
-    // Track which prepare iteration this is
-    if (this._current_prepare_job_id == undefined) {
-      this._current_prepare_job_id = 0;
-      this._job_tracker = new Map();
-    }
-    this._current_prepare_job_id++;
-    let job_id = this._current_prepare_job_id;
-
-    // Push down name
-    // @ts-expect-error Should be fixed with v10 types
-    this.system.name = this.name;
-    // @ts-expect-error Should be fixed with v10 types
-    if (!this.img) this.img = CONST.DEFAULT_TOKEN;
-
-    let dr: this["data"]["data"]["derived"];
-
-    // Init our derived data if necessary
-    // @ts-expect-error Should be fixed with v10 types
-    if (!this.system.derived) {
-      dr = {
-        max_uses: 0,
-        mm: null as any, // We will set this shortly
-        mm_promise: null as any, // We will set this shortly
-      };
-
-      // We set it normally.
-      // @ts-expect-error Should be fixed with v10 types
-      this.system.derived = dr;
-    } else {
-      // Otherwise, grab existing
-      // @ts-expect-error Should be fixed with v10 types
-      dr = this.system.derived;
+    // Collect all tags on mech weapons
+    if (this.is_mech_weapon()) {
+      this.system.all_base_tags = this.system.profiles.flatMap(p => p.tags);
+      this.system.all_tags = [];
+      this.system.active_profile = this.system.profiles[this.system.selected_profile_index] ?? this.system.profiles[0];
+      for (let p of this.system.profiles) {
+        p.bonus_tags = [];
+        p.bonus_range = [];
+        p.bonus_damage = [];
+        p.all_tags = [];
+        p.all_range = [];
+        p.all_damage = [];
+      }
+    } else if (this.is_npc_feature()) {
+      if (this.system.lid === "") {
+        this.system.lid = this.id!;
+      }
+      if (this.system.type === NpcFeatureType.Weapon) {
+        if (!this.system.damage || this.system.damage.length < 3) {
+          this.system.damage = [[], [], []];
+        }
+      }
+    } else if (this.is_talent()) {
+      // Talent apply unlocked items
+      let unlocked_ranks = this.system.ranks.slice(0, this.system.curr_rank);
+      this.system.actions = unlocked_ranks.flatMap(a => a.actions);
+      this.system.bonuses = unlocked_ranks.flatMap(a => a.bonuses);
+      this.system.counters = unlocked_ranks.flatMap(a => a.counters);
+      this.system.synergies = unlocked_ranks.flatMap(a => a.synergies);
+      // TODO - handle exclusive
+    } else if (this.is_bond()) {
+      // Construct uses from frequency
+      this.system.powers = this.system.powers.map(p => fixupPowerUses(p));
     }
 
-    // Do we already have a ctx from our actor?
-    let actor_ctx = this.actor?._actor_ctx;
+    if (!this.actor) {
+      // This would ordinarily be called by our parent actor. We must do it ourselves.
+      this.prepareFinalAttributes();
+    }
+  }
 
-    // Spool up our Machine Mind wrapping process
-    // Promise<A | B> is apparently unassignable to Promise<A> | Promise<B>
-    (<Promise<LiveEntryTypes<LancerItemType>>>dr.mm_promise) = system_ready
-      .then(() => mm_wrap_item(this, actor_ctx ?? new OpCtx()))
-      .then(async mm => {
-        // If our job ticker doesnt match, then another prepared object has usurped us in setting these values.
-        // We return this elevated promise, so anyone waiting on this task instead waits on the most up to date one
-        if (job_id != this._current_prepare_job_id) {
-          return this._job_tracker.get(this._current_prepare_job_id)! as any; // This will definitely be a different promise
+  /**
+   * Method used by mech weapons (and perhaps some other miscellaneous items???) to prepare their individual stats
+   * using bonuses.
+   *
+   * Note that it is still necessary that items without actors call this in order to prepare weapon tags
+   */
+  prepareFinalAttributes(): void {
+    // Build final arrays of bonus_damage/range based on mods and actor bonuses
+    if (this.is_mech_weapon()) {
+      // Add mod bonuses to all profiles
+      for (let profile of this.system.profiles) {
+        if (this.system.mod) {
+          profile.bonus_damage.push(...this.system.mod.system.added_damage);
+          profile.bonus_range.push(...this.system.mod.system.added_range);
+          profile.bonus_tags.push(...this.system.mod.system.added_tags);
         }
 
-        // Delete all old tracked jobs
-        for (let k of this._job_tracker.keys()) {
-          if (k != job_id) {
-            this._job_tracker.delete(k);
-          }
-        }
-
-        // Save the document to derived
-        Object.defineProperties(dr, {
-          mm: {
-            enumerable: false,
-            configurable: true,
-            writable: false,
-            value: mm,
-          },
-        });
-
-        // Also, compute max uses if needed
-        let base_limit = (mm as any).BaseLimit;
-        if (base_limit) {
-          dr.max_uses = base_limit; // A decent baseline - start with the limited tag
-
-          // If we have an actor, then try to get limited bonuses
-          if (this.actor) {
-            // @ts-expect-error Should be fixed with v10 types
-            let actor_mm = await this.actor.system.derived.mm_promise;
-            if (
-              (actor_mm.Type == EntryType.MECH || actor_mm.Type == EntryType.PILOT) &&
-              !(this.is_pilot_armor() || this.is_pilot_gear() || this.is_pilot_weapon())
-            ) {
-              // Add pilot/mech lim bonus
-              dr.max_uses += actor_mm.LimitedBonus;
+        // Add all bonuses.
+        for (let b of (this.actor as LancerMECH | null)?.system.bonuses.weapon_bonuses || []) {
+          // Every type of actor has bonuses so this isn't a dangerous cast
+          if (!bonusAffectsWeapon(this, b)) continue;
+          if (b.lid == "damage") {
+            profile.bonus_damage.push(
+              new Damage({
+                type: profile.damage[0]?.type ?? DamageType.Variable,
+                val: b.val,
+              })
+            );
+          } else if (b.lid == "range") {
+            if (this.system.active_profile.type == WeaponType.Melee) {
+              profile.bonus_range.push(
+                new Range({
+                  type: RangeType.Threat,
+                  val: parseInt(b.val) ?? 0,
+                })
+              );
+            } else {
+              profile.bonus_range.push(
+                new Range({
+                  type: RangeType.Range,
+                  val: parseInt(b.val) ?? 0,
+                })
+              );
             }
           }
         }
 
-        return mm;
-      });
+        // Crunch down the Damage and Range
+        profile.bonus_damage = Damage.CombineLists([], profile.bonus_damage);
+        profile.bonus_range = Range.CombineLists([], profile.bonus_range);
+
+        // Finally, form combined damages/ranges/tags for the profile
+        profile.all_damage = Damage.CombineLists(profile.damage, profile.bonus_damage);
+        profile.all_range = Range.CombineLists(profile.range, profile.bonus_range);
+        profile.all_tags = Tag.MergeTags(profile.tags, profile.bonus_tags);
+
+        // "all_tags" is rarely what you actually want to use, but can be useful as a litmus test of what tags are present on the weapon as a whole
+        this.system.all_tags = Tag.MergeTags(this.system.all_tags, profile.all_tags);
+      }
+    }
+
+    // Apply limited max from tags, as applicable
+    let tags = this.getTags() ?? [];
+    let lim_tag = tags.find(t => t.is_limited);
+    if (lim_tag && this._hasUses()) {
+      this.system.uses.max = lim_tag.num_val ?? 0; // We will apply bonuses later
+    }
+
+    // We can then finally apply limited bonuses from our parent
+    if (this.actor?.is_mech()) {
+      if (this._hasUses() && this.system.uses.max) {
+        this.system.uses.max += this.actor.system.loadout.limited_bonus;
+      }
+    }
   }
 
   /** @override
-   * Want to destroy derived data before passing it to an update
+   * Want to preserve our arrays
    */
   async update(data: any, options = {}) {
-    if (data?.derived) {
-      delete data.derived;
-    }
-    console.log("Data:", data);
+    // @ts-expect-error
+    data = this.system.full_update_data(data);
     return super.update(data, options);
+  }
+
+  /**
+   * Generates the effect data for this items bonuses and innate effects (such as those from armor, a frame, etc).
+   * Generates no effects if item is destroyed, or unequipped.
+   * Result will be a mix of
+   * - Bonus effects (aka from compcon Bonus type bonuses)
+   * - Innate effects (e.x. the statistical affect of a frames base stats)
+   * Result is a temporary ActiveEffect document - it is not persisted to DB
+   */
+  _generateEphemeralEffects(): LancerActiveEffect[] {
+    // Destroyed items produce no effects
+    if ((this as any).destroyed === true || !this.isEquipped()) return [];
+
+    // Generate from bonuses + innate effects
+    let effects: LancerActiveEffectConstructorData[] = [];
+    let bonus_groups: {
+      // Converted & added to effects later
+      group?: string;
+      bonuses: BonusData[];
+    }[] = [];
+
+    switch (this.type) {
+      case EntryType.FRAME:
+        let frame = this as unknown as LancerFRAME;
+        bonus_groups.push({
+          group: frame.system.core_system.passive_name || frame.system.core_system.name,
+          bonuses: frame.system.core_system.passive_bonuses,
+        });
+        for (let trait of frame.system.traits) {
+          bonus_groups.push({
+            group: trait.name,
+            bonuses: trait.bonuses,
+          });
+        }
+        effects.push(frameInnate(this as unknown as LancerFRAME));
+        break;
+      case EntryType.NPC_CLASS:
+        effects.push(npcClassInnate(this as unknown as LancerNPC_CLASS));
+        break;
+      case EntryType.NPC_FEATURE:
+        let be = npcFeatureBonusEffects(this as unknown as LancerNPC_FEATURE);
+        let oe = npcFeatureOverrideEffects(this as unknown as LancerNPC_FEATURE);
+        if (be) effects.push(be);
+        if (oe) effects.push(oe);
+        break;
+      case EntryType.PILOT_ARMOR:
+      case EntryType.PILOT_GEAR:
+      case EntryType.PILOT_WEAPON:
+      case EntryType.MECH_SYSTEM:
+      case EntryType.WEAPON_MOD:
+      case EntryType.CORE_BONUS:
+      case EntryType.TALENT:
+        bonus_groups.push({ bonuses: (this as any).system.bonuses });
+        break;
+      case EntryType.MECH_WEAPON:
+        let tamw = this as unknown as LancerMECH_WEAPON;
+        bonus_groups.push({
+          group: tamw.system.active_profile.name || tamw.system.active_profile?.name,
+          bonuses: tamw.system.active_profile.bonuses,
+        });
+        break;
+    } // Nothing else needs particular care
+
+    // Convert bonuses
+    effects.push(
+      ...(bonus_groups
+        .flatMap(bg =>
+          bg.bonuses.map(b => convertBonus(this.uuid, bg.group ? `${this.name} - ${bg.group}` : this.name!, b))
+        )
+        .filter(b => b) as LancerActiveEffectConstructorData[])
+    );
+
+    return effects.map(e => new LancerActiveEffect(e, { parent: this }));
+  }
+
+  /** @inheritdoc */
+  static async _onDeleteDocuments() {
+    // Default implementation of this will delete active effects associated with this object.
+    // We do that ourselves using effectManager, so to prevent fighting we disable this here
   }
 
   protected async _preCreate(...[data, options, user]: Parameters<Item["_preCreate"]>): Promise<void> {
     await super._preCreate(data, options, user);
-    // If base item has data, then we are probably importing. Skip this step
-    // @ts-expect-error Should be fixed with v10 types
-    if (data.system && data.system.lid != "") {
-      console.log(`${lp} New ${this.type} has data provided from an import, skipping default init.`);
-      return;
-    }
-
-    console.log(`${lp} Initializing new ${this.type}`);
 
     // Select default image
     let icon_lookup: string = this.type;
@@ -262,168 +392,349 @@ export class LancerItem extends Item {
     }
     let img = TypeIcon(icon_lookup);
 
-    let default_data: RegEntryTypes<LancerItemType>;
-    switch (this.type) {
-      default:
-      case EntryType.CORE_BONUS:
-        default_data = funcs.defaults.CORE_BONUS();
-      case EntryType.ENVIRONMENT:
-        default_data = funcs.defaults.ENVIRONMENT();
-        break;
-      case EntryType.FACTION:
-        default_data = funcs.defaults.FACTION();
-        break;
-      case EntryType.FRAME:
-        default_data = funcs.defaults.FRAME();
-        break;
-      case EntryType.LICENSE:
-        default_data = funcs.defaults.LICENSE();
-        break;
-      case EntryType.MANUFACTURER:
-        default_data = funcs.defaults.MANUFACTURER();
-        break;
-      case EntryType.MECH_SYSTEM:
-        default_data = funcs.defaults.MECH_SYSTEM();
-        break;
-      case EntryType.MECH_WEAPON:
-        default_data = funcs.defaults.MECH_WEAPON();
-        break;
-      case EntryType.NPC_CLASS:
-        default_data = funcs.defaults.NPC_CLASS();
-        break;
-      case EntryType.NPC_FEATURE:
-        default_data = funcs.defaults.NPC_FEATURE();
-        break;
-      case EntryType.NPC_TEMPLATE:
-        default_data = funcs.defaults.NPC_TEMPLATE();
-        break;
-      case EntryType.ORGANIZATION:
-        default_data = funcs.defaults.ORGANIZATION();
-        break;
-      case EntryType.PILOT_ARMOR:
-        default_data = funcs.defaults.PILOT_ARMOR();
-        break;
-      case EntryType.PILOT_GEAR:
-        default_data = funcs.defaults.PILOT_GEAR();
-        break;
-      case EntryType.PILOT_WEAPON:
-        default_data = funcs.defaults.PILOT_WEAPON();
-        break;
-      case EntryType.QUIRK:
-        default_data = funcs.defaults.QUIRK();
-        break;
-      case EntryType.RESERVE:
-        default_data = funcs.defaults.RESERVE();
-        break;
-      case EntryType.SITREP:
-        default_data = funcs.defaults.SITREP();
-        break;
-      case EntryType.SKILL:
-        default_data = funcs.defaults.SKILL();
-        break;
-      case EntryType.STATUS:
-        default_data = funcs.defaults.STATUS();
-        break;
-      case EntryType.TAG:
-        default_data = funcs.defaults.TAG_TEMPLATE();
-        break;
-      case EntryType.TALENT:
-        default_data = funcs.defaults.TALENT();
-        break;
-      case EntryType.WEAPON_MOD:
-        default_data = funcs.defaults.WEAPON_MOD();
-        break;
+    // If base item has data, then we are probably importing. Skip 90% of our import procedures
+    // @ts-expect-error Should be fixed with v10 types
+    if (data.system?.lid) {
+      console.log(`${lp} New ${this.type} has data provided from an import, skipping default init.`);
+      if (!data.img || data.img == "icons/svg/item-bag.svg") {
+        // @ts-expect-error Should be fixed with v10 types
+        this.updateSource({ img });
+      }
+      return;
     }
 
-    // Sync the name
-    default_data.name = this.name ?? default_data.name;
-
+    console.log(`${lp} Initializing new ${this.type}`);
     // @ts-expect-error Should be fixed with v10 types
     this.updateSource({
-      // system: default_data,
       img: img,
-      name: default_data.name,
+      name: this.name ?? `New ${this.type}`,
     });
   }
 
   // Typeguards
-  is_core_bonus(): this is LancerItem & { data: LancerItemDataProperties<EntryType.CORE_BONUS> } {
+  is_core_bonus(): this is LancerCORE_BONUS {
     return this.type === EntryType.CORE_BONUS;
   }
-  is_environment(): this is LancerItem & { data: LancerItemDataProperties<EntryType.ENVIRONMENT> } {
-    return this.type === EntryType.ENVIRONMENT;
-  }
-  is_faction(): this is LancerItem & { data: LancerItemDataProperties<EntryType.FACTION> } {
-    return this.type === EntryType.FACTION;
-  }
-  is_frame(): this is LancerItem & { data: LancerItemDataProperties<EntryType.FRAME> } {
+  is_frame(): this is LancerFRAME {
     return this.type === EntryType.FRAME;
   }
-  is_license(): this is LancerItem & { data: LancerItemDataProperties<EntryType.LICENSE> } {
+  is_license(): this is LancerLICENSE {
     return this.type === EntryType.LICENSE;
   }
-  is_manufacturer(): this is LancerItem & { data: LancerItemDataProperties<EntryType.MANUFACTURER> } {
-    return this.type === EntryType.MANUFACTURER;
-  }
-  is_mech_system(): this is LancerItem & { data: LancerItemDataProperties<EntryType.MECH_SYSTEM> } {
+  is_mech_system(): this is LancerMECH_SYSTEM {
     return this.type === EntryType.MECH_SYSTEM;
   }
-  is_mech_weapon(): this is LancerItem & { data: LancerItemDataProperties<EntryType.MECH_WEAPON> } {
+  is_mech_weapon(): this is LancerMECH_WEAPON {
     return this.type === EntryType.MECH_WEAPON;
   }
-  is_npc_class(): this is LancerItem & { data: LancerItemDataProperties<EntryType.NPC_CLASS> } {
+  is_npc_class(): this is LancerNPC_CLASS {
     return this.type === EntryType.NPC_CLASS;
   }
-  is_npc_feature(): this is LancerItem & { data: LancerItemDataProperties<EntryType.NPC_FEATURE> } {
+  is_npc_feature(): this is LancerNPC_FEATURE {
     return this.type === EntryType.NPC_FEATURE;
   }
-  is_npc_template(): this is LancerItem & { data: LancerItemDataProperties<EntryType.NPC_TEMPLATE> } {
+  is_npc_template(): this is LancerNPC_TEMPLATE {
     return this.type === EntryType.NPC_TEMPLATE;
   }
-  is_organization(): this is LancerItem & { data: LancerItemDataProperties<EntryType.ORGANIZATION> } {
+  is_organization(): this is LancerORGANIZATION {
     return this.type === EntryType.ORGANIZATION;
   }
-  is_pilot_armor(): this is LancerItem & { data: LancerItemDataProperties<EntryType.PILOT_ARMOR> } {
+  is_pilot_armor(): this is LancerPILOT_ARMOR {
     return this.type === EntryType.PILOT_ARMOR;
   }
-  is_pilot_gear(): this is LancerItem & { data: LancerItemDataProperties<EntryType.PILOT_GEAR> } {
+  is_pilot_gear(): this is LancerPILOT_GEAR {
     return this.type === EntryType.PILOT_GEAR;
   }
-  is_pilot_weapon(): this is LancerItem & { data: LancerItemDataProperties<EntryType.PILOT_WEAPON> } {
+  is_pilot_weapon(): this is LancerPILOT_WEAPON {
     return this.type === EntryType.PILOT_WEAPON;
   }
-  is_quirk(): this is LancerItem & { data: LancerItemDataProperties<EntryType.QUIRK> } {
-    return this.type === EntryType.QUIRK;
-  }
-  is_reserve(): this is LancerItem & { data: LancerItemDataProperties<EntryType.RESERVE> } {
+  is_reserve(): this is LancerRESERVE {
     return this.type === EntryType.RESERVE;
   }
-  is_sitrep(): this is LancerItem & { data: LancerItemDataProperties<EntryType.SITREP> } {
-    return this.type === EntryType.SITREP;
-  }
-  is_skill(): this is LancerItem & { data: LancerItemDataProperties<EntryType.SKILL> } {
+  is_skill(): this is LancerSKILL {
     return this.type === EntryType.SKILL;
   }
-  is_status(): this is LancerItem & { data: LancerItemDataProperties<EntryType.STATUS> } {
+  is_status(): this is LancerSTATUS {
     return this.type === EntryType.STATUS;
   }
-  is_tag(): this is LancerItem & { data: LancerItemDataProperties<EntryType.TAG> } {
-    return this.type === EntryType.TAG;
-  }
-  is_talent(): this is LancerItem & { data: LancerItemDataProperties<EntryType.TALENT> } {
+  is_talent(): this is LancerTALENT {
     return this.type === EntryType.TALENT;
   }
-  is_weapon_mod(): this is LancerItem & { data: LancerItemDataProperties<EntryType.WEAPON_MOD> } {
+  is_bond(): this is LancerBOND {
+    return this.type === EntryType.BOND;
+  }
+  is_weapon_mod(): this is LancerWEAPON_MOD {
     return this.type === EntryType.WEAPON_MOD;
+  }
+  is_weapon(): this is LancerMECH_WEAPON | LancerPILOT_WEAPON | LancerNPC_FEATURE {
+    return this.is_mech_weapon() || this.is_pilot_weapon() || (this.is_npc_feature() && this.system.type === "Weapon");
+  }
+
+  // Quick checkers/getters
+  getTags(): Tag[] | null {
+    if (
+      this.is_pilot_armor() ||
+      this.is_pilot_gear() ||
+      this.is_pilot_weapon() ||
+      this.is_mech_system() ||
+      this.is_npc_feature() ||
+      this.is_weapon_mod() ||
+      this.is_core_bonus()
+    ) {
+      return this.system.tags;
+    } else if (this.is_mech_weapon()) {
+      return this.system.active_profile.all_tags;
+    } else if (this.is_frame()) {
+      return this.system.core_system.tags;
+    } else {
+      return null;
+    }
+  }
+
+  getBonuses(): BonusData[] | null {
+    if (
+      this.is_pilot_armor() ||
+      this.is_pilot_gear() ||
+      this.is_pilot_weapon() ||
+      this.is_mech_system() ||
+      this.is_core_bonus()
+    ) {
+      return this.system.bonuses;
+    } else if (this.is_mech_weapon()) {
+      return this.system.active_profile.bonuses;
+    } else if (this.is_frame()) {
+      if (this.actor && (this.actor as LancerMECH).system.core_active) {
+        return [...this.system.core_system.passive_bonuses, ...this.system.core_system.active_bonuses];
+      } else {
+        return this.system.core_system.passive_bonuses;
+      }
+    } else {
+      return null;
+    }
+  }
+
+  // Returns this items limit tag value
+  getLimitedBase(): number | null {
+    let lim_tag = this.getTags()?.find(t => t.is_limited);
+    if (lim_tag) {
+      return lim_tag.num_val;
+    } else {
+      return null;
+    }
+  }
+
+  // Returns true & type info if this item tracks uses (whether or not it has the limited tag)
+  _hasUses(): this is { system: SystemTemplates.uses } {
+    return (this as any).system.uses !== undefined;
+  }
+
+  // Returns true & type info if this has the limited tag
+  isLimited(): this is { system: SystemTemplates.uses } {
+    return this._hasUses() && this.system.uses.max > 0;
+  }
+
+  // Returns true if this has the loading tag
+  isLoading(): boolean {
+    return (this.getTags() ?? []).some(t => t.is_loading);
+  }
+
+  isRecharge(): boolean {
+    return (this.getTags() ?? []).some(t => t.is_recharge);
+  }
+
+  isUnique(): boolean {
+    return (this.getTags() ?? []).some(t => t.is_unique);
+  }
+
+  isAI(): boolean {
+    return (this.getTags() ?? []).some(t => t.is_ai);
+  }
+
+  isSmart(): boolean {
+    return (this.getTags() ?? []).some(t => t.is_smart);
+  }
+
+  // Returns true & type information if this item has action data
+  hasActions(): this is { system: { actions: ActionData[] } } {
+    return (this as any).system.actions !== undefined;
+  }
+
+  // Returns true either if this is equipped, or if equipping has no meaning. False if not on an actor
+  isEquipped(): boolean {
+    let eq = (this as any).system.equipped;
+    return this.actor ? eq : false;
+  }
+
+  // Checks that the provided document is not null, and is a lancer actor
+  static async fromUuid(x: string | LancerItem, messagePrefix?: string): Promise<LancerItem> {
+    if (x instanceof LancerItem) return x;
+    x = (await fromUuid(x)) as LancerItem;
+    if (!x) {
+      let message = `${messagePrefix ? messagePrefix + " | " : ""}Item ${x} not found.`;
+      ui.notifications?.error(message);
+      throw new Error(message);
+    }
+    if (!(x instanceof LancerItem)) {
+      let message = `${messagePrefix ? messagePrefix + " | " : ""}Document ${x} not an item.`;
+      ui.notifications?.error(message);
+      throw new Error(message);
+    }
+    return x;
+  }
+
+  // Checks that the provided document is not null, and is a lancer actor
+  static fromUuidSync(x: string | LancerItem, messagePrefix?: string): LancerItem {
+    if (x instanceof LancerItem) return x;
+    x = fromUuidSync(x) as LancerItem;
+    if (!x) {
+      let message = `${messagePrefix ? messagePrefix + " | " : ""}Item ${x} not found.`;
+      ui.notifications?.error(message);
+      throw new Error(message);
+    }
+    if (!(x instanceof LancerItem)) {
+      let message = `${messagePrefix ? messagePrefix + " | " : ""}Document ${x} not an item.`;
+      ui.notifications?.error(message);
+      throw new Error(message);
+    }
+    return x;
+  }
+
+  async beginWeaponAttackFlow() {
+    if (!this.is_mech_weapon() && !this.is_npc_feature() && !this.is_pilot_weapon()) {
+      ui.notifications!.error(`Item ${this.id} cannot attack as it is not a weapon!`);
+      return;
+    }
+    const flow = new WeaponAttackFlow(this);
+    await flow.begin();
+    console.log("Finished attack flow");
+  }
+
+  async beginTechAttackFlow() {
+    if (!this.is_mech_system() && !this.is_npc_feature()) {
+      ui.notifications!.error(`Item ${this.id} cannot attack as it is not a system!`);
+      return;
+    }
+    const flow = new TechAttackFlow(this);
+    await flow.begin();
+  }
+
+  async beginSystemFlow() {
+    if (!this.is_mech_system() && !this.is_weapon_mod() && !this.is_npc_feature()) {
+      ui.notifications!.error(`Item ${this.id} is not a mech system, weapon mod, or NPC feature!`);
+      return;
+    }
+    const flow = new SystemFlow(this);
+    await flow.begin();
+  }
+
+  async beginActivationFlow(path?: string) {
+    if (!path) {
+      // If no path is provided, default to the first action
+      // @ts-ignore We know it doesn't exist on all types, that's why we're checking
+      if (!this.system.actions || this.system.actions.length < 1) {
+        ui.notifications!.error(`Item ${this.id} has no actions, how did you even get here?`);
+        return;
+      }
+      path = "system.actions.0";
+    }
+    let flow;
+    // If this is a Core System activation without a specific action
+    if (this.is_frame() && path === "system.core_system") {
+      this.beginCoreActiveFlow(path);
+      return;
+    } else {
+      flow = new ActivationFlow(this, { action_path: path });
+    }
+    await flow.begin();
+    console.log("Finished activation flow");
+  }
+
+  async beginCoreActiveFlow(path?: string) {
+    if (!this.is_frame()) {
+      ui.notifications!.error(`Item ${this.id} is not a mech frame!`);
+      return;
+    }
+    path = path ?? "system.core_system";
+    console.log("Core system activation flow on path", path);
+    const actionName = this.system.core_system.active_actions[0]?.name ?? this.system.core_system.active_name;
+    // Construct a fake "action" for the frame's core system
+    const action: ActionData = {
+      lid: this.system.lid + "_core_system",
+      name: `CORE ACTIVATION :: ${actionName}`,
+      activation: this.system.core_system.activation,
+      detail: this.system.core_system.active_effect,
+      // The rest doesn't matter, give it some defaults
+      cost: 0,
+      frequency: "",
+      init: "",
+      trigger: "",
+      terse: "",
+      pilot: false,
+      mech: true,
+      tech_attack: false,
+      heat_cost: 0,
+      synergy_locations: [],
+      damage: [],
+      range: [],
+    };
+    const flow = new CoreActiveFlow(this, { action, action_path: path });
+    await flow.begin();
+  }
+
+  async beginSkillFlow() {
+    if (!this.is_skill()) {
+      ui.notifications!.error(`Item ${this.id} is not a skill!`);
+      return;
+    }
+    const flow = new StatRollFlow(this, { path: "system.curr_rank" });
+    await flow.begin();
+  }
+
+  async beginBondPowerFlow(powerIndex: number) {
+    if (!this.is_bond()) {
+      ui.notifications!.error(`Item ${this.id} has no bond powers!`);
+      return;
+    }
+    const flow = new BondPowerFlow(this, { powerIndex });
+    await flow.begin();
+  }
+
+  async refreshPowers() {
+    if (!this.is_bond()) {
+      ui.notifications!.error(`Item ${this.id} has no bond powers!`);
+      return;
+    }
+    for (let i = 0; i < this.system.powers.length; i++) {
+      const p = this.system.powers[i];
+      if (p.uses) {
+        await this.update({ [`system.powers.${i}.uses.value`]: p.uses.max });
+      }
+    }
   }
 }
 
-// This seems like it could be removed eventually
-export type AnyMMItem = LiveEntryTypes<LancerItemType>;
+export type LancerCORE_BONUS = LancerItem & { system: SystemData.CoreBonus };
+export type LancerFRAME = LancerItem & { system: SystemData.Frame };
+export type LancerLICENSE = LancerItem & { system: SystemData.License };
+export type LancerMECH_SYSTEM = LancerItem & { system: SystemData.MechSystem };
+export type LancerMECH_WEAPON = LancerItem & { system: SystemData.MechWeapon };
+export type LancerNPC_CLASS = LancerItem & { system: SystemData.NpcClass };
+export type LancerNPC_FEATURE = LancerItem & { system: SystemData.NpcFeature };
+export type LancerNPC_TEMPLATE = LancerItem & { system: SystemData.NpcTemplate };
+export type LancerORGANIZATION = LancerItem & { system: SystemData.Organization };
+export type LancerPILOT_ARMOR = LancerItem & { system: SystemData.PilotArmor };
+export type LancerPILOT_GEAR = LancerItem & { system: SystemData.PilotGear };
+export type LancerPILOT_WEAPON = LancerItem & { system: SystemData.PilotWeapon };
+export type LancerRESERVE = LancerItem & { system: SystemData.Reserve };
+export type LancerSKILL = LancerItem & { system: SystemData.Skill };
+export type LancerSTATUS = LancerItem & { system: SystemData.Status };
+export type LancerTALENT = LancerItem & { system: SystemData.Talent };
+export type LancerBOND = LancerItem & { system: SystemData.Bond };
+export type LancerWEAPON_MOD = LancerItem & { system: SystemData.WeaponMod };
 
+// This seems like it could be removed eventually
 export type LancerItemType =
   | EntryType.CORE_BONUS
-  | EntryType.FACTION
   | EntryType.FRAME
   | EntryType.LICENSE
   | EntryType.MECH_WEAPON
@@ -439,15 +750,10 @@ export type LancerItemType =
   | EntryType.SKILL
   | EntryType.STATUS
   | EntryType.TALENT
-  | EntryType.WEAPON_MOD
-  | EntryType.QUIRK
-  | EntryType.MANUFACTURER // hmmmm.... these falls into a similar role as tag. for the time being leaving it here, but it should really be more of a journal thing. Are there journal types?
-  | EntryType.SITREP
-  | EntryType.ENVIRONMENT
-  | EntryType.TAG;
-export const LancerItemTypes = [
+  | EntryType.BOND
+  | EntryType.WEAPON_MOD;
+export const ITEM_TYPES = [
   EntryType.CORE_BONUS,
-  EntryType.FACTION,
   EntryType.FRAME,
   EntryType.LICENSE,
   EntryType.MECH_WEAPON,
@@ -455,7 +761,6 @@ export const LancerItemTypes = [
   EntryType.NPC_CLASS,
   EntryType.NPC_TEMPLATE,
   EntryType.NPC_FEATURE,
-  EntryType.ORGANIZATION,
   EntryType.PILOT_ARMOR,
   EntryType.PILOT_WEAPON,
   EntryType.PILOT_GEAR,
@@ -463,29 +768,9 @@ export const LancerItemTypes = [
   EntryType.SKILL,
   EntryType.STATUS,
   EntryType.TALENT,
+  EntryType.BOND,
   EntryType.WEAPON_MOD,
-  EntryType.QUIRK,
-  EntryType.MANUFACTURER,
-  EntryType.SITREP,
-  EntryType.ENVIRONMENT,
-  EntryType.TAG,
 ];
 export function is_item_type(type: EntryType): type is LancerItemType {
-  return LancerItemTypes.includes(type);
-}
-
-// export function has_lid<T extends AnyMMItem | AnyMMActor>(item: AnyMMItem | AnyMMActor): item is T & {ID: string} {
-// return (item as any).LID != undefined;
-// }
-
-export function is_reg_mech_weapon(item: RegEntry<any>): item is MechWeapon {
-  return item.Type === EntryType.MECH_WEAPON;
-}
-
-export function is_reg_mech_system(item: RegEntry<any>): item is MechSystem {
-  return item.Type === EntryType.MECH_SYSTEM;
-}
-
-export function is_reg_npc_feature(item: RegEntry<any>): item is NpcFeature {
-  return item.Type === EntryType.NPC_FEATURE;
+  return ITEM_TYPES.includes(type);
 }

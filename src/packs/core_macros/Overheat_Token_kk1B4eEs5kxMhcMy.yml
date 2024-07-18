@@ -1,0 +1,28 @@
+_id: kk1B4eEs5kxMhcMy
+name: Overheat Token
+type: script
+author: eC9B4k0LaO1597E7
+img: systems/lancer/assets/icons/macro-icons/damage_heat.svg
+scope: global
+command: |-
+  if (canvas.tokens.controlled.length !== 1) {
+    ui.notifications.error("Select one and only one token");
+    return;
+  }
+  canvas.tokens.controlled[0].actor.beginOverheatFlow();
+folder: yxTxiLixDsbyThYC
+sort: 106250
+flags:
+  core:
+    sourceId: Macro.bzlNd5XL876ZeG16
+ownership:
+  default: 0
+  eC9B4k0LaO1597E7: 3
+_stats:
+  systemId: lancer
+  systemVersion: 2.0.0-rc1
+  coreVersion: "11.315"
+  createdTime: null
+  modifiedTime: 1710448439309
+  lastModifiedBy: ci5PqVPSs3DhZWTF
+_key: "!macros!kk1B4eEs5kxMhcMy"

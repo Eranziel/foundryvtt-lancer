@@ -11,19 +11,28 @@ $document-types: join($item-types, $actor-types);
 :root {
   --main-font-family: Helvetica, Arial, sans-serif;
 
-  --main-theme-color: #991e2a; /* I've configured calls to this to fall back on fuchsia when things go wrong */
-  --main-theme-text: #e8bcbe;
-  --secondary-theme-color: #121d21;
-  --secondary-theme-text: #ffffff;
-  --secondary-theme-highlight: #233f49;
-  --loadout-color: #777f86;
-  --ref-color: #ddc0b3;
-  --gms-theme-color: #991e2a;
-  --ipsn-theme-color: #1662b8;
-  --ssc-theme-color: #d1920a;
-  --horus-theme-color: #00a256;
-  --ha-theme-color: #6e4373;
-  /* Shouldn't there be some sort of "--current-theme"??? */
+  /* Sheet theme vars */
+  --primary-color: #991e2a;
+  --primary-highlight: color-mix(in srgb, var(--primary-color), #fff 55%);
+  --color-shadow-primary: #991e2a;
+  --light-text: #efefef;
+  --dark-text: #000000;
+  --background-color: #ededed;
+  --secondary-color: #9e541f;
+  --secondary-highlight: color-mix(in srgb, var(--secondary-color), #fff 55%);
+  --secondary-text: #ffffff;
+  --dark-gray-color: #4d4d4d;
+  --light-gray-color: #919a9b;
+  --tooltip-background: #ffffff;
+  --tooltip-text: #000000;
+  --ref-color: color-mix(in srgb, var(--primary-color), #fff 90%);
+
+  /* Manufacturer theme vars */
+  --gms-color: #991e2a;
+  --ips-n-color: #1662b8;
+  --ssc-color: #d1920a;
+  --horus-color: #00a256;
+  --ha-color: #6e4373;
 
   /* Lancer initiative vars */
   --lancer-initiative-icon-size: 1rem;
@@ -32,6 +41,59 @@ $document-types: join($item-types, $actor-types);
   --lancer-initiative-neutral-color: #000000;
   --lancer-initiative-enemy-color: #000000;
   --lancer-initiative-done-color: #000000;
+
+  /* Gear and type color vars */
+  --system-color: #58b434;
+  --weapon-color: #111111;
+  --trait-color: #0a7674;
+  --mod-color: var(--trait-color);
+  --bonus-color: #5d8673;
+  --bonus-list-color: #71a373;
+  --tech-color: #7d2477;
+  --talent-color: #3a81c3;
+  --pilot-stat-color: color-mix(in srgb, var(--background-color), #888 50%);
+
+  /* Action color vars */
+  --reaction-color: #892eb1;
+  --protocol-color: #c75a00;
+  --quick-color: #3949ab;
+  --quick-tech-color: #3949ab; // TODO is this needed?
+  --invade-color: #222222;
+  --full-color: #283593;
+  --full-tech-color: #283593; // TODO is this needed?
+  --free-color: #00695c;
+  --move-color: #cc0a0a;
+
+  /* Hit type color vars */
+  --crit-color: #b36c3e;
+  --hit-color: #1a4015;
+  --miss-color: #3c3c3c;
+  --error-color: #b4800e;
+
+  /* Darkens tone by a small increment. For some themes should probably lighten instead, somehow? */
+  --darken-color: 0, 0, 0;
+  --darken-1: rgba(var(--darken-color), 0.1);
+  --darken-2: rgba(var(--darken-color), 0.2);
+  --darken-3: rgba(var(--darken-color), 0.3);
+  --darken-4: rgba(var(--darken-color), 0.4);
+  --darken-5: rgba(var(--darken-color), 0.5);
+
+  /* box-shadow values for hover glow and buttons */
+  --hover-bright: inset 0 0 0 10em rgba(255, 255, 255, 0.15);
+  --button-shadow: 1px 1px 1px 0.6px var(--darken-5);
+
+  /* Clip paths */
+  $clip_in: 10px;
+  --top-dogear-path: polygon(#{$clip_in} 0, 100% 0, 100% 100%, 0 100%, 0 #{$clip_in});
+  --bottom-dogear-path: polygon(0 0, 100% 0, 100% calc(100% - #{$clip_in}), calc(100% - #{$clip_in}) 100%, 0 100%);
+  --double-dogear-path: polygon(
+    #{$clip_in} 0,
+    100% 0,
+    100% calc(100% - #{$clip_in}),
+    calc(100% - #{$clip_in}) 100%,
+    0 100%,
+    0 #{$clip_in}
+  );
 
   --reaction-clip-path: polygon(
     0 0,
@@ -55,12 +117,6 @@ $document-types: join($item-types, $actor-types);
     100% 100%,
     0 100%
   );
-  --trait-color: #0a7674;
-  --bonus-color: #5d8673;
-  --bonus-text: #051c1d;
-  --bonus-list-color: #71a373;
-  --system-color: #69be46;
-  --error-color: #b4800e;
   --tech-clip-path: polygon(
     0 0,
     calc(100% - 12px) 0,
@@ -79,28 +135,12 @@ $document-types: join($item-types, $actor-types);
     100% 100%,
     0 100%
   );
-  --tech-color: #7d2477;
-  --talent-color: #3a81c3;
-  --weapon-color: #111111;
-  --reaction-color: #892eb1;
-  --protocol-color: #c75a00;
+}
 
-  /* Darkens tone by a small increment. For some themes should probably lighten instead, somehow? */
-  --darken-1: #00000016;
-
-  --hover-bright: inset 0 0 0 10em rgba(255, 255, 255, 0.15);
-
-  $clip_in: 10px;
-  --top-dogear-path: polygon(#{$clip_in} 0, 100% 0, 100% 100%, 0 100%, 0 #{$clip_in});
-  --bottom-dogear-path: polygon(0 0, 100% 0, 100% calc(100% - #{$clip_in}), calc(100% - #{$clip_in}) 100%, 0 100%);
-  --double-dogear-path: polygon(
-    #{$clip_in} 0,
-    100% 0,
-    100% calc(100% - #{$clip_in}),
-    calc(100% - #{$clip_in}) 100%,
-    0 100%,
-    0 #{$clip_in}
-  );
+code {
+  padding: 0px 5px !important;
+  background-color: var(--darken-1);
+  border-radius: 5px;
 }
 
 .app {
@@ -115,22 +155,105 @@ button {
   background: #ededed; /* Set default backgrounds to a futuristic gundam light grey */
   font-family: var(--main-font-family);
 }
+
+.window-app.lancer .window-content {
+  background-color: var(--background-color);
+  color: var(--dark-text);
+}
 /* ---------- */
 
 /* Elements Layer */
-.lancer.sheet .window-content *:not(.fas, .mdi, .cci),
-#chat-log .message *:not(.fas, .mdi, .cci) {
+
+/* General-purpose theme color classes */
+/* prettier-ignore */
+$theme-types: "primary" "secondary" "dark-gray" "light-gray" "tooltip"    // General themes
+  "gms" "ips-n" "ssc" "horus" "ha"                       // Manufacturers
+  "trait" "mod" "bonus" "system" "tech" "talent" "weapon"     // Gear types
+  "reaction" "protocol" "quick" "full" "move" "free"; // Action types
+@each $theme-type in $theme-types {
+  /* Headers, buttons, and chips */
+  .lancer-header.lancer-#{$theme-type},
+  .lancer-#{$theme-type} .lancer-header,
+  button.lancer-#{$theme-type},
+  .lancer-button.lancer-#{$theme-type},
+  .lancer-chip.lancer-#{$theme-type} {
+    background-color: var(--#{$theme-type}-color, fuschia);
+    color: var(--light-text, fuschia);
+  }
+
+  /* Text */
+  .lancer-#{$theme-type}-text {
+    color: var(--#{$theme-type}-color, fuschia);
+  }
+
+  /* Border */
+  .lancer-border-#{$theme-type} {
+    border-color: var(--#{$theme-type}-color, fuschia);
+
+    &.card {
+      border-width: 2px;
+      border-style: solid;
+    }
+  }
+
+  /* Foundry adds a bottom border to header elements. That's fine, but make it match. */
+  h1.lancer-#{$theme-type},
+  h2.lancer-#{$theme-type},
+  h3.lancer-#{$theme-type},
+  h4.lancer-#{$theme-type} {
+    border-color: var(--#{$theme-type}-color, fuschia);
+  }
+}
+/* Highlights */
+.lancer-primary.highlight {
+  background-color: var(--primary-highlight, fuchsia);
+  color: var(--light-text, fuchsia);
+}
+.lancer-secondary.highlight {
+  background-color: var(--secondary-highlight, fuchsia);
+  color: var(--light-text, fuchsia);
+}
+
+/* Default font for sheets and chat messages. */
+.lancer.sheet .window-content,
+#chat-log .message {
   /* An exception for each icon font */
   font-family: var(--main-font-family);
 }
-
-.lancer-sheet.editable {
-  height: 100%;
+/* Default text and background color for sheets */
+.lancer.sheet .window-content {
+  color: var(--dark-text);
+  background: var(--background-color);
 }
 
-.message .lancer-weapon-header span {
-  overflow: auto;
-  width: 120%;
+.lancer-sheet,
+.lancer.app {
+  &.editable {
+    height: 100%;
+  }
+
+  & input[type="text"],
+  & input[type="number"],
+  & input[type="password"],
+  & input[type="date"],
+  & input[type="time"],
+  & input[type="search"] {
+    color: var(--dark-text);
+  }
+
+  & select {
+    background-color: var(--tooltip-background);
+    color: var(--dark-text);
+    & option {
+      background-color: var(--tooltip-background);
+      color: var(--tooltip-text);
+    }
+  }
+
+  &.bond input.lancer-text-field {
+    margin-top: 0.1em;
+    margin-bottom: 0.1em;
+  }
 }
 
 .lancer.sheet select {
@@ -138,14 +261,14 @@ button {
 }
 
 .lancer.sheet .mount-header select {
-  color: white;
+  color: var(--light-text);
   outline: 0;
   border: none;
 }
 
 .lancer.sheet .mount-header select option {
-  background-color: var(--main-theme-color, fuchsia);
-  color: white;
+  background-color: var(--primary-color, fuchsia);
+  color: var(--light-text);
 }
 
 .scroll-body {
@@ -171,18 +294,19 @@ button {
 /* ---------- */
 
 /* Components Layer */
-.lancer.sheet .window-content {
-  background: #ededed; /* Overwrite the parchment background */
-}
-
 .lancer.sheet header:not(.window-header) {
   align-items: center;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  background-color: var(--main-theme-color, fuchsia);
+  background-color: var(--primary-color, fuchsia);
   margin: 10px;
-  color: white;
+  color: var(--light-text);
+
+  &.inactive-mech {
+    background-color: var(--secondary-color, fuchsia);
+    color: var(--secondary-text);
+  }
 }
 
 .lancer.sheet header .details {
@@ -194,8 +318,8 @@ button {
 }
 
 .header-icon {
+  display: flex;
   float: left;
-  padding-left: 10px;
 }
 
 .pilot-callsign {
@@ -206,29 +330,32 @@ button {
 
 /* Chat Styles */
 
-#chat-log .message {
-  background: rgba(237, 237, 237);
-  border-radius: 25px 5px;
-  padding: 0;
-  overflow: hidden;
-}
+#chat-log {
+  & .message {
+    background: rgba(237, 237, 237);
+    border-radius: 25px 5px;
+    padding: 0;
+    // overflow: hidden;
+  }
 
-#chat-log .message-header {
-  overflow: hidden;
-  background-color: var(--main-theme-color, fuchsia);
-  padding: 5px 10px;
-}
+  & .message-header {
+    overflow: hidden;
+    border-radius: 22px 1px 0 0;
+    background-color: var(--primary-color, fuchsia);
+    padding: 5px 10px;
+  }
 
-#chat-log .message-header * {
-  color: white;
-}
+  & .message-header * {
+    color: var(--light-text);
+  }
 
-#chat-log .message-content {
-  padding: 5px 10px;
-}
+  & .message-content {
+    padding: 5px 10px;
+  }
 
-#chat-log .message.whisper {
-  border: 2px solid #fdcb28;
+  & .message.whisper {
+    border: 2px solid #fdcb28;
+  }
 }
 
 .lancer-hit {
@@ -241,20 +368,18 @@ button {
 .card.lancer-hit-chip {
   float: right;
   width: 90px;
-  color: #e6e6e6;
-  background-color: #3c3c3c;
-}
+  color: var(--light-text);
+  background-color: var(--miss-color);
 
-.card.lancer-hit-chip.hit {
-  color: #fff;
-  background-color: #1a4015;
-  width: 75px;
-}
+  &.hit {
+    background-color: var(--hit-color);
+    width: 75px;
+  }
 
-.card.lancer-hit-chip.crit {
-  color: #fff;
-  background-color: #b36c3e;
-  width: 75px;
+  &.crit {
+    background-color: var(--crit-color);
+    width: 75px;
+  }
 }
 
 .lancer-hit-thumb {
@@ -274,20 +399,21 @@ button {
 }
 
 .card.lancer-charge-chip {
-  color: #e6e6e6;
-  background-color: #3c3c3c;
+  color: var(--light-text);
+  background-color: var(--dark-gray-color);
 }
 .card.lancer-charge-chip.charged {
-  color: #fff;
-  background-color: #1a4015;
+  color: var(--light-text);
+  background-color: var(--hit-color);
 }
 
 /* ---------- */
 
 .vsep {
   border: none;
-  border-left: 1px solid var(--secondary-theme-color, black);
-  border-right: 1px solid var(--secondary-theme-color, black);
+  border-left: 1px solid var(--secondary-color, black);
+  border-right: 1px solid var(--secondary-color, black);
+  min-width: 3px;
   max-width: 3px;
   margin-left: 6px;
   margin-right: 6px;
@@ -295,7 +421,7 @@ button {
 
 .hsep {
   border: none;
-  border-top: 1px solid var(--secondary-theme-color, black);
+  border-top: 1px solid var(--secondary-color, black);
   max-height: 3px;
   margin-top: 6px;
   margin-bottom: 6px;
@@ -307,11 +433,11 @@ button {
   height: 20px;
   background: #d7b6b9;
   text-align: center;
-  border: solid var(--main-theme-color, fuchsia);
+  border: solid var(--primary-color, fuchsia);
   border-width: 1px;
   border-radius: 4px;
   font-weight: bold;
-  color: var(--main-theme-color, fuchsia);
+  color: var(--primary-color, fuchsia);
 }
 
 .remove-button {
@@ -338,8 +464,8 @@ button {
 }
 
 .simple-button {
-  color: white;
-  background-color: var(--main-theme-color, fuchsia);
+  color: var(--light-text);
+  background-color: var(--primary-color, fuchsia);
   max-width: max-content;
   min-width: max-content;
   align-items: center;
@@ -351,10 +477,11 @@ button {
 }
 
 .compact-tag {
-  color: white;
-  background-color: var(--main-theme-color, fuchsia);
+  color: var(--light-text);
+  background-color: var(--primary-color, fuchsia);
   max-height: 20px;
   align-items: center;
+  align-content: center;
   border-radius: 5px;
   padding: 0px 5px;
   margin: 3px 5px;
@@ -367,6 +494,46 @@ button {
   flex-wrap: wrap;
   justify-content: flex-end;
   flex: 1;
+  margin: 3px;
+  min-height: 1em;
+}
+
+.large-tag {
+  color: var(--dark-text, fuchsia);
+  align-items: center;
+  border: 1px solid var(--primary-color, fuchsia);
+  border-radius: 5px;
+  margin: 3px 5px;
+  font-size: 1.1em;
+
+  .tag-header {
+    color: var(--light-text, fuchsia);
+    background-color: var(--primary-color, fuchsia);
+    text-align: left;
+
+    .tag-controls {
+      max-width: fit-content;
+      align-content: center;
+
+      a {
+        padding-right: 0.3em;
+      }
+    }
+  }
+
+  .tag-description {
+    margin: 0.2em 0.5em;
+    text-align: left;
+    font-size: 0.9em;
+    max-height: 14.15em;
+    overflow-y: scroll;
+  }
+}
+
+.large-tag-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-rows: auto;
   margin: 3px;
   min-height: 1em;
 }
@@ -406,8 +573,8 @@ button {
 
 .labeled-input > span {
   text-align: center;
-  color: white;
-  background-color: var(--main-theme-color, fuchsia);
+  color: var(--light-text);
+  background-color: var(--primary-color, fuchsia);
   max-height: 1.5em;
 }
 
@@ -497,16 +664,16 @@ ul.items-list {
   object-fit: cover;
 }
 
-.i--dark {
-  color: #2e2e2e;
+.faded {
+  opacity: 75%;
 }
 
-.i--faded {
-  color: #696969;
+.i--dark {
+  color: var(--dark-text);
 }
 
 .i--light {
-  color: #ededed;
+  color: var(--light-text);
 }
 
 .damage--kinetic {
@@ -565,6 +732,13 @@ ul.items-list {
   width: auto;
 }
 
+.lcp-manifest-badge {
+  background: var(--primary-color);
+  color: var(--light-text);
+  padding: 0em 0.5em;
+  border-radius: 1em;
+}
+
 table.lcp-index {
   margin: 10px;
   width: auto;
@@ -580,8 +754,7 @@ td.lcp-index {
 
 tr.lcp-index-header {
   height: 2em;
-  background-color: rgba(0, 0, 0, 0.1);
-  /* border: 1px solid #7a7971; */
+  background-color: var(--darken-1);
 }
 
 .lancer-tabs {
@@ -591,8 +764,8 @@ tr.lcp-index-header {
   flex-direction: row;
   flex-wrap: nowrap;
   justify-content: flex-start;
-  background-color: var(--main-theme-color, fuchsia);
-  color: white;
+  background-color: var(--primary-color, fuchsia);
+  color: var(--light-text);
   padding: 3px 10px;
   min-height: max-content;
   align-items: center;
@@ -605,23 +778,23 @@ tr.lcp-index-header {
 }
 
 .lancer-tab.active {
-  color: var(--main-theme-color, fuchsia);
-  background-color: #f0f0f0;
+  color: var(--light-text, fuchsia);
+  background-color: var(--primary-highlight, fuchsia);
 }
 
 .tier-control {
   min-width: 100%;
   background-color: #991e2a;
-  color: white;
+  color: var(--light-text);
 }
 
 .tier-control option {
   background-color: #991e2a;
-  color: white;
+  color: var(--light-text);
 }
 
-/* The dashed-line border aesthetic found around certain items.
- * Should be used on an inner div of a card
+/* Used on some item cards to add a border and consistent spacing.
+ * Should be used on an inner div of a card.
  */
 .lancer-body {
   min-height: 15px;
@@ -639,7 +812,6 @@ tr.lcp-index-header {
   border-width: 2px;
   border-style: solid;
   border-top-style: none;
-  border-color: var(--main-theme-color, fuchsia);
 
   background-color: var(--darken-1);
 
@@ -649,37 +821,11 @@ tr.lcp-index-header {
     margin-top: 0;
   }
 
-  .talent > & {
-    border-color: #3a81c3;
-    background-color: #3a81c333;
-    clip-path: polygon(0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%);
-    -webkit-clip-path: polygon(0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%);
-  }
-
-  .mech_weapon > &,
-  .npc-weapon > & {
-    border-color: #000000;
-  }
-
-  .weapon_mod > & {
-    border-color: var(--trait-color);
-  }
-
-  .tech > &,
-  .npc-tech > & {
-    border-color: var(--tech-color);
-  }
-
-  .npc-system > & {
-    border-color: var(--system-color);
-  }
-
-  .npc-reaction > & {
-    border-color: var(--reaction-color);
-  }
-
-  .npc-trait > & {
-    border-color: var(--trait-color);
+  @each $theme-type in $theme-types {
+    .lancer-#{$theme-type} > &,
+    .lancer-#{$theme-type} ~ & {
+      border-color: var(--#{$theme-type}-color);
+    }
   }
 
   .mount > & {
@@ -711,7 +857,6 @@ tr.lcp-index-header {
   margin: 3px;
   display: flex;
   align-items: center;
-  cursor: pointer;
   text-align: center;
   max-height: 40px;
 
@@ -720,10 +865,17 @@ tr.lcp-index-header {
   }
 }
 
-/* Valid, as a prefix, indicates that a ref is satisfied. It has ${ref_params()} */
-.valid.ref.ref-card {
+.set.ref.ref-card {
   background-color: var(--ref-color);
   color: black;
+}
+
+.click-open {
+  cursor: pointer;
+
+  &:hover {
+    text-shadow: 0 0 8px var(--color-shadow-primary);
+  }
 }
 
 .ref-icon {
@@ -739,15 +891,16 @@ tr.lcp-index-header {
 }
 
 /* Control box in the right side of a ref card. Delete button, etc */
-.ref-list-controls {
+.ref-controls {
   margin: 5px;
   margin-left: auto;
   max-width: 40px;
 }
+
 /* Re-allow clicking in these damn things */
 .lancer input,
-.input,
-textarea {
+.lancer .input,
+.lancer textarea {
   -webkit-user-select: auto;
   -moz-user-select: auto;
   -ms-user-select: auto;
@@ -755,6 +908,8 @@ textarea {
 
   /* Also make them not insist on being so obnoxiously large */
   min-width: 30px;
+
+  color: var(--dark-text);
 }
 
 /* Some text area sizes */
@@ -765,11 +920,14 @@ textarea {
 .pilot-stats {
   clip-path: polygon(0 0, calc(100% - 30px) 0, 100% 100%, 0 100%);
   -webkit-clip-path: polygon(0 0, calc(100% - 30px) 0, 100% 100%, 0 100%);
-  background-color: #cccccc;
+  background-color: var(--pilot-stat-color);
   padding-left: 5px;
   padding-right: 5px;
   align-items: flex-start;
-  color: black;
+
+  .lancer-stat.minor {
+    color: var(--dark-text);
+  }
 }
 
 .compact-stat {
@@ -777,6 +935,9 @@ textarea {
   flex-direction: row;
   align-items: center;
   padding: 0 5px;
+  i {
+    display: flex;
+  }
 }
 
 /** Fixes CSS priority on flexrows within cards */
@@ -792,7 +953,7 @@ textarea {
   align-items: center;
   height: 8em;
   max-height: 8em;
-  background-color: var(--main-theme-color);
+  background-color: var(--primary-color);
 
   .img-bar {
     background-repeat: no-repeat;
@@ -832,7 +993,6 @@ textarea {
   }
 
   text-overflow: ellipsis;
-  /* overflow: hidden; */ /* Disabled this to get context menus working */
   font-weight: normal;
   text-transform: uppercase;
 
@@ -841,9 +1001,6 @@ textarea {
   justify-content: space-around;
   align-items: center;
   align-self: stretch;
-
-  color: white;
-  background-color: var(--main-theme-color, fuchsia);
 
   /* For buttons/icons, we want them to not grow but also not just get squashed into nothing 
   * If this unbalances things, add an equal # of balancers to the other side
@@ -889,69 +1046,40 @@ textarea {
     padding-right: 10px;
   }
 
-  /* Category specific coloration */
-  .npc-trait &,
-  .frame_trait & {
-    background-color: var(--trait-color, fuchsia);
-  }
-
-  .bonus-list & {
+  // Legacy styling for old chat messages
+  #chat-log .bonus-list & {
     background-color: var(--bonus-list-color, fuchsia);
   }
 
-  .bonus & {
+  // Legacy styling for old chat messages
+  #chat-log .bonus & {
     background-color: var(--bonus-color, fuchsia);
   }
 
-  .wep-mount &,
-  .sys-mount &,
-  .mount & {
-    background-color: var(--main-theme-color, fuchsia);
-  }
-
-  .trigger & {
-    color: var(--main-theme-color, fuchsia);
-    background-color: white;
-  }
-
-  .protocol & {
-    background-color: var(--protocol-color);
-  }
-
-  .npc-reaction & {
-    background-color: var(--reaction-color);
-  }
-
-  .tech &,
-  .npc-tech &,
-  &.tech,
-  &.npc-tech {
-    /* clip-path: var(--tech-clip-path);
-    -webkit-clip-path: var(--tech-clip-path); */
-    background-color: var(--tech-color);
-  }
-
-  .mech-system &,
-  .npc-system &,
-  &.mech-system,
-  &.npc-system {
+  // Legacy styling for old chat messages
+  #chat-log .mech-system &,
+  #chat-log .npc-system &,
+  #chat-log &.mech-system,
+  #chat-log &.npc-system {
     background-color: var(--system-color);
+    color: var(--light-text);
   }
 
-  .mech_weapon &,
-  .npc-weapon &,
-  .pilot_weapon &,
-  &.mech_weapon,
-  &.npc-weapon,
-  &.pilot_weapon {
+  // Legacy styling for old chat messages
+  #chat-log .mech_weapon &,
+  #chat-log .pilot_weapon &,
+  #chat-log &.mech_weapon,
+  #chat-log &.pilot_weapon {
     background-color: var(--weapon-color);
-  }
-
-  .weapon_mod & {
-    background-color: var(--trait-color);
+    color: var(--light-text);
   }
 
   &.struct-stress {
+    // legacy coloring for old chat messages
+    #chat-log & {
+      background-color: var(--primary-color);
+    }
+    color: var(--light-text);
     padding-top: 1px;
     display: flex;
     flex-direction: row;
@@ -962,18 +1090,6 @@ textarea {
     a {
       flex: 0 0;
     }
-  }
-
-  .pilot_gear & {
-    background-color: var(--system-color);
-  }
-
-  .pilot_armor & {
-    background-color: var(--main-theme-color);
-  }
-
-  .reserve & {
-    background-color: var(--main-theme-color);
   }
 
   .mech_weapon:hover &,
@@ -992,13 +1108,29 @@ textarea {
     box-shadow: var(--hover-bright);
   }
 
-  /* Less a card header, more just another thing */
-  &.loadout-category {
-    background-color: var(--loadout-color, fuchsia);
-  }
-
   &.error {
     background-color: var(--error-color);
+  }
+
+  /* Destroyed gear */
+  &.destroyed {
+    background-color: var(--weapon-color);
+
+    span {
+      text-decoration: line-through;
+      color: #fb3535;
+    }
+
+    .cci {
+      color: #ff6a23;
+    }
+    .mdi {
+      color: #ff6a23;
+      margin-bottom: -2px;
+    }
+    .mdi-cog {
+      font-size: 28px;
+    }
   }
 
   /* General font sizing options */
@@ -1016,12 +1148,23 @@ textarea {
     font-size: 12px;
     font-weight: lighter;
   }
+
+  & span.minor {
+    margin: 0 16px;
+  }
+
+  .activation-chip {
+    overflow: unset;
+    margin-left: 0.1em;
+    padding: 0 0.5em 0 0.5em;
+    align-self: center;
+  }
 }
 
 .lancer-mini-header {
   align-items: center;
-  color: white;
-  background-color: var(--main-theme-color, fuchsia);
+  color: var(--light-text) !important;
+  background-color: var(--primary-color, fuchsia);
   max-height: fit-content;
 }
 
@@ -1033,7 +1176,7 @@ textarea {
   color: rgb(173, 6, 22);
 }
 .hex-white {
-  color: white;
+  color: var(--light-text);
 }
 
 .clipped.card.charged-box {
@@ -1043,35 +1186,11 @@ textarea {
   padding: 4px 8px;
   justify-content: space-between;
   align-items: center;
-  color: white;
-  background-color: var(--main-theme-color, fuchsia);
+  color: var(--light-text);
+  background-color: var(--primary-color, fuchsia);
   flex-grow: unset;
-  min-width: 8em;
+  min-width: 9em;
   max-height: 3em;
-}
-
-.lancer-header span.minor {
-  margin: 0 16px;
-}
-
-.lancer-header.destroyed {
-  background-color: #000;
-
-  span {
-    text-decoration: line-through;
-    color: #fb3535;
-  }
-
-  .cci {
-    color: #ff6a23;
-  }
-  .mdi {
-    color: #ff6a23;
-    margin-bottom: -2px;
-  }
-  .mdi-cog {
-    font-size: 28px;
-  }
 }
 
 .big-editor {
@@ -1093,7 +1212,7 @@ input[type="number"].lancer-stat {
 }
 
 .lancer-text-field,
-input[type="string"].lancer-input {
+input[type="text"].lancer-input {
   align-self: center;
   text-align: left;
   width: calc(100% - 20px);
@@ -1101,10 +1220,10 @@ input[type="string"].lancer-input {
 }
 
 .size-icon {
-  color: var(--main-theme-color, fuchsia);
+  color: var(--primary-color, fuchsia);
 }
 .tier-icon {
-  color: white;
+  color: var(--light-text);
 }
 
 .header-name {
@@ -1114,7 +1233,7 @@ input[type="string"].lancer-input {
 
 .header-field,
 .header-fields > * {
-  color: white !important;
+  color: var(--light-text) !important;
 }
 
 .editor,
@@ -1124,7 +1243,7 @@ input[type="string"].lancer-input {
 }
 
 .card {
-  background-color: rgba(0, 0, 0, 0.07);
+  background-color: var(--darken-1);
   margin: 3px 10px;
   text-align: center;
   padding-bottom: 1px;
@@ -1160,14 +1279,26 @@ input[type="string"].lancer-input {
   overflow: hidden;
 }
 
-.lancer-title {
-  text-align: center;
-  margin-left: 10px;
-  margin-right: 10px;
-  margin-top: 3px;
-  margin-bottom: 3px;
-  color: white;
-  background-color: var(--main-theme-color, fuchsia);
+.bond-xp-item {
+  text-align: left;
+  padding: 0.2em 1em;
+}
+
+.bond-ideal-select,
+.bond-question-select {
+  width: 100% !important;
+  flex-grow: 1;
+  text-wrap: wrap; // Firefox doesn't seem to have an equivalent, unfortunately
+}
+
+.bond-question-item {
+  padding: 0.5em 1em 0.5em 1em;
+
+  .bond-question-question {
+    width: 100%;
+    text-align: left;
+    font-weight: bold;
+  }
 }
 
 .desc-text {
@@ -1178,7 +1309,7 @@ input[type="string"].lancer-input {
   border: 1px solid #999;
   border-radius: 5px;
   margin: 5px;
-  background: rgba(0, 0, 0, 0.2);
+  background: var(--darken-1);
 }
 
 .effect-box {
@@ -1188,7 +1319,7 @@ input[type="string"].lancer-input {
   flex-direction: column;
   border-width: 1px;
   border-radius: 8px;
-  border-color: black;
+  border-color: var(--secondary-color);
   border-style: solid;
   margin-top: 10px;
 }
@@ -1200,8 +1331,8 @@ input[type="string"].lancer-input {
   position: relative;
   top: -8px;
   left: 8px;
-  background: var(--main-theme-color);
-  color: white;
+  background: var(--primary-color);
+  color: var(--light-text);
   //border-radius: 5px;
   padding-left: 5px;
   padding-right: 12px;
@@ -1220,9 +1351,9 @@ code {
 
 code.horus {
   font-size: 1.1em;
-  background-color: rgba(0, 0, 0, 0.7) !important;
+  background-color: var(--darken-5) !important;
   box-shadow: none;
-  //color: white;
+  //color: var(--main-theme-text);
   font-style: normal;
   letter-spacing: 0.05em;
   border-radius: 0;
@@ -1351,7 +1482,6 @@ code.horus:hover {
 
 /* End of HORUS glitchy styles used in lancer-data */
 
-.roll-stat,
 .roll-attack,
 .roll-trigger,
 .system-macro,
@@ -1374,8 +1504,7 @@ code.horus:hover {
   margin: 3px 10px;
   min-width: 3em;
   height: 3em;
-  background: rgba(0,0,0,0.25);
-  border: 1px solid rgba(0,0,0,0.25);
+  border: 1px solid var(--darken-2);
   border-radius: 5px;
   box-shadow: 1px 1px 1px 0.6px #000000b3;
 }
@@ -1393,7 +1522,7 @@ code.horus:hover {
   margin: 5px;
   align-items: center;
   text-align: center;
-  background: rgba(0, 0, 0, 0.1);
+  background: var(--darken-1);
   border: 1px solid #999;
   border-radius: 3px;
   box-shadow: 0 0 2px #fff inset;
@@ -1412,24 +1541,33 @@ code.horus:hover {
   margin: auto;
 }
 
-.mod-plus-button {
+.clicker-plus-button {
   clip-path: polygon(75% 0%, 100% 50%, 75% 100%, 0% 100%, 20% 50%, 0% 0%);
 }
 
-.mod-minus-button {
+.clicker-minus-button {
   clip-path: polygon(100% 0%, 80% 50%, 100% 100%, 25% 100%, 0% 50%, 25% 0%);
 }
 
-.mod-minus-button,
-.mod-plus-button {
+/* Several of these styles require !important to override the standard button styling */
+.clicker-minus-button,
+.clicker-plus-button {
   cursor: pointer;
   width: 30px;
+  min-width: 30px;
   height: 30px;
-  background-color: #828282;
-  color: #fff;
-  border: none;
+  font-weight: bold;
+  background-color: var(--secondary-color) !important;
+  color: var(--secondary-text) !important;
+  /* The box shadow and border styling for buttons looks bad with the clip path */
+  box-shadow: none !important;
+  border: none !important;
   /* Don't ask me why, but this aligns it vertically nicely */
   line-height: 1px;
+
+  &:hover {
+    box-shadow: var(--hover-bright) !important;
+  }
 }
 
 input[type="number"] {
@@ -1469,23 +1607,27 @@ input.core-power-toggle:not(:checked)::before {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   align-items: center;
+
+  .lancer-flow-button {
+    justify-self: center;
+  }
+
+  .overcharge-text {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    line-height: 0.8em;
+  }
 }
 
-.overcharge-text {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  line-height: 0.8em;
-}
+.overcharge-heat-wrapper {
+  justify-content: flex-end;
 
-.overcharge-macro {
-  justify-self: center;
-}
-
-.overcharge-heat {
-  color: #fc3e0f;
-  flex-grow: unset;
-  width: 1.5em;
+  .overcharge-heat {
+    color: #fc3e0f;
+    flex-grow: unset;
+    width: 1.5em;
+  }
 }
 
 /* Some flex helpers */
@@ -1550,8 +1692,8 @@ input.core-power-toggle:not(:checked)::before {
 }
 
 /* Glow effect courtesy of https://codepen.io/jackrugile/pen/ABeIi */
-.highlight-can-drop {
-  animation: glow 800ms ease-out infinite alternate;
+@mixin glow {
+  animation: glow-anim 800ms ease-out infinite alternate;
   background: #222922;
   background: linear-gradient(#333933, #222922);
   border-color: #393;
@@ -1560,7 +1702,7 @@ input.core-power-toggle:not(:checked)::before {
   outline: none;
 }
 
-@keyframes glow {
+@keyframes glow-anim {
   0% {
     border-color: #393;
     box-shadow: 0 0 5px rgba(0, 255, 0, 0.2), inset 0 0 5px rgba(0, 255, 0, 0.1), 0 2px 0 #000;
@@ -1571,84 +1713,38 @@ input.core-power-toggle:not(:checked)::before {
   }
 }
 
-.lancer-mech-trait-header,
-.lancer-core-sys-header,
-.lancer-talent-header,
-.lancer-system-header,
-.lancer-trait-header,
-.lancer-trigger-header,
-.lancer-protocol-header,
-.lancer-reaction-header,
-.lancer-tech-header,
-.lancer-corebonus-header,
-.lancer-license-header,
-.lancer-weapon-header {
-  color: white;
-  background-color: var(--main-theme-color, fuchsia);
-  padding-left: 15px;
-  padding-right: 15px;
-  display: grid;
-  white-space: nowrap;
-  text-align: center;
-  max-height: 2em;
-  min-height: 2em;
-  grid-template-columns: 40px 1fr 40px;
-  align-items: center;
-  text-overflow: ellipsis;
-}
-
-.lancer-corebonus-header {
-  background-color: var(--bonus-color);
-  color: var(--bonus-text);
-}
-
-.lancer-license-header {
-  background-color: #ffffff;
-  color: var(--main-theme-color);
-  border: 1px dashed #656464;
-}
-
-.lancer-trigger-header {
-  color: var(--main-theme-color, fuchsia);
-  background-color: white;
-}
-
 .skill-compact {
   display: grid;
   grid-template: 2em 1fr / 100px 1fr;
   align-items: center;
   margin-right: 25px;
+  a.flexrow.skill-flow {
+    margin-inline: 1.2em;
+  }
 }
 
-a.flexrow.skill-macro {
-  margin-inline: 1.2em;
-}
-
-.lancer-talent-header {
-  background-color: var(--talent-color);
+ul.talent-ranks {
+  padding: 0;
 }
 
 .talent-rank-compact {
   display: grid;
-  grid-template: 2.5em 1fr / 30px 1fr;
+  grid-template: auto 1fr / auto auto 1fr;
+  grid-template-areas:
+    "rank chat title"
+    "desc desc desc";
+}
+
+.card.lancer-border-talent.talent-rank-sep-border {
+  border-width: 1px;
+  border-top: none;
+  border-left: none;
+  border-right: none;
 }
 
 .major {
   font-size: 18px;
   font-weight: bold;
-}
-// Action activation types
-$activations-types: none passive quick quicktech invade full fulltech other reaction protocol free move;
-// The rgb-based colors I just made up, not sure if there are official colors for those
-$activations-colors: rgb(204, 10, 10) rgb(98, 0, 255) #3949ab #3949ab #222222 #283593 #283593 rgb(162, 0, 255) #512da8
-  #007676 #00695c rgb(204, 10, 10);
-
-@each $a-type in $activations-types {
-  $i: index($activations-types, $a-type);
-  .activation-#{$a-type} {
-    background-color: nth($activations-colors, $i) !important;
-    border-color: nth($activations-colors, $i);
-  }
 }
 
 .action-detail,
@@ -1656,17 +1752,17 @@ $activations-colors: rgb(204, 10, 10) rgb(98, 0, 255) #3949ab #3949ab #222222 #2
 .core-active-detail,
 .core-passive-detail {
   text-align: left;
-  margin-left: 8px;
-  margin-right: 8px;
+  margin-left: 0.5em;
+  margin-right: 0.5em;
 }
 
-.activation-chip {
+.activation-chip,
+.activation-chip.lancer-button {
   align-self: flex-end;
-  right: 5px;
   margin-top: 5px;
   font-size: 12px;
   height: 24px;
-  color: #fff;
+  color: var(--light-text);
   border-radius: 4px !important;
   align-items: center;
   // cursor: default;
@@ -1675,8 +1771,7 @@ $activations-colors: rgb(204, 10, 10) rgb(98, 0, 255) #3949ab #3949ab #222222 #2
   max-width: 100%;
   outline: none;
   overflow: hidden;
-  padding: 0 12px;
-  position: relative;
+  padding: 0 12px 0px 5px;
   text-decoration: none;
   transition-duration: 0.28s;
   transition-property: box-shadow, opacity;
@@ -1684,6 +1779,7 @@ $activations-colors: rgb(204, 10, 10) rgb(98, 0, 255) #3949ab #3949ab #222222 #2
   vertical-align: middle;
   white-space: nowrap;
   margin-bottom: 5px;
+  margin-right: 5px;
 }
 
 .action-wrapper,
@@ -1692,27 +1788,143 @@ $activations-colors: rgb(204, 10, 10) rgb(98, 0, 255) #3949ab #3949ab #222222 #2
 .core-passive-wrapper,
 .core-wrapper {
   border-radius: 10px;
-  background-color: rgba(0, 0, 0, 0.07);
+  background-color: var(--darken-1);
   margin-top: 6px;
-  padding-top: 4px;
   margin-bottom: 4px;
+  padding: 4px;
 
   .title-wrapper {
     text-align: left;
+
+    .activation-chip {
+      max-width: fit-content;
+    }
+  }
+}
+
+.action-flow-container {
+  float: left;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+
+  .activation-chip,
+  .lancer-button {
+    height: 100%;
+    margin: 0;
+
+    span {
+      padding-right: 0.2em;
+    }
+  }
+
+  .vsep {
+    margin: 0.1em 0.7em;
+  }
+}
+.core-wrapper {
+  border-radius: 0px;
+  border-width: 2px;
+  border-style: solid;
+
+  .core-active-activate {
+    margin: 0 0.2em;
+    align-items: center;
+
+    .active-label {
+      flex-grow: 0;
+      min-width: fit-content;
+      margin-right: 0.5em;
+    }
+
+    .activation-chip {
+      width: 100%;
+      height: auto;
+      left: 0px;
+      right: 0px;
+      font-size: 1.1em;
+      justify-content: space-between;
+
+      .flexcol {
+        align-items: center;
+      }
+      b {
+        white-space: normal;
+        text-align: center;
+      }
+    }
   }
 }
 
 .action-wrapper,
-.deployable-wrapper,
 .core-active-wrapper,
 .core-passive-wrapper {
   display: flex;
   flex-direction: column;
 }
 
+.deployable-wrapper {
+  display: grid;
+  grid-template-columns: 48px auto auto;
+  grid-template-rows: auto auto auto;
+  grid-template-areas:
+    "img title title"
+    "chip chip desc"
+    "action action action";
+
+  &.vertical {
+    grid-template-columns: 48px auto;
+    grid-template-rows: auto auto auto auto;
+    grid-template-areas:
+      "img title"
+      "chip chip"
+      "desc desc"
+      "action action";
+
+    .flexcol {
+      flex-grow: 1;
+    }
+
+    .deployable-activations {
+      margin-left: 0;
+    }
+
+    .activation-chip {
+      margin: 1px 2px;
+    }
+  }
+
+  img.deployable-thumbnail {
+    padding: 0.25em 0.5em;
+    grid-area: img;
+    border: none;
+    align-self: center;
+  }
+
+  .title-wrapper {
+    padding-left: 0.5em;
+  }
+
+  .deployable-activations {
+    grid-area: chip;
+    justify-content: flex-end;
+    display: flex;
+    flex-direction: row;
+    margin-left: 0.5em;
+
+    .activation-chip {
+      max-height: 20px;
+      display: flex;
+      justify-content: center;
+      margin-top: 0.1em;
+      margin-bottom: 0.1em;
+    }
+  }
+}
+
 .action-wrapper,
 .deployable-wrapper {
-  border-color: var(--secondary-theme-color);
+  border-color: var(--secondary-color);
   border-width: 1px;
   border-style: solid;
 }
@@ -1733,17 +1945,22 @@ a.activation-chip > i.mdi {
   margin-right: 6px;
 }
 
-.stat-macro-container {
+.stat-card {
+  display: grid;
+  grid-template: 1fr 1fr / 1fr;
+}
+
+.stat-flow-container {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
 }
 
 .stat-container,
-.stat-macro-container {
+.stat-flow-container {
   align-items: center;
 }
 
-.stat-macro-container > a {
+.stat-flow-container > a {
   margin: auto;
 }
 /* Frame descriptor, probably-but-not-necessarily in mech-loadout */
@@ -1761,8 +1978,10 @@ a.activation-chip > i.mdi {
     flex-grow: unset;
   }
 
-  .frame-traits {
+  .frame-traits,
+  .core-wrapper {
     width: 50%;
+    max-width: calc(50% - 6px);
   }
 
   .frame-active,
@@ -1775,7 +1994,7 @@ a.activation-chip > i.mdi {
   /* The main, top region */
   .stat-grid {
     display: grid;
-    grid-template: repeat(5, 4.5em) / repeat(5, 1fr);
+    grid-template: repeat(5, 5em) / repeat(5, 1fr);
 
     /* Most things auto-layout just fine */
 
@@ -1806,20 +2025,8 @@ a.activation-chip > i.mdi {
       margin: 0px 7px;
       flex-grow: unset;
 
-      a.lancer-macro {
-        font-size: 20px;
-        max-width: 20px;
-        max-height: 20px;
-        min-width: 20px;
-        max-height: 20px;
-        position: relative;
-        top: 3px;
-      }
-
-      .stat-macro-container {
-        padding-left: 0.25em;
-        padding-right: 0.5em;
-        grid-template-columns: 1fr 1fr;
+      .stat-flow-container {
+        grid-template: auto / fit-content(75%) auto;
       }
     }
   }
@@ -1832,7 +2039,6 @@ a.activation-chip > i.mdi {
 
   position: relative;
   text-align: center;
-  cursor: pointer;
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
@@ -1846,7 +2052,7 @@ a.activation-chip > i.mdi {
     font-size: 1.6em;
     width: 60%;
     clip-path: polygon(0 0, 100% 0, 100% 100%, 32% 100%);
-    background-color: var(--main-theme-color);
+    background-color: var(--primary-color);
   }
 
   img {
@@ -1863,34 +2069,43 @@ a.activation-chip > i.mdi {
 
 .uses-wrapper {
   display: flex;
-  justify-content: flex-end;
+  justify-content: flex-start;
   align-items: center;
   margin-right: 4px;
   margin-top: 4px;
 }
 
 .uses-hex,
+.power-uses-hex,
 .counter-hex,
-.loaded-hex {
+.loaded-hex,
+.charged-hex {
   cursor: pointer;
   font-size: 2em;
-  color: white;
+  color: var(--light-text);
 }
 
 .counter-hex[data-available="true"] {
-  color: var(--main-theme-color);
+  color: var(--primary-color);
   filter: brightness(1.25);
+}
+
+.sp-wrapper {
+  display: flex;
+  width: fit-content;
+  max-width: fit-content;
+  align-items: center;
 }
 
 .weapon-profile-wrapper {
   padding: 8px 8px 0px 5px;
-  background-color: var(--main-theme-color);
+  background-color: var(--primary-color);
   clip-path: polygon(0 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
 }
 
 .weapon-profile {
-  color: white;
-  background-color: var(--main-theme-color);
+  color: var(--light-text);
+  background-color: var(--primary-color);
   align-items: center;
   min-height: 2em;
   text-align: center;
@@ -1903,15 +2118,15 @@ a.activation-chip > i.mdi {
 }
 
 .weapon-profile.selected-profile {
-  color: var(--main-theme-color);
-  background-color: white;
+  color: var(--primary-color);
+  background-color: var(--light-text);
   /* font-weight: bold; */
 }
 
 .weapon-mod-addon {
   background-color: var(--trait-color);
   margin: 0px 3px 0.5em 3px;
-  color: white;
+  color: var(--light-text);
   align-items: center;
   min-height: 2em;
 }
@@ -1938,7 +2153,7 @@ a.activation-chip > i.mdi {
 .rank-wrapper {
   align-items: center;
   justify-content: center;
-  border-color: var(--loadout-color);
+  border-color: var(--secondary-highlight);
   border-width: 0px 1px 1px;
   border-style: solid;
   position: relative;
@@ -1959,12 +2174,12 @@ a.activation-chip > i.mdi {
 .uses-editor > span {
   padding: inherit;
   text-align: center;
-  background-color: var(--darken-1);
+  background-color: var(--darken-2);
   margin-bottom: 4px;
 }
 
 .uses-editor {
-  background-color: var(--darken-1);
+  background-color: var(--darken-2);
   padding-bottom: 0.5em;
   margin-bottom: auto;
 }
@@ -1974,67 +2189,180 @@ a.activation-chip > i.mdi {
   margin: 5px;
 }
 
+.gen-control.add-question {
+  float: left;
+  margin-left: 10px;
+  border: 1px solid var(--darken-5);
+  border-radius: 4px;
+  padding: 3px;
+}
+
+.bond-question {
+  .bond-question-row {
+    display: flex;
+    align-items: center;
+    margin-right: 1em;
+
+    a {
+      flex: 0 0 auto;
+      padding-left: 5px;
+      padding-right: 5px;
+    }
+  }
+
+  .bond-question-options {
+    margin-top: 0;
+    margin-bottom: 0.25em;
+
+    .bond-question-option-row {
+      display: flex;
+      align-items: center;
+      margin-right: 3em;
+
+      a {
+        flex: 0 0 auto;
+        padding-left: 5px;
+        padding-right: 5px;
+      }
+    }
+  }
+}
+
+.bond-ideal-row {
+  display: flex;
+  align-items: center;
+  margin-right: 1em;
+
+  .bond-ideal {
+    flex-grow: 1;
+  }
+
+  a {
+    flex: 0 0 auto;
+    padding-left: 5px;
+    padding-right: 5px;
+  }
+}
+
 .action-editor-wrapper {
   float: right;
   margin-right: 0.5em;
+  max-width: fit-content;
 }
 
-// Begin "Button" radio buttons
-.stabilize-wrapper .hidden {
-  display: none;
-}
-
-.radio-label:checked + .button-label {
-  background-color: var(--main-theme-color);
-  color: var(--main-theme-text);
-}
-
-.radio-label + .button-label:hover {
-  filter: brightness(120%);
-}
-
-.button-label {
-  display: inline-block;
-  padding: 1em 2em;
-  margin: 0.5em;
-  cursor: pointer;
-  border-radius: 0.25em;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
-  user-select: none;
-}
-
-.center-text {
-  display: table;
-  text-align: center;
+.action-editor {
+  .flexrow {
+    padding-bottom: 0.5em;
+  }
 }
 
 // Stabilize dialog
+// Begin "Button" radio buttons
 
-.stabilize-wrapper .button-label {
-  background-color: var(--loadout-color);
-  color: black;
-  flex-basis: 45%;
+.stabilize-wrapper {
+  .button-label {
+    background-color: var(--secondary-color);
+    color: var(--secondary-text);
+    flex-basis: 45%;
+
+    i.checked-icon {
+      display: none;
+    }
+  }
+
+  .hidden {
+    display: none;
+  }
+
+  .radio-label:checked + .button-label {
+    background-color: var(--primary-color);
+    color: var(--light-text);
+
+    i.checked-icon {
+      display: inline;
+    }
+  }
+
+  .radio-label + .button-label:hover {
+    filter: brightness(120%);
+  }
+
+  .button-label {
+    display: grid;
+    grid-template-columns: 2em 2em auto;
+    padding: 1em;
+    margin: 0.5em;
+    cursor: pointer;
+    border-radius: 0.25em;
+    box-shadow: 0 3px 10px var(--darken-2);
+    user-select: none;
+    align-items: center;
+
+    i,
+    span {
+      text-align: center;
+    }
+  }
+
+  .center-text {
+    display: table;
+    text-align: center;
+  }
 }
 
-// Macros
-.lancer-macro-grid {
+// Effects
+.active-effect {
+  border-radius: 5px;
+  border: black solid 1px;
+  display: grid;
+  grid-template-columns: 1fr 30px;
+  justify-items: start;
+  margin: 3px;
+  padding: 3px;
+}
+
+// Flows
+.lancer-flow-button-grid {
   display: flex;
   margin-bottom: 8px;
   padding: 4px;
 }
 
-.lancer-macro-grid button {
+.lancer-flow-button-grid button,
+.bond-xp-button,
+.refresh-powers-button {
   margin: 4px;
   border-radius: 15px 0px;
-  color: white;
-  background-color: var(--main-theme-color);
+}
+
+.lancer button,
+.lancer-button {
+  border: 1px solid var(--darken-3);
+  border-radius: 5px;
+  padding: 0.25em;
+  background: var(--light-gray-color);
+  color: var(--dark-text);
+  box-shadow: var(--button-shadow);
+
+  &:hover {
+    box-shadow: var(--button-shadow), var(--hover-bright);
+  }
+
+  &.noninteractive {
+    cursor: default;
+    text-shadow: none;
+    box-shadow: none;
+  }
+}
+
+.bond-xp-button {
+  margin-left: 1em;
+  margin-right: 1em;
 }
 
 // Actions
 .lancer-action-grid {
   display: flex;
-  margin-bottom: 8px;
-  padding: 4px;
 }
 
 .lancer-action-button {
@@ -2045,7 +2373,7 @@ a.activation-chip > i.mdi {
   }
 
   &.active {
-    color: white;
+    color: var(--light-text);
     font-weight: bold;
   }
 }
@@ -2053,20 +2381,9 @@ a.activation-chip > i.mdi {
 .track-message.lancer-action-grid {
   flex-wrap: wrap;
 }
-.track-message .lancer-action-button {
+.track-message .lancer-action-badge {
   margin: 4px;
   width: fit-content;
-
-  &.action-size-protocol,
-  &.action-size-move {
-    width: calc(50% - 8px);
-  }
-
-  &.action-size-full,
-  &.action-size-quick,
-  &.action-size-reaction {
-    width: calc(100% / 3 - 8px);
-  }
 }
 
 #action-manager {
@@ -2100,8 +2417,8 @@ a.activation-chip > i.mdi {
   display: inline-flex;
   padding-left: 12px;
   border-bottom: 1px solid black;
-  background-color: var(--main-theme-color);
-  color: white;
+  background-color: var(--primary-color);
+  color: var(--light-text);
   font-style: italic;
 }
 
@@ -2138,12 +2455,17 @@ a.action {
   }
 }
 
+.lancer-context-menu {
+  display: inline-block;
+  min-width: 20px;
+}
+
 .tippy-box[data-theme~="lancer-large"] {
-  background: var(--secondary-theme-color) !important;
-  background-color: var(--secondary-theme-color) !important;
+  background: var(--tooltip-background) !important;
+  background-color: var(--tooltip-background) !important;
+  color: var(--tooltip-text);
   max-width: 50vw;
-  border: 1px var(--main-theme-color) solid;
-  color: var(--secondary-theme-text);
+  border: 1px var(--primary-color) solid;
   border-radius: 4px;
   font-size: 14px;
   line-height: 22px;
@@ -2153,21 +2475,22 @@ a.action {
     padding: 0.25rem;
     text-align: left;
     cursor: pointer;
+    border-radius: 4px;
 
     i {
       margin-right: 5px;
     }
 
     &:hover {
-      background: var(--secondary-theme-highlight);
+      background: var(--secondary-highlight);
     }
   }
 }
 
 // V-IMPORTS
 .white--text {
-  color: #fff !important;
-  caret-color: #fff !important;
+  color: var(--light-text) !important;
+  caret-color: var(--light-text) !important;
 }
 
 .v-divide {
@@ -2191,11 +2514,28 @@ a.action {
   display: grid;
   grid-template-rows: 2em 3em 3em 3em 3em 3em;
   grid-template-columns: 14em 1fr 1fr;
-}
+  margin-top: 0.5em;
+  margin-bottom: 1em;
+  border-width: 2px;
+  border-style: solid;
+  background-color: var(--darken-2);
 
-.mech-preview img {
-  grid-row: 2 / -1;
-  height: 100%;
+  .activate-mech {
+    flex-grow: unset;
+    font-size: 2em;
+    height: 1em;
+  }
+
+  .deactivate-mech {
+    font-size: 1.5em;
+    height: 1em;
+    margin-right: 0.4em;
+  }
+
+  & img {
+    grid-row: 2 / -1;
+    height: 100%;
+  }
 }
 
 .mech-preview-titlebar {
@@ -2207,12 +2547,22 @@ a.action {
   flex-direction: row;
   flex-wrap: nowrap;
   justify-content: flex-start;
-  background-color: var(--main-theme-color, fuchsia);
-  color: white;
+  color: var(--light-text);
+  font-size: 1.2em;
+  font-weight: bold;
   padding: 3px 10px;
   min-height: max-content;
   align-items: center;
   margin-right: 5em;
+
+  &.active {
+    background-color: var(--primary-color, fuchsia);
+    color: var(--light-text);
+  }
+  &.inactive {
+    background-color: var(--dark-gray-color, fuchsia);
+    color: var(--light-text);
+  }
 }
 
 .mech-preview-stat-wrapper {
@@ -2229,25 +2579,30 @@ a.action {
   margin: 3px;
   justify-content: space-between;
   align-items: center;
-  color: white;
-  background-color: rgb(55, 55, 55);
+  color: var(--light-text);
+  background-color: var(--dark-gray-color);
+
+  span {
+    min-width: fit-content;
+  }
+
+  &.non-interactive a,
+  &.non-interactive .uses-hex {
+    cursor: default;
+    text-shadow: none;
+    box-shadow: none;
+  }
 }
 
 .counter-name {
   max-width: 90%;
   width: fit-content !important;
-  color: white !important;
-}
-
-.chat-macro-button {
-  max-width: 60%;
-  align-self: center;
-  cursor: pointer;
+  color: var(--light-text) !important;
 }
 
 // needed to override a builtin that removes all shadows from the sidebar
 #sidebar a.chat-button:hover {
-  text-shadow: 0 0 8px red;
+  text-shadow: 0 0 8px var(--color-shadow-primary);
 }
 
 #sidebar a.chat-button {
@@ -2259,18 +2614,8 @@ a.action {
     text-shadow: none;
   }
   100% {
-    text-shadow: 0 0 8px red;
+    text-shadow: 0 0 8px var(--color-shadow-primary);
   }
-}
-
-/* 
-We will add the "dragging-_____" class to the document root whenever we're dragging a type.
-.For instance, dragging-mech_weapon
-This base class configuration will make all of these options invisible.
-See the .editable ".context-drop" class for how it gets changed
-*/
-.context-drop {
-  display: none;
 }
 
 /* By default, edit*/
@@ -2288,18 +2633,23 @@ Here, this means we want to allow for drag stuff etc to show contextually if:
 - the box is a context-drop of the appropriate corresponding type
 */
 @each $e-type in $document-types {
-  .dragging-#{$e-type} .editable .context-drop.#{$e-type} {
-    display: revert;
+  .drop-target-#{$e-type} {
+    display: none;
+  }
+
+  .dragging-#{$e-type} .editable .drop-target-#{$e-type} {
+    display: revert !important;
   }
 }
 
-.drop-settable:not(.valid) {
-  align-items: center;
+.line-drop-target {
+  @include glow;
+  min-height: 6em;
+  align-content: center;
 }
 
-/* Separate, older version for tags */
-.ref-list-append.highlight-can-drop {
-  visibility: visible;
+.slot:not(.set) {
+  align-items: center;
 }
 
 .disabled-cloud {
@@ -2326,26 +2676,6 @@ Here, this means we want to allow for drag stuff etc to show contextually if:
 .grid-enforcement > * {
   grid-column: 1/2;
   grid-row: 1/2;
-}
-
-.activate-mech {
-  flex-grow: unset;
-  font-size: 2em;
-  height: 1em;
-}
-
-.inactive-row {
-  align-items: center;
-}
-.inactive-row > .major {
-  // It looks off without it...
-  margin-top: 1px;
-}
-
-.deactivate-mech {
-  font-size: 1.5em;
-  height: 1em;
-  margin-right: 0.4em;
 }
 
 /* Lancer Initiative stuff

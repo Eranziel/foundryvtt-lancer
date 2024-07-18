@@ -1,16 +1,17 @@
-import { getTrackerAppearance, setAppearance } from "lancer-initiative";
-import type { LancerCombat, LancerCombatant } from "lancer-initiative";
+import { getTrackerAppearance, setAppearance } from "./combat/lancer-combat-tracker";
+import type { LancerCombat, LancerCombatant } from "./combat/lancer-combat";
 import { LANCER } from "./config";
 import { AutomationConfig } from "./apps/automation-settings";
 import CompconLoginForm from "./helpers/compcon-login-form";
 import { ActionTrackerConfig } from "./apps/action-tracker-settings";
 import { StatusIconConfig } from "./apps/status-icon-config";
+import { applyTheme } from "./themes";
 
 export const registerSettings = function () {
   /**
    * Track the system version upon which point a migration was last applied
    */
-  game.settings.register(game.system.id, LANCER.setting_migration, {
+  game.settings.register(game.system.id, LANCER.setting_migration_version, {
     name: "System Migration Version",
     scope: "world",
     config: false,
@@ -24,8 +25,7 @@ export const registerSettings = function () {
     config: false,
     type: String,
     // Toggle for dev swapping to test import.
-    default: "0.0.0",
-    // default: "3.0.21",
+    default: "",
   });
 
   game.settings.register(game.system.id, LANCER.setting_lcps, {
@@ -35,6 +35,38 @@ export const registerSettings = function () {
     // @ts-ignore There's probably a fix for this
     type: Object,
     default: { index: [] },
+  });
+
+  game.settings.register(game.system.id, LANCER.setting_tag_config, {
+    name: "Tags",
+    scope: "world",
+    config: false,
+    // @ts-ignore There's probably a fix for this
+    type: Object,
+    default: {},
+  });
+
+  game.settings.register(game.system.id, LANCER.setting_ui_theme, {
+    name: "lancer.uiTheme.name",
+    hint: "lancer.uiTheme.hint",
+    scope: "user",
+    config: true,
+    type: String,
+    choices: {
+      gms: "lancer.uiTheme.gms",
+      gmsDark: "lancer.uiTheme.gmsDark",
+      msmc: "lancer.uiTheme.msmc",
+      horus: "lancer.uiTheme.horus",
+      ha: "lancer.uiTheme.ha",
+      ssc: "lancer.uiTheme.ssc",
+      ipsn: "lancer.uiTheme.ipsn",
+      gal: "lancer.uiTheme.gal",
+    },
+    default: "gms",
+    onChange: v => {
+      if (!["gms", "gmsDark", "msmc", "horus", "ha", "ssc", "ipsn", "gal"].includes(v as string)) applyTheme("gms");
+      applyTheme(v as any);
+    },
   });
 
   game.settings.registerMenu(game.system.id, LANCER.setting_compcon_login, {
@@ -76,7 +108,7 @@ export const registerSettings = function () {
   game.settings.register(game.system.id, LANCER.setting_welcome, {
     name: "Hide Welcome Message",
     hint: "Hide the welcome message for the latest update to the Lancer system.",
-    scope: "user",
+    scope: "client",
     config: true,
     type: Boolean,
     default: false,
@@ -108,7 +140,7 @@ export const registerSettings = function () {
     scope: "world",
     config: false,
     type: Object,
-    default: {},
+    default: getAutomationOptions(true),
   });
 
   game.settings.register(game.system.id, LANCER.setting_actionTracker, {
@@ -138,7 +170,7 @@ export const registerSettings = function () {
       enemy_color: "#d98f30",
       done_color: "#444444",
     },
-    activations: "derived.mm.Activations",
+    activations: "system.activations",
   };
   game.settings.register(game.system.id, "combat-tracker-appearance", {
     scope: "world",
@@ -159,64 +191,8 @@ export const registerSettings = function () {
   });
   Hooks.callAll("LancerInitiativeInit");
   setAppearance(getTrackerAppearance());
-
-  /**
-   * TODO: Remove when automation setting migration no longer needed.
-   * @deprecated since 1.0.3
-   */
-  game.settings.register(game.system.id, LANCER.setting_automation_switch, {
-    scope: "world",
-    config: false,
-    type: Boolean,
-    default: true,
-  });
-
-  /**
-   * TODO: Remove when automation setting migration no longer needed.
-   * @deprecated since 1.0.3
-   */
-  game.settings.register(game.system.id, LANCER.setting_automation_attack, {
-    scope: "world",
-    config: false,
-    type: Boolean,
-    default: true,
-  });
-
-  /**
-   * TODO: Remove when automation setting migration no longer needed.
-   * @deprecated since 1.0.3
-   */
-  game.settings.register(game.system.id, LANCER.setting_auto_structure, {
-    scope: "world",
-    config: false,
-    type: Boolean,
-    default: true,
-  });
-
-  /**
-   * TODO: Remove when automation setting migration no longer needed.
-   * @deprecated since 1.0.3
-   */
-  game.settings.register(game.system.id, LANCER.setting_pilot_oc_heat, {
-    scope: "world",
-    config: false,
-    type: Boolean,
-    default: true,
-  });
-
-  /**
-   * TODO: Remove when automation setting migration no longer needed.
-   * @deprecated since 1.0.3
-   */
-  game.settings.register(game.system.id, LANCER.setting_overkill_heat, {
-    scope: "world",
-    config: false,
-    type: Boolean,
-    default: true,
-  });
 };
 
-//
 // > GENERAL AUTOMATION
 /**
  * Retrieve the automation settings for the system. If automation is turned
@@ -232,14 +208,16 @@ export function getAutomationOptions(useDefault = false): AutomationOptions {
     overcharge_heat: true,
     attack_self_heat: true,
     limited_loading: true,
+    npc_recharge: true,
     remove_templates: false,
+    token_size: true,
   };
   if (useDefault) return def;
-  const set = game.settings.get(game.system.id, LANCER.setting_automation);
-  if (set.enabled ?? true) {
+  const settings = (game.settings.get(game.system.id, LANCER.setting_automation) as Record<string, boolean>) ?? {};
+  if (settings == null || (typeof settings == "object" && (settings.enabled ?? true))) {
     return {
       ...def,
-      ...set,
+      ...settings,
     };
   } else {
     // Return all falses if automation is off
@@ -250,7 +228,9 @@ export function getAutomationOptions(useDefault = false): AutomationOptions {
       overcharge_heat: false,
       attack_self_heat: false,
       limited_loading: false,
+      npc_recharge: false,
       remove_templates: false,
+      token_size: false,
     };
   }
 }
@@ -293,10 +273,20 @@ export interface AutomationOptions {
    */
   limited_loading: boolean;
   /**
+   * Automatically recharge NPC systems at the start of their turn
+   * @defaultValue `true`
+   */
+  npc_recharge: boolean;
+  /**
    * Remove measured templates created by attacks when the turn changes
    * @defaultValue `false`
    */
   remove_templates: boolean;
+  /**
+   * Automatically manage token sizes based on the actor
+   * @defaultValue `true`
+   */
+  token_size: boolean;
 }
 
 //

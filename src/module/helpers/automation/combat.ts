@@ -1,8 +1,7 @@
-import { LancerCombat } from "lancer-initiative";
-import { modAction } from "../../action/actionTracker";
+import { LancerCombat } from "../../combat/lancer-combat";
+import { modAction } from "../../action/action-tracker";
 import { LancerActor } from "../../actor/lancer-actor";
-import { prepareChargeMacro } from "../../macros";
-import { prepareActionTrackMacro } from "../../macros/action-track";
+import { ActionTrackFlow } from "../../flows/action-track";
 import { getActionTrackerOptions, getAutomationOptions } from "../../settings";
 
 export async function handleCombatUpdate(...[combat, changed]: Parameters<Hooks.UpdateDocument<typeof Combat>>) {
@@ -15,14 +14,14 @@ export async function handleCombatUpdate(...[combat, changed]: Parameters<Hooks.
       const nextActor = lookup(combat, (combat.current as any).combatantId);
       const prevActor = lookup(combat, (combat.previous as any).combatantId);
 
-      // Handle refreshing for next combatant.
-      if (nextActor) {
-        processStartTurn(nextActor);
-      }
-
       // Handle end-of-turn for previous combatant.
       if (prevActor) {
         processEndTurn(prevActor);
+      }
+
+      // Handle refreshing for next combatant.
+      if (nextActor) {
+        processStartTurn(nextActor);
       }
     }
   }
@@ -31,8 +30,13 @@ export async function handleCombatUpdate(...[combat, changed]: Parameters<Hooks.
 function processStartTurn(actor: LancerActor) {
   console.log(`Processing start-of-turn combat automation for ${actor.name}`);
 
-  // Handle NPC charges.
-  prepareChargeMacro(actor);
+  const automation = getAutomationOptions();
+
+  // Handle NPC feature recharge
+  // @ts-expect-error v10 types
+  if (automation.enabled && automation.npc_recharge && actor.is_npc() && game.users?.activeGM?.isSelf) {
+    actor.beginRechargeFlow();
+  }
 
   // Refresh actions.
   modAction(actor, false);
@@ -42,7 +46,7 @@ function processStartTurn(actor: LancerActor) {
 
   // Print chat messages.
   if (getActionTrackerOptions().printMessages) {
-    prepareActionTrackMacro(actor.id!, true);
+    new ActionTrackFlow(actor, { start: true }).begin();
   }
 }
 
@@ -54,7 +58,7 @@ function processEndTurn(actor: LancerActor) {
 
   // Print chat messages.
   if (getActionTrackerOptions().printMessages) {
-    prepareActionTrackMacro(actor.id!, false);
+    new ActionTrackFlow(actor, { start: false }).begin();
   }
 }
 

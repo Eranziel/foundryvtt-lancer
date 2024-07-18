@@ -24,8 +24,8 @@
      inkscape:deskcolor="#d1d1d1"
      showgrid="false"
      inkscape:zoom="1.6191406"
-     inkscape:cx="256.30881"
-     inkscape:cy="256.30881"
+     inkscape:cx="236.85404"
+     inkscape:cy="256.92642"
      inkscape:window-width="1920"
      inkscape:window-height="1009"
      inkscape:window-x="-8"
@@ -33,12 +33,12 @@
      inkscape:window-maximized="1"
      inkscape:current-layer="svg16" />
   <g
-     transform="matrix(1 0 0 -1 0 960)"
+     transform="matrix(1,0,0,-1,0,913)"
      id="g14"
      style="fill:#ffffff">
     <path
        fill="currentColor"
-       d="M512 823l-137 -136l137 -137l137 137zM239 550v-239q77 -25 136.5 -25t136.5 -77q77 77 136.5 77t136.5 25v239q-77 -25 -136.5 -25.5t-136.5 -76.5q-77 77 -136.5 77t-136.5 25v0zM171 482v-273l273 -68v-34h136v34l273 68v273l-34 -8v-231l-273 -68v-26l-34 -8l-34 8 v26l-273 68v231z"
+       d="M 512,823 375,687 512,550 649,687 Z M 239,550 V 311 q 77,-25 136.5,-25 59.5,0 136.5,-77 77,77 136.5,77 59.5,0 136.5,25 V 550 Q 708,525 648.5,524.5 589,524 512,448 435,525 375.5,525 316,525 239,550 Z M 171,482 V 209 l 273,-68 v -34 h 136 v 34 l 273,68 v 273 l -34,-8 V 243 L 546,175 v -26 l -34,-8 -34,8 v 26 l -273,68 v 231 z"
        id="path12"
        style="fill:#ffffff" />
   </g>

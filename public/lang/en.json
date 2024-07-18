@@ -1,4 +1,32 @@
 {
+  "TYPES": {
+    "Actor": {
+      "deployable": "Deployable",
+      "mech": "Mech",
+      "npc": "NPC",
+      "pilot": "Pilot"
+    },
+    "Item": {
+      "bond": "Bond",
+      "core_bonus": "Core Bonus",
+      "frame": "Frame",
+      "license": "License",
+      "mech_system": "Mech System",
+      "mech_weapon": "Mech Weapon",
+      "npc_class": "NPC Class",
+      "npc_feature": "NPC Feature",
+      "npc_template": "NPC Template",
+      "organization": "Organization",
+      "pilot_armor": "Pilot Armor",
+      "pilot_gear": "Pilot Gear",
+      "pilot_weapon": "Pilot Weapon",
+      "reserve": "Reserve",
+      "skill": "Skill",
+      "status": "Status/Condition",
+      "talent": "Talent",
+      "weapon_mod": "Weapon Mod"
+    }
+  },
   "lancer": {
     "placeholder": {
       "name": "Name"
@@ -19,7 +47,8 @@
       "tabs": {
         "stats": "<MECH//STATS>",
         "loadout": "<MECH//LOADOUT>",
-        "talents": "<PILOT//TALENTS>"
+        "talents": "<PILOT//TALENTS>",
+        "effects": "<EFFECTS//ACTIVE>"
       },
       "core": {
         "label": "CORE"
@@ -31,7 +60,8 @@
         "label": "MACROS"
       },
       "system": {
-        "label": "LOADOUT [SP: {total} / {max} ]"
+        "label": "LOADOUT",
+        "sp-used": "SP USED"
       }
     },
     "npc-sheet": {
@@ -84,6 +114,11 @@
         "cs": "CALLSIGN",
         "name": "NAME"
       },
+      "narrative": {
+        "bond": "BOND OF {bondName}",
+        "burdens": "BURDENS",
+        "clocks": "CLOCKS"
+      },
       "tactical": {
         "armor": "ARMOR",
         "weapons": "WEAPONS",
@@ -102,6 +137,7 @@
         "attack": "// ATTACK //",
         "damage": "// DAMAGE //",
         "crit-damage": "// CRIT DAMAGE //",
+        "self-heat": "// SELF HEAT //",
         "defense-hit": "// HIT VS {defense}",
         "e-defense-hit": "// HIT VS E-DEF",
         "effect": "// EFFECT //",
@@ -109,11 +145,16 @@
         "on-hit": "// ON HIT //",
         "on-crit": "// ON CRIT //",
         "charge-roll": "// CHARGE ROLL //",
-        "changes": "// CHANGES //",
+        "recharged": "// RECHARGED //",
         "structure": "// STRUCTURE DAMAGE //",
         "overheating": "// OVERHEATING //",
+        "cascade": "// CASCADE //",
         "check": "// CHECK :: {check} //",
-        "system": "// SYSTEM :: {system} //"
+        "system": "// SYSTEM :: {title} //",
+        "mod": "// MOD :: {title} //",
+        "trait": "// TRAIT :: {title} //",
+        "tech": "// TECH :: {title} //",
+        "reaction": "// REACTION :: {title} //"
       },
       "label": {
         "trigger": "TRIGGER",
@@ -132,6 +173,18 @@
         "uncharged": "{target} + :: UNCHARGED"
       },
       "remaining": "{total} / {max} REMAINING"
+    },
+    "uiTheme": {
+      "name": "UI Theme",
+      "hint": "Colour scheme for the UI, echoing Comp/Con's themes.",
+      "gms": "GMS Red (default)",
+      "gmsDark": "GMS Dark",
+      "msmc": "MSMC Solarized",
+      "horus": "HORUS Terminal",
+      "ha": "Harrison Armory Ras Shamra",
+      "ssc": "SSC Constellar Congress",
+      "ipsn": "IPS-N Carina",
+      "gal": "FORECAST/GALSIM"
     },
     "statusIconsConfig": {
       "menu-name": "Status Icons",
@@ -154,14 +207,108 @@
       "tommyConditionsStatus": "Tommy's Condition & Status",
       "tommyConditionsStatus-desc": "Enable Tommy's icon set for conditions & status"
     },
+    "statusIconsNames": {
+      "abjure": "Abjure",
+      "aceso": "Aceso",
+      "blind": "Blind",
+      "bolster": "Bolster",
+      "burn": "Burn",
+      "camus_razor": "Camus' Razor",
+      "chain": "Chain",
+      "chains_of_prometheus": "Chains of Prometheus",
+      "clamp_bomb": "Clamp Bomb",
+      "commander": "Commander",
+      "dangerzone": "Danger Zone",
+      "dimensional_shackles": "Dimensional Shackles",
+      "dispersal_shield_1": "Dispersal Shield 1",
+      "dispersal_shield_2": "Dispersal Shield 2",
+      "dispersal_shield_3": "Dispersal Shield 3",
+      "dominions_breadth": "Dominion's Breadth",
+      "downandout": "Down and Out",
+      "duat_gate": "Duat Gate",
+      "echo_edge": "Echo Edge",
+      "elite": "Elite",
+      "engaged": "Engaged",
+      "excommunicate": "Excommunicate",
+      "exotic": "Exotic",
+      "exposed": "Exposed",
+      "fade_cloak": "Fade Cloak",
+      "flaw_minus": "FLAW_minus",
+      "flaw_plus": "FLAW_plus",
+      "flying": "Flying",
+      "focus_down": "Focus Down",
+      "follower_count": "Follower Count",
+      "grappled": "Grappled",
+      "gravity": "Gravity",
+      "grind_maniple": "Grind Maniple",
+      "grunt": "Grunt",
+      "haste": "Haste",
+      "hidden": "Hidden",
+      "hiddeninvis": "Hidden and Invisible",
+      "hunter_lock": "Hunter Lock",
+      "hyperdense_armor": "Hyperdense Armor",
+      "illusionary_subroutines": "Illusionary Subroutines",
+      "immobilized": "Immobilized",
+      "impaired": "Impaired",
+      "imperial_eye": "Imperial Eye",
+      "intangible": "Intangible",
+      "investiture": "Investiture",
+      "invisible": "Invisible",
+      "jammed": "Jammed",
+      "kraul_grapple": "Kraul Grapple",
+      "latch_drone": "Latch Drone",
+      "lockon": "Lock On",
+      "marked": "Marked",
+      "mercenary": "Mercenary",
+      "metahook": "Metahook",
+      "molten_puncture": "Molten Puncture",
+      "npc_tier_1": "Tier 1",
+      "npc_tier_2": "Tier 2",
+      "npc_tier_3": "Tier 3",
+      "overshield": "Overshield",
+      "pain_transference": "Pain Transference",
+      "petrify": "Petrify",
+      "pirate": "Pirate",
+      "prone": "Prone",
+      "reactor_meltdown": "Reactor Meltdown",
+      "retort_loop": "Retort Loop",
+      "rpv": "RPV",
+      "sanctuary": "Sanctuary",
+      "shahnameh": "Shahnameh",
+      "ship": "Ship",
+      "shredded": "Shredded",
+      "shutdown": "Shut Down",
+      "slow": "Slowed",
+      "spacer": "Spacer",
+      "spike": "Spike",
+      "stasis": "Stasis",
+      "stunned": "Stunned",
+      "supercharger": "Supercharger",
+      "sympathetic_shield": "Sympathetic_shield",
+      "tachyon_shield": "Tachyon Shield",
+      "tear_down": "Tear Down",
+      "terrify": "Terrify",
+      "tiercust": "Custom Tier",
+      "tracking_bug": "Tracking Bug",
+      "trueblack": "Trueblack Aegis",
+      "ultra": "Ultra",
+      "unravel": "Unravel",
+      "vehicle": "Vehicle",
+      "veteran": "Veteran",
+      "viral_logic": "Viral Logic",
+      "walk_of_kings": "Walk of Kings",
+      "warp_sensors": "Warp Sensors"
+    },
     "automation": {
       "menu-name": "Automation",
       "menu-label": "System Automation Settings",
       "menu-hint": "Set up what system automation options are enabled, or turn them all off",
       "master-switch": "Enabled",
       "master-switch-desc": "Turn this off to do everything manually",
-      "attacks": "Attack rolls",
-      "attacks-desc": "Toggle for whether or not you want the system to auto-calculate hits, damage, and other attack related checks.",
+      "attacks": "Attack roll evaluation",
+      "attacks-desc": "Toggle for whether or not you want the system to auto-calculate hits and other attack related automation.",
+      "damage": "Damage application",
+      "damage-desc": "Toggle for whether or not you want the system to apply rolled damage to targets.",
       "structure": "Structure/Stress",
       "structure-desc": "Automatically prompt for a structure or stress roll when a mech reaches 0 hp or exceeds its heat cap.",
       "overcharge_heat": "Apply Overcharge Heat",
@@ -171,7 +318,11 @@
       "remove_templates": "Remove Templates Each Turn",
       "remove_templates-desc": "When the turn changes, should measured templates from attacks be cleared?",
       "limited_loading": "Manage Limited/Loading",
-      "limited_loading-desc": "When items are used, should their limited and loading status be automatically managed and tracked?"
+      "limited_loading-desc": "When items are used, should their limited and loading status be automatically managed and tracked?",
+      "npc_recharge": "NPC Recharge",
+      "npc_recharge-desc": "Automatically roll to recharge NPC systems at the start of their turn.",
+      "token_size": "Manage Token Sizes",
+      "token_size-desc": "Automatically force tokens sizes to match the associated actor's size stat."
     },
     "actionTracker": {
       "menu-name": "Action Tracker",
@@ -198,6 +349,31 @@
       "121": "1-2-1: Diagonal moves alternate cost from 1 to 2",
       "222": "2-2-2: Manhattan distance. Diagonals cost 2",
       "euc": "Euclidean: Euclidian distance rounded"
+    },
+    "effect": {
+      "categories": {
+        "passive": "Passive",
+        "passthrough": "Passthrough",
+        "disabled": "Disabled",
+        "inherited": "Inherited"
+      }
+    },
+    "compendium": {
+      "core_macros": "LANCER Macros",
+      "lancer_info": "LANCER Info",
+      "deployable": "Deployables",
+      "mech-items": "Mech Items",
+      "npc-actors": "Premade NPCs",
+      "npc-items": "NPC Items",
+      "pilot-items": "Pilot Items",
+      "player-actors": "Premade Player Actors",
+      "status-items": "Status/Condition"
+    },
+    "tokenConfig": {
+      "manual_token_size": {
+        "label": "Manual Token Sizing",
+        "hint": "Bypass system automation for determining token size"
+      }
     }
   },
   "LANCERINITIATIVE": {

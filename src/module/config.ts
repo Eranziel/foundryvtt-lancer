@@ -1,7 +1,7 @@
 // Namespace configuration Values
 
-import { EntryType, NpcFeatureType } from "machine-mind";
 import type { LancerActorType } from "./actor/lancer-actor";
+import { EntryType, NpcFeatureType } from "./enums";
 import type { LancerItemType } from "./item/lancer-item";
 
 const ASCII = `
@@ -11,27 +11,6 @@ const ASCII = `
 ┃┃╱╭┫╰━╯┃┃╰╮┃┃┃╱╭┫╭━━┫╭╮╭╯ 
 ┃╰━╯┃╭━╮┃┃╱┃┃┃╰━╯┃╰━━┫┃┃╰╮ 
 ╰━━━┻╯╱╰┻╯╱╰━┻━━━┻━━━┻╯╰━╯`;
-
-let ET = EntryType;
-// These are general categories that items fall under, useful for the purpose of knowing when moving that item is allowed
-const mech_items: LancerItemType[] = [ET.WEAPON_MOD, ET.FRAME, ET.MECH_WEAPON, ET.MECH_SYSTEM];
-const pilot_items: LancerItemType[] = [
-  ET.SKILL,
-  ET.TALENT,
-  ET.CORE_BONUS,
-  ET.LICENSE,
-  ET.PILOT_ARMOR,
-  ET.PILOT_WEAPON,
-  ET.PILOT_GEAR,
-  ET.FACTION,
-  ET.QUIRK,
-  ET.RESERVE,
-  ET.ORGANIZATION,
-];
-const npc_items: LancerItemType[] = [ET.NPC_CLASS, ET.NPC_FEATURE, ET.NPC_TEMPLATE];
-const weapon_items: LancerItemType[] = [ET.MECH_WEAPON, ET.PILOT_WEAPON, ET.NPC_FEATURE];
-
-export type LancerDocumentType = LancerItemType | LancerActorType;
 
 export function WELCOME(changelog: string): string {
   return `<div style="margin: 10px 5px">
@@ -71,48 +50,37 @@ export function WELCOME(changelog: string): string {
   `;
 }
 
-// Modify these constants to set which Lancer version numbers need and permit migration.
-export const NEEDS_MAJOR_MIGRATION_VERSION = "0.9.0";
-export const NEEDS_MINOR_MIGRATION_VERSION = "0.9.99";
-export const COMPATIBLE_MIGRATION_VERSION = "0.1.0";
-export const NEEDS_AUTOMATION_MIGRATION_VERSION = "1.0.3";
-
 export const LANCER = {
   ASCII,
   log_prefix: "LANCER |" as const,
-  setting_migration: "systemMigrationVersion" as const,
+  setting_migration_version: "systemMigrationVersion" as const,
   setting_core_data: "coreDataVersion" as const,
   setting_lcps: "installedLCPs" as const,
   setting_stock_icons: "keepStockIcons" as const,
   setting_welcome: "hideWelcome" as const,
+  setting_ui_theme: "uiTheme" as const,
   setting_compcon_login: "compconLogin" as const,
   setting_status_icons: "statusIconConfig" as const,
   setting_automation: "automationOptions" as const,
   setting_automation_switch: "automationSwitch" as const,
-  setting_automation_attack: "attackSwitch" as const,
+  setting_automation_attack: "attackSwitch" as const, // Deprecated
   setting_actionTracker: "actionTracker" as const,
   setting_pilot_oc_heat: "autoOCHeat" as const,
   setting_overkill_heat: "autoOKillHeat" as const,
   setting_auto_structure: "autoCalcStructure" as const,
   setting_dsn_setup: "dsnSetup" as const,
   setting_square_grid_diagonals: "squareGridDiagonals" as const,
+  setting_tag_config: "tagConfig" as const,
   // setting_120: "warningFor120" as const, // Old setting, currently unused.
   // setting_beta_warning: "warningForBeta" as const, // Old setting, currently unused.
-  mech_items,
-  pilot_items,
-  weapon_items,
-  npc_items,
 };
 
 // Convenience for mapping item/actor types to full names
 const FRIENDLY_DOCUMENT_NAMES_SINGULAR = {
   [EntryType.CORE_BONUS]: "Core Bonus",
   [EntryType.DEPLOYABLE]: "Deployable",
-  [EntryType.ENVIRONMENT]: "Environment",
-  [EntryType.FACTION]: "Faction",
   [EntryType.FRAME]: "Frame",
   [EntryType.LICENSE]: "License",
-  [EntryType.MANUFACTURER]: "Manufacturer",
   [EntryType.MECH]: "Mech",
   [EntryType.MECH_SYSTEM]: "Mech System",
   [EntryType.MECH_WEAPON]: "Mech Weapon",
@@ -125,23 +93,18 @@ const FRIENDLY_DOCUMENT_NAMES_SINGULAR = {
   [EntryType.PILOT_ARMOR]: "Pilot Armor",
   [EntryType.PILOT_GEAR]: "Pilot Gear",
   [EntryType.PILOT_WEAPON]: "Pilot Weapon",
-  [EntryType.QUIRK]: "Quirk",
   [EntryType.RESERVE]: "Reserve",
-  [EntryType.SITREP]: "Sitrep",
   [EntryType.SKILL]: "Skill",
   [EntryType.STATUS]: "Status/Condition",
-  [EntryType.TAG]: "Tag",
   [EntryType.TALENT]: "Talent",
+  [EntryType.BOND]: "Bond",
   [EntryType.WEAPON_MOD]: "Weapon Mod",
 };
 const FRIENDLY_DOCUMENT_NAMES_PLURAL = {
   [EntryType.CORE_BONUS]: "Core Bonuses",
   [EntryType.DEPLOYABLE]: "Deployables",
-  [EntryType.ENVIRONMENT]: "Environments",
-  [EntryType.FACTION]: "Factions",
   [EntryType.FRAME]: "Frames",
   [EntryType.LICENSE]: "Licenses",
-  [EntryType.MANUFACTURER]: "Manufacturers",
   [EntryType.MECH]: "Mechs",
   [EntryType.MECH_SYSTEM]: "Mech Systems",
   [EntryType.MECH_WEAPON]: "Mech Weapons",
@@ -154,13 +117,11 @@ const FRIENDLY_DOCUMENT_NAMES_PLURAL = {
   [EntryType.PILOT_ARMOR]: "Pilot Armor",
   [EntryType.PILOT_GEAR]: "Pilot Gear",
   [EntryType.PILOT_WEAPON]: "Pilot Weapons",
-  [EntryType.QUIRK]: "Quirks",
   [EntryType.RESERVE]: "Reserves",
-  [EntryType.SITREP]: "Sitreps",
   [EntryType.SKILL]: "Skills",
   [EntryType.STATUS]: "Statuses / Conditions",
-  [EntryType.TAG]: "Tags",
   [EntryType.TALENT]: "Talents",
+  [EntryType.BOND]: "Bonds",
   [EntryType.WEAPON_MOD]: "Weapon Mods",
 };
 
@@ -178,11 +139,8 @@ export const GENERIC_ITEM_ICON = "systems/lancer/assets/icons/generic_item.svg";
 const DOCUMENT_ICONS = {
   [EntryType.CORE_BONUS]: `systems/lancer/assets/icons/core_bonus.svg`,
   [EntryType.DEPLOYABLE]: `systems/lancer/assets/icons/deployable.svg`,
-  [EntryType.ENVIRONMENT]: `systems/lancer/assets/icons/orbit.svg`,
-  [EntryType.FACTION]: `systems/lancer/assets/icons/encounter.svg`,
   [EntryType.FRAME]: `systems/lancer/assets/icons/mech.svg`,
   [EntryType.LICENSE]: `systems/lancer/assets/icons/license.svg`,
-  [EntryType.MANUFACTURER]: `systems/lancer/assets/icons/manufacturer.svg`,
   [EntryType.MECH]: `systems/lancer/assets/icons/mech.svg`,
   [EntryType.MECH_SYSTEM]: `systems/lancer/assets/icons/mech_system.svg`,
   [EntryType.MECH_WEAPON]: `systems/lancer/assets/icons/mech_weapon.svg`,
@@ -200,12 +158,9 @@ const DOCUMENT_ICONS = {
   [EntryType.PILOT_ARMOR]: `systems/lancer/assets/icons/role_tank.svg`,
   [EntryType.PILOT_GEAR]: `systems/lancer/assets/icons/generic_item.svg`,
   [EntryType.PILOT_WEAPON]: `systems/lancer/assets/icons/role_artillery.svg`,
-  [EntryType.QUIRK]: `systems/lancer/assets/icons/trait.svg`,
   [EntryType.RESERVE]: `systems/lancer/assets/icons/reserve_tac.svg`,
-  [EntryType.SITREP]: `systems/lancer/assets/icons/compendium.svg`,
   [EntryType.SKILL]: `systems/lancer/assets/icons/skill.svg`,
   [EntryType.STATUS]: `systems/lancer/assets/icons/reticule.svg`,
-  [EntryType.TAG]: `systems/lancer/assets/icons/tag.svg`,
   [EntryType.TALENT]: `systems/lancer/assets/icons/talent.svg`,
   [EntryType.WEAPON_MOD]: `systems/lancer/assets/icons/weapon_mod.svg`,
   generic: GENERIC_ITEM_ICON,
@@ -218,15 +173,21 @@ export function TypeIcon(type: string, macro?: boolean): string {
 }
 
 // A substitution method that replaces the first argument IFF it is an img that we don't think should be preserved, and if the trimmed replacement string is truthy
-export function replace_default_resource(current: string, replacement: string | null): string {
-  // If no replacement, then obviously keep initial
-  if (!replacement?.trim()) {
-    return current;
-  }
-
-  // If empty or from system path or mystery man, replace
+export function replaceDefaultResource(
+  current: string | null | undefined,
+  ...replacements: Array<string | null>
+): string {
   if (!current?.trim() || current.includes("systems/lancer") || current == "icons/svg/mystery-man.svg") {
-    return replacement;
+    for (let replacement of replacements) {
+      // If no replacement, skip
+      if (!replacement?.trim()) {
+        continue;
+      }
+
+      // If empty or from system path or mystery man, replace
+      return replacement;
+    }
+    return current || ""; // We've got nothing
   }
 
   // Otherwise keep as is

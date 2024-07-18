@@ -43,12 +43,79 @@ function build() {
   return cp.spawn("npx", ["vite", "build"], { stdio: "inherit", shell: true });
 }
 
+async function rebuild_pack(name) {
+  console.log(chalk.green(`Rebuilding ${chalk.blueBright(name)}`));
+  const packPath = path.resolve(".", "dist", "packs", name);
+  if (await fs.exists(packPath)) {
+    await fs.remove(packPath);
+  }
+  await fs.ensureDir(packPath);
+  cp.spawnSync(
+    "npx",
+    [
+      "fvtt",
+      "package",
+      "pack",
+      "--type",
+      "System",
+      "--id",
+      "lancer",
+      "-n",
+      name,
+      "--in",
+      `./src/packs/${name}`,
+      "--out",
+      "./dist/packs/",
+      "--yaml",
+    ],
+    { stdio: "inherit", shell: true }
+  );
+  return Promise.resolve();
+}
+
+async function export_pack(name) {
+  console.log(chalk.green(`Extracting ${chalk.blueBright(name)}`));
+  // TODO: specifying output directory doesn't seem to work?
+  cp.spawnSync("npx", ["fvtt", "package", "unpack", "--type", "System", "--id", "lancer", "-n", name, "--yaml"], {
+    stdio: "inherit",
+    shell: true,
+  });
+  return Promise.resolve();
+}
+
+async function configure_fvtt_cli() {
+  const config = await fs.readJSON("foundryconfig.json");
+  if (config.dataPath === "/path/to/foundry/data") {
+    throw Error("Please configure foundryconfig.json to point to your Foundry data directory");
+  }
+  console.log(
+    chalk.green(`Configuring foundryvtt-cli to use ${chalk.blueBright(config.dataPath)} as Foundry data directory`)
+  );
+  cp.spawnSync("npx", ["fvtt", "configure", "set", "dataPath", config.dataPath], {
+    stdio: "inherit",
+    shell: true,
+  });
+  return Promise.resolve();
+}
+
+async function build_packs() {
+  await rebuild_pack("core_macros");
+  await rebuild_pack("lancer_info");
+  return Promise.resolve();
+}
+
+async function export_packs() {
+  await export_pack("core_macros");
+  await export_pack("lancer_info");
+  return Promise.resolve();
+}
+
 function _distWatcher() {
   const publicDirPath = path.resolve(process.cwd(), "public");
   const watcher = gulp.watch(["public/**/*.hbs"], { ignoreInitial: false });
-  watcher.on('change', async function(file, stats) {
+  watcher.on("change", async function (file, stats) {
     console.log(`File ${file} was changed`);
-    const partial_file = path.relative(publicDirPath, file)
+    const partial_file = path.relative(publicDirPath, file);
     await fs.copy(path.join("public", partial_file), path.join("dist", partial_file));
   });
 }
@@ -77,8 +144,10 @@ function serve() {
  * Link build to User Data folder
  */
 async function linkUserData() {
-  const name = path.basename(path.resolve("."));
   const config = fs.readJSONSync("foundryconfig.json");
+  if (config.dataPath === "/path/to/foundry/data") {
+    throw Error("Please configure foundryconfig.json to point to your Foundry data directory");
+  }
 
   let destDir;
   try {
@@ -114,6 +183,7 @@ async function linkUserData() {
       console.log(chalk.green(`Copying build to ${chalk.blueBright(linkDir)}`));
       await fs.symlink(path.resolve("./dist"), linkDir, "junction");
     }
+    await configure_fvtt_cli();
     return Promise.resolve();
   } catch (err) {
     Promise.reject(err);
@@ -198,7 +268,7 @@ function updateManifest(cb) {
 
     /* Update version */
 
-    const versionMatch = /^(\d{1,}).(\d{1,}).(\d{1,})$/;
+    const versionMatch = /^(\d{1,}).(\d{1,}).(\d{1,})(-[a-zA-Z0-9]{0,})?$/;
     const currentVersion = manifest.file.version;
     let targetVersion = "";
 
@@ -252,7 +322,7 @@ function updateManifest(cb) {
 }
 
 function gitAdd() {
-  return gulp.src("package").pipe(git.add({ args: "--no-all" }));
+  return gulp.src(["./public/system.json", "./package.json"]).pipe(git.add({ args: "--no-all" }));
 }
 
 function gitCommit() {
@@ -274,6 +344,8 @@ function gitTag() {
 const execGit = gulp.series(gitAdd, gitCommit, gitTag);
 
 exports.build = build;
+exports.build_packs = build_packs;
+exports.export_packs = export_packs;
 exports.watch = watch;
 exports.serve = serve;
 exports.link = linkUserData;

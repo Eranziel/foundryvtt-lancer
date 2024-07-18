@@ -1,50 +1,33 @@
 import { LANCER } from "../config";
+import { handleGenControls, handlePopoutTextEditor } from "../helpers/commons";
+import { handleDocDropping, LancerFlowDropData, ResolvedDropData } from "../helpers/dragdrop";
+import { handleCounterInteraction, handleInputPlusMinusButtons, handlePowerUsesInteraction } from "../helpers/item";
 import {
-  HANDLER_activate_general_controls,
-  gentle_merge,
-  resolve_dotpath,
-  HANDLER_activate_popout_text_editor,
-} from "../helpers/commons";
-import { HANDLER_enable_mm_dropping, MMDragResolveCache } from "../helpers/dragdrop";
-import { HANDLER_activate_counter_listeners, HANDLER_activate_plus_minus_buttons } from "../helpers/item";
-import {
-  HANDLER_activate_ref_dragging,
-  HANDLER_activate_ref_drop_clearing,
-  HANDLER_activate_ref_drop_setting,
-  HANDLER_activate_ref_clicking,
-  HANDLER_activate_uses_editor,
+  handleRefDragging,
+  handleRefSlotDropping,
+  handleRefClickOpen,
+  handleUsesInteraction,
+  handleLoadedInteraction,
+  handleChargedInteraction,
 } from "../helpers/refs";
-import type { LancerActorSheetData, LancerMacroData, LancerStatMacroData } from "../interfaces";
-import type { AnyMMItem } from "../item/lancer-item";
-import { AnyMMActor, is_actor_type, LancerActor, LancerActorType } from "./lancer-actor";
-import { prepareActivationMacro, prepareChargeMacro, prepareItemMacro, runEncodedMacro } from "../macros";
-import {
-  EntryType,
-  LiveEntryTypes,
-  MechSystem,
-  MechWeapon,
-  NpcFeature,
-  OpCtx,
-  PilotGear,
-  PilotWeapon,
-  WeaponMod,
-  funcs,
-  Mech,
-  Counter,
-  RegEntry,
-} from "machine-mind";
-import { ActivationOptions } from "../enums";
-import { applyCollapseListeners, CollapseHandler } from "../helpers/collapse";
-import { HANDLER_intercept_form_changes } from "../helpers/refs";
+import type { LancerActorSheetData } from "../interfaces";
+import { LancerItem } from "../item/lancer-item";
+import { LancerActor, LancerActorType } from "./lancer-actor";
+import { applyCollapseListeners, CollapseHandler, initializeCollapses } from "../helpers/collapse";
 import { addExportButton } from "../helpers/io";
-import type { FoundryFlagData } from "../mm-util/foundry-reg";
-import { mm_owner } from "../mm-util/helpers";
 import type { ActionType } from "../action";
 import { InventoryDialog } from "../apps/inventory";
-import { HANDLER_activate_item_context_menus, HANDLER_activate_edit_counter } from "../helpers/item";
+import { handleContextMenus } from "../helpers/item";
 import { getActionTrackerOptions } from "../settings";
-import { modAction } from "../action/actionTracker";
+import { modAction } from "../action/action-tracker";
+import { insinuate } from "../util/doc";
 import { PrototypeTokenData } from "@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/data/data.mjs";
+import { LancerActiveEffect } from "../effects/lancer-active-effect";
+import { LancerFlowState } from "../flows/interfaces";
+import { lookupOwnedDeployables } from "../util/lid";
+import { beginItemChatFlow } from "../flows/item";
+import { DroppableFlowType } from "../helpers/dragdrop";
+import { attachTagTooltips } from "../helpers/tags";
 const lp = LANCER.log_prefix;
 
 /**
@@ -72,146 +55,225 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
   activateListeners(html: JQuery) {
     super.activateListeners(html);
 
+    // Add tooltips to tags
+    attachTagTooltips(html);
+
     // Enable collapse triggers.
-    this._activateCollapses(html);
+    initializeCollapses(html);
+    applyCollapseListeners(html);
 
     // Enable any action grid buttons.
     this._activateActionGridListeners(html);
 
     // Make generic refs clickable to open the item
-    $(html).find(".ref.valid.clickable-ref:not(.profile-img)").on("click", HANDLER_activate_ref_clicking);
+    handleRefClickOpen(html);
 
     // Enable ref dragging
-    HANDLER_activate_ref_dragging(html);
+    handleRefDragging(html);
 
     // Everything below here is only needed if the sheet is editable
     if (!this.options.editable) return;
 
     // All-actor macros
-    this._activateMacroListeners(html);
+    this._activateFlowListeners(html);
 
     // All-actor macro dragging
-    this._activateMacroDragging(html);
-
-    let getfunc = () => this.getDataLazy();
-    let commitfunc = (_: any) => this._commitCurrMM();
+    this._activateFlowDragging(html);
 
     // Make +/- buttons work
-    HANDLER_activate_plus_minus_buttons(html, getfunc, () => this.submit({}));
+    handleInputPlusMinusButtons(html, this.actor);
 
     // Make counter pips work
-    HANDLER_activate_counter_listeners(html, getfunc);
+    handleCounterInteraction(html, this.actor);
 
     // Enable hex use triggers.
-    HANDLER_activate_uses_editor(html, getfunc);
+    handleUsesInteraction(html, this.actor);
+
+    // Enable loading hex triggers.
+    handleLoadedInteraction(html, this.actor);
+
+    // Enable charged hex triggers.
+    handleChargedInteraction(html, this.actor);
+
+    // Enable power use triggers.
+    handlePowerUsesInteraction(html, this.actor);
 
     // Enable context menu triggers.
-    HANDLER_activate_item_context_menus(html, getfunc, commitfunc);
+    handleContextMenus(html, this.actor);
 
     // Enable viewing inventory on sheets that support it
     this._activateInventoryButton(html);
 
-    // Make our resolver
-    let ctx = this.getCtx();
-    let resolver = new MMDragResolveCache(ctx);
-
     // Make refs droppable, in such a way that we take ownership when dropped
-    HANDLER_activate_ref_drop_setting(
-      resolver,
-      html,
-      this.can_root_drop_entry,
-      async x => (await this.quick_own(x))[0],
-      getfunc,
-      commitfunc
-    );
-    HANDLER_activate_ref_drop_clearing(html, getfunc, commitfunc);
+    handleRefSlotDropping(html, this.actor, x => this.quickOwnDrop(x).then(v => v[0]));
 
     // Enable general controls, so items can be deleted and such
-    this.activate_general_controls(html);
-
-    // Item-referencing inputs
-    HANDLER_intercept_form_changes(html, getfunc);
+    handleGenControls(html, this.actor);
 
     // Enable popout editors
-    HANDLER_activate_popout_text_editor(html, getfunc, commitfunc);
-
-    HANDLER_activate_edit_counter(html, getfunc);
+    handlePopoutTextEditor(html, this.actor);
 
     // Add export button.
     addExportButton(this.object, html);
 
     // Add root dropping
-    HANDLER_enable_mm_dropping(
+    handleDocDropping(
       html,
-      resolver,
-      (entry, _dest, _event) => this.can_root_drop_entry(entry),
-      async (entry, _dest, _event) => this.on_root_drop(entry, _event, _dest),
-      () => {}
+      async (entry, _dest, _event) => this.onRootDrop(entry, _event, _dest),
+      (entry, _dest, _event) => this.canRootDrop(entry)
     );
   }
 
-  // So it can be overridden
-  activate_general_controls(html: JQuery) {
-    let getfunc = () => this.getDataLazy();
-    let commitfunc = (_: any) => this._commitCurrMM();
-    HANDLER_activate_general_controls(html, getfunc, commitfunc);
-  }
-
-  _activateMacroDragging(html: JQuery) {
-    const ActionMacroHandler = (e: DragEvent) => this._onDragActivationChipStart(e);
-    const EncodedMacroHandler = (e: DragEvent) => this._onDragEncodedMacroStart(e);
+  _activateFlowDragging(html: JQuery) {
+    const FlowDragHandler = (e: DragEvent) => this._onFlowButtonDragStart(e);
 
     html
-      .find('li[class*="item"]')
-      .add('span[class*="item"]')
-      .add('[class*="macroable"]')
-      .add('[class*="lancer-macro"]')
+      .find(".lancer-flow-button")
+      .add(".roll-stat")
+      .add(".roll-attack")
+      .add(".roll-tech")
+      .add(".chat-flow-button")
+      .add(".skill-flow")
+      .add(".bond-power-flow")
+      .add(".effect-flow")
+      .add(".activation-flow")
       .each((_i, item) => {
-        if (item.classList.contains("inventory-header")) return;
         item.setAttribute("draggable", "true");
-        if (item.classList.contains("lancer-macro")) {
-          item.addEventListener("dragstart", EncodedMacroHandler, false);
-          return;
-        }
-        if (item.classList.contains("activation-chip")) item.addEventListener("dragstart", ActionMacroHandler, false);
-        if (item.classList.contains("item"))
-          item.addEventListener(
-            "dragstart",
-            (ev: any) => {
-              this._onDragStart(ev);
-            },
-            false
-          );
+        item.addEventListener("dragstart", FlowDragHandler, false);
       });
   }
 
-  _onDragEncodedMacroStart(e: DragEvent) {
-    // For macros with encoded data
+  _onFlowButtonDragStart(e: DragEvent) {
+    if (!e.currentTarget) return; // No target, let other handlers take care of it.
     e.stopPropagation();
 
-    let encoded = (<HTMLElement>e.currentTarget).getAttribute("data-macro");
-
-    if (!encoded) throw Error("No macro data available");
-
-    let data = JSON.parse(decodeURI(window.atob(encoded)));
-    e.dataTransfer?.setData("text/plain", JSON.stringify(data));
-  }
-
-  _activateCollapses(html: JQuery) {
-    let prefix = `lancer-collapse-${this.object._id}-`;
-    let triggers = html.find(".collapse-trigger");
-    // Init according to session store.
-    triggers.each((_index, trigger) => {
-      let id = trigger.getAttribute("data-collapse-id");
-      if (id !== null && sessionStorage.getItem(prefix + id) !== null) {
-        let collapse = document.querySelector(`.collapse[data-collapse-id=${id}]`);
-        sessionStorage.getItem(prefix + id) === "opened"
-          ? collapse?.classList.remove("collapsed")
-          : collapse?.classList.add("collapsed");
+    // TODO: can we consolidate this with the flow listeners somehow??
+    // For now there's just going to be a lot of duplication.
+    const dragElement = $(e.currentTarget);
+    let data: LancerFlowDropData | null = null;
+    if (dragElement.hasClass("lancer-flow-button")) {
+      const flowElement = $(e.currentTarget).closest("[data-flow-type]")[0] as HTMLElement;
+      const flowType: DroppableFlowType = DroppableFlowType.BASIC;
+      const flowSubtype = flowElement.dataset.flowType;
+      const flowArgs = JSON.parse(flowElement.dataset.flowArgs ?? "{}");
+      if (flowSubtype) {
+        data = {
+          lancerType: this.actor.type,
+          uuid: this.actor.uuid,
+          flowType,
+          flowSubtype,
+          args: flowArgs,
+        };
       }
-    });
-
-    applyCollapseListeners();
+    } else if (dragElement.hasClass("roll-stat")) {
+      const el = $(e.currentTarget).closest("[data-uuid]")[0] as HTMLElement;
+      const statPath = el.dataset.path;
+      if (!statPath) throw Error("No stat path found!");
+      data = {
+        lancerType: this.actor.type,
+        uuid: this.actor.uuid,
+        flowType: DroppableFlowType.STAT,
+        args: { statPath },
+      };
+    } else if (dragElement.hasClass("roll-attack")) {
+      const weaponElement = $(e.currentTarget).closest("[data-uuid]")[0] as HTMLElement;
+      const weaponId = weaponElement.dataset.uuid;
+      if (!weaponId) throw Error("No weapon ID found!");
+      const weapon = LancerItem.fromUuidSync(weaponId, `Invalid weapon ID: ${weaponId}`);
+      data = {
+        lancerType: weapon.type,
+        uuid: weaponId,
+        flowType: DroppableFlowType.ATTACK,
+        args: {},
+      };
+    } else if (dragElement.hasClass("roll-tech")) {
+      const techElement = $(e.currentTarget).closest("[data-uuid]")[0] as HTMLElement;
+      const techId = techElement.dataset.uuid;
+      if (!techId) throw Error("No tech ID found!");
+      const techItem = LancerItem.fromUuidSync(techId, `Invalid tech ID: ${techId}`);
+      data = {
+        lancerType: techItem.type,
+        uuid: techId,
+        flowType: DroppableFlowType.TECH_ATTACK,
+        args: {},
+      };
+    } else if (dragElement.hasClass("chat-flow-button")) {
+      const el = $(e.currentTarget).closest("[data-uuid]")[0] as HTMLElement;
+      if (!el || !el.dataset.uuid) throw Error(`No item UUID found!`);
+      const item = LancerItem.fromUuidSync(el.dataset.uuid, `Invalid item ID: ${el.dataset.uuid}`);
+      data = {
+        lancerType: item.type,
+        uuid: el.dataset.uuid,
+        flowType: DroppableFlowType.CHAT,
+        args: { ...el.dataset },
+      };
+    } else if (dragElement.hasClass("skill-flow")) {
+      const el = $(e.currentTarget).closest("[data-uuid]")[0] as HTMLElement;
+      const skillId = el.dataset.uuid;
+      if (!skillId) throw Error("No skill ID found!");
+      const skill = LancerItem.fromUuidSync(skillId, `Invalid skill ID: ${skillId}`);
+      data = {
+        lancerType: skill.type,
+        uuid: skillId,
+        flowType: DroppableFlowType.SKILL,
+        args: { skillId },
+      };
+    } else if (dragElement.hasClass("bond-power-flow")) {
+      const powerElement = $(e.currentTarget).closest("[data-uuid]")[0] as HTMLElement;
+      const bondId = powerElement.dataset.uuid;
+      if (!bondId) throw Error("No bond ID found!");
+      const bond = LancerItem.fromUuidSync(bondId, `Invalid bond ID: ${bondId}`);
+      const powerIndex = parseInt(powerElement.dataset.powerIndex ?? "-1");
+      data = {
+        lancerType: bond.type,
+        uuid: bondId,
+        flowType: DroppableFlowType.BOND_POWER,
+        args: { powerIndex },
+      };
+    } else if (dragElement.hasClass("effect-flow")) {
+      const el = $(e.currentTarget).closest("[data-uuid]")[0] as HTMLElement;
+      const itemId = el.dataset.uuid;
+      if (!itemId) throw Error("No item ID found!");
+      const item = LancerItem.fromUuidSync(itemId, `Invalid item ID: ${itemId}`);
+      data = {
+        lancerType: item.type,
+        uuid: itemId,
+        flowType: DroppableFlowType.EFFECT,
+        args: {},
+      };
+    } else if (dragElement.hasClass("activation-flow")) {
+      const el = $(e.currentTarget).closest("[data-uuid]")[0] as HTMLElement;
+      const itemId = el.dataset.uuid;
+      const path = el.dataset.path;
+      if (!itemId || !path) throw Error("No item ID from activation chip");
+      let isDeployable = path.includes("deployable");
+      let isAction = !isDeployable && path.includes("action");
+      let isCoreSystem = !isDeployable && path.includes("core_system");
+      const item = LancerItem.fromUuidSync(itemId, `Invalid item ID: ${itemId}`);
+      if (isAction) {
+        data = {
+          lancerType: item.type,
+          uuid: itemId,
+          flowType: DroppableFlowType.ACTIVATION,
+          args: { path },
+        };
+      } else if (isCoreSystem) {
+        data = {
+          lancerType: item.type,
+          uuid: itemId,
+          flowType: DroppableFlowType.CORE_ACTIVE,
+          args: { path },
+        };
+      } else if (isDeployable) {
+        // TODO - deployable actions
+      } else {
+        ui.notifications!.error("Could not infer action type");
+        throw Error("Could not infer action type");
+      }
+    }
+    if (!data) return;
+    e.dataTransfer?.setData("text/plain", JSON.stringify(data));
+    console.log("Flow drag data:", data, e.dataTransfer?.getData("text/plain"));
   }
 
   async _activateActionGridListeners(html: JQuery) {
@@ -222,7 +284,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
       if (game.user?.isGM || getActionTrackerOptions().allowPlayers) {
         const params = ev.currentTarget.dataset;
         const action = params.action as ActionType | undefined;
-        const data = await this.getDataLazy();
+        const data = await this.getData();
         if (action && params.val) {
           let spend: boolean;
           if (params.action === "move") {
@@ -238,75 +300,165 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
     });
   }
 
-  _activateMacroListeners(html: JQuery) {
-    // Encoded macros
-    let encMacros = html.find(".lancer-macro");
-    encMacros.on("click", ev => {
-      ev.stopPropagation(); // Avoids triggering parent event handlers
-      runEncodedMacro(ev.currentTarget);
+  _activateFlowListeners(html: JQuery) {
+    // Basic flow buttons
+    let actorFlows = html.find(".lancer-flow-button");
+    actorFlows.on("click", ev => {
+      if (!ev.currentTarget) return; // No target, let other handlers take care of it.
+      ev.stopPropagation();
+      // Check data-flow-type to pick which flow to trigger
+      const flowElement = $(ev.currentTarget).closest("[data-flow-type]")[0] as HTMLElement;
+      const flowType = flowElement.dataset.flowType;
+      const flowArgs = JSON.parse(flowElement.dataset.flowArgs ?? "{}");
+      const BasicFlowType = LancerFlowState.BasicFlowType;
+      switch (flowType) {
+        case BasicFlowType.FullRepair:
+          this.actor.beginFullRepairFlow(flowArgs?.title ?? undefined);
+          break;
+        case BasicFlowType.Stabilize:
+          this.actor.beginStabilizeFlow(flowArgs?.title ?? undefined);
+          break;
+        case BasicFlowType.Overheat:
+          this.actor.beginOverheatFlow();
+          break;
+        case BasicFlowType.Structure:
+          this.actor.beginStructureFlow();
+          break;
+        case BasicFlowType.Overcharge:
+          this.actor.beginOverchargeFlow();
+          break;
+        case BasicFlowType.BasicAttack:
+          this.actor.beginBasicAttackFlow(flowArgs?.title ?? undefined);
+          break;
+        case BasicFlowType.TechAttack:
+          this.actor.beginBasicTechAttackFlow(flowArgs?.title ?? undefined);
+          break;
+      }
     });
 
-    /*
     // Stat rollers
-    let statMacro = html.find(".roll-stat");
-    statMacro.on("click", ev => {
+    let statRollers = html.find(".roll-stat");
+    statRollers.on("click", ev => {
       ev.stopPropagation(); // Avoids triggering parent event handlers
-      prepareStatMacro(this.actor._id, this.getStatPath(ev)!);
-    });*/
+      const el = $(ev.currentTarget).closest("[data-uuid]")[0] as HTMLElement;
+
+      const statPath = el.dataset.path;
+      if (!statPath) throw Error("No stat path found!");
+
+      const actor = this.actor as LancerActor;
+      actor.beginStatFlow(statPath);
+    });
 
     // Weapon rollers
-    let weaponMacro = html.find(".roll-attack");
-    weaponMacro.on("click", ev => {
+    let weaponRollers = html.find(".roll-attack");
+    weaponRollers.on("click", ev => {
       if (!ev.currentTarget) return; // No target, let other handlers take care of it.
       ev.stopPropagation();
 
-      const weaponElement = $(ev.currentTarget).closest(".item")[0] as HTMLElement;
-      const weaponId = weaponElement.getAttribute("data-id");
-      if (!weaponId) return ui.notifications!.warn(`Error rolling macro: No weapon ID!`);
-      const weapon = this.actor.items.get(weaponId);
-      if (!weapon) return ui.notifications!.warn(`Error rolling macro: Couldn't find weapon with ID ${weaponId}.`);
-
-      let id = this.token && !this.token.isLinked ? this.token.id! : this.actor.id!;
-      prepareItemMacro(id, weapon.id!);
+      const weaponElement = $(ev.currentTarget).closest("[data-uuid]")[0] as HTMLElement;
+      const weaponId = weaponElement.dataset.uuid;
+      const weapon = LancerItem.fromUuidSync(weaponId ?? "", `Invalid weapon ID: ${weaponId}`);
+      weapon.beginWeaponAttackFlow();
     });
 
-    // TODO: This should really just be a single item-macro class
-    // Trigger rollers
-    let itemMacros = html
-      .find(".skill-macro")
-      // System rollers
-      .add(html.find(".system-macro"))
-      // Gear rollers
-      .add(html.find(".gear-macro"))
-      // Core bonus
-      .add(html.find(".cb-macro"))
-      // Reserve
-      .add(html.find(".reserve-macro"));
-    itemMacros.on("click", (ev: any) => {
+    let techRollers = html.find(".roll-tech");
+    techRollers.on("click", ev => {
+      if (!ev.currentTarget) return; // No target, let other handlers take care of it.
+      ev.stopPropagation();
+
+      const techElement = $(ev.currentTarget).closest("[data-uuid]")[0] as HTMLElement;
+      const techId = techElement.dataset.uuid;
+      const techItem = LancerItem.fromUuidSync(techId ?? "", `Invalid weapon ID: ${techId}`);
+      techItem.beginTechAttackFlow();
+    });
+
+    let itemFlows = html.find(".chat-flow-button");
+    itemFlows.on("click", async ev => {
+      ev.stopPropagation(); // Avoids triggering parent event handlers
+      const el = $(ev.currentTarget).closest("[data-uuid]")[0] as HTMLElement;
+      if (!el || !el.dataset.uuid) throw Error(`No item UUID found!`);
+      const item = await LancerItem.fromUuid(el.dataset.uuid);
+      if (!item) throw Error(`UUID "${el.dataset.uuid}" does not resolve to an item!`);
+      beginItemChatFlow(item, el.dataset);
+    });
+
+    let skillFlows = html.find(".skill-flow");
+    skillFlows.on("click", ev => {
       ev.stopPropagation(); // Avoids triggering parent event handlers
 
-      const el = $(ev.currentTarget).closest(".item")[0] as HTMLElement;
-
-      let id = this.token && !this.token.isLinked ? this.token.id! : this.actor.id!;
-      prepareItemMacro(id, el.getAttribute("data-id")!);
+      const el = $(ev.currentTarget).closest("[data-uuid]")[0] as HTMLElement;
+      const skillId = el.dataset.uuid;
+      const skill = LancerItem.fromUuidSync(skillId ?? "", `Invalid skill ID: ${skillId}`);
+      skill.beginSkillFlow();
     });
 
-    // Action-chip (system? Or broader?) macros
-    html.find("a.activation-chip:not(.lancer-macro)").on("click", (ev: JQuery.ClickEvent) => {
+    // Bond Power flow
+    let powerFlows = html.find(".bond-power-flow");
+    powerFlows.on("click", ev => {
+      if (!ev.currentTarget) return; // No target, let other handlers take care of it.
+      ev.stopPropagation();
+
+      const powerElement = $(ev.currentTarget).closest("[data-uuid]")[0] as HTMLElement;
+      const bondId = powerElement.dataset.uuid;
+      const bond = LancerItem.fromUuidSync(bondId ?? "", `Invalid bond ID: ${bondId}`);
+      const powerIndex = parseInt(powerElement.dataset.powerIndex ?? "-1");
+      bond.beginBondPowerFlow(powerIndex);
+    });
+
+    // Bond XP
+    let bondXp = html.find(".bond-xp-button");
+    bondXp.on("click", ev => {
+      if (!ev.currentTarget) return; // No target, let other handlers take care of it.
+      ev.stopPropagation();
+
+      const actor = this.actor as LancerActor;
+      if (!actor.is_pilot() || !actor.system.bond) return;
+      actor.tallyBondXP();
+    });
+
+    // Refresh Bond powers
+    let bondRefresh = html.find(".refresh-powers-button");
+    bondRefresh.on("click", ev => {
+      if (!ev.currentTarget) return; // No target, let other handlers take care of it.
+      ev.stopPropagation();
+
+      const actor = this.actor as LancerActor;
+      if (!actor.is_pilot() || !actor.system.bond) return;
+      actor.system.bond.refreshPowers();
+    });
+
+    // Non-action system use flows
+    html.find(".effect-flow").on("click", ev => {
+      ev.stopPropagation();
+      const el = ev.currentTarget.closest("[data-uuid]") as HTMLElement;
+      const itemId = el.dataset.uuid;
+      const item = LancerItem.fromUuidSync(itemId ?? "", `Invalid item ID: ${itemId}`);
+      item.beginSystemFlow();
+    });
+
+    // Action-chip flows
+    html.find(".activation-flow").on("click", ev => {
       ev.stopPropagation();
 
       const el = ev.currentTarget;
 
-      const item = $(el).closest(".item")[0].getAttribute("data-id");
-      if (!item) throw Error("No item ID from activation chip");
+      const itemId = el.dataset.uuid;
+      const path = el.dataset.path;
+      if (!itemId || !path) throw Error("No item ID from activation chip");
 
-      const activation = parseInt(el.getAttribute("data-activation"));
-      const deployable = parseInt(el.getAttribute("data-deployable"));
+      let isDeployable = path.includes("deployable");
+      let isAction = !isDeployable && path.includes("action");
+      let isCoreSystem = !isDeployable && path.includes("core_system");
 
-      if (!Number.isNaN(activation)) {
-        prepareActivationMacro(this.actor.id!, item, ActivationOptions.ACTION, activation);
-      } else if (!Number.isNaN(deployable)) {
-        prepareActivationMacro(this.actor.id!, item, ActivationOptions.DEPLOYABLE, deployable);
+      const item = LancerItem.fromUuidSync(itemId ?? "", `Invalid item ID: ${itemId}`);
+      if (isAction) {
+        item.beginActivationFlow(path);
+      } else if (isCoreSystem) {
+        item.beginCoreActiveFlow(path);
+      } else if (isDeployable) {
+        // TODO - deployable actions
+      } else {
+        ui.notifications!.error("Could not infer action type");
       }
     });
 
@@ -314,67 +466,8 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
     ChargeMacro.on("click", ev => {
       ev.stopPropagation(); // Avoids triggering parent event handlers
 
-      prepareChargeMacro(this.actor);
+      this.actor.beginRechargeFlow();
     });
-  }
-
-  _onDragActivationChipStart(event: DragEvent) {
-    // For talent macros
-    event.stopPropagation(); // Avoids triggering parent event handlers
-
-    let target = <HTMLElement>event.currentTarget;
-
-    let title = target.closest(".action-wrapper")?.querySelector(".action-title")?.textContent;
-    let itemId = target.closest(".item")?.getAttribute("data-id");
-
-    if (!itemId) throw Error("No item found");
-
-    title = title ?? this.actor.items.get(itemId)?.name ?? "unknown activation";
-
-    let a = target.getAttribute("data-activation");
-    let d = target.getAttribute("data-deployable");
-
-    let activationOption: ActivationOptions;
-    let activationIndex: number;
-    if (a) {
-      const activation = parseInt(a);
-      activationOption = ActivationOptions.ACTION;
-      activationIndex = activation;
-    } else if (d) {
-      const deployable = parseInt(d);
-      activationOption = ActivationOptions.DEPLOYABLE;
-      activationIndex = deployable;
-    } else {
-      throw Error("unknown activation was dragged.");
-    }
-
-    // send as a generated macro:
-    let macroData: LancerMacroData = {
-      iconPath: `systems/${game.system.id}/assets/icons/macro-icons/mech_system.svg`,
-      title: title,
-      fn: "prepareActivationMacro",
-      args: [this.actor.id!, itemId, activationOption, activationIndex],
-    };
-
-    event.dataTransfer?.setData("text/plain", JSON.stringify(macroData));
-  }
-
-  getStatPath(event: any): string | null {
-    if (!event.currentTarget) return null;
-    // Find the stat input to get the stat's key to pass to the macro function
-    let el = $(event.currentTarget).closest(".stat-container").find(".lancer-stat")[0] as HTMLElement;
-
-    if (!el) el = $(event.currentTarget).siblings(".lancer-stat")[0];
-
-    if (el.nodeName === "INPUT") {
-      return (<HTMLInputElement>el).name;
-    } else if (el.nodeName === "DATA") {
-      return (<HTMLDataElement>el).id;
-    } else if (el.nodeName === "SPAN") {
-      return (<HTMLSpanElement>el).getAttribute("data-path");
-    } else {
-      throw "Error - stat macro was not run on an input or data element";
-    }
   }
 
   /**
@@ -389,107 +482,66 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
     });
   }
 
-  /**
-   * Activate event listeners for trigger macros using the prepared sheet HTML
-   * @param html {JQuery}   The prepared HTML object ready to be rendered into the DOM
-   */
-  activateTriggerListeners(html: JQuery) {
-    // Trigger rollers
-    let triggerMacro = html.find(".roll-trigger");
-    triggerMacro.on("click", ev => {
-      if (!ev.currentTarget) return; // No target, let other handlers take care of it.
-      ev.stopPropagation(); // Avoids triggering parent event handlers
-
-      let mData: LancerStatMacroData = {
-        title: $(ev.currentTarget).closest(".skill-compact").find(".modifier-name").text(),
-        bonus: parseInt($(ev.currentTarget).find(".roll-modifier").text()),
-      };
-
-      console.log(`${lp} Rolling '${mData.title}' trigger (d20 + ${mData.bonus})`);
-      rollStatMacro(this.actor, mData);
-    });
-  }
-
   // A grand filter that pre-decides if we can drop an item ref anywhere within this sheet. Should be implemented by child sheets
   // We generally assume that a global item is droppable if it matches our types, and that an owned item is droppable if it is owned by this actor
   // This is more of a permissions/suitability question
-  can_root_drop_entry(_item: AnyMMItem | AnyMMActor): boolean {
+  canRootDrop(_item: ResolvedDropData): boolean {
     return false;
   }
 
   // This function is called on any dragged item that percolates down to root without being handled
   // Override/extend as appropriate
-  async on_root_drop(
-    _item: AnyMMItem | AnyMMActor,
-    _event: JQuery.DropEvent,
-    _dest: JQuery<HTMLElement>
-  ): Promise<void> {}
+  async onRootDrop(_item: ResolvedDropData, _event: JQuery.DropEvent, _dest: JQuery<HTMLElement>): Promise<void> {}
 
   // Override base behavior
-  async _onDrop(_evt: DragEvent) {
-    return;
+  protected _createDragDropHandlers(): DragDrop[] {
+    return [];
   }
 
   // Makes us own (or rather, creates an owned copy of) the provided item if we don't already.
   // The second return value indicates whether a new copy was made (true), or if we already owned it/it is an actor (false)
   // Note: this operation also fixes limited to be the full capability of our actor
-  async quick_own<T extends EntryType>(entry: LiveEntryTypes<T>): Promise<[LiveEntryTypes<T>, boolean]> {
-    // Actors are unaffected
-    if (is_actor_type(entry.Type)) {
-      return [entry, false];
-    }
+  async quickOwn(document: LancerItem): Promise<[LancerItem, boolean]> {
+    return this.actor.quickOwn(document);
+  }
 
-    if (mm_owner(entry as AnyMMItem) != this.actor) {
-      let sheet_data = await this.getDataLazy();
-      let this_mm = sheet_data.mm;
-      let ctx = this.getCtx();
-      let inv = await this_mm.get_inventory();
-
-      let result = await entry.insinuate(inv, ctx, {
-        pre_final_write: rec => {
-          // Pull a sneaky: set the limited value to max before insinuating
-          if (funcs.is_tagged(rec.pending) && (rec.pending as any).Uses != undefined) {
-            let as_lim = rec.pending as NpcFeature | MechWeapon | MechSystem | PilotWeapon | PilotGear | WeaponMod;
-            as_lim.Uses = funcs.limited_max(as_lim) + (this_mm instanceof Mech ? this_mm.LimitedBonus : 0);
-          }
+  // As quick_own, but for any drop. Maintains drop structure, since not necessarily guaranteed to have made an item
+  async quickOwnDrop(drop: ResolvedDropData): Promise<[ResolvedDropData, boolean]> {
+    if (drop.type == "Item") {
+      let [document, new_] = await this.quickOwn(drop.document);
+      return [
+        {
+          type: "Item",
+          document,
         },
-      });
-      return [result as LiveEntryTypes<T>, true];
+        new_,
+      ];
     } else {
-      // Its already owned
-      return [entry, false];
+      return [drop, false];
     }
   }
 
-  _propagateMMData(formData: any): any {
+  _propagateData(formData: any): any {
     // Pushes relevant field data from the form to other appropriate locations,
     // e.x. to synchronize name between token and actor
     // @ts-expect-error should be fixed and not need the "as" with v10 types
     let token = this.actor.prototypeToken as PrototypeTokenData;
 
-    // Get the basics
-    let new_top: any = {
-      img: formData.img,
-      name: formData.name,
-    };
-
-    // Set the prototype token image if the prototype token isn't initialized
     if (!token) {
-      new_top["token.img"] = formData["img"];
-      new_top["token.name"] = formData["name"];
-    }
-    // Update token image if it matches the old actor image - keep in sync
-    else {
-      // @ts-expect-error should be fixed with v10 types
-      if (this.actor.img === token.texture?.src && this.actor.img !== formData["img"]) {
-        new_top["token.img"] = formData["img"];
-      } // Same for name
+      // Set the prototype token image if the prototype token isn't initialized
+      formData["prototypeToken.texture.src"] = formData["img"];
+      formData["prototypeToken.name"] = formData["name"];
+    } else {
+      // Update token image if it matches the old actor image - keep in sync
+      // @ts-expect-error
+      if (this.actor.img === token.texture.src && this.actor.img !== formData["img"]) {
+        formData["prototypeToken.texture.src"] = formData["img"];
+      }
+      // Ditto for name
       if (this.actor.name === token["name"] && this.actor.name !== formData["name"]) {
-        new_top["token.name"] = formData["name"];
+        formData["prototypeToken.name"] = formData["name"];
       }
     }
-
-    return new_top;
   }
 
   /**
@@ -498,21 +550,12 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
    * @private
    */
   async _updateObject(_event: Event, formData: any): Promise<LancerActor | undefined> {
-    // Fetch the curr data
-    let ct = await this.getDataLazy();
+    // Automatically propagates changes to image/name
+    this._propagateData(formData);
 
-    // Bound NPC tier as it is one of the most frequent sheet breakers. TODO: more general solution
-    if ("npctier" in formData) {
-      formData["mm.Tier"] = Number.parseInt(formData["npctier"]) || 1;
-    }
+    // Simple writeback
+    await this.actor.update(formData);
 
-    // Automatically propagates changes that should affect multiple things.
-    let new_top = this._propagateMMData(formData);
-
-    // Combine the data, making sure to propagate the "top level data" to the appropriate location in flags
-    gentle_merge(ct, formData);
-    mergeObject((ct.mm.Flags as FoundryFlagData<any>).top_level_data, new_top);
-    await this._commitCurrMM();
     return this.actor;
   }
 
@@ -522,46 +565,27 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
    */
   async getData(): Promise<LancerActorSheetData<T>> {
     const data = await super.getData(); // Not fully populated yet!
-
-    // Drag up the mm context (when ready) to a top level entry in the sheet data
-    // @ts-ignore T doesn't narrow this.actor.data
-    data.mm = await this.actor.system.derived.mm_promise;
-
-    // Also wait for all of their items
-    for (let i of this.actor.items.contents) {
-      // @ts-expect-error Should be fixed with v10 types
-      await i.system.derived?.mm_promise; // The ? is necessary in case of a foundry internal race condition
+    data.collapse = {};
+    // @ts-expect-error
+    data.system = this.actor.system; // Alias
+    // @ts-expect-error
+    if (data.system.loadout) {
+      // @ts-expect-error
+      for (const [key, value] of Object.entries(data.system.loadout)) {
+        if (!Array.isArray(value)) continue;
+        // @ts-expect-error
+        data.system.loadout[key] = (value as { id: string; status: string; value: LancerItem }[]).sort(
+          (a: any, b: any) => a.value?.sort - b.value?.sort
+        );
+      }
     }
-
+    data.itemTypes = this.actor.itemTypes;
+    for (const [key, value] of Object.entries(data.itemTypes)) {
+      data.itemTypes[key] = (value as LancerItem[]).sort((a: any, b: any) => a.sort - b.sort);
+    }
+    data.effect_categories = LancerActiveEffect.prepareActiveEffectCategories(this.actor);
+    data.deployables = lookupOwnedDeployables(this.actor);
     console.log(`${lp} Rendering with following actor ctx: `, data);
-    this._currData = data;
     return data;
   }
-  // Cached getdata
-  protected _currData: LancerActorSheetData<T> | null = null;
-  async getDataLazy(): Promise<LancerActorSheetData<T>> {
-    return this._currData ?? (await this.getData());
-  }
-
-  // Write back our currently cached _currData, then refresh this sheet
-  // Useful for when we want to do non form-based alterations
-  async _commitCurrMM() {
-    console.log("Committing ", this._currData);
-    let cd = this._currData;
-    this._currData = null;
-    await cd?.mm.writeback();
-
-    // Compendium entries don't re-draw appropriately unless we do this. 0.8 Should fix, hopefully
-    if (this.actor.compendium) {
-      this.render();
-    }
-  }
-
-  // Get the ctx that our actor + its items reside in
-  getCtx(): OpCtx {
-    return (this.actor as LancerActor)._actor_ctx;
-  }
-}
-function rollStatMacro(_actor: unknown, _mData: LancerStatMacroData) {
-  throw new Error("Function not implemented.");
 }

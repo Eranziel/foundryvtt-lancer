@@ -1,14 +1,38 @@
 <form class="{{cssClass}} lancer-sheet" onsubmit="event.preventDefault();">
     <div class="card flexcol">
-        {{{edit-bonus path bonus}}}
+        <span class="lancer-header lancer-primary">Edit Bonus:</span>
+        {{{ std-text-input "lid" label="ID" default=value.lid }}}
+        {{{ std-text-input "val" label="Value" default=value.val }}}
+        {{{ std-checkbox "overwrite" label="Overwrite" default=value.overwrite }}}
+        {{{ std-checkbox "replace" label="Replace" default=value.replace }}}
 
-        <div class="dialog-buttons flexrow">
-            {{#each buttons as |button id|}}
-            <button class="dialog-button" data-button="{{id}}">
-                {{{button.icon}}}
-                {{{button.label}}}
-            </button>
-            {{/each}}
+        <div class="wraprow double">
+            <div class="flexcol">
+                <span class="lancer-header lancer-primary">DAMAGE TYPES</span>
+                {{#each damages as |dmg index|}}
+                {{{ std-checkbox dmg.key label=dmg.label default=dmg.val }}}
+                {{/each}}
+            </div>
+            <div class="flexcol">
+                <span class="lancer-header lancer-primary">RANGES TYPES</span>
+                {{#each ranges as |range index|}}
+                {{{ std-checkbox range.key label=range.label default=range.val }}}
+                {{/each}}
+            </div>
+
+            <div class="flexcol">
+                <span class="lancer-header lancer-primary">WEAPON TYPES</span>
+                {{#each types as |type index|}}
+                {{{ std-checkbox type.key label=type.label default=type.val }}}
+                {{/each}}
+            </div>
+            <div class="flexcol">
+                <span class="lancer-header lancer-primary">WEAPON SIZES</span>
+                {{#each sizes as |size index|}}
+                {{{ std-checkbox size.key label=size.label default=size.val }}}
+                {{/each}}
+            </div>
         </div>
+        {{> dialog-save-buttons}}
     </div>
 </form>

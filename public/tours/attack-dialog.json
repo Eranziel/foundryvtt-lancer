@@ -1,0 +1,65 @@
+{
+  "title": "lancer.tour.attack-dialog.title",
+  "description": "lancer.tour.attack-dialog.description",
+  "canBeResumed": false,
+  "display": true,
+  "steps": [
+    {
+      "id": "accuracy",
+      "selector": "#hudzone #accdiff .accdiff-grid div:nth-child(1)",
+      "title": "lancer.tour.attack-dialog.accuracy.title",
+      "content": "lancer.tour.attack-dialog.accuracy.content"
+    },
+    {
+      "id": "difficulty",
+      "selector": "#hudzone #accdiff .accdiff-grid div:nth-child(2)",
+      "title": "lancer.tour.attack-dialog.difficulty.title",
+      "content": "lancer.tour.attack-dialog.difficulty.content"
+    },
+    {
+      "id": "template",
+      "selector": "#hudzone #accdiff .lancer-header .range-button",
+      "title": "lancer.tour.attack-dialog.template.title",
+      "content": "lancer.tour.attack-dialog.template.content"
+    },
+    {
+      "id": "targeting",
+      "selector": "#hudzone #accdiff div.accdiff-footer",
+      "title": "lancer.tour.attack-dialog.targeting.title",
+      "content": "lancer.tour.attack-dialog.targeting.content"
+    },
+    {
+      "id": "finish",
+      "selector": "#hudzone #accdiff .dialog-buttons",
+      "title": "lancer.tour.attack-dialog.finish.title",
+      "content": "lancer.tour.attack-dialog.finish.content"
+    }
+  ],
+  "suggestedNextTours": [],
+  "localization": {
+    "lancer.tour.attack-dialog": {
+      "title": "Attack Dialog",
+      "description": "Using the LANCER sliding HUD attack dialog",
+      "accuracy": {
+        "title": "Accuracy",
+        "content": "Confirm the Accuracy bonuses here"
+      },
+      "difficulty": {
+        "title": "Difficulty",
+        "content": "Confirm any Difficulty penalties here"
+      },
+      "template": {
+        "title": "Place a Measured Template",
+        "content": "If the attack is an AoE attack, this button will allow you to place a measured template. Scrollwheel rotates the template and left click confirms placement. Targets will be automatically selected when to template is placed."
+      },
+      "targeting": {
+        "title": "Targets",
+        "content": "Any targets, whether manually selected or automatically selected using a template will appear here allowing individual bonuses and penalties to be applied as necessary."
+      },
+      "finish": {
+        "title": "Finishing up",
+        "content": "Once targets, bonuses and penalties are verified, confirm or cancel here."
+      }
+    }
+  }
+}

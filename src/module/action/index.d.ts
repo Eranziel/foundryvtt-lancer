@@ -1,12 +1,12 @@
 import { LancerActor } from "../actor/lancer-actor";
 
-export type ActionData = {
+export type ActionTrackingData = {
   protocol: boolean;
   move: number;
   full: boolean;
   quick: boolean;
   reaction: boolean;
-  free: true;
+  free: boolean;
 };
 
-export type ActionType = keyof ActionData;
+export type ActionType = keyof ActionTrackingData;

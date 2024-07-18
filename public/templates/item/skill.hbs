@@ -5,26 +5,15 @@
       <h1 class="charname"><input class="header-field" name="name" type="text" value="{{item.name}}"
                                   placeholder="{{localize " lancer.placeholder.name"}}" /></h1>
       <div class="flexrow">
-        <select class="header-field" name="mm.Family" data-type="String">
-          {{#select mm.Family}}
-            <option class="i--dark" value="cha">CHA</option>
-            <option class="i--dark" value="con">CON</option>
-            <option class="i--dark" value="dex">DEX</option>
-            <option class="i--dark" value="int">INT</option>
-            <option class="i--dark" value="str">STR</option>
-          {{/select}}
-        </select>
-      </div>
-      <div class="flexrow">
         <span>RANK:</span>
-        {{{l-num-input "mm.CurrentRank" 3}}}
+        {{{l-num-input "system.curr_rank"}}}
       </div>
     </div>
-    {{{ ref-portrait-img item.img "img" mm }}}
+    {{{ ref-portrait-img item.img "img" item}}}
   </header>
 
   {{!-- Sheet Body --}}
-  {{{textarea-card "DESCRIPTION" "mm.Description"}}}
+  {{{textarea-card "DESCRIPTION" "system.description"}}}
 
-  {{{textarea-card "DETAILS" "mm.Detail"}}}
+  {{{textarea-card "DETAILS" "system.detail"}}}
 </form>

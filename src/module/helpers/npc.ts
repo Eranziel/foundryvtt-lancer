@@ -1,17 +1,12 @@
 import type { HelperOptions } from "handlebars";
-import { ActivationType, EntryType, NpcFeature, NpcFeatureType } from "machine-mind";
-import { is_loading } from "machine-mind/dist/classes/mech/EquipUtil";
-import { charged_box, effect_box, resolve_helper_dotpath } from "./commons";
-import {
-  action_type_icon,
-  loading_indicator,
-  npc_accuracy_preview,
-  npc_attack_bonus_preview,
-  show_damage_array,
-  show_range_array,
-} from "./item";
-import { limited_uses_indicator, ref_params } from "./refs";
-import { compact_tag_list } from "./tags";
+import { ActivationType, NpcFeatureType } from "../enums";
+import { LancerNPC_FEATURE } from "../item/lancer-item";
+import { SystemTemplates } from "../system-template";
+import { slugify } from "../util/lid";
+import { effectBox, resolveHelperDotpath } from "./commons";
+import { actionTypeIcon, npcAccuracyView, npcAttackBonusView, damageArrayView, rangeArrayView } from "./item";
+import { chargedIndicator, limitedUsesIndicator, loadingIndicator, ref_params } from "./refs";
+import { compactTagListHBS } from "./tags";
 
 export const EffectIcons = {
   Generic: `systems/lancer/assets/icons/generic_item.svg`,
@@ -35,10 +30,10 @@ export const EffectIcons = {
 /**
  * Handlebars helper for effect action type
  */
-export function action_type_selector(a_type: string, data_target: string) {
+export function actionTypeSelector(a_type: string, data_target: string): string {
   const a = a_type ? a_type.toLowerCase() : ActivationType.None.toLowerCase();
   let html = '<div class="flexrow flex-center" style="padding: 5px; flex-wrap: nowrap;">';
-  html += action_type_icon(a_type);
+  html += actionTypeIcon(a_type);
   html += `<select name="${data_target}" data-type="String" style="height: 2em;float: right" >
     <option value="${ActivationType.None}" ${a === ActivationType.None.toLowerCase() ? "selected" : ""}>NONE</option>
     <option value="${ActivationType.Full}" ${a === ActivationType.Full.toLowerCase() ? "selected" : ""}>FULL</option>
@@ -58,30 +53,26 @@ export function action_type_selector(a_type: string, data_target: string) {
   return html;
 }
 
-// TODO: Make this globally consistent
-function del_button(path: string, options: HelperOptions): string {
-  let trash_action = options.hash["trash-action"] ?? "delete";
-  return `<a class="gen-control" data-action="${trash_action}" data-path="${path}"><i class="fas fa-trash"></i></a>`;
-}
-
-function npc_feature_scaffold(path: string, npc_feature: NpcFeature, body: string, options: HelperOptions) {
-  let feature_class = `npc-${npc_feature.FeatureType.toLowerCase()}`;
-  let icon = `cci-${npc_feature.FeatureType.toLowerCase()}`;
-  if (npc_feature.FeatureType === NpcFeatureType.Tech) icon += "-quick";
+function npcFeatureScaffold(
+  path: string,
+  npc_feature: LancerNPC_FEATURE,
+  body: string,
+  options: HelperOptions
+): string {
+  let feature_class = `lancer-${slugify(npc_feature.system.type, "-")}`;
+  let icon = `cci-${slugify(npc_feature.system.type, "-")}`;
+  if (npc_feature.system.type === NpcFeatureType.Tech) icon += "-quick";
   let macro_button = "";
-  if (npc_feature.FeatureType !== NpcFeatureType.Weapon) {
-    macro_button = `<a class="macroable item-macro"><i class="mdi mdi-message"></i></a>`;
+  if (npc_feature.system.type !== NpcFeatureType.Weapon) {
+    macro_button = `<a class="chat-flow-button"><i class="mdi mdi-message"></i></a>`;
   }
   return `
-  <div class="valid ref card item ${feature_class}" ${ref_params(
-    npc_feature.as_ref(),
-    npc_feature.Flags.orig_doc.uuid
-  )}>
-    <div class="flexrow lancer-header clipped-top ${npc_feature.Destroyed ? "destroyed" : ""}">
-      <i class="${npc_feature.Destroyed ? "mdi mdi-cog" : `cci ${icon} i--m i--light`}"> </i>
+  <div class="set ref card ${feature_class}" data-item-id="${npc_feature.id}" ${ref_params(npc_feature)}>
+    <div class="flexrow lancer-header clipped-top ${npc_feature.system.destroyed ? "destroyed" : ""}">
+      <i class="${npc_feature.system.destroyed ? "mdi mdi-cog" : `cci ${icon} i--m i--light`}"> </i>
       ${macro_button}
-      <span class="minor grow">${npc_feature.Name}</span>
-      <a class="lancer-context-menu" data-context-menu="${EntryType.NPC_FEATURE}" data-path="${path}">
+      <span class="minor grow">${npc_feature.name}</span>
+      <a class="lancer-context-menu" data-path="${path}" ${options.hash.isRef ? `data-uuid=${npc_feature.uuid}` : ""}>
         <i class="fas fa-ellipsis-v"></i>
       </a>
     </div>
@@ -89,87 +80,84 @@ function npc_feature_scaffold(path: string, npc_feature: NpcFeature, body: strin
   </div>`;
 }
 
-export function npc_reaction_effect_preview(path: string, options: HelperOptions) {
-  let npc_feature: NpcFeature = resolve_helper_dotpath(options, path);
-  return npc_feature_scaffold(
+export function npcReactionView(path: string, options: HelperOptions): string {
+  let npcFeature =
+    (options.hash["item"] as LancerNPC_FEATURE) ?? resolveHelperDotpath<LancerNPC_FEATURE>(options, path);
+  if (!npcFeature) return "";
+  options.hash["tags"] = npcFeature.system.tags;
+  return npcFeatureScaffold(
     path,
-    npc_feature,
+    npcFeature,
     `<div class="flexcol lancer-body">
-      ${npc_feature.Tags.find(tag => tag.Tag.LID === "tg_recharge") ? charged_box(npc_feature.Charged, path) : ""}
-      ${effect_box("TRIGGER", npc_feature.Trigger)}
-      ${effect_box("EFFECT", npc_feature.Effect)}
-      ${compact_tag_list(path + ".Tags", npc_feature.Tags, false)}
+      ${npcFeature.system.tags.find(tag => tag.lid === "tg_recharge") ? chargedIndicator(npcFeature, path) : ""}
+      ${effectBox("TRIGGER", (npcFeature.system as SystemTemplates.NPC.ReactionData).trigger, { flow: true })}
+      ${effectBox("EFFECT", npcFeature.system.effect)}
+      ${compactTagListHBS(path + ".system.tags", options)}
     </div>`,
     options
   );
 }
 
 // The below 2 funcs just map to this one, because they all do the same thing
-function npc_system_trait_effect_preview(path: string, options: HelperOptions) {
-  let npc_feature: NpcFeature = resolve_helper_dotpath(options, path);
-  return npc_feature_scaffold(
+export function npcSystemTraitView(path: string, options: HelperOptions): string {
+  let npcFeature =
+    (options.hash["item"] as LancerNPC_FEATURE) ?? resolveHelperDotpath<LancerNPC_FEATURE>(options, path);
+  if (!npcFeature) return "";
+  options.hash["tags"] = npcFeature.system.tags;
+  return npcFeatureScaffold(
     path,
-    npc_feature,
+    npcFeature,
     `<div class="flexcol lancer-body">
-      ${npc_feature.Tags.find(tag => tag.Tag.LID === "tg_limited") ? limited_uses_indicator(npc_feature, path) : ""}
-      ${npc_feature.Tags.find(tag => tag.Tag.LID === "tg_recharge") ? charged_box(npc_feature.Charged, path) : ""}
-      ${effect_box("EFFECT", npc_feature.Effect)}
-      ${compact_tag_list(path + ".Tags", npc_feature.Tags, false)}
+      ${npcFeature.system.tags.find(tag => tag.lid === "tg_limited") ? limitedUsesIndicator(npcFeature, path) : ""}
+      ${npcFeature.system.tags.find(tag => tag.lid === "tg_recharge") ? chargedIndicator(npcFeature, path) : ""}
+      ${effectBox("EFFECT", npcFeature.system.effect, { flow: true })}
+      ${compactTagListHBS(path + ".system.tags", options)}
     </div>`,
     options
   );
 }
 
-export function npc_system_effect_preview(path: string, options: HelperOptions) {
-  return npc_system_trait_effect_preview(path, options);
-}
-
-export function npc_trait_effect_preview(path: string, options: HelperOptions) {
-  return npc_system_trait_effect_preview(path, options);
-}
-
-export function npc_tech_effect_preview(path: string, options: HelperOptions) {
+export function npcTechView(path: string, options: HelperOptions) {
   // Get the feature
-  let npc_feature: NpcFeature = resolve_helper_dotpath(options, path);
+  let npcFeature =
+    (options.hash["item"] as LancerNPC_FEATURE) ?? resolveHelperDotpath<LancerNPC_FEATURE>(options, path);
+  if (!npcFeature) return "";
+  options.hash["tags"] = npcFeature.system.tags;
+  let featureData = npcFeature.system as SystemTemplates.NPC.TechData;
 
   // Get the tier (or default 1)
-  let tier_index: number = (options.hash["tier"] ?? 1) - 1;
+  let tierIndex: number = (options.hash["tier"] ?? 1) - 1;
 
   let sep = `<hr class="vsep">`;
-  let subheader_items = [`<a class="roll-tech"><i class="fas fa-dice-d20 i--m"></i></a>`];
-
-  let attack_bonus = npc_feature.AttackBonus[tier_index];
-  let from_sys = false;
-
-  // If we didn't find one, retrieve. Maybe check for undefined as we want an explicit 0 to be a true 0? How to support this in UI?
-  if (!attack_bonus) {
-    resolve_helper_dotpath(options, "mm.Systems", 0, true); // A bit lazy. Expand this to cover more cases if needed
-    from_sys = true;
+  let subheaderItems = [];
+  if (featureData.tech_attack) {
+    subheaderItems.push(`<a class="roll-tech lancer-button"><i class="fas fa-dice-d20 i--m"></i></a>`);
   }
-  if (attack_bonus) {
-    subheader_items.push(npc_attack_bonus_preview(attack_bonus, from_sys ? "ATK (SYS)" : "ATTACK"));
+
+  if (featureData.tech_attack && featureData.attack_bonus && featureData.attack_bonus[tierIndex]) {
+    subheaderItems.push(npcAttackBonusView(featureData.attack_bonus[tierIndex], "ATTACK"));
   }
 
   // Accuracy much simpler. If we got it, we got it
-  if (npc_feature.Accuracy[tier_index]) {
-    subheader_items.push(npc_accuracy_preview(npc_feature.Accuracy[tier_index]));
+  if (featureData.tech_attack && featureData.accuracy && featureData.accuracy[tierIndex]) {
+    subheaderItems.push(npcAccuracyView(featureData.accuracy[tierIndex]));
   }
 
-  if (npc_feature.Tags.find(tag => tag.Tag.LID === "tg_recharge")) {
-    subheader_items.push(charged_box(npc_feature.Charged, path));
+  if (featureData.tags.find(tag => tag.is_recharge)) {
+    subheaderItems.push(chargedIndicator(npcFeature, path));
   }
 
-  return npc_feature_scaffold(
+  return npcFeatureScaffold(
     path,
-    npc_feature,
+    npcFeature,
     `
     <div class="lancer-body flex-col">
       <div class="flexrow">
-        ${subheader_items.join(sep)}
+        ${subheaderItems.join(sep)}
       </div>
       <div class="flexcol" style="padding: 0 10px;">
-        ${effect_box("EFFECT", npc_feature.Effect)}
-        ${compact_tag_list(path + ".Tags", npc_feature.Tags, false)}
+        ${effectBox("EFFECT", featureData.effect, { flow: !featureData.tech_attack })}
+        ${compactTagListHBS(path + ".system.tags", options)}
       </div>
     </div>
     `,
@@ -177,56 +165,67 @@ export function npc_tech_effect_preview(path: string, options: HelperOptions) {
   );
 }
 
-export function npc_weapon_effect_preview(path: string, options: HelperOptions) {
+export function npcWeaponView(path: string, options: HelperOptions): string {
   // Get the feature
-  let npc_feature: NpcFeature = resolve_helper_dotpath(options, path);
-
-  let loading: string | undefined;
+  let npcFeature =
+    (options.hash["item"] as LancerNPC_FEATURE) ?? resolveHelperDotpath<LancerNPC_FEATURE>(options, path);
+  if (!npcFeature || !npcFeature.is_weapon()) return "";
+  options.hash["tags"] = npcFeature.system.tags;
+  let featureData = npcFeature.system as SystemTemplates.NPC.WeaponData;
 
   // Get the tier (or default 1)
-  let tier_index: number = (options.hash["tier"] ?? 1) - 1;
+  let tierIndex: number = (options.hash["tier"] ?? 1) - 1;
 
   let sep = `<hr class="vsep">`;
-  let subheader_items = [`<a class="roll-attack no-grow"><i class="fas fa-dice-d20 i--m i--dark"></i></a>`];
+  let subheaderItems = [
+    `<a class="roll-attack lancer-button no-grow"><i class="fas fa-dice-d20 i--m i--dark"></i></a>`,
+  ];
+  let subheader2Items = [];
 
   // Weapon info
 
   // Topline stuff
-  if (npc_feature.AttackBonus[tier_index]) {
-    subheader_items.push(npc_attack_bonus_preview(npc_feature.AttackBonus[tier_index]));
+  if (featureData.attack_bonus[tierIndex]) {
+    subheaderItems.push(npcAttackBonusView(featureData.attack_bonus[tierIndex]));
   }
-  if (npc_feature.Accuracy[tier_index]) {
-    subheader_items.push(npc_accuracy_preview(npc_feature.Accuracy[tier_index]));
+  if (featureData.accuracy[tierIndex]) {
+    subheaderItems.push(npcAccuracyView(featureData.accuracy[tierIndex]));
   }
 
   // Get the mid-body stuff. Real meat and potatos of a weapon
-  if (npc_feature.Range.length) {
-    subheader_items.push(show_range_array(npc_feature.Range, options));
+  if (featureData.range.length) {
+    subheaderItems.push(rangeArrayView(featureData.range, options));
   }
-  if (npc_feature.Damage[tier_index] && npc_feature.Damage[tier_index].length) {
-    subheader_items.push(show_damage_array(npc_feature.Damage[tier_index], options));
-  }
-
-  if (npc_feature.Tags.find(tag => tag.Tag.LID === "tg_recharge")) {
-    subheader_items.push(charged_box(npc_feature.Charged, path));
+  if (featureData.damage[tierIndex] && featureData.damage[tierIndex].length) {
+    subheaderItems.push(damageArrayView(featureData.damage[tierIndex], options));
   }
 
-  if (is_loading(npc_feature)) subheader_items.push(loading_indicator(npc_feature.Loaded, path));
+  // Bookkeeping stuff
+  if (featureData.tags.find(t => t.is_recharge)) {
+    subheader2Items.push(chargedIndicator(npcFeature, path));
+  }
+  if (npcFeature.system.tags.some(t => t.is_loading)) subheader2Items.push(loadingIndicator(npcFeature, path));
+  if (npcFeature.system.tags.some(t => t.is_limited)) subheader2Items.push(limitedUsesIndicator(npcFeature, path));
 
-  return npc_feature_scaffold(
+  return npcFeatureScaffold(
     path,
-    npc_feature,
+    npcFeature,
     `
     <div class="lancer-body flex-col">
       <div class="flexrow no-wrap">
-        ${subheader_items.join(sep)}
+        ${subheaderItems.join(sep)}
+      </div>
+      <div class="flexrow no-wrap">
+        ${subheader2Items.join()}
       </div>
       <div>
-        <span>${npc_feature.WepType ?? "Weapon"} // ${npc_feature.Origin.name} ${npc_feature.Origin.type} Feature</span>
+        <span>${featureData.weapon_type} // ${npcFeature.system.origin.name} ${
+      npcFeature.system.origin.type
+    } Feature</span>
       </div>
-      ${effect_box("ON HIT", npc_feature.OnHit)}
-      ${effect_box("EFFECT", npc_feature.Effect)}
-      ${compact_tag_list(path + ".Tags", npc_feature.Tags, false)}
+      ${effectBox("ON HIT", featureData.on_hit)}
+      ${effectBox("EFFECT", featureData.effect)}
+      ${compactTagListHBS(path + ".system.tags", options)}
     </div>
     `,
     options

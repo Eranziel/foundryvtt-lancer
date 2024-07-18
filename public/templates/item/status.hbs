@@ -1,32 +1,28 @@
 <form class="{{cssClass}} lancer-sheet" autocomplete="off">
-    {{!-- Sheet Header --}}
-    <header class="sheet-header card clipped-bot">
-      <div class="flexrow">
-        <div class="header-fields">
-          <h1 class="charname">
-            <input
-              class="header-field"
-              name="name"
-              type="text"
-              value="{{item.name}}"
-              placeholder="{{localize "lancer.placeholder.name"}}"
-            />
-          </h1>
-          <div class="flexrow">
-            <select class="header-field" name="mm.Subtype" data-type="String">
-              {{#select mm.Subtype}}
-              <option class="i--dark" value="status">STATUS</option>
-              <option class="i--dark" value="condition">CONDITION</option>
-              {{/select}}
-            </select>
-          </div>
+  {{! Sheet Header }}
+  <header class="sheet-header card clipped-bot">
+    <div class="flexrow">
+      <div class="header-fields">
+        <h1 class="charname">
+          <input
+            class="header-field"
+            name="name"
+            type="text"
+            value="{{item.name}}"
+            placeholder="{{localize 'lancer.placeholder.name'}}"
+          />
+        </h1>
+        <div class="flexrow" style="padding-left: 1em; padding-right: 1em;">
+          {{{std-select "system.type" status_types label="TYPE"}}}
+          {{{std-text-input "system.lid" label="LID"}}}
         </div>
-        {{{ ref-portrait-img item.img "img" mm }}}
       </div>
-    </header>
-  
-    {{!-- Sheet Body --}}
-    <section class="sheet-body">
-      {{{item-edit-effect               "mm.Effects"}}}
-    </section>
-  </form>
+      {{{ref-portrait-img item.img "img" item}}}
+    </div>
+  </header>
+
+  {{! Sheet Body }}
+  <section class="sheet-body">
+    {{{textarea-card "DESCRIPTION" "system.effects"}}}
+  </section>
+</form>

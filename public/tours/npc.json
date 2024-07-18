@@ -1,0 +1,68 @@
+{
+  "title": "lancer.tour.npc.title",
+  "description": "lancer.tour.npc.description",
+  "canBeResumed": true,
+  "display": true,
+  "restricted": true,
+  "steps": [
+    {
+      "id": "compendiumItems",
+      "selector": "#sidebar #compendium [data-pack='world.npc-items']",
+      "title": "lancer.tour.npc.compendiumItems.title",
+      "content": "lancer.tour.npc.compendiumItems.content",
+      "sidebarTab": "compendium"
+    },
+    {
+      "id": "addClass",
+      "selector": "#LancerNPCSheet-Actor- .window-content .sheet-body>div.flexcol>div.card.clipped.flexrow>div:nth-child(1)",
+      "title": "lancer.tour.npc.addClass.title",
+      "content": "lancer.tour.npc.addClass.content",
+      "sidebarTab": "compendium"
+    },
+    {
+      "id": "baseFeatures",
+      "selector": "#LancerNPCClassSheet-Actor--Item-0000000000000000 div:has([data-path='system.base_features'])",
+      "title": "lancer.tour.npc.baseFeatures.title",
+      "content": "lancer.tour.npc.baseFeatures.content"
+    },
+    {
+      "id": "optionalFeatures",
+      "selector": "#LancerNPCClassSheet-Actor--Item-0000000000000000 div:has([data-path='system.optional_features'])",
+      "title": "lancer.tour.npc.optionalFeatures.title",
+      "content": "lancer.tour.npc.optionalFeatures.content"
+    },
+    {
+      "id": "npcTemplates",
+      "selector": "#LancerNPCSheet-Actor- .window-content .sheet-body>div.flexcol>div.card.clipped.flexrow>div:nth-child(2)",
+      "title": "lancer.tour.npc.npcTemplates.title",
+      "content": "lancer.tour.npc.npcTemplates.content"
+    }
+  ],
+  "suggestedNextTours": ["lancer.pilot-import"],
+  "localization": {
+    "lancer.tour.npc": {
+      "title": "Building NPCs",
+      "description": "Build an NPC after NPC data has been imported.",
+      "compendiumItems": {
+        "title": "NPC Items",
+        "content": "Items for building NPCs are located in this compendium pack. This compendium will be empty until an lcp with npc data has been imported."
+      },
+      "addClass": {
+        "title": "Adding a Class",
+        "content": "Drag an NPC Class from the compendium to the NPC sheet. You can click the class to open the sheet for customization."
+      },
+      "baseFeatures": {
+        "title": "Base Features",
+        "content": "The base features from the Class are listed here. They will automatically be added to the npc when the Class is added."
+      },
+      "optionalFeatures": {
+        "title": "Optional Features",
+        "content": "Optional Features are listed here. They can be added to the NPC by dragging them from the Class sheet to the NPC sheet."
+      },
+      "npcTemplates": {
+        "title": "NPC Templates",
+        "content": "NPC Templates can be added by dragging them to the sheet. All base features will be added and any desired optional features can be added by dragging them from the Template sheet, similar to Class features."
+      }
+    }
+  }
+}

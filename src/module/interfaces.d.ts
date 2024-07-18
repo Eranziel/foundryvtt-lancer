@@ -1,7 +1,10 @@
 import { LancerItemType } from "./item/lancer-item";
-import { EffectData } from "./helpers/npc";
-import { Damage, License, LiveEntryTypes, TagInstance } from "machine-mind";
-import { LancerActorType } from "./actor/lancer-actor";
+import { LancerActorType, LancerDEPLOYABLE, LancerMECH, LancerPILOT } from "./actor/lancer-actor";
+import { LancerActiveEffect } from "./effects/lancer-active-effect";
+import { SystemDataTypesMap, SystemDataType } from "./system-template";
+import { Damage, DamageData } from "./models/bits/damage";
+import { Tag } from "./models/bits/tag";
+import { CollapseRegistry } from "./helpers/collapse";
 
 // ------------------------------------------------------
 // |       SHEET DATA TYPES                             |
@@ -9,11 +12,13 @@ import { LancerActorType } from "./actor/lancer-actor";
 
 // These single generic type should cover all basic sheet use cases
 export interface LancerItemSheetData<T extends LancerItemType> extends ItemSheet.Data<ItemSheet.Options> {
-  // reg ctx
-  mm: LiveEntryTypes<T>;
-
   // The license, if it could be recovered
-  license: License | null;
+  license: LANCERLicense | null;
+  system: SystemDataType<T>;
+  collapse: CollapseRegistry;
+  deployables: Record<string, LancerDEPLOYABLE>;
+  org_types?: { [key: string]: string }; // Organization types, only provided on org sheets
+  status_types?: { [key: string]: string }; // Status types, only provided on status sheets
 }
 
 export type CachedCloudPilot = {
@@ -24,117 +29,33 @@ export type CachedCloudPilot = {
 };
 
 export interface LancerActorSheetData<T extends LancerActorType> extends ActorSheet.Data<ActorSheet.Options> {
-  // Item
-  mm: LiveEntryTypes<T>;
-
-  // Store active mech at the root level
-  active_mech: Mech | null;
+  // Store active mech/pilot at the root level
+  active_mech?: LancerMECH;
+  pilot?: LancerPILOT;
   // Store cloud pilot cache and potential cloud ids at the root level
   pilotCache: CachedCloudPilot[];
   cleanedOwnerID: string;
   vaultID: string;
   rawID: string;
+  effect_categories: ReturnType<typeof LancerActiveEffect["prepareActiveEffectCategories"]>;
+  system: SystemDataType<T>;
+  itemTypes: LancerActor["itemTypes"];
+  collapse: CollapseRegistry;
+  deployables: Record<string, LancerDEPLOYABLE>;
 }
 
-// -------- Macro data -------------------------------------
-declare interface LancerStatMacroData {
-  title: string;
-  bonus: string | number;
-  effect?: EffectData | string;
-}
-
-declare interface LancerAttackMacroData {
-  self_heat?: boolean;
-  title: string;
-  grit: number;
-  acc: number;
-  damage: Damage[];
-  overkill?: boolean;
-  effect?: EffectData | string;
-  on_attack?: string;
-  on_hit?: string; // For NPC weapons - to be removed once they use EffectData
-  on_crit?: string;
-  tags: TagInstance[];
-  loaded?: boolean;
-  destroyed?: boolean;
-}
-
-declare interface LancerTechMacroData {
-  title: string;
-  t_atk: number;
-  action: string;
-  acc: number;
-  effect: string;
-  tags: TagDataShort[];
-}
-
-declare interface LancerActionMacroData {
-  title: string;
-  t_atk: number;
-  acc: number;
-  actionName: string;
-  detail: string;
-  tags: TagDataShort[];
-}
-
-declare interface LancerTalentMacroData {
-  talent: LancerTalentData;
-  rank: number;
-}
-
-declare interface LancerGenericMacroData {
-  title: string;
-  effect: EffectData | string;
-}
-
-declare interface LancerReactionMacroData {
-  title: string;
-  trigger: string;
-  effect: string;
-  tags?: TagDataShort[];
-}
-
-declare interface LancerTextMacroData {
-  title: string;
-  description: string;
-  item_id?: string;
-  tags?: TagDataShort[];
-}
-
-declare interface LancerOverchargeMacroData {
-  level: number;
-  roll: Roll;
-}
-
-declare interface LancerMacroData {
-  fn: string;
-  args: any[];
-  iconPath?: string;
-  title: string;
-}
-
-export interface GenControlContext<T> {
+export interface GenControlContext {
   // T is whatever is yielded by get_data/handled by commit_func
   // Raw information
-  elt: HTMLElement;
-  path: string;
-  action: "delete" | "null" | "splice" | "set" | "append" | "insert";
-  raw_val?: string;
-  item_override_path?: string; // For writeback overriding
+  elt: HTMLElement; // The control element which fired this control event
+  base_document: LancerActor | LancerItem; // The base document of this sheet
+  path: string; // The data path stored on the control
+  action: "delete" | "null" | "splice" | "set" | "append" | "insert"; // The action stored on the control
+  raw_val?: string; // The unprocessed val stored on the control, if applicable
 
   // Deduced information
-  data: T; // Typically the sheet data
   path_target: null | any; // What path resolved to on data, if anything
-  item_override: AnyMMActor | AnyMMItem | null;
+  target_document: LancerActor | LancerItem; // The last document we were able to resolve on the path. Will be the target of our update
+  relative_path: string; // Our update path relative to document
   parsed_val?: any; // Parsed version of raw_val
-
-  // For hooks to use
-  commit_func: (data: T) => void | Promise<void>;
-}
-
-// Context menu interface compatible with core foundry and our custom tippy menus
-export interface ContextMenuItem {
-  name: string;
-  icon?: string; // class used to generate icon, if it should exist at all. e.x. "fa fa-fw fa-times"
-  callback: (target: JQuery) => void | Promise<void>; // argument is the element to which the context menu attaches
 }

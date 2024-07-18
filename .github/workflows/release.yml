@@ -1,0 +1,81 @@
+name: Release Creation
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # Load the system.json manifest into memory
+      - name: Load system manifest
+        id: manifest
+        uses: zoexx/github-action-json-file-properties@release
+        with:
+          file_path: "./public/system.json"
+
+      # Set up variables for future use
+      - name: Set up variables
+        id: vars
+        # Remove the 'v' from the tag for versioning
+        run: |
+          VERSION=${GITHUB_REF_NAME#v}
+          TAG_NAME=${GITHUB_REF_NAME}
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "tag_name=$TAG_NAME" >> $GITHUB_OUTPUT
+          echo "zip_name=lancer-$TAG_NAME.zip" >> $GITHUB_OUTPUT
+
+      # Verify correct naming
+      - name: Verify correct naming
+        run: |
+          if [[ ! v${{ steps.vars.outputs.version }} == ${{ steps.vars.outputs.tag_name }} ]]; then
+            echo "The system.json version does not match tag name."
+            echo "system.json: $PACKAGE_VERSION"
+            echo "tag name: ${{ steps.vars.outputs.tag_name }}"
+            echo "Please fix this and push the tag again."
+            exit 1
+          fi
+
+      # Set up Node
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+          cache: "npm"
+
+      # Install Dependencies
+      - name: Install Dependencies
+        run: npm ci
+
+      # Build the code and packs for distribution
+      - name: Build For Distribution
+        run: |
+          gulp build
+          gulp build_packs
+
+      # Package the built files
+      - name: Package Files
+        run: gulp package
+
+      # Create a release for this specific version
+      - name: Create Release with Files
+        id: create_version_release
+        uses: ncipollo/release-action@v1
+        with:
+          allowUpdates: true
+          name: ${{ steps.vars.outputs.tag_name }}
+          draft: true
+          prerelease: true
+          omitDraftDuringUpdate: true
+          omitPrereleaseDuringUpdate: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+          artifacts: "./package/system.json, ./package/${{ steps.vars.outputs.zip_name }}"
+          tag: ${{ steps.vars.outputs.tag_name }}
+          # TODO: can we automatically extract the changelog for this release?
+          body: |
+
+            [Full changelog](https://github.com/Eranziel/foundryvtt-lancer/blob/master/CHANGELOG.md)

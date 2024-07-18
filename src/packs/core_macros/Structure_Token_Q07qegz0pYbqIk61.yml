@@ -1,0 +1,28 @@
+_id: Q07qegz0pYbqIk61
+name: Structure Token
+type: script
+author: eC9B4k0LaO1597E7
+img: systems/lancer/assets/icons/macro-icons/condition_shredded.svg
+scope: global
+command: |-
+  if (canvas.tokens.controlled.length !== 1) {
+      ui.notifications.error("Select one and only one token");
+      return;
+  }
+  canvas.tokens.controlled[0].actor.beginStructureFlow();
+folder: yxTxiLixDsbyThYC
+sort: 150000
+flags:
+  core:
+    sourceId: Macro.QwWNUKDeT8QcV1Hs
+ownership:
+  default: 0
+  eC9B4k0LaO1597E7: 3
+_stats:
+  systemId: lancer
+  systemVersion: 2.0.0-rc1
+  coreVersion: "11.315"
+  createdTime: null
+  modifiedTime: 1710448425858
+  lastModifiedBy: ci5PqVPSs3DhZWTF
+_key: "!macros!Q07qegz0pYbqIk61"

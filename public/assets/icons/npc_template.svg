@@ -1,10 +1,43 @@
-<?xml version="1.0" standalone="no"?>
-<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd" >
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" viewBox="0 -64 1024 1024" width="512" height="512">
-  <g transform="matrix(1 0 0 -1 0 960)">
-   <path fill="currentColor"
-d="M512 858l-84 -72l-109 -8l-9 -110l-71 -83l71 -84l9 -110l109 -8l84 -72l84 72l109 8l9 110l71 84l-71 83l-9 110l-109 8zM512 755q70 0 120.5 -50t50.5 -121q0 -70 -50.5 -120t-120.5 -50t-120.5 50t-50.5 120q0 71 50.5 121t120.5 50zM512 687q-43 0 -72.5 -30
-t-29.5 -73q0 -42 29.5 -72t72.5 -30t72.5 30t29.5 72q0 43 -29.5 73t-72.5 30v0zM375 335v-297l137 103l137 -103v297l-33 -2l-104 -89l-104 89z" />
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   version="1.1"
+   viewBox="0 -64 1024 1024"
+   width="512"
+   height="512"
+   id="svg1263"
+   sodipodi:docname="npc_template.svg"
+   inkscape:version="1.2.2 (732a01da63, 2022-12-09)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs1267" />
+  <sodipodi:namedview
+     id="namedview1265"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     showgrid="false"
+     inkscape:zoom="1.6191406"
+     inkscape:cx="236.23643"
+     inkscape:cy="256.30881"
+     inkscape:window-width="1920"
+     inkscape:window-height="1009"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg1263" />
+  <g
+     transform="matrix(1,0,0,-1,0,896)"
+     id="g1261">
+    <path
+       fill="currentColor"
+       d="m 512,858 -84,-72 -109,-8 -9,-110 -71,-83 71,-84 9,-110 109,-8 84,-72 84,72 109,8 9,110 71,84 -71,83 -9,110 -109,8 z m 0,-103 q 70,0 120.5,-50 Q 683,655 683,584 683,514 632.5,464 582,414 512,414 442,414 391.5,464 341,514 341,584 q 0,71 50.5,121 50.5,50 120.5,50 z m 0,-68 q -43,0 -72.5,-30 -29.5,-30 -29.5,-73 0,-42 29.5,-72 29.5,-30 72.5,-30 43,0 72.5,30 29.5,30 29.5,72 0,43 -29.5,73 Q 555,687 512,687 Z M 375,335 V 38 L 512,141 649,38 v 297 l -33,-2 -104,-89 -104,89 z"
+       id="path1259" />
   </g>
-
 </svg>

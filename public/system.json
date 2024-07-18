@@ -3,25 +3,25 @@
   "name": "lancer",
   "title": "LANCER",
   "description": "<p>A Foundry VTT game system for <a href=\"https://massif-press.itch.io/corebook-pdf\">Lancer</a> by <a href=\"https://massif-press.itch.io/\">Massif Press</a>, a mud-and-lasers tactical mech RPG.</p><p>\"Lancer for FoundryVTT\" is not an official <i>Lancer</i> product; it is a third party work, and is not affiliated with Massif Press. \"Lancer for FoundryVTT\" is published via the <i>Lancer</i> Third Party License.</p><p><i>Lancer</i> is copyright Massif Press.</p>",
-  "version": "1.6.1",
-  "minimumCoreVersion": "10",
+  "version": "2.1.7",
+  "minimumCoreVersion": "11",
   "compatibility": {
-    "minimum": 10,
-    "verified": "10.303",
-    "maximum": 10
+    "minimum": 11,
+    "verified": "11.315",
+    "maximum": 11
   },
   "authors": [
     {"name": "Eranziel"},
-    {"name": "Grygon"},
     {"name": "Whitespine"},
-    {"name": "SohumB"},
     {"name": "BoltsJ"},
     {"name": "Valkyrion"},
     {"name": "Kuenaimaku"},
-    {"name": "dodgepong"}
+    {"name": "dodgepong"},
+    {"name": "Grygon"},
+    {"name": "SohumB"}
   ],
   "scripts": [],
-  "esmodules": ["index.js"],
+  "esmodules": ["lancer.mjs"],
   "styles": [
     "style.css",
     "fonts/compcon/glyphs.css",
@@ -29,18 +29,20 @@
   ],
   "packs": [
     {
-      "name": "aoe-templates",
-      "label": "AoE Templates",
+      "name": "core_macros",
+      "label": "lancer.compendium.core_macros",
+      "banner": "./systems/lancer/assets/banners/core_macros.svg",
       "system": "lancer",
-      "path": "./packs/aoe-templates.db",
+      "path": "./packs/core_macros",
       "type": "Macro"
     },
     {
-      "name": "core_macros",
-      "label": "LANCER Macros",
+      "name": "lancer_info",
+      "label": "lancer.compendium.lancer_info",
+      "banner": "./systems/lancer/assets/banners/lancer_info.svg",
       "system": "lancer",
-      "path": "./packs/core_macros.db",
-      "type": "Macro"
+      "path": "./packs/lancer_info",
+      "type": "JournalEntry"
     }
   ],
   "languages": [
@@ -57,22 +59,39 @@
   "secondaryTokenAttribute": "",
   "url": "https://github.com/Eranziel/foundryvtt-lancer",
   "manifest": "https://github.com/Eranziel/foundryvtt-lancer/releases/latest/download/system.json",
-  "download": "https://github.com/Eranziel/foundryvtt-lancer/releases/download/v1.6.1/lancer-v1.6.1.zip",
+  "download": "https://github.com/Eranziel/foundryvtt-lancer/releases/download/v2.1.7/lancer-v2.1.7.zip",
   "license": "GNU GPLv3",
-  "readme": "https://github.com/Eranziel/foundryvtt-lancer/blob/beta-release/README.md",
+  "readme": "https://github.com/Eranziel/foundryvtt-lancer/blob/master/README.md",
   "bugs": "https://github.com/Eranziel/foundryvtt-lancer/issues/new/choose",
-  "changelog": "https://github.com/Eranziel/foundryvtt-lancer/blob/beta-release/CHANGELOG.md",
+  "changelog": "https://github.com/Eranziel/foundryvtt-lancer/blob/master/CHANGELOG.md",
   "manifestPlusVersion": "1.2.0",
   "media": [
     {
       "type": "cover",
-      "url": "https://massifpress.com/_next/image?url=%2Fimages%2Flegal%2Fpowered_by_Lancer-01.svg&w=640&q=75",
+      "url": "https://massifpress.com/_next/image?url=%2Fimages%2Flegal%2Fpowered_by_Lancer-02.svg&w=640&q=75",
+      "caption": "Powered by Lancer"
+    },
+    {
+      "type": "setup",
+      "url": "https://massifpress.com/_next/image?url=%2Fimages%2Flegal%2Fpowered_by_Lancer-02.svg&w=640&q=75",
       "caption": "Powered by Lancer"
     },
     {
       "type": "icon",
-      "url": "https://massifpress.com/_next/image?url=%2Fimages%2Flegal%2Fpowered_by_Lancer-01.svg&w=640&q=75",
+      "url": "https://massifpress.com/_next/image?url=%2Fimages%2Flegal%2Fpowered_by_Lancer-02.svg&w=640&q=75",
       "caption": "Powered by Lancer"
     }
-  ]
+  ],
+  "flags": {
+    "hotReload": {
+      "extensions": [
+        "json",
+        "hbs"
+      ],
+      "paths": [
+        "lang",
+        "templates"
+      ]
+    }
+  }
 }
