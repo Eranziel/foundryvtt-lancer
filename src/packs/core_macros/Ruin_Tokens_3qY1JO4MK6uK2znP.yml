@@ -4,35 +4,83 @@ flags:
   core:
     sourceId: Macro.UIUpsTwS6c4oYRn9
   combat-utility-belt:
-    macroTrigger: ""
+    macroTrigger: ''
 scope: global
 command: |-
-  if (game.user.targets.length < 1) {
-    ui.notifications.error("No tokens targeted to wreck! Hover over the victim and press T to target.")
+  function isBiological(token) {
+    let actorItems = game.actors.filter(x => x.id === token.document.actorId)[0].items;
+    for (let item of actorItems.entries()) {
+      if (item[1].type === "npc_class" && item[1].system.role === "biological") {
+        console.log(`${token.name} is biological.`);
+        return true;
+      } else {
+        console.log(`${token.name} is not biological.`);
+        return false;
+      }
+    }
+  }
+
+  if (canvas.tokens.controlled.length === 0) {
+    ui.notifications.error("Please select one or more tokens.");
     return;
   }
-  game.user.targets.forEach(t => {
+  canvas.tokens.controlled.forEach(async t => {
+    if (isBiological(t)) {
+      ui.notifications.info(`${t.name} is biological. Skipping.`);
+      return;
+    }
     // CONFIG BELOW:
-    // Number of images per size, going from S1 to S3.
-    let IMAGES_PER_SIZE = [9, 3, 0];
-    // Data path where your images are stored. Image files should be named like 'wreck-s2-1.png'. Last digit should be contiguous (don't have a 'wreck-s1-3.png' if there isn't a 'wreck-s1-2.png')
-    let IMAGE_PATH = "/assets/lancer/wrecks/";
+    // Data path where your images are stored.
+    let IMAGE_PATH = "lancer-wrecks";
+
+    // Dictionary for mapping sizes to subdirectories under IMAGE_PATH.
+    // Keys are the potential sizes a LancerActor may have; values are the subdirectory names.
+    // Store your images by size in each subdirectory.
+    let SIZE_PATHS = {
+      0.5: "S-HALF",
+      1: "S1",
+      2: "S2",
+      3: "S3",
+      4: "S4",
+    };
 
     // Script:
-    let size = Math.ceil(t.actor.system.size);
-    // Get random number between 1 and N, where n is number of images stored for mech size.
-    let rand = Math.ceil(Math.random() * IMAGES_PER_SIZE[size - 1]);
-    
-    let imgString = `${IMAGE_PATH}wreck-s${size}-${rand}.png`;
+    let size = t.actor.system.size;
+    let sizePath = SIZE_PATHS[size];
+    var imgString;
+    if (!!sizePath) {
+      var wreckFileList;
+      try {
+        let wreckFilePicker = await FilePicker.browse("data", `/${IMAGE_PATH}/${sizePath}`);
+        wreckFileList = wreckFilePicker.files;
+        console.log(wreckFileList);
+        let numImages = wreckFileList.length;
+        // Get random number between 1 and N, where n is number of images stored for mech size.
+        let rand = Math.floor(Math.random() * numImages);
+        imgString = wreckFileList[rand];
+      } catch (error) {
+        ui.notifications.warn(`${error}. Skipping image replacement.`);
+      }
+    } else {
+      ui.notifications.warn(
+        `Missing size path configuration for Size ${size} for ${t.name}. Skipping image replacement.`
+      );
+    }
+
     console.log(`Picked ${imgString} for ${t.name}`);
 
-    let data = {
-      img: imgString
-    };
-    t.document.update(data);
-    t.refresh();
-    const combatant = game.combat.getCombatantByToken(t.id)
-    if (combatant) combatant.delete();
+    let data = [
+      {
+        _id: t.id,
+        "texture.src": imgString,
+      },
+    ];
+
+    canvas.scene.updateEmbeddedDocuments("Token", data);
+    t.actor.update({ "system.hp": size * 10, "system.heat": 0, "system.burn": 0 });
+    game.combat.getCombatantByToken(t.id)?.delete();
+    // t.update(data);
+    // t.refresh();
   });
 author: taXAFvhByAtu8MoU
 img: systems/lancer/assets/icons/macro-icons/generic_item.svg
@@ -44,9 +92,9 @@ folder: yxTxiLixDsbyThYC
 sort: 300000
 _stats:
   systemId: lancer
-  systemVersion: 2.0.0-rc1
-  coreVersion: "11.315"
+  systemVersion: 2.1.7
+  coreVersion: '11.315'
   createdTime: null
-  modifiedTime: 1710448436375
-  lastModifiedBy: ci5PqVPSs3DhZWTF
-_key: "!macros!3qY1JO4MK6uK2znP"
+  modifiedTime: 1721274674816
+  lastModifiedBy: RyAORVJNmdo1gq2Z
+_key: '!macros!3qY1JO4MK6uK2znP'
