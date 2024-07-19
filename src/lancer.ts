@@ -110,7 +110,7 @@ const lp = LANCER.log_prefix;
 /* Initialize system                    */
 /* ------------------------------------ */
 addEnrichers();
-Hooks.once("init", async function () {
+Hooks.once("init", function () {
   console.log(`Initializing LANCER RPG System ${LANCER.ASCII}`);
 
   // @ts-expect-error Use the v11+ active effect logic - effects never transfer from an item. Critical to how we handle effects
@@ -292,13 +292,15 @@ Hooks.once("init", async function () {
   // Combat tracker HUD modules integration
   Hooks.on("renderCombatCarousel", handleRenderCombatCarousel);
   if (game.modules.get("combat-tracker-dock")?.active) {
-    game.lancer.combatTrackerDock = await import("./module/integrations/combat-tracker-dock");
-    Hooks.on("renderCombatDock", (...[_app, html]: Parameters<Hooks.RenderApplication>) => {
-      html.find(".buttons-container [data-action='roll-all']").hide();
-      html.find(".buttons-container [data-action='roll-npc']").hide();
-      // html.find(".buttons-container [data-action='previous-turn']").hide();
-      html.find(".buttons-container [data-action='next-turn']").hide();
-    });
+    (async () => {
+      game.lancer.combatTrackerDock = await import("./module/integrations/combat-tracker-dock");
+      Hooks.on("renderCombatDock", (...[_app, html]: Parameters<Hooks.RenderApplication>) => {
+        html.find(".buttons-container [data-action='roll-all']").hide();
+        html.find(".buttons-container [data-action='roll-npc']").hide();
+        // html.find(".buttons-container [data-action='previous-turn']").hide();
+        html.find(".buttons-container [data-action='next-turn']").hide();
+      });
+    })();
   }
 
   // Extend TokenConfig for token size automation
