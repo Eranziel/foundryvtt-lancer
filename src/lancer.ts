@@ -682,6 +682,16 @@ Hooks.once("init", async function () {
   Hooks.on("renderTokenConfig", extendTokenConfig);
 });
 
+Hooks.once("setup", () => {
+  /////////////////////////////////
+  // DIRTY HACK DO NOT REPLICATE //
+  /////////////////////////////////
+  // Change the default value of the grid based templates option
+  // TODO Remove when we get https://github.com/foundryvtt/foundryvtt/issues/11477
+  if (game.settings.settings.get("core.gridTemplates"))
+    game.settings.settings.get("core.gridTemplates")!.default = true;
+});
+
 /* ------------------------------------ */
 /* When ready                           */
 /* ------------------------------------ */
@@ -729,11 +739,6 @@ Hooks.once("ready", () => {
 
   // Migrate settings from Lancer Condition Icons and disable the module
   migrateLancerConditions();
-
-  // Grid based template shapes
-  if (game.user!.isGM && game.settings.get("core", "gridTemplates") == false) {
-    game.settings.set("core", "gridTemplates", true);
-  }
 });
 
 // Action Manager hooks.
