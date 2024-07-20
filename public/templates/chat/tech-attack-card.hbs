@@ -32,29 +32,7 @@
     </div>
     <div class="collapse" data-collapse-id="{{_uuid}}-hits">
       {{#each hit_results as |hit key|}}
-        <div class="lancer-hit-target">
-          <img class="lancer-hit-thumb" src="{{hit.token.img}}" />
-          <span class="lancer-hit-text-name"><b>{{hit.token.name}}</b></span>
-          {{#if hit.crit}}
-            <span class="card clipped lancer-hit-chip crit">{{localize
-                "lancer.chat-card.attack.crit"
-                total=hit.total
-              }}</span>
-          {{else if hit.hit}}
-            <span class="card clipped lancer-hit-chip hit">{{localize
-                "lancer.chat-card.attack.hit"
-                total=hit.total
-              }}</span>
-          {{else}}
-            <span class="card clipped lancer-hit-chip miss">{{localize
-                "lancer.chat-card.attack.miss"
-                total=hit.total
-              }}</span>
-          {{/if}}
-          <div class="lancer-hit-roll">
-            {{{lancer-dice-roll hit.roll hit.tt "cci cci-reticule i--sm"}}}
-          </div>
-        </div>
+        {{{attack-target hit}}}
       {{/each}}
     </div>
   {{/if}}
