@@ -8,7 +8,7 @@
 </script>
 
 <script lang="ts">
-  import type { AccDiffBase, AccDiffTarget } from "./index";
+  import type { AccDiffHudBase, AccDiffHudTarget } from "./index";
 
   import { onMount } from "svelte";
   import { fly } from "svelte/transition";
@@ -18,10 +18,10 @@
   import Plugin from "./Plugin.svelte";
   import ConsumeLockOn from "./ConsumeLockOn.svelte";
 
-  export let target: AccDiffBase | AccDiffTarget;
+  export let target: AccDiffHudBase | AccDiffHudTarget;
   export let onlyTarget: boolean = false;
 
-  function isTarget(v: any): v is AccDiffTarget {
+  function isTarget(v: any): v is AccDiffHudTarget {
     return v?.target;
   }
 
