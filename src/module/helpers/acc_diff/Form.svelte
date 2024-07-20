@@ -88,13 +88,6 @@
     <div class="lancer-header lancer-weapon medium">
       {#if kind == "attack"}
         <i class="cci cci-weapon i--m i--light" />
-        {#if lancerItem}
-          {#each findRanges() as range}
-            <button class="range-button" type="button" on:click={() => deployTemplate(range)}>
-              <i class="cci cci-{range.type.toLowerCase()} i--m i--light" />
-            </button>
-          {/each}
-        {/if}
       {:else if kind == "hase"}
         <i class="fas fa-dice-d20 i--m i--light" />
       {/if}
@@ -189,7 +182,19 @@
         <PlusMinusInput bind:value={base.difficulty} id="accdiff-other-diff" />
       </div>
     </div>
-    <div class="grid-enforcement accdiff-footer lancer-border-primary">
+    <div class="flex-col accdiff-footer lancer-border-primary">
+      {#if lancerItem && findRanges().length}
+        <span class="accdiff-weight flex-center flexrow">Targeting</span>
+        <div class="accdiff-ranges flexrow">
+          {#each findRanges() as range}
+            <button class="range-button" type="button" on:click={() => deployTemplate(range)}>
+              <i class="cci cci-{range.type.toLowerCase()} i--m i--light" />
+              {findRanges().length < 3 ? range.type.toUpperCase() : ""}
+              {range.val}
+            </button>
+          {/each}
+        </div>
+      {/if}
       <div class="accdiff-total">
         {#if targets.length < 2}
           {#key targets.length}
@@ -380,6 +385,40 @@
     vertical-align: top;
   }
 
+  .accdiff-ranges {
+    justify-content: space-evenly;
+    .range-button {
+      cursor: pointer;
+      box-shadow: var(--button-shadow);
+      border: none;
+      flex: 1 0;
+      margin-left: 0.25em;
+      margin-right: 0.25em;
+      margin-top: 0.25em;
+      margin-bottom: 0.25em;
+      padding: 0;
+      max-width: 10em;
+      background-color: var(--primary-color);
+      color: var(--light-text);
+
+      &:hover,
+      &:focus {
+        box-shadow: var(--button-shadow);
+      }
+      &:hover {
+        background-color: var(--secondary-color);
+      }
+      &:active {
+        transform: translateX(2px) translateY(2px);
+        box-shadow: -1px -1px 1px 0.6px rgba(0, 0, 0, 0.7);
+      }
+      & i {
+        margin: 2px;
+        padding: 0;
+      }
+    }
+  }
+
   /* there's a very specific EMU rule that adds some margin here
      because it assumes all icons in buttons are followed by text, I think */
   #accdiff .accdiff-target-row button > i,
@@ -446,35 +485,6 @@
     span {
       margin-right: 1em;
       margin-left: 1em;
-    }
-    .range-button {
-      cursor: pointer;
-      box-shadow: 1px 1px 1px 0.6px rgba(0, 0, 0, 0.7);
-      border: none;
-      text-align: left;
-      flex: 0 0;
-      margin-left: 8px;
-      margin-right: 0px;
-      margin-top: 5px;
-      margin-bottom: 7px;
-      padding: 0;
-      background-color: var(--primary-color);
-      color: var(--light-text);
-      &:hover,
-      &:focus {
-        box-shadow: 1px 1px 1px 0.6px rgba(0, 0, 0, 0.7);
-      }
-      &:hover {
-        background-color: var(--protocol-color);
-      }
-      &:active {
-        transform: translateX(2px) translateY(2px);
-        box-shadow: -1px -1px 1px 0.6px rgba(0, 0, 0, 0.7);
-      }
-      & i {
-        margin: 2px;
-        padding: 0;
-      }
     }
   }
 </style>
