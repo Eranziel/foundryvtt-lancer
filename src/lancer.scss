@@ -216,7 +216,8 @@ $theme-types: "primary" "secondary" "dark-gray" "light-gray" "tooltip"    // Gen
 
 /* Default font for sheets and chat messages. */
 .lancer.sheet .window-content,
-#chat-log .message {
+#chat-log .message,
+.chat-popout .message {
   /* An exception for each icon font */
   font-family: var(--main-font-family);
 }
@@ -330,7 +331,8 @@ $theme-types: "primary" "secondary" "dark-gray" "light-gray" "tooltip"    // Gen
 
 /* Chat Styles */
 
-#chat-log {
+#chat-log,
+.chat-popout {
   & .message {
     background: rgba(237, 237, 237);
     border-radius: 25px 5px;
