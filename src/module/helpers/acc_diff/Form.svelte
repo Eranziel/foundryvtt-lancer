@@ -289,6 +289,7 @@
 
   #accdiff :global(.container:has(input[disabled])) {
     cursor: unset;
+    opacity: 0.5;
   }
 
   /* Hide the browser's default checkbox */
@@ -309,7 +310,6 @@
   }
 
   #accdiff :global(input[disabled] ~ .checkmark) {
-    opacity: 0.5;
     cursor: unset;
   }
 
