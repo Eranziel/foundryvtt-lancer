@@ -54,8 +54,6 @@ export class TechAttackFlow extends Flow<LancerFlowState.TechAttackRollData> {
       attack_rolls: data?.attack_rolls || { roll: "", targeted: [] },
       attack_results: data?.attack_results || [],
       hit_results: data?.hit_results || [],
-      damage_results: data?.damage_results || [],
-      crit_damage_results: data?.crit_damage_results || [],
       reroll_data: data?.reroll_data || "",
       tags: data?.tags || [],
     };

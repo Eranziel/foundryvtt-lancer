@@ -101,8 +101,6 @@ export class BasicAttackFlow extends Flow<LancerFlowState.AttackRollData> {
       attack_rolls: data?.attack_rolls || { roll: "", targeted: [] },
       attack_results: data?.attack_results || [],
       hit_results: data?.hit_results || [],
-      damage_results: data?.damage_results || [],
-      crit_damage_results: data?.crit_damage_results || [],
       reroll_data: data?.reroll_data || "",
       tags: data?.tags || [],
     };
@@ -150,8 +148,6 @@ export class WeaponAttackFlow extends Flow<LancerFlowState.WeaponRollData> {
       attack_rolls: data?.attack_rolls || { roll: "", targeted: [] },
       attack_results: data?.attack_results || [],
       hit_results: data?.hit_results || [],
-      damage_results: data?.damage_results || [],
-      crit_damage_results: data?.crit_damage_results || [],
       reroll_data: data?.reroll_data || "",
       tags: data?.tags || [],
     };
@@ -324,9 +320,6 @@ export async function setAttackTags(
     // Check for self-heat
     const selfHeatTags = state.data.tags.filter(t => t.is_selfheat);
     if (!!(selfHeatTags && selfHeatTags.length)) state.data.self_heat = selfHeatTags[0].val;
-    // Check for overkill
-    const overkillTags = state.data.tags.filter(t => t.is_overkill);
-    if (!!(overkillTags && overkillTags.length)) state.data.overkill = true;
     // Check for smart
     const smartTags = state.data.tags.filter(t => t.is_smart);
     if (!!(smartTags && smartTags.length)) state.data.is_smart = true;

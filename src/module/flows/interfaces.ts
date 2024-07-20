@@ -114,7 +114,6 @@ export namespace LancerFlowState {
     tags?: Tag[];
     self_heat?: string; // The self heat roll string if present
     self_heat_result?: SelfHeatResult;
-    overkill?: boolean;
 
     scene_uuid?: string;
     origin_space?: [number, number];
@@ -125,10 +124,6 @@ export namespace LancerFlowState {
     attack_rolls: AttackRolls;
     attack_results: AttackResult[];
     hit_results: HitResult[];
-    // TODO: move damage and crit results to damage roll data
-    damage_results: DamageResult[];
-    crit_damage_results: DamageResult[];
-    overkill_heat?: number;
     // TODO: deprecate base64 encoded reroll data
     reroll_data: string;
   }
