@@ -125,7 +125,7 @@
     padding: 8px 8px 8px 16px;
     color: white;
     width: min-content;
-    background-color: #443c3c;
+    background-color: var(--dark-gray-color);
   }
   .total-container {
     filter: drop-shadow(1px 1px 0px);

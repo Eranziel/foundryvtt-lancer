@@ -232,7 +232,7 @@
                   </div>
                   <div class="flexrow">
                     <button
-                      class="i--m no-grow accdiff-button"
+                      class="i--m no-grow accdiff-button lancer-dark-gray"
                       type="button"
                       on:click={() => (data.accuracy = data.accuracy + 1)}
                     >
@@ -247,7 +247,7 @@
                     />
                     <input style="display: none" type="number" bind:value={data.difficulty} min="0" />
                     <button
-                      class="i--m no-grow accdiff-button"
+                      class="i--m no-grow accdiff-button lancer-dark-gray"
                       type="button"
                       on:click={() => (data.difficulty = data.difficulty + 1)}
                     >
@@ -458,21 +458,14 @@
       justify-content: center;
       margin: 0;
       border: none;
-      box-shadow: 1px 1px 1px var(--primary-color);
-      &:hover,
-      &:focus {
-        box-shadow: 1px 1px 1px var(--primary-color);
-      }
-      &:hover {
-        background-color: var(--primary-highlight);
+      background-color: var(--dark-gray-color);
+      &:hover i,
+      &:active i {
+        text-shadow: 0px 0px 8px var(--color-shadow-primary);
       }
       &:active {
         transform: translateX(2px) translateY(2px);
         box-shadow: -1px -1px 1px var(--primary-color);
-      }
-      & i {
-        text-shadow: none;
-        color: rgba(var(--color-text-lightest), 1);
       }
     }
   }
