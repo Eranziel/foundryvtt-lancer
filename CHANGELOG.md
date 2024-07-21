@@ -1,3 +1,22 @@
+# 2.1.8 (2024-07-21)
+
+## Bug Fixes
+
+- #646 - Allow removing Bond burdens and clocks, and remove an extra "Edit" entry in their context menus.
+- #729 - Remove unnecessary notification when all of an NPC's features are charged at the start of their turn.
+- #730 - Ensure that deployable, frame, and NPC class size stats are either 0.5 or an integer number.
+- #735 - Fix bug breaking pilot weapon sheets when they had the Loading tag.
+- Prevent errors which could occur with token size automation.
+- Fix tech attacks not consuming Lock On.
+- Fix "Ruin" macro to include Valk's updates from 1.6.X.
+- Fix default art for Kobold and Lich.
+
+## Misc
+
+- Improve accessibility of checkboxes in sliding HUD UIs.
+- Allow Scan chat messages to be popped out into floating windows.
+- Add default art for Genghis Mk I and Ranger Swallowtail. Update default art for Iskander.
+
 # 2.1.7 (2024-07-10)
 
 ## Bug Fixes
