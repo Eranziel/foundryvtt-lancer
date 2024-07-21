@@ -84,6 +84,15 @@ export class DeployableModel extends LancerDataModel<"DeployableModel"> {
       // correctly later.
       delete data.hp;
     }
+    if (data.stats?.size !== undefined) {
+      // Sizes of 1 and up must be integer values
+      if (data.stats?.size >= 1.0) {
+        data.stats.size = Math.floor(data.stats.size);
+      } else {
+        // If size is less than 1, it must be 1/2.
+        data.stats.size = 0.5;
+      }
+    }
 
     // @ts-expect-error v11
     return super.migrateData(data);

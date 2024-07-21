@@ -87,6 +87,15 @@ export class FrameModel extends LancerDataModel<"FrameModel"> {
     if (data.source) {
       data.manufacturer = migrateManufacturer(data.source);
     }
+    if (data.stats?.size !== undefined) {
+      // Size of 1 and higher must be integer values
+      if (data.stats.size >= 1.0) {
+        data.stats.size = Math.floor(data.stats.size);
+      } else {
+        // Sizes below 1 must be 1/2
+        data.stats.size = 0.5;
+      }
+    }
 
     // @ts-expect-error v11
     return super.migrateData(data);

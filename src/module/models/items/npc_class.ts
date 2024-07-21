@@ -35,6 +35,20 @@ export class NpcClassModel extends LancerDataModel<"NpcClassModel"> {
     if (typeof data.base_stats == "object" && !Array.isArray(data.base_stats)) {
       data.base_stats = convertNpcStats(data.base_stats);
     }
+    if (data.base_stats) {
+      // Ensure sizes are reasonable values
+      for (let i = 0; i < data.base_stats.length; i++) {
+        if (data.base_stats[i].size !== undefined) {
+          // Size of 1 and higher must be integer values
+          if (data.base_stats[i].size >= 1.0) {
+            data.base_stats[i].size = Math.floor(data.base_stats[i].size);
+          } else {
+            // Sizes below 1 must be 1/2
+            data.base_stats[i].size = 0.5;
+          }
+        }
+      }
+    }
 
     // @ts-expect-error
     return super.migrateData(data);
