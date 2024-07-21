@@ -1499,7 +1499,7 @@ function _handleContextMenus(
     condition: html => {
       const uuid = html[0].dataset.uuid;
       // If a uuid is not provided, rely on dd.
-      if (!uuid) return !(dd(html)?.terminus instanceof LancerItem);
+      if (!uuid) return dd(html)?.terminus instanceof LancerItem;
       const foundDoc = fromUuidSync(uuid) as LancerItem | null;
       return foundDoc instanceof LancerItem;
     },
@@ -1642,6 +1642,8 @@ function _handleContextMenus(
           !p?.includes("system.optional_features") &&
           p?.includes("tags")) ||
           p?.includes("counters") ||
+          p?.includes("bond_state.burdens") ||
+          p?.includes("bond_state.clocks") ||
           p?.substring(0, p.length - 2).endsWith("profiles"))
       );
     },
