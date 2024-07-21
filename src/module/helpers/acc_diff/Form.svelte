@@ -284,6 +284,12 @@
     font-size: 0.9em;
     user-select: none;
     align-items: center;
+    cursor: pointer;
+  }
+
+  #accdiff :global(.container:has(input[disabled])) {
+    cursor: unset;
+    opacity: 0.5;
   }
 
   /* Hide the browser's default checkbox */
@@ -304,12 +310,11 @@
   }
 
   #accdiff :global(input[disabled] ~ .checkmark) {
-    opacity: 0.5;
     cursor: unset;
   }
 
   #accdiff :global(.container:hover input:not([disabled]) ~ .checkmark) {
-    background-color: #757575;
+    box-shadow: 0px 0px 8px var(--primary-color);
   }
 
   #accdiff :global(.container input:checked ~ .checkmark) {
@@ -322,6 +327,12 @@
     display: none;
   }
   #accdiff :global(.container input:checked ~ .checkmark:after) {
+    content: "×";
+    color: var(--light-text);
+    font-size: 34px;
+    position: absolute;
+    top: -21px;
+    left: 0px;
     display: block;
   }
 
