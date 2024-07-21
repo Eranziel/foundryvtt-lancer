@@ -147,6 +147,7 @@ command: >-
         sc_templates +
         `<h3>Systems:</h3>` +
         sc_list,
+      "flags.core.canPopout": true,
     });
   });
 folder: yxTxiLixDsbyThYC
@@ -157,9 +158,9 @@ ownership:
   2a2IgZ2kiAqXSGqu: 3
 _stats:
   systemId: lancer
-  systemVersion: 2.1.5
+  systemVersion: 2.1.7
   coreVersion: '11.315'
   createdTime: null
-  modifiedTime: 1720304531394
-  lastModifiedBy: VTqqjv3vCWDxBIi5
+  modifiedTime: 1721501075146
+  lastModifiedBy: ci5PqVPSs3DhZWTF
 _key: '!macros!3KPsYon0LoANWX54'
