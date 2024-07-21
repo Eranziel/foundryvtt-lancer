@@ -104,8 +104,11 @@ export class LancerTokenDocument extends TokenDocument {
     super._onRelatedUpdate(update, options);
 
     if (getAutomationOptions().token_size && !this.getFlag(game.system.id, "manual_token_size")) {
-      let new_size = this.actor?.system.size;
-      if (new_size !== undefined) this.update({ width: Math.max(1, new_size), height: Math.max(1, new_size) });
+      let new_size = this.actor ? Math.max(1, this.actor.system.size) : undefined;
+      // @ts-expect-error v11
+      if (this.isOwner && this.id && new_size !== undefined && (this.width !== new_size || this.height !== new_size)) {
+        this.update({ width: new_size, height: new_size });
+      }
     }
   }
 }
