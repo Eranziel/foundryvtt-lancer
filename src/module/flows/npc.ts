@@ -39,7 +39,7 @@ async function findRechargeableSystems(state: FlowState<LancerFlowState.Recharge
     if (item.isRecharge()) state.data.recharging_uuids.push(item.uuid);
   }
   if (state.data.recharging_uuids.length < 1) {
-    ui.notifications?.info(`All systems are charged and ready for use!`);
+    // Nothing to do, so end here
     return false;
   }
   return true;
