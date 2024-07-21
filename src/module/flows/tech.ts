@@ -183,7 +183,7 @@ export async function printTechAttackCard(
     attackData: {
       origin: state.actor.id,
       targets: state.data.attack_rolls.targeted.map(t => {
-        return { id: t.target.id, lockOnConsumed: !!t.usedLockOn };
+        return { id: t.target.id, setConditions: !!t.usedLockOn ? { lockon: !t.usedLockOn } : undefined };
       }),
     },
   };
