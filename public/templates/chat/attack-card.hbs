@@ -47,6 +47,11 @@
         {{{lancer-dice-roll damage.roll damage.tt (concat "cci cci-" (lower-case damage.d_type) " i--m damage--" (lower-case damage.d_type))}}}
       {{/each}}
     </div>
+    {{!-- show buttons to apply either 1/x, full, or 2x damage --}}
+    <div class="lancer-damage-buttons" id="damage-buttons">
+      <button class="lancer-button lancer-damage-button" data-damage="1">1/2</button>
+      <button class="lancer-button lancer-damage-button" data-damage="2">Full</button>
+      <button class="lancer-button lancer-damage-button" data-damage="3">2x</button>
   </div>
   {{/if}}
   {{#if crit_damage_results}}
