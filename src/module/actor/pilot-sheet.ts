@@ -343,10 +343,12 @@ export function pilotCounters(pilot: LancerPILOT, _options: HelperOptions): stri
     const counter = counter_arr[i];
     if (counter.max != null) {
       if (counter.max <= COUNTER_MAX) {
-        counter_detail = counter_detail.concat(buildCounterHTML(counter, `system.custom_counters.${i}`, true));
+        counter_detail = counter_detail.concat(
+          buildCounterHTML(counter, `system.custom_counters.${i}`, { canDelete: true })
+        );
       } else {
         counter_detail = counter_detail.concat(
-          buildCounterHeader(counter, `system.custom_counters.${i}`, true),
+          buildCounterHeader(counter, `system.custom_counters.${i}`, { canDelete: true }),
           clicker_num_input(`system.custom_counters.${i}.value`, _options),
           "</div>"
         );

@@ -1242,7 +1242,11 @@ export function buildChipHTML(
 }
 
 // This has gotten very messy to account for the pilots, should refactor - TODO
-export function buildCounterHTML(data: CounterData, path: string, can_delete?: boolean): string {
+export function buildCounterHTML(
+  data: CounterData,
+  path: string,
+  options?: { noContextMenu?: boolean; canDelete?: boolean }
+): string {
   let hexes = [...Array(data.max)].map((_ele, index) => {
     const available = index + 1 <= data.value;
     return `<i class="counter-hex mdi ${
@@ -1252,7 +1256,7 @@ export function buildCounterHTML(data: CounterData, path: string, can_delete?: b
 
   return `
   <div class="card clipped-bot counter-wrapper" data-path="${path}">
-    ${buildCounterHeader(data, path, can_delete)}
+    ${buildCounterHeader(data, path, options)}
     <div class="flexrow flex-center no-wrap">
       <button class="clicker-minus-button hex" type="button">‒</button>
       ${hexes.join("")}
@@ -1264,14 +1268,22 @@ export function buildCounterHTML(data: CounterData, path: string, can_delete?: b
 /**
  * NOTE IT DOES NOT INCLUDE TRAILING /div tag!
  */
-export function buildCounterHeader(data: CounterData, path: string, can_delete?: boolean): string {
-  //
+export function buildCounterHeader(
+  data: CounterData,
+  path: string,
+  options?: { noContextMenu?: boolean; canDelete?: boolean }
+): string {
+  const contextMenu = options?.noContextMenu
+    ? ""
+    : `<a class="lancer-context-menu" data-path="${path}" data-can-delete="${
+        options?.canDelete ? options.canDelete : false
+      }">
+        <i class="fas fa-ellipsis-v"></i>
+      </a>`;
   return `
     <div class="lancer-header lancer-primary">
       <span>// ${data.name} //</span>
-      <a class="lancer-context-menu" data-path="${path}" data-can-delete="${can_delete ? can_delete : false}">
-        <i class="fas fa-ellipsis-v"></i>
-      </a>
+      ${contextMenu}
     </div>`;
 }
 
@@ -1323,7 +1335,7 @@ export function genericCounter(name: string, data: FullBoundedNum, path: string)
     default_value: data.min,
     lid: "",
   };
-  return buildCounterHTML(counterData, path, false);
+  return buildCounterHTML(counterData, path, { noContextMenu: true });
 }
 
 async function _updateCounterData(root_doc: LancerActor | LancerItem, path: string, delta: number) {
