@@ -1432,13 +1432,13 @@ export function handleContextMenus(html: JQuery, doc: LancerActor | LancerItem, 
 
 /** Handles context menus for
  * - Viewing an item sheet
- * - Marking items destroyed
+ * - Marking items destroyed/repaired
  * - Deleting items
  * - Removing items from slots
  * - Edit counters
+ * - Edit tags
  * - Remove counters/tags
- * - Rename weapon profiles (and possibly more?)
- * - TODO: more, perhaps
+ * - Rename weapon profiles (and possibly other things?)
  * @param html The html to bind listeners to
  * @param selector CSS selector to narrow which elements to bind to
  * @param event The event to listen for
@@ -1498,8 +1498,8 @@ function _handleContextMenus(
     // Normal edit is not visible, and this item has a uuid.
     condition: html => {
       const uuid = html[0].dataset.uuid;
-      // If a uuid is not provided, rely on dd.
-      if (!uuid) return dd(html)?.terminus instanceof LancerItem;
+      // If a uuid is not provided, skip this option.
+      if (!uuid) return false;
       const foundDoc = fromUuidSync(uuid) as LancerItem | null;
       return foundDoc instanceof LancerItem;
     },
@@ -1650,7 +1650,7 @@ function _handleContextMenus(
   };
 
   // Summon counter editor dialogue
-  let counterEdit: ContextMenuEntry = {
+  let editCounter: ContextMenuEntry = {
     name: "Edit",
     icon: `<i class="fas fa-edit"></i>`,
     callback: html => {
@@ -1662,7 +1662,7 @@ function _handleContextMenus(
   };
 
   // Summon a tag editor dialog
-  let tagEdit: ContextMenuEntry = {
+  let editTag: ContextMenuEntry = {
     name: "Edit",
     icon: '<i class="fas fa-edit"></i>',
     callback: html => {
@@ -1702,14 +1702,14 @@ function _handleContextMenus(
     edit,
     editRefItem,
     editEffect,
+    editCounter,
+    editTag,
     repairItem,
     destroyItem,
+    rename,
+    arrayRemove,
     deleteDocument,
     clearReference,
-    arrayRemove,
-    counterEdit,
-    tagEdit,
-    rename,
   ];
 
   // Finally, setup the context menu
