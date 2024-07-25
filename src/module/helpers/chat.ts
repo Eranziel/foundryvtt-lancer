@@ -7,25 +7,24 @@ export function miniProfile(
   options: HelperOptions
 ): string {
   const attack = profile.attack
-    ? `<span><i class="cci cci-reticule" data-tooltip="Attack Bonus"></i>${profile.attack}</span>`
+    ? `<span data-tooltip="Attack Bonus"><i class="cci cci-reticule"></i>${profile.attack}</span>`
     : "";
+  const accuracyTooltip = (profile.accuracy ?? 0) < 0 ? `data-tooltip="Difficulty"` : `data-tooltip="Accuracy"`;
   const accuracy = profile.accuracy
-    ? `${
-        profile.accuracy < 0
-          ? `<i class="cci cci-difficulty" data-tooltip="Difficulty"></i>`
-          : `<i class="cci cci-accuracy" data-tooltip="Accuracy"></i>`
-      }${Math.abs(profile.accuracy)}`
+    ? `<span ${accuracyTooltip}>${
+        profile.accuracy < 0 ? `<i class="cci cci-difficulty"></i>` : `<i class="cci cci-accuracy"></i>`
+      }${Math.abs(profile.accuracy)}</span>`
     : "";
   const ranges = profile.range
-    .map(r => `<span><i class="cci cci-${r.type.toLowerCase()}" data-tooltip="${r.type}"></i>${r.val}</span>`)
+    .map(r => `<span data-tooltip="${r.type}"><i class="cci cci-${r.type.toLowerCase()}"></i>${r.val}</span>`)
     .join("");
   const damages = profile.damage
     ? profile.damage
         .map(
           d =>
-            `<span><i class="cci cci-${d.type.toLowerCase()} damage--${d.type.toLowerCase()}" data-tooltip="${
+            `<span data-tooltip="${
               d.type
-            }"></i>${d.val}</span>`
+            }"><i class="cci cci-${d.type.toLowerCase()} damage--${d.type.toLowerCase()}"></i>${d.val}</span>`
         )
         .join("")
     : "";

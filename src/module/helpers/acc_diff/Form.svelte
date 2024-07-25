@@ -117,18 +117,15 @@
       {#if profile.attack || profile.accuracy}
         <div class="mini-weapon-profile-accuracy flexrow">
           {#if profile.attack}
-            <span
-              ><i class="cci cci-reticule" data-tooltip="Attack bonus" />{profile.attack < 0
-                ? "-"
-                : "+"}{profile.attack}</span
+            <span data-tooltip="Attack bonus"
+              ><i class="cci cci-reticule" />{profile.attack < 0 ? "-" : "+"}{profile.attack}</span
             >
           {/if}
           {#if profile.accuracy}
-            <span
-              ><i
-                class="cci cci-{(profile.accuracy ?? 0) > 0 ? 'accuracy' : 'difficulty'}"
-                data-tooltip={(profile.accuracy ?? 0) > 0 ? "Accuracy" : "Difficulty"}
-              />{Math.abs(profile.accuracy)}</span
+            <span data-tooltip={(profile.accuracy ?? 0) > 0 ? "Accuracy" : "Difficulty"}
+              ><i class="cci cci-{(profile.accuracy ?? 0) > 0 ? 'accuracy' : 'difficulty'}" />{Math.abs(
+                profile.accuracy
+              )}</span
             >
           {/if}
         </div>
@@ -136,18 +133,15 @@
       {/if}
       <div class="mini-weapon-profile-range flexrow">
         {#each profile.range as range}
-          <span><i class="cci cci-{range.type.toLowerCase()}" data-tooltip={range.type} />{range.val}</span>
+          <span data-tooltip={range.type}><i class="cci cci-{range.type.toLowerCase()}" />{range.val}</span>
         {/each}
       </div>
       {#if profile.damage}
         <span class="mini-weapon-profile-separator">//</span>
         <div class="mini-weapon-profile-damage flexrow">
           {#each profile.damage as damage}
-            <span
-              ><i
-                class="cci cci-{damage.type.toLowerCase()} damage--{damage.type.toLowerCase()}"
-                data-tooltip={damage.type}
-              />{damage.val}</span
+            <span data-tooltip={damage.type}
+              ><i class="cci cci-{damage.type.toLowerCase()} damage--{damage.type.toLowerCase()}" />{damage.val}</span
             >
           {/each}
         </div>
