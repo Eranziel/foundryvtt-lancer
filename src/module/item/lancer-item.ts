@@ -15,8 +15,8 @@ import {
   npcFeatureOverrideEffects,
 } from "../effects/converter";
 import { BonusData } from "../models/bits/bonus";
-import { LancerMECH } from "../actor/lancer-actor";
-import { Damage } from "../models/bits/damage";
+import { LancerMECH, LancerNPC } from "../actor/lancer-actor";
+import { Damage, DamageData } from "../models/bits/damage";
 import { WeaponAttackFlow } from "../flows/attack";
 import { TechAttackFlow } from "../flows/tech";
 import { fixupPowerUses } from "../models/bits/power";
@@ -143,6 +143,42 @@ export class LancerItem extends Item {
       default:
         return [];
     }
+  }
+
+  currentProfile(): { range: RangeData[]; damage?: DamageData[]; accuracy?: number; attack?: number } {
+    const result: { range: RangeData[]; damage?: DamageData[]; accuracy?: number; attack?: number } = {
+      range: [],
+    };
+    if (this.is_mech_weapon()) {
+      const p = this.system.selected_profile_index;
+      result.range.push(...this.system.profiles[p].range);
+      result.damage = result.damage ?? [];
+      result.damage.push(...this.system.profiles[p].damage);
+    } else if (this.is_pilot_weapon()) {
+      result.range.push(...this.system.range);
+      result.damage = result.damage ?? [];
+      result.damage.push(...this.system.damage);
+    } else if (
+      this.is_npc_feature() &&
+      (this.system.type === NpcFeatureType.Weapon || this.system.type === NpcFeatureType.Tech)
+    ) {
+      let tier = 0;
+      if (this.actor) {
+        tier = ((this.actor as LancerNPC).system.tier ?? 1) - 1;
+      }
+      if (this.system.type === NpcFeatureType.Weapon) {
+        // Weapons have range and damage
+        result.range.push(...this.system.range);
+        result.damage = result.damage ?? [];
+        result.damage.push(...this.system.damage[tier]);
+      } else {
+        // Must be a tech system. Use sensor range as the range.
+        result.range.push({ type: RangeType.Range, val: this.actor?.system.sensor_range || 5 });
+      }
+      result.accuracy = this.system.accuracy ? this.system.accuracy[tier] : 0;
+      result.attack = this.system.attack_bonus ? this.system.attack_bonus[tier] : 0;
+    }
+    return result;
   }
 
   /** Sets this item to its default equipped state */

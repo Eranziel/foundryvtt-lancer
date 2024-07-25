@@ -31,6 +31,8 @@
   $: base = (weapon, base);
   // @ts-ignore i.e., targets depend on weapon and base
   $: targets = (weapon, base, targets);
+  $: profile = lancerItem ? findProfile() : null;
+  $: ranges = lancerItem ? findRanges() : null;
 
   const dispatch = createEventDispatcher();
 
@@ -52,6 +54,10 @@
         window.removeEventListener("keydown", escHandler);
       },
     };
+  }
+
+  function findProfile() {
+    return lancerItem?.currentProfile() ?? { range: [], damage: [] };
   }
 
   function findRanges() {
@@ -92,6 +98,48 @@
         <i class="fas fa-dice-d20 i--m i--light" />
       {/if}
       <span>{title}</span>
+    </div>
+  {/if}
+  {#if profile}
+    <div class="mini-weapon-profile flexrow">
+      {#if profile.attack || profile.accuracy}
+        <div class="mini-weapon-profile-accuracy flexrow">
+          {#if profile.attack}
+            <span
+              ><i class="cci cci-reticule" data-tooltip="Attack bonus" />{profile.attack < 0
+                ? "-"
+                : "+"}{profile.attack}</span
+            >
+          {/if}
+          {#if profile.accuracy}
+            <span
+              ><i
+                class="cci cci-{(profile.accuracy ?? 0) > 0 ? 'accuracy' : 'difficulty'}"
+                data-tooltip={(profile.accuracy ?? 0) > 0 ? "Accuracy" : "Difficulty"}
+              />{Math.abs(profile.accuracy)}</span
+            >
+          {/if}
+        </div>
+        <span class="mini-weapon-profile-separator">//</span>
+      {/if}
+      <div class="mini-weapon-profile-range flexrow">
+        {#each profile.range as range}
+          <span><i class="cci cci-{range.type.toLowerCase()}" data-tooltip={range.type} />{range.val}</span>
+        {/each}
+      </div>
+      {#if profile.damage}
+        <span class="mini-weapon-profile-separator">//</span>
+        <div class="mini-weapon-profile-damage flexrow">
+          {#each profile.damage as damage}
+            <span
+              ><i
+                class="cci cci-{damage.type.toLowerCase()} damage--{damage.type.toLowerCase()}"
+                data-tooltip={damage.type}
+              />{damage.val}</span
+            >
+          {/each}
+        </div>
+      {/if}
     </div>
   {/if}
   <div id="{kind}-accdiff-dialog" style="padding:4px">
@@ -183,13 +231,13 @@
       </div>
     </div>
     <div class="flex-col accdiff-footer lancer-border-primary">
-      {#if lancerItem && findRanges().length}
+      {#if ranges}
         <span class="accdiff-weight flex-center flexrow">Targeting</span>
         <div class="accdiff-ranges flexrow">
-          {#each findRanges() as range}
+          {#each ranges as range}
             <button class="range-button" type="button" on:click={() => deployTemplate(range)}>
               <i class="cci cci-{range.type.toLowerCase()} i--m i--light" />
-              {findRanges().length < 3 ? range.type.toUpperCase() : ""}
+              {ranges.length && ranges.length < 3 ? range.type.toUpperCase() : ""}
               {range.val}
             </button>
           {/each}

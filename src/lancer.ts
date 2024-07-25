@@ -191,6 +191,7 @@ import { beginItemChatFlow } from "./module/flows/item";
 import { onHotbarDrop } from "./module/flows/hotbar";
 import { registerFlows } from "./module/flows/register-flows";
 import { LancerNPCFeatureSheet } from "./module/item/npc-feature-sheet";
+import { miniProfile } from "./module/helpers/chat";
 
 const lp = LANCER.log_prefix;
 
@@ -662,6 +663,10 @@ Hooks.once("init", async function () {
   // ------------------------------------------------------------------------
   // Actor helpers
   Handlebars.registerHelper("is-combatant", is_combatant);
+
+  // ------------------------------------------------------------------------
+  // Chat helpers
+  Handlebars.registerHelper("mini-profile", miniProfile);
 
   // ------------------------------------------------------------------------
   // Sliding HUD Zone, including accuracy/difficulty window

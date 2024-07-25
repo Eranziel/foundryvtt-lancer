@@ -360,6 +360,43 @@ $theme-types: "primary" "secondary" "dark-gray" "light-gray" "tooltip"    // Gen
   }
 }
 
+.mini-weapon-profile {
+  align-items: center;
+  justify-content: space-evenly;
+  border: 1px solid var(--weapon-color);
+  border-bottom-left-radius: 5px;
+  border-bottom-right-radius: 5px;
+  font-size: 15px;
+  word-break: normal;
+  margin-bottom: 0.2em;
+
+  .lancer-tech + & {
+    border-color: var(--tech-color);
+  }
+
+  .mini-weapon-profile-separator {
+    color: var(--light-gray-color);
+    width: min-content;
+    max-width: min-content;
+  }
+
+  .mini-weapon-profile-accuracy,
+  .mini-weapon-profile-range,
+  .mini-weapon-profile-damage {
+    justify-content: center;
+
+    span {
+      max-width: min-content;
+      display: flex;
+      align-items: center;
+
+      & + span {
+        padding-left: 0.3em;
+      }
+    }
+  }
+}
+
 .lancer-hit {
   display: inline-flex;
   margin: 8px;

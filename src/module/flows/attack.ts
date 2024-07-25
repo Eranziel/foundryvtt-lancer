@@ -546,7 +546,12 @@ export async function printAttackCard(
     },
   };
   state.data.defense = state.data.is_smart ? "E-DEF" : "EVASION";
-  await renderTemplateStep(state.actor, template, state.data, flags);
+  const templateData = {
+    ...state.data,
+    item_uuid: state.item?.uuid,
+    profile: state.item?.currentProfile(),
+  };
+  await renderTemplateStep(state.actor, template, templateData, flags);
   return true;
 }
 

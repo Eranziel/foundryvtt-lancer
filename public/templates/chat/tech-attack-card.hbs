@@ -11,6 +11,9 @@
       <i class="fas fa-dice-d20 i--m i--light"></i>
     </a> -->
   </div>
+  {{#if profile}}
+    {{{mini-profile profile}}}
+  {{/if}}
   <div class="card clipped">
     <div class="lancer-mini-header collapse-trigger" data-collapse-id="{{_uuid}}-attacks">
       {{localize "lancer.chat-card.title.attack"}}
