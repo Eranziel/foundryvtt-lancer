@@ -13,7 +13,7 @@
   import Total from "./Total.svelte";
   import PlusMinusInput from "./PlusMinusInput.svelte";
   import type { LancerItem } from "../../item/lancer-item";
-  import { RangeType } from "../../enums";
+  import { NpcFeatureType, RangeType } from "../../enums";
   import { WeaponRangeTemplate } from "../../pixi/weapon-range-template";
   import { fade } from "../slidinghud";
   import { targetsFromTemplate } from "../../flows/_template";
@@ -56,6 +56,14 @@
     };
   }
 
+  function isTech() {
+    if (!lancerItem) return false;
+    if (lancerItem.is_mech_weapon()) return false;
+    if (lancerItem.is_pilot_weapon()) return false;
+    if (lancerItem.is_npc_feature() && lancerItem.system.type === NpcFeatureType.Weapon) return false;
+    return true;
+  }
+
   function findProfile() {
     return lancerItem?.currentProfile() ?? { range: [], damage: [] };
   }
@@ -91,9 +99,13 @@
   on:submit|preventDefault={() => dispatch("submit")}
 >
   {#if title != ""}
-    <div class="lancer-header lancer-weapon medium">
+    <div class="lancer-header {isTech() ? 'lancer-tech' : 'lancer-weapon'} medium">
       {#if kind == "attack"}
-        <i class="cci cci-weapon i--m i--light" />
+        {#if isTech()}
+          <i class="cci cci-tech-quick i--m i--light" />
+        {:else}
+          <i class="cci cci-weapon i--m i--light" />
+        {/if}
       {:else if kind == "hase"}
         <i class="fas fa-dice-d20 i--m i--light" />
       {/if}

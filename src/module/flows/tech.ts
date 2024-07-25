@@ -187,6 +187,11 @@ export async function printTechAttackCard(
       }),
     },
   };
-  await renderTemplateStep(state.actor, template, state.data, flags);
+  const templateData = {
+    ...state.data,
+    item_uuid: state.item?.uuid,
+    profile: state.item?.currentProfile(),
+  };
+  await renderTemplateStep(state.actor, template, templateData, flags);
   return true;
 }

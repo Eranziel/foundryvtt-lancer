@@ -15,7 +15,7 @@ import {
   npcFeatureOverrideEffects,
 } from "../effects/converter";
 import { BonusData } from "../models/bits/bonus";
-import { LancerMECH, LancerNPC } from "../actor/lancer-actor";
+import { LancerMECH, LancerNPC, LancerPILOT } from "../actor/lancer-actor";
 import { Damage, DamageData } from "../models/bits/damage";
 import { WeaponAttackFlow } from "../flows/attack";
 import { TechAttackFlow } from "../flows/tech";
@@ -177,6 +177,15 @@ export class LancerItem extends Item {
       }
       result.accuracy = this.system.accuracy ? this.system.accuracy[tier] : 0;
       result.attack = this.system.attack_bonus ? this.system.attack_bonus[tier] : 0;
+    } else if (this.is_mech_system() || this.is_frame()) {
+      // PC Tech attacks. Use sensor range as the range.
+      result.range.push({ type: RangeType.Range, val: this.actor?.system.sensor_range || 5 });
+    } else if (this.is_talent()) {
+      // PC Tech attack from a talent - get the pilot's active mech's sensor range.
+      result.range.push({
+        type: RangeType.Range,
+        val: (this.actor as LancerPILOT)?.system.active_mech?.value?.system.sensor_range || 5,
+      });
     }
     return result;
   }
