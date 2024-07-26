@@ -1,13 +1,15 @@
 import type HUDZone from "./SlidingHUDZone.svelte";
 import type { AccDiffHudData } from "../acc_diff";
 import type { StructStressData } from "../struct_stress/data";
+import { DamageHudData } from "../damage";
 
 let hud: HUDZone;
 // Look - I don't really know enough typescript to get it right,
 // but these will hold the success/reject of any
 let activeCallbacks: Record<keyof HUDData, null | [(value: any) => any, () => any]> = {
-  attack: null,
   hase: null,
+  attack: null,
+  damage: null,
   struct: null,
   stress: null,
 };
@@ -53,4 +55,10 @@ export async function fade(dir: "out" | "in" = "out") {
   hud.fade(dir);
 }
 
-type HUDData = { attack: AccDiffHudData; hase: AccDiffHudData; struct: StructStressData; stress: StructStressData };
+type HUDData = {
+  hase: AccDiffHudData;
+  attack: AccDiffHudData;
+  damage: DamageHudData;
+  struct: StructStressData;
+  stress: StructStressData;
+};

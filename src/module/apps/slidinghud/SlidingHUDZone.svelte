@@ -11,6 +11,7 @@
   import { isDragging } from "./is-dragging";
   import { userTargets } from "./user-targets";
   import AccDiffForm from "../acc_diff/AccDiffHUD.svelte";
+  import DamageForm from "../damage/DamageHUD.svelte";
   import StructStressForm from "../struct_stress/Form.svelte";
 
   let dispatch = createEventDispatcher();
@@ -18,6 +19,7 @@
   let dialogs: { [key: string]: typeof SvelteComponent } = {
     hase: AccDiffForm,
     attack: AccDiffForm,
+    damage: DamageForm,
     struct: StructStressForm,
     stress: StructStressForm,
   };
@@ -31,6 +33,7 @@
   } = {
     hase: { open: null },
     attack: { open: null },
+    damage: { open: null },
     struct: { open: null },
     stress: { open: null },
   };
@@ -41,6 +44,14 @@
     if (attackData) {
       attackData.replaceTargets($userTargets);
       attackData = attackData;
+    }
+  }
+
+  $: damageData = huds.damage.data;
+  $: {
+    if (damageData) {
+      damageData.replaceTargets($userTargets);
+      damageData = damageData;
     }
   }
 
