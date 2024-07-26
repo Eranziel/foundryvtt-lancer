@@ -7,16 +7,31 @@ import { LancerItem } from "../../item/lancer-item";
 import { LancerToken } from "../../token";
 import { Tag } from "../../models/bits/tag";
 import { DamageData } from "../../models/bits/damage";
+import { DamageType } from "../../enums";
+
+/**
+ * Utility function to ensure that raw data conforms to the DamageData spec
+ * @param d The raw damage object
+ * @returns A correctly typed DamageData object
+ */
+function ensureDamageType(d: { type: string; val: string }) {
+  return {
+    type: Object.keys(DamageType).includes(d.type) ? (d.type as DamageType) : DamageType.Kinetic,
+    val: d.val,
+  };
+}
 
 // so normally you wouldn't keep the codecs with the classes like this
 // the entire point of io-ts is that the co/dec logic is separable
 // but here we want plugins to actually modify the codecs, so, sigh
 export class DamageHudWeapon {
-  ap: boolean;
-  paracausal: boolean;
-  halfDamage: boolean;
-  // damage: DamageData[];
-  // bonusDamage: DamageData[];
+  // These are the damage and bonus damage from the weapon+mod.
+  // They are accumulated with whatever other damage is added to the base data
+  damage: DamageData[];
+  bonusDamage: DamageData[];
+  reliable: boolean;
+  reliableValue: number;
+  overkill: boolean;
   #data!: DamageHudData; // never use this class before calling hydrate
   plugins: { [k: string]: DamageHudPluginData };
 
@@ -24,11 +39,13 @@ export class DamageHudWeapon {
 
   static get schema() {
     return {
-      ap: t.boolean,
-      paracausal: t.boolean,
-      halfDamage: t.boolean,
-      // damage: t.array(DamageData),
-      // bonusDamage: t.array(DamageData),
+      // TODO: how do you define an io-ts array schema using a TS type?
+      // `type` should be a DamageType
+      damage: t.array(t.type({ type: t.string, val: t.string })),
+      bonusDamage: t.array(t.type({ type: t.string, val: t.string })),
+      reliable: t.boolean,
+      reliableValue: t.number,
+      overkill: t.boolean,
       plugins: t.type(this.pluginSchema),
     };
   }
@@ -41,21 +58,23 @@ export class DamageHudWeapon {
   }
 
   constructor(obj: t.TypeOf<typeof DamageHudWeapon.schemaCodec>) {
-    this.ap = obj.ap;
-    this.paracausal = obj.paracausal;
-    this.halfDamage = obj.halfDamage;
-    // this.damage = obj.damage;
-    // this.bonusDamage = obj.bonusDamage;
+    const objectDamage = obj.damage.map(ensureDamageType);
+    const objBonusDamage = obj.bonusDamage.map(ensureDamageType);
+    this.damage = objectDamage;
+    this.bonusDamage = objBonusDamage;
+    this.reliable = obj.reliable;
+    this.reliableValue = obj.reliableValue;
+    this.overkill = obj.overkill;
     this.plugins = obj.plugins;
   }
 
   get raw() {
     return {
-      ap: this.ap,
-      paracausal: this.paracausal,
-      halfDamage: this.halfDamage,
-      // damage: this.damage,
-      // bonusDamage: this.bonusDamage,
+      damage: this.damage,
+      bonusDamage: this.bonusDamage,
+      reliable: this.reliable,
+      reliableValue: this.reliableValue,
+      overkill: this.overkill,
       plugins: this.plugins,
     };
   }
@@ -71,12 +90,27 @@ export class DamageHudWeapon {
     }
     this.#data = d;
   }
+
+  get total() {
+    return { damage: this.damage, bonusDamage: this.bonusDamage };
+  }
+
+  // TODO: interpolate NPC reliable tag values
+  static parseReliableVal(val: string, source?: LancerItem | LancerActor): number {
+    // Make a regex which matches {d/d/d} and returns each tier as a match group
+    // if it doesn't match the regex, parseInt and return
+    // Select the appropriate group for the NPC's tier
+    // parseInt the tier group and return
+    return 0;
+  }
 }
 
 export class DamageHudBase {
-  // accuracy: number;
-  // difficulty: number;
-  // cover: Cover;
+  ap: boolean;
+  paracausal: boolean;
+  halfDamage: boolean;
+  damage: DamageData[];
+  bonusDamage: DamageData[];
   plugins: { [k: string]: DamageHudPluginData };
   #weapon!: DamageHudWeapon; // never use this class before calling hydrate
 
@@ -84,9 +118,13 @@ export class DamageHudBase {
 
   static get schema() {
     return {
-      // accuracy: t.number,
-      // difficulty: t.number,
-      // cover: coverSchema,
+      ap: t.boolean,
+      paracausal: t.boolean,
+      halfDamage: t.boolean,
+      // TODO: how do you define an io-ts array schema using a TS type?
+      // `type` should be a DamageType
+      damage: t.array(t.type({ type: t.string, val: t.string })),
+      bonusDamage: t.array(t.type({ type: t.string, val: t.string })),
       plugins: t.type(this.pluginSchema),
     };
   }
@@ -98,17 +136,23 @@ export class DamageHudBase {
   }
 
   constructor(obj: t.TypeOf<typeof DamageHudBase.schemaCodec>) {
-    // this.accuracy = obj.accuracy;
-    // this.difficulty = obj.difficulty;
-    // this.cover = obj.cover;
+    const objectDamage = obj.damage.map(ensureDamageType);
+    const objBonusDamage = obj.bonusDamage.map(ensureDamageType);
+    this.ap = obj.ap;
+    this.paracausal = obj.paracausal;
+    this.halfDamage = obj.halfDamage;
+    this.damage = objectDamage;
+    this.bonusDamage = objBonusDamage;
     this.plugins = obj.plugins;
   }
 
   get raw() {
     return {
-      // accuracy: this.accuracy,
-      // difficulty: this.difficulty,
-      // cover: this.cover,
+      ap: this.ap,
+      paracausal: this.paracausal,
+      halfDamage: this.halfDamage,
+      damage: this.damage,
+      bonusDamage: this.bonusDamage,
       plugins: this.plugins,
     };
   }
@@ -121,7 +165,11 @@ export class DamageHudBase {
   }
 
   get total() {
-    return 0; // this.accuracy - this.difficulty// + this.#weapon.total(this.cover);
+    const weaponTotal = this.#weapon.total;
+    return {
+      damage: this.damage.concat(weaponTotal.damage),
+      bonusDamage: this.bonusDamage.concat(weaponTotal.bonusDamage),
+    };
   }
 }
 
@@ -131,10 +179,10 @@ export class DamageHudBase {
 // so if you extend DamageBase it's trying to assign DamageBase to DamageTarget
 export class DamageHudTarget {
   target: LancerToken;
-  // accuracy: number;
-  // difficulty: number;
-  // cover: Cover;
-  // consumeLockOn: boolean;
+  ap: boolean;
+  paracausal: boolean;
+  halfDamage: boolean;
+  bonusDamage: DamageData[];
   plugins: { [k: string]: any };
   #weapon!: DamageHudWeapon; // never use this class before calling hydrate
   #base!: DamageHudBase; // never use this class before calling hydrate
@@ -144,10 +192,10 @@ export class DamageHudTarget {
   static get schema() {
     return {
       target_id: t.string,
-      // accuracy: t.number,
-      // difficulty: t.number,
-      // cover: coverSchema,
-      // consumeLockOn: t.boolean,
+      ap: t.boolean,
+      paracausal: t.boolean,
+      halfDamage: t.boolean,
+      bonusDamage: t.array(t.type({ type: t.string, val: t.string })),
       plugins: t.type(this.pluginSchema),
     };
   }
@@ -165,25 +213,23 @@ export class DamageHudTarget {
       ui.notifications!.error("Trying to access tokens from a different scene!");
       throw new Error("Token not found");
     }
+    const objBonusDamage = obj.bonusDamage.map(ensureDamageType);
 
     this.target = target.object! as LancerToken;
-    // this.accuracy = obj.accuracy;
-    // this.difficulty = obj.difficulty;
-    // this.cover = obj.cover;
-    // this.consumeLockOn = obj.consumeLockOn;
+    this.ap = obj.ap;
+    this.paracausal = obj.paracausal;
+    this.halfDamage = obj.halfDamage;
+    this.bonusDamage = objBonusDamage;
     this.plugins = obj.plugins;
-
-    // this.#weapon = weapon;
-    // this.#base = base;
   }
 
   get raw() {
     return {
       target_id: this.target.id,
-      // accuracy: this.accuracy,
-      // difficulty: this.difficulty,
-      // cover: this.cover,
-      // consumeLockOn: this.consumeLockOn,
+      ap: this.ap,
+      paracausal: this.paracausal,
+      halfDamage: this.halfDamage,
+      bonusDamage: this.bonusDamage,
       plugins: this.plugins,
     };
   }
@@ -191,10 +237,10 @@ export class DamageHudTarget {
   static fromParams(t: Token): DamageHudTarget {
     let ret = {
       target_id: t.id,
-      // accuracy: 0,
-      // difficulty: 0,
-      // cover: Cover.None,
-      // consumeLockOn: true,
+      ap: false,
+      paracausal: false,
+      halfDamage: false,
+      bonusDamage: [],
       plugins: {} as { [k: string]: any },
     };
     for (let plugin of DamageHudData.targetedPlugins) {
@@ -211,21 +257,12 @@ export class DamageHudTarget {
     }
   }
 
-  get usingLockOn(): null | boolean {
-    return null; //(this.consumeLockOn && this.lockOnAvailable) || null;
-  }
-
-  get lockOnAvailable(): null | boolean {
-    return !!this.target.actor?.system.statuses.lockon;
-  }
-
   get total() {
-    let base = 0; //this.accuracy - this.difficulty + this.#weapon.total(this.cover);
-    // the only thing we actually use base for is the untyped bonuses
-    let raw = base; // + this.#base.accuracy - this.#base.difficulty;
-    // let lockon = this.usingLockOn ? 1 : 0;
-
-    return raw; // + lockon;
+    const baseTotal = this.#base.total;
+    return {
+      damage: baseTotal,
+      bonusDamage: this.bonusDamage.concat(baseTotal.bonusDamage),
+    };
   }
 }
 
@@ -333,49 +370,53 @@ export class DamageHudData {
     tags?: Tag[],
     title?: string,
     targets?: Token[],
-    starting?: [number, number] | number
+    ap?: boolean,
+    paracausal?: boolean,
+    halfDamage?: boolean,
+    starting?: { damage?: DamageData[]; bonusDamage?: DamageData[] }
   ): DamageHudData {
     let weapon = {
-      ap: false,
-      paracausal: false,
-      halfDamage: false,
+      damage: [],
+      bonusDamage: [],
+      reliable: false,
+      reliableValue: 0,
+      overkill: false,
       plugins: {} as { [k: string]: any },
     };
-
-    // Fix number to array
-    if (!starting) {
-      starting = [0, 0];
-    } else if (typeof starting == "number") {
-      starting = starting >= 0 ? [starting, 0] : [0, -starting];
-    }
+    let base = {
+      ap: ap ?? false,
+      paracausal: paracausal ?? false,
+      halfDamage: halfDamage ?? false,
+      damage: starting?.damage ?? [],
+      bonusDamage: starting?.bonusDamage ?? [],
+      plugins: {} as { [k: string]: any },
+    };
 
     for (let tag of tags || []) {
       switch (tag.lid) {
         case "tg_ap":
-          weapon.ap = true;
+          base.ap = true;
           break;
+        case "tg_overkill":
+          weapon.overkill = true;
+          break;
+        case "tg_reliable":
+          weapon.reliable = true;
+          weapon.reliableValue = DamageHudWeapon.parseReliableVal(tag.val, runtimeData);
       }
     }
-    // TODO: check for paracausal and half damage
-
-    let base = {
-      // cover: Cover.None,
-      // accuracy: starting[0],
-      // difficulty: starting[1],
-      plugins: {} as { [k: string]: any },
-    };
 
     let obj: DamageHudDataSerialized = {
-      title: title ? title : "Accuracy and Difficulty",
+      title: title ? title : "Damage Roll",
       weapon,
       base,
       targets: (targets || []).map(t => {
         let ret = {
           target_id: t.id,
-          // accuracy: 0,
-          // difficulty: 0,
-          // cover: Cover.None,
-          consumeLockOn: true,
+          ap: base.ap,
+          paracausal: base.paracausal,
+          halfDamage: base.halfDamage,
+          bonusDamage: [],
           plugins: {} as { [k: string]: any },
         };
         for (let plugin of this.targetedPlugins) {
