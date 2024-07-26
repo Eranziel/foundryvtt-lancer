@@ -1,13 +1,13 @@
 import * as t from "io-ts";
 
-import type { LancerActor } from "../../actor/lancer-actor";
+import type { LancerActor, LancerNPC } from "../../actor/lancer-actor";
 import { DamageHudPlugin, DamageHudPluginCodec, DamageHudPluginData } from "./plugin";
 import { enclass, encode, decode } from "../acc_diff/serde";
 import { LancerItem } from "../../item/lancer-item";
 import { LancerToken } from "../../token";
 import { Tag } from "../../models/bits/tag";
 import { DamageData } from "../../models/bits/damage";
-import { DamageType } from "../../enums";
+import { DamageType, NpcFeatureType } from "../../enums";
 
 /**
  * Utility function to ensure that raw data conforms to the DamageData spec
@@ -376,8 +376,8 @@ export class DamageHudData {
     starting?: { damage?: DamageData[]; bonusDamage?: DamageData[] }
   ): DamageHudData {
     let weapon = {
-      damage: [],
-      bonusDamage: [],
+      damage: [] as DamageData[],
+      bonusDamage: [] as DamageData[],
       reliable: false,
       reliableValue: 0,
       overkill: false,
@@ -403,6 +403,20 @@ export class DamageHudData {
         case "tg_reliable":
           weapon.reliable = true;
           weapon.reliableValue = DamageHudWeapon.parseReliableVal(tag.val, runtimeData);
+      }
+    }
+
+    if (runtimeData instanceof LancerItem) {
+      if (runtimeData.is_mech_weapon()) {
+        const profile = runtimeData.system.active_profile;
+        weapon.damage = profile.damage;
+        weapon.bonusDamage = profile.bonus_damage;
+      } else if (runtimeData.is_npc_feature() && runtimeData.system.type === NpcFeatureType.Weapon) {
+        const actor = runtimeData.actor as LancerNPC | null;
+        const tier = (actor?.system.tier || 1) - 1;
+        weapon.damage = runtimeData.system.damage[tier];
+      } else if (runtimeData.is_pilot_weapon()) {
+        weapon.damage = runtimeData.system.damage;
       }
     }
 
