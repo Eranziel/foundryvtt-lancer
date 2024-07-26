@@ -10,7 +10,7 @@
   import Plugin from "./Plugin.svelte";
   import Cover from "./Cover.svelte";
   import ConsumeLockOn from "./ConsumeLockOn.svelte";
-  import Total from "./Total.svelte";
+  import Total from "./TotalAccuracy.svelte";
   import PlusMinusInput from "./PlusMinusInput.svelte";
   import type { LancerItem } from "../../item/lancer-item";
   import { NpcFeatureType, RangeType } from "../../enums";

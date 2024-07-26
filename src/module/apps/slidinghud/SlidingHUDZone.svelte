@@ -10,7 +10,7 @@
   import { sidebarWidth } from "./sidebar-width";
   import { isDragging } from "./is-dragging";
   import { userTargets } from "./user-targets";
-  import AccDiffForm from "../acc_diff/Form.svelte";
+  import AccDiffForm from "../acc_diff/AccDiffHUD.svelte";
   import StructStressForm from "../struct_stress/Form.svelte";
 
   let dispatch = createEventDispatcher();
