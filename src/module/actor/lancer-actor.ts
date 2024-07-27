@@ -873,14 +873,6 @@ export class LancerActor extends Actor {
   }
 
   async beginBasicAttackFlow(title?: string): Promise<boolean> {
-    if (this.is_deployable()) {
-      if (!this.system.owner) {
-        ui.notifications!.warn(`Deployable ${this.id} has no deployer so cannot attack!`);
-        return false;
-      }
-      const owner = await LancerActor.fromUuid(this.system.owner.id);
-      return await owner.beginBasicAttackFlow(title);
-    }
     const flow = new BasicAttackFlow(this, title ? { title } : undefined);
     return await flow.begin();
   }

@@ -180,7 +180,7 @@ export async function initAttackData(
     state.data.title = options?.title ?? defaultTitle;
     state.data.attack_type = isTech ? AttackType.Tech : AttackType.Melee; // Virtually all basic attacks are melee, so it's a good default
     state.data.flat_bonus = 0;
-    if (state.actor.is_pilot() || state.actor.is_mech()) {
+    if (state.actor.is_pilot() || state.actor.is_mech() || state.actor.is_deployable()) {
       state.data.flat_bonus = isTech ? state.actor.system.tech_attack : state.actor.system.grit;
     } else if (state.actor.is_npc()) {
       state.data.flat_bonus = isTech ? state.actor.system.sys : state.actor.system.tier;
