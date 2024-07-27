@@ -17,12 +17,14 @@
   import { WeaponRangeTemplate } from "../../pixi/weapon-range-template";
   import { fade } from "../slidinghud";
   import { targetsFromTemplate } from "../../flows/_template";
+  import type { LancerActor } from "../../actor/lancer-actor";
 
   export let weapon: AccDiffWeapon;
   export let base: AccDiffBase;
   export let targets: AccDiffTarget[];
   export let title: string;
   export let lancerItem: LancerItem | null;
+  export let lancerActor: LancerActor | null;
 
   export let kind: "hase" | "attack";
 
@@ -38,6 +40,19 @@
 
   function focus(el: HTMLElement) {
     el.focus();
+  }
+
+  function drawLos(target: Token) {
+    if (!game.modules.get("terrain-height-tools")?.active) return;
+    const tokens = lancerActor?.getActiveTokens(true) ?? lancerItem?.actor?.getActiveTokens(true);
+    const attacker = tokens?.shift();
+    if (!attacker || attacker === target) return;
+    terrainHeightTools!.drawLineOfSightRaysBetweenTokens(attacker, target);
+  }
+
+  function clearLos() {
+    if (!game.modules.get("terrain-height-tools")?.active) return;
+    terrainHeightTools!.clearLineOfSightRays();
   }
 
   function escToCancel(_el: HTMLElement) {
@@ -217,7 +232,7 @@
                 <Cover bind:cover={base.cover} class="accdiff-base-cover flexcol" disabled={weapon.seeking} />
               </div>
             {:else if targets.length == 1}
-              <div transition:slide|local>
+              <div transition:slide|local on:mouseenter={() => drawLos(targets[0].target)} on:mouseleave={clearLos}>
                 <Cover bind:cover={targets[0].cover} class="accdiff-base-cover flexcol" disabled={weapon.seeking} />
               </div>
             {/if}
@@ -266,7 +281,11 @@
               <Total target={base} id="total-display-0" />
             </div>
           {:else if targets.length == 1}
-            <div class="flexrow flex-center accdiff-total">
+            <div
+              class="flexrow flex-center accdiff-total"
+              on:mouseenter={() => drawLos(targets[0].target)}
+              on:mouseleave={clearLos}
+            >
               <Total bind:target={targets[0]} id="total-display-0" onlyTarget={true} />
             </div>
           {:else}
@@ -277,6 +296,8 @@
                   out:slide={{ duration: 100 }}
                   animate:flip={{ duration: 200 }}
                   class="flexcol card accdiff-target"
+                  on:mouseenter={() => drawLos(data.target)}
+                  on:mouseleave={clearLos}
                 >
                   <label class="flexrow flex-center card card-title" for={data.target.id}>
                     {data.target.document.name}

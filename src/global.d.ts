@@ -49,6 +49,161 @@ interface LancerInitiativeConfig<T extends string = string> {
   sort?: boolean;
 }
 
+interface TerrainType {
+  id: string;
+  name: string;
+  usesHeight: boolean;
+  textRotation: boolean;
+  lineType: 0 | 1 | 2;
+  lineWidth: number;
+  lineColor: string;
+  lineOpacity: number;
+  lineDashSize: number;
+  lineGapSize: number;
+  fillType: number;
+  fillColor: string;
+  fillOpacity: number;
+  fillTexture: string;
+  textFormat: string;
+  font: string;
+  textSize: number;
+  textColor: string;
+  textOpacity: number;
+}
+
+interface terrainHeightToolsAPI {
+  /**
+   * Attempts to find a terrain type with the given name or ID.
+   * @param  terrain The terrain to search for.
+   */
+  getTerrainType(
+    terrain:
+      | {
+          /**
+           * The ID of the terrain type to find. Either this or `name` must be provided.
+           */
+          id: string;
+          /**
+           * The name of the terrain type to find. Either this or `id` must be provided.
+           */
+          name?: string;
+        }
+      | {
+          /**
+           * The ID of the terrain type to find. Either this or `name` must be provided.
+           */
+          id?: string;
+          /**
+           * The name of the terrain type to find. Either this or `id` must be provided.
+           */
+          name: string;
+        }
+  ): TerrainType | undefined;
+
+  /**
+   * Gets the terrain data at the given grid coordinates.
+   */
+  getCell(x: number, y: number): { terrainTypeId: string; height: number } | undefined;
+
+  /**
+   * Paints the target cells on the current scene with the provided terrain data.
+   * @param cells The grid cells to paint as [X,Y] coordinate pairs. The cells do not have to be
+   * connected.
+   * @param  terrain The terrain options to use when painting the cells.
+   */
+  paintCells(
+    cells: [number, number][],
+    terrain:
+      | {
+          /**
+           * The ID of the terrain type to use. Either this or `name` must be provided.
+           */
+          id?: string;
+          /**
+           * The name of the terrain type to use. Either this or `id` must be provided.
+           */
+          name: string;
+          height?: number;
+          elevation?: number;
+        }
+      | {
+          /**
+           * The ID of the terrain type to use. Either this or `name` must be provided.
+           */
+          id: string;
+          /**
+           * The name of the terrain type to use. Either this or `id` must be provided.
+           */
+          name?: string;
+          /**
+           * If the terrain type uses heights, the height to paint on these cells.
+           */
+          height?: number;
+          /**
+           * If the terrain type uses heights, the elevation (how high off the ground) to paint these cells.
+           */
+          elevation?: number;
+        },
+    {
+      overwrite,
+    }: {
+      /**
+       * Whether or not to overwrite already-painted cells with the new
+       * terrain data.
+       */
+      overwrite?: boolean;
+    } = {}
+  ): Promise<boolean>;
+
+  /**
+   * Erases terrain height data from the given cells on the current scene.
+   */
+  eraseCells(cells: [number, number][]): Promise<boolean>;
+
+  /**
+   * Calculates and draws line of sight rays between two tokens, as per the
+   * token line of sight tool.
+   * Note that currently only one set of lines can be drawn, attempting to draw
+   * any other lines of sight will clear these lines, INCLUDING those drawn by
+   * the tools in the side bar.
+   * @param  token1 The first token to draw line of sight from.
+   * @param  token2 The second token to draw line of sight to.
+   * @param  options Options that change how the calculation is done.
+   */
+  drawLineOfSightRaysBetweenTokens: (
+    token1: Token,
+    token2: Token,
+    options?: {
+      /**
+       * How far the ray starts vertically relative to token1. The height is
+       * calculated as `token1.elevation + (token1RelativeHeight × token1.size)`.
+       * If undefined, uses the world-configured default value.
+       */
+      token1RelativeHeight?: number;
+      /**
+       * How far the ray ends vertically relative to token2. The height is
+       * calculated as `token2.elevation + (token2RelativeHeight × token2.size)`.
+       * If undefined, uses the world-configured default value.
+       */
+      token2RelativeHeight?: number;
+      /**
+       * If true, terrain types that are configured as not using a height value
+       * will be included in the return list. They are treated as having
+       * infinite height.
+       */
+      includeNoHeightTerrain?: boolean;
+      /**
+       * Whether to draw these rays for other users connected to the game.
+       */
+      drawForOthers?: boolean;
+    }
+  ) => void;
+  /**
+   * Removes all lines of sight drawn by this user, INCLUDING those drawn by the tools in the side bar.
+   */
+  clearLineOfSightRays: () => void;
+}
+
 declare global {
   // Since we never use these before `init` tell league types that they are
   // never undefined
@@ -96,4 +251,10 @@ declare global {
       "lancer.combat-tracker-appearance": Partial<LancerInitiativeConfig["def_appearance"]>;
     }
   }
+
+  /**
+   * Terrain Height Tools API.
+   * Make sure to guard usage with a check for the module being active
+   */
+  const terrainHeightTools: terrainHeightToolsAPI | undefined;
 }
