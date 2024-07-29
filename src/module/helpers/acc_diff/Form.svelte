@@ -45,7 +45,7 @@
   function drawLos(target: Token) {
     const thtModule = game.modules.get("terrain-height-tools");
     // @ts-expect-error v10 types
-    if (!thtModule?.active || foundry.utils.isNewerVersion("0.3.0", thtModule.version)) return;
+    if (!thtModule?.active || foundry.utils.isNewerVersion("0.3.3", thtModule.version)) return;
     const tokens = lancerActor?.getActiveTokens(true) ?? lancerItem?.actor?.getActiveTokens(true);
     const attacker = tokens?.shift();
     if (!attacker || attacker === target) return;
