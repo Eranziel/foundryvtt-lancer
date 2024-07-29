@@ -23,7 +23,7 @@ import { StrussHelper } from "./struss-util";
 import { StructureFlow } from "../flows/structure";
 import { OverheatFlow } from "../flows/overheat";
 import { BasicAttackFlow } from "../flows/attack";
-import { pilotInnateEffects } from "../effects/converter";
+import { npcInnateEffects, pilotInnateEffects } from "../effects/converter";
 import { TechAttackFlow } from "../flows/tech";
 import { FullRepairFlow } from "../flows/full-repair";
 import { StatRollFlow } from "../flows/stat";
@@ -420,6 +420,8 @@ export class LancerActor extends Actor {
     // Yield this actors innate effects
     if (this.is_pilot()) {
       yield* pilotInnateEffects(this);
+    } else if (this.is_npc()) {
+      yield* npcInnateEffects(this);
     }
   }
 

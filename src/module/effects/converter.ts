@@ -255,6 +255,43 @@ export function pilotInnateEffects(pilot: LancerActor): LancerActiveEffect[] {
 }
 
 /**
+ * Creates the "innate" ActiveEffect of an NPC, conferring its tier as a grit bonus to its deployables
+ */
+export function npcInnateEffects(npc: LancerActor): LancerActiveEffect[] {
+  // This guard is mostly just to keep TS happy
+  if (!npc.is_npc()) throw new Error("Cannot create NPC innate effect for non-NPC actor");
+
+  let deployable_effect = new LancerActiveEffect(
+    {
+      // @ts-expect-error types are missing `name`
+      name: "NPC → Deployable Bonuses",
+      changes: [
+        // Much simpler
+        {
+          mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+          key: "system.grit",
+          priority: PILOT_STAT_PRIORITY,
+          value: npc.system.tier.toString(),
+        },
+      ],
+      icon: npc.img,
+      origin: npc.uuid,
+      flags: {
+        lancer: {
+          target_type: EntryType.DEPLOYABLE,
+          ephemeral: true,
+        },
+      },
+    },
+    {
+      parent: npc,
+    }
+  );
+
+  return [deployable_effect];
+}
+
+/**
  * Creates the ActiveEffect data for a status/condition
  */
 export function statusInnateEffect(status: LancerSTATUS): LancerActiveEffectConstructorData {
