@@ -380,7 +380,7 @@
     display: inline-block;
     border-radius: 0;
     vertical-align: text-bottom;
-    position: 0relative;
+    position: relative;
     margin: 0;
     margin-right: 0.2rem;
     &:checked {
@@ -393,9 +393,9 @@
       content: "";
       position: relative;
       margin: auto;
-      left: 13%;
-      top: 0%;
       overflow: hidden;
+      width: 20px;
+      height: 20px;
     }
     &:checked::before {
       // This is a free icon, it says pro because that's the only version provided
@@ -405,8 +405,10 @@
       font-family: "Font Awesome 6 Pro";
       // fa-solid (free)
       font-weight: 900;
-      line-height: 1;
-      text-align: center;
+      line-height: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
       font-size: 20px;
       color: var(--light-text);
     }
