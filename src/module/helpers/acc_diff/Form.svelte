@@ -176,15 +176,13 @@
           Accuracy
         </h3>
         <label class="container">
-          Accurate (+1)
           <input type="checkbox" bind:checked={weapon.accurate} />
-          <span class="checkmark" />
+          Accurate (+1)
         </label>
         {#if kind == "attack"}
           <label class="container">
-            Seeking (*)
             <input type="checkbox" bind:checked={weapon.seeking} />
-            <span class="checkmark" />
+            Seeking (*)
           </label>
         {/if}
         {#if kind == "attack" && (Object.values(weapon.plugins).length > 0 || targets.length == 1)}
@@ -201,9 +199,8 @@
             {/each}
             {#if targets.length == 1}
               <label class="container" for="base-consume-lockon">
-                Consume Lock On (+1)
                 <ConsumeLockOn bind:lockOn={targets[0]} id="base-consume-lockon" />
-                <span class="checkmark" />
+                Consume Lock On (+1)
               </label>
               {#each Object.keys(targets[0].plugins) as key}
                 <Plugin data={targets[0].plugins[key]} />
@@ -218,14 +215,12 @@
           Difficulty
         </h3>
         <label class="container">
-          Inaccurate (-1)
           <input type="checkbox" bind:checked={weapon.inaccurate} />
-          <span class="checkmark" />
+          Inaccurate (-1)
         </label>
         <label class="container">
-          Impaired (-1)
           <input type="checkbox" checked={!!weapon.impaired} disabled />
-          <span class="checkmark" />
+          Impaired (-1)
         </label>
         {#if kind == "attack"}
           <div class="grid-enforcement">
@@ -360,7 +355,7 @@
   #accdiff :global(.container) {
     display: flex;
     position: relative;
-    padding-left: 30px;
+    // padding-left: 30px;
     margin-top: 12px;
     margin-bottom: 4px;
     font-size: 0.9em;
@@ -374,48 +369,53 @@
     opacity: 0.5;
   }
 
-  /* Hide the browser's default checkbox */
-  #accdiff :global(.container input) {
-    position: absolute;
-    opacity: 0 !important;
-    height: 0;
-    width: 0;
-  }
-
-  #accdiff :global(.checkmark) {
-    position: absolute;
-    left: 5px;
+  #accdiff :global(input[type="checkbox"]) {
+    /* Hide the browser's default checkbox */
+    appearance: none;
     height: 20px;
     width: 20px;
+    min-width: 20px;
     background-color: #a9a9a9;
     cursor: pointer;
+    display: inline-block;
+    border-radius: 0;
+    vertical-align: text-bottom;
+    position: 0relative;
+    margin: 0;
+    margin-right: 0.2rem;
+    &:checked {
+      background-color: var(--primary-color, fuchsia);
+    }
+    &:hover {
+      box-shadow: 0px 0px 8px var(--primary-color);
+    }
+    &::before {
+      content: "";
+      position: relative;
+      margin: auto;
+      left: 13%;
+      top: 0%;
+      overflow: hidden;
+    }
+    &:checked::before {
+      // This is a free icon, it says pro because that's the only version provided
+      // Don't change the weight unless you have a pro license or the new value is free as well
+      // xmark (free for solid weight)
+      content: "\f00d";
+      font-family: "Font Awesome 6 Pro";
+      // fa-solid (free)
+      font-weight: 900;
+      line-height: 1;
+      text-align: center;
+      font-size: 20px;
+      color: var(--light-text);
+    }
   }
-
-  #accdiff :global(input[disabled] ~ .checkmark) {
+  #accdiff :global(input[type="checkbox"][disabled]) {
     cursor: unset;
-  }
-
-  #accdiff :global(.container:hover input:not([disabled]) ~ .checkmark) {
-    box-shadow: 0px 0px 8px var(--primary-color);
-  }
-
-  #accdiff :global(.container input:checked ~ .checkmark) {
-    background-color: var(--primary-color, fuchsia);
-  }
-
-  #accdiff :global(.checkmark:after) {
-    content: "";
-    position: absolute;
-    display: none;
-  }
-  #accdiff :global(.container input:checked ~ .checkmark:after) {
-    content: "×";
-    color: var(--light-text);
-    font-size: 34px;
-    position: absolute;
-    top: -21px;
-    left: 0px;
-    display: block;
+    &:hover {
+      box-shadow: none;
+    }
   }
 
   .accdiff-other-grid {
