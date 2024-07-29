@@ -1,3 +1,16 @@
+# 2.2.0 (2024-07-28)
+
+## Features
+
+- Attack LOS preview with Terrain Height Tools integration. If Terrain Height Tools > 3.0 is installed and activated in your world, hovering over attack targets or cover UI in the attack HUD will have THT draw LOS from the attacking token to the target.
+- Move the targetting template buttons to make them more discoverable. They are now between the acc/diff section and the targets section.
+- #485 - Add a small summary of the weapon/tech attack's stats to the attack HUD and attack chat cards.
+
+## Bug Fixes
+
+- Fix the double "Edit" options in NPC feature 3-dot menus.
+- Remove non-functional 3-dot menus from Bond stress and XP counters.
+
 # 2.1.8 (2024-07-21)
 
 ## Bug Fixes
