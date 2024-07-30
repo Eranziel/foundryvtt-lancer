@@ -1,3 +1,10 @@
+# 2.2.1 (2024-07-29)
+
+## Bug Fixes
+
+- #740 - Fix "X"'s floating outside of the checkboxes in attack/check HUDs.
+- Fix required Terrain Height Tools version for LOS checks to 0.3.3.
+
 # 2.2.0 (2024-07-28)
 
 ## Features
