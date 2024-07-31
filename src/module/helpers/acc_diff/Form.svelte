@@ -53,7 +53,9 @@
   }
 
   function clearLos() {
-    if (!game.modules.get("terrain-height-tools")?.active) return;
+    const thtModule = game.modules.get("terrain-height-tools");
+    // @ts-expect-error v10 types
+    if (!thtModule?.active || foundry.utils.isNewerVersion("0.3.3", thtModule.version)) return;
     terrainHeightTools!.clearLineOfSightRays();
   }
 
