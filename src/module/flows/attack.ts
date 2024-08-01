@@ -126,8 +126,6 @@ export class WeaponAttackFlow extends Flow<LancerFlowState.WeaponRollData> {
     "setAttackTargets",
     "showAttackHUD",
     "rollAttacks",
-    // TODO: move damage rolling to damage flow
-    "rollDamages",
     "applySelfHeat",
     "updateItemAfterAction",
     "printAttackCard",

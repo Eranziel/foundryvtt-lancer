@@ -20,7 +20,7 @@ export async function attach() {
     hud = new HUDZone({
       target: document.body,
     });
-    for (let key of ["attack", "hase", "struct", "stress"] as Array<keyof HUDData>) {
+    for (let key of ["attack", "damage", "hase", "struct", "stress"] as Array<keyof HUDData>) {
       hud.$on(`${key}.submit`, (ev: any) => {
         activeCallbacks[key]?.[0](ev.detail);
         activeCallbacks[key] = null;

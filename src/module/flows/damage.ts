@@ -170,7 +170,7 @@ async function setDamageTargets(state: FlowState<LancerFlowState.DamageRollData>
 }
 
 async function showDamageHUD(state: FlowState<LancerFlowState.DamageRollData>): Promise<boolean> {
-  if (!state.data) throw new TypeError(`Attack flow state missing!`);
+  if (!state.data) throw new TypeError(`Damage flow state missing!`);
   try {
     state.data.damage_hud_data = await openSlidingHud("damage", state.data.damage_hud_data!);
   } catch (_e) {
