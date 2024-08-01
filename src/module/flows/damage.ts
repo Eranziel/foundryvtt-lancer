@@ -153,13 +153,11 @@ async function setDamageTags(state: FlowState<LancerFlowState.DamageRollData>): 
     } else {
       reliableTag = weapon.system.tags.find(t => t.is_reliable);
     }
-    const reliableVal = parseInt(reliableTag?.val || "0");
-    if (reliableTag && !Number.isNaN(reliableVal)) {
-      state.data.reliable_val = reliableVal;
-      state.data.reliable = true;
-    }
+    if (!reliableTag) return true;
+    state.data.reliable = true;
+    const reliableVal = parseInt(reliableTag.val || "0");
+    state.data.reliable_val = Number.isNaN(reliableVal) ? 0 : reliableVal;
   }
-  // TODO: build state.data.damage_hud_data
   return true;
 }
 
