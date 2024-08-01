@@ -7,10 +7,12 @@
   import { flip } from "svelte/animate";
   import { createEventDispatcher } from "svelte";
 
+  import DamageInput from "./DamageInput.svelte";
   import MiniProfile from "../components/MiniProfile.svelte";
+  import HudCheckbox from "../components/HudCheckbox.svelte";
 
   import type { LancerItem } from "../../item/lancer-item";
-  import DamageInput from "./DamageInput.svelte";
+  import DamageTarget from "./DamageTarget.svelte";
 
   export let weapon: DamageHudWeapon;
   export let base: DamageHudBase;
@@ -51,7 +53,7 @@
 
 <form
   id="damage-hud"
-  class="lancer damage-hud window-content"
+  class="lancer lancer-hud damage-hud window-content"
   use:escToCancel
   on:submit|preventDefault={() => dispatch("submit")}
 >
@@ -65,24 +67,44 @@
     <MiniProfile {profile} />
   {/if}
 
+  <!-- Damage types and values -->
   <div class="damage-grid">
     <div class="base-damage lancer-border-primary">
       <h3 class="lancer-border-primary">Base Damage</h3>
       {#each baseDamage as damage}
-        <DamageInput {damage} />
+        <DamageInput bind:damage />
       {/each}
       <button class="lancer-button"><i class="i--s mdi mdi-plus-thick" /></button>
     </div>
     <div class="bonus-damage">
       <h3 class="lancer-border-primary">Bonus Damage</h3>
       {#each baseBonusDamage as damage}
-        <DamageInput {damage} />
+        <DamageInput bind:damage />
       {/each}
       <button class="lancer-button"><i class="i--s mdi mdi-plus-thick" /></button>
     </div>
   </div>
-  <div>
-    <!-- Checkboxes - AP etc... -->
+  <!-- Checkboxes - AP etc... -->
+  <div class="damage-hud-options-grid">
+    <h3 class="damage-hud-section lancer-border-primary" style="grid-area: title">Configuration</h3>
+    <HudCheckbox label="Armor Piercing (AP)" bind:value={base.ap} style="grid-area: ap" />
+    <HudCheckbox label="Overkill" bind:value={weapon.overkill} style="grid-area: overkill" />
+    <HudCheckbox
+      label="Paracausal"
+      bind:value={base.paracausal}
+      tooltip="Use this for 'cannot be reduced' effects"
+      style="grid-area: paracausal"
+    />
+    <HudCheckbox
+      label="Half Damage"
+      bind:value={base.halfDamage}
+      tooltip="Use this for effects which cause the attacker to deal half damage in addition to resistance. For example, Heavy Gunner or Scylla-class AI."
+      style="grid-area: halfdamage"
+    />
+    <div class="flexrow" style="grid-area: reliable; align-items: center;">
+      <HudCheckbox label="Reliable" bind:value={weapon.reliable} style="grid-area: reliable" />
+      <input class="reliable-value" type="number" bind:value={weapon.reliableValue} disabled={!weapon.reliable} />
+    </div>
   </div>
   <div>
     <!-- Target cards -->
@@ -102,36 +124,59 @@
 
 <style lang="scss">
   #damage-hud {
-    background-color: var(--background-color);
-    color: var(--dark-text);
-  }
+    // background-color: var(--background-color);
+    // color: var(--dark-text);
 
-  :global(.damage-grid) {
-    display: flex;
-    justify-content: space-between;
-  }
+    select,
+    input {
+      color: unset;
+    }
 
-  .base-damage,
-  .bonus-damage {
-    width: 100%;
-    padding: 4px;
-    min-width: 180px;
-  }
+    .group-box {
+      border: 1px solid var(--primary-color);
+      border-radius: 5px;
+    }
 
-  .base-damage {
-    border-right-width: 1px;
-    border-right-style: dashed;
-  }
+    .damage-grid {
+      display: flex;
+      justify-content: space-between;
+    }
 
-  #damage-hud :global(.container) {
-    display: flex;
-    position: relative;
-    padding-left: 30px;
-    margin-top: 12px;
-    margin-bottom: 4px;
-    font-size: 0.9em;
-    user-select: none;
-    align-items: center;
-    cursor: pointer;
+    .base-damage,
+    .bonus-damage {
+      width: 100%;
+      padding: 0.2em;
+      min-width: 180px;
+    }
+
+    .base-damage {
+      border-right-width: 1px;
+      border-right-style: dashed;
+    }
+
+    h1.damage-hud-section,
+    h2.damage-hud-section,
+    h3.damage-hud-section,
+    h4.damage-hud-section {
+      display: flex;
+      justify-content: center;
+    }
+
+    .damage-hud-options-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: auto auto auto auto;
+      grid-template-areas:
+        "title title"
+        "ap overkill"
+        "paracausal reliable"
+        "halfdamage empty";
+      margin-bottom: 0.5em;
+
+      .reliable-value {
+        width: 5em;
+        max-width: 5em;
+      }
+    }
   }
 </style>
