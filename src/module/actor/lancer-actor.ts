@@ -233,7 +233,8 @@ export class LancerActor extends Actor {
       damageStrings.push(`${damage.Heat}<i class="cci cci-heat damage--heat i--s"></i>`);
       totalTypes += 1;
     }
-    const chatContent = `${this.token ? this.token.name : this.name} took ${damageStrings.join(", ")} ${
+    const allDamageString = damageStrings.length ? damageStrings.join(", ") : "0";
+    const chatContent = `${this.token ? this.token.name : this.name} took ${allDamageString} ${
       totalTypes > 1 ? ` (${totalDamage} total) ` : ""
     }damage!`;
     await createChatMessageStep(this, chatContent);
