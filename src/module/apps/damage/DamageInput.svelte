@@ -30,6 +30,11 @@
 </div>
 
 <style lang="scss">
+  select,
+  input {
+    color: unset;
+  }
+
   .damage-input-container {
     display: grid;
     grid-template-columns: min-content min-content 1fr;
@@ -39,7 +44,6 @@
   }
 
   .damage-input-type {
-    color: var(--dark-text);
     background-color: var(--darken-1);
 
     & option {
