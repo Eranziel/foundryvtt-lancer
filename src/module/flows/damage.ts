@@ -155,8 +155,8 @@ async function setDamageTags(state: FlowState<LancerFlowState.DamageRollData>): 
     }
     if (!reliableTag) return true;
     state.data.reliable = true;
-    const reliableVal = parseInt(reliableTag.val || "0");
-    state.data.reliable_val = Number.isNaN(reliableVal) ? 0 : reliableVal;
+    const reliableVal = parseInt(reliableTag.tierVal((state.actor.is_npc() && state.actor.system.tier) || 1) || "0");
+    state.data.reliable_val = reliableVal;
   }
   return true;
 }

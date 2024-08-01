@@ -1,6 +1,6 @@
 import * as t from "io-ts";
 
-import type { LancerActor, LancerNPC } from "../../actor/lancer-actor";
+import { LancerActor, LancerNPC } from "../../actor/lancer-actor";
 import { DamageHudPlugin, DamageHudPluginCodec, DamageHudPluginData } from "./plugin";
 import { enclass, encode, decode } from "../acc_diff/serde";
 import { LancerItem } from "../../item/lancer-item";
@@ -95,13 +95,24 @@ export class DamageHudWeapon {
     return { damage: this.damage, bonusDamage: this.bonusDamage };
   }
 
-  // TODO: interpolate NPC reliable tag values
-  static parseReliableVal(val: string, source?: LancerItem | LancerActor): number {
-    // Make a regex which matches {d/d/d} and returns each tier as a match group
-    // if it doesn't match the regex, parseInt and return
-    // Select the appropriate group for the NPC's tier
-    // parseInt the tier group and return
-    return 0;
+  static parseReliableVal(tag: Tag, source?: LancerItem | LancerActor): number {
+    // If the tag has no value, bail
+    if (!tag.val) return 0;
+    // Determine the tier to get, default to 1
+    let tier = 1;
+    if (source) {
+      if (source instanceof LancerItem && source.actor?.is_npc()) {
+        tier = source.actor.system.tier;
+      } else if (source instanceof LancerActor && source.is_npc()) {
+        tier = source.system.tier;
+      }
+    }
+    // Get the tier value from the tag
+    const tierValNum = parseInt(tag.tierVal(tier));
+    if (Number.isNaN(tierValNum)) {
+      return 0;
+    }
+    return tierValNum;
   }
 }
 
@@ -402,7 +413,7 @@ export class DamageHudData {
           break;
         case "tg_reliable":
           weapon.reliable = true;
-          weapon.reliableValue = DamageHudWeapon.parseReliableVal(tag.val, runtimeData);
+          weapon.reliableValue = DamageHudWeapon.parseReliableVal(tag, runtimeData);
       }
     }
 
