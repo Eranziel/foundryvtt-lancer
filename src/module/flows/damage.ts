@@ -178,39 +178,148 @@ async function showDamageHUD(state: FlowState<LancerFlowState.DamageRollData>): 
   return true;
 }
 
+/**
+ * Helper function to roll a single damage type and return a DamageResult object
+ * suitable for insertion into the flow state.
+ * @param damage The damage type and value to roll
+ * @param bonus Whether this roll is for bonus damage
+ * @param overkill Whether this roll should use the overkill rules
+ * @returns A DamageResult object
+ */
+async function _rollDamage(
+  damage: DamageData,
+  bonus: boolean,
+  overkill: boolean,
+  target?: LancerToken
+): Promise<LancerFlowState.DamageResult | null> {
+  if (!damage.val || damage.val == "0") return null; // Skip undefined and zero damage
+  let damageRoll: Roll | undefined = new Roll(damage.val);
+  // Add overkill if enabled.
+  if (overkill) {
+    damageRoll.terms.forEach(term => {
+      if (term instanceof Die) term.modifiers = ["x1", `kh${term.number}`].concat(term.modifiers);
+    });
+  }
+
+  await damageRoll.evaluate({ async: true });
+  // @ts-expect-error DSN options aren't typed
+  damageRoll.dice.forEach(d => (d.options.rollOrder = 2));
+  const tooltip = await damageRoll.getTooltip();
+
+  return {
+    roll: damageRoll,
+    tt: tooltip,
+    d_type: damage.type,
+    bonus,
+    target,
+  };
+}
+
 export async function rollDamages(state: FlowState<LancerFlowState.DamageRollData>): Promise<boolean> {
-  if (!state.data) throw new TypeError(`Attack flow state missing!`);
+  if (!state.data) throw new TypeError(`Damage flow state missing!`);
+  if (!state.data.damage_hud_data) throw new TypeError(`Damage configuration missing!`);
+
+  // Convenience flag for whether this is a multi-target attack.
+  // We'll use this later alongside a check for whether a given bonus damage result
+  // is single-target; if not, the bonus damage needs to be halved.
+  // TODO: this check doesn't work yet; damage HUD targets isn't properly reactive.
+  const multiTarget: boolean = state.data.damage_hud_data.targets.length > 1;
+
+  // TODO: need to also collect target-specific damage and bonus damage to roll,
+  // combine them into the other rolls, and then extract those dice
+  // from the global results.
+  const totalDamage = state.data.damage_hud_data.base.total;
+  state.data.damage = totalDamage.damage;
+  state.data.bonus_damage = totalDamage.bonusDamage ?? [];
+  state.data.reliable_val = state.data.damage_hud_data.weapon.reliableValue;
+  const allBonusDamage: {
+    type: DamageType;
+    val: string;
+    target?: LancerToken;
+  }[] = duplicate(state.data.bonus_damage);
+  // Find all the target-specific bonus damage rolls and add them to the base rolls
+  // so they can be rolled together.
+  for (const hudTarget of state.data.damage_hud_data.targets) {
+    const hudTargetBonusDamage = hudTarget.bonusDamage.map(d => ({
+      ...d,
+      target: hudTarget.target,
+    }));
+    allBonusDamage.push(...hudTargetBonusDamage);
+  }
+
+  // TODO: should reliable damage "rolling" be a separate step?
+  // Include reliable data if the attack was made with no targets or at least one target was missed
+  if (
+    state.data.reliable &&
+    state.data.reliable_val &&
+    (!state.data.hit_results.length || state.data.hit_results.some(h => !h.hit && !h.crit))
+  ) {
+    state.data.reliable_results = state.data.reliable_results || [];
+    // Find the first non-heat non-burn damage type
+    for (const x of state.data.damage ?? []) {
+      if (!x.val || x.val == "0") continue; // Skip undefined and zero damage
+      const damageType = x.type === DamageType.Variable ? DamageType.Kinetic : x.type;
+      const result = await _rollDamage({ type: damageType, val: state.data.reliable_val.toString() }, false, false);
+      if (!result) continue;
+
+      state.data.reliable_results.push(result);
+      state.data.reliable_total = result.roll.total;
+      break;
+    }
+
+    // TODO: should we allow users to roll normal damage vs missed targets?
+    for (const hitTarget of state.data.hit_results) {
+      if (!hitTarget.hit && !hitTarget.crit) {
+        state.data.targets.push({
+          ...hitTarget.token,
+          damage: state.data.reliable_results.map(dr => ({ type: dr.d_type, amount: dr.roll.total || 0 })),
+          hit: hitTarget.hit,
+          crit: hitTarget.crit,
+          // TODO: target-specific AP and Paracausal from damage HUD
+          ap: state.data.ap,
+          paracausal: state.data.paracausal,
+          half_damage: state.data.half_damage,
+        });
+      }
+    }
+  }
 
   // Evaluate normal damage. Even if every hit was a crit, we'll use this in
   // the next step for crits
   if (state.data.has_normal_hit || state.data.has_crit_hit) {
     for (const x of state.data.damage ?? []) {
-      if (!x.val || x.val == "0") continue; // Skip undefined and zero damage
-      let damageRoll: Roll | undefined = new Roll(x.val);
-      // Add overkill if enabled.
-      if (state.data.overkill) {
-        damageRoll.terms.forEach(term => {
-          if (term instanceof Die) term.modifiers = ["x1", `kh${term.number}`].concat(term.modifiers);
-        });
+      const result = await _rollDamage(x, false, state.data.overkill);
+      if (result) state.data.damage_results.push(result);
+    }
+
+    for (const x of allBonusDamage ?? []) {
+      const result = await _rollDamage(x, true, state.data.overkill, x.target);
+      if (result) {
+        result.bonus = true;
+        if (x.target) {
+          result.target = x.target;
+        }
+        state.data.damage_results.push(result);
       }
-
-      await damageRoll.evaluate({ async: true });
-      // @ts-expect-error DSN options aren't typed
-      damageRoll.dice.forEach(d => (d.options.rollOrder = 2));
-      const tooltip = await damageRoll.getTooltip();
-
-      state.data.damage_results.push({
-        roll: damageRoll,
-        tt: tooltip,
-        d_type: x.type,
-      });
     }
 
     for (const hitTarget of state.data.hit_results) {
       if (hitTarget.hit && !hitTarget.crit) {
+        const actorUuid = hitTarget.token.actor?.uuid || hitTarget.token.token?.actor?.uuid || undefined;
+        let targetDamage: { type: DamageType; amount: number }[] = [];
+        for (const dr of state.data.damage_results) {
+          if (dr.target && dr.target.actor?.uuid !== actorUuid) continue;
+          if (multiTarget && dr.bonus && !dr.target) {
+            // If this is bonus damage applied to multiple targets, halve it
+            targetDamage.push({ type: dr.d_type, amount: (dr.roll.total || 0) / 2 });
+          } else {
+            targetDamage.push({ type: dr.d_type, amount: dr.roll.total || 0 });
+          }
+        }
         state.data.targets.push({
           ...hitTarget.token,
-          damage: state.data.damage_results.map(dr => ({ type: dr.d_type, amount: dr.roll.total || 0 })),
+          // TODO: ensure total damage is at least equal to reliable_val
+          damage: targetDamage,
           hit: hitTarget.hit,
           crit: hitTarget.crit,
           // TODO: target-specific AP and Paracausal from damage HUD
@@ -229,6 +338,20 @@ export async function rollDamages(state: FlowState<LancerFlowState.DamageRollDat
     if (!state.actor.is_npc()) {
       await Promise.all(
         state.data.damage_results.map(async result => {
+          // Skip this result if it was for a single target and that target was not critted
+          const hitResults = state.data?.hit_results;
+          if (
+            result.target &&
+            hitResults &&
+            !hitResults.find(
+              hr =>
+                result.target?.actor?.uuid ??
+                null === (hr.token?.token?.actor?.uuid || result.target?.actor?.uuid || "")
+            )?.crit
+          ) {
+            return;
+          }
+
           const c_roll = await getCritRoll(result.roll);
           // @ts-expect-error DSN options aren't typed
           c_roll.dice.forEach(d => (d.options.rollOrder = 2));
@@ -237,6 +360,8 @@ export async function rollDamages(state: FlowState<LancerFlowState.DamageRollDat
             roll: c_roll,
             tt,
             d_type: result.d_type,
+            bonus: result.bonus,
+            target: result.target,
           });
         })
       );
@@ -248,50 +373,21 @@ export async function rollDamages(state: FlowState<LancerFlowState.DamageRollDat
 
     for (const hitTarget of state.data.hit_results) {
       if (hitTarget.crit) {
+        const actorUuid = hitTarget.token.actor?.uuid || hitTarget.token.token?.actor?.uuid || undefined;
+        let targetDamage: { type: DamageType; amount: number }[] = [];
+        for (const dr of state.data.damage_results) {
+          if (dr.target && dr.target.actor?.uuid !== actorUuid) continue;
+          if (multiTarget && dr.bonus && !dr.target) {
+            // If this is bonus damage applied to multiple targets, halve it
+            targetDamage.push({ type: dr.d_type, amount: (dr.roll.total || 0) / 2 });
+          } else {
+            targetDamage.push({ type: dr.d_type, amount: dr.roll.total || 0 });
+          }
+        }
         state.data.targets.push({
           ...hitTarget.token,
-          damage: state.data.damage_results.map(dr => ({ type: dr.d_type, amount: dr.roll.total || 0 })),
-          hit: hitTarget.hit,
-          crit: hitTarget.crit,
-          // TODO: target-specific AP and Paracausal from damage HUD
-          ap: state.data.ap,
-          paracausal: state.data.paracausal,
-          half_damage: state.data.half_damage,
-        });
-      }
-    }
-  }
-
-  // Include reliable data if the attack was made with no targets or at least one target was missed
-  if (
-    state.data.reliable &&
-    state.data.reliable_val &&
-    (!state.data.hit_results.length || state.data.hit_results.some(h => !h.hit && !h.crit))
-  ) {
-    state.data.reliable_results = state.data.reliable_results || [];
-    // Find the first non-heat non-burn damage type
-    for (const x of state.data.damage ?? []) {
-      if (!x.val || x.val == "0") continue; // Skip undefined and zero damage
-      if (x.type === DamageType.Burn || x.type === DamageType.Heat) continue; // Skip burn and heat
-      let damageRoll: Roll | undefined = new Roll(state.data.reliable_val.toString());
-
-      await damageRoll.evaluate({ async: true });
-      const tooltip = await damageRoll.getTooltip();
-
-      state.data.reliable_results.push({
-        roll: damageRoll,
-        tt: tooltip,
-        d_type: x.type,
-      });
-      state.data.reliable_total = damageRoll.total;
-      break;
-    }
-
-    for (const hitTarget of state.data.hit_results) {
-      if (!hitTarget.hit && !hitTarget.crit) {
-        state.data.targets.push({
-          ...hitTarget.token,
-          damage: state.data.reliable_results.map(dr => ({ type: dr.d_type, amount: dr.roll.total || 0 })),
+          // TODO: ensure total damage is at least equal to reliable_val
+          damage: targetDamage,
           hit: hitTarget.hit,
           crit: hitTarget.crit,
           // TODO: target-specific AP and Paracausal from damage HUD

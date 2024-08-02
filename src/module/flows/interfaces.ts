@@ -57,6 +57,8 @@ export namespace LancerFlowState {
     roll: Roll;
     tt: string | HTMLElement | JQuery<HTMLElement>; // Tooltip
     d_type: DamageType;
+    bonus: boolean;
+    target?: LancerToken;
   };
 
   export type SelfHeatResult = {
