@@ -4,6 +4,7 @@
   import type { DamageHudWeapon, DamageHudBase, DamageHudTarget } from "./index";
 
   import { slide } from "svelte/transition";
+  import { fade } from "svelte/transition";
   import { flip } from "svelte/animate";
   import { createEventDispatcher } from "svelte";
 
@@ -13,6 +14,7 @@
 
   import type { LancerItem } from "../../item/lancer-item";
   import DamageTarget from "./DamageTarget.svelte";
+  import { DamageType } from "../../enums";
 
   export let weapon: DamageHudWeapon;
   export let base: DamageHudBase;
@@ -48,6 +50,18 @@
 
   function findProfile() {
     return lancerItem?.currentProfile() ?? { range: [], damage: [] };
+  }
+
+  function reliableType(): DamageType {
+    const allowedTypes = [DamageType.Kinetic, DamageType.Energy, DamageType.Explosive];
+    const preferred = weapon.damage.find(d => allowedTypes.includes(d.type));
+    if (preferred) {
+      return preferred.type;
+    }
+    if (weapon.damage.length) {
+      return weapon.damage[0].type;
+    }
+    return DamageType.Kinetic;
   }
 </script>
 
@@ -102,8 +116,19 @@
       style="grid-area: halfdamage"
     />
     <div class="flexrow" style="grid-area: reliable; align-items: center;">
-      <HudCheckbox label="Reliable" bind:value={weapon.reliable} style="grid-area: reliable" />
-      <input class="reliable-value" type="number" bind:value={weapon.reliableValue} disabled={!weapon.reliable} />
+      <HudCheckbox
+        label="Reliable"
+        bind:value={weapon.reliable}
+        style="grid-area: reliable; max-width: fit-content; padding-right: 0.5em;"
+      />
+      {#if weapon.reliable}
+        <i
+          class="cci i--sm cci-{reliableType().toLowerCase()} damage--{reliableType().toLowerCase()}"
+          data-tooltip={reliableType()}
+          transition:fade
+        />
+        <input class="reliable-value" type="number" bind:value={weapon.reliableValue} transition:fade />
+      {/if}
     </div>
   </div>
   <div>

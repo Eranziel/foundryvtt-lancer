@@ -20,6 +20,7 @@
       user-select: none;
       align-items: center;
       cursor: pointer;
+      margin: 0.25em 0;
     }
 
     & .container:has(input[disabled]) {
