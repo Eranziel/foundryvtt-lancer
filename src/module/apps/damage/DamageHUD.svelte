@@ -63,6 +63,14 @@
     }
     return DamageType.Kinetic;
   }
+
+  function addBaseDamage() {
+    base.damage = [...base.damage, { type: DamageType.Kinetic, val: "1d6" }];
+  }
+
+  function addBonusDamage() {
+    base.bonusDamage = [...base.bonusDamage, { type: DamageType.Kinetic, val: "1d6" }];
+  }
 </script>
 
 <form
@@ -84,18 +92,23 @@
   <!-- Damage types and values -->
   <div class="damage-grid">
     <div class="base-damage lancer-border-primary">
-      <h3 class="lancer-border-primary">Base Damage</h3>
-      {#each baseDamage as damage}
+      <h3 class="lancer-border-primary flexrow">
+        Base Damage
+        <button class="add-damage-type" type="button" on:click={addBaseDamage}><i class="mdi mdi-plus-thick" /></button>
+      </h3>
+      {#each baseDamage as damage, i (i)}
         <DamageInput bind:damage />
       {/each}
-      <button class="lancer-button"><i class="i--s mdi mdi-plus-thick" /></button>
     </div>
     <div class="bonus-damage">
-      <h3 class="lancer-border-primary">Bonus Damage</h3>
-      {#each baseBonusDamage as damage}
+      <h3 class="lancer-border-primary flexrow">
+        Bonus Damage
+        <button class="add-damage-type" type="button" on:click={addBonusDamage}><i class="mdi mdi-plus-thick" /></button
+        >
+      </h3>
+      {#each baseBonusDamage as damage, i (i)}
         <DamageInput bind:damage />
       {/each}
-      <button class="lancer-button"><i class="i--s mdi mdi-plus-thick" /></button>
     </div>
   </div>
   <!-- Checkboxes - AP etc... -->
@@ -179,12 +192,30 @@
       min-width: 180px;
     }
 
+    h3 {
+      justify-content: space-between;
+    }
+
     .base-damage {
       border-right-width: 1px;
       border-right-style: dashed;
     }
 
     h1.damage-hud-section,
+    .add-damage-type {
+      max-height: 1.5em;
+      max-width: 1.5em;
+      line-height: 1.5em;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 0;
+
+      i {
+        margin: 0;
+      }
+    }
+
     h2.damage-hud-section,
     h3.damage-hud-section,
     h4.damage-hud-section {
