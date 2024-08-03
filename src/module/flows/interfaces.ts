@@ -66,15 +66,8 @@ export namespace LancerFlowState {
     tt: string | HTMLElement | JQuery<HTMLElement>; // Tooltip
   };
 
-  export type ResultToken = {
-    name: string;
-    img: string;
-    token?: LancerToken;
-    actor?: LancerActor;
-  };
-
   export type HitResult = {
-    token: ResultToken;
+    target: LancerToken;
     total: string;
     usedLockOn: boolean;
     hit: boolean;
@@ -86,7 +79,8 @@ export namespace LancerFlowState {
     tt: string | HTMLElement | JQuery<HTMLElement>;
   }
 
-  export interface DamageTargetResult extends ResultToken {
+  export interface DamageTargetResult {
+    target: LancerToken;
     damage: { type: DamageType; amount: number }[];
     hit: boolean;
     crit: boolean;
@@ -95,9 +89,9 @@ export namespace LancerFlowState {
     half_damage: boolean;
   }
 
-  export interface DamageTargetResultSerialized extends Omit<DamageTargetResult, "actor"> {
+  export interface DamageTargetResultSerialized extends Omit<DamageTargetResult, "target"> {
     // Thanks, I hate it  >:(
-    actor: any;
+    target: any;
   }
 
   // Configuration passed to initiate an attack roll

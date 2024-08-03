@@ -71,10 +71,12 @@ export function attackTarget(hit: LancerFlowState.HitResultWithRoll, options: He
     : `<span class="card clipped lancer-hit-chip miss">${game.i18n.format("lancer.chat-card.attack.miss", {
         total: hit.total,
       })}</span>`;
+  // @ts-expect-error v10 types
+  const img = hit.target.document.texture.src;
   return `
     <div class="lancer-hit-target">
-      <img class="lancer-hit-thumb" src="${hit.token.img}" />
-      <span class="lancer-hit-text-name"><b>${hit.token.name}</b></span>
+      <img class="lancer-hit-thumb" src="${img}" />
+      <span class="lancer-hit-text-name"><b>${hit.target.name}</b></span>
       ${hitChip}
       <div class="lancer-hit-roll">
         ${lancerDiceRoll(hit.roll, hit.tt as string, "cci cci-reticule i--sm")}
@@ -87,9 +89,6 @@ export function damageTarget(
   context: LancerFlowState.DamageRollData,
   options: HelperOptions
 ): string {
-  const actor = target.actor || target.token?.actor;
-  if (!actor) return "";
-
   // TODO: put the default as a button, with the rest in a select attached to the button
   // TODO: add option for crit damage
   const select = context.configurable
@@ -118,14 +117,15 @@ export function damageTarget(
   if (context.paracausal) damageTags.push(`<span class="lancer-damage-tag">PARACAUSAL</span>`);
   if (context.half_damage) damageTags.push(`<span class="lancer-damage-tag">HALF-DMG</span>`);
   const damageTagsDisplay = `<div class="lancer-damage-tags">${damageTags.join("")}</div>`;
-
+  // @ts-expect-error v10 types
+  const img = target.target.texture.src;
   return `
     <div class="lancer-damage-target">
-      <img class="lancer-hit-thumb" src="${target.img}" />
-      <span class="lancer-hit-text-name"><b>${target.name}</b></span>
+      <img class="lancer-hit-thumb" src="${img}" />
+      <span class="lancer-hit-text-name"><b>${target.target.name}</b></span>
       <div
         class="lancer-damage-button-group"
-        data-target="${actor.uuid}"
+        data-target="${target.target.uuid}"
         data-hit="${target.hit}"
         data-crit="${target.crit}"
         data-add-burn="${context.add_burn}"

@@ -77,6 +77,10 @@ export class DamageRollFlow extends Flow<LancerFlowState.DamageRollData> {
 async function initDamageData(state: FlowState<LancerFlowState.DamageRollData>): Promise<boolean> {
   if (!state.data) throw new TypeError(`Damage flow state missing!`);
 
+  let targets: LancerToken[] = Array.from(game.user!.targets);
+  if (targets.length < 1) {
+    targets = state.data.hit_results.map(hr => hr.target);
+  }
   if (state.item?.is_mech_weapon()) {
     const profile = state.item.system.active_profile;
     // state.data.damage = state.data.damage.length ? state.data.damage : profile.damage;
@@ -271,7 +275,7 @@ export async function rollDamages(state: FlowState<LancerFlowState.DamageRollDat
     for (const hitTarget of state.data.hit_results) {
       if (!hitTarget.hit && !hitTarget.crit) {
         state.data.targets.push({
-          ...hitTarget.token,
+          target: hitTarget.target,
           damage: state.data.reliable_results.map(dr => ({ type: dr.d_type, amount: dr.roll.total || 0 })),
           hit: hitTarget.hit,
           crit: hitTarget.crit,
@@ -305,10 +309,9 @@ export async function rollDamages(state: FlowState<LancerFlowState.DamageRollDat
 
     for (const hitTarget of state.data.hit_results) {
       if (hitTarget.hit && !hitTarget.crit) {
-        const actorUuid = hitTarget.token.actor?.uuid || hitTarget.token.token?.actor?.uuid || undefined;
-        let targetDamage: { type: DamageType; amount: number }[] = [];
+        const targetDamage: { type: DamageType; amount: number }[] = [];
         for (const dr of state.data.damage_results) {
-          if (dr.target && dr.target.actor?.uuid !== actorUuid) continue;
+          if (dr.target && dr.target.document.uuid !== hitTarget.target.document.uuid) continue;
           if (multiTarget && dr.bonus && !dr.target) {
             // If this is bonus damage applied to multiple targets, halve it
             targetDamage.push({ type: dr.d_type, amount: (dr.roll.total || 0) / 2 });
@@ -317,7 +320,7 @@ export async function rollDamages(state: FlowState<LancerFlowState.DamageRollDat
           }
         }
         state.data.targets.push({
-          ...hitTarget.token,
+          target: hitTarget.target,
           // TODO: ensure total damage is at least equal to reliable_val
           damage: targetDamage,
           hit: hitTarget.hit,
@@ -343,11 +346,7 @@ export async function rollDamages(state: FlowState<LancerFlowState.DamageRollDat
           if (
             result.target &&
             hitResults &&
-            !hitResults.find(
-              hr =>
-                result.target?.actor?.uuid ??
-                null === (hr.token?.token?.actor?.uuid || result.target?.actor?.uuid || "")
-            )?.crit
+            !hitResults.find(hr => result.target?.document.uuid ?? null === hr.target.document.uuid)?.crit
           ) {
             return;
           }
@@ -373,10 +372,9 @@ export async function rollDamages(state: FlowState<LancerFlowState.DamageRollDat
 
     for (const hitTarget of state.data.hit_results) {
       if (hitTarget.crit) {
-        const actorUuid = hitTarget.token.actor?.uuid || hitTarget.token.token?.actor?.uuid || undefined;
-        let targetDamage: { type: DamageType; amount: number }[] = [];
+        const targetDamage: { type: DamageType; amount: number }[] = [];
         for (const dr of state.data.damage_results) {
-          if (dr.target && dr.target.actor?.uuid !== actorUuid) continue;
+          if (dr.target && dr.target.document.uuid !== hitTarget.target.document.uuid) continue;
           if (multiTarget && dr.bonus && !dr.target) {
             // If this is bonus damage applied to multiple targets, halve it
             targetDamage.push({ type: dr.d_type, amount: (dr.roll.total || 0) / 2 });
@@ -385,7 +383,7 @@ export async function rollDamages(state: FlowState<LancerFlowState.DamageRollDat
           }
         }
         state.data.targets.push({
-          ...hitTarget.token,
+          target: hitTarget.target,
           // TODO: ensure total damage is at least equal to reliable_val
           damage: targetDamage,
           hit: hitTarget.hit,
@@ -441,16 +439,13 @@ async function printDamageCard(
   const damageData: DamageFlag = {
     damageResults: state.data.damage_results,
     critDamageResults: state.data.crit_damage_results,
-    targetDamageResults: state.data.targets.map(t => ({
-      ...t,
-      actor: t.actor ? { ...t.actor.toObject(), uuid: t.actor.uuid } : undefined,
-    })),
+    targetDamageResults: state.data.targets,
     // TODO: AP and paracausal flags
     ap: state.data.ap,
     paracausal: state.data.paracausal,
     half_damage: state.data.half_damage,
     targetsApplied: state.data.targets.reduce((acc: Record<string, boolean>, t) => {
-      const uuid = t.actor?.uuid || t.token?.actor?.uuid || null;
+      const uuid = t.target?.document?.uuid;
       if (!uuid) return acc;
       // We need to replace the dots in the UUID, otherwise Foundry will expand it into a nested object
       acc[uuid.replaceAll(".", "_")] = false;
@@ -560,17 +555,12 @@ export async function rollDamage(event: JQuery.ClickEvent) {
   }
   const hit_results: LancerFlowState.HitResult[] = [];
   for (const t of attackData.targets) {
-    const target = await fromUuid(t.id);
-    if (!target || !(target instanceof LancerActor || target instanceof LancerToken)) {
+    const target = (await fromUuid(t.id)) as LancerToken | null;
+    // @ts-expect-error v11 types
+    if (!target || target.documentName !== "Token") {
       ui.notifications?.error("Invalid target for damage roll");
       continue;
     }
-
-    // Find the target's image
-    let img = "";
-    if (target instanceof LancerActor) img = target.img!;
-    // @ts-expect-error v10 types
-    else if (target instanceof LancerToken) img = target.texture.src;
 
     // Determine whether lock on was used
     let usedLockOn = false;
@@ -580,12 +570,7 @@ export async function rollDamage(event: JQuery.ClickEvent) {
     }
 
     hit_results.push({
-      token: {
-        name: target.name!,
-        img,
-        actor: target instanceof LancerActor ? target : target.actor || undefined,
-        token: target instanceof LancerToken ? target : undefined,
-      },
+      target: target,
       total: t.total,
       usedLockOn,
       hit: t.hit,
@@ -658,11 +643,14 @@ export async function applyDamage(event: JQuery.ClickEvent) {
     ui.notifications?.warn("Damage has already been applied to this target");
     return;
   }
-  const target = await fromUuid(data.target);
-  let actor: LancerActor | null = null;
-  if (target instanceof LancerActor) actor = target;
-  else if (target instanceof LancerToken) actor = target.actor;
+  const actor = (await fromUuid(data.target)) as LancerActor | null;
   if (!actor) {
+    ui.notifications?.error("Invalid target UUID for damage application");
+    return;
+  }
+  const tokens = actor.getActiveTokens();
+  const target: LancerToken | null = tokens.length ? tokens[0] : null;
+  if (!target) {
     ui.notifications?.error("Invalid target for damage application");
     return;
   }
@@ -670,35 +658,36 @@ export async function applyDamage(event: JQuery.ClickEvent) {
   // Get the targeted damage result, or construct one
   let damage: LancerFlowState.DamageTargetResult;
   // Try to find target-specific damage data first
-  const targetDamage = damageData.targetDamageResults.find(
-    tdr => tdr.actor?.uuid === data.target || tdr.token?.actor?.uuid === data.target
-  );
-  if (targetDamage) {
-    damage = targetDamage;
-  } else if (isCrit) {
-    // If we can't find this specific target, check whether it's a crit or regular hit
-    damage = {
-      name: actor.name!,
-      img: actor.img!,
-      damage: damageData.critDamageResults.map(dr => ({ type: dr.d_type, amount: dr.roll.total || 0 })),
-      hit: true,
-      crit: true,
-      ap: damageData.ap,
-      paracausal: damageData.paracausal,
-      half_damage: damageData.half_damage,
-    };
-  } else {
-    damage = {
-      name: actor.name!,
-      img: actor.img!,
-      damage: damageData.damageResults.map(dr => ({ type: dr.d_type, amount: dr.roll.total || 0 })),
-      hit: true,
-      crit: false,
-      ap: damageData.ap,
-      paracausal: damageData.paracausal,
-      half_damage: damageData.half_damage,
-    };
-  }
+  const targetDamage = damageData.targetDamageResults.find(tdr => tdr.target?.actor?.uuid === data.target);
+  if (!targetDamage) return;
+  damage = { ...targetDamage, target };
+  // TODO: allow applying damage to the user's targeted token even if it wasn't a target
+  // during the damage roll flow?
+  // else if (actor.token) {
+  //   if (isCrit) {
+  //     // If we can't find this specific target, check whether it's a crit or regular hit
+  //     damage = {
+  //       target: actor.getActiveTokens()[0],
+  //       damage: damageData.critDamageResults.map(dr => ({ type: dr.d_type, amount: dr.roll.total || 0 })),
+  //       hit: true,
+  //       crit: true,
+  //       ap: damageData.ap,
+  //       paracausal: damageData.paracausal,
+  //       half_damage: damageData.half_damage,
+  //     };
+  //   } else {
+  //     damage = {
+  //       name: actor.name!,
+  //       img: actor.img!,
+  //       damage: damageData.damageResults.map(dr => ({ type: dr.d_type, amount: dr.roll.total || 0 })),
+  //       hit: true,
+  //       crit: false,
+  //       ap: damageData.ap,
+  //       paracausal: damageData.paracausal,
+  //       half_damage: damageData.half_damage,
+  //     };
+  //   }
+  // }
   // TODO: if not crit and not hit, use reliable damage
 
   // Apply the damage to the target

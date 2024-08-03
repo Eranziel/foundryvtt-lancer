@@ -421,7 +421,7 @@ export async function rollAttacks(
         return {
           attack: { roll: attack_roll, tt: attack_tt },
           hit: {
-            token: { name: target.name!, img: target.actor?.img ?? "", token: target },
+            target,
             total: String(attack_roll.total).padStart(2, "0"),
             usedLockOn: !!targetingData.usedLockOn,
             hit: await checkForHit(state.data?.is_smart ?? false, attack_roll, actor),
@@ -456,7 +456,7 @@ export async function printAttackCard(
       attackerItemUuid: state.item?.uuid,
       targets: state.data.hit_results.map(hr => {
         return {
-          id: hr.token.actor?.uuid || hr.token.token?.actor?.uuid || "",
+          id: hr.target.document.uuid,
           setConditions: !!hr.usedLockOn ? { lockon: !hr.usedLockOn } : undefined,
           total: hr.total,
           hit: hr.hit,

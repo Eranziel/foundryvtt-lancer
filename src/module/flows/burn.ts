@@ -49,18 +49,13 @@ async function initBurnCheckData(state: FlowState<LancerFlowState.BurnCheckData>
   state.data.amount = state.actor.system.burn;
   state.data.damage = [{ type: DamageType.Burn, val: state.actor.system.burn.toString() }];
   // Burn tick damage is always self-targeted, so construct a "hit" result for the actor
-  const target: LancerFlowState.ResultToken = state.actor.token
-    ? {
-        name: state.actor.token.name!,
-        img: state.actor.img!,
-        actor: state.actor,
-      }
-    : {
-        name: state.actor.name!,
-        img: state.actor.img!,
-        actor: state.actor,
-      };
-  state.data.hit_results = [{ token: target, total: "10", usedLockOn: false, hit: true, crit: false }];
+  const tokens = state.actor.getActiveTokens();
+  if (!tokens || !tokens.length) {
+    ui.notifications?.error("Burn flow requires the actor to have a token in the scene");
+    return false;
+  }
+  const target = tokens[0];
+  state.data.hit_results = [{ target: target, total: "10", usedLockOn: false, hit: true, crit: false }];
   state.data.damage_results = [];
   state.data.crit_damage_results = [];
   state.data.targets = [];
