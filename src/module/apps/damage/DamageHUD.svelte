@@ -131,8 +131,13 @@
       {/if}
     </div>
   </div>
-  <div>
-    <!-- Target cards -->
+  <!-- Target cards -->
+  <div class="damage-hud-targets">
+    {#each targets as target (target.target.id)}
+      <div animate:flip={{ duration: 200 }}>
+        <DamageTarget {target} />
+      </div>
+    {/each}
   </div>
 
   <div class="dialog-buttons flexrow">
@@ -203,5 +208,11 @@
         max-width: 5em;
       }
     }
+  }
+
+  .damage-hud-targets {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: auto;
   }
 </style>
