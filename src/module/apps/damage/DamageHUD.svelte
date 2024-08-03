@@ -22,8 +22,10 @@
   export let title: string;
   export let lancerItem: LancerItem | null;
 
-  $: baseDamage = base.total.damage;
-  $: baseBonusDamage = base.total.bonusDamage;
+  $: baseDamage = base.damage;
+  $: baseBonusDamage = base.bonusDamage;
+  $: weaponDamage = weapon.damage;
+  $: weaponBonusDamage = weapon.bonusDamage;
   $: profile = lancerItem ? findProfile() : null;
 
   const dispatch = createEventDispatcher();
@@ -71,6 +73,21 @@
   function addBonusDamage() {
     base.bonusDamage = [...base.bonusDamage, { type: DamageType.Kinetic, val: "1d6" }];
   }
+
+  function removeBaseDamage(idx: number, isBase = true) {
+    if (isBase) {
+      base.damage = base.damage.filter((_, i) => i !== idx);
+    } else {
+      weapon.damage = weapon.damage.filter((_, i) => i !== idx);
+    }
+  }
+  function removeBonusDamage(idx: number, isBase = true) {
+    if (isBase) {
+      base.bonusDamage = base.bonusDamage.filter((_, i) => i !== idx);
+    } else {
+      weapon.bonusDamage = weapon.bonusDamage.filter((_, i) => i !== idx);
+    }
+  }
 </script>
 
 <form
@@ -96,8 +113,15 @@
         Base Damage
         <button class="add-damage-type" type="button" on:click={addBaseDamage}><i class="mdi mdi-plus-thick" /></button>
       </h3>
+      {#each weaponDamage as damage, i (i)}
+        <div>
+          <DamageInput bind:damage on:delete={() => removeBaseDamage(i, false)} />
+        </div>
+      {/each}
       {#each baseDamage as damage, i (i)}
-        <DamageInput bind:damage />
+        <div>
+          <DamageInput bind:damage on:delete={() => removeBaseDamage(i)} />
+        </div>
       {/each}
     </div>
     <div class="bonus-damage">
@@ -106,8 +130,15 @@
         <button class="add-damage-type" type="button" on:click={addBonusDamage}><i class="mdi mdi-plus-thick" /></button
         >
       </h3>
+      {#each weaponBonusDamage as damage, i (i)}
+        <div>
+          <DamageInput bind:damage on:delete={() => removeBonusDamage(i, false)} />
+        </div>
+      {/each}
       {#each baseBonusDamage as damage, i (i)}
-        <DamageInput bind:damage />
+        <div>
+          <DamageInput bind:damage on:delete={() => removeBonusDamage(i)} />
+        </div>
       {/each}
     </div>
   </div>
@@ -189,7 +220,8 @@
     .bonus-damage {
       width: 100%;
       padding: 0.2em;
-      min-width: 180px;
+      min-width: 200px;
+      max-width: 230px;
     }
 
     h3 {

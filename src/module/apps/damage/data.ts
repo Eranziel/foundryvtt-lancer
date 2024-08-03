@@ -178,8 +178,8 @@ export class DamageHudBase {
   get total() {
     const weaponTotal = this.#weapon.total;
     return {
-      damage: this.damage.concat(weaponTotal.damage),
-      bonusDamage: this.bonusDamage.concat(weaponTotal.bonusDamage),
+      damage: weaponTotal.damage.concat(this.damage),
+      bonusDamage: weaponTotal.bonusDamage.concat(this.bonusDamage),
     };
   }
 }
