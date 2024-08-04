@@ -3,7 +3,6 @@
 <script lang="ts">
   import type { DamageHudWeapon, DamageHudBase, DamageHudTarget } from "./index";
 
-  import { slide } from "svelte/transition";
   import { fade } from "svelte/transition";
   import { flip } from "svelte/animate";
   import { createEventDispatcher } from "svelte";
@@ -15,6 +14,7 @@
   import type { LancerItem } from "../../item/lancer-item";
   import DamageTarget from "./DamageTarget.svelte";
   import { DamageType } from "../../enums";
+  import HitRadio from "./HitRadio.svelte";
 
   export let weapon: DamageHudWeapon;
   export let base: DamageHudBase;
@@ -81,6 +81,7 @@
       weapon.damage = weapon.damage.filter((_, i) => i !== idx);
     }
   }
+
   function removeBonusDamage(idx: number, isBase = true) {
     if (isBase) {
       base.bonusDamage = base.bonusDamage.filter((_, i) => i !== idx);
@@ -177,11 +178,35 @@
   </div>
   <!-- Target cards -->
   <div class="damage-hud-targets">
-    {#each targets as target (target.target.id)}
-      <div class="target-container" animate:flip={{ duration: 200 }}>
-        <DamageTarget {target} />
+    {#if targets.length < 1}
+      stuff
+    {:else if targets.length === 1}
+      <div class="single-target-container">
+        <span class="target-name flexrow lancer-mini-header">🞂<b>{targets[0].target.name}</b>🞀</span>
+        <div class="target-body flexrow">
+          <img
+            class="lancer-hit-thumb accdiff-target-has-dropdown"
+            alt={targets[0].target.name ?? undefined}
+            src={targets[0].target.actor?.img}
+          />
+          <HitRadio bind:quality={targets[0].quality} class="damage-target-quality flexcol" />
+        </div>
       </div>
-    {/each}
+      <!-- {#each targets as target (target.target.id)}
+        <div class="target-container solo" animate:flip={{ duration: 200 }}>
+          <DamageTarget {target} />
+        </div>
+      {/each} -->
+      <!-- {#if targets.length <= 1}
+      <HitRadio bind:quality={hitQuality} class="damage-target-quality flexrow" />
+    {/if} -->
+    {:else if targets.length > 1}
+      {#each targets as target (target.target.id)}
+        <div class="target-container {targets.length <= 1 ? 'solo' : ''}" animate:flip={{ duration: 200 }}>
+          <DamageTarget {target} />
+        </div>
+      {/each}
+    {/if}
   </div>
 
   <div class="dialog-buttons flexrow">
@@ -275,8 +300,68 @@
 
   .damage-hud-targets {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    grid-template-rows: auto;
+    grid-template-columns: auto auto auto;
+    grid-row-gap: 0.3em;
+    justify-items: center;
+    border-top: 1px solid var(--primary-color);
+    padding-top: 0.5em;
+
+    .single-target-container {
+      grid-column-start: 1;
+      grid-column-end: 4;
+      width: 65%;
+      background-color: var(--darken-1);
+      box-shadow: 1px 1px 2px;
+      margin-bottom: 0.3em;
+
+      .target-name {
+        justify-content: center;
+        padding: 0px 0.2em;
+        justify-content: space-between;
+        b {
+          text-align: center;
+        }
+      }
+
+      .lancer-hit-thumb {
+        max-width: 50px;
+      }
+
+      .target-body {
+        justify-content: center;
+        align-items: center;
+        img {
+          flex-grow: 0;
+        }
+      }
+
+      :global(.damage-target-quality) {
+        flex-grow: 1;
+        max-width: fit-content;
+        font-size: 0.85em;
+        margin-top: 0.2em;
+        padding-left: 10px;
+        cursor: pointer;
+      }
+      :global(.damage-target-quality i) {
+        vertical-align: middle;
+        margin-right: 0.4em;
+        margin-top: 0.1em;
+        margin-bottom: 0.1em;
+      }
+
+      :global(.damage-target-quality span) {
+        vertical-align: middle;
+      }
+
+      :global(.damage-target-quality label) {
+        align-content: center;
+      }
+    }
+
+    .target-container {
+      min-width: 200px;
+    }
 
     .target-container:has(.damage-hud-target-card .target-bonus-damage-wrapper) {
       grid-column-start: 1;

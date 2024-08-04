@@ -1,11 +1,11 @@
 <script lang="ts">
   import { slide } from "svelte/transition";
-  import { flip } from "svelte/animate";
 
   import HudCheckbox from "../components/HudCheckbox.svelte";
   import { DamageHudTarget } from "./data";
   import DamageInput from "./DamageInput.svelte";
   import { DamageType } from "../../enums";
+  import HitRadio from "./HitRadio.svelte";
 
   export let target: DamageHudTarget;
 
@@ -52,6 +52,10 @@
     </div>
   </div>
   <!-- Checkboxes for damage config -->
+  <!-- Horizontal radio for Crit/Hit/Miss -->
+  <div class="hit-quality">
+    <HitRadio bind:quality={target.quality} class="damage-target-quality flexrow" />
+  </div>
   <div class="flexrow damage-target-config">
     <HudCheckbox label="AP" bind:value={target.ap} tooltip="Armor Piercing" />
     <HudCheckbox
@@ -66,25 +70,20 @@
       tooltip="Half Damage - Use this for effects which cause the attacker to deal half damage in addition to resistance. For example, Heavy Gunner or Scylla-class AI."
     />
   </div>
-  <!-- Horizontal radio for Crit/Hit/Miss -->
 </div>
 
 <style lang="scss">
   .damage-hud-target-card {
     background-color: var(--darken-1);
-    box-shadow: var(--button-shadow);
+    box-shadow: 1px 1px 2px;
     margin: 0.3em 0.3em;
-    max-width: 12em;
+    max-width: 100%;
     height: calc(100% - 0.6em);
     justify-content: space-between;
 
-    &:has(.target-bonus-damage .target-bonus-damage-wrapper) {
-      max-width: 100%;
-    }
     .target-name {
       justify-content: center;
       padding: 0px 0.2em;
-      border-bottom: 1px solid var(--primary-color);
     }
 
     .lancer-hit-thumb {
@@ -112,6 +111,16 @@
 
     .damage-target-config {
       margin: 0 0.3em;
+    }
+  }
+
+  .hit-quality {
+    margin-top: 0.4em;
+    justify-content: space-around;
+
+    :global(.damage-target-quality i) {
+      font-size: 16px;
+      vertical-align: top;
     }
   }
 </style>

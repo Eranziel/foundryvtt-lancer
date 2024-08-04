@@ -9,6 +9,13 @@ import { Tag } from "../../models/bits/tag";
 import { DamageData } from "../../models/bits/damage";
 import { DamageType, NpcFeatureType } from "../../enums";
 
+export enum HitQuality {
+  Miss = 0,
+  Hit = 1,
+  Crit = 2,
+}
+let hitSchema = t.union([t.literal(0), t.literal(1), t.literal(2)]);
+
 /**
  * Utility function to ensure that raw data conforms to the DamageData spec
  * @param d The raw damage object
@@ -190,6 +197,7 @@ export class DamageHudBase {
 // so if you extend DamageBase it's trying to assign DamageBase to DamageTarget
 export class DamageHudTarget {
   target: LancerToken;
+  quality: HitQuality;
   ap: boolean;
   paracausal: boolean;
   halfDamage: boolean;
@@ -203,6 +211,7 @@ export class DamageHudTarget {
   static get schema() {
     return {
       target_id: t.string,
+      quality: t.number,
       ap: t.boolean,
       paracausal: t.boolean,
       halfDamage: t.boolean,
@@ -227,6 +236,7 @@ export class DamageHudTarget {
     const objBonusDamage = obj.bonusDamage.map(ensureDamageType);
 
     this.target = target.object! as LancerToken;
+    this.quality = obj.quality;
     this.ap = obj.ap;
     this.paracausal = obj.paracausal;
     this.halfDamage = obj.halfDamage;
@@ -237,6 +247,7 @@ export class DamageHudTarget {
   get raw() {
     return {
       target_id: this.target.id,
+      quality: this.quality,
       ap: this.ap,
       paracausal: this.paracausal,
       halfDamage: this.halfDamage,
@@ -248,6 +259,7 @@ export class DamageHudTarget {
   static fromParams(t: Token): DamageHudTarget {
     let ret = {
       target_id: t.id,
+      quality: HitQuality.Hit,
       ap: false,
       paracausal: false,
       halfDamage: false,
@@ -438,6 +450,7 @@ export class DamageHudData {
       targets: (targets || []).map(t => {
         let ret = {
           target_id: t.id,
+          quality: HitQuality.Hit,
           ap: base.ap,
           paracausal: base.paracausal,
           halfDamage: base.halfDamage,
