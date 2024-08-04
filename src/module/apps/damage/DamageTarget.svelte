@@ -37,10 +37,15 @@
     />
     <!-- Add bonus damage for this target -->
     <div class="card clipped target-bonus-damage">
-      <span class="flexrow">
-        <b>Bonus</b>
+      <span class="flexrow" style="width: 100%">
+        <b class="target-bonus-damage-title">Bonus</b>
         {#if target.bonusDamage.length}
-          <button class="lancer-button add-damage-type" type="button" on:click={addBonusDamage}>
+          <button
+            class="lancer-button add-damage-type small"
+            type="button"
+            on:click={addBonusDamage}
+            data-tooltip="Add a bonus damage type for only this target"
+          >
             <i class="mdi mdi-plus-thick" />
           </button>
         {/if}
@@ -51,9 +56,14 @@
         </div>
       {/each}
       {#if !target.bonusDamage.length}
-        <button class="lancer-button add-damage-type" type="button" on:click={addBonusDamage}
-          ><i class="mdi mdi-plus-thick" /></button
+        <button
+          class="lancer-button add-damage-type"
+          type="button"
+          on:click={addBonusDamage}
+          data-tooltip="Add a bonus damage type for only this target"
         >
+          <i class="mdi mdi-plus-thick" />
+        </button>
       {/if}
     </div>
   </div>
@@ -100,10 +110,15 @@
     }
 
     .target-bonus-damage {
-      background-color: var(--darken-2);
+      background-color: var(--darken-3);
       align-content: center;
       align-items: center;
       padding: 0.3em;
+
+      .target-bonus-damage-title {
+        display: flex;
+        justify-content: center;
+      }
     }
     .add-damage-type {
       max-height: 2em;
@@ -113,6 +128,15 @@
       align-items: center;
       i {
         margin: 0;
+      }
+
+      &.small {
+        max-height: 1.5em;
+        max-width: 1.5em;
+        line-height: 1.5em;
+        display: flex;
+        justify-content: center;
+        align-items: center;
       }
     }
 
