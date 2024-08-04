@@ -9,6 +9,7 @@
   const damageSelectOptions = Object.entries(DamageType);
 
   export let damage: DamageData;
+  export let deletable: boolean = true;
 
   function selected(type: DamageType) {
     return damage.type === type;
@@ -35,8 +36,16 @@
     bind:value={damage.val}
     placeholder="0"
   />
-  <button class="lancer-button damage-delete" type="button" on:click={dispatchDelete}><i class="fas fa-trash" /></button
-  >
+  {#if deletable}
+    <button
+      class="lancer-button damage-delete"
+      type="button"
+      on:click={dispatchDelete}
+      data-tooltip="Remove this damage type"
+    >
+      <i class="fas fa-trash" />
+    </button>
+  {/if}
 </div>
 
 <style lang="scss">
@@ -64,6 +73,8 @@
 
   .damage-input-val {
     background-color: var(--darken-1);
+    margin: 0;
+    max-width: 10em;
   }
 
   .damage-delete {
