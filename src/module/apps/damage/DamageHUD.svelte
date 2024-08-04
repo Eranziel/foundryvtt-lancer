@@ -135,7 +135,9 @@
     <div class="base-damage lancer-border-primary">
       <h3 class="damage-hud-section lancer-border-primary flexrow">
         Base Damage
-        <button class="add-damage-type" type="button" on:click={addBaseDamage}><i class="mdi mdi-plus-thick" /></button>
+        <button class="add-damage-type" type="button" on:click={addBaseDamage}
+          ><i class="mdi mdi-plus-thick" data-tooltip="Add a base damage type" /></button
+        >
       </h3>
       {#each weaponDamage as damage, i (i)}
         <div>
@@ -151,7 +153,8 @@
     <div class="bonus-damage">
       <h3 class="damage-hud-section lancer-border-primary flexrow">
         Bonus Damage
-        <button class="add-damage-type" type="button" on:click={addBonusDamage}><i class="mdi mdi-plus-thick" /></button
+        <button class="add-damage-type" type="button" on:click={addBonusDamage}
+          ><i class="mdi mdi-plus-thick" data-tooltip="Add a bonus damage type" /></button
         >
       </h3>
       {#each weaponBonusDamage as damage, i (i)}
@@ -211,9 +214,7 @@
   </div>
   <!-- Target cards -->
   <div class="damage-hud-targets">
-    {#if targets.length < 1}
-      stuff
-    {:else if targets.length === 1}
+    {#if targets.length === 1}
       <div class="single-target-container">
         <span class="target-name flexrow lancer-mini-header">🞂<b>{targets[0].target.name}</b>🞀</span>
         <div class="target-body flexrow">
@@ -225,14 +226,6 @@
           <HitRadio bind:quality={targets[0].quality} class="damage-target-quality flexcol" />
         </div>
       </div>
-      <!-- {#each targets as target (target.target.id)}
-        <div class="target-container solo" animate:flip={{ duration: 200 }}>
-          <DamageTarget {target} />
-        </div>
-      {/each} -->
-      <!-- {#if targets.length <= 1}
-      <HitRadio bind:quality={hitQuality} class="damage-target-quality flexrow" />
-    {/if} -->
     {:else if targets.length > 1}
       {#each targets as target (target.target.id)}
         <div class="target-container {targets.length <= 1 ? 'solo' : ''}" animate:flip={{ duration: 200 }}>
@@ -259,7 +252,6 @@
     // background-color: var(--background-color);
     // color: var(--dark-text);
 
-    select,
     input {
       color: unset;
     }
@@ -279,7 +271,6 @@
       width: 100%;
       padding: 0.2em;
       min-width: 200px;
-      max-width: 230px;
     }
 
     h3 {
@@ -305,9 +296,7 @@
       }
     }
 
-    h2.damage-hud-section,
-    h3.damage-hud-section,
-    h4.damage-hud-section {
+    h3.damage-hud-section {
       display: flex;
       justify-content: space-between;
       margin-bottom: 0.1em;
@@ -334,6 +323,7 @@
   .damage-hud-targets {
     display: grid;
     grid-template-columns: auto auto auto;
+    grid-auto-flow: dense;
     grid-row-gap: 0.3em;
     justify-items: center;
     border-top: 1px solid var(--primary-color);
@@ -394,11 +384,13 @@
 
     .target-container {
       min-width: 200px;
+      max-width: 200px;
     }
 
     .target-container:has(.damage-hud-target-card .target-bonus-damage-wrapper) {
       grid-column-start: 1;
-      grid-column-end: 4;
+      grid-column-end: 3;
+      max-width: unset;
     }
   }
 </style>
