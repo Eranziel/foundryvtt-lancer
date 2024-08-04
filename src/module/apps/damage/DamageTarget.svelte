@@ -18,6 +18,12 @@
   function removeBonusDamage(idx: number) {
     target.bonusDamage = target.bonusDamage.filter((_, i) => i !== idx);
   }
+
+  function toggleParacausal(event: any) {
+    if (event.detail) {
+      target.ap = true;
+    }
+  }
 </script>
 
 <div class="damage-hud-target-card card" in:slide={{ delay: 100, duration: 300 }} out:slide={{ duration: 100 }}>
@@ -57,17 +63,18 @@
     <HitRadio bind:quality={target.quality} class="damage-target-quality flexrow" />
   </div>
   <div class="flexrow damage-target-config">
-    <HudCheckbox label="AP" bind:value={target.ap} tooltip="Armor Piercing" />
+    <HudCheckbox label="AP" bind:value={target.ap} tooltip="Armor Piercing" disabled={target.paracausal} />
     <HudCheckbox
-      label="PCSL"
+      label="IRR"
       bind:value={target.paracausal}
-      tooltip="Paracausal - use this for 'cannot be reduced' effects"
+      on:change={toggleParacausal}
+      tooltip="Irreducible - For 'cannot be reduced' effects like the Paracausal mod"
       style="margin: 0 0.3em;"
     />
     <HudCheckbox
       label="½"
       bind:value={target.halfDamage}
-      tooltip="Half Damage - Use this for effects which cause the attacker to deal half damage in addition to resistance. For example, Heavy Gunner or Scylla-class AI."
+      tooltip="Half Damage - For effects which cause the attacker to deal half damage in addition to resistance, like Heavy Gunner"
     />
   </div>
 </div>

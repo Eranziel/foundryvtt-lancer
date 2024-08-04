@@ -1,4 +1,8 @@
 <script lang="ts">
+  import { createEventDispatcher } from "svelte";
+
+  const dispatch = createEventDispatcher();
+
   export let style = "";
   export let label = "";
   export let tooltip: string | null = null;
@@ -7,7 +11,7 @@
 </script>
 
 <label class="container" {style} data-tooltip={tooltip}>
-  <input type="checkbox" bind:checked={value} {disabled} />
+  <input type="checkbox" bind:checked={value} {disabled} on:change={() => dispatch("change", value)} />
   {label.replace(" ", " ")}
 </label>
 

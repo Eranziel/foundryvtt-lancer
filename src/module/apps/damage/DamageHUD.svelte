@@ -89,6 +89,29 @@
       weapon.bonusDamage = weapon.bonusDamage.filter((_, i) => i !== idx);
     }
   }
+
+  function toggleAP(event: any) {
+    for (const [idx, t] of targets.entries()) {
+      t.ap = event.detail;
+      targets[idx] = t;
+    }
+  }
+  function toggleParacausal(event: any) {
+    for (const [idx, t] of targets.entries()) {
+      t.paracausal = event.detail;
+      targets[idx] = t;
+    }
+    if (event.detail) {
+      base.ap = true;
+      toggleAP(event);
+    }
+  }
+  function toggleHalfDamage(event: any) {
+    for (const [idx, t] of targets.entries()) {
+      t.halfDamage = event.detail;
+      targets[idx] = t;
+    }
+  }
 </script>
 
 <form
@@ -110,7 +133,7 @@
   <!-- Damage types and values -->
   <div class="damage-grid">
     <div class="base-damage lancer-border-primary">
-      <h3 class="lancer-border-primary flexrow">
+      <h3 class="damage-hud-section lancer-border-primary flexrow">
         Base Damage
         <button class="add-damage-type" type="button" on:click={addBaseDamage}><i class="mdi mdi-plus-thick" /></button>
       </h3>
@@ -126,7 +149,7 @@
       {/each}
     </div>
     <div class="bonus-damage">
-      <h3 class="lancer-border-primary flexrow">
+      <h3 class="damage-hud-section lancer-border-primary flexrow">
         Bonus Damage
         <button class="add-damage-type" type="button" on:click={addBonusDamage}><i class="mdi mdi-plus-thick" /></button
         >
@@ -145,19 +168,29 @@
   </div>
   <!-- Checkboxes - AP etc... -->
   <div class="damage-hud-options-grid">
-    <h3 class="damage-hud-section lancer-border-primary" style="grid-area: title">Configuration</h3>
-    <HudCheckbox label="Armor Piercing (AP)" bind:value={base.ap} style="grid-area: ap" />
+    <h3 class="damage-hud-section lancer-border-primary" style="justify-content: center; grid-area: title;">
+      Configuration
+    </h3>
+    <HudCheckbox
+      label="Armor Piercing (AP)"
+      bind:value={base.ap}
+      on:change={toggleAP}
+      disabled={base.paracausal}
+      style="grid-area: ap"
+    />
     <HudCheckbox label="Overkill" bind:value={weapon.overkill} style="grid-area: overkill" />
     <HudCheckbox
-      label="Paracausal"
+      label="Irreducible"
       bind:value={base.paracausal}
-      tooltip="Use this for 'cannot be reduced' effects"
+      on:change={toggleParacausal}
+      tooltip="For 'cannot be reduced' effects like the Paracausal mod"
       style="grid-area: paracausal"
     />
     <HudCheckbox
       label="Half Damage"
       bind:value={base.halfDamage}
-      tooltip="Use this for effects which cause the attacker to deal half damage in addition to resistance. For example, Heavy Gunner or Scylla-class AI."
+      on:change={toggleHalfDamage}
+      tooltip="For effects which cause the attacker to deal half damage in addition to resistance, like Heavy Gunner"
       style="grid-area: halfdamage"
     />
     <div class="flexrow" style="grid-area: reliable; align-items: center;">
@@ -258,7 +291,6 @@
       border-right-style: dashed;
     }
 
-    h1.damage-hud-section,
     .add-damage-type {
       max-height: 1.5em;
       max-width: 1.5em;
@@ -277,7 +309,8 @@
     h3.damage-hud-section,
     h4.damage-hud-section {
       display: flex;
-      justify-content: center;
+      justify-content: space-between;
+      margin-bottom: 0.1em;
     }
 
     .damage-hud-options-grid {
