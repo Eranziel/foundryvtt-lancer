@@ -178,7 +178,7 @@
   <!-- Target cards -->
   <div class="damage-hud-targets">
     {#each targets as target (target.target.id)}
-      <div animate:flip={{ duration: 200 }}>
+      <div class="target-container" animate:flip={{ duration: 200 }}>
         <DamageTarget {target} />
       </div>
     {/each}
@@ -277,5 +277,10 @@
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
     grid-template-rows: auto;
+
+    .target-container:has(.damage-hud-target-card .target-bonus-damage-wrapper) {
+      grid-column-start: 1;
+      grid-column-end: 4;
+    }
   }
 </style>
