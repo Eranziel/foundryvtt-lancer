@@ -94,9 +94,9 @@ export function damageTarget(
   const select = context.configurable
     ? `
           <select class="lancer-damage-apply-select" title="Select damage multiplier">
-            <option value="2">2×</option>
-            <option value="1" selected>1×</option>
-            <option value="0.5">½×</option>
+            <option value="2">Exposed</option>
+            <option value="1" selected>Normal</option>
+            <option value="0.5">Resisted</option>
           </select>`
     : "";
 
@@ -113,9 +113,16 @@ export function damageTarget(
     .join("");
 
   const damageTags: string[] = [];
-  if (context.ap) damageTags.push(`<span class="lancer-damage-tag">AP</span>`);
-  if (context.paracausal) damageTags.push(`<span class="lancer-damage-tag">PARACAUSAL</span>`);
-  if (context.half_damage) damageTags.push(`<span class="lancer-damage-tag">HALF-DMG</span>`);
+  if (context.ap && !context.paracausal)
+    damageTags.push(
+      `<span class="lancer-damage-tag" data-tooltip="Armor Piercing"><i class="mdi mdi-shield-off-outline"></i></span>`
+    );
+  if (context.paracausal)
+    damageTags.push(`<span class="lancer-damage-tag" data-tooltip="Paracausal"><i class="mdi mdi-shimmer"></i></span>`);
+  if (context.half_damage)
+    damageTags.push(
+      `<span class="lancer-damage-tag" data-tooltip="Half Damage"><i class="mdi mdi-fraction-one-half"></i></span>`
+    );
   const damageTagsDisplay = `<div class="lancer-damage-tags">${damageTags.join("")}</div>`;
   // @ts-expect-error v10 types
   const img = target.target.document.texture.src;
