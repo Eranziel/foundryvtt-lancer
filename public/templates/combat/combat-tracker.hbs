@@ -86,6 +86,10 @@
                         <i class="fa-solid fa-bullseye-arrow"></i>
                     </a>
                     {{/if}}
+                    <span class="activations" data-tooltip="lancer.Actor.FIELDS.activations.label">
+                    <i class="cci cci-activate"></i>
+                    <span>{{this.activations}}</span>
+                    </span>
                     <div class="token-effects">
                         {{#each this.effects}}
                         <img class="token-effect" src="{{this}}"/>
@@ -105,7 +109,7 @@
                 <a class="{{../../icon_class}} lancer-combat-control" data-control="activateCombatant"></a>
                 {{/lancerinitiative-repeat}}
                 {{#lancerinitiative-repeat this.finished}}
-                <i class="{{../../icon_class}} done lancer-combat-control" data-control="deactivateCombatant"></i>
+                <a class="{{../../deactivate_icon_class}} done lancer-combat-control" data-control="deactivateCombatant"></a>
                 {{/lancerinitiative-repeat}}
             </div>
         </li>

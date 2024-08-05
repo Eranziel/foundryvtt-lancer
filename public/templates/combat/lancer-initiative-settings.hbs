@@ -6,6 +6,11 @@
     <p class="notes">{{ localize "LANCERINITIATIVE.IconDesc" }}</p>
   </div>
   <div class="form-group">
+    <label>{{ localize "LANCERINITIATIVE.DeactivateIcon" }}</label>
+    <input type="text" name="deactivate" value="{{ deactivate }}" data-dtype="String"/>
+    <p class="notes">{{ localize "LANCERINITIATIVE.DeactivateIconDesc" }}</p>
+  </div>
+  <div class="form-group">
     <label>{{ localize "LANCERINITIATIVE.IconSize" }}</label>
     <input type="range" name="icon_size" min="1" max="4" step="0.1" value="{{ icon_size }}" data-dtype="Number"/>
     <span class="range-value">{{ icon_size }}</span>
