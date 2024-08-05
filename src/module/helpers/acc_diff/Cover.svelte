@@ -60,6 +60,9 @@
     .flexrow & {
       padding: 0px;
     }
+    &:has(.cover-arrow) {
+      text-shadow: 0px 0px 5px var(--primary-color);
+    }
   }
 
   .cover-arrow,

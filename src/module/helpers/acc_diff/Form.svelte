@@ -251,7 +251,7 @@
       </div>
     </div>
     <div class="flex-col accdiff-footer lancer-border-primary">
-      {#if ranges}
+      {#if ranges && ranges.length > 0}
         <span class="accdiff-weight flex-center flexrow">Targeting</span>
         <div class="accdiff-ranges flexrow">
           {#each ranges as range}
@@ -266,12 +266,16 @@
       <div class="accdiff-total">
         {#if targets.length < 2}
           {#key targets.length}
-            <label transition:slide class="accdiff-weight flex-center flexrow total-label" for="total-display-0">
-              Total
-              {#if targets.length > 0}
-                vs {targets[0].target.name}
-              {/if}
-            </label>
+            <div class="flexrow flex-center">
+              <label transition:slide class="accdiff-weight total-label lancer-mini-header" for="total-display-0">
+                🞂 <span
+                  >Total
+                  {#if targets.length > 0}
+                    vs {targets[0].target.name}
+                  {/if}</span
+                > 🞀
+              </label>
+            </div>
           {/key}
         {/if}
         <div class="grid-enforcement">
@@ -298,35 +302,37 @@
                   on:mouseenter={() => drawLos(data.target)}
                   on:mouseleave={clearLos}
                 >
-                  <label class="flexrow flex-center card card-title" for={data.target.id}>
-                    {data.target.document.name}
+                  <label class="target-name flexrow lancer-mini-header" for={data.target.id}>
+                    🞂<span>{data.target.document.name}</span>🞀
                   </label>
-                  <div class="flexrow accdiff-total">
-                    <Total bind:target={data} id={`total-display-${i}`} />
-                  </div>
-                  <div class="flexrow">
-                    <button
-                      class="i--m no-grow accdiff-button lancer-dark-gray"
-                      type="button"
-                      on:click={() => (data.accuracy = data.accuracy + 1)}
-                    >
-                      <i class="cci cci-accuracy i--m" style="border:none" />
-                    </button>
-                    <input style="display: none" type="number" bind:value={data.accuracy} min="0" />
-                    <Cover
-                      bind:cover={data.cover}
-                      disabled={weapon.seeking}
-                      class="accdiff-targeted-cover flexrow flex-center"
-                      labelClass="i--s"
-                    />
-                    <input style="display: none" type="number" bind:value={data.difficulty} min="0" />
-                    <button
-                      class="i--m no-grow accdiff-button lancer-dark-gray"
-                      type="button"
-                      on:click={() => (data.difficulty = data.difficulty + 1)}
-                    >
-                      <i class="cci cci-difficulty i--m" style="border:none" />
-                    </button>
+                  <div class="accdiff-target-body">
+                    <div class="flexrow accdiff-total">
+                      <Total bind:target={data} id={`total-display-${i}`} />
+                    </div>
+                    <div class="flexrow">
+                      <button
+                        class="i--m no-grow accdiff-button lancer-dark-gray"
+                        type="button"
+                        on:click={() => (data.accuracy = data.accuracy + 1)}
+                      >
+                        <i class="cci cci-accuracy i--m" style="border:none" />
+                      </button>
+                      <input style="display: none" type="number" bind:value={data.accuracy} min="0" />
+                      <Cover
+                        bind:cover={data.cover}
+                        disabled={weapon.seeking}
+                        class="accdiff-targeted-cover flexrow flex-center"
+                        labelClass="i--s"
+                      />
+                      <input style="display: none" type="number" bind:value={data.difficulty} min="0" />
+                      <button
+                        class="i--m no-grow accdiff-button lancer-dark-gray"
+                        type="button"
+                        on:click={() => (data.difficulty = data.difficulty + 1)}
+                      >
+                        <i class="cci cci-difficulty i--m" style="border:none" />
+                      </button>
+                    </div>
                   </div>
                 </div>
               {/each}
@@ -514,8 +520,17 @@
   }
 
   .accdiff-target {
-    padding: 5px;
     box-shadow: 1px 1px 2px;
+    max-width: 12em;
+
+    .target-name {
+      justify-content: center;
+      padding: 0px 0.2em;
+    }
+
+    .accdiff-target-body {
+      padding: 0.2em;
+    }
   }
 
   .accdiff-total {
@@ -525,6 +540,11 @@
 
   .total-label {
     white-space: nowrap;
+    max-width: fit-content;
+    min-width: 10em;
+    padding: 0 0.2em;
+    justify-self: center;
+    text-align: center;
   }
 
   #accdiff button {
