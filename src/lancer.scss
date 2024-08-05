@@ -366,12 +366,14 @@ $theme-types: "primary" "secondary" "dark-gray" "light-gray" "tooltip"    // Gen
   border: 1px solid var(--weapon-color);
   border-bottom-left-radius: 5px;
   border-bottom-right-radius: 5px;
+  background-color: color-mix(in srgb, var(--weapon-color), #fff 85%);
   font-size: 15px;
   word-break: normal;
   margin-bottom: 0.2em;
 
   .lancer-tech + & {
     border-color: var(--tech-color);
+    background-color: color-mix(in srgb, var(--tech-color), #fff 85%);
   }
 
   .mini-weapon-profile-separator {
@@ -435,6 +437,9 @@ $theme-types: "primary" "secondary" "dark-gray" "light-gray" "tooltip"    // Gen
 }
 .lancer-hit-text-name {
   font-size: 1.2em;
+  overflow: hidden;
+  text-wrap: nowrap;
+  text-overflow: ellipsis;
 }
 
 .card.lancer-charge-chip {
