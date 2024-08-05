@@ -50,8 +50,9 @@ export class LancerCombatTracker extends CombatTracker {
       return {
         ...t,
         css: t.css + " " + disp[combatant?.disposition ?? -2],
+        activations: combatant?.activations.max,
         pending: combatant?.activations.value ?? 0,
-        finished: (combatant?.activations.max ?? 1) - (combatant?.activations.value ?? 0),
+        finished: +(this.viewed!.combatant === combatant),
       };
     });
     if (sort) {
@@ -65,6 +66,7 @@ export class LancerCombatTracker extends CombatTracker {
       });
     }
     data.icon_class = appearance.icon;
+    data.deactivate_icon_class = appearance.deactivate;
     data.enable_initiative = CONFIG.LancerInitiative.enable_initiative ?? false;
     return <CombatTracker.Data>data;
   }

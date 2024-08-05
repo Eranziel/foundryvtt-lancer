@@ -2748,14 +2748,31 @@ Here, this means we want to allow for drag stuff etc to show contextually if:
         flex: 0 0 auto;
       }
 
+      .combatant-controls {
+        span.activations {
+          flex: 0 0 20px;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          font-size: 20px;
+          i {
+            color: var(--color-text-dark-5);
+            font-size: 20px;
+            position: absolute;
+          }
+          span {
+            flex: 0;
+            font-size: 14px;
+            position: relative;
+            opacity: 0.8;
+          }
+        }
+      }
+
       .token-initiative {
         i,
         a {
           font-size: var(--lancer-initiative-icon-size);
-        }
-
-        i.done {
-          color: var(--lancer-initiative-done-color);
         }
       }
     }
@@ -2765,6 +2782,9 @@ Here, this means we want to allow for drag stuff etc to show contextually if:
 
       .token-initiative a {
         color: var(--lancer-initiative-player-color);
+        &.done {
+          color: var(--lancer-initiative-done-color);
+        }
       }
     }
     .combatant.friendly {
@@ -2772,6 +2792,9 @@ Here, this means we want to allow for drag stuff etc to show contextually if:
 
       .token-initiative a {
         color: var(--lancer-initiative-friendly-color);
+        &.done {
+          color: var(--lancer-initiative-done-color);
+        }
       }
     }
     .combatant.neutral {
@@ -2779,6 +2802,9 @@ Here, this means we want to allow for drag stuff etc to show contextually if:
 
       .token-initiative a {
         color: var(--lancer-initiative-neutral-color);
+        &.done {
+          color: var(--lancer-initiative-done-color);
+        }
       }
     }
     .combatant.enemy {
@@ -2786,6 +2812,9 @@ Here, this means we want to allow for drag stuff etc to show contextually if:
 
       .token-initiative a {
         color: var(--lancer-initiative-enemy-color);
+        &.done {
+          color: var(--lancer-initiative-done-color);
+        }
       }
     }
   }

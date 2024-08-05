@@ -163,12 +163,13 @@ export const registerSettings = function () {
     templatePath: `systems/${game.system.id}/templates/combat/combat-tracker.hbs`,
     def_appearance: {
       icon: "cci cci-activate",
+      deactivate: "cci cci-deactivate",
       icon_size: 2,
       player_color: "#44abe0",
       friendly_color: "#44abe0",
       neutral_color: "#146464",
       enemy_color: "#d98f30",
-      done_color: "#444444",
+      done_color: "#aaaaaa",
     },
     activations: "system.activations",
   };

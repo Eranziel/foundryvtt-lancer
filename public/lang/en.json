@@ -28,6 +28,11 @@
     }
   },
   "lancer": {
+    "Actor": {
+      "FIELDS": {
+        "activations": { "label": "Activations" }
+      }
+    },
     "placeholder": {
       "name": "Name"
     },
@@ -380,6 +385,8 @@
     "IconSettingsMenu": "Icon Settings",
     "Icon": "Action Icon",
     "IconDesc": "CSS classes to define the activation icon.",
+    "DeactivateIcon": "Deactivation Icon",
+    "DeactivateIconDesc": "CSS classes to define the deactivation icon.",
     "IconSize": "Icon Size",
     "IconPreview": "Icon Preview",
     "PCColor": "Player Color",
@@ -391,7 +398,7 @@
     "EnemyColor": "Enemy Color",
     "EnemyColorDesc": "Default: #d98f30",
     "DoneColor": "Inactive Color",
-    "DoneColorDesc": "Default: #444444",
+    "DoneColorDesc": "Default: #aaaaaa",
     "ActivatedLast": "Activated Units Last",
     "ActivatedLastDesc": "Moves units that have taken their turn to the end of the tracker.",
     "SortTracker": "Sort the Tracker",

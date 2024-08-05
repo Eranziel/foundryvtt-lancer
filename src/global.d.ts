@@ -19,6 +19,7 @@ interface LancerInitiativeConfig<T extends string = string> {
    */
   def_appearance?: {
     icon: string;
+    deactivate: string;
     icon_size: number;
     player_color: string;
     friendly_color: string;
