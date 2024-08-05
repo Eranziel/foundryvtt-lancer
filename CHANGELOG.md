@@ -1,3 +1,9 @@
+# 2.2.3 (2024-08-04)
+
+## Bug Fixes
+
+- Fix overflowing text with a single target in the attack HUD.
+
 # 2.2.2 (2024-08-04)
 
 ## Bug Fixes
