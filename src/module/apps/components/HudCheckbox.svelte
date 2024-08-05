@@ -5,6 +5,7 @@
 
   export let style = "";
   export let label = "";
+  export let icon = "";
   export let tooltip: string | null = null;
   export let value = false;
   export let disabled = false;
@@ -12,6 +13,7 @@
 
 <label class="container" {style} data-tooltip={tooltip}>
   <input type="checkbox" bind:checked={value} {disabled} on:change={() => dispatch("change", value)} />
+  {#if icon}<i class="{icon} i--s" />{/if}
   {label.replace(" ", " ")}
 </label>
 

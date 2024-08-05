@@ -175,6 +175,7 @@
       Configuration
     </h3>
     <HudCheckbox
+      icon="mdi mdi-shield-off-outline"
       label="Armor Piercing (AP)"
       bind:value={base.ap}
       on:change={toggleAP}
@@ -183,13 +184,15 @@
     />
     <HudCheckbox label="Overkill" bind:value={weapon.overkill} style="grid-area: overkill" />
     <HudCheckbox
-      label="Irreducible"
+      icon="mdi mdi-shimmer"
+      label="Paracausal"
       bind:value={base.paracausal}
       on:change={toggleParacausal}
       tooltip="For 'cannot be reduced' effects like the Paracausal mod"
       style="grid-area: paracausal"
     />
     <HudCheckbox
+      icon="mdi mdi-fraction-one-half"
       label="Half Damage"
       bind:value={base.halfDamage}
       on:change={toggleHalfDamage}
