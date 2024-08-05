@@ -444,13 +444,9 @@ $theme-types: "primary" "secondary" "dark-gray" "light-gray" "tooltip"    // Gen
   text-align: start;
   width: 80%;
 }
-.lancer-hit-text-name {
-  font-size: 1.2em;
-  overflow: hidden;
-  text-wrap: nowrap;
-  text-overflow: ellipsis;
 
 .lancer-hit-text-name {
+  font-size: 1.2em;
   overflow: hidden;
   text-wrap: nowrap;
   text-overflow: ellipsis;
