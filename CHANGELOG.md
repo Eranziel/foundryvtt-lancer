@@ -1,3 +1,12 @@
+# 2.2.2 (2024-08-04)
+
+## Bug Fixes
+
+- Fix custom styling for Carousel Combat Tracker. The styles were not being properly applied.
+- Add a required version check for Terrain Height Tools in a place that was missed.
+- Improve attack HUD styling. Target names are coloured, and selected cover options have a glow to make them more obvious.
+- Combat tracker improvements. Activation icons are only shown for turns which haven't yet been taken; the icon to deactivate the current turn is now different than the one to start a turn; and an icon is added to each combatant to show their maximum activations.
+
 # 2.2.1 (2024-07-29)
 
 ## Bug Fixes
