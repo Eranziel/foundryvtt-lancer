@@ -1,93 +1,98 @@
-/* Add a background for resources text */
-#combat-dock .combatant-wrapper {
-  .tracked-attribute-text-container {
-    background: rgba(0, 0, 0, 0.5);
-    border: 1px solid black;
-    border-radius: 5px;
-    width: 70%;
-  }
-  .tracked-attribute-text-container:has(+ .tracked-attribute-text-container) {
-    border-bottom: none;
-    border-radius: 5px 5px 0px 0px;
-  }
-  .tracked-attribute-text-container + .tracked-attribute-text-container {
-    border-top: none;
-    border-radius: 0px 0px 5px 5px;
-  }
-}
-
-/* Tooltip */
-#tooltip.combat-dock-tooltip {
-  border: none;
-  border-radius: 10px;
-  box-shadow: 0 0 20px #000;
-  color: var(--light-text);
-  background: rgba(0, 0, 0, 0.9);
-
-  .combat-dock-tooltip-wrapper {
-    border: 2px solid var(--primary-color);
-    border-radius: 10px;
-    font-family: var(--main-font-family);
-    padding: 0em;
-
-    .portrait-header {
-      font-size: var(--font-size-12);
-      background-color: var(--primary-color);
-      border-radius: 5px 5px 0px 0px;
-      padding: 0em 0em 0em 0.5em;
-
-      .initiative {
-        background-color: var(--dark-gray-color);
-        padding-right: 0.5em;
-        padding-left: 1em;
-        border-radius: 0px 8px 0px 0px;
-        border-bottom: 2px solid var(--primary-color);
-        clip-path: polygon(1em 0%, 100% 0%, 100% 100%, 0% 100%);
-        -webkit-clip-path: polygon(1em 0%, 100% 0%, 100% 100%, 0% 100%);
+body.system-lancer {
+  /* Add a background for resources text */
+  #combat-dock .combatant-wrapper {
+    .tracked-attribute-text-container {
+      background: rgba(0, 0, 0, 0.5);
+      border: 1px solid black;
+      border-radius: 5px;
+      width: 70%;
+      &:not(:has(> i + i + i)) {
+        display: none;
       }
     }
+    .tracked-attribute-text-container:has(+ .tracked-attribute-text-container) {
+      border-bottom: none;
+      border-radius: 5px 5px 0px 0px;
+    }
+    .tracked-attribute-text-container + .tracked-attribute-text-container {
+      border-top: none;
+      border-radius: 0px 0px 5px 5px;
+    }
+  }
+
+  /* Tooltip */
+  #tooltip.combat-dock-tooltip {
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 0 20px #000;
+    color: var(--light-text);
+    background: rgba(0, 0, 0, 0.9);
+
+    .combat-dock-tooltip-wrapper {
+      border: 2px solid var(--primary-color);
+      border-radius: 10px;
+      font-family: var(--main-font-family);
+      padding: 0em;
+
+      .portrait-header {
+        font-size: var(--font-size-12);
+        background-color: var(--primary-color);
+        border-radius: 5px 5px 0px 0px;
+        padding: 0em 0em 0em 0.5em;
+
+        .initiative {
+          background-color: var(--dark-gray-color);
+          padding-right: 0.5em;
+          padding-left: 1em;
+          border-radius: 0px 8px 0px 0px;
+          border-bottom: 2px solid var(--primary-color);
+          clip-path: polygon(1em 0%, 100% 0%, 100% 100%, 0% 100%);
+          -webkit-clip-path: polygon(1em 0%, 100% 0%, 100% 100%, 0% 100%);
+        }
+      }
+
+      h1,
+      h2,
+      h3,
+      h4 {
+        border: none;
+      }
+
+      p,
+      ul {
+        font-family: Consolas;
+        font-size: var(--font-size-10);
+        color: var(--light-text);
+        margin: 0.2em;
+        padding: 0em 0.5em;
+      }
+
+      ul {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+
+        li {
+          flex: 1 0 calc(50% - 0.3em);
+          padding: 0em 0.5em 0em 0em;
+        }
+      }
+
+      ul + ul {
+        border-top: 1px solid var(--secondary-color);
+        padding-top: 0.2em;
+      }
+    }
+  }
+
+  #foosidebar {
+    background: var(--background-color);
+    color: var(--dark-text);
 
     h1,
-    h2,
-    h3,
-    h4 {
-      border: none;
-    }
-
-    p,
-    ul {
-      font-family: Consolas;
-      font-size: var(--font-size-10);
+    h2 {
+      background: var(--primary-color);
       color: var(--light-text);
-      margin: 0.2em;
-      padding: 0em 0.5em;
     }
-
-    ul {
-      display: flex;
-      flex-direction: row;
-      flex-wrap: wrap;
-
-      li {
-        flex: 1 0 calc(50% - 0.3em);
-        padding: 0em 0.5em 0em 0em;
-      }
-    }
-
-    ul + ul {
-      border-top: 1px solid var(--secondary-color);
-      padding-top: 0.2em;
-    }
-  }
-}
-
-#foosidebar {
-  background: var(--background-color);
-  color: var(--dark-text);
-
-  h1,
-  h2 {
-    background: var(--primary-color);
-    color: var(--light-text);
   }
 }
