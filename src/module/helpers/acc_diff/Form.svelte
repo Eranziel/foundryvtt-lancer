@@ -540,11 +540,19 @@
 
   .total-label {
     white-space: nowrap;
-    max-width: fit-content;
-    min-width: 10em;
+    min-width: 16em;
+    max-width: 16em;
+    width: 16em;
     padding: 0 0.2em;
     justify-self: center;
     text-align: center;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+
+    span {
+      text-wrap: wrap;
+    }
   }
 
   #accdiff button {
@@ -569,10 +577,6 @@
         box-shadow: -1px -1px 1px var(--primary-color);
       }
     }
-  }
-
-  .accdiff-target-row .card-title {
-    background-color: #00000000;
   }
 
   #accdiff .lancer-weapon {
