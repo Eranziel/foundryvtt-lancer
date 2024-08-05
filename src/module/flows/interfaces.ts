@@ -90,8 +90,8 @@ export namespace LancerFlowState {
   }
 
   export interface DamageTargetResultSerialized extends Omit<DamageTargetResult, "target"> {
-    // Thanks, I hate it  >:(
-    target: any;
+    // UUID instead of the actual token/document
+    target: string;
   }
 
   // Configuration passed to initiate an attack roll

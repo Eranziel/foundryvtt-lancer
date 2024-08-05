@@ -8,6 +8,7 @@ import { LancerToken } from "../../token";
 import { Tag } from "../../models/bits/tag";
 import { DamageData } from "../../models/bits/damage";
 import { DamageType, NpcFeatureType } from "../../enums";
+import { LancerFlowState } from "../../flows/interfaces";
 
 export enum HitQuality {
   Miss = 0,
@@ -392,7 +393,8 @@ export class DamageHudData {
     runtimeData?: LancerItem | LancerActor,
     tags?: Tag[],
     title?: string,
-    targets?: Token[],
+    targets?: LancerToken[],
+    hitResults?: LancerFlowState.HitResult[],
     ap?: boolean,
     paracausal?: boolean,
     halfDamage?: boolean,
@@ -443,6 +445,16 @@ export class DamageHudData {
       }
     }
 
+    function getHitQuality(t: LancerToken) {
+      if (!hitResults || !hitResults.length) return HitQuality.Hit;
+      const hit = hitResults.find(hr => hr.target.id === t.id);
+      if (!hit) return HitQuality.Hit;
+      // Pick the quality which matches the hit result's hit/crit flags
+      if (hit.crit) return HitQuality.Crit;
+      if (hit.hit) return HitQuality.Hit;
+      return HitQuality.Miss;
+    }
+
     let obj: DamageHudDataSerialized = {
       title: title ? title : "Damage Roll",
       weapon,
@@ -450,7 +462,7 @@ export class DamageHudData {
       targets: (targets || []).map(t => {
         let ret = {
           target_id: t.id,
-          quality: HitQuality.Hit,
+          quality: getHitQuality(t),
           ap: base.ap,
           paracausal: base.paracausal,
           halfDamage: base.halfDamage,

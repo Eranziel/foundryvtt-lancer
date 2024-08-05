@@ -118,7 +118,7 @@ export function damageTarget(
   if (context.half_damage) damageTags.push(`<span class="lancer-damage-tag">HALF-DMG</span>`);
   const damageTagsDisplay = `<div class="lancer-damage-tags">${damageTags.join("")}</div>`;
   // @ts-expect-error v10 types
-  const img = target.target.texture.src;
+  const img = target.target.document.texture.src;
   return `
     <div class="lancer-damage-target">
       <img class="lancer-hit-thumb" src="${img}" />

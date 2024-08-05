@@ -1,13 +1,13 @@
 import { AppliedDamage } from "../actor/damage-calc";
 import { LancerActor, LancerNPC } from "../actor/lancer-actor";
-import { DamageHudData } from "../apps/damage";
+import { DamageHudData, HitQuality } from "../apps/damage";
 import { openSlidingHud } from "../apps/slidinghud";
 import { DamageType } from "../enums";
 import { LancerItem, LancerMECH_WEAPON, LancerNPC_FEATURE, LancerPILOT_WEAPON } from "../item/lancer-item";
 import { Damage, DamageData } from "../models/bits/damage";
 import { Tag } from "../models/bits/tag";
 import { UUIDRef } from "../source-template";
-import { LancerToken } from "../token";
+import { LancerToken, LancerTokenDocument } from "../token";
 import { renderTemplateStep } from "./_render";
 import { AttackFlag } from "./attack";
 import { Flow, FlowState, Step } from "./flow";
@@ -77,10 +77,31 @@ export class DamageRollFlow extends Flow<LancerFlowState.DamageRollData> {
 async function initDamageData(state: FlowState<LancerFlowState.DamageRollData>): Promise<boolean> {
   if (!state.data) throw new TypeError(`Damage flow state missing!`);
 
-  let targets: LancerToken[] = Array.from(game.user!.targets);
-  if (targets.length < 1) {
-    targets = state.data.hit_results.map(hr => hr.target);
-  }
+  // TODO: do we need to set targets at this point? The damage HUD is going to
+  // ignore them and use the user's canvas targets anyway...
+  // let targets: LancerToken[] = Array.from(game.user!.targets);
+  // if (targets.length < 1) {
+  //   targets = state.data.hit_results.map(hr => hr.target);
+  // }
+
+  // Convert any hit_result.target LancerTokenDocuments into LancerTokens
+  state.data.hit_results = state.data.hit_results
+    .map(hr => {
+      let target: any = hr.target;
+      if (target instanceof LancerTokenDocument) {
+        const tokens = target.actor?.getActiveTokens() || [];
+        if (!tokens.length) return null;
+        target = tokens[0];
+      } else if (!(target instanceof LancerToken)) {
+        return null;
+      }
+      return {
+        ...hr,
+        target: target as LancerToken,
+      };
+    })
+    .filter(hr => hr !== null) as LancerFlowState.HitResult[];
+
   if (state.item?.is_mech_weapon()) {
     const profile = state.item.system.active_profile;
     // state.data.damage = state.data.damage.length ? state.data.damage : profile.damage;
@@ -91,6 +112,7 @@ async function initDamageData(state: FlowState<LancerFlowState.DamageRollData>):
       profile.all_tags,
       state.data.title,
       Array.from(game.user!.targets),
+      state.data.hit_results,
       state.data.ap,
       state.data.paracausal,
       state.data.half_damage,
@@ -104,6 +126,7 @@ async function initDamageData(state: FlowState<LancerFlowState.DamageRollData>):
       state.item.system.tags,
       state.data.title,
       Array.from(game.user!.targets),
+      state.data.hit_results,
       state.data.ap,
       state.data.paracausal,
       state.data.half_damage,
@@ -116,6 +139,7 @@ async function initDamageData(state: FlowState<LancerFlowState.DamageRollData>):
       state.item.system.tags,
       state.data.title,
       Array.from(game.user!.targets),
+      state.data.hit_results,
       state.data.ap,
       state.data.paracausal,
       state.data.half_damage,
@@ -175,6 +199,45 @@ async function showDamageHUD(state: FlowState<LancerFlowState.DamageRollData>): 
   if (!state.data) throw new TypeError(`Damage flow state missing!`);
   try {
     state.data.damage_hud_data = await openSlidingHud("damage", state.data.damage_hud_data!);
+
+    // Filter state.data.hit_results down to those targets present in the HUD data
+    state.data.hit_results = state.data.hit_results
+      .filter(hr => state.data?.damage_hud_data?.targets.some(t => hr.target.id === t.target.id))
+      .map(hr => {
+        const hudTarget = state.data?.damage_hud_data?.targets.find(t => hr.target.id === t.target.id)!;
+        return {
+          ...hr,
+          hit: hudTarget.quality === HitQuality.Hit,
+          crit: hudTarget.quality === HitQuality.Crit,
+        };
+      });
+    state.data.has_normal_hit = state.data.hit_results.some(hr => hr.hit && !hr.crit);
+    state.data.has_crit_hit = state.data.hit_results.some(hr => hr.crit);
+
+    // Add hit results for any targets in HUD data which aren't in hit results already
+    for (const t of state.data.damage_hud_data.targets) {
+      if (state.data.hit_results.some(hr => hr.target.id === t.target.id)) continue;
+      state.data.hit_results.push({
+        target: t.target,
+        total: "10",
+        // TODO: use target crit/hit/miss from HUD
+        hit: true,
+        crit: false,
+        usedLockOn: false,
+      });
+    }
+
+    // Set damage flags from HUD
+    state.data.ap = state.data.damage_hud_data.base.ap;
+    state.data.paracausal = state.data.damage_hud_data.base.paracausal;
+    state.data.half_damage = state.data.damage_hud_data.base.halfDamage;
+    state.data.overkill = state.data.damage_hud_data.weapon.overkill;
+    state.data.reliable = state.data.damage_hud_data.weapon.reliable;
+    if (state.data.reliable) {
+      state.data.reliable_val = state.data.damage_hud_data.weapon.reliableValue;
+    }
+
+    // TODO: need to set target flags too?
   } catch (_e) {
     // User hit cancel, abort the flow.
     return false;
@@ -439,7 +502,10 @@ async function printDamageCard(
   const damageData: DamageFlag = {
     damageResults: state.data.damage_results,
     critDamageResults: state.data.crit_damage_results,
-    targetDamageResults: state.data.targets,
+    targetDamageResults: state.data.targets.map(t => ({
+      ...t,
+      target: t.target.document.uuid,
+    })),
     // TODO: AP and paracausal flags
     ap: state.data.ap,
     paracausal: state.data.paracausal,
@@ -618,6 +684,16 @@ export async function applyDamage(event: JQuery.ClickEvent) {
     ui.notifications?.error("Damage application button has no damage data available");
     return;
   }
+  const hydratedDamageTargets = damageData.targetDamageResults
+    .map(tdr => {
+      const target = fromUuidSync(tdr.target);
+      if (!target || !(target instanceof LancerTokenDocument)) return null;
+      return {
+        ...tdr,
+        target,
+      };
+    })
+    .filter(t => t !== null);
   const buttonGroup = event.currentTarget.closest(".lancer-damage-button-group");
   if (!buttonGroup) {
     ui.notifications?.error("No target for damage application");
@@ -643,26 +719,29 @@ export async function applyDamage(event: JQuery.ClickEvent) {
     ui.notifications?.warn("Damage has already been applied to this target");
     return;
   }
-  const actor = (await fromUuid(data.target)) as LancerActor | null;
-  if (!actor) {
+  const target = await fromUuid(data.target);
+  if (!target || !(target instanceof LancerTokenDocument)) {
     ui.notifications?.error("Invalid target UUID for damage application");
     return;
   }
-  const tokens = actor.getActiveTokens();
-  const target: LancerToken | null = tokens.length ? tokens[0] : null;
-  if (!target) {
-    ui.notifications?.error("Invalid target for damage application");
+  const actor = target.actor;
+  if (!actor || !(actor instanceof LancerActor)) {
+    ui.notifications?.error("Invalid target for damage application, no actor found");
     return;
   }
 
   // Get the targeted damage result, or construct one
-  let damage: LancerFlowState.DamageTargetResult;
+  // let damage: LancerFlowState.DamageTargetResult;
+
   // Try to find target-specific damage data first
-  const targetDamage = damageData.targetDamageResults.find(tdr => tdr.target?.actor?.uuid === data.target);
+  // TODO: can't use UUID here, nor token.actor.id - that points to the original actual actor, not the synthetic actor.
+  // Need to check token IDs, not actor IDs.
+  const targetDamage = hydratedDamageTargets.find(tdr => tdr?.target?.actor?.uuid === data.target);
   if (!targetDamage) return;
-  damage = { ...targetDamage, target };
+
   // TODO: allow applying damage to the user's targeted token even if it wasn't a target
   // during the damage roll flow?
+
   // else if (actor.token) {
   //   if (isCrit) {
   //     // If we can't find this specific target, check whether it's a crit or regular hit
@@ -692,8 +771,8 @@ export async function applyDamage(event: JQuery.ClickEvent) {
 
   // Apply the damage to the target
   await actor.damageCalc(
-    new AppliedDamage(damage.damage.map(d => new Damage({ type: d.type, val: d.amount.toString() }))),
-    { multiple, addBurn, ap: damage.ap, paracausal: damage.paracausal }
+    new AppliedDamage(targetDamage.damage.map(d => new Damage({ type: d.type, val: d.amount.toString() }))),
+    { multiple, addBurn, ap: targetDamage.ap, paracausal: targetDamage.paracausal }
   );
 
   // Update the flags on the chat message to indicate the damage has been applied
