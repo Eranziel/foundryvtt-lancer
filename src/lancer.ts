@@ -151,7 +151,6 @@ import { LancerCombatTrackerConfig } from "./module/helpers/lancer-initiative-co
 import { MechModel } from "./module/models/actors/mech";
 import { MechSystemModel } from "./module/models/items/mech_system";
 import { handleRenderCombatCarousel } from "./module/helpers/combat-carousel";
-import { measureDistances } from "./module/grid";
 import { EntryType } from "./module/enums";
 import { FrameModel } from "./module/models/items/frame";
 import { PilotModel } from "./module/models/actors/pilot";
@@ -195,16 +194,11 @@ import { miniProfile } from "./module/helpers/chat";
 
 const lp = LANCER.log_prefix;
 
-window.addEventListener("unhandledrejection", function (event) {
-  ui.notifications?.error(event.reason); // TODO Remove
-  console.error("Unhandled rejection (promise: ", event.promise, ", reason: ", event.reason, ").");
-});
-
 /* ------------------------------------ */
 /* Initialize system                    */
 /* ------------------------------------ */
 addEnrichers();
-Hooks.once("init", async function () {
+Hooks.once("init", function () {
   console.log(`Initializing LANCER RPG System ${LANCER.ASCII}`);
 
   // @ts-expect-error Use the v11+ active effect logic - effects never transfer from an item. Critical to how we handle effects
@@ -341,25 +335,6 @@ Hooks.once("init", async function () {
     flowSteps,
     Flow,
     beginItemChatFlow,
-    // prepareItemMacro: macros.prepareItemMacro,
-    // prepareStatMacro: macros.prepareStatMacro,
-    // prepareTalentMacro: macros.prepareTalentMacro,
-    // prepareTextMacro: macros.prepareTextMacro,
-    // prepareTechMacro: macros.prepareTechMacro,
-    // prepareCoreActiveMacro: macros.prepareCoreActiveMacro,
-    // prepareCorePassiveMacro: macros.prepareCorePassiveMacro,
-    // prepareFrameTraitMacro: macros.prepareFrameTraitMacro,
-    // prepareOverchargeMacro: macros.prepareOverchargeMacro,
-    // prepareOverheatMacro: macros.prepareOverheatMacro,
-    // beginStructureFlow: macros.beginStructureFlow,
-    // beginOverheatFlow: macros.beginOverheatFlow,
-    // prepareActivationMacro: macros.prepareActivationMacro,
-    // prepareAttackMacro: macros.prepareAttackMacro,
-    // beginSecondaryStructureFlow: macros.beginSecondaryStructureFlow,
-    // rollTechMacro: macros.rollTechMacro,
-    // rollAttackMacro: macros.rollAttackMacro,
-    // fullRepairMacro: macros.fullRepairMacro,
-    // stabilizeMacro: macros.stabilizeMacro,
     importActor: fulfillImportActor,
     targetsFromTemplate,
     migrations: migrations,
@@ -675,17 +650,29 @@ Hooks.once("init", async function () {
   // Combat tracker HUD modules integration
   Hooks.on("renderCombatCarousel", handleRenderCombatCarousel);
   if (game.modules.get("combat-tracker-dock")?.active) {
-    game.lancer.combatTrackerDock = await import("./module/integrations/combat-tracker-dock");
-    Hooks.on("renderCombatDock", (...[_app, html]: Parameters<Hooks.RenderApplication>) => {
-      html.find(".buttons-container [data-action='roll-all']").hide();
-      html.find(".buttons-container [data-action='roll-npc']").hide();
-      // html.find(".buttons-container [data-action='previous-turn']").hide();
-      html.find(".buttons-container [data-action='next-turn']").hide();
-    });
+    (async () => {
+      game.lancer.combatTrackerDock = await import("./module/integrations/combat-tracker-dock");
+      Hooks.on("renderCombatDock", (...[_app, html]: Parameters<Hooks.RenderApplication>) => {
+        html.find(".buttons-container [data-action='roll-all']").hide();
+        html.find(".buttons-container [data-action='roll-npc']").hide();
+        // html.find(".buttons-container [data-action='previous-turn']").hide();
+        html.find(".buttons-container [data-action='next-turn']").hide();
+      });
+    })();
   }
 
   // Extend TokenConfig for token size automation
   Hooks.on("renderTokenConfig", extendTokenConfig);
+});
+
+Hooks.once("setup", () => {
+  /////////////////////////////////
+  // DIRTY HACK DO NOT REPLICATE //
+  /////////////////////////////////
+  // Change the default value of the grid based templates option
+  // TODO Remove when we get https://github.com/foundryvtt/foundryvtt/issues/11477
+  if (game.settings.settings.get("core.gridTemplates"))
+    game.settings.settings.get("core.gridTemplates")!.default = true;
 });
 
 /* ------------------------------------ */
@@ -713,35 +700,28 @@ Hooks.once("ready", async function () {
   game.action_manager!.init();
 
   // Set up compendium-based statuses icons
-  LancerActiveEffect.populateConfig(true).then(() => {
-    // TODO: V12 Should automatically localize these, so this can get removed then
-    //@ts-expect-error v11 types
-    CONFIG.statusEffects.forEach(e => (e.name = game.i18n.localize(e.name)));
-  });
+  LancerActiveEffect.populateConfig(true);
   Hooks.on("updateCompendium", collection => {
     if (collection?.metadata?.id == get_pack_id(EntryType.STATUS)) {
-      LancerActiveEffect.populateConfig(true).then(() => {
-        //@ts-expect-error v11 types
-        CONFIG.statusEffects.forEach(e => (e.name = game.i18n.localize(e.name)));
-      });
+      LancerActiveEffect.populateConfig(true);
     }
   });
 });
 
-// Set up Dice So Nice to icrementally show attacks then damge rolls
 Hooks.once("ready", () => {
-  if (game.modules.get("dice-so-nice")?.active && !game.settings.get(game.system.id, LANCER.setting_dsn_setup)) {
+  if (
+    game.user!.isGM &&
+    game.modules.get("dice-so-nice")?.active &&
+    !game.settings.get(game.system.id, LANCER.setting_dsn_setup)
+  ) {
+    // Set up Dice So Nice to icrementally show attacks then damge rolls
     console.log(`${lp} First login setup for Dice So Nice`);
     game.settings.set("dice-so-nice", "enabledSimultaneousRollForMessage", false);
     game.settings.set(game.system.id, LANCER.setting_dsn_setup, true);
   }
-});
 
-// Migrate settings from Lancer Condition Icons and disable the module
-Hooks.once("ready", migrateLancerConditions);
-
-Hooks.once("canvasInit", () => {
-  SquareGrid.prototype.measureDistances = measureDistances;
+  // Migrate settings from Lancer Condition Icons and disable the module
+  migrateLancerConditions();
 });
 
 // Action Manager hooks.

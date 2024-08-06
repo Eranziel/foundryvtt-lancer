@@ -1,17 +1,16 @@
 <form autocomplete="off">
   <h2>{{ localize "lancer.automation.menu-label" }}</h2>
-  <div class="form-group">
+{{!--  <div class="form-group">
     <label>{{ localize "lancer.automation.master-switch" }}</label>
     <input type="checkbox" name="enabled" {{#if enabled}}checked{{/if}} data-dtype="Boolean"/>
     <p class="notes">{{ localize "lancer.automation.master-switch-desc" }}</p>
-  </div>
+  </div> --}}
   <div class="form-group">
     <label>{{ localize "lancer.automation.attacks" }}</label>
     <input
         type="checkbox"
         name="attacks"
         {{#if attacks}}checked{{/if}}
-        {{#unless enabled}}disabled{{/unless}}
         data-dtype="Boolean"
     />
     <p class="notes">{{ localize "lancer.automation.attacks-desc" }}</p>
@@ -22,7 +21,6 @@
         type="checkbox"
         name="structure"
         {{#if structure}}checked{{/if}}
-        {{#unless enabled}}disabled{{/unless}}
         data-dtype="Boolean"
     />
     <p class="notes">{{ localize "lancer.automation.structure-desc" }}</p>
@@ -33,7 +31,6 @@
         type="checkbox"
         name="overcharge_heat"
         {{#if overcharge_heat}}checked{{/if}}
-        {{#unless enabled}}disabled{{/unless}}
         data-dtype="Boolean"
     />
     <p class="notes">{{ localize "lancer.automation.overcharge_heat-desc" }}</p>
@@ -44,7 +41,6 @@
         type="checkbox"
         name="attack_self_heat"
         {{#if attack_self_heat}}checked{{/if}}
-        {{#unless enabled}}disabled{{/unless}}
         data-dtype="Boolean"
     />
     <p class="notes">{{ localize "lancer.automation.attack_self_heat-desc" }}</p>
@@ -55,7 +51,6 @@
         type="checkbox"
         name="limited_loading"
         {{#if limited_loading}}checked{{/if}}
-        {{#unless enabled}}disabled{{/unless}}
         data-dtype="Boolean"
     />
     <p class="notes">{{ localize "lancer.automation.limited_loading-desc" }}</p>
@@ -66,7 +61,6 @@
         type="checkbox"
         name="npc_recharge"
         {{#if npc_recharge}}checked{{/if}}
-        {{#unless enabled}}disabled{{/unless}}
         data-dtype="Boolean"
     />
     <p class="notes">{{ localize "lancer.automation.npc_recharge-desc" }}</p>
@@ -77,7 +71,6 @@
         type="checkbox"
         name="remove_templates"
         {{#if remove_templates}}checked{{/if}}
-        {{#unless enabled}}disabled{{/unless}}
         data-dtype="Boolean"
     />
     <p class="notes">{{ localize "lancer.automation.remove_templates-desc" }}</p>
@@ -88,10 +81,19 @@
         type="checkbox"
         name="token_size"
         {{#if token_size}}checked{{/if}}
-        {{#unless enabled}}disabled{{/unless}}
         data-dtype="Boolean"
     />
     <p class="notes">{{ localize "lancer.automation.token_size-desc" }}</p>
+  </div>
+  <div class="form-group">
+    <button type="button" name="clear">
+      <i class="fas fa-cancel"></i>
+      <span>Clear All</span>
+    </button>
+    <button type="button" name="loadDefault">
+      <i class="fas fa-page"></i>
+      <span>Load Defaults</span>
+    </button>
   </div>
   <div class="form-group">
     <button type="submit" name="submit">
