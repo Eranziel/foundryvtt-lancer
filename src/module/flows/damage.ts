@@ -736,7 +736,7 @@ export async function applyDamage(event: JQuery.ClickEvent) {
   // Try to find target-specific damage data first
   // TODO: can't use UUID here, nor token.actor.id - that points to the original actual actor, not the synthetic actor.
   // Need to check token IDs, not actor IDs.
-  const targetDamage = hydratedDamageTargets.find(tdr => tdr?.target?.actor?.uuid === data.target);
+  const targetDamage = hydratedDamageTargets.find(tdr => tdr?.target?.uuid === data.target);
   if (!targetDamage) return;
 
   // TODO: allow applying damage to the user's targeted token even if it wasn't a target

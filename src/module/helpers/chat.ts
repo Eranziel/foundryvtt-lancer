@@ -89,13 +89,14 @@ export function damageTarget(
   context: LancerFlowState.DamageRollData,
   options: HelperOptions
 ): string {
-  // TODO: put the default as a button, with the rest in a select attached to the button
-  // TODO: add option for crit damage
+  // @ts-expect-error v11 types
+  const statuses: Set<string> = target.target.actor?.statuses || new Set();
+  const exposed = statuses.has("exposed");
   const select = context.configurable
     ? `
           <select class="lancer-damage-apply-select" title="Select damage multiplier">
-            <option value="2">Exposed</option>
-            <option value="1" selected>Normal</option>
+            <option value="2"${exposed ? " selected" : ""}>Exposed</option>
+            <option value="1"${!exposed ? " selected" : ""}>Normal</option>
             <option value="0.5">Resisted</option>
           </select>`
     : "";
@@ -132,7 +133,7 @@ export function damageTarget(
       <span class="lancer-hit-text-name"><b>${target.target.name}</b></span>
       <div
         class="lancer-damage-button-group"
-        data-target="${target.target.uuid}"
+        data-target="${target.target.document.uuid}"
         data-hit="${target.hit}"
         data-crit="${target.crit}"
         data-add-burn="${context.add_burn}"
