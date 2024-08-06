@@ -404,6 +404,24 @@ export class LancerActor extends Actor {
     for (const status of this.statuses.keys()) {
       // @ts-expect-error
       this.system.statuses[status] = true;
+      // Mark resistances based on statuses
+      switch (status) {
+        case "resistance_burn":
+          this.system.resistances.burn = true;
+          break;
+        case "resistance_energy":
+          this.system.resistances.energy = true;
+          break;
+        case "resistance_explosive":
+          this.system.resistances.explosive = true;
+          break;
+        case "resistance_heat":
+          this.system.resistances.heat = true;
+          break;
+        case "resistance_kinetic":
+          this.system.resistances.kinetic = true;
+          break;
+      }
     }
   }
 
