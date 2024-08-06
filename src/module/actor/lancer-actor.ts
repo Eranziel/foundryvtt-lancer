@@ -109,7 +109,12 @@ export class LancerActor extends Actor {
     damage: AppliedDamage,
     { multiple = 1, ap = false, paracausal = false, addBurn = true }
   ): Promise<number> {
-    const armoredDamageTypes = ["Kinetic", "Energy", "Explosive", "Variable"] as const;
+    const armoredDamageTypes = [
+      DamageType.Kinetic,
+      DamageType.Energy,
+      DamageType.Explosive,
+      DamageType.Variable,
+    ] as const;
 
     const apDamageTypes = [DamageType.Burn, DamageType.Heat] as const;
 
@@ -117,18 +122,19 @@ export class LancerActor extends Actor {
 
     // Ensure the multiple is valid, default to 1x
     if (![0.5, 1, 2].includes(multiple)) multiple = 1;
+    const exposed = multiple === 2;
+    const resistAll = multiple === 0.5;
 
     // Entities without Heat Caps take Energy Damage instead
-    if (this.is_pilot()) {
+    if (!this.hasHeatcap()) {
       damage.Energy += damage.Heat;
       damage.Heat = 0;
     }
 
     // Step 1: Exposed doubles non-burn, non-heat damage
-    if (this.system.statuses.exposed) {
-      multiple = 2;
+    if (exposed) {
+      armoredDamageTypes.forEach(d => Math.ceil((damage[d] *= multiple)));
     }
-    armoredDamageTypes.forEach(d => (damage[d] *= multiple));
 
     /**
      * Step 2: Reduce damage due to armor.
@@ -140,11 +146,10 @@ export class LancerActor extends Actor {
       const defenseFavor = true; // getAutomationOptions().defenderArmor
       // TODO: figure out how to fix this typing
       // @ts-expect-error
-      const resistArmorDamage = armoredDamageTypes.filter(t => this.system.resistances[t.toLowerCase()]);
+      const resistArmorDamage = armoredDamageTypes.filter(t => resistAll || this.system.resistances[t.toLowerCase()]);
+      const normalArmorDamage = armoredDamageTypes.filter(t => !resistArmorDamage.includes(t));
       // @ts-expect-error
-      const normalArmorDamage = armoredDamageTypes.filter(t => !this.system.resistances[t.toLowerCase()]);
-      // @ts-expect-error
-      const resistApDamage = apDamageTypes.filter(t => this.system.resistances[t.toLowerCase()]);
+      const resistApDamage = apDamageTypes.filter(t => resistAll || this.system.resistances[t.toLowerCase()]);
       let armor = ap ? 0 : this.system.armor;
       let leftoverArmor: number; // Temp 'storage' variable for tracking used armor
 
@@ -160,7 +165,8 @@ export class LancerActor extends Actor {
       // Deduct Armor from resisted damage
       for (const t of resistArmorDamage) {
         leftoverArmor = Math.max(armor - damage[t], 0);
-        damage[t] = Math.max(damage[t] - armor, 0) / 2;
+        // Always round up to nearest integer
+        damage[t] = Math.ceil(Math.max(damage[t] - armor, 0) / 2);
         armor = leftoverArmor;
       }
 
@@ -175,7 +181,8 @@ export class LancerActor extends Actor {
 
       // Resist Burn & Heat, unaffected by Armor
       for (const t of resistApDamage) {
-        damage[t] = damage[t] / 2;
+        // Always round up to nearest integer
+        damage[t] = Math.ceil(damage[t] / 2);
       }
     }
 
