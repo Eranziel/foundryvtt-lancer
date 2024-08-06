@@ -52,7 +52,6 @@
   "dependencies": {
     "@massif/lancer-data": "^3.1.5",
     "@types/marked": "^1.2.1",
-    "aws-amplify": "^4.2.9",
     "fp-ts": "^2.11.2",
     "io-ts": "^2.2.16",
     "jszip": "^3.10.1",
