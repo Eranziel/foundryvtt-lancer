@@ -76,20 +76,20 @@
     <HudCheckbox
       icon="mdi mdi-shield-off-outline"
       bind:value={target.ap}
-      tooltip="Armor Piercing"
+      tooltip="Armor Piercing (AP)"
       disabled={target.paracausal}
     />
     <HudCheckbox
-      icon="mdi mdi-shimmer"
+      icon="cci cci-large-beam"
       bind:value={target.paracausal}
       on:change={toggleParacausal}
-      tooltip="Paracausal - For 'cannot be reduced' effects like the Paracausal mod"
+      tooltip="For 'cannot be reduced' effects like the Paracausal mod"
       style="margin: 0 0.3em;"
     />
     <HudCheckbox
       icon="mdi mdi-fraction-one-half"
       bind:value={target.halfDamage}
-      tooltip="Half Damage - For effects which cause the attacker to deal half damage in addition to resistance, like Heavy Gunner"
+      tooltip="For effects which cause the attacker to deal half damage in addition to resistance, like Heavy Gunner"
     />
   </div>
 </div>

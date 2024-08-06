@@ -184,8 +184,8 @@
     />
     <HudCheckbox label="Overkill" bind:value={weapon.overkill} style="grid-area: overkill" />
     <HudCheckbox
-      icon="mdi mdi-shimmer"
-      label="Paracausal"
+      icon="cci cci-large-beam"
+      label="Cannot be Reduced"
       bind:value={base.paracausal}
       on:change={toggleParacausal}
       tooltip="For 'cannot be reduced' effects like the Paracausal mod"

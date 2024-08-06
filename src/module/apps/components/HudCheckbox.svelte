@@ -14,7 +14,7 @@
 <label class="container" {style} data-tooltip={tooltip}>
   <input type="checkbox" bind:checked={value} {disabled} on:change={() => dispatch("change", value)} />
   {#if icon}<i class="{icon} i--s" />{/if}
-  {label.replace(" ", " ")}
+  <span style="text-wrap: nowrap;">{label}</span>
 </label>
 
 <style lang="scss">
@@ -27,6 +27,10 @@
       align-items: center;
       cursor: pointer;
       margin: 0.25em 0;
+
+      i:has(+ span) {
+        margin-right: 0.2em;
+      }
     }
 
     & .container:has(input[disabled]) {
