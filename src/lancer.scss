@@ -1280,10 +1280,13 @@ input[type="text"].lancer-input {
   color: var(--light-text) !important;
 }
 
-.editor,
-.editor-content {
-  height: -webkit-fill-available;
-  min-height: 30em;
+.lancer.sheet,
+.lancer-sheet {
+  .editor,
+  .editor-content {
+    height: -webkit-fill-available;
+    min-height: 30em;
+  }
 }
 
 .card {
