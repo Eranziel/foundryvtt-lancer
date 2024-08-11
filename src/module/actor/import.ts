@@ -451,7 +451,11 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
         },
       });
 
-      if (mech.system.lid == data.state?.active_mech_id) active_mech_uuid = mech.uuid;
+      // If the pilot does not have an active mech, set the first one as active.
+      // Otherwise, this will set the active mech to match Comp/Con.
+      if (!data.state?.active_mech_id || mech.system.lid == data.state?.active_mech_id) {
+        active_mech_uuid = mech.uuid;
+      }
 
       // Synchronize our weapon states
       let itemUpdates: any = [];
