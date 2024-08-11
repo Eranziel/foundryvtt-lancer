@@ -2751,19 +2751,22 @@ Here, this means we want to allow for drag stuff etc to show contextually if:
       .combatant-controls {
         span.activations {
           flex: 0 0 20px;
+          width: 20px;
           display: flex;
           justify-content: center;
           align-items: center;
-          font-size: 20px;
           i {
             color: var(--color-text-dark-5);
             font-size: 20px;
-            position: absolute;
+            position: relative;
+            left: 50%;
           }
           span {
-            flex: 0;
+            flex: 0 0 20px;
+            text-align: center;
             font-size: 14px;
             position: relative;
+            left: -50%;
             opacity: 0.8;
           }
         }
