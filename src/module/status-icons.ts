@@ -626,6 +626,11 @@ export const tommyConditionsStatus = [
     icon: "systems/lancer/assets/icons/alt-status/tommystat/Danger Zone.webp",
   },
   {
+    id: "destroyed",
+    name: "lancer.statusIconsNames.destroyed",
+    icon: "systems/lancer/assets/icons/alt-status/tommystat/Destroyed.webp",
+  },
+  {
     id: "downandout",
     name: "lancer.statusIconsNames.downandout",
     icon: "systems/lancer/assets/icons/alt-status/tommystat/Down and Out.webp",
@@ -639,6 +644,11 @@ export const tommyConditionsStatus = [
     id: "exposed",
     name: "lancer.statusIconsNames.exposed",
     icon: "systems/lancer/assets/icons/alt-status/tommystat/Exposed.webp",
+  },
+  {
+    id: "grappled",
+    name: "lancer.statusIconsNames.grappled",
+    icon: "systems/lancer/assets/icons/alt-status/tommystat/Grappled.webp",
   },
   {
     id: "flying",
@@ -669,6 +679,11 @@ export const tommyConditionsStatus = [
     id: "invisible",
     name: "lancer.statusIconsNames.invisible",
     icon: "systems/lancer/assets/icons/alt-status/tommystat/Invisible.webp",
+  },
+  {
+    id: "intangible",
+    name: "lancer.statusIconsNames.intangible",
+    icon: `systems/lancer/assets/icons/alt-status/tommystat/Intangible.webp`,
   },
   {
     id: "jammed",
