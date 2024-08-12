@@ -150,7 +150,7 @@ export const registerSettings = function () {
     templatePath: `systems/${game.system.id}/templates/combat/combat-tracker.hbs`,
   };
   game.settings.register(game.system.id, "combat-tracker-appearance", {
-    scope: "world",
+    scope: "client",
     config: false,
     type: CombatTrackerAppearance,
     onChange: setAppearance,
@@ -166,7 +166,7 @@ export const registerSettings = function () {
     },
     default: true,
   });
-  Hooks.callAll("LancerInitiativeInit");
+  CONFIG.LancerInitiative.sort = game.settings.get(game.system.id, "combat-tracker-sort") as boolean;
   setAppearance(game.settings.get(game.system.id, "combat-tracker-appearance"));
 };
 
@@ -371,9 +371,9 @@ export interface CombatTrackerAppearance {
    */
   icon: string;
   /**
-      * Css class to specify deactivation icon
-  * @default `cci cci-deactivate`
-  */
+   * Css class to specify deactivation icon
+   * @default `cci cci-deactivate`
+   */
   deactivate: string;
   /**
    * Size of the icon in rem
@@ -412,14 +412,47 @@ export class CombatTrackerAppearance extends foundry.abstract.DataModel {
   static defineSchema() {
     const fields: any = foundry.data.fields;
     return {
-      icon: new fields.StringField({ required: true, initial: "cci cci-activate" }),
-      deactivate: new fields.StringField({ required: true, initial: "cci cci-deactivate" }),
-      icon_size: new fields.NumberField({ required: true, initial: 2, integer: false }),
-      player_color: new fields.ColorField({ required: true, initial: "#44abe0" }),
-      friendly_color: new fields.ColorField({ required: true, initial: "#44abe0" }),
-      neutral_color: new fields.ColorField({ required: true, initial: "#146464" }),
-      enemy_color: new fields.ColorField({ required: true, initial: "#d98f30" }),
-      done_color: new fields.ColorField({ required: true, initial: "#444444" }),
+      icon: new fields.StringField({
+        required: true,
+        initial: "cci cci-activate",
+        label: "LANCERINITIATIVE.Icon",
+      }),
+      deactivate: new fields.StringField({
+        required: true,
+        initial: "cci cci-deactivate",
+        label: "LANCERINITIATIVE.DeactivateIcon",
+      }),
+      icon_size: new fields.NumberField({
+        required: true,
+        initial: 2,
+        integer: false,
+        label: "LANCERINITIATIVE.IconSize",
+      }),
+      player_color: new fields.ColorField({
+        required: true,
+        initial: "#44abe0",
+        label: "LANCERINITIATIVE.PCColor",
+      }),
+      friendly_color: new fields.ColorField({
+        required: true,
+        initial: "#44abe0",
+        label: "LANCERINITIATIVE.FriendlyColor",
+      }),
+      neutral_color: new fields.ColorField({
+        required: true,
+        initial: "#146464",
+        label: "LANCERINITIATIVE.NeutralColor",
+      }),
+      enemy_color: new fields.ColorField({
+        required: true,
+        initial: "#d98f30",
+        label: "LANCERINITIATIVE.EnemyColor",
+      }),
+      done_color: new fields.ColorField({
+        required: true,
+        initial: "#aaaaaa",
+        label: "LANCERINITIATIVE.DoneColor",
+      }),
     };
   }
 }

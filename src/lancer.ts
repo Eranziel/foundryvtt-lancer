@@ -61,7 +61,7 @@ import { gridDist } from "./module/helpers/automation/targeting";
 import CompconLoginForm from "./module/helpers/compcon-login-form";
 import { LancerCombat, LancerCombatant } from "./module/combat/lancer-combat";
 import { LancerCombatTracker } from "./module/combat/lancer-combat-tracker";
-import { LancerCombatTrackerConfig } from "./module/helpers/lancer-initiative-config-form";
+import { extendCombatTrackerConfig, onCloseCombatTrackerConfig } from "./module/helpers/lancer-initiative-config-form";
 import { MechModel } from "./module/models/actors/mech";
 import { MechSystemModel } from "./module/models/items/mech_system";
 import { handleRenderCombatCarousel } from "./module/helpers/combat-carousel";
@@ -453,15 +453,8 @@ Hooks.on("getActorDirectoryEntryContext", (_html: JQuery<HTMLElement>, ctxOption
 Hooks.on("renderSettings", async (app: Application, html: HTMLElement) => {
   addSettingsButtons(app, html);
 });
-Hooks.on("renderCombatTracker", (...[_app, html]: Parameters<Hooks.RenderApplication<CombatTracker>>) => {
-  html
-    .find(".combat-settings")
-    .off("click")
-    .on("click", ev => {
-      ev.preventDefault();
-      new LancerCombatTrackerConfig(undefined, {}).render(true);
-    });
-});
+Hooks.on("renderCombatTrackerConfig", extendCombatTrackerConfig);
+Hooks.on("closeCombatTrackerConfig", onCloseCombatTrackerConfig);
 
 Hooks.on("renderChatMessage", async (cm: ChatMessage, html: JQuery, data: any) => {
   // Reapply listeners.
