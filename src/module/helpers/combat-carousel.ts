@@ -1,5 +1,4 @@
 import type { LancerCombat, LancerCombatant } from "../combat/lancer-combat";
-import { LancerCombatTrackerConfig } from "./lancer-initiative-config-form";
 
 const dispositions: Record<number, string> = {
   [-2]: "",
@@ -37,14 +36,6 @@ export function handleRenderCombatCarousel(...[app, html]: Parameters<Hooks.Rend
   html.find("div.initiative").hide();
   html.find("a.encounter-control[data-action=rollNPC]").hide();
   html.find("a.encounter-control[data-action=rollAll]").hide();
-  html
-    .find("a.encounter-control[data-action=config]")
-    .off("click")
-    .on("click", ev => {
-      ev.preventDefault();
-      ev.stopPropagation();
-      new LancerCombatTrackerConfig(undefined).render(true);
-    });
 }
 
 function activateButton(
