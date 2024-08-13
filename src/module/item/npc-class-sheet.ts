@@ -31,10 +31,10 @@ export class LancerNPCClassSheet extends LancerItemSheet<EntryType.NPC_CLASS | E
     // Want to resolve all of our lids
     let item = this.item as LancerNPC_CLASS | LancerNPC_TEMPLATE;
     (data as any).base_features = await Promise.all(
-      item.system.base_features.map(lid => lookupLID(lid, EntryType.NPC_FEATURE))
+      Array.from(item.system.base_features).map(lid => lookupLID(lid, EntryType.NPC_FEATURE))
     );
     (data as any).optional_features = await Promise.all(
-      item.system.optional_features.map(lid => lookupLID(lid, EntryType.NPC_FEATURE))
+      Array.from(item.system.optional_features).map(lid => lookupLID(lid, EntryType.NPC_FEATURE))
     );
 
     return data;

@@ -450,8 +450,8 @@ export namespace SystemData {
       flavor: string;
       tactics: string;
     };
-    base_features: LIDRef[];
-    optional_features: LIDRef[];
+    base_features: Set<LIDRef>;
+    optional_features: Set<LIDRef>;
     base_stats: Array<SystemTemplates.NPC.StatBlock>;
   }
   export type NpcFeature = SystemTemplates.NPC.AnyFeature & {
@@ -462,8 +462,8 @@ export namespace SystemData {
   };
   export interface NpcTemplate extends SystemTemplates.item_universal {
     description: string;
-    base_features: LIDRef[];
-    optional_features: LIDRef[];
+    base_features: Set<LIDRef>;
+    optional_features: Set<LIDRef>;
   }
 
   export interface Organization extends SystemTemplates.item_universal {

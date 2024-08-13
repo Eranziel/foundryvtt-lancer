@@ -368,8 +368,8 @@ export namespace SourceData {
     role: string;
     flavor: string;
     tactics: string;
-    base_features: UUIDRef[];
-    optional_features: UUIDRef[];
+    base_features: Set<UUIDRef>;
+    optional_features: Set<UUIDRef>;
     base_stats: Array<SourceTemplates.NPC.StatBlock>;
   }
   export type NpcFeature = SourceTemplates.NPC.AnyFeature & {
@@ -380,8 +380,8 @@ export namespace SourceData {
   };
   export interface NpcTemplate extends SourceTemplates.item_universal {
     description: string;
-    base_features: UUIDRef[];
-    optional_features: UUIDRef[];
+    base_features: Set<UUIDRef>;
+    optional_features: Set<UUIDRef>;
   }
   export interface Organization extends SourceTemplates.item_universal {
     actions: string;

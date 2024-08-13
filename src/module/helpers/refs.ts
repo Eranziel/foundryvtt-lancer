@@ -273,9 +273,9 @@ export function reserveUsesIndicator(path: string, options: HelperOptions): stri
 // Put this at the end of ref lists to have a place to drop things. Supports both native and non-native drops
 // Allowed types is a list of space-separated allowed types. "mech pilot mech_weapon", for instance
 export function lidItemList(itemArrayPath: string, values: LancerItem[], allowedTypes: string, options: HelperOptions) {
-  let lids = resolveHelperDotpath<Array<any>>(options, itemArrayPath, []);
+  let lids = resolveHelperDotpath<Array<any> | Set<any>>(options, itemArrayPath, []);
   let trash = options.hash["trash"] ?? null;
-  let previews = lids.map((_, i) =>
+  let previews = Array.from(lids).map((_, i) =>
     itemPreview(`${itemArrayPath}.${i}`, trash, extendHelper(options, { item: values[i], isRef: true }))
   );
   return `
@@ -346,6 +346,10 @@ export function handleLIDListDropping<T>(html: JQuery, root_doc: LancerActor | L
         let lid = rdd.document.system.lid;
         let changes = array_path_edit_changes(dd.sub_doc, dd.sub_path + ".-1", lid, "insert");
         dd.sub_doc.update({ [changes.path]: changes.new_val });
+      } else if (array instanceof Set) {
+        let lid = rdd.document.system.lid;
+        array.add(lid);
+        dd.sub_doc.update({ [dd.sub_path]: Array.from(array) });
       }
     }
   });

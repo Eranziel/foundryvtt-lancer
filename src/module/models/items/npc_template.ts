@@ -11,8 +11,8 @@ export class NpcTemplateModel extends LancerDataModel<"NpcTemplateModel"> {
   static defineSchema() {
     return {
       description: new fields.HTMLField(),
-      base_features: new fields.ArrayField(new LIDField()),
-      optional_features: new fields.ArrayField(new LIDField()),
+      base_features: new fields.SetField(new LIDField()),
+      optional_features: new fields.SetField(new LIDField()),
       ...template_universal_item(),
     };
   }

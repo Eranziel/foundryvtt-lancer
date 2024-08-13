@@ -775,7 +775,7 @@ export class LancerActor extends Actor {
 
     // And add all new features
     let baseFeatures = (await Promise.all(
-      newClass.system.base_features.map(lid => lookupLID(lid, EntryType.NPC_FEATURE))
+      Array.from(newClass.system.base_features).map(lid => lookupLID(lid, EntryType.NPC_FEATURE))
     )) as LancerItem[];
     await insinuate(
       baseFeatures.filter(x => x),
