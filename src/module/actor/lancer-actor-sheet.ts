@@ -575,7 +575,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
         if (!Array.isArray(value)) continue;
         // @ts-expect-error
         data.system.loadout[key] = (value as { id: string; status: string; value: LancerItem }[]).sort(
-          (a: any, b: any) => a.value?.sort - b.value?.sort
+          (a: any, b: any) => a?.value?.sort - b?.value?.sort
         );
       }
     }
