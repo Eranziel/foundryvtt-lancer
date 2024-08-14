@@ -278,12 +278,15 @@ export function lidItemList(itemArrayPath: string, values: LancerItem[], allowed
   let previews = Array.from(lids).map((_, i) =>
     itemPreview(`${itemArrayPath}.${i}`, trash, extendHelper(options, { item: values[i], isRef: true }))
   );
+  if (!previews.length) {
+    previews.push(`<div class="card clipped" style="justify-content: center;">DROP NPC FEATURES HERE</div>`);
+  }
   return `
     <div class="flexcol lid-list" 
       data-path="${itemArrayPath}" 
       data-accept-types="${allowedTypes}">
-      ${previews.join("")}
       ${dropIndicator(allowedTypes, options)}
+      ${previews.join("")}
     </div>`;
 }
 

@@ -391,7 +391,8 @@ export function applyGlobalDragListeners() {
       // May or may not have a uuid by now
       // If we do, tell it to try setting global drag
       let cancel_token_copy = cancel_token;
-      fromUuid(uuid).then(doc => {
+      fromUuid(uuid).then(async doc => {
+        await new Promise(resolve => setTimeout(resolve, 50));
         if (!cancel_token_copy.canceled) {
           setGlobalDrag(doc as LancerActor | LancerItem | null);
         }

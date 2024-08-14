@@ -2686,13 +2686,27 @@ Here, this means we want to allow for drag stuff etc to show contextually if:
 
   .dragging-#{$e-type} .editable .drop-target-#{$e-type} {
     display: revert !important;
+    height: 100%;
+    z-index: 100;
   }
+}
+
+.lid-list {
+  position: relative;
+  min-height: 6em;
 }
 
 .line-drop-target {
   @include glow;
-  min-height: 6em;
   align-content: center;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 0;
+  opacity: 95%;
+  z-index: -100;
+  transition: all 0.5s;
 }
 
 .slot:not(.set) {
