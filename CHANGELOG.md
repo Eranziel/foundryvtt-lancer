@@ -1,3 +1,15 @@
+# 2.2.4 (2024-08-13)
+
+## Bug Fixes
+
+- #640 - Fix dragging NPC Features out of NPC Class sheets on Chrome.
+- #745 - Prevent errors when reading loadout items to build pilot/mech sheets.
+- #747 - Prevent adding the same feature to an NPC class/template feature list more than once.
+- #748 - Fix positioning of activations icon in popped-out initiative window.
+- #750 - Fix extra tall description boxes in Roll Table editor.
+- On import, if a pilot has no active mechs, set the first mech as active.
+- Add grappled, destroyed, and intangible icons to Tommy's icon set. (Thanks, Tommy!)
+
 # 2.2.3 (2024-08-04)
 
 ## Bug Fixes
