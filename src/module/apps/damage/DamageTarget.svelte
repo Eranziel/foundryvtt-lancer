@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { createEventDispatcher } from "svelte";
   import { slide } from "svelte/transition";
 
   import HudCheckbox from "../components/HudCheckbox.svelte";
@@ -6,6 +7,8 @@
   import DamageInput from "./DamageInput.svelte";
   import { DamageType } from "../../enums";
   import HitRadio from "./HitRadio.svelte";
+
+  const dispatch = createEventDispatcher();
 
   export let target: DamageHudTarget;
 
@@ -19,10 +22,19 @@
     target.bonusDamage = target.bonusDamage.filter((_, i) => i !== idx);
   }
 
+  function toggleAP(event: any) {
+    dispatch("ap", event.detail);
+  }
+
   function toggleParacausal(event: any) {
+    dispatch("paracausal", event.detail);
     if (event.detail) {
       target.ap = true;
     }
+  }
+
+  function toggleHalfDamage(event: any) {
+    dispatch("halfDmg", event.detail);
   }
 </script>
 
@@ -76,6 +88,7 @@
     <HudCheckbox
       icon="mdi mdi-shield-off-outline"
       bind:value={target.ap}
+      on:change={toggleAP}
       tooltip="Armor Piercing (AP)"
       disabled={target.paracausal}
     />
@@ -89,6 +102,7 @@
     <HudCheckbox
       icon="mdi mdi-fraction-one-half"
       bind:value={target.halfDamage}
+      on:change={toggleHalfDamage}
       tooltip="For effects which cause the attacker to deal half damage in addition to resistance, like Heavy Gunner"
     />
   </div>

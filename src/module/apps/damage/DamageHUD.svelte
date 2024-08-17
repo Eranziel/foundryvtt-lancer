@@ -28,6 +28,10 @@
   $: weaponBonusDamage = weapon.bonusDamage;
   $: profile = lancerItem ? findProfile() : null;
 
+  let partialAP = false;
+  let partialParacausal = false;
+  let partialHalfDamage = false;
+
   const dispatch = createEventDispatcher();
 
   function focus(el: HTMLElement) {
@@ -96,6 +100,7 @@
       targets[idx] = t;
     }
   }
+
   function toggleParacausal(event: any) {
     for (const [idx, t] of targets.entries()) {
       t.paracausal = event.detail;
@@ -106,11 +111,53 @@
       toggleAP(event);
     }
   }
+
   function toggleHalfDamage(event: any) {
     for (const [idx, t] of targets.entries()) {
       t.halfDamage = event.detail;
       targets[idx] = t;
     }
+  }
+
+  function updateTargets() {
+    targets = targets;
+    // Check for partial/all AP
+    if (targets.every(t => t.ap)) {
+      base.ap = true;
+      partialAP = false;
+    } else if (targets.some(t => t.ap)) {
+      base.ap = false;
+      partialAP = true;
+    } else {
+      base.ap = false;
+      partialAP = false;
+    }
+
+    // Check for partial/all paracausal
+    if (targets.every(t => t.paracausal)) {
+      base.paracausal = true;
+      partialParacausal = false;
+    } else if (targets.some(t => t.paracausal)) {
+      base.paracausal = false;
+      partialParacausal = true;
+    } else {
+      base.paracausal = false;
+      partialParacausal = false;
+    }
+
+    // Check for partial/all half damage
+    if (targets.every(t => t.halfDamage)) {
+      base.halfDamage = true;
+      partialHalfDamage = false;
+    } else if (targets.some(t => t.halfDamage)) {
+      base.halfDamage = false;
+      partialHalfDamage = true;
+    } else {
+      base.halfDamage = false;
+      partialHalfDamage = false;
+    }
+
+    base = base;
   }
 </script>
 
@@ -178,6 +225,7 @@
       icon="mdi mdi-shield-off-outline"
       label="Armor Piercing (AP)"
       bind:value={base.ap}
+      bind:partial={partialAP}
       on:change={toggleAP}
       disabled={base.paracausal}
       style="grid-area: ap"
@@ -187,6 +235,7 @@
       icon="cci cci-large-beam"
       label="Cannot be Reduced"
       bind:value={base.paracausal}
+      bind:partial={partialParacausal}
       on:change={toggleParacausal}
       tooltip="For 'cannot be reduced' effects like the Paracausal mod"
       style="grid-area: paracausal"
@@ -195,6 +244,7 @@
       icon="mdi mdi-fraction-one-half"
       label="Half Damage"
       bind:value={base.halfDamage}
+      bind:partial={partialHalfDamage}
       on:change={toggleHalfDamage}
       tooltip="For effects which cause the attacker to deal half damage in addition to resistance, like Heavy Gunner"
       style="grid-area: halfdamage"
@@ -232,7 +282,7 @@
     {:else if targets.length > 1}
       {#each targets as target (target.target.id)}
         <div class="target-container {targets.length <= 1 ? 'solo' : ''}" animate:flip={{ duration: 200 }}>
-          <DamageTarget {target} />
+          <DamageTarget {target} on:ap={updateTargets} on:paracausal={updateTargets} on:halfDmg={updateTargets} />
         </div>
       {/each}
     {/if}
