@@ -69,7 +69,7 @@ export function registerAttackSteps(flowSteps: Map<string, Step<any, any> | Flow
   flowSteps.set("setAttackTargets", setAttackTargets);
   flowSteps.set("showAttackHUD", showAttackHUD);
   flowSteps.set("rollAttacks", rollAttacks);
-  // flowSteps.set("rollDamages", rollDamages);
+  flowSteps.set("clearTargets", clearTargets);
   flowSteps.set("printAttackCard", printAttackCard);
 }
 
@@ -82,8 +82,7 @@ export class BasicAttackFlow extends Flow<LancerFlowState.AttackRollData> {
     "setAttackTargets",
     "showAttackHUD",
     "rollAttacks",
-    // TODO: think about whether/how basic attacks should be able to do damage (siege ram, I'm lookin' at you)
-    // "rollDamages",
+    "clearTargets",
     "applySelfHeat",
     "printAttackCard",
   ];
@@ -128,6 +127,7 @@ export class WeaponAttackFlow extends Flow<LancerFlowState.WeaponRollData> {
     "rollAttacks",
     "applySelfHeat",
     "updateItemAfterAction",
+    "clearTargets",
     "printAttackCard",
     // TODO: Start damage flow after attack
     // "applyDamage"
@@ -441,6 +441,16 @@ export async function rollAttacks(
     state.data.hit_results = [];
     return true;
   }
+}
+
+export async function clearTargets(
+  state: FlowState<LancerFlowState.AttackRollData | LancerFlowState.WeaponRollData | LancerFlowState.DamageRollData>
+): Promise<boolean> {
+  if (!state.data) throw new TypeError(`Flow state missing!`);
+  for (const t of game.user?.targets || []) {
+    t.setTarget(false, { releaseOthers: false });
+  }
+  return true;
 }
 
 export async function printAttackCard(
