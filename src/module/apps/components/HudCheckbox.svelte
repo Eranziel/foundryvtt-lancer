@@ -8,11 +8,18 @@
   export let icon = "";
   export let tooltip: string | null = null;
   export let value = false;
+  export let partial = false;
   export let disabled = false;
 </script>
 
 <label class="container" {style} data-tooltip={tooltip}>
-  <input type="checkbox" bind:checked={value} {disabled} on:change={() => dispatch("change", value)} />
+  <input
+    type="checkbox"
+    bind:checked={value}
+    {disabled}
+    class={partial ? "partial" : ""}
+    on:change={() => dispatch("change", value)}
+  />
   {#if icon}<i class="{icon} i--s" />{/if}
   <span style="text-wrap: nowrap;">{label}</span>
 </label>
@@ -52,6 +59,7 @@
       position: relative;
       margin: 0;
       margin-right: 0.2rem;
+      &.partial,
       &:checked {
         background-color: var(--primary-color, fuchsia);
       }
@@ -66,11 +74,11 @@
         width: 20px;
         height: 20px;
       }
+      &.partial::before,
       &:checked::before {
-        // This is a free icon, it says pro because that's the only version provided
+        // These states use a free icon, it says pro because that's the only version provided
         // Don't change the weight unless you have a pro license or the new value is free as well
         // xmark (free for solid weight)
-        content: "\f00d";
         font-family: "Font Awesome 6 Pro";
         // fa-solid (free)
         font-weight: 900;
@@ -80,6 +88,12 @@
         align-items: center;
         font-size: 20px;
         color: var(--light-text);
+      }
+      &.partial::before {
+        content: "\f068";
+      }
+      &:checked::before {
+        content: "\f00d";
       }
     }
 
