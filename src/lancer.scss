@@ -1348,10 +1348,14 @@ input[type="text"].lancer-input {
   }
 }
 
+.monospace {
+  font-family: Consolas, "Courier New", Courier, monaco, monospace;
+}
+
 .desc-text {
   text-align: left;
   padding: 0.5em;
-  font-family: Consolas;
+  font-family: Consolas, "Courier New", Courier, monaco, monospace;
 
   border: 1px solid #999;
   border-radius: 5px;
