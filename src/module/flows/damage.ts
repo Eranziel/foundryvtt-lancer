@@ -45,6 +45,7 @@ export class DamageRollFlow extends Flow<LancerFlowState.DamageRollData> {
     "showDamageHUD",
     "rollDamages",
     "applyOverkillHeat",
+    "clearTargets",
     "printDamageCard",
   ];
   constructor(uuid: UUIDRef | LancerItem | LancerActor, data?: Partial<LancerFlowState.DamageRollData>) {
@@ -191,7 +192,11 @@ async function setDamageTags(state: FlowState<LancerFlowState.DamageRollData>): 
 
 async function setDamageTargets(state: FlowState<LancerFlowState.DamageRollData>): Promise<boolean> {
   if (!state.data) throw new TypeError(`Damage flow state missing!`);
-  // TODO: DamageHudData does not facilitate setting targets after instantiation?
+  for (const hr of state.data.hit_results) {
+    if (hr.target instanceof LancerToken) {
+      hr.target.setTarget(true, { releaseOthers: false });
+    }
+  }
   return true;
 }
 
