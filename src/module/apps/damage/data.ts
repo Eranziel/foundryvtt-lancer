@@ -257,14 +257,23 @@ export class DamageHudTarget {
     };
   }
 
-  static fromParams(t: Token): DamageHudTarget {
+  static fromParams(
+    t: Token,
+    data?: {
+      quality?: HitQuality;
+      ap?: boolean;
+      paracausal?: boolean;
+      halfDamage?: boolean;
+      bonusDamage?: DamageData[];
+    }
+  ): DamageHudTarget {
     let ret = {
       target_id: t.id,
-      quality: HitQuality.Hit,
-      ap: false,
-      paracausal: false,
-      halfDamage: false,
-      bonusDamage: [],
+      quality: data?.quality || HitQuality.Hit,
+      ap: data?.ap || false,
+      paracausal: data?.paracausal || false,
+      halfDamage: data?.halfDamage || false,
+      bonusDamage: data?.bonusDamage || [],
       plugins: {} as { [k: string]: any },
     };
     for (let plugin of DamageHudData.targetedPlugins) {
@@ -391,14 +400,16 @@ export class DamageHudData {
 
   static fromParams(
     runtimeData?: LancerItem | LancerActor,
-    tags?: Tag[],
-    title?: string,
-    targets?: LancerToken[],
-    hitResults?: LancerFlowState.HitResult[],
-    ap?: boolean,
-    paracausal?: boolean,
-    halfDamage?: boolean,
-    starting?: { damage?: DamageData[]; bonusDamage?: DamageData[] }
+    data?: {
+      tags?: Tag[];
+      title?: string;
+      targets?: LancerToken[];
+      hitResults?: LancerFlowState.HitResult[];
+      ap?: boolean;
+      paracausal?: boolean;
+      halfDamage?: boolean;
+      starting?: { damage?: DamageData[]; bonusDamage?: DamageData[] };
+    }
   ): DamageHudData {
     let weapon = {
       damage: [] as DamageData[],
@@ -409,15 +420,15 @@ export class DamageHudData {
       plugins: {} as { [k: string]: any },
     };
     let base = {
-      ap: ap ?? false,
-      paracausal: paracausal ?? false,
-      halfDamage: halfDamage ?? false,
-      damage: starting?.damage ?? [],
-      bonusDamage: starting?.bonusDamage ?? [],
+      ap: data?.ap ?? false,
+      paracausal: data?.paracausal ?? false,
+      halfDamage: data?.halfDamage ?? false,
+      damage: data?.starting?.damage ?? [],
+      bonusDamage: data?.starting?.bonusDamage ?? [],
       plugins: {} as { [k: string]: any },
     };
 
-    for (let tag of tags || []) {
+    for (let tag of data?.tags || []) {
       switch (tag.lid) {
         case "tg_ap":
           base.ap = true;
@@ -456,10 +467,11 @@ export class DamageHudData {
     }
 
     let obj: DamageHudDataSerialized = {
-      title: title ? title : "Damage Roll",
+      title: data?.title ? data.title : "Damage Roll",
       weapon,
       base,
-      targets: (targets || []).map(t => {
+      hitResults,
+      targets: (data?.targets || []).map(t => {
         let ret = {
           target_id: t.id,
           quality: getHitQuality(t),
