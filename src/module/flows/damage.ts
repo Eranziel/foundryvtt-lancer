@@ -108,44 +108,41 @@ async function initDamageData(state: FlowState<LancerFlowState.DamageRollData>):
     // state.data.damage = state.data.damage.length ? state.data.damage : profile.damage;
     // state.data.bonus_damage = state.data.bonus_damage?.length ? state.data.bonus_damage : profile.bonus_damage;
 
-    state.data.damage_hud_data = DamageHudData.fromParams(
-      state.item,
-      profile.all_tags,
-      state.data.title,
-      Array.from(game.user!.targets),
-      state.data.hit_results,
-      state.data.ap,
-      state.data.paracausal,
-      state.data.half_damage,
-      { damage: state.data.damage, bonusDamage: state.data.bonus_damage }
-    );
+    state.data.damage_hud_data = DamageHudData.fromParams(state.item, {
+      tags: profile.all_tags,
+      title: state.data.title,
+      targets: Array.from(game.user!.targets),
+      hitResults: state.data.hit_results,
+      ap: state.data.ap,
+      paracausal: state.data.paracausal,
+      halfDamage: state.data.half_damage,
+      starting: { damage: state.data.damage, bonusDamage: state.data.bonus_damage },
+    });
   } else if (state.item?.is_npc_feature() && state.item.system.type === "Weapon") {
     // const tierIndex = (state.item.system.tier_override || (state.actor as LancerNPC).system.tier) - 1;
     // state.data.damage = state.data.damage.length ? state.data.damage : state.item.system.damage[tierIndex];
-    state.data.damage_hud_data = DamageHudData.fromParams(
-      state.item,
-      state.item.system.tags,
-      state.data.title,
-      Array.from(game.user!.targets),
-      state.data.hit_results,
-      state.data.ap,
-      state.data.paracausal,
-      state.data.half_damage,
-      { damage: state.data.damage, bonusDamage: state.data.bonus_damage }
-    );
+    state.data.damage_hud_data = DamageHudData.fromParams(state.item, {
+      tags: state.item.system.tags,
+      title: state.data.title,
+      targets: Array.from(game.user!.targets),
+      hitResults: state.data.hit_results,
+      ap: state.data.ap,
+      paracausal: state.data.paracausal,
+      halfDamage: state.data.half_damage,
+      starting: { damage: state.data.damage, bonusDamage: state.data.bonus_damage },
+    });
   } else if (state.item?.is_pilot_weapon()) {
     // state.data.damage = state.data.damage.length ? state.data.damage : state.item.system.damage;
-    state.data.damage_hud_data = DamageHudData.fromParams(
-      state.item,
-      state.item.system.tags,
-      state.data.title,
-      Array.from(game.user!.targets),
-      state.data.hit_results,
-      state.data.ap,
-      state.data.paracausal,
-      state.data.half_damage,
-      { damage: state.data.damage, bonusDamage: state.data.bonus_damage }
-    );
+    state.data.damage_hud_data = DamageHudData.fromParams(state.item, {
+      tags: state.item.system.tags,
+      title: state.data.title,
+      targets: Array.from(game.user!.targets),
+      hitResults: state.data.hit_results,
+      ap: state.data.ap,
+      paracausal: state.data.paracausal,
+      halfDamage: state.data.half_damage,
+      starting: { damage: state.data.damage, bonusDamage: state.data.bonus_damage },
+    });
   } else if (state.data.damage.length === 0) {
     ui.notifications!.warn(
       state.item ? `Item ${state.item.id} is not a weapon!` : `Damage flow is missing damage to roll!`
