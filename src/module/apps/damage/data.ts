@@ -299,12 +299,59 @@ export class DamageHudTarget {
   }
 }
 
+// Simple class for storing the results of the attack roll which this damage roll is derived from.
+// Needs to match LancerFlowState.HitResult, other than target being a UUID string instead of a
+// hydrated token.
+class DamageHudHitResult {
+  target: string; // token UUID
+  total: string;
+  usedLockOn: boolean;
+  hit: boolean;
+  crit: boolean;
+
+  static get schema() {
+    return {
+      target: t.string,
+      total: t.string,
+      usedLockOn: t.boolean,
+      hit: t.boolean,
+      crit: t.boolean,
+    };
+  }
+
+  static get schemaCodec() {
+    return t.type(this.schema);
+  }
+  static get codec() {
+    return enclass(this.schemaCodec, DamageHudHitResult);
+  }
+
+  constructor(obj: t.TypeOf<typeof DamageHudHitResult.schemaCodec>) {
+    this.target = obj.target;
+    this.total = obj.total;
+    this.usedLockOn = obj.usedLockOn;
+    this.hit = obj.hit;
+    this.crit = obj.crit;
+  }
+
+  get raw() {
+    return {
+      target: this.target,
+      total: this.total,
+      usedLockOn: this.usedLockOn,
+      hit: this.hit,
+      crit: this.crit,
+    };
+  }
+}
+
 export type DamageHudDataSerialized = t.OutputOf<typeof DamageHudData.schemaCodec>;
 // TODO: this guy needs a new name
 export class DamageHudData {
   title: string;
   weapon: DamageHudWeapon;
   base: DamageHudBase;
+  hitResults: DamageHudHitResult[];
   targets: DamageHudTarget[];
   lancerItem?: LancerItem; // not persisted, needs to be hydrated
   lancerActor?: LancerActor; // not persisted, needs to be hydrated
@@ -314,6 +361,7 @@ export class DamageHudData {
       title: t.string,
       weapon: DamageHudWeapon.codec,
       base: DamageHudBase.codec,
+      hitResults: t.array(DamageHudHitResult.codec),
       targets: t.array(DamageHudTarget.codec),
     };
   }
@@ -329,6 +377,7 @@ export class DamageHudData {
     this.title = obj.title;
     this.weapon = obj.weapon;
     this.base = obj.base;
+    this.hitResults = obj.hitResults;
     this.targets = obj.targets;
     this.hydrate();
   }
@@ -354,7 +403,9 @@ export class DamageHudData {
       oldTargets[data.target.id] = data;
     }
 
-    this.targets = ts.map(t => oldTargets[t.id] ?? DamageHudTarget.fromParams(t));
+    this.targets = ts.map(
+      t => oldTargets[t.id] ?? DamageHudTarget.fromParams(t, { quality: this.getHitQuality(t as LancerToken) })
+    );
 
     for (let target of this.targets) {
       target.hydrate(this);
@@ -367,6 +418,7 @@ export class DamageHudData {
       title: this.title,
       weapon: this.weapon,
       base: this.base,
+      hitResults: this.hitResults,
       targets: this.targets,
     };
   }
@@ -396,6 +448,19 @@ export class DamageHudData {
       this.targetedPlugins.push(plugin);
     }
     this.plugins.push(plugin);
+  }
+
+  static getHitQuality(t: LancerToken, hitResults: DamageHudHitResult[]) {
+    if (!hitResults || !hitResults.length) return HitQuality.Hit;
+    const hit = (hitResults || []).find(hr => hr.target === t.document.uuid);
+    if (!hit) return HitQuality.Hit;
+    // Pick the quality which matches the hit result's hit/crit flags
+    if (hit.crit) return HitQuality.Crit;
+    if (hit.hit) return HitQuality.Hit;
+    return HitQuality.Miss;
+  }
+  getHitQuality(t: LancerToken) {
+    return DamageHudData.getHitQuality(t, this.hitResults);
   }
 
   static fromParams(
@@ -456,15 +521,9 @@ export class DamageHudData {
       }
     }
 
-    function getHitQuality(t: LancerToken) {
-      if (!hitResults || !hitResults.length) return HitQuality.Hit;
-      const hit = hitResults.find(hr => hr.target.id === t.id);
-      if (!hit) return HitQuality.Hit;
-      // Pick the quality which matches the hit result's hit/crit flags
-      if (hit.crit) return HitQuality.Crit;
-      if (hit.hit) return HitQuality.Hit;
-      return HitQuality.Miss;
-    }
+    const hitResults = (data?.hitResults || []).map(
+      hr => new DamageHudHitResult({ ...hr, target: hr.target.document.uuid })
+    );
 
     let obj: DamageHudDataSerialized = {
       title: data?.title ? data.title : "Damage Roll",
@@ -474,7 +533,7 @@ export class DamageHudData {
       targets: (data?.targets || []).map(t => {
         let ret = {
           target_id: t.id,
-          quality: getHitQuality(t),
+          quality: DamageHudData.getHitQuality(t, hitResults),
           ap: base.ap,
           paracausal: base.paracausal,
           halfDamage: base.halfDamage,
