@@ -30,7 +30,7 @@ export async function populatePilotCache(): Promise<CachedCloudPilot[]> {
     return result.filter(x => x.key?.endsWith("--active"));
   });
 
-  const data = (await Promise.all(res.map(obj => (obj.key ? fetchPilot(obj.key) : null)))).map(
+  const data = (await Promise.all(res.results.map(obj => (obj.key ? fetchPilot(obj.key) : null)))).map(
     x => x
   ) as Array<PackedPilotData>;
   data.forEach(pilot => {
