@@ -41,8 +41,6 @@ export async function createChatMessageStep(
   flags?: any
 ) {
   if (rolls && !Array.isArray(rolls)) rolls = [rolls];
-  const rollMode = game.settings.get("core", "rollMode");
-  const whisper_roll = rollMode !== "roll" ? ChatMessage.getWhisperRecipients("GM").filter(u => u.active) : undefined;
   let chat_data = {
     // @ts-expect-error v12
     type: CONST.CHAT_MESSAGE_STYLES.IC,
@@ -53,7 +51,6 @@ export async function createChatMessageStep(
       alias: !!actor?.token ? actor.token.name : null,
     },
     content: html,
-    whisper: rolls ? whisper_roll : [],
     flags: flags ? { lancer: flags } : undefined,
   };
   if (!rolls) delete chat_data.rolls;
