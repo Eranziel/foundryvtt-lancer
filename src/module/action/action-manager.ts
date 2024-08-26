@@ -2,7 +2,7 @@ import type { LancerActor } from "../actor/lancer-actor";
 import type { ActionTrackingData, ActionType } from ".";
 import tippy from "tippy.js";
 import { getActionTrackerOptions } from "../settings";
-import { getActions, modAction, toggleAction, updateActions, _defaultActionData } from "./action-tracker";
+import { getActions, modAction, toggleAction, _defaultActionData } from "./action-tracker";
 
 // TODO: Properly namespace this flag into the system scope
 declare global {
@@ -76,13 +76,6 @@ export class LancerActionManager extends Application {
   private getActions(): ActionTrackingData | null {
     return this.target ? getActions(this.target) : null;
   }
-  /**
-   * Set proxy for ease of migration when we change over to MM data backing.
-   */
-  private async updateActions(actor: LancerActor, actions: ActionTrackingData) {
-    await updateActions(actor, actions);
-    // this.token?.update({ "flags.lancer.actions": actions });
-  }
 
   async reset() {
     await this.close();
@@ -112,11 +105,9 @@ export class LancerActionManager extends Application {
     const token = canvas.tokens?.controlled?.[0];
     if (token && token.inCombat && token.actor) {
       const actor = token.actor as LancerActor;
-      // TODO: Remove when action data is properly within MM.
-      // @ts-expect-error Should be fixed with v10 types
-      if ((actor.is_mech() || actor.is_npc()) && token.actor.system.action_tracker !== undefined) {
+      if (actor.is_mech() || actor.is_npc()) {
         this.target = token.actor;
-        return this.updateActions(token.actor, _defaultActionData(token.actor));
+        return;
       }
     }
     this.target = null;
