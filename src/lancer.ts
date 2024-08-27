@@ -15,7 +15,6 @@ import { LANCER, WELCOME } from "./module/config";
 import { migrateLancerConditions } from "./module/status-icons";
 import { LancerActor } from "./module/actor/lancer-actor";
 import { LancerItem } from "./module/item/lancer-item";
-import { populatePilotCache } from "./module/util/compcon";
 
 import { actionTypeSelector } from "./module/helpers/npc";
 
@@ -144,7 +143,6 @@ import { targetsFromTemplate } from "./module/flows/_template";
 import { extendTokenConfig, LancerToken, LancerTokenDocument } from "./module/token";
 import { applyGlobalDragListeners } from "./module/helpers/dragdrop";
 import { gridDist } from "./module/helpers/automation/targeting";
-import CompconLoginForm from "./module/helpers/compcon-login-form";
 import { LancerCombat, LancerCombatant } from "./module/combat/lancer-combat";
 import { LancerCombatTracker } from "./module/combat/lancer-combat-tracker";
 import { LancerCombatTrackerConfig } from "./module/helpers/lancer-initiative-config-form";
@@ -310,10 +308,6 @@ Hooks.once("init", async function () {
   registerSettings();
   // Apply theme colors
   applyTheme(game.settings.get(game.system.id, LANCER.setting_ui_theme) as "gms" | "msmc" | "horus");
-
-  // no need to block on amplify - logging into comp/con and populating the cache
-  // it can happen in the background
-  configureAmplify();
 
   // Register flow steps
   const flowSteps = registerFlows();
@@ -1061,26 +1055,6 @@ async function doMigration() {
   }
 }
 
-async function configureAmplify() {
-  // Pull in the parts of AWS Amplify we need
-  const aws = (await import("./aws-exports")).default as {
-    aws_cognito_identity_pool_id: string;
-  };
-  const { Auth } = await import("@aws-amplify/auth");
-  const { Storage } = await import("@aws-amplify/storage");
-
-  Auth.configure(aws);
-  Storage.configure(aws);
-
-  // if we have a login already, this is where we populate the pilot cache
-  try {
-    return populatePilotCache();
-  } catch {
-    // the error is just that we don't have a login
-    // noop
-  }
-}
-
 async function showChangelog() {
   // Show welcome message if not hidden.
   if (!game.settings.get(game.system.id, LANCER.setting_welcome)) {
@@ -1148,18 +1122,8 @@ function addSettingsButtons(_app: Application, html: HTMLElement) {
             <i class="fas fa-robot"></i>LANCER Help
         </button>`);
 
-  const loginButton = $(`<button id="compcon-login" data-action="compconLogin">
-            <i class="mdi mdi-cloud-sync-outline "></i>COMP/CON Login
-          </button>`);
-
   $(html).find("#settings-game").after(lancerHeader);
-  $(html).find("#settings-lancer").append(loginButton);
   $(html).find("#settings-lancer").append(faqButton);
-
-  loginButton.on("click", async () => {
-    const app = new CompconLoginForm({});
-    return app.render(true);
-  });
 
   faqButton.on("click", async () => {
     let helpContent = await renderTemplate(`systems/${game.system.id}/templates/window/lancerHelp.hbs`, {});
