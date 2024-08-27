@@ -2743,107 +2743,81 @@ Here, this means we want to allow for drag stuff etc to show contextually if:
   grid-row: 1/2;
 }
 
-/* Lancer Initiative stuff
-   This is plain css for now */
-.-emu #sidebar #combat #combat-tracker li.combatant,
-.-emu #combat-popout #combat #combat-tracker li.combatant,
-#combat-tracker li.combatant {
-  padding-right: 0.5em;
-  border: 3px;
+li.combatant {
   border-radius: 5px;
-  border-style: solid;
-  border-top: 0px;
-  border-bottom: 0px;
-  margin: 4px;
-}
-
-#combat,
-#combat-popout {
-  #combat-tracker {
-    .combatant {
-      .token-initiative {
-        padding-left: 0.5em;
-        align-items: center;
-        display: flex;
-        position: relative;
-        flex: 0 0 auto;
-      }
-
-      .combatant-controls {
-        span.activations {
-          flex: 0 0 20px;
-          width: 20px;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          i {
-            color: var(--color-text-dark-5);
-            font-size: 20px;
-            position: relative;
-            left: 50%;
-          }
-          span {
-            flex: 0 0 20px;
-            text-align: center;
-            font-size: 14px;
-            position: relative;
-            left: -50%;
-            opacity: 0.8;
-          }
-        }
-      }
-
-      .token-initiative {
-        i,
-        a {
-          font-size: var(--lancer-initiative-icon-size);
-        }
-      }
+  &.player {
+    border-left: 3px solid var(--lancer-initiative-player-color);
+    border-right: 3px solid var(--lancer-initiative-player-color);
+    &.active::after {
+      border-color: var(--lancer-initiative-player-color);
     }
-
-    .combatant.player {
-      border-color: var(--lancer-initiative-player-color) !important;
-
-      .token-initiative a {
-        color: var(--lancer-initiative-player-color);
-        &.done {
-          color: var(--lancer-initiative-done-color);
-        }
-      }
+  }
+  &.friendly {
+    border-left: 3px solid var(--lancer-initiative-friendly-color);
+    border-right: 3px solid var(--lancer-initiative-friendly-color);
+    &.active::after {
+      border-color: var(--lancer-initiative-friendly-color);
     }
-    .combatant.friendly {
-      border-color: var(--lancer-initiative-friendly-color) !important;
-
-      .token-initiative a {
-        color: var(--lancer-initiative-friendly-color);
-        &.done {
-          color: var(--lancer-initiative-done-color);
-        }
-      }
+  }
+  &.neutral {
+    border-left: 3px solid var(--lancer-initiative-neutral-color);
+    border-right: 3px solid var(--lancer-initiative-neutral-color);
+    &.active::after {
+      border-color: var(--lancer-initiative-neutral-color);
     }
-    .combatant.neutral {
-      border-color: var(--lancer-initiative-neutral-color) !important;
-
-      .token-initiative a {
-        color: var(--lancer-initiative-neutral-color);
-        &.done {
-          color: var(--lancer-initiative-done-color);
-        }
-      }
+  }
+  &.enemy {
+    border-left: 3px solid var(--lancer-initiative-enemy-color);
+    border-right: 3px solid var(--lancer-initiative-enemy-color);
+    &.active::after {
+      border-color: var(--lancer-initiative-enemy-color);
     }
-    .combatant.enemy {
-      border-color: var(--lancer-initiative-enemy-color) !important;
-
-      .token-initiative a {
-        color: var(--lancer-initiative-enemy-color);
-        &.done {
-          color: var(--lancer-initiative-done-color);
-        }
-      }
+  }
+  &.secret {
+    border-left: 3px solid var(--lancer-initiative-secret-color);
+    border-right: 3px solid var(--lancer-initiative-secret-color);
+    &.active::after {
+      border-color: var(--lancer-initiative-secret-color);
     }
   }
 }
 
+[data-tab="combat"] #combat-tracker {
+  .combatant .token-initiative {
+    padding-left: 0.5em;
+    margin-right: 0.25rem;
+    align-items: center;
+    display: flex;
+    position: relative;
+    flex: 0 0 auto;
+  }
+  .combatant .token-initiative i,
+  .combatant .token-initiative a {
+    font-size: var(--lancer-initiative-icon-size);
+  }
+  .combatant.active .token-initiative a.done {
+    color: var(--lancer-initiative-done-color);
+  }
+  .combatant.player .token-initiative a {
+    color: var(--lancer-initiative-player-color);
+  }
+  .combatant.friendly .token-initiative a {
+    color: var(--lancer-initiative-friendly-color);
+  }
+  .combatant.neutral .token-initiative a {
+    color: var(--lancer-initiative-neutral-color);
+  }
+  .combatant.enemy .token-initiative a {
+    color: var(--lancer-initiative-enemy-color);
+  }
+  .combatant.secret .token-initiative a {
+    color: var(--lancer-initiative-secret-color);
+  }
+  li.combatant.turn-done {
+    color: inherit;
+    text-decoration: inherit;
+  }
+}
 #combat-carousel.lancer {
   li.card {
     div.lancer-activate {
@@ -2897,18 +2871,43 @@ Here, this means we want to allow for drag stuff etc to show contextually if:
 }
 
 #lancer-initiative-settings {
-  input[type="color"] {
-    flex: 0 0 3rem;
-    cursor: pointer;
-  }
   #preview-combat {
     padding: 0px;
     margin: 1rem;
   }
   .token-image {
-    height: 48px;
-    width: 48px;
-    max-width: 48px;
+    height: var(--sidebar-item-height);
+    width: var(--sidebar-item-height);
+    max-width: var(--sidebar-item-height);
     border: 0px;
+  }
+  .fake-combatant {
+    border: 3px;
+    padding-right: 0.5em;
+    border-top: 0px;
+    border-bottom: 0px;
+    border-radius: 5px;
+    border-style: solid;
+    h4 {
+      text-shadow: 1px 1px 4px var(--color-shadow-dark);
+      font-size: var(--font-size-14);
+      flex: 0 0 24px;
+      line-height: 28px;
+      margin: 0 0 2px;
+      padding: 0;
+      font-weight: normal;
+    }
+    .token-initiative {
+      display: flex;
+      position: relative;
+      flex: 0 0 auto;
+      text-align: center;
+      align-items: center;
+      padding-left: 0.5em;
+    }
+  }
+  footer {
+    display: flex;
+    flex-direction: row;
   }
 }

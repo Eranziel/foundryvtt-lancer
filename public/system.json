@@ -1,32 +1,60 @@
 {
   "id": "lancer",
-  "name": "lancer",
   "title": "LANCER",
   "description": "<p>A Foundry VTT game system for <a href=\"https://massif-press.itch.io/corebook-pdf\">Lancer</a> by <a href=\"https://massif-press.itch.io/\">Massif Press</a>, a mud-and-lasers tactical mech RPG.</p><p>\"Lancer for FoundryVTT\" is not an official <i>Lancer</i> product; it is a third party work, and is not affiliated with Massif Press. \"Lancer for FoundryVTT\" is published via the <i>Lancer</i> Third Party License.</p><p><i>Lancer</i> is copyright Massif Press.</p>",
   "version": "2.2.4",
-  "minimumCoreVersion": "11",
   "compatibility": {
-    "minimum": 11,
-    "verified": "11.315",
-    "maximum": 11
+    "minimum": 12,
+    "verified": 12,
+    "maximum": 12
   },
   "authors": [
-    {"name": "Eranziel"},
-    {"name": "Whitespine"},
-    {"name": "BoltsJ"},
-    {"name": "Valkyrion"},
-    {"name": "Kuenaimaku"},
-    {"name": "dodgepong"},
-    {"name": "Grygon"},
-    {"name": "SohumB"}
+    { "name": "Eranziel" },
+    { "name": "Whitespine" },
+    { "name": "BoltsJ" },
+    { "name": "Valkyrion" },
+    { "name": "Kuenaimaku" },
+    { "name": "dodgepong" },
+    { "name": "Grygon" },
+    { "name": "SohumB" }
   ],
-  "scripts": [],
   "esmodules": ["lancer.mjs"],
-  "styles": [
-    "style.css",
-    "fonts/compcon/glyphs.css",
-    "fonts/mdi.css"
-  ],
+  "styles": ["style.css", "fonts/compcon/glyphs.css", "fonts/mdi.css"],
+  "documentTypes": {
+    "Actor": {
+      "npc": { "htmlFields": ["notes"] },
+      "pilot": { "htmlFields": ["background", "history", "notes", "text_appearance"] },
+      "mech": { "htmlFields": ["notes"] },
+      "deployable": { "htmlFields": ["detail", "action.init", "action.terse", "action.detail"] }
+    },
+    "Item": {
+      "core_bonus": { "htmlFields": ["description", "effect", "mounted_effect"] },
+      "frame": {
+        "htmlFields": [
+          "description",
+          "core_system.description",
+          "core_system.active_effect",
+          "core_system.passive_effect"
+        ]
+      },
+      "license": {},
+      "npc_class": { "htmlFields": ["flavor", "tactics"] },
+      "npc_template": { "htmlFields": ["description"] },
+      "npc_feature": { "htmlFields": ["effect", "on_hit"] },
+      "weapon_mod": { "htmlFields": ["effect", "description"] },
+      "mech_system": { "htmlFields": ["effect", "description"] },
+      "mech_weapon": { "htmlFields": [] },
+      "organization": { "htmlFields": ["description"] },
+      "pilot_armor": { "htmlFields": ["description"] },
+      "pilot_gear": { "htmlFields": ["description"] },
+      "pilot_weapon": { "htmlFields": ["description", "effect"] },
+      "reserve": { "htmlFields": ["description"] },
+      "status": { "htmlFields": ["effects"] },
+      "talent": { "htmlFields": ["description"] },
+      "skill": { "htmlFields": ["description"] },
+      "bond": { "htmlFields": [] }
+    }
+  },
   "packs": [
     {
       "name": "core_macros",
@@ -53,10 +81,14 @@
     }
   ],
   "socket": true,
-  "gridDistance": 1,
-  "gridUnits": "",
-  "primaryTokenAttribute": "",
-  "secondaryTokenAttribute": "",
+  "grid": {
+    "distance": 1,
+    "units": "",
+    "type": 2,
+    "diagonals": 0
+  },
+  "primaryTokenAttribute": "hp",
+  "secondaryTokenAttribute": "heat",
   "url": "https://github.com/Eranziel/foundryvtt-lancer",
   "manifest": "https://github.com/Eranziel/foundryvtt-lancer/releases/latest/download/system.json",
   "download": "https://github.com/Eranziel/foundryvtt-lancer/releases/download/v2.2.4/lancer-v2.2.4.zip",
@@ -64,7 +96,6 @@
   "readme": "https://github.com/Eranziel/foundryvtt-lancer/blob/master/README.md",
   "bugs": "https://github.com/Eranziel/foundryvtt-lancer/issues/new/choose",
   "changelog": "https://github.com/Eranziel/foundryvtt-lancer/blob/master/CHANGELOG.md",
-  "manifestPlusVersion": "1.2.0",
   "media": [
     {
       "type": "cover",
@@ -84,14 +115,8 @@
   ],
   "flags": {
     "hotReload": {
-      "extensions": [
-        "json",
-        "hbs"
-      ],
-      "paths": [
-        "lang",
-        "templates"
-      ]
+      "extensions": ["json", "hbs"],
+      "paths": ["lang", "templates"]
     }
   }
 }

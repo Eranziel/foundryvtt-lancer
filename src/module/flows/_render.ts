@@ -31,28 +31,30 @@ export async function renderTemplateStep(actor: LancerActor, template: string, t
   if (templateData.self_heat_result) {
     aggregate.push(templateData.self_heat_result.roll);
   }
-  const roll = Roll.fromTerms([PoolTerm.fromRolls(aggregate)]);
-
-  return createChatMessageStep(actor, html, roll, flags);
+  return createChatMessageStep(actor, html, aggregate, flags);
 }
 
-export async function createChatMessageStep(actor: LancerActor, html: HTMLElement | string, roll?: Roll, flags?: any) {
-  const rollMode = game.settings.get("core", "rollMode");
-  const whisper_roll = rollMode !== "roll" ? ChatMessage.getWhisperRecipients("GM").filter(u => u.active) : undefined;
+export async function createChatMessageStep(
+  actor: LancerActor,
+  html: HTMLElement | string,
+  rolls?: Roll | Roll[],
+  flags?: any
+) {
+  if (rolls && !Array.isArray(rolls)) rolls = [rolls];
   let chat_data = {
-    type: roll ? CONST.CHAT_MESSAGE_TYPES.ROLL : CONST.CHAT_MESSAGE_TYPES.IC,
-    roll: roll,
+    // @ts-expect-error v12
+    type: CONST.CHAT_MESSAGE_STYLES.IC,
+    rolls,
     speaker: {
       actor: actor,
       token: actor?.token,
       alias: !!actor?.token ? actor.token.name : null,
     },
     content: html,
-    whisper: roll ? whisper_roll : [],
     flags: flags ? { lancer: flags } : undefined,
   };
-  if (!roll) delete chat_data.roll;
-  // @ts-ignore This is fine
-  const cm = await ChatMessage.create(chat_data);
+  if (!rolls) delete chat_data.rolls;
+  // @ts-expect-error types, possibly switch to getDocumentClass() in the future
+  const cm = await ChatMessage.implementation.create(chat_data);
   cm?.render();
 }

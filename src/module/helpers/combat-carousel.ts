@@ -1,5 +1,4 @@
 import type { LancerCombat, LancerCombatant } from "../combat/lancer-combat";
-import { LancerCombatTrackerConfig } from "./lancer-initiative-config-form";
 
 const dispositions: Record<number, string> = {
   [-2]: "",
@@ -15,10 +14,7 @@ const dispositions: Record<number, string> = {
  * @param html - The jquery data for the form
  */
 export function handleRenderCombatCarousel(...[app, html]: Parameters<Hooks.RenderApplication<CombatCarousel>>) {
-  const icon = {
-    ...CONFIG.LancerInitiative.def_appearance,
-    ...(game.settings.get(CONFIG.LancerInitiative.module, "combat-tracker-appearance") ?? {}),
-  }.icon!;
+  const icon = game.settings.get(game.system.id, "combat-tracker-appearance").icon;
   html.addClass("lancer");
   html.find("li.card").each((_, e) => {
     const combatant_id = $(e).data("combatant-id");
@@ -40,14 +36,6 @@ export function handleRenderCombatCarousel(...[app, html]: Parameters<Hooks.Rend
   html.find("div.initiative").hide();
   html.find("a.encounter-control[data-action=rollNPC]").hide();
   html.find("a.encounter-control[data-action=rollAll]").hide();
-  html
-    .find("a.encounter-control[data-action=config]")
-    .off("click")
-    .on("click", ev => {
-      ev.preventDefault();
-      ev.stopPropagation();
-      new LancerCombatTrackerConfig(undefined).render(true);
-    });
 }
 
 function activateButton(

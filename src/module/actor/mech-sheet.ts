@@ -16,7 +16,7 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
    * Extend and override the default options used by the NPC Sheet
    */
   static get defaultOptions() {
-    return mergeObject(super.defaultOptions, {
+    return foundry.utils.mergeObject(super.defaultOptions, {
       classes: ["lancer", "sheet", "actor", "mech"],
       template: `systems/${game.system.id}/templates/actor/mech.hbs`,
       width: 800,

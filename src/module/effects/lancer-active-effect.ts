@@ -152,19 +152,9 @@ export class LancerActiveEffect extends ActiveEffect {
 
   // Populate config with our static/compendium statuses instead of the builtin ones
   static async populateConfig(from_compendium: boolean) {
-    const statusIconConfig = game.settings.get(game.system.id, LANCER.setting_status_icons) as StatusIconConfigOptions;
+    const statusIconConfig = game.settings.get(game.system.id, LANCER.setting_status_icons);
     // If no sets are selected, enable the default set
-    if (
-      game.ready &&
-      !statusIconConfig.defaultConditionsStatus &&
-      !statusIconConfig.cancerConditionsStatus &&
-      !statusIconConfig.cancerNPCTemplates &&
-      !statusIconConfig.hayleyConditionsStatus &&
-      !statusIconConfig.hayleyPC &&
-      !statusIconConfig.hayleyNPC &&
-      !statusIconConfig.hayleyUtility &&
-      !statusIconConfig.tommyConditionsStatus
-    ) {
+    if (game.ready && !Object.keys(statusIconConfig).some(k => (<any>statusIconConfig)[k])) {
       statusIconConfig.defaultConditionsStatus = true;
       await game.settings.set(game.system.id, LANCER.setting_status_icons, statusIconConfig);
     }
@@ -211,9 +201,9 @@ export class LancerActiveEffect extends ActiveEffect {
     CONFIG.statusEffects = configStatuses;
     // Disable the vision mechanics Foundry applies to certain status names
     // @ts-expect-error v10 types
-    CONFIG.specialStatusEffects.INVISIBLE = "ignored";
+    CONFIG.specialStatusEffects.INVISIBLE = null;
     // @ts-expect-error v10 types
-    CONFIG.specialStatusEffects.BLIND = "ignored";
+    CONFIG.specialStatusEffects.BLIND = null;
   }
 }
 

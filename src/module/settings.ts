@@ -1,4 +1,4 @@
-import { getTrackerAppearance, setAppearance } from "./combat/lancer-combat-tracker";
+import { setAppearance } from "./combat/lancer-combat-tracker";
 import type { LancerCombat, LancerCombatant } from "./combat/lancer-combat";
 import { LANCER } from "./config";
 import { AutomationConfig } from "./apps/automation-settings";
@@ -32,7 +32,7 @@ export const registerSettings = function () {
     name: "Installed LCPs",
     scope: "world",
     config: false,
-    // @ts-ignore There's probably a fix for this
+    // @ts-expect-error There's probably a fix for this
     type: Object,
     default: { index: [] },
   });
@@ -41,7 +41,6 @@ export const registerSettings = function () {
     name: "Tags",
     scope: "world",
     config: false,
-    // @ts-ignore There's probably a fix for this
     type: Object,
     default: {},
   });
@@ -51,21 +50,24 @@ export const registerSettings = function () {
     hint: "lancer.uiTheme.hint",
     scope: "user",
     config: true,
-    type: String,
-    choices: {
-      gms: "lancer.uiTheme.gms",
-      gmsDark: "lancer.uiTheme.gmsDark",
-      msmc: "lancer.uiTheme.msmc",
-      horus: "lancer.uiTheme.horus",
-      ha: "lancer.uiTheme.ha",
-      ssc: "lancer.uiTheme.ssc",
-      ipsn: "lancer.uiTheme.ipsn",
-      gal: "lancer.uiTheme.gal",
-    },
-    default: "gms",
+    // @ts-expect-error v12
+    type: new foundry.data.fields.StringField({
+      required: true,
+      choices: {
+        gms: "lancer.uiTheme.gms",
+        gmsDark: "lancer.uiTheme.gmsDark",
+        msmc: "lancer.uiTheme.msmc",
+        horus: "lancer.uiTheme.horus",
+        ha: "lancer.uiTheme.ha",
+        ssc: "lancer.uiTheme.ssc",
+        ipsn: "lancer.uiTheme.ipsn",
+        gal: "lancer.uiTheme.gal",
+      },
+      initial: "gms",
+    }),
     onChange: v => {
-      if (!["gms", "gmsDark", "msmc", "horus", "ha", "ssc", "ipsn", "gal"].includes(v as string)) applyTheme("gms");
-      applyTheme(v as any);
+      if (!["gms", "gmsDark", "msmc", "horus", "ha", "ssc", "ipsn", "gal"].includes(v)) applyTheme("gms");
+      applyTheme(v);
     },
   });
 
@@ -78,7 +80,7 @@ export const registerSettings = function () {
     restricted: false,
   });
 
-  game.settings.registerMenu(game.system.id, "StatusIconConfig", {
+  game.settings.registerMenu(game.system.id, LANCER.setting_status_icons, {
     name: "lancer.statusIconsConfig.menu-name",
     label: "lancer.statusIconsConfig.menu-label",
     hint: "lancer.statusIconsConfig.menu-hint",
@@ -87,7 +89,14 @@ export const registerSettings = function () {
     restricted: true,
   });
 
-  game.settings.registerMenu(game.system.id, "AutomationMenu", {
+  game.settings.register(game.system.id, LANCER.setting_status_icons, {
+    scope: "world",
+    config: false,
+    type: StatusIconConfigOptions,
+    default: new StatusIconConfigOptions(),
+  });
+
+  game.settings.registerMenu(game.system.id, LANCER.setting_automation, {
     name: "lancer.automation.menu-name",
     label: "lancer.automation.menu-label",
     hint: "lancer.automation.menu-hint",
@@ -96,13 +105,27 @@ export const registerSettings = function () {
     restricted: true,
   });
 
-  game.settings.registerMenu(game.system.id, "ActionTrackerMenu", {
+  game.settings.register(game.system.id, LANCER.setting_automation, {
+    scope: "world",
+    config: false,
+    type: AutomationOptions,
+    default: new AutomationOptions(),
+  });
+
+  game.settings.registerMenu(game.system.id, LANCER.setting_actionTracker, {
     name: "lancer.actionTracker.menu-name",
     label: "lancer.actionTracker.menu-label",
     hint: "lancer.actionTracker.menu-hint",
     icon: "mdi mdi-state-machine",
     type: ActionTrackerConfig,
     restricted: true,
+  });
+
+  game.settings.register(game.system.id, LANCER.setting_actionTracker, {
+    scope: "world",
+    config: false,
+    type: Object,
+    default: {},
   });
 
   game.settings.register(game.system.id, LANCER.setting_welcome, {
@@ -112,42 +135,6 @@ export const registerSettings = function () {
     config: true,
     type: Boolean,
     default: false,
-  });
-
-  game.settings.register(game.system.id, LANCER.setting_square_grid_diagonals, {
-    name: "lancer.squaregriddiagonals.name",
-    hint: "lancer.squaregriddiagonals.hint",
-    scope: "world",
-    config: true,
-    type: String,
-    choices: {
-      "111": "lancer.squaregriddiagonals.111",
-      "121": "lancer.squaregriddiagonals.121",
-      "222": "lancer.squaregriddiagonals.222",
-      euc: "lancer.squaregriddiagonals.euc",
-    },
-    default: "111",
-  });
-
-  game.settings.register(game.system.id, LANCER.setting_status_icons, {
-    scope: "world",
-    config: false,
-    type: Object,
-    default: {},
-  });
-
-  game.settings.register(game.system.id, LANCER.setting_automation, {
-    scope: "world",
-    config: false,
-    type: Object,
-    default: getAutomationOptions(true),
-  });
-
-  game.settings.register(game.system.id, LANCER.setting_actionTracker, {
-    scope: "world",
-    config: false,
-    type: Object,
-    default: {},
   });
 
   game.settings.register(game.system.id, LANCER.setting_dsn_setup, {
@@ -161,24 +148,13 @@ export const registerSettings = function () {
   CONFIG.LancerInitiative = {
     module: game.system.id,
     templatePath: `systems/${game.system.id}/templates/combat/combat-tracker.hbs`,
-    def_appearance: {
-      icon: "cci cci-activate",
-      deactivate: "cci cci-deactivate",
-      icon_size: 2,
-      player_color: "#44abe0",
-      friendly_color: "#44abe0",
-      neutral_color: "#146464",
-      enemy_color: "#d98f30",
-      done_color: "#aaaaaa",
-    },
-    activations: "system.activations",
   };
   game.settings.register(game.system.id, "combat-tracker-appearance", {
-    scope: "world",
+    scope: "client",
     config: false,
-    type: Object,
+    type: CombatTrackerAppearance,
     onChange: setAppearance,
-    default: {},
+    default: new CombatTrackerAppearance(),
   });
   game.settings.register(game.system.id, "combat-tracker-sort", {
     scope: "world",
@@ -190,50 +166,18 @@ export const registerSettings = function () {
     },
     default: true,
   });
-  Hooks.callAll("LancerInitiativeInit");
-  setAppearance(getTrackerAppearance());
+  CONFIG.LancerInitiative.sort = game.settings.get(game.system.id, "combat-tracker-sort") as boolean;
+  setAppearance(game.settings.get(game.system.id, "combat-tracker-appearance"));
 };
 
 // > GENERAL AUTOMATION
 /**
  * Retrieve the automation settings for the system. If automation is turned
  * off, all keys will be `false`.
- * @param useDefault - Control if the returned value is the default.
- *                     (default: `false`)
+ * @deprecated Get the setting directly instead.
  */
-export function getAutomationOptions(useDefault = false): AutomationOptions {
-  const def: AutomationOptions = {
-    enabled: true,
-    attacks: true,
-    structure: true,
-    overcharge_heat: true,
-    attack_self_heat: true,
-    limited_loading: true,
-    npc_recharge: true,
-    remove_templates: false,
-    token_size: true,
-  };
-  if (useDefault) return def;
-  const settings = (game.settings.get(game.system.id, LANCER.setting_automation) as Record<string, boolean>) ?? {};
-  if (settings == null || (typeof settings == "object" && (settings.enabled ?? true))) {
-    return {
-      ...def,
-      ...settings,
-    };
-  } else {
-    // Return all falses if automation is off
-    return {
-      enabled: false,
-      attacks: false,
-      structure: false,
-      overcharge_heat: false,
-      attack_self_heat: false,
-      limited_loading: false,
-      npc_recharge: false,
-      remove_templates: false,
-      token_size: false,
-    };
-  }
+export function getAutomationOptions(): AutomationOptions {
+  return game.settings.get(game.system.id, LANCER.setting_automation) ?? new AutomationOptions();
 }
 
 /**
@@ -244,7 +188,7 @@ export interface AutomationOptions {
    * Master switch for automation
    * @defaultValue `true`
    */
-  enabled: boolean;
+  // enabled: boolean;
   /**
    * Toggle for whether or not you want the system to auto-calculate hits,
    * damage, and other attack related checks.
@@ -290,8 +234,26 @@ export interface AutomationOptions {
   token_size: boolean;
 }
 
+// @ts-expect-error v12
+export class AutomationOptions extends foundry.abstract.DataModel {
+  static defineSchema() {
+    const fields: any = foundry.data.fields;
+    return {
+      attacks: new fields.BooleanField({ required: true, initial: true }),
+      structure: new fields.BooleanField({ required: true, initial: true }),
+      overcharge_heat: new fields.BooleanField({ required: true, initial: true }),
+      attack_self_heat: new fields.BooleanField({ required: true, initial: true }),
+      limited_loading: new fields.BooleanField({ required: true, initial: true }),
+      npc_recharge: new fields.BooleanField({ required: true, initial: true }),
+      remove_templates: new fields.BooleanField({ required: true, initial: false }),
+      token_size: new fields.BooleanField({ required: true, initial: true }),
+    };
+  }
+}
+
 //
 // > ACTION TRACKER AUTOMATION
+// TODO Move this to a DataModel once the action tracker is working again
 /**
  * Retrieve the automation settings for the system. If automation is turned
  * off, all keys will be `false`.
@@ -336,30 +298,6 @@ export interface ActionTrackerOptions {
 //
 // > STATUS ICON CONFIGURATION
 /**
- * Retrieve the status icon configuration for the system.
- * @param useDefault - Control if the returned value is the default.
- *                     (default: `false`)
- */
-export function getStatusIconConfigOptions(useDefault = false): StatusIconConfigOptions {
-  const def: StatusIconConfigOptions = {
-    defaultConditionsStatus: true,
-    cancerConditionsStatus: false,
-    cancerNPCTemplates: false,
-    hayleyConditionsStatus: false,
-    hayleyPC: false,
-    hayleyNPC: false,
-    hayleyUtility: false,
-    tommyConditionsStatus: false,
-  };
-  if (useDefault) return def;
-  const set = game.settings.get(game.system.id, LANCER.setting_status_icons) as Partial<StatusIconConfigOptions>;
-  return {
-    ...def,
-    ...set,
-  };
-}
-
-/**
  * Object for the various automation settings in the system
  */
 export interface StatusIconConfigOptions {
@@ -403,6 +341,120 @@ export interface StatusIconConfigOptions {
    * @defaultValue `false`
    */
   tommyConditionsStatus: boolean;
+}
+
+// @ts-expect-error v12
+export class StatusIconConfigOptions extends foundry.abstract.DataModel {
+  static defineSchema() {
+    const fields: any = foundry.data.fields;
+    return {
+      defaultConditionsStatus: new fields.BooleanField({ required: true, initial: true }),
+      cancerConditionsStatus: new fields.BooleanField({ required: true, initial: false }),
+      cancerNPCTemplates: new fields.BooleanField({ required: true, initial: false }),
+      hayleyConditionsStatus: new fields.BooleanField({ required: true, initial: false }),
+      hayleyPC: new fields.BooleanField({ required: true, initial: false }),
+      hayleyNPC: new fields.BooleanField({ required: true, initial: false }),
+      hayleyUtility: new fields.BooleanField({ required: true, initial: false }),
+      tommyConditionsStatus: new fields.BooleanField({ required: true, initial: false }),
+    };
+  }
+}
+
+//
+// > LANCER INITIATIVE CONFIG
+//
+
+export interface CombatTrackerAppearance {
+  /**
+   * Css class to specify the icon
+   * @default `cci cci-activate`
+   */
+  icon: string;
+  /**
+   * Css class to specify deactivation icon
+   * @default `cci cci-deactivate`
+   */
+  deactivate: string;
+  /**
+   * Size of the icon in rem
+   * @default `2`
+   */
+  icon_size: number;
+  /**
+   * Color for players in the tracker
+   * @default `#44abe0`
+   */
+  player_color: string;
+  /**
+   * Color for friendly npcs
+   * @default `#44abe0`
+   */
+  friendly_color: string;
+  /**
+   * Color for neutral npcs
+   * @default `#146464`
+   */
+  neutral_color: string;
+  /**
+   * Color for enemy npcs
+   * @default `#d98f30`
+   */
+  enemy_color: string;
+  /**
+   * Color for units that have finished their turn
+   * @default `#444444`
+   */
+  done_color: string;
+}
+
+// @ts-expect-error v12
+export class CombatTrackerAppearance extends foundry.abstract.DataModel {
+  static defineSchema() {
+    const fields: any = foundry.data.fields;
+    return {
+      icon: new fields.StringField({
+        required: true,
+        initial: "cci cci-activate",
+        label: "LANCERINITIATIVE.Icon",
+      }),
+      deactivate: new fields.StringField({
+        required: true,
+        initial: "cci cci-deactivate",
+        label: "LANCERINITIATIVE.DeactivateIcon",
+      }),
+      icon_size: new fields.NumberField({
+        required: true,
+        initial: 2,
+        integer: false,
+        label: "LANCERINITIATIVE.IconSize",
+      }),
+      player_color: new fields.ColorField({
+        required: true,
+        initial: "#44abe0",
+        label: "LANCERINITIATIVE.PCColor",
+      }),
+      friendly_color: new fields.ColorField({
+        required: true,
+        initial: "#44abe0",
+        label: "LANCERINITIATIVE.FriendlyColor",
+      }),
+      neutral_color: new fields.ColorField({
+        required: true,
+        initial: "#146464",
+        label: "LANCERINITIATIVE.NeutralColor",
+      }),
+      enemy_color: new fields.ColorField({
+        required: true,
+        initial: "#d98f30",
+        label: "LANCERINITIATIVE.EnemyColor",
+      }),
+      done_color: new fields.ColorField({
+        required: true,
+        initial: "#aaaaaa",
+        label: "LANCERINITIATIVE.DoneColor",
+      }),
+    };
+  }
 }
 
 //
