@@ -2433,8 +2433,9 @@ a.activation-chip > i.mdi {
 .track-message.lancer-action-grid {
   flex-wrap: wrap;
 }
-.track-message .lancer-action-badge {
-  margin: 4px;
+.lancer-action-badge {
+  background-color: var(--light-gray-color);
+  margin: 3px;
   width: fit-content;
 }
 
