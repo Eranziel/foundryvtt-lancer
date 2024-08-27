@@ -172,6 +172,7 @@ $theme-types: "primary" "secondary" "dark-gray" "light-gray" "tooltip"    // Gen
   "reaction" "protocol" "quick" "full" "move" "free"; // Action types
 @each $theme-type in $theme-types {
   /* Headers, buttons, and chips */
+  a.action.lancer-#{$theme-type},
   .lancer-header.lancer-#{$theme-type},
   .lancer-#{$theme-type} .lancer-header,
   button.lancer-#{$theme-type},
