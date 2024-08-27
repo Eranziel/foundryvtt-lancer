@@ -134,7 +134,11 @@ export class LancerActionManager extends Application {
     // Enable reset.
     html.find("#action-manager-reset").on("click", e => {
       e.preventDefault();
-      this.resetActions();
+      if (this.canMod()) {
+        this.resetActions();
+      } else {
+        console.log(`${game.user?.name} :: Users currently not allowed to reset actions through action manager.`);
+      }
     });
 
     // Enable action toggles.

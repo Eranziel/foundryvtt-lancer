@@ -3,7 +3,9 @@
   style="width:{{position.width}}px; height:{{position.height}}px; top:{{position.top}}px; left:{{position.left}}px;">
   <div class="action-label">
     <div>{{name}}</div>
+    {{#if clickable}}
     <div style="right: 0px;position: absolute;"><a id="action-manager-reset" class="mdi mdi-restore"></a></div>
+    {{/if}}
   </div>
   <div style="display:inline-flex;">
     <i id="action-manager-drag" class="mdi mdi-drag"></i>
