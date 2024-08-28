@@ -222,9 +222,9 @@ export function action_button(
   }
 
   return `
-    <button class="lancer-action-button lancer-button lancer-${action ?? "quick"}${
-    active ? ` active activation-${action}` : ""
-  }${enabled ? ` enabled` : ""}" data-action="${action}" data-val="${action_val}">
+    <button class="lancer-action-button lancer-button enabled${
+      active ? ` active lancer-${action}` : ""
+    }" data-action="${action}" data-val="${action_val}">
       ${title}
     </button>
     `;
