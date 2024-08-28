@@ -3,28 +3,30 @@
   style="width:{{position.width}}px; height:{{position.height}}px; top:{{position.top}}px; left:{{position.left}}px;">
   <div class="action-label">
     <div>{{name}}</div>
+    {{#if clickable}}
     <div style="right: 0px;position: absolute;"><a id="action-manager-reset" class="mdi mdi-restore"></a></div>
+    {{/if}}
   </div>
   <div style="display:inline-flex;">
     <i id="action-manager-drag" class="mdi mdi-drag"></i>
     <div class="action-bar">
-      <a class="action {{#if actions.protocol}}activation-protocol{{/if}}" data-action="protocol">
+      <a class="action {{#if actions.protocol}}lancer-protocol{{/if}}" data-action="protocol">
         <i class="cci cci-protocol theme--dark white--text"></i>
       </a>
       <hr class="v-divide" role="separator" aria-orientation="undefined" />
-      <a class="action {{#if actions.move}}activation-move{{/if}}" data-action="move">
+      <a class="action {{#if actions.move}}lancer-move{{/if}}" data-action="move">
         <i class="mdi mdi-arrow-right-bold-hexagon-outline theme--dark white--text"></i>
       </a>
-      <a class="action {{#if actions.full}}activation-full{{/if}}" data-action="full">
+      <a class="action {{#if actions.full}}lancer-full{{/if}}" data-action="full">
         <i class="mdi mdi-hexagon-slice-6 theme--dark white--text"></i>
       </a>
-      <a class="action {{#if actions.quick}}activation-quick{{/if}}" data-action="quick">
+      <a class="action {{#if actions.quick}}lancer-quick{{/if}}" data-action="quick">
         <i class="mdi mdi-hexagon-slice-3 theme--dark white--text"></i>
       </a>
-      <a class="action {{#if actions.reaction}}activation-reaction{{/if}}" data-action="reaction">
+      <a class="action {{#if actions.reaction}}lancer-reaction{{/if}}" data-action="reaction">
         <i class="cci cci-reaction theme--dark white--text"></i>
       </a>
-      {{!-- <a class="action {{#if actions.free}}activation-free{{/if}}" data-action="free">
+      {{!-- <a class="action {{#if actions.free}}lancer-free{{/if}}" data-action="free">
         <i class="cci cci-free-action theme--dark white--text"></i>
       </a> --}}
     </div>

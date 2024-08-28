@@ -172,6 +172,7 @@ $theme-types: "primary" "secondary" "dark-gray" "light-gray" "tooltip"    // Gen
   "reaction" "protocol" "quick" "full" "move" "free"; // Action types
 @each $theme-type in $theme-types {
   /* Headers, buttons, and chips */
+  a.action.lancer-#{$theme-type},
   .lancer-header.lancer-#{$theme-type},
   .lancer-#{$theme-type} .lancer-header,
   button.lancer-#{$theme-type},
@@ -2432,8 +2433,9 @@ a.activation-chip > i.mdi {
 .track-message.lancer-action-grid {
   flex-wrap: wrap;
 }
-.track-message .lancer-action-badge {
-  margin: 4px;
+.lancer-action-badge {
+  background-color: var(--light-gray-color);
+  margin: 3px;
   width: fit-content;
 }
 

@@ -2,7 +2,7 @@ import type { LancerActor } from "../actor/lancer-actor";
 import type { ActionTrackingData, ActionType } from ".";
 import tippy from "tippy.js";
 import { getActionTrackerOptions } from "../settings";
-import { getActions, modAction, toggleAction, updateActions, _defaultActionData } from "./action-tracker";
+import { getActions, modAction, toggleAction, _defaultActionData } from "./action-tracker";
 
 // TODO: Properly namespace this flag into the system scope
 declare global {
@@ -25,8 +25,8 @@ export class LancerActionManager extends Application {
 
   target: LancerActor | null = null;
 
-  constructor() {
-    super();
+  constructor(...args: any) {
+    super(...args);
   }
 
   async init() {
@@ -57,13 +57,15 @@ export class LancerActionManager extends Application {
 
   /** @override */
   getData(_options = {}) {
-    return {
+    const data = {
       position: this.position,
       // @ts-expect-error Should be fixed with v10 types
       name: this.target && this.target.name.toLocaleUpperCase(),
       actions: this.getActions(),
       clickable: game.user?.isGM || getActionTrackerOptions().allowPlayers,
     };
+    console.log(this.target);
+    return data;
   }
 
   // DATA BINDING
@@ -73,13 +75,6 @@ export class LancerActionManager extends Application {
    */
   private getActions(): ActionTrackingData | null {
     return this.target ? getActions(this.target) : null;
-  }
-  /**
-   * Set proxy for ease of migration when we change over to MM data backing.
-   */
-  private async updateActions(actor: LancerActor, actions: ActionTrackingData) {
-    await updateActions(actor, actions);
-    // this.token?.update({ "flags.lancer.actions": actions });
   }
 
   async reset() {
@@ -110,11 +105,9 @@ export class LancerActionManager extends Application {
     const token = canvas.tokens?.controlled?.[0];
     if (token && token.inCombat && token.actor) {
       const actor = token.actor as LancerActor;
-      // TODO: Remove when action data is properly within MM.
-      // @ts-expect-error Should be fixed with v10 types
-      if ((actor.is_mech() || actor.is_npc()) && token.actor.system.action_tracker === undefined) {
+      if (actor.is_mech() || actor.is_npc()) {
         this.target = token.actor;
-        return this.updateActions(token.actor, _defaultActionData(token.actor));
+        return;
       }
     }
     this.target = null;
@@ -141,7 +134,11 @@ export class LancerActionManager extends Application {
     // Enable reset.
     html.find("#action-manager-reset").on("click", e => {
       e.preventDefault();
-      this.resetActions();
+      if (this.canMod()) {
+        this.resetActions();
+      } else {
+        console.log(`${game.user?.name} :: Users currently not allowed to reset actions through action manager.`);
+      }
     });
 
     // Enable action toggles.
@@ -161,10 +158,10 @@ export class LancerActionManager extends Application {
 
   private loadUserPos() {
     // @ts-expect-error Should be fixed with v10 types
-    if (!(game.user?.flags["action-manager"] && game.user.flags["action-manager"].pos)) return;
+    if (!game.user.getFlag(game.system.id, "action-manager.pos")) return;
 
     // @ts-expect-error Should be fixed with v10 types
-    const pos = game.user.flags["action-manager"].pos;
+    const pos: any = game.user.getFlag(game.system.id, "action-manager.pos");
     const appPos = this.position;
     return new Promise(resolve => {
       function loop() {
