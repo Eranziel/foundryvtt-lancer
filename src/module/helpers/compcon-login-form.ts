@@ -21,35 +21,34 @@ export default class CompconLoginForm extends FormApplication {
 
   /** @override */
   async _updateObject(_event: any, formData: any) {
+    const { signIn } = await import("@aws-amplify/auth");
+
     try {
       //FIRST attempt to login with case sensitivity
-
-      const { Auth } = await import("@aws-amplify/auth");
-
-      let res = await Auth.signIn(formData.username, formData.password);
-      ui.notifications!.info("Logged in as " + res.attributes.email);
-      // we have a fresh login token, let's populate the pilot cache
-      // no need to block on it, it can happen in the background
-      populatePilotCache();
-      return this.close();
+      await signIn({
+        username: formData.username,
+        password: formData.password,
+      });
     } catch (e) {
       try {
         //SECOND attempt to login with case insensitivity
-
-        const { Auth } = await import("@aws-amplify/auth");
-
-        //username will be converted to lowercase to make emails case insensitive
-        let res = await Auth.signIn(formData.username.toLocaleLowerCase(), formData.password);
-        ui.notifications!.info("Logged in as " + res.attributes.email);
-        // we have a fresh login token, let's populate the pilot cache
-        // no need to block on it, it can happen in the background
-        populatePilotCache();
-        return this.close();
+        await signIn({
+          //username will be converted to lowercase to make emails case insensitive
+          username: formData.username.toLocaleLowerCase(),
+          password: formData.password,
+        });
       } catch (e) {
         // AWS-amplify doesn't throw Errors for no apparent reason so ignore types and try our best
         ui.notifications!.error(`Could not log in to Comp/Con: ${(e as any)?.message ?? e}`);
         console.error(e);
+        return;
       }
     }
+
+    ui.notifications!.info("Logged in as " + formData.username);
+    // we have a fresh login token, let's populate the pilot cache
+    // no need to block on it, it can happen in the background
+    populatePilotCache();
+    return this.close();
   }
 }

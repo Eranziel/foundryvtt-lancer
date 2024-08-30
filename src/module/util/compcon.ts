@@ -13,21 +13,22 @@ export function cleanCloudOwnerID(str: string): string {
 }
 
 export async function populatePilotCache(): Promise<CachedCloudPilot[]> {
-  const { Auth } = await import("@aws-amplify/auth");
-  const { Storage } = await import("@aws-amplify/storage");
+  const { fetchAuthSession } = await import("@aws-amplify/auth");
+  const { list } = await import("@aws-amplify/storage");
   try {
-    await Auth.currentSession(); // refresh the token if we need to
+    await fetchAuthSession(); // refresh the token if we need to
   } catch (e) {
     console.warn(`AWS Auth failed: ${e}`);
     return [];
   }
-  const res = await Storage.list("pilot", {
-    level: "protected",
-    // @ts-ignore  Unclear if this still does anything
-    cacheControl: "no-cache",
+  const res = await list({
+    prefix: "pilot/",
+    options: {
+      accessLevel: "protected",
+    },
   });
 
-  const data = (await Promise.all(res.results.map(obj => (obj.key ? fetchPilot(obj.key) : null)))).map(
+  const data = (await Promise.all(res.items.map(obj => (obj.key ? fetchPilot(obj.key) : null)))).map(
     x => x
   ) as Array<PackedPilotData>;
   data.forEach(pilot => {
@@ -58,15 +59,11 @@ export async function fetchPilotViaShareCode(sharecode: string): Promise<PackedP
 export async function fetchPilotViaCache(cachedPilot: CachedCloudPilot): Promise<PackedPilotData> {
   const sanitizedName = cachedPilot.name.replace(/[^a-zA-Z\d\s:]/g, " ");
   const documentID = `pilot/${sanitizedName}--${cachedPilot.id}--active`;
-  const { Storage } = await import("@aws-amplify/storage");
-  const req: any = {
-    level: "protected",
-    download: true,
-    cacheControl: "no-cache",
-  };
+  const { downloadData } = await import("@aws-amplify/storage");
 
-  const res = (await Storage.get(documentID, req)) as any;
-  const text = await res.Body.text();
+  const res = await downloadData({ key: documentID, options: { accessLevel: "protected" } }).result;
+
+  const text = await res.body.text();
   const json = JSON.parse(text);
   return json;
 }
@@ -84,23 +81,21 @@ export async function fetchPilot(cloudID: string, cloudOwnerID?: string): Promis
     cloudOwnerID = "us-east-1:" + cloudOwnerID;
   }
   try {
-    const { Auth } = await import("@aws-amplify/auth");
-    await Auth.currentSession(); // refresh the token if we need to
+    const { fetchAuthSession } = await import("@aws-amplify/auth");
+    await fetchAuthSession(); // refresh the token if we need to
   } catch (e) {
     ui.notifications!.error("Sync failed - you aren't logged into a Comp/Con account.");
     throw e;
   }
 
-  const { Storage } = await import("@aws-amplify/storage");
-  const req: any = {
-    level: "protected",
-    download: true,
-    cacheControl: "no-cache",
+  const { downloadData } = await import("@aws-amplify/storage");
+  const opts: any = {
+    accessLevel: "protected",
   };
   if (cloudOwnerID) {
-    req.identityId = cloudOwnerID;
+    opts.targetIdentityId = cloudOwnerID;
   }
-  const res = (await Storage.get(cloudID, req)) as any;
-  const text = await res.Body.text();
+  const res = await downloadData({ key: cloudID, options: opts }).result;
+  const text = await res.body.text();
   return JSON.parse(text);
 }
