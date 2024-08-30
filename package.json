@@ -39,7 +39,7 @@
     "prettier": "^2.7.1",
     "rollup-plugin-visualizer": "^5.9.2",
     "sass": "^1.40.0",
-    "svelte": "^3.49.0",
+    "svelte": "^4.2.19",
     "svelte-check": "^2.2.6",
     "svelte-language-server": "^0.14.8",
     "svelte-preprocess": "^5.0.4",
