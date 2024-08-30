@@ -192,6 +192,7 @@ import { onHotbarDrop } from "./module/flows/hotbar";
 import { registerFlows } from "./module/flows/register-flows";
 import { LancerNPCFeatureSheet } from "./module/item/npc-feature-sheet";
 import { miniProfile } from "./module/helpers/chat";
+import { Amplify } from "aws-amplify";
 
 const lp = LANCER.log_prefix;
 
@@ -1063,14 +1064,9 @@ async function doMigration() {
 
 async function configureAmplify() {
   // Pull in the parts of AWS Amplify we need
-  const aws = (await import("./aws-exports")).default as {
-    aws_cognito_identity_pool_id: string;
-  };
-  const { Auth } = await import("@aws-amplify/auth");
-  const { Storage } = await import("@aws-amplify/storage");
+  const aws = (await import("./aws-exports")).default;
 
-  Auth.configure(aws);
-  Storage.configure(aws);
+  Amplify.configure(aws);
 
   // if we have a login already, this is where we populate the pilot cache
   try {
