@@ -34,7 +34,12 @@
   {{/if}}
   <div>
     {{#each damage_results as |damage key|}}
-      {{{lancer-dice-roll damage.roll damage.tt (concat "cci cci-" (lower-case damage.d_type) " i--m damage--" (lower-case damage.d_type))}}}
+      {{#if (not damage.target)}}
+        <div class="flexrow">
+          {{#if damage.bonus}} <span class="lancer-damage-tag" style="flex-grow: 0" data-tooltip="This row is bonus damage">BONUS</span> {{/if}}
+          {{{lancer-dice-roll damage.roll damage.tt (concat "cci cci-" (lower-case damage.d_type) " i--m damage--" (lower-case damage.d_type))}}}
+        </div>
+      {{/if}}
     {{/each}}
   </div>
   {{!-- Regular damage targets only --}}
@@ -53,7 +58,12 @@
     <div class="lancer-mini-header">{{localize "lancer.chat-card.title.crit-damage"}}</div>
     <div>
       {{#each crit_damage_results as |damage key|}}
-        {{{lancer-dice-roll damage.roll damage.tt (concat "cci cci-" (lower-case damage.d_type) " i--m damage--" (lower-case damage.d_type))}}}
+        {{#if (not damage.target)}}
+          <div class="flexrow">
+            {{#if damage.bonus}} <span class="lancer-damage-tag" style="flex-grow: 0" data-tooltip="This row is bonus damage">BONUS</span> {{/if}}
+            {{{lancer-dice-roll damage.roll damage.tt (concat "cci cci-" (lower-case damage.d_type) " i--m damage--" (lower-case damage.d_type))}}}
+          </div>
+        {{/if}}
       {{/each}}
     </div>
   {{/if}}

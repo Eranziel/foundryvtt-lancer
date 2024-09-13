@@ -110,8 +110,22 @@ export function damageTarget(
       ? context.damage_results
       : context.crit_damage_results;
   const damageTypes = damageResults
+    .filter(d => !d.target || d.target?.document.uuid === target.target.document.uuid)
     .map(d => `<i class="cci cci-${d.d_type.toLowerCase()} i--s damage--${d.d_type.toLowerCase()}"></i>`)
     .join("");
+
+  const bonusDamage: LancerFlowState.DamageResult[] = context.damage_results.filter(
+    d => d.bonus && d.target?.document.uuid === target.target.document.uuid
+  );
+
+  const bonusRolls: string[] = bonusDamage.map(
+    bd =>
+      `<div class="flexrow"><span class="lancer-damage-tag" style="flex-grow: 0" data-tooltip="This row is bonus damage">BONUS</span>${lancerDiceRoll(
+        bd.roll,
+        bd.tt as string,
+        `cci cci-${bd.d_type.toLowerCase()} damage--${bd.d_type.toLowerCase()} i--m`
+      )}</div>`
+  );
 
   const damageTags: string[] = [];
   if (context.ap && !context.paracausal)
@@ -124,7 +138,7 @@ export function damageTarget(
     damageTags.push(
       `<span class="lancer-damage-tag" data-tooltip="Half Damage"><i class="mdi mdi-fraction-one-half"></i></span>`
     );
-  const damageTagsDisplay = `<div class="lancer-damage-tags">${damageTags.join("")}</div>`;
+  const damageTagsDisplay = damageTags.length ? `<div class="lancer-damage-tags">${damageTags.join("")}</div>` : "";
   // @ts-expect-error v10 types
   const img = target.target.document.texture.src;
   return `
@@ -144,6 +158,9 @@ export function damageTarget(
           title="Apply damage"
         >${damageTypes}</button>
       </div>
-      ${damageTagsDisplay}
+      <div class="lancer-damage-rolls-tags flexrow">
+        <div class="lancer-target-bonus-damage flexcol">${bonusRolls.join("")}</div>
+        ${damageTagsDisplay}
+      </div>
     </div>`;
 }

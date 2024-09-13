@@ -404,61 +404,62 @@ export async function rollDamages(state: FlowState<LancerFlowState.DamageRollDat
   if (state.data.has_crit_hit) {
     // NPCs do not follow the normal crit rules. They only get bonus damage from Deadly etc...
     if (!state.actor.is_npc()) {
-      await Promise.all(
-        state.data.damage_results.map(async result => {
-          // Skip this result if it was for a single target and that target was not critted
-          const hitResults = state.data?.hit_results;
-          if (
-            result.target &&
-            hitResults &&
-            !hitResults.find(hr => result.target?.document.uuid ?? null === hr.target.document.uuid)?.crit
-          ) {
-            return;
-          }
+      state.data.crit_damage_results = (
+        await Promise.all(
+          state.data.damage_results.map(async result => {
+            // Skip this result if it was for a single target and that target was not critted
+            const hitResults = state.data?.hit_results;
+            if (
+              result.target &&
+              hitResults &&
+              !hitResults.find(hr => result.target?.document.uuid ?? null === hr.target.document.uuid)?.crit
+            ) {
+              return null;
+            }
 
-          const c_roll = await getCritRoll(result.roll);
-          // @ts-expect-error DSN options aren't typed
-          c_roll.dice.forEach(d => (d.options.rollOrder = 2));
-          const tt = await c_roll.getTooltip();
-          state.data!.crit_damage_results.push({
-            roll: c_roll,
-            tt,
-            d_type: result.d_type,
-            bonus: result.bonus,
-            target: result.target,
-          });
-        })
-      );
+            const c_roll = await getCritRoll(result.roll);
+            // @ts-expect-error DSN options aren't typed
+            c_roll.dice.forEach(d => (d.options.rollOrder = 2));
+            const tt = await c_roll.getTooltip();
+            return {
+              roll: c_roll,
+              tt,
+              d_type: result.d_type,
+              bonus: result.bonus,
+              target: result.target,
+            };
+          })
+        )
+      ).filter(r => r !== null);
     } else {
-      state.data!.crit_damage_results = state.data!.damage_results;
+      state.data.crit_damage_results = state.data.damage_results;
       // TODO: automation for Deadly
       // Find any Deadly features and add a d6 for each
     }
 
     for (const hitTarget of state.data.hit_results) {
-      if (hitTarget.crit) {
-        const targetDamage: { type: DamageType; amount: number }[] = [];
-        for (const dr of state.data.damage_results) {
-          if (dr.target && dr.target.document.uuid !== hitTarget.target.document.uuid) continue;
-          if (multiTarget && dr.bonus && !dr.target) {
-            // If this is bonus damage applied to multiple targets, halve it
-            targetDamage.push({ type: dr.d_type, amount: (dr.roll.total || 0) / 2 });
-          } else {
-            targetDamage.push({ type: dr.d_type, amount: dr.roll.total || 0 });
-          }
+      if (!hitTarget.crit) continue;
+      const targetDamage: { type: DamageType; amount: number }[] = [];
+      for (const dr of state.data.crit_damage_results) {
+        if (dr.target && dr.target.document.uuid !== hitTarget.target.document.uuid) continue;
+        if (multiTarget && dr.bonus && !dr.target) {
+          // If this is bonus damage applied to multiple targets, halve it
+          targetDamage.push({ type: dr.d_type, amount: Math.ceil((dr.roll.total || 0) / 2) });
+        } else {
+          targetDamage.push({ type: dr.d_type, amount: dr.roll.total || 0 });
         }
-        state.data.targets.push({
-          target: hitTarget.target,
-          // TODO: ensure total damage is at least equal to reliable_val
-          damage: targetDamage,
-          hit: hitTarget.hit,
-          crit: hitTarget.crit,
-          // TODO: target-specific AP and Paracausal from damage HUD
-          ap: state.data.ap,
-          paracausal: state.data.paracausal,
-          half_damage: state.data.half_damage,
-        });
       }
+      state.data.targets.push({
+        target: hitTarget.target,
+        // TODO: ensure total damage is at least equal to reliable_val
+        damage: targetDamage,
+        hit: hitTarget.hit,
+        crit: hitTarget.crit,
+        // TODO: target-specific AP and Paracausal from damage HUD
+        ap: state.data.ap,
+        paracausal: state.data.paracausal,
+        half_damage: state.data.half_damage,
+      });
     }
   }
 
