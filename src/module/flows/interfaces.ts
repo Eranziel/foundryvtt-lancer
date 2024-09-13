@@ -61,6 +61,11 @@ export namespace LancerFlowState {
     target?: LancerToken;
   };
 
+  export interface DamageResultSerialized extends Omit<DamageResult, "target"> {
+    // UUID instead of the actual token/document
+    target?: string;
+  }
+
   export type SelfHeatResult = {
     roll: Roll;
     tt: string | HTMLElement | JQuery<HTMLElement>; // Tooltip
