@@ -404,33 +404,33 @@ export async function rollDamages(state: FlowState<LancerFlowState.DamageRollDat
   if (state.data.has_crit_hit) {
     // NPCs do not follow the normal crit rules. They only get bonus damage from Deadly etc...
     if (!state.actor.is_npc()) {
-      state.data.crit_damage_results = (
-        await Promise.all(
-          state.data.damage_results.map(async result => {
-            // Skip this result if it was for a single target and that target was not critted
-            const hitResults = state.data?.hit_results;
-            if (
-              result.target &&
-              hitResults &&
-              !hitResults.find(hr => result.target?.document.uuid ?? null === hr.target.document.uuid)?.crit
-            ) {
-              return null;
-            }
+      const hitResults = state.data?.hit_results;
+      const critDamage = await Promise.all(
+        state.data.damage_results.map(async result => {
+          // Skip this result if it was for a single target and that target was not critted
+          if (
+            result.target &&
+            hitResults &&
+            !hitResults.find(hr => (result.target?.document?.uuid ?? null) === hr.target?.document?.uuid)?.crit
+          ) {
+            return null;
+          }
 
-            const c_roll = await getCritRoll(result.roll);
-            // @ts-expect-error DSN options aren't typed
-            c_roll.dice.forEach(d => (d.options.rollOrder = 2));
-            const tt = await c_roll.getTooltip();
-            return {
-              roll: c_roll,
-              tt,
-              d_type: result.d_type,
-              bonus: result.bonus,
-              target: result.target,
-            };
-          })
-        )
-      ).filter(r => r !== null);
+          const c_roll = await getCritRoll(result.roll);
+          // @ts-expect-error DSN options aren't typed
+          c_roll.dice.forEach(d => (d.options.rollOrder = 2));
+          const tt = await c_roll.getTooltip();
+          return {
+            roll: c_roll,
+            tt,
+            d_type: result.d_type,
+            bonus: result.bonus,
+            target: result.target,
+          };
+        })
+      );
+      // Vite/TS isn't satisfied that filtering out null values will result in a DamageResult[]
+      state.data.crit_damage_results = critDamage.filter(r => r !== null) as LancerFlowState.DamageResult[];
     } else {
       state.data.crit_damage_results = state.data.damage_results;
       // TODO: automation for Deadly
