@@ -446,7 +446,7 @@ $theme-types: "primary" "secondary" "dark-gray" "light-gray" "tooltip"    // Gen
 }
 
 .lancer-hit-text-name {
-  font-size: 1.2em;
+  font-size: 1.1em;
   overflow: hidden;
   text-wrap: nowrap;
   text-overflow: ellipsis;
@@ -525,10 +525,6 @@ $theme-types: "primary" "secondary" "dark-gray" "light-gray" "tooltip"    // Gen
       text-align: left;
       height: 100%;
       align-content: center;
-
-      & ~ .lancer-hit-text-name {
-        border-top: 1px dashed var(--dark-gray-color);
-      }
     }
 
     .lancer-damage-totals {
@@ -541,6 +537,8 @@ $theme-types: "primary" "secondary" "dark-gray" "light-gray" "tooltip"    // Gen
 
     .lancer-damage-rolls-tags {
       grid-area: tags;
+      min-height: 1.3em;
+      padding: 0.1em;
     }
 
     .lancer-damage-tags {
@@ -549,10 +547,11 @@ $theme-types: "primary" "secondary" "dark-gray" "light-gray" "tooltip"    // Gen
       justify-self: flex-end;
       justify-content: flex-end;
       align-items: center;
+      flex-grow: 0;
     }
 
     &:has(+ .lancer-damage-target) {
-      .lancer-hit-text-name {
+      .lancer-damage-rolls-tags {
         border-bottom: 1px dashed var(--dark-gray-color);
       }
     }
