@@ -103,18 +103,17 @@ export function damageTarget(
 
   // Doesn't really matter whether we use damage_results or crit_damage_results here
   // We just need a consistent set of damage types
-  const damageResults =
-    !target.hit && !target.crit && context.reliable_results
-      ? context.reliable_results
-      : context.damage_results.length
-      ? context.damage_results
-      : context.crit_damage_results;
+  let damageResults;
+  if (target.crit) damageResults = context.crit_damage_results;
+  else if (target.hit) damageResults = context.damage_results;
+  else damageResults = context.reliable_results || [];
+
   const damageTypes = damageResults
     .filter(d => !d.target || d.target?.document.uuid === target.target.document.uuid)
     .map(d => `<i class="cci cci-${d.d_type.toLowerCase()} i--s damage--${d.d_type.toLowerCase()}"></i>`)
     .join("");
 
-  const bonusDamage: LancerFlowState.DamageResult[] = context.damage_results.filter(
+  const bonusDamage: LancerFlowState.DamageResult[] = damageResults.filter(
     d => d.bonus && d.target?.document.uuid === target.target.document.uuid
   );
 
