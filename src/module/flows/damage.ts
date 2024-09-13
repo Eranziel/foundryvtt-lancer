@@ -616,6 +616,10 @@ export async function rollDamage(event: JQuery.ClickEvent) {
     ui.notifications?.error("Invalid attacker for damage roll");
     return;
   }
+  if (!actor.isOwner) {
+    ui.notifications?.error(`You do not own ${actor.name}, so you cannot roll damage for them`);
+    return;
+  }
   const item = (await fromUuid(attackData.attackerItemUuid || "")) as LancerItem | null;
   if (item && item.parent !== actor) {
     ui.notifications?.error(`Item ${item.uuid} is not owned by actor ${actor.uuid}!`);
@@ -731,7 +735,10 @@ export async function applyDamage(event: JQuery.ClickEvent) {
     ui.notifications?.error("Invalid target for damage application, no actor found");
     return;
   }
-
+  if (!actor.isOwner) {
+    ui.notifications?.error("You cannot apply damage to an actor you do not own");
+    return;
+  }
   // Get the targeted damage result, or construct one
   // let damage: LancerFlowState.DamageTargetResult;
 
