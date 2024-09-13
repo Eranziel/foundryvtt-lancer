@@ -379,7 +379,7 @@ export async function rollDamages(state: FlowState<LancerFlowState.DamageRollDat
           if (dr.target && dr.target.document.uuid !== hitTarget.target.document.uuid) continue;
           if (multiTarget && dr.bonus && !dr.target) {
             // If this is bonus damage applied to multiple targets, halve it
-            targetDamage.push({ type: dr.d_type, amount: (dr.roll.total || 0) / 2 });
+            targetDamage.push({ type: dr.d_type, amount: Math.ceil((dr.roll.total || 0) / 2) });
           } else {
             targetDamage.push({ type: dr.d_type, amount: dr.roll.total || 0 });
           }
