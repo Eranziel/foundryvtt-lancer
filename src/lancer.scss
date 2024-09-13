@@ -494,6 +494,15 @@ $theme-types: "primary" "secondary" "dark-gray" "light-gray" "tooltip"    // Gen
   }
 }
 
+.lancer-damage-tag {
+  padding: 0.1em 0.5em;
+  background-color: var(--primary-color);
+  color: var(--light-text);
+  border-radius: 0.5em;
+  font-size: 0.8em;
+  align-content: center;
+  text-wrap: nowrap;
+}
 .lancer-damage-targets {
   margin: 0px 0.25em;
 
@@ -502,7 +511,7 @@ $theme-types: "primary" "secondary" "dark-gray" "light-gray" "tooltip"    // Gen
     display: grid;
     grid-template-areas:
       "img name button"
-      "img name tags";
+      "img tags tags";
     grid-template-columns: 55px auto min-content;
     align-items: center;
 
@@ -522,24 +531,24 @@ $theme-types: "primary" "secondary" "dark-gray" "light-gray" "tooltip"    // Gen
       }
     }
 
+    .lancer-damage-totals {
+      grid-area: totals;
+    }
+
     .lancer-damage-button-group {
       grid-area: button;
     }
 
-    .lancer-damage-tags {
+    .lancer-damage-rolls-tags {
       grid-area: tags;
+    }
+
+    .lancer-damage-tags {
       display: flex;
       flex-wrap: wrap;
+      justify-self: flex-end;
       justify-content: flex-end;
       align-items: center;
-
-      .lancer-damage-tag {
-        padding: 0.1em 0.5em;
-        background-color: var(--primary-color);
-        color: var(--light-text);
-        border-radius: 0.5em;
-        font-size: 0.8em;
-      }
     }
 
     &:has(+ .lancer-damage-target) {
