@@ -14,8 +14,8 @@ import { Flow, FlowState, Step } from "./flow";
 import { LancerFlowState } from "./interfaces";
 
 type DamageFlag = {
-  damageResults: LancerFlowState.DamageResult[];
-  critDamageResults: LancerFlowState.DamageResult[];
+  damageResults: LancerFlowState.DamageResultSerialized[];
+  critDamageResults: LancerFlowState.DamageResultSerialized[];
   targetDamageResults: LancerFlowState.DamageTargetResultSerialized[];
   // TODO: AP and paracausal flags
   ap: boolean;
@@ -503,8 +503,15 @@ async function printDamageCard(
   if (!state.data) throw new TypeError(`Damage flow state missing!`);
   const template = options?.template || `systems/${game.system.id}/templates/chat/damage-card.hbs`;
   const damageData: DamageFlag = {
-    damageResults: state.data.damage_results,
-    critDamageResults: state.data.crit_damage_results,
+    // Targets need to be replaced with their UUIDs to avoid circular references
+    damageResults: state.data.damage_results.map(dr => ({
+      ...dr,
+      target: dr.target?.document.uuid,
+    })),
+    critDamageResults: state.data.crit_damage_results.map(dr => ({
+      ...dr,
+      target: dr.target?.document.uuid,
+    })),
     targetDamageResults: state.data.targets.map(t => ({
       ...t,
       target: t.target.document.uuid,
