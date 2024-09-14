@@ -152,6 +152,7 @@ export namespace LancerFlowState {
     add_burn: boolean;
     damage_hud_data?: DamageHudData;
     invade?: boolean;
+    tags: Tag[];
     ap: boolean;
     paracausal: boolean;
     half_damage: boolean;

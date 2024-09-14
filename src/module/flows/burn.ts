@@ -25,6 +25,7 @@ export class BurnFlow extends DamageRollFlow {
       damage: data?.damage ?? [{ type: DamageType.Burn, val: "1" }],
       configurable: data?.configurable !== undefined ? data.configurable : true,
       add_burn: false, // Burn ticks don't increase the burn
+      tags: [], // Burn ticks don't have tags
       ap: true, // Burn ticks are always AP
       paracausal: false,
       half_damage: false,
@@ -82,7 +83,7 @@ async function checkBurnResult(state: FlowState<LancerFlowState.BurnCheckData>):
   } else {
     const rollDamagesStep = (game.lancer.flowSteps as Map<string, Step<any, any> | Flow<any>>).get("rollDamages");
     if (!rollDamagesStep || typeof rollDamagesStep !== "function")
-      throw new TypeError(`Couldn't get rollDamage flow step!`);
+      throw new TypeError(`Couldn't get rollDamagesStep flow step!`);
     return await rollDamagesStep(state);
   }
 }
