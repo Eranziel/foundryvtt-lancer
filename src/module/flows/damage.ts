@@ -603,7 +603,7 @@ export async function getCritRoll(normal: Roll) {
  * data for a DamageFlow, then begins the flow.
  * @param event Click event on a button in a chat message
  */
-export async function rollDamage(event: JQuery.ClickEvent) {
+export async function rollDamageCallback(event: JQuery.ClickEvent) {
   const chatMessageElement = event.currentTarget.closest(".chat-message.message");
   if (!chatMessageElement) {
     ui.notifications?.error("Damage roll button not in chat message");
