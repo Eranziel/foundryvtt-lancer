@@ -3,7 +3,15 @@ import { LancerActor, LancerNPC } from "../actor/lancer-actor";
 import { DamageHudData, HitQuality } from "../apps/damage";
 import { openSlidingHud } from "../apps/slidinghud";
 import { DamageType } from "../enums";
-import { LancerItem, LancerMECH_WEAPON, LancerNPC_FEATURE, LancerPILOT_WEAPON } from "../item/lancer-item";
+import {
+  LancerFRAME,
+  LancerItem,
+  LancerMECH_SYSTEM,
+  LancerMECH_WEAPON,
+  LancerNPC_FEATURE,
+  LancerPILOT_WEAPON,
+  LancerTALENT,
+} from "../item/lancer-item";
 import { Damage, DamageData } from "../models/bits/damage";
 import { Tag } from "../models/bits/tag";
 import { UUIDRef } from "../source-template";
@@ -40,8 +48,8 @@ export function registerDamageSteps(flowSteps: Map<string, Step<any, any> | Flow
 export class DamageRollFlow extends Flow<LancerFlowState.DamageRollData> {
   static steps = [
     "initDamageData",
-    "setDamageTags", // Move some tags from setAttackTags to here
-    "setDamageTargets", // Can we reuse setAttackTargets?
+    "setDamageTags",
+    "setDamageTargets",
     "showDamageHUD",
     "rollDamages",
     "applyOverkillHeat",
@@ -55,6 +63,7 @@ export class DamageRollFlow extends Flow<LancerFlowState.DamageRollData> {
       configurable: data?.configurable !== undefined ? data.configurable : true,
       add_burn: data?.add_burn !== undefined ? data.add_burn : true,
       invade: data?.invade || false,
+      tags: data?.tags || [],
       ap: data?.ap || false,
       paracausal: data?.paracausal || false,
       half_damage: data?.half_damage || false,
@@ -103,53 +112,6 @@ async function initDamageData(state: FlowState<LancerFlowState.DamageRollData>):
     })
     .filter(hr => hr !== null) as LancerFlowState.HitResult[];
 
-  if (state.item?.is_mech_weapon()) {
-    const profile = state.item.system.active_profile;
-    // state.data.damage = state.data.damage.length ? state.data.damage : profile.damage;
-    // state.data.bonus_damage = state.data.bonus_damage?.length ? state.data.bonus_damage : profile.bonus_damage;
-
-    state.data.damage_hud_data = DamageHudData.fromParams(state.item, {
-      tags: profile.all_tags,
-      title: state.data.title,
-      targets: Array.from(game.user!.targets),
-      hitResults: state.data.hit_results,
-      ap: state.data.ap,
-      paracausal: state.data.paracausal,
-      halfDamage: state.data.half_damage,
-      starting: { damage: state.data.damage, bonusDamage: state.data.bonus_damage },
-    });
-  } else if (state.item?.is_npc_feature() && state.item.system.type === "Weapon") {
-    // const tierIndex = (state.item.system.tier_override || (state.actor as LancerNPC).system.tier) - 1;
-    // state.data.damage = state.data.damage.length ? state.data.damage : state.item.system.damage[tierIndex];
-    state.data.damage_hud_data = DamageHudData.fromParams(state.item, {
-      tags: state.item.system.tags,
-      title: state.data.title,
-      targets: Array.from(game.user!.targets),
-      hitResults: state.data.hit_results,
-      ap: state.data.ap,
-      paracausal: state.data.paracausal,
-      halfDamage: state.data.half_damage,
-      starting: { damage: state.data.damage, bonusDamage: state.data.bonus_damage },
-    });
-  } else if (state.item?.is_pilot_weapon()) {
-    // state.data.damage = state.data.damage.length ? state.data.damage : state.item.system.damage;
-    state.data.damage_hud_data = DamageHudData.fromParams(state.item, {
-      tags: state.item.system.tags,
-      title: state.data.title,
-      targets: Array.from(game.user!.targets),
-      hitResults: state.data.hit_results,
-      ap: state.data.ap,
-      paracausal: state.data.paracausal,
-      halfDamage: state.data.half_damage,
-      starting: { damage: state.data.damage, bonusDamage: state.data.bonus_damage },
-    });
-  } else if (state.data.damage.length === 0) {
-    ui.notifications!.warn(
-      state.item ? `Item ${state.item.id} is not a weapon!` : `Damage flow is missing damage to roll!`
-    );
-    return false;
-  }
-
   // Check whether we have any normal or crit hits
   state.data.has_normal_hit =
     state.data.hit_results.length === 0 || state.data.hit_results.some(hit => hit.hit && !hit.crit);
@@ -158,28 +120,32 @@ async function initDamageData(state: FlowState<LancerFlowState.DamageRollData>):
   return true;
 }
 
-function checkForProfileTags(item: LancerItem, check: (tag: Tag) => boolean) {
-  if (!item.is_mech_weapon()) return false;
-  return item.system.active_profile.tags.some(check);
-}
-
 async function setDamageTags(state: FlowState<LancerFlowState.DamageRollData>): Promise<boolean> {
   if (!state.data) throw new TypeError(`Damage flow state missing!`);
   // If the damage roll has no item, it has no tags.
   if (!state.item) return true;
-  if (!state.item.is_mech_weapon() && !state.item.is_npc_feature() && !state.item.is_pilot_weapon())
-    throw new TypeError(`Item ${state.item.id} is not a weapon!`);
-  const weapon = state.item as LancerMECH_WEAPON | LancerNPC_FEATURE | LancerPILOT_WEAPON;
-  state.data.ap = weapon.isAP() || checkForProfileTags(weapon, t => t.is_ap);
-  state.data.overkill = weapon.isOverkill() || checkForProfileTags(weapon, t => t.is_overkill);
-  if (weapon.isReliable()) {
-    let reliableTag;
-    if (weapon.is_mech_weapon()) {
-      reliableTag = weapon.system.active_profile.tags.find(t => t.is_reliable);
-    } else {
-      reliableTag = weapon.system.tags.find(t => t.is_reliable);
-    }
-    if (!reliableTag) return true;
+  if (state.item.is_mech_weapon()) {
+    const profile = state.item.system.active_profile;
+    state.data.tags = profile.all_tags; // all_tags includes those added by mods
+  } else if (state.item.is_mech_system()) {
+    state.data.tags = state.item.system.tags;
+  } else if (state.item.is_frame()) {
+    state.data.tags = state.item.system.core_system.tags;
+  } else if (state.item.is_talent()) {
+    state.data.tags = [];
+  } else if (state.item.is_npc_feature() && state.item.system.type === "Weapon") {
+    state.data.tags = state.item.system.tags;
+  } else if (state.item.is_pilot_weapon()) {
+    state.data.tags = state.item.system.tags;
+  } else {
+    ui.notifications!.warn(`Item ${state.item.id} can't deal damage!`);
+    return false;
+  }
+
+  state.data.ap = Boolean(state.data.tags.find(t => t.is_ap));
+  state.data.overkill = Boolean(state.data.tags.find(t => t.is_overkill));
+  const reliableTag = state.data.tags.find(t => t.is_reliable);
+  if (reliableTag) {
     state.data.reliable = true;
     const reliableVal = parseInt(reliableTag.tierVal((state.actor.is_npc() && state.actor.system.tier) || 1) || "0");
     state.data.reliable_val = reliableVal;
@@ -200,6 +166,18 @@ async function setDamageTargets(state: FlowState<LancerFlowState.DamageRollData>
 async function showDamageHUD(state: FlowState<LancerFlowState.DamageRollData>): Promise<boolean> {
   if (!state.data) throw new TypeError(`Damage flow state missing!`);
   try {
+    // Initialize damage HUD data from the flow state
+    state.data.damage_hud_data = DamageHudData.fromParams(state.item ?? state.actor, {
+      tags: state.data.tags,
+      title: state.data.title,
+      targets: Array.from(game.user!.targets),
+      hitResults: state.data.hit_results,
+      ap: state.data.ap,
+      paracausal: state.data.paracausal,
+      halfDamage: state.data.half_damage,
+      starting: { damage: state.data.damage, bonusDamage: state.data.bonus_damage },
+    });
+
     state.data.damage_hud_data = await openSlidingHud("damage", state.data.damage_hud_data!);
 
     // Filter state.data.hit_results down to those targets present in the HUD data
@@ -314,6 +292,12 @@ export async function rollDamages(state: FlowState<LancerFlowState.DamageRollDat
       target: hudTarget.target,
     }));
     allBonusDamage.push(...hudTargetBonusDamage);
+  }
+
+  // Sanity check - is there any damage to roll?
+  if (!state.data.damage.length && !allBonusDamage.length && !state.data.reliable_val) {
+    ui.notifications?.warn("No damage configured, skipping the roll.");
+    return false;
   }
 
   // TODO: should reliable damage "rolling" be a separate step?
