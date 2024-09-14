@@ -233,10 +233,10 @@ async function showDamageHUD(state: FlowState<LancerFlowState.DamageRollData>): 
     state.data.ap = state.data.damage_hud_data.base.ap;
     state.data.paracausal = state.data.damage_hud_data.base.paracausal;
     state.data.half_damage = state.data.damage_hud_data.base.halfDamage;
-    state.data.overkill = state.data.damage_hud_data.weapon.overkill;
-    state.data.reliable = state.data.damage_hud_data.weapon.reliable;
+    state.data.overkill = state.data.damage_hud_data.weapon?.overkill ?? false;
+    state.data.reliable = state.data.damage_hud_data.weapon?.reliable ?? false;
     if (state.data.reliable) {
-      state.data.reliable_val = state.data.damage_hud_data.weapon.reliableValue;
+      state.data.reliable_val = state.data.damage_hud_data.weapon?.reliableValue ?? 0;
     }
 
     // TODO: need to set target flags too?
@@ -300,7 +300,7 @@ export async function rollDamages(state: FlowState<LancerFlowState.DamageRollDat
   const totalDamage = state.data.damage_hud_data.base.total;
   state.data.damage = totalDamage.damage;
   state.data.bonus_damage = totalDamage.bonusDamage ?? [];
-  state.data.reliable_val = state.data.damage_hud_data.weapon.reliableValue;
+  state.data.reliable_val = state.data.damage_hud_data.weapon?.reliableValue ?? 0;
   const allBonusDamage: {
     type: DamageType;
     val: string;
