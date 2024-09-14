@@ -131,7 +131,7 @@ export class DamageHudBase {
   damage: DamageData[];
   bonusDamage: DamageData[];
   plugins: { [k: string]: DamageHudPluginData };
-  #weapon!: DamageHudWeapon; // never use this class before calling hydrate
+  #weapon?: DamageHudWeapon; // never use this class before calling hydrate
 
   static pluginSchema: { [k: string]: DamageHudPluginCodec<any, any, any> } = {};
 
@@ -184,7 +184,7 @@ export class DamageHudBase {
   }
 
   get total() {
-    const weaponTotal = this.#weapon.total;
+    const weaponTotal = this.#weapon?.total || { damage: [], bonusDamage: [] };
     return {
       damage: weaponTotal.damage.concat(this.damage),
       bonusDamage: weaponTotal.bonusDamage.concat(this.bonusDamage),
@@ -204,7 +204,7 @@ export class DamageHudTarget {
   halfDamage: boolean;
   bonusDamage: DamageData[];
   plugins: { [k: string]: any };
-  #weapon!: DamageHudWeapon; // never use this class before calling hydrate
+  #weapon?: DamageHudWeapon; // never use this class before calling hydrate
   #base!: DamageHudBase; // never use this class before calling hydrate
 
   static pluginSchema: { [k: string]: DamageHudPluginCodec<any, any, any> } = {};
@@ -349,7 +349,7 @@ export type DamageHudDataSerialized = t.OutputOf<typeof DamageHudData.schemaCode
 // TODO: this guy needs a new name
 export class DamageHudData {
   title: string;
-  weapon: DamageHudWeapon;
+  weapon: DamageHudWeapon | undefined;
   base: DamageHudBase;
   hitResults: DamageHudHitResult[];
   targets: DamageHudTarget[];
@@ -359,7 +359,7 @@ export class DamageHudData {
   static get schema() {
     return {
       title: t.string,
-      weapon: DamageHudWeapon.codec,
+      weapon: t.union([DamageHudWeapon.codec, t.undefined]),
       base: DamageHudBase.codec,
       hitResults: t.array(DamageHudHitResult.codec),
       targets: t.array(DamageHudTarget.codec),
@@ -375,7 +375,7 @@ export class DamageHudData {
 
   constructor(obj: t.TypeOf<typeof DamageHudData.schemaCodec>) {
     this.title = obj.title;
-    this.weapon = obj.weapon;
+    this.weapon = obj.weapon || undefined;
     this.base = obj.base;
     this.hitResults = obj.hitResults;
     this.targets = obj.targets;
@@ -390,7 +390,7 @@ export class DamageHudData {
       this.lancerActor = runtimeData ?? undefined;
     }
 
-    this.weapon.hydrate(this);
+    this.weapon?.hydrate(this);
     this.base.hydrate(this);
     for (let target of this.targets) {
       target.hydrate(this);
@@ -548,7 +548,7 @@ export class DamageHudData {
     };
 
     for (let plugin of this.plugins) {
-      if (plugin.perRoll) {
+      if (plugin.perRoll && obj.weapon) {
         obj.weapon.plugins[plugin.slug] = encode(plugin.perRoll(runtimeData), plugin.codec);
       }
       if (plugin.perUnknownTarget) {
