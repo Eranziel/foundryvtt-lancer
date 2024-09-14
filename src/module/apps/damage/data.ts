@@ -269,7 +269,7 @@ export class DamageHudTarget {
   ): DamageHudTarget {
     let ret = {
       target_id: t.id,
-      quality: data?.quality || HitQuality.Hit,
+      quality: data?.quality ?? HitQuality.Hit,
       ap: data?.ap || false,
       paracausal: data?.paracausal || false,
       halfDamage: data?.halfDamage || false,
