@@ -115,8 +115,10 @@ export class LancerActor extends Actor {
       DamageType.Explosive,
       DamageType.Variable,
     ] as const;
-
     const apDamageTypes = [DamageType.Burn, DamageType.Heat] as const;
+    // Promises for async tasks that happen as a result of this damage calculation
+    const taskPromises: Promise<any>[] = [];
+    const tokenId = this.token?.id;
 
     let changes = {} as Record<string, number>;
 
@@ -211,7 +213,7 @@ export class LancerActor extends Actor {
       changes["system.burn"] = this.system.burn + damage.Burn;
     }
 
-    await this.update(changes);
+    taskPromises.push(this.update(changes));
 
     // Create a chat message which reports the applied damage
     const damageStrings = [];
@@ -244,8 +246,8 @@ export class LancerActor extends Actor {
     const chatContent = `${this.token ? this.token.name : this.name} took ${allDamageString} ${
       totalTypes > 1 ? ` (${totalDamage} total) ` : ""
     }damage!`;
-    await createChatMessageStep(this, chatContent);
-
+    taskPromises.push(createChatMessageStep(this, chatContent));
+    await Promise.all(taskPromises);
     return totalDamage;
   }
 
