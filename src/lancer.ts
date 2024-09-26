@@ -106,6 +106,7 @@ import { registerFlows } from "./module/flows/register-flows";
 import { LancerNPCFeatureSheet } from "./module/item/npc-feature-sheet";
 import { applyDamage, rollDamageCallback } from "./module/flows/damage";
 import { miniProfile, attackTarget, damageTarget } from "./module/helpers/chat";
+import { tokenScrollText } from "./module/util/misc";
 
 const lp = LANCER.log_prefix;
 
@@ -367,6 +368,15 @@ Hooks.once("ready", () => {
 
 // Migrate settings from Lancer Condition Icons and disable the module
 Hooks.once("ready", migrateLancerConditions);
+
+// Attach socket listeners
+Hooks.once("ready", () => {
+  game.socket!.on(`system.${game.system.id}`, msg => {
+    if (msg.action === "scrollText") {
+      tokenScrollText(msg.data);
+    }
+  });
+});
 
 Hooks.once("canvasInit", () => {
   SquareGrid.prototype.measureDistances = measureDistances;

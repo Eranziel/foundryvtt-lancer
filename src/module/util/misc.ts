@@ -78,3 +78,45 @@ export function rollEvalSync(formula: string, data: object): number {
   }
   return roll.total!;
 }
+
+export type TokenScrollTextOptions = {
+  tokenId?: string;
+  content?: string;
+  style?: {
+    anchor?: 0 | 1 | 2 | 3 | 4;
+    direction?: 0 | 1 | 2 | 3 | 4;
+    duration?: number;
+    fontSize?: number;
+    fill?: string | number | Array<string> | Array<number>;
+    stroke?: number;
+    strokeThickness?: number;
+    jitter?: number;
+  };
+};
+
+export async function tokenScrollText(
+  { tokenId = "", content = "", style = {} }: TokenScrollTextOptions = {},
+  push = false
+) {
+  // Populate default style
+  style = {
+    anchor: CONST.TEXT_ANCHOR_POINTS.CENTER,
+    direction: CONST.TEXT_ANCHOR_POINTS.TOP,
+    fontSize: 28,
+    fill: 0xffffff,
+    stroke: 0x000000,
+    strokeThickness: 4,
+    jitter: 0.25,
+    ...style,
+  };
+  if (push) {
+    game.socket?.emit(`system.${game.system.id}`, {
+      action: "scrollText",
+      data: { tokenId, content, style },
+    });
+  }
+  const token = canvas.tokens?.get(tokenId);
+  if (!token) return;
+  // @ts-expect-error v11 types
+  await canvas.interface.createScrollingText(token.center, content, style);
+}
