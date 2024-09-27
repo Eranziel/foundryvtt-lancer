@@ -210,8 +210,6 @@ async function showDamageHUD(state: FlowState<LancerFlowState.DamageRollData>): 
     if (state.data.reliable) {
       state.data.reliable_val = state.data.damage_hud_data.weapon?.reliableValue ?? 0;
     }
-
-    // TODO: need to set target flags too?
   } catch (_e) {
     // User hit cancel, abort the flow.
     return false;
@@ -263,12 +261,8 @@ export async function rollDamages(state: FlowState<LancerFlowState.DamageRollDat
   // Convenience flag for whether this is a multi-target attack.
   // We'll use this later alongside a check for whether a given bonus damage result
   // is single-target; if not, the bonus damage needs to be halved.
-  // TODO: this check doesn't work yet; damage HUD targets isn't properly reactive.
   const multiTarget: boolean = state.data.damage_hud_data.targets.length > 1;
 
-  // TODO: need to also collect target-specific damage and bonus damage to roll,
-  // combine them into the other rolls, and then extract those dice
-  // from the global results.
   const totalDamage = state.data.damage_hud_data.base.total;
   state.data.damage = totalDamage.damage;
   state.data.bonus_damage = totalDamage.bonusDamage ?? [];
@@ -314,7 +308,6 @@ export async function rollDamages(state: FlowState<LancerFlowState.DamageRollDat
       break;
     }
 
-    // TODO: should we allow users to roll normal damage vs missed targets?
     for (const hitTarget of state.data.hit_results) {
       if (!hitTarget.hit && !hitTarget.crit) {
         state.data.targets.push({
@@ -468,8 +461,6 @@ async function applyOverkillHeat(state: FlowState<LancerFlowState.DamageRollData
     state.actor.system.heat.max > 0
   ) {
     await state.actor.update({ "system.heat.value": state.actor.system.heat.value + state.data.overkill_heat });
-  } else {
-    // TODO: add a damage application row to apply energy damage to the attacker?
   }
   return true;
 }
@@ -494,7 +485,6 @@ async function printDamageCard(
       ...t,
       target: t.target.document.uuid,
     })),
-    // TODO: AP and paracausal flags
     ap: state.data.ap,
     paracausal: state.data.paracausal,
     half_damage: state.data.half_damage,
@@ -712,44 +702,10 @@ export async function applyDamage(event: JQuery.ClickEvent) {
     ui.notifications?.error("You cannot apply damage to an actor you do not own");
     return;
   }
-  // Get the targeted damage result, or construct one
-  // let damage: LancerFlowState.DamageTargetResult;
 
-  // Try to find target-specific damage data first
-  // TODO: can't use UUID here, nor token.actor.id - that points to the original actual actor, not the synthetic actor.
-  // Need to check token IDs, not actor IDs.
+  // Find target-specific damage data
   const targetDamage = hydratedDamageTargets.find(tdr => tdr?.target?.uuid === data.target);
   if (!targetDamage) return;
-
-  // TODO: allow applying damage to the user's targeted token even if it wasn't a target
-  // during the damage roll flow?
-
-  // else if (actor.token) {
-  //   if (isCrit) {
-  //     // If we can't find this specific target, check whether it's a crit or regular hit
-  //     damage = {
-  //       target: actor.getActiveTokens()[0],
-  //       damage: damageData.critDamageResults.map(dr => ({ type: dr.d_type, amount: dr.roll.total || 0 })),
-  //       hit: true,
-  //       crit: true,
-  //       ap: damageData.ap,
-  //       paracausal: damageData.paracausal,
-  //       half_damage: damageData.half_damage,
-  //     };
-  //   } else {
-  //     damage = {
-  //       name: actor.name!,
-  //       img: actor.img!,
-  //       damage: damageData.damageResults.map(dr => ({ type: dr.d_type, amount: dr.roll.total || 0 })),
-  //       hit: true,
-  //       crit: false,
-  //       ap: damageData.ap,
-  //       paracausal: damageData.paracausal,
-  //       half_damage: damageData.half_damage,
-  //     };
-  //   }
-  // }
-  // TODO: if not crit and not hit, use reliable damage
 
   // Apply the damage to the target
   await actor.damageCalc(
