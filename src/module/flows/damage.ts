@@ -28,7 +28,6 @@ type DamageFlag = {
   ap: boolean;
   paracausal: boolean;
   half_damage: boolean;
-  targetsApplied: Record<string, boolean>;
 };
 
 export function registerDamageSteps(flowSteps: Map<string, Step<any, any> | Flow<any>>) {
@@ -499,13 +498,6 @@ async function printDamageCard(
     ap: state.data.ap,
     paracausal: state.data.paracausal,
     half_damage: state.data.half_damage,
-    targetsApplied: state.data.targets.reduce((acc: Record<string, boolean>, t) => {
-      const uuid = t.target?.document?.uuid;
-      if (!uuid) return acc;
-      // We need to replace the dots in the UUID, otherwise Foundry will expand it into a nested object
-      acc[uuid.replaceAll(".", "_")] = false;
-      return acc;
-    }, {}),
   };
   const flags = {
     damageData,
@@ -706,12 +698,6 @@ export async function applyDamage(event: JQuery.ClickEvent) {
   const addBurn = data.addBurn === "true";
   const isCrit = data.crit === "true";
   const isHit = data.hit === "true";
-  // Replace underscores with dots to turn it back into a valid UUID
-  const targetFlagKey = data.target.replaceAll(".", "_");
-  if (damageData.targetsApplied[targetFlagKey]) {
-    ui.notifications?.warn("Damage has already been applied to this target");
-    return;
-  }
   const target = await fromUuid(data.target);
   if (!target || !(target instanceof LancerTokenDocument)) {
     ui.notifications?.error("Invalid target UUID for damage application");
@@ -770,8 +756,4 @@ export async function applyDamage(event: JQuery.ClickEvent) {
     new AppliedDamage(targetDamage.damage.map(d => new Damage({ type: d.type, val: d.amount.toString() }))),
     { multiple, addBurn, ap: targetDamage.ap, paracausal: targetDamage.paracausal }
   );
-
-  // Update the flags on the chat message to indicate the damage has been applied
-  damageData.targetsApplied[targetFlagKey] = true;
-  await chatMessage.setFlag("lancer", "damageData", damageData);
 }
