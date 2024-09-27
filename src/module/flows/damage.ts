@@ -25,7 +25,6 @@ type DamageFlag = {
   damageResults: LancerFlowState.DamageResultSerialized[];
   critDamageResults: LancerFlowState.DamageResultSerialized[];
   targetDamageResults: LancerFlowState.DamageTargetResultSerialized[];
-  // TODO: AP and paracausal flags
   ap: boolean;
   paracausal: boolean;
   half_damage: boolean;
@@ -86,13 +85,6 @@ export class DamageRollFlow extends Flow<LancerFlowState.DamageRollData> {
 
 async function initDamageData(state: FlowState<LancerFlowState.DamageRollData>): Promise<boolean> {
   if (!state.data) throw new TypeError(`Damage flow state missing!`);
-
-  // TODO: do we need to set targets at this point? The damage HUD is going to
-  // ignore them and use the user's canvas targets anyway...
-  // let targets: LancerToken[] = Array.from(game.user!.targets);
-  // if (targets.length < 1) {
-  //   targets = state.data.hit_results.map(hr => hr.target);
-  // }
 
   // Convert any hit_result.target LancerTokenDocuments into LancerTokens
   state.data.hit_results = state.data.hit_results
@@ -200,12 +192,15 @@ async function showDamageHUD(state: FlowState<LancerFlowState.DamageRollData>): 
       state.data.hit_results.push({
         target: t.target,
         total: "10",
-        // TODO: use target crit/hit/miss from HUD
-        hit: true,
-        crit: false,
+        hit: t.quality === HitQuality.Hit,
+        crit: t.quality === HitQuality.Crit,
         usedLockOn: false,
       });
     }
+
+    // Update has_normal_hit and has_crit_hit flags
+    state.data.has_normal_hit = state.data.hit_results.some(hr => hr.hit && !hr.crit);
+    state.data.has_crit_hit = state.data.hit_results.some(hr => hr.crit);
 
     // Set damage flags from HUD
     state.data.ap = state.data.damage_hud_data.base.ap;
