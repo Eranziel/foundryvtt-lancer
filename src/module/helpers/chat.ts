@@ -95,9 +95,9 @@ export function damageTarget(
   const select = context.configurable
     ? `
           <select class="lancer-damage-apply-select" title="Select damage multiplier">
-            <option value="2"${exposed ? " selected" : ""}>Exposed</option>
-            <option value="1"${!exposed ? " selected" : ""}>Normal</option>
-            <option value="0.5">Resisted</option>
+            <option value="2">2×</option>
+            <option value="1" selected>1×</option>
+            <option value="0.5">Resist</option>
           </select>`
     : "";
 
