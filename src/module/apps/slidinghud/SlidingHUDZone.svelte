@@ -10,18 +10,18 @@
   import { sidebarWidth } from "./sidebar-width";
   import { isDragging } from "./is-dragging";
   import { userTargets } from "./user-targets";
-  import AccDiffForm from "../acc_diff/AccDiffHUD.svelte";
-  import DamageForm from "../damage/DamageHUD.svelte";
-  import StructStressForm from "../struct_stress/Form.svelte";
+  import AccDiffHud from "../acc_diff/AccDiffHUD.svelte";
+  import DamageHud from "../damage/DamageHUD.svelte";
+  import StructStressHud from "../struct_stress/Form.svelte";
 
   let dispatch = createEventDispatcher();
 
   let dialogs: { [key: string]: typeof SvelteComponent } = {
-    hase: AccDiffForm,
-    attack: AccDiffForm,
-    damage: DamageForm,
-    struct: StructStressForm,
-    stress: StructStressForm,
+    hase: AccDiffHud,
+    attack: AccDiffHud,
+    damage: DamageHud,
+    struct: StructStressHud,
+    stress: StructStressHud,
   };
 
   // @hmr:keep
