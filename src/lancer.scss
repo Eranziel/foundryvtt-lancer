@@ -539,6 +539,14 @@ $theme-types: "primary" "secondary" "dark-gray" "light-gray" "tooltip"    // Gen
       grid-area: tags;
       min-height: 1.3em;
       padding: 0.1em;
+
+      .lancer-target-bonus-damage:not(:has(*)) {
+        display: none;
+
+        & ~ .lancer-damage-tags {
+          flex-grow: 1 !important;
+        }
+      }
     }
 
     .lancer-damage-tags {
@@ -2562,11 +2570,11 @@ a.activation-chip > i.mdi {
 
   .lancer-damage-apply-select {
     width: min-content;
-    border: 1px solid var(--darken-3);
+    border: 1px solid var(--darken-4);
     border-radius: 5px;
     padding: 0.25em;
-    background: var(--light-gray-color);
-    color: var(--dark-text);
+    background: var(--darken-1);
+    text-align: center;
 
     & option {
       background: var(--light-gray-color);
