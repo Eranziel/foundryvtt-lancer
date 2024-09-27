@@ -500,7 +500,9 @@ $theme-types: "primary" "secondary" "dark-gray" "light-gray" "tooltip"    // Gen
   color: var(--light-text);
   border-radius: 0.5em;
   font-size: 0.8em;
+  display: flex;
   align-content: center;
+  align-items: center;
   text-wrap: nowrap;
 }
 .lancer-damage-targets {

@@ -122,9 +122,10 @@ export class LancerActor extends Actor {
 
     let changes = {} as Record<string, number>;
 
+    // Damage multipliers - exposed and whichever multiple chosen by the user
+    const exposed = this.system.statuses.exposed;
     // Ensure the multiple is valid, default to 1x
     if (![0.5, 1, 2].includes(multiple)) multiple = 1;
-    const exposed = multiple === 2;
     const resistAll = multiple === 0.5;
 
     // Entities without Heat Caps take Energy Damage instead
@@ -133,9 +134,16 @@ export class LancerActor extends Actor {
       damage.Heat = 0;
     }
 
+    // Step 0: 2x multiplier doubles everything
+    if (multiple === 2) {
+      for (const d of Object.values(DamageType)) {
+        damage[d] *= 2;
+      }
+    }
+
     // Step 1: Exposed doubles non-burn, non-heat damage
     if (exposed) {
-      armoredDamageTypes.forEach(d => Math.ceil((damage[d] *= multiple)));
+      armoredDamageTypes.forEach(d => Math.ceil((damage[d] *= 2)));
     }
 
     /**
