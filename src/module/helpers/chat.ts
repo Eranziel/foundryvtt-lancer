@@ -3,6 +3,7 @@ import { LancerFlowState } from "../flows/interfaces";
 import { lancerDiceRoll } from "./commons";
 import { DamageData } from "../models/bits/damage";
 import { RangeData } from "../models/bits/range";
+import { DamageType } from "../enums";
 
 export function miniProfile(
   profile: { range: RangeData[]; damage?: DamageData[]; attack?: number; accuracy?: number },
@@ -108,9 +109,13 @@ export function damageTarget(
   else if (target.hit) damageResults = context.damage_results;
   else damageResults = context.reliable_results || [];
 
-  const damageTypes = damageResults
-    .filter(d => !d.target || d.target?.document.uuid === target.target.document.uuid)
-    .map(d => `<i class="cci cci-${d.d_type.toLowerCase()} i--s damage--${d.d_type.toLowerCase()}"></i>`)
+  const damageTypes = new Set(
+    damageResults
+      .filter(d => !d.target || d.target?.document.uuid === target.target.document.uuid)
+      .map(d => d.d_type.toLowerCase())
+  );
+  const damageIcons = Array.from(damageTypes)
+    .map(d => `<i class="cci cci-${d} i--s damage--${d}"></i>`)
     .join("");
 
   const bonusDamage: LancerFlowState.DamageResult[] = damageResults.filter(
@@ -127,21 +132,29 @@ export function damageTarget(
   );
 
   const damageTags: string[] = [];
-  if (context.ap && !context.paracausal)
+  if (exposed) {
     damageTags.push(
-      `<span class="lancer-damage-tag" data-tooltip="Armor Piercing"><i class="mdi mdi-shield-off-outline"></i></span>`
+      `<span class="lancer-damage-tag" data-tooltip="Exposed"><i class="cci cci-status-exposed i--xs"></i></span>`
     );
-  if (context.paracausal)
-    damageTags.push(`<span class="lancer-damage-tag" data-tooltip="Paracausal"><i class="mdi mdi-shimmer"></i></span>`);
-  if (context.half_damage)
+  }
+  if ((context.ap && !context.paracausal) || (target.ap && !(target.paracausal || context.paracausal)))
     damageTags.push(
-      `<span class="lancer-damage-tag" data-tooltip="Half Damage"><i class="mdi mdi-fraction-one-half"></i></span>`
+      `<span class="lancer-damage-tag" data-tooltip="Armor Piercing"><i class="mdi mdi-shield-off-outline i--xs"></i></span>`
+    );
+  if (context.paracausal || target.paracausal)
+    damageTags.push(
+      `<span class="lancer-damage-tag" data-tooltip="Cannot Be Reduced"><i class="cci cci-large-beam i--xs"></i></span>`
+    );
+  if (context.half_damage || target.half_damage)
+    damageTags.push(
+      `<span class="lancer-damage-tag" data-tooltip="Half Damage"><i class="mdi mdi-fraction-one-half i--xs"></i></span>`
     );
   const damageTagsDisplay = damageTags.length ? `<div class="lancer-damage-tags">${damageTags.join("")}</div>` : "";
   // @ts-expect-error v10 types
   const img = target.target.document.texture.src;
+  const uuid = target.target.document.uuid;
   return `
-    <div class="lancer-damage-target">
+    <div class="lancer-damage-target" data-uuid=${uuid}>
       <img class="lancer-hit-thumb" src="${img}" />
       <span class="lancer-hit-text-name"><b>${target.target.name}</b></span>
       <div
@@ -155,7 +168,7 @@ export function damageTarget(
         <button
           class="lancer-button lancer-damage-apply"
           title="Apply damage"
-        >${damageTypes}</button>
+        >${damageIcons}</button>
       </div>
       <div class="lancer-damage-rolls-tags flexrow">
         <div class="lancer-target-bonus-damage flexcol">${bonusRolls.join("")}</div>
