@@ -15,11 +15,17 @@
   import DamageTarget from "./DamageTarget.svelte";
   import { DamageType } from "../../enums";
   import HitRadio from "./HitRadio.svelte";
+  import { LancerActor } from "../../actor/lancer-actor";
 
+  export let title: string;
+  export let kind: "damage";
+  // The component itself doesn't use hitResults, but the data needs it
+  // for replaceTargets
+  export let hitResults: any;
   export let weapon: DamageHudWeapon;
   export let base: DamageHudBase;
   export let targets: DamageHudTarget[];
-  export let title: string;
+  export let lancerActor: LancerActor | null;
   export let lancerItem: LancerItem | null;
 
   $: baseDamage = base.damage;
