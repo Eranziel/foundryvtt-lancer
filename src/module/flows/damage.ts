@@ -51,7 +51,6 @@ export class DamageRollFlow extends Flow<LancerFlowState.DamageRollData> {
     "showDamageHUD",
     "rollDamages",
     "applyOverkillHeat",
-    "clearTargets",
     "printDamageCard",
   ];
   constructor(uuid: UUIDRef | LancerItem | LancerActor, data?: Partial<LancerFlowState.DamageRollData>) {
