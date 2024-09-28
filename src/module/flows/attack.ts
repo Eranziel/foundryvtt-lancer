@@ -82,7 +82,6 @@ export class BasicAttackFlow extends Flow<LancerFlowState.AttackRollData> {
     "setAttackTargets",
     "showAttackHUD",
     "rollAttacks",
-    "clearTargets",
     "applySelfHeat",
     "printAttackCard",
   ];
@@ -127,7 +126,6 @@ export class WeaponAttackFlow extends Flow<LancerFlowState.WeaponRollData> {
     "rollAttacks",
     "applySelfHeat",
     "updateItemAfterAction",
-    "clearTargets",
     "printAttackCard",
     // TODO: Start damage flow after attack
     // "applyDamage"

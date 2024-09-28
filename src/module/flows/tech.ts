@@ -36,7 +36,6 @@ export class TechAttackFlow extends Flow<LancerFlowState.TechAttackRollData> {
     // "pickInvades",
     "applySelfHeat",
     "updateItemAfterAction",
-    "clearTargets",
     "printTechAttackCard",
   ];
 
