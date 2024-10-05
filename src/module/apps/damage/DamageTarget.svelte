@@ -3,7 +3,7 @@
   import { slide } from "svelte/transition";
 
   import HudCheckbox from "../components/HudCheckbox.svelte";
-  import { DamageHudTarget } from "./data";
+  import { DamageHudTarget, HitQuality } from "./data";
   import DamageInput from "./DamageInput.svelte";
   import { DamageType } from "../../enums";
   import HitRadio from "./HitRadio.svelte";
@@ -13,6 +13,13 @@
   export let target: DamageHudTarget;
 
   let imgElement: HTMLElement;
+
+  $: hitQualityClass =
+    target.quality === HitQuality.Hit
+      ? "target-hit"
+      : target.quality === HitQuality.Crit
+      ? "target-crit"
+      : "target-miss";
 
   function addBonusDamage() {
     target.bonusDamage = [...target.bonusDamage, { type: DamageType.Kinetic, val: "1d6" }];
@@ -38,7 +45,11 @@
   }
 </script>
 
-<div class="damage-hud-target-card card" in:slide={{ delay: 100, duration: 300 }} out:slide={{ duration: 100 }}>
+<div
+  class={`damage-hud-target-card card ${hitQualityClass}`}
+  in:slide={{ delay: 100, duration: 300 }}
+  out:slide={{ duration: 100 }}
+>
   <span class="target-name flexrow lancer-mini-header">🞂<b>{target.target.name}</b>🞀</span>
   <div class="flexrow">
     <img
@@ -116,6 +127,11 @@
     max-width: 100%;
     height: calc(100% - 0.6em);
     justify-content: space-between;
+    transition: all 0.3s ease;
+
+    &.target-miss {
+      opacity: 70%;
+    }
 
     .target-name {
       justify-content: center;
