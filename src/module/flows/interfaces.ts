@@ -84,9 +84,14 @@ export namespace LancerFlowState {
     tt: string | HTMLElement | JQuery<HTMLElement>;
   }
 
+  export interface RolledDamage {
+    type: DamageType;
+    amount: number;
+  }
+
   export interface DamageTargetResult {
     target: LancerToken;
-    damage: { type: DamageType; amount: number }[];
+    damage: RolledDamage[];
     hit: boolean;
     crit: boolean;
     ap: boolean;
