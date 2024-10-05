@@ -87,6 +87,13 @@ export function damageTarget(
   // @ts-expect-error v11 types
   const statuses: Set<string> = target.target.actor?.statuses || new Set();
   const exposed = statuses.has("exposed");
+  const resists = {
+    energy: statuses.has("resistance_energy"),
+    explosive: statuses.has("resistance_explosive"),
+    kinetic: statuses.has("resistance_kinetic"),
+    burn: statuses.has("resistance_burn"),
+    heat: statuses.has("resistance_heat"),
+  };
   const select = context.configurable
     ? `
           <select class="lancer-damage-apply-select" title="Select damage multiplier">
@@ -126,6 +133,13 @@ export function damageTarget(
   );
 
   const damageTags: string[] = [];
+  for (const [type, resist] of Object.entries(resists)) {
+    if (resist) {
+      damageTags.push(
+        `<span class="lancer-damage-tag" data-tooltip="Resist ${type.capitalize()}"><i class="mdi mdi-shield-half-full i--xs"></i></span>`
+      );
+    }
+  }
   if (exposed) {
     damageTags.push(
       `<span class="lancer-damage-tag" data-tooltip="Exposed"><i class="cci cci-status-exposed i--xs"></i></span>`
