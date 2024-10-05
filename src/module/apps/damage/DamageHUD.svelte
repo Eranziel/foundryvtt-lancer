@@ -1,7 +1,7 @@
 <svelte:options accessors={true} />
 
 <script lang="ts">
-  import type { DamageHudWeapon, DamageHudBase, DamageHudTarget } from "./index";
+  import { type DamageHudWeapon, type DamageHudBase, type DamageHudTarget, HitQuality } from "./index";
 
   import { fade } from "svelte/transition";
   import { flip } from "svelte/animate";
@@ -33,6 +33,12 @@
   $: weaponDamage = weapon.damage;
   $: weaponBonusDamage = weapon.bonusDamage;
   $: profile = lancerItem ? findProfile() : null;
+  $: targetHitQualityClass =
+    !targets.length || targets[0]?.quality === HitQuality.Hit
+      ? "target-hit"
+      : targets[0]?.quality === HitQuality.Crit
+      ? "target-crit"
+      : "target-miss";
 
   let partialAP = false;
   let partialParacausal = false;
@@ -274,7 +280,7 @@
   <!-- Target cards -->
   <div class="damage-hud-targets">
     {#if targets.length === 1}
-      <div class="single-target-container">
+      <div class={`single-target-container ${targetHitQualityClass}`}>
         <span class="target-name flexrow lancer-mini-header">🞂<b>{targets[0].target.name}</b>🞀</span>
         <div class="target-body flexrow">
           <img
@@ -395,6 +401,11 @@
       background-color: var(--darken-1);
       box-shadow: 1px 1px 2px;
       margin-bottom: 0.3em;
+      transition: all 0.3s ease;
+
+      &.target-miss {
+        opacity: 70%;
+      }
 
       .target-name {
         justify-content: center;
