@@ -458,7 +458,7 @@ $theme-types: "primary" "secondary" "dark-gray" "light-gray" "tooltip"    // Gen
   grid-template-areas:
     "img name hit"
     "img roll roll";
-  grid-template-columns: 55px 1fr 1fr;
+  grid-template-columns: 55px 2fr 1fr;
   align-items: center;
 
   .lancer-hit-thumb {

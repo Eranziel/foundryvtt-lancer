@@ -173,9 +173,9 @@
         "effect": "EFFECT"
       },
       "attack": {
-        "crit": "{total} - CRIT",
-        "hit": "{total} - HIT",
-        "miss": "{total} - MISS",
+        "crit": "CRIT",
+        "hit": "HIT",
+        "miss": "MISS",
         "roll-all-damage": "ROLL DAMAGE"
       },
       "exclamation": {

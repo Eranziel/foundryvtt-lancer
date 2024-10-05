@@ -62,16 +62,10 @@ export function miniProfile(
 
 export function attackTarget(hit: LancerFlowState.HitResultWithRoll, options: HelperOptions): string {
   const hitChip = hit.crit
-    ? `<span class="card clipped lancer-hit-chip crit">${game.i18n.format("lancer.chat-card.attack.crit", {
-        total: hit.total,
-      })}</span>`
+    ? `<span class="card clipped lancer-hit-chip crit">${game.i18n.format("lancer.chat-card.attack.crit")}</span>`
     : hit.hit
-    ? `<span class="card clipped lancer-hit-chip hit">${game.i18n.format("lancer.chat-card.attack.hit", {
-        total: hit.total,
-      })}</span>`
-    : `<span class="card clipped lancer-hit-chip miss">${game.i18n.format("lancer.chat-card.attack.miss", {
-        total: hit.total,
-      })}</span>`;
+    ? `<span class="card clipped lancer-hit-chip hit">${game.i18n.format("lancer.chat-card.attack.hit")}</span>`
+    : `<span class="card clipped lancer-hit-chip miss">${game.i18n.format("lancer.chat-card.attack.miss")}</span>`;
   // @ts-expect-error v10 types
   const img = hit.target.document.texture.src;
   return `
