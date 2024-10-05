@@ -35,7 +35,9 @@ export function registerDamageSteps(flowSteps: Map<string, Step<any, any> | Flow
   flowSteps.set("setDamageTags", setDamageTags);
   flowSteps.set("setDamageTargets", setDamageTargets);
   flowSteps.set("showDamageHUD", showDamageHUD);
-  flowSteps.set("rollDamages", rollDamages);
+  flowSteps.set("rollReliable", rollReliable);
+  flowSteps.set("rollNormalDamage", rollNormalDamage);
+  flowSteps.set("rollCritDamage", rollCritDamage);
   flowSteps.set("applyOverkillHeat", applyOverkillHeat);
   flowSteps.set("printDamageCard", printDamageCard);
 }
@@ -49,7 +51,9 @@ export class DamageRollFlow extends Flow<LancerFlowState.DamageRollData> {
     "setDamageTags",
     "setDamageTargets",
     "showDamageHUD",
-    "rollDamages",
+    "rollReliable",
+    "rollNormalDamage",
+    "rollCritDamage",
     "applyOverkillHeat",
     "printDamageCard",
   ];
@@ -253,20 +257,19 @@ async function _rollDamage(
   };
 }
 
-export async function rollDamages(state: FlowState<LancerFlowState.DamageRollData>): Promise<boolean> {
+/**
+ * Collect all of the bonus damage rolls configured in a damage flow state.
+ * @param state Flow state to get bonus damage from
+ * @returns Array of bonus damage rolls, including target-specific bonus damage
+ */
+function _collectBonusDamage(state: FlowState<LancerFlowState.DamageRollData>): {
+  type: DamageType;
+  val: string;
+  target?: LancerToken;
+}[] {
   if (!state.data) throw new TypeError(`Damage flow state missing!`);
   if (!state.data.damage_hud_data) throw new TypeError(`Damage configuration missing!`);
-
-  // Convenience flag for whether this is a multi-target attack.
-  // We'll use this later alongside a check for whether a given bonus damage result
-  // is single-target; if not, the bonus damage needs to be halved.
-  const multiTarget: boolean = state.data.damage_hud_data.targets.length > 1;
-
-  const totalDamage = state.data.damage_hud_data.base.total;
-  state.data.damage = totalDamage.damage;
-  state.data.bonus_damage = totalDamage.bonusDamage ?? [];
-  state.data.reliable_val = state.data.damage_hud_data.weapon?.reliableValue ?? 0;
-  const allBonusDamage: {
+  const total: {
     type: DamageType;
     val: string;
     target?: LancerToken;
@@ -278,8 +281,46 @@ export async function rollDamages(state: FlowState<LancerFlowState.DamageRollDat
       ...d,
       target: hudTarget.target,
     }));
-    allBonusDamage.push(...hudTargetBonusDamage);
+    total.push(...hudTargetBonusDamage);
   }
+  return total;
+}
+
+/**
+ * Determine the final damage to use, given a raw damage roll and reliable roll.
+ * Reliable acts as a floor for the final damage.
+ * @param damage The raw damage roll results
+ * @param reliable The reliable roll results
+ * @returns Array of final damage types and values
+ */
+function _minReliable(
+  damage: LancerFlowState.RolledDamage[],
+  reliable: LancerFlowState.RolledDamage[]
+): LancerFlowState.RolledDamage[] {
+  const rawTotal = damage.reduce((acc, d) => acc + d.amount, 0);
+  const reliableTotal = reliable.reduce((acc, d) => acc + d.amount, 0);
+  if (rawTotal >= reliableTotal) return damage;
+  return reliable;
+}
+
+/**
+ * Convenience function to halve an array of damage types and values.
+ * @param damage Array of damage types and values to halve
+ * @returns Array of damage types with values halved
+ */
+function _halveDamage(damage: LancerFlowState.RolledDamage[]): LancerFlowState.RolledDamage[] {
+  return damage.map(d => ({ type: d.type, amount: Math.ceil(d.amount / 2) }));
+}
+
+export async function rollReliable(state: FlowState<LancerFlowState.DamageRollData>): Promise<boolean> {
+  if (!state.data) throw new TypeError(`Damage flow state missing!`);
+  if (!state.data.damage_hud_data) throw new TypeError(`Damage configuration missing!`);
+
+  const totalDamage = state.data.damage_hud_data.base.total;
+  state.data.damage = totalDamage.damage;
+  state.data.bonus_damage = totalDamage.bonusDamage ?? [];
+  state.data.reliable_val = state.data.damage_hud_data.weapon?.reliableValue ?? 0;
+  const allBonusDamage = _collectBonusDamage(state);
 
   // Sanity check - is there any damage to roll?
   if (!state.data.damage.length && !allBonusDamage.length && !state.data.reliable_val) {
@@ -287,13 +328,9 @@ export async function rollDamages(state: FlowState<LancerFlowState.DamageRollDat
     return false;
   }
 
-  // TODO: should reliable damage "rolling" be a separate step?
-  // Include reliable data if the attack was made with no targets or at least one target was missed
-  if (
-    state.data.reliable &&
-    state.data.reliable_val &&
-    (!state.data.hit_results.length || state.data.hit_results.some(h => !h.hit && !h.crit))
-  ) {
+  // Include reliable data if the damage had a reliable configuration.
+  // We need it even if there aren't any misses, since it's the floor for normal and crit damage.
+  if (state.data.reliable && state.data.reliable_val) {
     state.data.reliable_results = state.data.reliable_results || [];
     // Find the first non-heat non-burn damage type
     for (const x of state.data.damage ?? []) {
@@ -307,21 +344,36 @@ export async function rollDamages(state: FlowState<LancerFlowState.DamageRollDat
       break;
     }
 
+    // Populate all missed targets with reliable damage
     for (const hitTarget of state.data.hit_results) {
       if (!hitTarget.hit && !hitTarget.crit) {
+        const hudTarget = state.data.damage_hud_data.targets.find(t => t.target.id === hitTarget.target.id);
+        const halfDamage = hudTarget ? hudTarget.halfDamage : state.data.half_damage;
+        const rolledDamage = state.data.reliable_results.map(dr => ({ type: dr.d_type, amount: dr.roll.total || 0 }));
         state.data.targets.push({
           target: hitTarget.target,
-          damage: state.data.reliable_results.map(dr => ({ type: dr.d_type, amount: dr.roll.total || 0 })),
+          damage: halfDamage ? _halveDamage(rolledDamage) : rolledDamage,
           hit: hitTarget.hit,
           crit: hitTarget.crit,
-          // TODO: target-specific AP and Paracausal from damage HUD
-          ap: state.data.ap,
-          paracausal: state.data.paracausal,
-          half_damage: state.data.half_damage,
+          ap: hudTarget ? hudTarget.ap : state.data.ap,
+          paracausal: hudTarget ? hudTarget.paracausal : state.data.paracausal,
+          half_damage: halfDamage,
         });
       }
     }
   }
+  return true;
+}
+
+export async function rollNormalDamage(state: FlowState<LancerFlowState.DamageRollData>): Promise<boolean> {
+  if (!state.data) throw new TypeError(`Damage flow state missing!`);
+  if (!state.data.damage_hud_data) throw new TypeError(`Damage configuration missing!`);
+
+  // Convenience flag for whether this is a multi-target attack.
+  // We'll use this later alongside a check for whether a given bonus damage result
+  // is single-target; if not, the bonus damage needs to be halved.
+  const multiTarget: boolean = state.data.damage_hud_data.targets.length > 1;
+  const allBonusDamage = _collectBonusDamage(state);
 
   // Evaluate normal damage. Even if every hit was a crit, we'll use this in
   // the next step for crits
@@ -354,22 +406,36 @@ export async function rollDamages(state: FlowState<LancerFlowState.DamageRollDat
             targetDamage.push({ type: dr.d_type, amount: dr.roll.total || 0 });
           }
         }
+        const hudTarget = state.data.damage_hud_data.targets.find(t => t.target.id === hitTarget.target.id);
+        const halfDamage = hudTarget ? hudTarget.halfDamage : state.data.half_damage;
+        const actualDamage = _minReliable(
+          targetDamage,
+          state.data.reliable_results?.map(rr => ({ type: rr.d_type, amount: rr.roll.total || 0 })) || []
+        );
         state.data.targets.push({
           target: hitTarget.target,
-          // TODO: ensure total damage is at least equal to reliable_val
-          damage: targetDamage,
+          damage: halfDamage ? _halveDamage(actualDamage) : actualDamage,
           hit: hitTarget.hit,
           crit: hitTarget.crit,
-          // TODO: target-specific AP and Paracausal from damage HUD
-          ap: state.data.ap,
-          paracausal: state.data.paracausal,
-          half_damage: state.data.half_damage,
+          ap: hudTarget ? hudTarget.ap : state.data.ap,
+          paracausal: hudTarget ? hudTarget.paracausal : state.data.paracausal,
+          half_damage: halfDamage,
         });
       }
     }
   }
+  return true;
+}
 
-  // TODO: should crit damage rolling be a separate step?
+export async function rollCritDamage(state: FlowState<LancerFlowState.DamageRollData>): Promise<boolean> {
+  if (!state.data) throw new TypeError(`Damage flow state missing!`);
+  if (!state.data.damage_hud_data) throw new TypeError(`Damage configuration missing!`);
+
+  // Convenience flag for whether this is a multi-target attack.
+  // We'll use this later alongside a check for whether a given bonus damage result
+  // is single-target; if not, the bonus damage needs to be halved.
+  const multiTarget: boolean = state.data.damage_hud_data.targets.length > 1;
+
   // If there is at least one crit hit, evaluate crit damage
   if (state.data.has_crit_hit) {
     // NPCs do not follow the normal crit rules. They only get bonus damage from Deadly etc...
@@ -419,16 +485,20 @@ export async function rollDamages(state: FlowState<LancerFlowState.DamageRollDat
           targetDamage.push({ type: dr.d_type, amount: dr.roll.total || 0 });
         }
       }
+      const hudTarget = state.data.damage_hud_data.targets.find(t => t.target.id === hitTarget.target.id);
+      const halfDamage = hudTarget ? hudTarget.halfDamage : state.data.half_damage;
+      const actualDamage = _minReliable(
+        targetDamage,
+        state.data.reliable_results?.map(rr => ({ type: rr.d_type, amount: rr.roll.total || 0 })) || []
+      );
       state.data.targets.push({
         target: hitTarget.target,
-        // TODO: ensure total damage is at least equal to reliable_val
-        damage: targetDamage,
+        damage: halfDamage ? _halveDamage(actualDamage) : actualDamage,
         hit: hitTarget.hit,
         crit: hitTarget.crit,
-        // TODO: target-specific AP and Paracausal from damage HUD
-        ap: state.data.ap,
-        paracausal: state.data.paracausal,
-        half_damage: state.data.half_damage,
+        ap: hudTarget ? hudTarget.ap : state.data.ap,
+        paracausal: hudTarget ? hudTarget.paracausal : state.data.paracausal,
+        half_damage: hudTarget ? hudTarget.halfDamage : state.data.half_damage,
       });
     }
   }
