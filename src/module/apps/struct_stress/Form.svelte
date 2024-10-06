@@ -31,7 +31,7 @@
 
 <form
   id="structstress"
-  class="structstress window-content"
+  class="lancer-hud structstress window-content"
   on:submit|preventDefault={() => {
     dispatch("submit");
   }}
