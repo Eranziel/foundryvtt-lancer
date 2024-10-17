@@ -1,11 +1,12 @@
 import type { HelperOptions } from "handlebars";
 import { extendHelper, inc_if, resolveHelperDotpath, selected, std_num_input, std_x_of_y } from "./commons";
 import { ref_params, simple_ref_slot } from "./refs";
-import type { ActionType } from "../action";
+import { type ActionType } from "../action";
 import type { LancerActor, LancerMECH, LancerNPC, LancerPILOT } from "../actor/lancer-actor";
 import { getActionTrackerOptions } from "../settings";
 import { EntryType } from "../enums";
 import { LancerFlowState } from "../flows/interfaces";
+import { actionIcon } from "../action/action-tracker";
 
 // ---------------------------------------
 // Some simple stat editing thingies
@@ -221,13 +222,17 @@ export function action_button(
     enabled = true;
   }
 
+  const icon = `<i class="${actionIcon(action)} i--m"></i>`;
+
   return `
-    <button class="lancer-action-button lancer-button enabled${
-      active ? ` active lancer-${action}` : ""
-    }" data-action="${action}" data-val="${action_val}">
-      ${title}
-    </button>
-    `;
+    <button
+      class="lancer-action-button lancer-button${enabled ? " enabled" : ""}${active ? ` active lancer-${action}` : ""}"
+      data-action="${action}"
+      data-val="${action_val}"
+  >
+    ${icon}
+    ${title}
+  </button>`;
 }
 
 // Suitable for any macros that take a single argument: the actor uuid
