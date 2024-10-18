@@ -323,9 +323,14 @@ Hooks.once("init", async function () {
   game.lancer = {
     applications: {
       LancerPilotSheet,
+      LancerMechSheet,
       LancerNPCSheet,
       LancerDeployableSheet,
       LancerItemSheet,
+      LancerFrameSheet,
+      LancerLicenseSheet,
+      LancerNPCClassSheet,
+      LancerNPCFeatureSheet,
     },
     entities: {
       LancerActor,
