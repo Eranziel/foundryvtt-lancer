@@ -64,7 +64,6 @@ export class LancerActionManager extends Application {
       actions: this.getActions(),
       clickable: game.user?.isGM || getActionTrackerOptions().allowPlayers,
     };
-    console.log(this.target);
     return data;
   }
 
