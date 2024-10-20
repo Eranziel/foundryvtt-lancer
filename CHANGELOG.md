@@ -1,3 +1,18 @@
+# 2.2.5 (2024-10-19)
+
+## Bug Fixes
+
+- #751 - Fix/restore the action tracker so it's usable again.
+- Hide deleted pilots in Comp/Con import drop-down list.
+- Fix monospace font for non-Windows machines.
+
+## Misc
+
+- #749 - Status-type items in the Items tab are automatically added to the token status menu options.
+- #765 - Descriptions for token statuses are now populated from Status-type items in the Items tab and the Statuses/Conditions compendium.
+- Add missing sheet applications to `game.lancer.applications` for intrepid module developers.
+- Remove redundant error logger (Foundry core logs these now).
+
 # 2.2.4 (2024-08-13)
 
 ## Bug Fixes
