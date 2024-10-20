@@ -107,11 +107,6 @@ import { LancerNPCFeatureSheet } from "./module/item/npc-feature-sheet";
 
 const lp = LANCER.log_prefix;
 
-window.addEventListener("unhandledrejection", function (event) {
-  ui.notifications?.error(event.reason); // TODO Remove
-  console.error("Unhandled rejection (promise: ", event.promise, ", reason: ", event.reason, ").");
-});
-
 /* ------------------------------------ */
 /* Initialize system                    */
 /* ------------------------------------ */
