@@ -233,6 +233,8 @@ export class LancerActiveEffect extends ActiveEffect {
     CONFIG.specialStatusEffects.INVISIBLE = "ignored";
     // @ts-expect-error v10 types
     CONFIG.specialStatusEffects.BLIND = "ignored";
+
+    Hooks.callAll("lancer.statusInitComplete");
   }
 
   /**
@@ -268,6 +270,8 @@ export class LancerActiveEffect extends ActiveEffect {
         }
       }
     }
+
+    Hooks.callAll("lancer.statusesReady");
   }
 }
 
