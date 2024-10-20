@@ -278,7 +278,7 @@ Hooks.once("init", async function () {
   CONFIG.ui.combat = LancerCombatTracker;
 
   // Set up default system status icons
-  LancerActiveEffect.populateConfig(false);
+  LancerActiveEffect.initConfig();
 
   // Register the system tours
   registerTours();
@@ -334,19 +334,24 @@ Hooks.once("ready", async function () {
   game.action_manager = new LancerActionManager();
   game.action_manager!.init();
 
-  // Set up compendium-based statuses icons
-  LancerActiveEffect.populateConfig(true).then(() => {
-    // TODO: V12 Should automatically localize these, so this can get removed then
+  // Set up status icons from compendium and world items
+  await LancerActiveEffect.populateFromItems();
+  // TODO: V12 Should automatically localize these, so this can get removed then
+  //@ts-expect-error v11 types
+  CONFIG.statusEffects.forEach(e => (e.name = game.i18n.localize(e.name)));
+
+  Hooks.on("updateCompendium", async collection => {
+    if (collection?.metadata?.id == get_pack_id(EntryType.STATUS)) {
+      await LancerActiveEffect.populateFromItems();
+      //@ts-expect-error v11 types
+      CONFIG.statusEffects.forEach(e => (e.name = game.i18n.localize(e.name)));
+    }
+  });
+  Hooks.on("itemCreated", async (item: LancerItem) => {
+    if (!item.is_status()) return;
+    await LancerActiveEffect.populateFromItems();
     //@ts-expect-error v11 types
     CONFIG.statusEffects.forEach(e => (e.name = game.i18n.localize(e.name)));
-  });
-  Hooks.on("updateCompendium", collection => {
-    if (collection?.metadata?.id == get_pack_id(EntryType.STATUS)) {
-      LancerActiveEffect.populateConfig(true).then(() => {
-        //@ts-expect-error v11 types
-        CONFIG.statusEffects.forEach(e => (e.name = game.i18n.localize(e.name)));
-      });
-    }
   });
 });
 
