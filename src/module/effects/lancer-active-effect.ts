@@ -242,7 +242,7 @@ export class LancerActiveEffect extends ActiveEffect {
     const pack = game.packs.get(get_pack_id(EntryType.STATUS));
     const packStatuses: LancerSTATUS[] = ((await pack?.getDocuments({ type: EntryType.STATUS })) ||
       []) as unknown as LancerSTATUS[];
-    const worldStatuses: LancerSTATUS[] = game.items?.filter(i => i.data.type === EntryType.STATUS) as LancerSTATUS[];
+    const worldStatuses: LancerSTATUS[] = game.items?.filter(i => i.type === EntryType.STATUS) as LancerSTATUS[];
     const allStatuses = packStatuses.concat(worldStatuses);
 
     if (!allStatuses.length) {
@@ -258,6 +258,7 @@ export class LancerActiveEffect extends ActiveEffect {
           // @ts-expect-error v10 types
           name: status.name!,
           icon: status.img,
+          description: status.system.effects,
         });
       } else {
         existingStatus.icon = status.img;
