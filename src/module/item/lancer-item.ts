@@ -31,11 +31,11 @@ const lp = LANCER.log_prefix;
 
 interface LancerItemDataSource<T extends LancerItemType> {
   type: T;
-  data: SourceDataType<T>;
+  system: SourceDataType<T>;
 }
 interface LancerItemDataProperties<T extends LancerItemType> {
   type: T;
-  data: SystemDataType<T>;
+  system: SystemDataType<T>;
 }
 
 /**
