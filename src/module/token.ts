@@ -48,18 +48,16 @@ function cubesBySize({
         .map(c => {
           if (!alt && !columns) return c;
           if (!alt && columns) return { q: c.r, r: c.s, s: c.q };
-          return { q: -c.s, r: -c.q, s: -c.r };
+          if (alt && columns) return { q: -c.r, r: -c.s, s: -c.q };
+          return { q: -c.q, r: -c.r, s: -c.s };
         })
     );
   }
 }
 
 function altOrientation(token: LancerToken): boolean {
-  // @ts-expect-error
-  const HSSisAltOrientation = game.modules.get("hex-size-support")?.api?.isAltOrientation;
-  // @ts-expect-error
-  if (!HSSisAltOrientation) return token.document.width === 2;
-  return HSSisAltOrientation(token);
+  // @ts-expect-error v12
+  return (token.document.hexagonalShape & 1) === 1;
 }
 
 /**
@@ -114,6 +112,26 @@ export class LancerTokenDocument extends TokenDocument {
 }
 
 /**
+ * Get a basis space for the token. For odd, the center, for even, a predicable space with the center as a vertex
+ */
+function getBasis(token: LancerToken) {
+  // @ts-expect-error v12
+  const symmetrical = token.document.width === token.document.height;
+  // @ts-expect-error v12
+  const even = symmetrical && token.document.width % 2 == 0;
+  if (!symmetrical || !even) return token.center;
+  // @ts-expect-error v12
+  const col: boolean = canvas.grid.columns;
+  const alt = altOrientation(token);
+  const pt = { ...token.center };
+  // @ts-expect-error v12
+  if (col) pt.x = pt.x + ((alt ? -1 : 1) * canvas.grid.sizeX) / 2;
+  // @ts-expect-error v12
+  else pt.y = pt.y + ((alt ? -1 : 1) * canvas.grid.sizeY) / 2;
+  return pt;
+}
+
+/**
  * Extend the base Token class to implement additional system-specific logic.
  * @extends {Token}
  */
@@ -124,6 +142,18 @@ export class LancerToken extends Token {
       at: { x: -1, y: -1 },
       spaces: [],
     };
+  }
+
+  /** @override */
+  getShape() {
+    // @ts-expect-error v12
+    const size: { width: number; height: number } = this.getSize();
+    // @ts-expect-error v12
+    if (canvas.grid!.isGridless && size.width === size.height) {
+      return new PIXI.Circle(size.width / 2, size.height / 2, size.width / 2);
+    }
+    // @ts-expect-error v12
+    return super.getShape() as PIXI.Polygon | PIXI.Rectangle;
   }
 
   /**
@@ -145,42 +175,38 @@ export class LancerToken extends Token {
     }
 
     if (this._spaces.spaces.length === 0) {
-      if (canvas.grid?.isHex) {
-        // @ts-expect-error
-        const cube_space = HexagonalGrid.offsetToCube(
-          // @ts-expect-error
-          HexagonalGrid.pixelsToOffset(this.center, canvas.grid.grid.options),
-          // @ts-expect-error
-          canvas.grid.grid.options
-        );
+      // @ts-expect-error v12
+      if (canvas.grid?.isHexagonal) {
+        // @ts-expect-error v12
+        const regular = this.document.width === this.document.height;
+
+        const basis = getBasis(this);
+        // @ts-expect-error v12
+        const base_cube = canvas.grid.pointToCube(basis);
         const cubes = cubesBySize({
           // @ts-expect-error
-          size: this.document.width,
+          size: regular ? this.document.width : 1,
           alt: altOrientation(this),
-          columns: canvas.grid!.grid!.options.columns!,
-        }).map(c => ({
-          q: c.q + cube_space.q,
-          r: c.r + cube_space.r,
-          s: c.s + cube_space.s,
-        }));
-        this._spaces.spaces = cubes.map(c => {
           // @ts-expect-error
-          const p = HexagonalGrid.offsetToPixels(
-            // @ts-expect-error
-            HexagonalGrid.cubeToOffset(c, canvas.grid.grid.options),
-            // @ts-expect-error
-            canvas.grid.grid.options
-          );
-          return { x: p.x + Math.floor(canvas.grid!.grid!.w / 2), y: p.y + Math.floor(canvas.grid!.grid!.h / 2) };
-        });
-      } else if (canvas.grid?.type === CONST.GRID_TYPES.SQUARE) {
+          columns: canvas.grid!.columns,
+        }).map(c => ({
+          q: c.q + base_cube.q,
+          r: c.r + base_cube.r,
+          s: c.s + base_cube.s,
+        }));
+        // @ts-expect-error v12
+        this._spaces.spaces = cubes.map(c => canvas.grid!.cubeToPoint(c));
+        // @ts-expect-error v12
+      } else if (canvas.grid?.isSquare) {
         // @ts-expect-error
         for (let i = 0; i < this.document.width; ++i) {
           // @ts-expect-error
           for (let j = 0; j < this.document.height; ++j) {
             this._spaces.spaces.push({
-              x: this.position.x + (i + 0.5) * canvas.grid.w,
-              y: this.position.y + (j + 0.5) * canvas.grid.h,
+              // @ts-expect-error v12
+              x: this.position.x + (i + 0.5) * canvas.grid.sizeX,
+              // @ts-expect-error v12
+              y: this.position.y + (j + 0.5) * canvas.grid.sizeY,
             });
           }
         }

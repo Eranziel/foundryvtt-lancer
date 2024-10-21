@@ -61,11 +61,10 @@ import { gridDist } from "./module/helpers/automation/targeting";
 import CompconLoginForm from "./module/helpers/compcon-login-form";
 import { LancerCombat, LancerCombatant } from "./module/combat/lancer-combat";
 import { LancerCombatTracker } from "./module/combat/lancer-combat-tracker";
-import { LancerCombatTrackerConfig } from "./module/helpers/lancer-initiative-config-form";
+import { extendCombatTrackerConfig, onCloseCombatTrackerConfig } from "./module/helpers/lancer-initiative-config-form";
 import { MechModel } from "./module/models/actors/mech";
 import { MechSystemModel } from "./module/models/items/mech_system";
 import { handleRenderCombatCarousel } from "./module/helpers/combat-carousel";
-import { measureDistances } from "./module/grid";
 import { EntryType } from "./module/enums";
 import { FrameModel } from "./module/models/items/frame";
 import { PilotModel } from "./module/models/actors/pilot";
@@ -111,7 +110,7 @@ const lp = LANCER.log_prefix;
 /* Initialize system                    */
 /* ------------------------------------ */
 addEnrichers();
-Hooks.once("init", async function () {
+Hooks.once("init", function () {
   console.log(`Initializing LANCER RPG System ${LANCER.ASCII}`);
 
   // @ts-expect-error Use the v11+ active effect logic - effects never transfer from an item. Critical to how we handle effects
@@ -292,17 +291,29 @@ Hooks.once("init", async function () {
   // Combat tracker HUD modules integration
   Hooks.on("renderCombatCarousel", handleRenderCombatCarousel);
   if (game.modules.get("combat-tracker-dock")?.active) {
-    game.lancer.combatTrackerDock = await import("./module/integrations/combat-tracker-dock");
-    Hooks.on("renderCombatDock", (...[_app, html]: Parameters<Hooks.RenderApplication>) => {
-      html.find(".buttons-container [data-action='roll-all']").hide();
-      html.find(".buttons-container [data-action='roll-npc']").hide();
-      // html.find(".buttons-container [data-action='previous-turn']").hide();
-      html.find(".buttons-container [data-action='next-turn']").hide();
-    });
+    (async () => {
+      game.lancer.combatTrackerDock = await import("./module/integrations/combat-tracker-dock");
+      Hooks.on("renderCombatDock", (...[_app, html]: Parameters<Hooks.RenderApplication>) => {
+        html.find(".buttons-container [data-action='roll-all']").hide();
+        html.find(".buttons-container [data-action='roll-npc']").hide();
+        // html.find(".buttons-container [data-action='previous-turn']").hide();
+        html.find(".buttons-container [data-action='next-turn']").hide();
+      });
+    })();
   }
 
   // Extend TokenConfig for token size automation
   Hooks.on("renderTokenConfig", extendTokenConfig);
+});
+
+Hooks.once("setup", () => {
+  /////////////////////////////////
+  // DIRTY HACK DO NOT REPLICATE //
+  /////////////////////////////////
+  // Change the default value of the grid based templates option
+  // TODO Remove when we get https://github.com/foundryvtt/foundryvtt/issues/11477
+  if (game.settings.settings.get("core.gridTemplates"))
+    game.settings.settings.get("core.gridTemplates")!.default = true;
 });
 
 /* ------------------------------------ */
@@ -331,39 +342,32 @@ Hooks.once("ready", async function () {
 
   // Set up status icons from compendium and world items
   await LancerActiveEffect.populateFromItems();
-  // TODO: V12 Should automatically localize these, so this can get removed then
-  //@ts-expect-error v11 types
-  CONFIG.statusEffects.forEach(e => (e.name = game.i18n.localize(e.name)));
 
   Hooks.on("updateCompendium", async collection => {
     if (collection?.metadata?.id == get_pack_id(EntryType.STATUS)) {
       await LancerActiveEffect.populateFromItems();
-      //@ts-expect-error v11 types
-      CONFIG.statusEffects.forEach(e => (e.name = game.i18n.localize(e.name)));
     }
   });
   Hooks.on("itemCreated", async (item: LancerItem) => {
     if (!item.is_status()) return;
     await LancerActiveEffect.populateFromItems();
-    //@ts-expect-error v11 types
-    CONFIG.statusEffects.forEach(e => (e.name = game.i18n.localize(e.name)));
   });
 });
 
-// Set up Dice So Nice to icrementally show attacks then damge rolls
 Hooks.once("ready", () => {
-  if (game.modules.get("dice-so-nice")?.active && !game.settings.get(game.system.id, LANCER.setting_dsn_setup)) {
+  if (
+    game.user!.isGM &&
+    game.modules.get("dice-so-nice")?.active &&
+    !game.settings.get(game.system.id, LANCER.setting_dsn_setup)
+  ) {
+    // Set up Dice So Nice to icrementally show attacks then damge rolls
     console.log(`${lp} First login setup for Dice So Nice`);
     game.settings.set("dice-so-nice", "enabledSimultaneousRollForMessage", false);
     game.settings.set(game.system.id, LANCER.setting_dsn_setup, true);
   }
-});
 
-// Migrate settings from Lancer Condition Icons and disable the module
-Hooks.once("ready", migrateLancerConditions);
-
-Hooks.once("canvasInit", () => {
-  SquareGrid.prototype.measureDistances = measureDistances;
+  // Migrate settings from Lancer Condition Icons and disable the module
+  migrateLancerConditions();
 });
 
 // Action Manager hooks.
@@ -449,15 +453,8 @@ Hooks.on("getActorDirectoryEntryContext", (_html: JQuery<HTMLElement>, ctxOption
 Hooks.on("renderSettings", async (app: Application, html: HTMLElement) => {
   addSettingsButtons(app, html);
 });
-Hooks.on("renderCombatTracker", (...[_app, html]: Parameters<Hooks.RenderApplication<CombatTracker>>) => {
-  html
-    .find(".combat-settings")
-    .off("click")
-    .on("click", ev => {
-      ev.preventDefault();
-      new LancerCombatTrackerConfig(undefined, {}).render(true);
-    });
-});
+Hooks.on("renderCombatTrackerConfig", extendCombatTrackerConfig);
+Hooks.on("closeCombatTrackerConfig", onCloseCombatTrackerConfig);
 
 Hooks.on("renderChatMessage", async (cm: ChatMessage, html: JQuery, data: any) => {
   // Reapply listeners.
