@@ -263,7 +263,9 @@ export class LancerActiveEffect extends ActiveEffect {
           description: status.system.effects,
         });
       } else {
-        existingStatus.icon = status.img;
+        existingStatus.icon = existingStatus.icon || status.img;
+        // @ts-expect-error v10 types
+        existingStatus.name = existingStatus.name || status.name;
         if (status.system.effects) {
           // @ts-expect-error v10 types
           existingStatus.description = status.system.effects;
