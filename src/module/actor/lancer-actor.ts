@@ -593,6 +593,20 @@ export class LancerActor extends Actor {
       let newTemplates = itemDocs.filter(d => d.is_npc_template()) as LancerNPC_TEMPLATE[];
       newTemplates.forEach(t => this.npcClassSwapPromises.push(this._swapNpcClass(null, t)));
     }
+
+    // Ensure charged/loaded/limited uses are full
+    for (let item of itemDocs) {
+      if (item.isLimited()) {
+        item.update({ "system.uses.value": item.system.uses.max });
+      }
+      if (item.isLoading()) {
+        item.update({ "system.loaded": true });
+      }
+      if (item.isRecharge()) {
+        item.update({ "system.charged": true });
+      }
+    }
+
     this.effectHelper.propagateEffects(false); // Items / Effects have changed - may need to propagate
   }
 
