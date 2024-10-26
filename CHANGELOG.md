@@ -1,3 +1,17 @@
+# 2.2.6 (2024-10-26)
+
+## Bug Fixes
+
+- #727 - Show active effects table on all actor sheets. (Partial fix for #727, but some of the requested functionality is not implemented yet.)
+- #767 - Token Height Tools integration - Do not draw LOS lines between attacker and target after Roll or Cancel is clicked on the attack HUD.
+- #768 - Correct Legendary NPC evaluation of crushing hits/irreversible meltdown. There is still a case where Foundry can select the less favourable result, causing the output to be crushing hit/irreversible meltdown, but this will be much more rare.
+- #771 - limited uses/loading/charged status on items are filled up when they are added to an actor.
+- #772 - Fix bugs in status population. The priority for status names, descriptions, and images are now: selected icon set in settings > world items > compendium items.
+
+## Misc
+
+- Improved the styling of sheet tabs, adding a highlight on hover and a small animation when switching.
+
 # 2.2.5 (2024-10-19)
 
 ## Bug Fixes
