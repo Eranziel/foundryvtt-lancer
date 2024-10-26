@@ -22,7 +22,7 @@
   {{!-- Sheet Body --}}
   <section class="sheet-body">
     <div class="flexcol">
-      {{!-- Stats et all --}}
+      {{!-- Stats --}}
       <div class="wraprow quintuple">
         {{{clicker-stat-card "TIER" (concat "cci cci-npc-tier-" system.tier) "system.tier" true }}}
         {{{stat-rollable-card "HULL" "" "system.hull" }}}
@@ -50,7 +50,7 @@
         {{{tech-flow-card "TECH ATK" "cci cci-tech-full" "system.sys"}}}
       </div>
 
-      {{!-- Equipment et all --}}
+      {{!-- Class and templates --}}
       <div class="card clipped flexrow">
         <div style="padding-right: 5px;">
           <div class="lancer-header lancer-primary submajor" style="height: 30px;">{{localize "lancer.npc-sheet.class.label"}}</div>
@@ -71,6 +71,7 @@
         </div>
       </div>
 
+      {{!-- Basic attack buttons --}}
       <div class="card clipped">
         <span class="lancer-header lancer-primary submajor">BASIC ATTACKS</span>
         <div class="lancer-flow-button-grid">
@@ -79,6 +80,7 @@
         </div>
       </div>
 
+      {{!-- Features --}}
       <div class="card clipped">
         <div class="lancer-header lancer-primary submajor">
           <div style="width: 120px;"></div>
@@ -93,7 +95,14 @@
         </div>
       </div>
 
+      {{!-- Notes --}}
       {{{textarea-card "NOTES" "system.notes"}}}
+
+      {{!-- Active Effects --}}
+      <div class="card clipped">
+        <span class="lancer-header lancer-primary submajor">{{localize "lancer.npc-sheet.effects.label"}}</span>
+        {{{effect-categories-view actor effect_categories}}} 
+      </div>
     </div>
   </section>
 </form>

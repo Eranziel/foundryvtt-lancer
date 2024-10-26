@@ -29,7 +29,7 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
     return mergeObject(super.defaultOptions, {
       classes: ["lancer", "sheet", "actor", "pilot"],
       template: `systems/${game.system.id}/templates/actor/pilot.hbs`,
-      width: 800,
+      width: 900,
       height: 800,
       tabs: [
         {

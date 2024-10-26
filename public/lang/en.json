@@ -36,6 +36,11 @@
     "placeholder": {
       "name": "Name"
     },
+    "common-sheet": {
+      "tabs": {
+        "effects": "<EFFECTS//ACTIVE>"
+      }
+    },
     "deployable-sheet": {
       "tabs": {
         "status": "<STATUS>",
@@ -52,8 +57,7 @@
       "tabs": {
         "stats": "<MECH//STATS>",
         "loadout": "<MECH//LOADOUT>",
-        "talents": "<PILOT//TALENTS>",
-        "effects": "<EFFECTS//ACTIVE>"
+        "talents": "<PILOT//TALENTS>"
       },
       "core": {
         "label": "CORE"
@@ -82,6 +86,9 @@
       },
       "features": {
         "label": "FEATURES"
+      },
+      "effects": {
+        "label": "ACTIVE EFFECTS"
       }
     },
     "pilot-sheet": {

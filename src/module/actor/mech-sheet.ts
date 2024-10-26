@@ -19,7 +19,7 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
     return mergeObject(super.defaultOptions, {
       classes: ["lancer", "sheet", "actor", "mech"],
       template: `systems/${game.system.id}/templates/actor/mech.hbs`,
-      width: 800,
+      width: 900,
       height: 800,
       tabs: [
         {
