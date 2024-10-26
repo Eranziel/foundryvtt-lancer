@@ -820,11 +820,16 @@ tr.lcp-index-header {
   clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
   -webkit-clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
   padding: 10px;
-}
+  transition: all 0.25s ease-in;
 
-.lancer-tab.active {
-  color: var(--light-text, fuchsia);
-  background-color: var(--primary-highlight, fuchsia);
+  &:hover {
+    background-color: var(--darken-2);
+  }
+
+  &.active {
+    color: var(--light-text, fuchsia);
+    background-color: var(--primary-highlight, fuchsia);
+  }
 }
 
 .tier-control {
