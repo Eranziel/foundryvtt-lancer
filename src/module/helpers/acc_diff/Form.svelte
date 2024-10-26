@@ -37,12 +37,16 @@
   $: ranges = lancerItem ? findRanges() : null;
 
   const dispatch = createEventDispatcher();
+  let submitted = false;
 
   function focus(el: HTMLElement) {
     el.focus();
   }
 
   function drawLos(target: Token) {
+    // Ignore drawing LOS after the form has been submitted, to avoid flickering LOS lines as
+    // the UI slides down.
+    if (submitted) return;
     const thtModule = game.modules.get("terrain-height-tools");
     // @ts-expect-error v10 types
     if (!thtModule?.active || foundry.utils.isNewerVersion("0.3.3", thtModule.version)) return;
@@ -115,7 +119,10 @@
   id="accdiff"
   class="lancer accdiff window-content"
   use:escToCancel
-  on:submit|preventDefault={() => dispatch("submit")}
+  on:submit|preventDefault={() => {
+    submitted = true;
+    dispatch("submit");
+  }}
 >
   {#if title != ""}
     <div class="lancer-header {isTech() ? 'lancer-tech' : 'lancer-weapon'} medium">
@@ -347,7 +354,15 @@
       <i class="fas fa-check" />
       Roll
     </button>
-    <button class="dialog-button cancel" data-button="cancel" type="button" on:click={() => dispatch("cancel")}>
+    <button
+      class="dialog-button cancel"
+      data-button="cancel"
+      type="button"
+      on:click={() => {
+        submitted = true;
+        dispatch("cancel");
+      }}
+    >
       <i class="fas fa-times" />
       Cancel
     </button>
