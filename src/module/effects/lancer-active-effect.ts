@@ -245,7 +245,8 @@ export class LancerActiveEffect extends ActiveEffect {
     const packStatuses: LancerSTATUS[] = ((await pack?.getDocuments({ type: EntryType.STATUS })) ||
       []) as unknown as LancerSTATUS[];
     const worldStatuses: LancerSTATUS[] = game.items?.filter(i => i.type === EntryType.STATUS) as LancerSTATUS[];
-    const allStatuses = packStatuses.concat(worldStatuses);
+    // World statuses first so they take priority
+    const allStatuses = worldStatuses.concat(packStatuses);
 
     if (!allStatuses.length) {
       return;
