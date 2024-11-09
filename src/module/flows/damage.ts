@@ -1,19 +1,10 @@
 import { AppliedDamage } from "../actor/damage-calc";
-import { LancerActor, LancerNPC } from "../actor/lancer-actor";
+import { LancerActor } from "../actor/lancer-actor";
 import { DamageHudData, HitQuality } from "../apps/damage";
 import { openSlidingHud } from "../apps/slidinghud";
 import { DamageType } from "../enums";
-import {
-  LancerFRAME,
-  LancerItem,
-  LancerMECH_SYSTEM,
-  LancerMECH_WEAPON,
-  LancerNPC_FEATURE,
-  LancerPILOT_WEAPON,
-  LancerTALENT,
-} from "../item/lancer-item";
+import { LancerItem } from "../item/lancer-item";
 import { Damage, DamageData } from "../models/bits/damage";
-import { Tag } from "../models/bits/tag";
 import { UUIDRef } from "../source-template";
 import { LancerToken, LancerTokenDocument } from "../token";
 import { renderTemplateStep } from "./_render";
