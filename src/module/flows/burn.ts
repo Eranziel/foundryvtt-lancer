@@ -79,6 +79,14 @@ async function rollBurnCheck(state: FlowState<LancerFlowState.BurnCheckData>): P
   const rollFlow = new StatRollFlow(state.actor, { title: "BURN :: ENG", path: "system.eng" });
   const success = await rollFlow.begin();
   state.data.check_total = rollFlow.state.data?.result?.roll.total;
+  // @ts-expect-error DSN is not in our types
+  if (game.dice3d) {
+    // Get the newest message
+    const msg = game.messages?.contents[game.messages?.contents.length - 1];
+    // Wait for the DSN animation to finish
+    // @ts-expect-error DSN is not in our types
+    if (msg) await game.dice3d.waitFor3DAnimationByMessageID(msg.id);
+  }
   return success && state.data.check_total !== undefined && state.data.check_total !== null;
 }
 
