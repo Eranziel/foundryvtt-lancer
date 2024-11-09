@@ -40,7 +40,6 @@ export class PowerField extends fields.SchemaField {
 }
 
 export function parsePowerUses(frequency: string | null | undefined): FullBoundedNum | null {
-  console.log(`parsing uses from ${frequency}`);
   if (!frequency) return null;
   const parts = frequency.split("/");
   if (parts.length !== 2) return null;
