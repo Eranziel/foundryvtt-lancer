@@ -423,7 +423,7 @@ export class LancerItem extends Item {
   }
 
   /** @inheritdoc */
-  static async _onDeleteDocuments() {
+  static async _onDeleteOperation() {
     // Default implementation of this will delete active effects associated with this object.
     // We do that ourselves using effectManager, so to prevent fighting we disable this here
   }
