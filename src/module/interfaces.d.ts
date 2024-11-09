@@ -24,6 +24,7 @@ export interface LancerItemSheetData<T extends LancerItemType> extends ItemSheet
 export type CachedCloudPilot = {
   id: string;
   name: string;
+  callsign: string;
   cloudID: string;
   cloudOwnerID: string;
 };
@@ -33,7 +34,7 @@ export interface LancerActorSheetData<T extends LancerActorType> extends ActorSh
   active_mech?: LancerMECH;
   pilot?: LancerPILOT;
   // Store cloud pilot cache and potential cloud ids at the root level
-  pilotCache: CachedCloudPilot[];
+  compConPilotList: Record<string, string>;
   cleanedOwnerID: string;
   vaultID: string;
   rawID: string;
