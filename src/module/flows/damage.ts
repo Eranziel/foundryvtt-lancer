@@ -562,22 +562,24 @@ async function printDamageCard(
  */
 export async function getCritRoll(normal: Roll) {
   const t_roll = new Roll(normal.formula);
+  // This is really async despite the warning
   await t_roll.evaluate();
 
   const dice_rolls = Array<foundry.dice.terms.DiceTerm.Result[]>(normal.terms.length);
   const keep_dice: number[] = Array(normal.terms.length).fill(0);
   normal.terms.forEach((term, i) => {
     if (term instanceof foundry.dice.terms.Die) {
-      dice_rolls[i] = term.results.map(r => {
+      const termDie = term as foundry.dice.terms.Die;
+      dice_rolls[i] = termDie.results.map(r => {
         return { ...r };
       });
-      const kh = parseInt(term.modifiers.find(m => m.startsWith("kh"))?.substr(2) ?? "0");
-      keep_dice[i] = kh || (term.number ?? 0);
+      const kh = parseInt(termDie.modifiers.find(m => m.startsWith("kh"))?.substr(2) ?? "0");
+      keep_dice[i] = kh || termDie.number || 0;
     }
   });
   t_roll.terms.forEach((term, i) => {
     if (term instanceof foundry.dice.terms.Die) {
-      dice_rolls[i].push(...term.results);
+      dice_rolls[i].push(...(term as foundry.dice.terms.Die).results);
     }
   });
 
@@ -597,14 +599,21 @@ export async function getCritRoll(normal: Roll) {
   // was. Better, stronger, faster
   const terms = normal.terms.map((t, i) => {
     if (t instanceof foundry.dice.terms.Die) {
+      const tDie = t as foundry.dice.terms.Die;
       return new foundry.dice.terms.Die({
         ...t,
-        modifiers: (t.modifiers.filter(m => m.startsWith("kh")).length
-          ? t.modifiers
-          : [...t.modifiers, `kh${t.number}`]) as (keyof foundry.dice.terms.Die.Modifiers)[],
+        modifiers: (tDie.modifiers.filter(m => m.startsWith("kh")).length
+          ? tDie.modifiers
+          : [...tDie.modifiers, `kh${tDie.number}`]) as (keyof foundry.dice.terms.Die.Modifiers)[],
         results: dice_rolls[i],
-        number: t.number! * 2,
+        number: (tDie.number || 0) * 2,
       });
+    } else if (t instanceof foundry.dice.terms.OperatorTerm) {
+      // As of v12, Roll.fromTerms throws an error if some terms are not evaluated already.
+      // It's safe to mark OperatorTerms as evaluated, as they don't have any results.
+      // @ts-expect-error we must override this or Roll.fromTerms throws an error.
+      t._evaluated = true;
+      return t;
     } else {
       return t;
     }
