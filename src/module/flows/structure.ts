@@ -162,7 +162,6 @@ export async function rollStructureTable(state: FlowState<LancerFlowState.Primar
   ) {
     formula = `{${formula}, ${formula}}kh`;
   }
-  // This is really async despit the warning
   let roll: Roll = await new Roll(formula).evaluate();
 
   let result = roll.total;
