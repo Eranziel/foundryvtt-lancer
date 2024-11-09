@@ -192,25 +192,19 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
 
   async getData() {
     const data = await super.getData(); // Not fully populated yet!
-    const pilot = this.actor as LancerPILOT;
 
-    data.pilotCache = pilotCache();
-
-    // use the select if and only if we have the pilot in our cache
-    let pilotInSelect = data.pilotCache.find(p => p.cloudID == pilot.system.cloud_id);
-
-    if (pilotInSelect) {
-      // if this is a vault id we know of
-      data.vaultID = pilot.system.cloud_id;
-      data.rawID = "";
-    } else if (pilot.system.cloud_id && pilot.system.cloud_id.match(shareCodeMatcher)) {
-      // If this was a share code, show it in the input box so it can be edited
-      data.vaultID = "";
-      data.rawID = pilot.system.cloud_id;
-    } else {
-      data.rawID = "";
-      data.vaultID = "";
-    }
+    data.compConPilotList = pilotCache()
+      .sort((p1, p2) => {
+        if (p1.callsign < p2.callsign) return -1;
+        if (p1.callsign > p2.callsign) return 1;
+        if (p1.name < p2.name) return -1;
+        if (p1.name > p2.name) return 1;
+        return 0;
+      })
+      .reduce((acc, pilot) => {
+        acc[`${pilot.callsign} // ${pilot.name}`] = pilot.cloudID;
+        return acc;
+      }, {} as Record<string, string>);
 
     return data;
   }
