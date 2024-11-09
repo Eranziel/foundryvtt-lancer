@@ -1,3 +1,16 @@
+# 2.3.0 (2024-11-09)
+
+## Features
+
+- #189 - Damage application is here! For the time being this only applies to weapon attacks. Tech attacks will be able to use the damage roller/application in the future, but still need some rework to support it.
+  - #379 - Attack and damage rolling steps are now separate. Attack results have a "roll damage" button which shows a damage configuration HUD, which will then roll for damage and print a separate card to chat.
+  - #535 - Configurable bonus damage as part of the damage flow. Bonus damage can be configured globally for the attack, or added to specific targets. (Anyone Nuclear Cavaliers out there?) The hit quality for each target (crit, hit, or miss) can also be modified in the HUD, in case manual adjustments or additional targets are needed.
+  - Damage configuration includes toggles for AP, cannot-be-reduced (like from the Paracausal mod), and half-damage (like from Heavy Gunner). These can each be applied to the entire damage roll or to specific targets.
+  - The damage roll chat card has a button for each target to apply damage to that target. There is also a drop-down for each target to pick whether this damage should be applied at 1x, 2x, or be resisted.
+  - Resistance statuses have been added for each damage type. Tokens which have these statuses will resist the appropriate damage type as long as the damage was not configured as cannot-be-reduced.
+  - #497 - Automatic burn handling at end of turn. Actors with burn will be prompted to make their Engineering save at the end of their turn, and if they fail a damage card will be printed.
+  - Stats changes to tokens can show floating numbers above the token, e.g. "-5 HP". There is a new system setting to enable these numbers. The setting is separate for each client and is off by default.
+
 # 2.2.6 (2024-10-26)
 
 ## Bug Fixes
