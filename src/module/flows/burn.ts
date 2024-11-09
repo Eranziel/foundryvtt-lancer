@@ -6,6 +6,7 @@ import { DamageRollFlow } from "./damage";
 import { StatRollFlow } from "./stat";
 import { LancerFlowState } from "./interfaces";
 import { DamageType } from "../enums";
+import { DamageHudData } from "../apps/damage";
 
 export function registerBurnSteps(flowSteps: Map<string, Step<any, any> | Flow<any>>) {
   flowSteps.set("initBurnCheckData", initBurnCheckData);
@@ -57,6 +58,16 @@ async function initBurnCheckData(state: FlowState<LancerFlowState.BurnCheckData>
   }
   const target = tokens[0];
   state.data.hit_results = [{ target: target, total: "10", usedLockOn: false, hit: true, crit: false }];
+  state.data.damage_hud_data = DamageHudData.fromParams(state.actor, {
+    tags: [],
+    title: state.data.title,
+    targets: [target],
+    hitResults: state.data.hit_results,
+    ap: false,
+    paracausal: true, // Burn ticks do not apply resistance
+    halfDamage: false,
+    starting: { damage: state.data.damage, bonusDamage: [] },
+  });
   state.data.damage_results = [];
   state.data.crit_damage_results = [];
   state.data.targets = [];
@@ -67,21 +78,20 @@ async function rollBurnCheck(state: FlowState<LancerFlowState.BurnCheckData>): P
   if (!state.data) throw new TypeError(`Burn flow state missing!`);
   const rollFlow = new StatRollFlow(state.actor, { title: "BURN :: ENG", path: "system.eng" });
   const success = await rollFlow.begin();
-  state.data.result = rollFlow.state.data?.result;
-  return success && !!state.data.result;
+  state.data.check_total = rollFlow.state.data?.result?.roll.total;
+  return success && state.data.check_total !== undefined && state.data.check_total !== null;
 }
 
 async function checkBurnResult(state: FlowState<LancerFlowState.BurnCheckData>): Promise<boolean> {
   if (!state.data) throw new TypeError(`Burn flow state missing!`);
-  if (!state.data.result?.roll.total) throw new TypeError(`Burn check hasn't been rolled yet!`);
-  const result = state.data.result.roll.total;
-  if (result >= 10) {
+  if (!state.data.check_total) throw new TypeError(`Burn check hasn't been rolled yet!`);
+  if (state.data.check_total >= 10) {
     state.data.title = `BURN CLEARED!`;
     state.data.icon = "mdi mdi-fire-extinguisher";
     await state.actor.update({ "system.burn": 0 });
     return true;
   } else {
-    const rollDamagesStep = (game.lancer.flowSteps as Map<string, Step<any, any> | Flow<any>>).get("rollDamages");
+    const rollDamagesStep = (game.lancer.flowSteps as Map<string, Step<any, any> | Flow<any>>).get("rollNormalDamage");
     if (!rollDamagesStep || typeof rollDamagesStep !== "function")
       throw new TypeError(`Couldn't get rollDamagesStep flow step!`);
     return await rollDamagesStep(state);

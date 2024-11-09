@@ -180,7 +180,8 @@ export namespace LancerFlowState {
   }
 
   export interface BurnCheckData extends DamageRollData {
-    result?: RollResult;
+    // If we name this property 'result', DSN will show double d20 rolls for the Eng
+    check_total?: number;
     amount: number;
   }
 
