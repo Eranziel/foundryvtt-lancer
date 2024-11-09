@@ -92,7 +92,7 @@ import {
 import { effect_categories_view, effect_view } from "./effects";
 import { compactTagListHBS, itemEditTags } from "./tags";
 import { actionTypeSelector } from "./npc";
-import { miniProfile } from "./chat";
+import { attackTarget, damageTarget, miniProfile } from "./chat";
 
 export function registerHandlebarsHelpers() {
   // *******************************************************************
@@ -372,4 +372,6 @@ export function registerHandlebarsHelpers() {
   // ------------------------------------------------------------------------
   // Chat helpers
   Handlebars.registerHelper("mini-profile", miniProfile);
+  Handlebars.registerHelper("attack-target", attackTarget);
+  Handlebars.registerHelper("damage-target", damageTarget);
 }

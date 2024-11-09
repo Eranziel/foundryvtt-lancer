@@ -17,8 +17,6 @@ import { LancerActor } from "./module/actor/lancer-actor";
 import { LancerItem } from "./module/item/lancer-item";
 import { populatePilotCache } from "./module/util/compcon";
 
-import { actionTypeSelector } from "./module/helpers/npc";
-
 import { LancerActionManager } from "./module/action/action-manager";
 
 // Import applications
@@ -105,7 +103,6 @@ import { onHotbarDrop } from "./module/flows/hotbar";
 import { registerFlows } from "./module/flows/register-flows";
 import { LancerNPCFeatureSheet } from "./module/item/npc-feature-sheet";
 import { applyDamage, rollDamageCallback } from "./module/flows/damage";
-import { miniProfile, attackTarget, damageTarget } from "./module/helpers/chat";
 import { tokenScrollText } from "./module/util/misc";
 
 const lp = LANCER.log_prefix;
@@ -289,10 +286,6 @@ Hooks.once("init", async function () {
   registerHandlebarsHelpers();
 
   // ------------------------------------------------------------------------
-  // ------------------------------------------------------------------------
-  // Chat helpers
-  Handlebars.registerHelper("attack-target", attackTarget);
-  Handlebars.registerHelper("damage-target", damageTarget);
   // Sliding HUD Zone, including accuracy/difficulty window
   Hooks.on("renderHeadsUpDisplay", slidingHUD.attach);
 
