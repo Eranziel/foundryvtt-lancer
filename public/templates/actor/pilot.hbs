@@ -56,12 +56,7 @@
           <span class="lancer-header lancer-primary major">{{localize "lancer.pilot-sheet.cloud-header.label"}}</span>
           <select class="lancer-input major lancer-text-field" style="text-align: center;" name="selectCloudId"
             data-type="text"  >
-            {{#select system.cloud_id}}
-            <option value="">{{localize "lancer.pilot-sheet.cloud-header.vaultID"}}</option>
-            {{#each pilotCache}}
-            <option value="{{id}}">{{callsign}} // {{name}}</option>
-            {{/each}}
-            {{/select}}
+            {{selectOptions compConPilotList selected=system.cloud_id inverted=true}}
           </select>
           <input class="lancer-input major" style="text-align: center;" type="text" name="system.cloud_id" value="{{system.cloud_id}}"
             data-dtype="String" placeholder="{{localize "lancer.pilot-sheet.cloud-header.raw-placeholder"}}" />
