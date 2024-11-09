@@ -1,3 +1,5 @@
+import { LANCER } from "../config";
+
 /**
  * Watches for exact changes in its payload, detected by monitoring changes int its payload is stringified to JSON
  */
@@ -117,6 +119,8 @@ export async function tokenScrollText(
   }
   const token = canvas.tokens?.get(tokenId);
   if (!token) return;
+  // If this client does not have floating numbers enabled, don't show them.
+  if (!(await game.settings.get(game.system.id, LANCER.setting_floating_damage_numbers))) return;
   // @ts-expect-error v11 types
   await canvas.interface.createScrollingText(token.center, content, style);
 }

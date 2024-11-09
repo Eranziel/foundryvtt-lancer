@@ -187,6 +187,10 @@
       },
       "remaining": "{total} / {max} REMAINING"
     },
+    "floatingDamageNumbers": {
+      "name": "Floating Damage Numbers",
+      "hint": "Enable floating damage numbers for changes to stats, including applying damage rolls. This setting is separate for each client."
+    },
     "uiTheme": {
       "name": "UI Theme",
       "hint": "Colour scheme for the UI, echoing Comp/Con's themes.",

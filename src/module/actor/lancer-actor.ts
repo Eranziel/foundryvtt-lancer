@@ -31,9 +31,10 @@ import { OverchargeFlow } from "../flows/overcharge";
 import { NPCRechargeFlow } from "../flows/npc";
 import * as lancer_data from "@massif/lancer-data";
 import { StabilizeFlow } from "../flows/stabilize";
-import { rollEvalSync } from "../util/misc";
+import { rollEvalSync, tokenScrollText, TokenScrollTextOptions } from "../util/misc";
 import { BurnFlow } from "../flows/burn";
 import { createChatMessageStep } from "../flows/_render";
+import { ActorDataConstructorData } from "@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/data/data.mjs/actorData";
 
 const lp = LANCER.log_prefix;
 
@@ -563,6 +564,14 @@ export class LancerActor extends Actor {
   }
 
   /** @override
+   * When an update is queued, trigger scrolling text on attached tokens
+   */
+  protected async _preUpdate(...[data, options, user]: Parameters<Actor["_preUpdate"]>): Promise<void> {
+    super._preUpdate(data, options, user);
+    this.statChangeScrollingText(data);
+  }
+
+  /** @override
    * Upon an actor being updated, we want to trigger automated cleanup, effect generation, etc
    */
   protected _onUpdate(...[changed, options, userId]: Parameters<Actor["_onUpdate"]>) {
@@ -924,6 +933,113 @@ export class LancerActor extends Actor {
       throw new Error(message);
     }
     return x;
+  }
+
+  async statChangeScrollingText(data: DeepPartial<ActorDataConstructorData>) {
+    // Show scrolling text above the token on overshield, hp, burn, and heat changes
+    const tokenId = this.token?.id || canvas?.scene?.tokens.find(t => t.actor?.id === this.id)?.id;
+    if (!tokenId) return;
+
+    const scrollingTexts: Array<TokenScrollTextOptions> = [];
+    // Overshield
+    if ((data as any).system?.overshield?.value !== undefined) {
+      const val = this.system.overshield.value - (data as any).system.overshield.value;
+      scrollingTexts.push({
+        tokenId,
+        content: `${val < 0 ? "+" : "-"}${Math.abs(val).toString()} Overshield`,
+        style: {
+          anchor: CONST.TEXT_ANCHOR_POINTS.TOP,
+          direction: val < 0 ? CONST.TEXT_ANCHOR_POINTS.TOP : CONST.TEXT_ANCHOR_POINTS.BOTTOM,
+          fill: "0x9f6bff",
+        },
+      });
+    }
+    // HP
+    if ((data as any).system?.hp?.value !== undefined) {
+      const val = this.system.hp.value - (data as any).system.hp.value;
+      scrollingTexts.push({
+        tokenId,
+        content: `${val < 0 ? "+" : "-"}${Math.abs(val).toString()} HP`,
+        style: {
+          anchor: CONST.TEXT_ANCHOR_POINTS.CENTER,
+          direction: val < 0 ? CONST.TEXT_ANCHOR_POINTS.TOP : CONST.TEXT_ANCHOR_POINTS.BOTTOM,
+          fill: "0xc2e03e",
+        },
+      });
+    }
+    // Burn
+    if ((data as any).system?.burn !== undefined) {
+      const val = this.system.burn - (data as any).system.burn;
+      scrollingTexts.push({
+        tokenId,
+        content: `${val < 0 ? "+" : "-"}${Math.abs(val).toString()} Burn`,
+        style: {
+          anchor: CONST.TEXT_ANCHOR_POINTS.BOTTOM,
+          direction: val < 0 ? CONST.TEXT_ANCHOR_POINTS.TOP : CONST.TEXT_ANCHOR_POINTS.BOTTOM,
+          fill: "0xc43333",
+        },
+      });
+    }
+    // Heat
+    if (this.hasHeatcap() && (data as any).system?.heat?.value !== undefined) {
+      const val = this.system.heat.value - (data as any).system.heat.value;
+      scrollingTexts.push({
+        tokenId,
+        content: `${val < 0 ? "+" : "-"}${Math.abs(val).toString()} Heat`,
+        style: {
+          anchor: CONST.TEXT_ANCHOR_POINTS.BOTTOM,
+          direction: val < 0 ? CONST.TEXT_ANCHOR_POINTS.TOP : CONST.TEXT_ANCHOR_POINTS.BOTTOM,
+          fill: "0xc76f38",
+        },
+      });
+    }
+    // Structure
+    if ((this.is_mech() || this.is_npc()) && (data as any).system?.structure?.value !== undefined) {
+      const val = this.system.structure.value - (data as any).system.structure.value;
+      scrollingTexts.push({
+        tokenId,
+        content: `${val < 0 ? "+" : "-"}${Math.abs(val).toString()} Structure`,
+        style: {
+          anchor: CONST.TEXT_ANCHOR_POINTS.CENTER,
+          direction: val < 0 ? CONST.TEXT_ANCHOR_POINTS.TOP : CONST.TEXT_ANCHOR_POINTS.BOTTOM,
+          fill: "0x1f9eff",
+        },
+      });
+    }
+    // Stress
+    if ((this.is_mech() || this.is_npc()) && (data as any).system?.stress?.value !== undefined) {
+      const val = this.system.stress.value - (data as any).system.stress.value;
+      scrollingTexts.push({
+        tokenId,
+        content: `${val < 0 ? "+" : "-"}${Math.abs(val).toString()} Stress`,
+        style: {
+          anchor: CONST.TEXT_ANCHOR_POINTS.CENTER,
+          direction: val < 0 ? CONST.TEXT_ANCHOR_POINTS.TOP : CONST.TEXT_ANCHOR_POINTS.BOTTOM,
+          fill: "0xff7b00",
+        },
+      });
+    }
+    // Repairs
+    if (this.is_mech() && (data as any).system?.repairs !== undefined) {
+      const val = this.system.repairs.value - (data as any).system.repairs.value;
+      scrollingTexts.push({
+        tokenId,
+        content: `${val < 0 ? "+" : "-"}${Math.abs(val).toString()} Repairs`,
+        style: {
+          anchor: CONST.TEXT_ANCHOR_POINTS.CENTER,
+          direction: val < 0 ? CONST.TEXT_ANCHOR_POINTS.TOP : CONST.TEXT_ANCHOR_POINTS.BOTTOM,
+          fill: "0x8c8c8c",
+        },
+      });
+    }
+
+    // Now, show each one in sequence
+    for (const text of scrollingTexts) {
+      // Delay a bit so the text doesn't all overlap
+      await new Promise(resolve => setTimeout(resolve, 250));
+      // Showing the next scrolling text
+      tokenScrollText(text, true);
+    }
   }
 
   async beginFullRepairFlow(title?: string): Promise<boolean> {
