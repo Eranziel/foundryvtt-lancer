@@ -172,7 +172,7 @@ export async function rollOverheatTable(state: FlowState<LancerFlowState.Overhea
   ) {
     formula = `{${formula}, ${formula}}kh`;
   }
-  let roll: Roll = await new Roll(formula).evaluate({ async: true });
+  let roll: Roll = await new Roll(formula).evaluate();
 
   let result = roll.total;
   if (result === undefined) return false;

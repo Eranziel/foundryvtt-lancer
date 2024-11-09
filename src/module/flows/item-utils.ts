@@ -121,7 +121,7 @@ export async function applySelfHeat(
   let self_heat = 0;
 
   if (state.data.self_heat) {
-    const roll = await new Roll(state.data.self_heat).roll({ async: true });
+    const roll = await new Roll(state.data.self_heat).evaluate();
     self_heat = roll.total!;
     state.data.self_heat_result = {
       roll,
