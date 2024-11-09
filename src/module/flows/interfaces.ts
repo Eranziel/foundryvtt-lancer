@@ -1,8 +1,11 @@
+import { LancerActor } from "../actor/lancer-actor";
 import { AttackType, DamageType, NpcFeatureType, StabOptions1, StabOptions2, SystemType } from "../enums";
-import { AccDiffData } from "../helpers/acc_diff";
+import { AccDiffHudData } from "../apps/acc_diff";
 import { ActionData } from "../models/bits/action";
 import { DamageData } from "../models/bits/damage";
 import { Tag, TagData } from "../models/bits/tag";
+import { LancerToken } from "../token";
+import { DamageHudData } from "../apps/damage";
 
 // -------- Flow state data types -------------------------------------
 // Each flow uses one of these data types to track its state.
@@ -14,6 +17,7 @@ export namespace LancerFlowState {
     title: string;
     roll_str: string;
     result?: RollResult;
+    icon?: string;
   }
 
   export interface RollResult {
@@ -26,7 +30,7 @@ export namespace LancerFlowState {
     type: "stat";
     path: string; // The dotpath to the stat in the item or actor
     bonus: string | number;
-    acc_diff?: AccDiffData;
+    acc_diff?: AccDiffHudData;
     effect?: string;
   }
 
@@ -38,7 +42,7 @@ export namespace LancerFlowState {
   export type AttackRolls = {
     roll: string;
     targeted: {
-      target: Token;
+      target: LancerToken;
       roll: string;
       usedLockOn: boolean | null;
     }[];
@@ -53,7 +57,14 @@ export namespace LancerFlowState {
     roll: Roll;
     tt: string | HTMLElement | JQuery<HTMLElement>; // Tooltip
     d_type: DamageType;
+    bonus: boolean;
+    target?: LancerToken;
   };
+
+  export interface DamageResultSerialized extends Omit<DamageResult, "target"> {
+    // UUID instead of the actual token/document
+    target?: string;
+  }
 
   export type SelfHeatResult = {
     roll: Roll;
@@ -61,17 +72,43 @@ export namespace LancerFlowState {
   };
 
   export type HitResult = {
-    token: { name: string; img: string };
+    target: LancerToken;
     total: string;
+    usedLockOn: boolean;
     hit: boolean;
     crit: boolean;
   };
+
+  export interface HitResultWithRoll extends HitResult {
+    roll: Roll;
+    tt: string | HTMLElement | JQuery<HTMLElement>;
+  }
+
+  export interface RolledDamage {
+    type: DamageType;
+    amount: number;
+  }
+
+  export interface DamageTargetResult {
+    target: LancerToken;
+    damage: RolledDamage[];
+    hit: boolean;
+    crit: boolean;
+    ap: boolean;
+    paracausal: boolean;
+    half_damage: boolean;
+  }
+
+  export interface DamageTargetResultSerialized extends Omit<DamageTargetResult, "target"> {
+    // UUID instead of the actual token/document
+    target: string;
+  }
 
   // Configuration passed to initiate an attack roll
   export interface AttackRollData extends Omit<BaseRollData, "type"> {
     type: "attack";
     flat_bonus: number;
-    acc_diff?: AccDiffData;
+    acc_diff?: AccDiffHudData;
 
     attack_type: AttackType; // Melee, Ranged, Quick Tech, Full Tech
     action: ActionData | null;
@@ -83,7 +120,6 @@ export namespace LancerFlowState {
     tags?: Tag[];
     self_heat?: string; // The self heat roll string if present
     self_heat_result?: SelfHeatResult;
-    overkill?: boolean;
 
     scene_uuid?: string;
     origin_space?: [number, number];
@@ -94,10 +130,6 @@ export namespace LancerFlowState {
     attack_rolls: AttackRolls;
     attack_results: AttackResult[];
     hit_results: HitResult[];
-    // TODO: move damage and crit results to damage roll data
-    damage_results: DamageResult[];
-    crit_damage_results: DamageResult[];
-    overkill_heat?: number;
     // TODO: deprecate base64 encoded reroll data
     reroll_data: string;
   }
@@ -119,8 +151,38 @@ export namespace LancerFlowState {
     destroyed?: boolean;
   }
 
-  export interface DamageRollData extends Omit<BaseRollData, "type"> {
-    // TODO
+  export interface DamageRollData extends Omit<Omit<BaseRollData, "type">, "roll_str"> {
+    type: "damage";
+    configurable: boolean;
+    add_burn: boolean;
+    damage_hud_data?: DamageHudData;
+    invade?: boolean;
+    tags: Tag[];
+    ap: boolean;
+    paracausal: boolean;
+    half_damage: boolean;
+    overkill: boolean;
+    overkill_heat?: number;
+    reliable: boolean;
+    reliable_val?: number;
+    damage: DamageData[];
+    bonus_damage?: DamageData[];
+    hit_results: HitResult[];
+    has_normal_hit: boolean;
+    has_crit_hit: boolean;
+    reliable_results?: DamageResult[];
+    damage_results: DamageResult[];
+    crit_damage_results: DamageResult[];
+    reliable_total?: number;
+    damage_total: number;
+    crit_total: number;
+    targets: DamageTargetResult[];
+  }
+
+  export interface BurnCheckData extends DamageRollData {
+    // If we name this property 'result', DSN will show double d20 rolls for the Eng
+    check_total?: number;
+    amount: number;
   }
 
   // Configuration passed to initiate the use of an action

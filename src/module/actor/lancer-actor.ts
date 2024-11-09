@@ -31,7 +31,10 @@ import { OverchargeFlow } from "../flows/overcharge";
 import { NPCRechargeFlow } from "../flows/npc";
 import * as lancer_data from "@massif/lancer-data";
 import { StabilizeFlow } from "../flows/stabilize";
-import { rollEvalSync } from "../util/misc";
+import { rollEvalSync, tokenScrollText, TokenScrollTextOptions } from "../util/misc";
+import { BurnFlow } from "../flows/burn";
+import { createChatMessageStep } from "../flows/_render";
+import { ActorDataConstructorData } from "@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/data/data.mjs/actorData";
 
 const lp = LANCER.log_prefix;
 
@@ -103,22 +106,45 @@ export class LancerActor extends Actor {
     this.strussHelper = new StrussHelper(this);
   }
 
-  async damage_calc(damage: AppliedDamage, ap = false, paracausal = false): Promise<number> {
-    const armored_damage_types = ["Kinetic", "Energy", "Explosive", "Variable"] as const;
-
-    const ap_damage_types = [DamageType.Burn, DamageType.Heat] as const;
+  async damageCalc(
+    damage: AppliedDamage,
+    { multiple = 1, ap = false, paracausal = false, addBurn = true }
+  ): Promise<number> {
+    const armoredDamageTypes = [
+      DamageType.Kinetic,
+      DamageType.Energy,
+      DamageType.Explosive,
+      DamageType.Variable,
+    ] as const;
+    const apDamageTypes = [DamageType.Burn, DamageType.Heat] as const;
+    // Promises for async tasks that happen as a result of this damage calculation
+    const taskPromises: Promise<any>[] = [];
+    const tokenId = this.token?.id;
 
     let changes = {} as Record<string, number>;
 
+    // Damage multipliers - exposed and whichever multiple chosen by the user
+    const exposed = this.system.statuses.exposed;
+    // Ensure the multiple is valid, default to 1x
+    if (![0.5, 1, 2].includes(multiple)) multiple = 1;
+    const resistAll = multiple === 0.5;
+
     // Entities without Heat Caps take Energy Damage instead
-    if (this.is_pilot()) {
+    if (!this.hasHeatcap()) {
       damage.Energy += damage.Heat;
       damage.Heat = 0;
     }
 
+    // Step 0: 2x multiplier doubles everything
+    if (multiple === 2) {
+      for (const d of Object.values(DamageType)) {
+        damage[d] *= 2;
+      }
+    }
+
     // Step 1: Exposed doubles non-burn, non-heat damage
-    if (this.system.statuses.exposed) {
-      armored_damage_types.forEach(d => (damage[d] *= 2));
+    if (exposed) {
+      armoredDamageTypes.forEach(d => Math.ceil((damage[d] *= 2)));
     }
 
     /**
@@ -128,45 +154,46 @@ export class LancerActor extends Actor {
      * Default is "favors defender".
      */
     if (!paracausal && !this.system.statuses.shredded) {
-      const defense_favor = true; // getAutomationOptions().defenderArmor
+      const defenseFavor = true; // getAutomationOptions().defenderArmor
       // TODO: figure out how to fix this typing
       // @ts-expect-error
-      const resist_armor_damage = armored_damage_types.filter(t => this.system.resistances[t.toLowerCase()]);
+      const resistArmorDamage = armoredDamageTypes.filter(t => resistAll || this.system.resistances[t.toLowerCase()]);
+      const normalArmorDamage = armoredDamageTypes.filter(t => !resistArmorDamage.includes(t));
       // @ts-expect-error
-      const normal_armor_damage = armored_damage_types.filter(t => !this.system.resistances[t.toLowerCase()]);
-      // @ts-expect-error
-      const resist_ap_damage = ap_damage_types.filter(t => this.system.resistances[t.toLowerCase()]);
+      const resistApDamage = apDamageTypes.filter(t => resistAll || this.system.resistances[t.toLowerCase()]);
       let armor = ap ? 0 : this.system.armor;
-      let leftover_armor: number; // Temp 'storage' variable for tracking used armor
+      let leftoverArmor: number; // Temp 'storage' variable for tracking used armor
 
       // Defender-favored: Deduct Armor from non-resisted damages first
-      if (defense_favor) {
-        for (const t of normal_armor_damage) {
-          leftover_armor = Math.max(armor - damage[t], 0);
+      if (defenseFavor) {
+        for (const t of normalArmorDamage) {
+          leftoverArmor = Math.max(armor - damage[t], 0);
           damage[t] = Math.max(damage[t] - armor, 0);
-          armor = leftover_armor;
+          armor = leftoverArmor;
         }
       }
 
       // Deduct Armor from resisted damage
-      for (const t of resist_armor_damage) {
-        leftover_armor = Math.max(armor - damage[t], 0);
-        damage[t] = Math.max(damage[t] - armor, 0) / 2;
-        armor = leftover_armor;
+      for (const t of resistArmorDamage) {
+        leftoverArmor = Math.max(armor - damage[t], 0);
+        // Always round up to nearest integer
+        damage[t] = Math.ceil(Math.max(damage[t] - armor, 0) / 2);
+        armor = leftoverArmor;
       }
 
       // Attacker-favored: Deduct Armor from non-resisted damages first
-      if (!defense_favor) {
-        for (const t of normal_armor_damage) {
-          leftover_armor = Math.max(armor - damage[t], 0);
+      if (!defenseFavor) {
+        for (const t of normalArmorDamage) {
+          leftoverArmor = Math.max(armor - damage[t], 0);
           damage[t] = Math.max(damage[t] - armor);
-          armor = leftover_armor;
+          armor = leftoverArmor;
         }
       }
 
       // Resist Burn & Heat, unaffected by Armor
-      for (const t of resist_ap_damage) {
-        damage[t] = damage[t] / 2;
+      for (const t of resistApDamage) {
+        // Always round up to nearest integer
+        damage[t] = Math.ceil(damage[t] / 2);
       }
     }
 
@@ -175,29 +202,62 @@ export class LancerActor extends Actor {
       changes["system.heat.value"] = this.system.heat.value + damage.Heat;
     }
 
-    const armor_damage = Math.ceil(damage.Kinetic + damage.Energy + damage.Explosive + damage.Variable);
-    let total_damage = armor_damage + damage.Burn;
+    const armorDamage = Math.ceil(damage.Kinetic + damage.Energy + damage.Explosive + damage.Variable);
+    let totalDamage = armorDamage + damage.Burn;
 
     // Reduce Overshield first
     if (this.system.overshield.value) {
-      const leftover_overshield = Math.max(this.system.overshield.value - total_damage, 0);
-      total_damage = Math.max(total_damage - this.system.overshield.value, 0);
-      changes["system.overshield.value"] = leftover_overshield;
+      const leftoverOvershield = Math.max(this.system.overshield.value - totalDamage, 0);
+      totalDamage = Math.max(totalDamage - this.system.overshield.value, 0);
+      changes["system.overshield.value"] = leftoverOvershield;
     }
 
     // Finally reduce HP by remaining damage
-    if (total_damage) {
-      changes["system.hp.value"] = this.system.hp.value - total_damage;
+    if (totalDamage) {
+      changes["system.hp.value"] = this.system.hp.value - totalDamage;
     }
 
     // Add to Burn stat
-    if (damage.Burn) {
+    if (damage.Burn && addBurn) {
       changes["system.burn"] = this.system.burn + damage.Burn;
     }
 
-    await this.update(changes);
+    taskPromises.push(this.update(changes));
 
-    return total_damage;
+    // Create a chat message which reports the applied damage
+    const damageStrings = [];
+    let totalTypes = 0;
+    if (damage.Kinetic) {
+      damageStrings.push(`${damage.Kinetic}<i class="cci cci-kinetic damage--kinetic i--s"></i>`);
+      totalTypes += 1;
+    }
+    if (damage.Energy) {
+      damageStrings.push(`${damage.Energy}<i class="cci cci-energy damage--energy i--s"></i>`);
+      totalTypes += 1;
+    }
+    if (damage.Explosive) {
+      damageStrings.push(`${damage.Explosive}<i class="cci cci-explosive damage--explosive i--s"></i>`);
+      totalTypes += 1;
+    }
+    if (damage.Variable) {
+      damageStrings.push(`${damage.Variable}<i class="cci cci-variable damage--variable i--s"></i>`);
+      totalTypes += 1;
+    }
+    if (damage.Burn) {
+      damageStrings.push(`${damage.Burn}<i class="cci cci-burn damage--burn i--s"></i>`);
+      totalTypes += 1;
+    }
+    if (damage.Heat) {
+      damageStrings.push(`${damage.Heat}<i class="cci cci-heat damage--heat i--s"></i>`);
+      totalTypes += 1;
+    }
+    const allDamageString = damageStrings.length ? damageStrings.join(", ") : "0";
+    const chatContent = `${this.token ? this.token.name : this.name} took ${allDamageString} ${
+      totalTypes > 1 ? ` (${totalDamage} total) ` : ""
+    }damage!`;
+    taskPromises.push(createChatMessageStep(this, chatContent));
+    await Promise.all(taskPromises);
+    return totalDamage;
   }
 
   /* -------------------------------------------- */
@@ -362,6 +422,24 @@ export class LancerActor extends Actor {
     for (const status of this.statuses.keys()) {
       // @ts-expect-error
       this.system.statuses[status] = true;
+      // Mark resistances based on statuses
+      switch (status) {
+        case "resistance_burn":
+          this.system.resistances.burn = true;
+          break;
+        case "resistance_energy":
+          this.system.resistances.energy = true;
+          break;
+        case "resistance_explosive":
+          this.system.resistances.explosive = true;
+          break;
+        case "resistance_heat":
+          this.system.resistances.heat = true;
+          break;
+        case "resistance_kinetic":
+          this.system.resistances.kinetic = true;
+          break;
+      }
     }
   }
 
@@ -483,6 +561,14 @@ export class LancerActor extends Actor {
         disposition: disposition,
       },
     });
+  }
+
+  /** @override
+   * When an update is queued, trigger scrolling text on attached tokens
+   */
+  protected async _preUpdate(...[data, options, user]: Parameters<Actor["_preUpdate"]>): Promise<void> {
+    super._preUpdate(data, options, user);
+    this.statChangeScrollingText(data);
   }
 
   /** @override
@@ -849,6 +935,113 @@ export class LancerActor extends Actor {
     return x;
   }
 
+  async statChangeScrollingText(data: DeepPartial<ActorDataConstructorData>) {
+    // Show scrolling text above the token on overshield, hp, burn, and heat changes
+    const tokenId = this.token?.id || canvas?.scene?.tokens.find(t => t.actor?.id === this.id)?.id;
+    if (!tokenId) return;
+
+    const scrollingTexts: Array<TokenScrollTextOptions> = [];
+    // Overshield
+    if ((data as any).system?.overshield?.value !== undefined) {
+      const val = this.system.overshield.value - (data as any).system.overshield.value;
+      scrollingTexts.push({
+        tokenId,
+        content: `${val < 0 ? "+" : "-"}${Math.abs(val).toString()} Overshield`,
+        style: {
+          anchor: CONST.TEXT_ANCHOR_POINTS.TOP,
+          direction: val < 0 ? CONST.TEXT_ANCHOR_POINTS.TOP : CONST.TEXT_ANCHOR_POINTS.BOTTOM,
+          fill: "0x9f6bff",
+        },
+      });
+    }
+    // HP
+    if ((data as any).system?.hp?.value !== undefined) {
+      const val = this.system.hp.value - (data as any).system.hp.value;
+      scrollingTexts.push({
+        tokenId,
+        content: `${val < 0 ? "+" : "-"}${Math.abs(val).toString()} HP`,
+        style: {
+          anchor: CONST.TEXT_ANCHOR_POINTS.CENTER,
+          direction: val < 0 ? CONST.TEXT_ANCHOR_POINTS.TOP : CONST.TEXT_ANCHOR_POINTS.BOTTOM,
+          fill: "0xc2e03e",
+        },
+      });
+    }
+    // Burn
+    if ((data as any).system?.burn !== undefined) {
+      const val = this.system.burn - (data as any).system.burn;
+      scrollingTexts.push({
+        tokenId,
+        content: `${val < 0 ? "+" : "-"}${Math.abs(val).toString()} Burn`,
+        style: {
+          anchor: CONST.TEXT_ANCHOR_POINTS.BOTTOM,
+          direction: val < 0 ? CONST.TEXT_ANCHOR_POINTS.TOP : CONST.TEXT_ANCHOR_POINTS.BOTTOM,
+          fill: "0xc43333",
+        },
+      });
+    }
+    // Heat
+    if (this.hasHeatcap() && (data as any).system?.heat?.value !== undefined) {
+      const val = this.system.heat.value - (data as any).system.heat.value;
+      scrollingTexts.push({
+        tokenId,
+        content: `${val < 0 ? "+" : "-"}${Math.abs(val).toString()} Heat`,
+        style: {
+          anchor: CONST.TEXT_ANCHOR_POINTS.BOTTOM,
+          direction: val < 0 ? CONST.TEXT_ANCHOR_POINTS.TOP : CONST.TEXT_ANCHOR_POINTS.BOTTOM,
+          fill: "0xc76f38",
+        },
+      });
+    }
+    // Structure
+    if ((this.is_mech() || this.is_npc()) && (data as any).system?.structure?.value !== undefined) {
+      const val = this.system.structure.value - (data as any).system.structure.value;
+      scrollingTexts.push({
+        tokenId,
+        content: `${val < 0 ? "+" : "-"}${Math.abs(val).toString()} Structure`,
+        style: {
+          anchor: CONST.TEXT_ANCHOR_POINTS.CENTER,
+          direction: val < 0 ? CONST.TEXT_ANCHOR_POINTS.TOP : CONST.TEXT_ANCHOR_POINTS.BOTTOM,
+          fill: "0x1f9eff",
+        },
+      });
+    }
+    // Stress
+    if ((this.is_mech() || this.is_npc()) && (data as any).system?.stress?.value !== undefined) {
+      const val = this.system.stress.value - (data as any).system.stress.value;
+      scrollingTexts.push({
+        tokenId,
+        content: `${val < 0 ? "+" : "-"}${Math.abs(val).toString()} Stress`,
+        style: {
+          anchor: CONST.TEXT_ANCHOR_POINTS.CENTER,
+          direction: val < 0 ? CONST.TEXT_ANCHOR_POINTS.TOP : CONST.TEXT_ANCHOR_POINTS.BOTTOM,
+          fill: "0xff7b00",
+        },
+      });
+    }
+    // Repairs
+    if (this.is_mech() && (data as any).system?.repairs !== undefined) {
+      const val = this.system.repairs.value - (data as any).system.repairs.value;
+      scrollingTexts.push({
+        tokenId,
+        content: `${val < 0 ? "+" : "-"}${Math.abs(val).toString()} Repairs`,
+        style: {
+          anchor: CONST.TEXT_ANCHOR_POINTS.CENTER,
+          direction: val < 0 ? CONST.TEXT_ANCHOR_POINTS.TOP : CONST.TEXT_ANCHOR_POINTS.BOTTOM,
+          fill: "0x8c8c8c",
+        },
+      });
+    }
+
+    // Now, show each one in sequence
+    for (const text of scrollingTexts) {
+      // Delay a bit so the text doesn't all overlap
+      await new Promise(resolve => setTimeout(resolve, 250));
+      // Showing the next scrolling text
+      tokenScrollText(text, true);
+    }
+  }
+
   async beginFullRepairFlow(title?: string): Promise<boolean> {
     if (this.is_deployable()) {
       return false;
@@ -888,6 +1081,11 @@ export class LancerActor extends Actor {
     return await flow.begin();
   }
 
+  async beginBurnFlow(title?: string): Promise<boolean> {
+    const flow = new BurnFlow(this, { title });
+    return await flow.begin();
+  }
+
   async beginBasicAttackFlow(title?: string): Promise<boolean> {
     const flow = new BasicAttackFlow(this, title ? { title } : undefined);
     return await flow.begin();
@@ -898,7 +1096,11 @@ export class LancerActor extends Actor {
       ui.notifications!.warn(`Only mechs and NPCs can tech attack!`);
       return false;
     }
-    const flow = new TechAttackFlow(this, title ? { title } : undefined);
+    const params = {
+      title,
+      invade: true,
+    };
+    const flow = new TechAttackFlow(this, params);
     return await flow.begin();
   }
 

@@ -17,8 +17,6 @@ import { LancerActor } from "./module/actor/lancer-actor";
 import { LancerItem } from "./module/item/lancer-item";
 import { populatePilotCache } from "./module/util/compcon";
 
-import { actionTypeSelector } from "./module/helpers/npc";
-
 import { LancerActionManager } from "./module/action/action-manager";
 
 // Import applications
@@ -40,7 +38,7 @@ import * as migrations from "./module/world_migration";
 import { addLCPManager, updateCore, core_update } from "./module/apps/lcp-manager";
 
 // Import sliding HUD (used for accuracy/difficulty windows)
-import * as slidingHUD from "./module/helpers/slidinghud";
+import * as slidingHUD from "./module/apps/slidinghud";
 
 // Import Tippy.js
 import tippy from "tippy.js";
@@ -104,6 +102,8 @@ import { beginItemChatFlow } from "./module/flows/item";
 import { onHotbarDrop } from "./module/flows/hotbar";
 import { registerFlows } from "./module/flows/register-flows";
 import { LancerNPCFeatureSheet } from "./module/item/npc-feature-sheet";
+import { applyDamage, rollDamageCallback } from "./module/flows/damage";
+import { tokenScrollText } from "./module/util/misc";
 
 const lp = LANCER.log_prefix;
 
@@ -362,6 +362,15 @@ Hooks.once("ready", () => {
 // Migrate settings from Lancer Condition Icons and disable the module
 Hooks.once("ready", migrateLancerConditions);
 
+// Attach socket listeners
+Hooks.once("ready", () => {
+  game.socket!.on(`system.${game.system.id}`, msg => {
+    if (msg.action === "scrollText") {
+      tokenScrollText(msg.data);
+    }
+  });
+});
+
 Hooks.once("canvasInit", () => {
   SquareGrid.prototype.measureDistances = measureDistances;
 });
@@ -541,6 +550,10 @@ Hooks.on("renderChatMessage", async (cm: ChatMessage, html: JQuery, data: any) =
       return true;
     }
   });
+
+  html.find(".lancer-damage-flow").on("click", rollDamageCallback);
+
+  html.find(".lancer-damage-apply").on("click", applyDamage);
 
   // Handle clickable refs in chat messages
   handleRefClickOpen(html);

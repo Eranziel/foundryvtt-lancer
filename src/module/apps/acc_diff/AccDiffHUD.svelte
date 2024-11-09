@@ -1,7 +1,7 @@
 <svelte:options accessors={true} />
 
 <script lang="ts">
-  import type { AccDiffWeapon, AccDiffBase, AccDiffTarget } from "./index";
+  import type { AccDiffHudWeapon, AccDiffHudBase, AccDiffHudTarget } from "./index";
 
   import { slide } from "svelte/transition";
   import { flip } from "svelte/animate";
@@ -10,18 +10,21 @@
   import Plugin from "./Plugin.svelte";
   import Cover from "./Cover.svelte";
   import ConsumeLockOn from "./ConsumeLockOn.svelte";
-  import Total from "./Total.svelte";
+  import Total from "./TotalAccuracy.svelte";
   import PlusMinusInput from "./PlusMinusInput.svelte";
+  import MiniProfile from "../components/MiniProfile.svelte";
+  import { fade } from "../slidinghud";
+
   import type { LancerItem } from "../../item/lancer-item";
   import { NpcFeatureType, RangeType } from "../../enums";
   import { WeaponRangeTemplate } from "../../pixi/weapon-range-template";
-  import { fade } from "../slidinghud";
   import { targetsFromTemplate } from "../../flows/_template";
   import type { LancerActor } from "../../actor/lancer-actor";
+  import HudCheckbox from "../components/HudCheckbox.svelte";
 
-  export let weapon: AccDiffWeapon;
-  export let base: AccDiffBase;
-  export let targets: AccDiffTarget[];
+  export let weapon: AccDiffHudWeapon;
+  export let base: AccDiffHudBase;
+  export let targets: AccDiffHudTarget[];
   export let title: string;
   export let lancerItem: LancerItem | null;
   export let lancerActor: LancerActor | null;
@@ -117,7 +120,7 @@
 
 <form
   id="accdiff"
-  class="lancer accdiff window-content"
+  class="lancer lancer-hud accdiff window-content"
   use:escToCancel
   on:submit|preventDefault={() => {
     submitted = true;
@@ -139,40 +142,7 @@
     </div>
   {/if}
   {#if profile}
-    <div class="mini-weapon-profile flexrow">
-      {#if profile.attack || profile.accuracy}
-        <div class="mini-weapon-profile-accuracy flexrow">
-          {#if profile.attack}
-            <span data-tooltip="Attack bonus"
-              ><i class="cci cci-reticule" />{profile.attack < 0 ? "-" : "+"}{profile.attack}</span
-            >
-          {/if}
-          {#if profile.accuracy}
-            <span data-tooltip={(profile.accuracy ?? 0) > 0 ? "Accuracy" : "Difficulty"}
-              ><i class="cci cci-{(profile.accuracy ?? 0) > 0 ? 'accuracy' : 'difficulty'}" />{Math.abs(
-                profile.accuracy
-              )}</span
-            >
-          {/if}
-        </div>
-        <span class="mini-weapon-profile-separator">//</span>
-      {/if}
-      <div class="mini-weapon-profile-range flexrow">
-        {#each profile.range as range}
-          <span data-tooltip={range.type}><i class="cci cci-{range.type.toLowerCase()}" />{range.val}</span>
-        {/each}
-      </div>
-      {#if profile.damage}
-        <span class="mini-weapon-profile-separator">//</span>
-        <div class="mini-weapon-profile-damage flexrow">
-          {#each profile.damage as damage}
-            <span data-tooltip={damage.type}
-              ><i class="cci cci-{damage.type.toLowerCase()} damage--{damage.type.toLowerCase()}" />{damage.val}</span
-            >
-          {/each}
-        </div>
-      {/if}
-    </div>
+    <MiniProfile {profile} />
   {/if}
   <div id="{kind}-accdiff-dialog" style="padding:4px">
     <div class="accdiff-grid">
@@ -184,15 +154,9 @@
           <i class="cci cci-accuracy i--m" style="vertical-align:middle;border:none" />
           Accuracy
         </h3>
-        <label class="container">
-          <input type="checkbox" bind:checked={weapon.accurate} />
-          Accurate (+1)
-        </label>
+        <HudCheckbox label="Accurate (+1)" bind:value={weapon.accurate} />
         {#if kind == "attack"}
-          <label class="container">
-            <input type="checkbox" bind:checked={weapon.seeking} />
-            Seeking (*)
-          </label>
+          <HudCheckbox label="Seeking (*)" bind:value={weapon.seeking} />
         {/if}
         {#if kind == "attack" && (Object.values(weapon.plugins).length > 0 || targets.length == 1)}
           <div transition:slide>
@@ -223,14 +187,8 @@
           <i class="cci cci-difficulty i--m" style="vertical-align:middle;border:none" />
           Difficulty
         </h3>
-        <label class="container">
-          <input type="checkbox" bind:checked={weapon.inaccurate} />
-          Inaccurate (-1)
-        </label>
-        <label class="container">
-          <input type="checkbox" checked={!!weapon.impaired} disabled />
-          Impaired (-1)
-        </label>
+        <HudCheckbox label="Inaccurate (-1)" bind:value={weapon.inaccurate} />
+        <HudCheckbox label="Impaired (-1)" value={!!weapon.impaired} disabled />
         {#if kind == "attack"}
           <div class="grid-enforcement">
             {#if targets.length == 0}
@@ -390,57 +348,6 @@
   #accdiff :global(.container:has(input[disabled])) {
     cursor: unset;
     opacity: 0.5;
-  }
-
-  #accdiff :global(input[type="checkbox"]) {
-    /* Hide the browser's default checkbox */
-    appearance: none;
-    height: 20px;
-    width: 20px;
-    min-width: 20px;
-    background-color: #a9a9a9;
-    cursor: pointer;
-    display: inline-block;
-    border-radius: 0;
-    vertical-align: text-bottom;
-    position: relative;
-    margin: 0;
-    margin-right: 0.2rem;
-    &:checked {
-      background-color: var(--primary-color, fuchsia);
-    }
-    &:hover {
-      box-shadow: 0px 0px 8px var(--primary-color);
-    }
-    &::before {
-      content: "";
-      position: relative;
-      margin: auto;
-      overflow: hidden;
-      width: 20px;
-      height: 20px;
-    }
-    &:checked::before {
-      // This is a free icon, it says pro because that's the only version provided
-      // Don't change the weight unless you have a pro license or the new value is free as well
-      // xmark (free for solid weight)
-      content: "\f00d";
-      font-family: "Font Awesome 6 Pro";
-      // fa-solid (free)
-      font-weight: 900;
-      line-height: 20px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 20px;
-      color: var(--light-text);
-    }
-  }
-  #accdiff :global(input[type="checkbox"][disabled]) {
-    cursor: unset;
-    &:hover {
-      box-shadow: none;
-    }
   }
 
   .accdiff-other-grid {

@@ -73,7 +73,7 @@ export async function preStructureRollChecks(
       ui.notifications!.info("Token has hp remaining. No need to roll structure.");
       return false;
     }
-    const { openSlidingHud: open } = await import("../helpers/slidinghud");
+    const { openSlidingHud: open } = await import("../apps/slidinghud");
     try {
       await open("struct", { stat: "structure", title: "Structure Damage", lancerActor: actor });
     } catch (_e) {

@@ -55,6 +55,29 @@ export class Tag implements Readonly<TagData> {
     }
   }
 
+  /**
+   * Helper funciton to interpolate the correct value from tags with values matching
+   * the pattern {number/number/number}
+   * @param tag A tag with a value
+   * @param tier The NPC tier to get the value for
+   * @returns The string for the requested tier from the tag value
+   */
+  tierVal(tier: number): string {
+    if (!this.val) return "";
+    // This regex which matches {number/number/number} and returns each tier as a match group
+    const tieredValRegex = /^{(\d*)\/(\d*)\/(\d*)}$/i;
+    const matchTiers = this.val.match(tieredValRegex);
+    // NOTE: we don't need to subtract 1 from the tier, because the first element of
+    // matchTiers is the whole match, e.g. "{2/3/4}"
+    if (!matchTiers || !matchTiers.length || !matchTiers[0] || !matchTiers[tier]) {
+      // if it doesn't match the regex, just return the value
+      return this.val;
+    }
+    // Select the appropriate group for the NPC's tier
+    // parseInt the tier group and return
+    return matchTiers[tier];
+  }
+
   save(): TagData {
     return {
       lid: this.lid,

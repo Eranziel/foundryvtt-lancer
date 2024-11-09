@@ -2,7 +2,7 @@
   <div class="lancer-header lancer-primary">{{localize "lancer.chat-card.title.check" check=title}}</div>
   {{{lancer-dice-roll result.roll result.tt ""}}}
   {{#if effect}}
-    <header>{{localize "lancer.chat-card.title.effect"}}</header>
-    {{{effect}}}
+    <div class="lancer-header lancer-primary">{{localize "lancer.chat-card.title.effect"}}</div>
+    <div class="effect-text">{{{effect}}}</div>
   {{/if}}
 </div>

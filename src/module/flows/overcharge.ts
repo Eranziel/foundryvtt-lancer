@@ -63,7 +63,9 @@ async function updateOverchargeActor(state: FlowState<LancerFlowState.Overcharge
   });
   // Only increase heat if we haven't disabled it
   if (getAutomationOptions().overcharge_heat) {
-    await state.actor.update({ "system.heat.value": state.actor.system.heat.value + state.data.result.roll.total! });
+    await state.actor.update({
+      "system.heat.value": state.actor.system.heat.value + state.data.result.roll.total!,
+    });
   }
 }
 

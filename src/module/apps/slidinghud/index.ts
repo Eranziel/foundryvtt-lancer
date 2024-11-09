@@ -1,13 +1,15 @@
 import type HUDZone from "./SlidingHUDZone.svelte";
-import type { AccDiffData } from "../acc_diff";
+import type { AccDiffHudData } from "../acc_diff";
 import type { StructStressData } from "../struct_stress/data";
+import { DamageHudData } from "../damage";
 
 let hud: HUDZone;
 // Look - I don't really know enough typescript to get it right,
 // but these will hold the success/reject of any
 let activeCallbacks: Record<keyof HUDData, null | [(value: any) => any, () => any]> = {
-  attack: null,
   hase: null,
+  attack: null,
+  damage: null,
   struct: null,
   stress: null,
 };
@@ -18,7 +20,7 @@ export async function attach() {
     hud = new HUDZone({
       target: document.body,
     });
-    for (let key of ["attack", "hase", "struct", "stress"] as Array<keyof HUDData>) {
+    for (let key of ["attack", "damage", "hase", "struct", "stress"] as Array<keyof HUDData>) {
       hud.$on(`${key}.submit`, (ev: any) => {
         activeCallbacks[key]?.[0](ev.detail);
         activeCallbacks[key] = null;
@@ -53,4 +55,10 @@ export async function fade(dir: "out" | "in" = "out") {
   hud.fade(dir);
 }
 
-type HUDData = { attack: AccDiffData; hase: AccDiffData; struct: StructStressData; stress: StructStressData };
+type HUDData = {
+  hase: AccDiffHudData;
+  attack: AccDiffHudData;
+  damage: DamageHudData;
+  struct: StructStressData;
+  stress: StructStressData;
+};
