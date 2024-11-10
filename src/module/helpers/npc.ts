@@ -197,7 +197,7 @@ export function npcWeaponView(path: string, options: HelperOptions): string {
     subheaderItems.push(rangeArrayView(featureData.range, options));
   }
   if (featureData.damage[tierIndex] && featureData.damage[tierIndex].length) {
-    subheaderItems.push(damageArrayView(featureData.damage[tierIndex], options));
+    subheaderItems.push(damageArrayView(featureData.damage[tierIndex], { ...options, rollable: true }));
   }
 
   // Bookkeeping stuff

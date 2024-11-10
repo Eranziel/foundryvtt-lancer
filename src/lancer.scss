@@ -1022,9 +1022,18 @@ tr.lcp-index-header {
   align-items: center;
   flex-wrap: nowrap;
   white-space: nowrap;
-  margin: 5px;
+  margin: 5px 0;
   max-width: min-content;
   min-width: fit-content;
+
+  & > & {
+    margin: 0 5px;
+  }
+
+  &.lancer-button {
+    padding-left: 0;
+    padding-right: 0.5em;
+  }
 }
 
 /* Put on any ref or reffable location */
@@ -1671,6 +1680,7 @@ code.horus:hover {
 /* End of HORUS glitchy styles used in lancer-data */
 
 .roll-attack,
+.roll-damage,
 .roll-trigger,
 .system-macro,
 .gear-macro,
@@ -1678,7 +1688,7 @@ code.horus:hover {
 .item-macro,
 .core-passive-macro,
 .core-active-macro {
-  margin: 3px 10px;
+  margin: 5px 10px;
 }
 
 .roll-attack,

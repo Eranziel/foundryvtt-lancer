@@ -26,6 +26,7 @@ import { CoreActiveFlow } from "../flows/frame";
 import { SimpleTextFlow } from "../flows/text";
 import { StatRollFlow } from "../flows/stat";
 import { SystemFlow } from "../flows/system";
+import { DamageRollFlow } from "../flows/damage";
 
 const lp = LANCER.log_prefix;
 
@@ -673,6 +674,16 @@ export class LancerItem extends Item {
     }
     const flow = new TechAttackFlow(this);
     await flow.begin();
+  }
+
+  async beginDamageFlow() {
+    if (!this.is_mech_weapon() && !this.is_npc_feature() && !this.is_pilot_weapon()) {
+      ui.notifications!.error(`Item ${this.id} cannot roll damage as it is not a weapon!`);
+      return;
+    }
+    const flow = new DamageRollFlow(this);
+    flow.begin();
+    return flow;
   }
 
   async beginSystemFlow() {
