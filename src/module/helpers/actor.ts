@@ -14,10 +14,12 @@ import { actionIcon } from "../action/action-tracker";
 interface ButtonOverrides {
   icon?: string;
   classes?: string;
+  tooltip?: string;
 }
 
 function _flowButton(button_class: string, html_data: string, overrides: ButtonOverrides = {}): string {
-  return `<a class="${button_class} lancer-button ${overrides.classes ?? ""}" ${html_data}>
+  const tooltip = overrides.tooltip ? `data-tooltip="${overrides.tooltip}"` : "";
+  return `<a class="${button_class} lancer-button ${overrides.classes ?? ""}" ${html_data} ${tooltip}>
     <i class="fas ${overrides.icon ?? "fa-dice-d20"} i--dark i--s"></i>
   </a>`;
 }
@@ -60,16 +62,42 @@ export function stat_edit_card_max(
 }
 
 // Shows an X clipped card
-export function stat_edit_card(title: string, icon: string, data_path: string, options: HelperOptions): string {
+export function stat_edit_card(
+  title: string,
+  icon: string,
+  data_path: string,
+  options: HelperOptions & { rollable?: boolean }
+): string {
+  let flowButton: string = "";
+  if (options.rollable) {
+    if (data_path === "system.burn") {
+      flowButton = _basicFlowButton(getActorUUID(options)!, "Burn", {
+        icon: "cci cci-burn",
+        tooltip: "Roll a burn check and generate damage",
+      });
+    }
+  }
   return `
     <div class="card clipped">
       <div class="lancer-header lancer-primary ">
         <i class="${icon} i--m i--light header-icon"> </i>
         <span class="major">${title}</span>
       </div>
-      ${std_num_input(data_path, extendHelper(options, { classes: "lancer-stat" }))}
+      <div class="${flowButton ? "stat-flow-container" : "flexrow flex-center"}">
+        ${flowButton}
+        ${std_num_input(data_path, extendHelper(options, { classes: "lancer-stat" }))}
+      </div>
     </div>
     `;
+}
+
+export function stat_edit_rollable_card(
+  title: string,
+  icon: string,
+  data_path: string,
+  options: HelperOptions
+): string {
+  return stat_edit_card(title, icon, data_path, { ...options, rollable: true });
 }
 
 // Shows a readonly value clipped card
@@ -80,12 +108,15 @@ export function stat_view_card(
   options: HelperOptions & { rollable?: boolean }
 ): string {
   let dataVal = resolveHelperDotpath(options, data_path);
-  let flowButton: string = "";
-  let attackFlowButton: string = "";
+  let leftFlowButton: string = "";
+  let rightFlowButton: string = "";
   if (options.rollable) {
-    flowButton = _statFlowButton(getActorUUID(options)!, data_path);
+    leftFlowButton = _statFlowButton(getActorUUID(options)!, data_path);
     if (data_path === "system.grit" || data_path === "system.tier") {
-      attackFlowButton = _basicFlowButton(getActorUUID(options)!, "BasicAttack", { icon: "cci cci-weapon" });
+      rightFlowButton = _basicFlowButton(getActorUUID(options)!, "BasicAttack", {
+        icon: "cci cci-weapon",
+        tooltip: "Roll a basic attack",
+      });
     }
   }
   return `
@@ -94,10 +125,10 @@ export function stat_view_card(
         ${inc_if(`<i class="${icon} i--m i--light header-icon"> </i>`, icon)}
         <span class="major">${title}</span>
       </div>
-      <div class="${flowButton ? "stat-flow-container" : "flexrow flex-center"}">
-        ${flowButton}
+      <div class="${leftFlowButton || rightFlowButton ? "stat-flow-container" : "flexrow flex-center"}">
+        ${leftFlowButton}
         <span class="lancer-stat major" data-path="${data_path}">${dataVal}</span>
-        ${attackFlowButton}
+        ${rightFlowButton}
       </div>
     </div>
     `;

@@ -61,6 +61,7 @@ import {
   bond_answer_selector,
   bond_minor_ideal_selector,
   npc_stat_array_clicker_card,
+  stat_edit_rollable_card,
 } from "./actor";
 import {
   itemPreview,
@@ -226,6 +227,7 @@ export function registerHandlebarsHelpers() {
   Handlebars.registerHelper("compact-stat-view", compact_stat_view);
   Handlebars.registerHelper("stat-view-card", stat_view_card);
   Handlebars.registerHelper("stat-rollable-card", stat_rollable_card);
+  Handlebars.registerHelper("stat-edit-rollable-card", stat_edit_rollable_card);
   Handlebars.registerHelper("stat-edit-card", stat_edit_card);
   Handlebars.registerHelper("stat-edit-max-card", stat_edit_card_max);
   Handlebars.registerHelper("clicker-stat-card", clicker_stat_card);

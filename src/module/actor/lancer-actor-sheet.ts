@@ -328,6 +328,9 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
         case BasicFlowType.Overcharge:
           this.actor.beginOverchargeFlow();
           break;
+        case BasicFlowType.Burn:
+          this.actor.beginBurnFlow();
+          break;
         case BasicFlowType.BasicAttack:
           this.actor.beginBasicAttackFlow(flowArgs?.title ?? undefined);
           break;

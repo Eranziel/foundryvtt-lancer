@@ -357,6 +357,7 @@ export namespace LancerFlowState {
     Stabilize = "Stabilize",
     Overheat = "Overheat",
     Structure = "Structure",
+    Burn = "Burn",
     Overcharge = "Overcharge",
     BasicAttack = "BasicAttack",
     Damage = "Damage",
