@@ -1,3 +1,13 @@
+# 2.4.0 (2024-11-10)
+
+## Features
+
+- #776 - Add an undo button in damage chat messages.
+- #777 - Add buttons to open the damage HUD without an attack first.
+  - All actors have a generic "Damage" button next to the "Basic Attack" button, this opens the HUD with no damage configuration.
+  - Weapon damage type displays have been converted to a button, clicking this will open the damage HUD with that weapon's damage.
+- Add more tooltips to weapon cards - attack buttons, range type, NPC attack bonus/accuracy/difficulty, damage buttons.
+
 # 2.3.0 (2024-11-09)
 
 ## Features
