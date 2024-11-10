@@ -359,6 +359,7 @@ export namespace LancerFlowState {
     Structure = "Structure",
     Overcharge = "Overcharge",
     BasicAttack = "BasicAttack",
+    Damage = "Damage",
     TechAttack = "TechAttack",
   }
 }

@@ -260,6 +260,9 @@ export function actor_flow_button(
     case BasicFlowType.BasicAttack:
       mIcon = "cci-weapon";
       break;
+    case BasicFlowType.Damage:
+      mIcon = "cci-large-beam";
+      break;
     case BasicFlowType.TechAttack:
       mIcon = "cci-tech-quick";
       break;

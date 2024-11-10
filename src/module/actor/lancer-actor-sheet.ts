@@ -28,6 +28,7 @@ import { lookupOwnedDeployables } from "../util/lid";
 import { beginItemChatFlow } from "../flows/item";
 import { DroppableFlowType } from "../helpers/dragdrop";
 import { attachTagTooltips } from "../helpers/tags";
+import { DamageRollFlow } from "../flows/damage";
 const lp = LANCER.log_prefix;
 
 /**
@@ -329,6 +330,10 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
           break;
         case BasicFlowType.BasicAttack:
           this.actor.beginBasicAttackFlow(flowArgs?.title ?? undefined);
+          break;
+        case BasicFlowType.Damage:
+          const flow = new DamageRollFlow(this.actor, flowArgs);
+          flow.begin();
           break;
         case BasicFlowType.TechAttack:
           this.actor.beginBasicTechAttackFlow(flowArgs?.title ?? undefined);
