@@ -190,7 +190,7 @@ export function rangeArrayView(ranges: Range[], options: HelperOptions): string 
   // Build out results
   let results: string[] = [];
   for (let range of ranges) {
-    let range_item = `<span class="compact-range"><i class="cci ${range.icon} i--m i--dark"></i>${range.val}</span>`;
+    let range_item = `<span class="compact-range" data-tooltip="${range.type}"><i class="cci ${range.icon} i--m i--dark"></i>${range.val}</span>`;
     results.push(range_item);
   }
   return `<div class="flexrow no-grow compact-range ${classes}">${results.join(" ")}</div>`;
@@ -201,7 +201,7 @@ export function rangeArrayView(ranges: Range[], options: HelperOptions): string 
  * @param atk {number} Attack bonus to render
  */
 export function npcAttackBonusView(atk: number, txt: string = "ATTACK") {
-  return `<div class="compact-acc">
+  return `<div class="compact-acc" data-tooltip="Flat attack bonus">
     <i style="margin-right: 5px;" class="cci cci-reticule i--m"></i>
     <span class="medium"> ${atk < 0 ? "-" : "+"}${atk} ${txt}</span>
   </div>`;
@@ -224,7 +224,7 @@ export function npcAccuracyView(acc: number) {
     return "";
   }
 
-  return `<div class="compact-acc">
+  return `<div class="compact-acc" data-tooltip="Innate Accuracy/Difficulty">
       <i style="margin-right: 5px" class="cci cci-${icon} i--m"></i>
       <span class="medium">${text}</span>
     </div>`;

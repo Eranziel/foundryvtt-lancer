@@ -131,7 +131,11 @@ export function npcTechView(path: string, options: HelperOptions) {
   let sep = `<hr class="vsep">`;
   let subheaderItems = [];
   if (featureData.tech_attack) {
-    subheaderItems.push(`<a class="roll-tech lancer-button"><i class="fas fa-dice-d20 i--m"></i></a>`);
+    subheaderItems.push(
+      `<a class="roll-tech lancer-button" data-tooltip="Roll an attack with this system">
+        <i class="fas fa-dice-d20 i--m"></i>
+      </a>`
+    );
   }
 
   if (featureData.tech_attack && featureData.attack_bonus && featureData.attack_bonus[tierIndex]) {
@@ -178,7 +182,9 @@ export function npcWeaponView(path: string, options: HelperOptions): string {
 
   let sep = `<hr class="vsep">`;
   let subheaderItems = [
-    `<a class="roll-attack lancer-button no-grow"><i class="fas fa-dice-d20 i--m i--dark"></i></a>`,
+    `<a class="roll-attack lancer-button no-grow" data-tooltip="Roll an attack with this weapon">
+      <i class="fas fa-dice-d20 i--m i--dark"></i>
+    </a>`,
   ];
   let subheader2Items = [];
 

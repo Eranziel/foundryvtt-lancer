@@ -682,8 +682,7 @@ export class LancerItem extends Item {
       return;
     }
     const flow = new DamageRollFlow(this);
-    flow.begin();
-    return flow;
+    await flow.begin();
   }
 
   async beginSystemFlow() {
