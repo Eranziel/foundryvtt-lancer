@@ -225,6 +225,11 @@ $theme-types: "primary" "secondary" "dark-gray" "light-gray" "tooltip"    // Gen
 
 #chat-log .message-content {
   padding: 5px !important;
+
+  & .strikethrough {
+    text-decoration: line-through;
+    opacity: 0.5;
+  }
 }
 
 /* Default text and background color for sheets */

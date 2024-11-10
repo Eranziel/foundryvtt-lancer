@@ -204,9 +204,10 @@ export class LancerActor extends Actor {
 
     const armorDamage = Math.ceil(damage.Kinetic + damage.Energy + damage.Explosive + damage.Variable);
     let totalDamage = armorDamage + damage.Burn;
-
+    let overshieldUsed = 0;
     // Reduce Overshield first
     if (this.system.overshield.value) {
+      overshieldUsed = Math.min(this.system.overshield.value, totalDamage);
       const leftoverOvershield = Math.max(this.system.overshield.value - totalDamage, 0);
       totalDamage = Math.max(totalDamage - this.system.overshield.value, 0);
       changes["system.overshield.value"] = leftoverOvershield;
@@ -252,9 +253,22 @@ export class LancerActor extends Actor {
       totalTypes += 1;
     }
     const allDamageString = damageStrings.length ? damageStrings.join(", ") : "0";
-    const chatContent = `${this.token ? this.token.name : this.name} took ${allDamageString} ${
-      totalTypes > 1 ? ` (${totalDamage} total) ` : ""
-    }damage!`;
+    const totalDamageString = totalTypes > 1 ? ` (${overshieldUsed + totalDamage} total) ` : "";
+    const chatContent = `<div class="flexrow">
+      <span>${this.token ? this.token.name : this.name} took ${allDamageString} ${totalDamageString}damage!</span>
+      <a
+        class="lancer-button lancer-damage-undo"
+        style="display: flex; flex-grow: 0; justify-content: center; align-items: center;"
+        data-tooltip="Undo this damage"
+        data-uuid="${this.uuid}"
+        data-overshield-delta="${overshieldUsed}"
+        data-hp-delta="${totalDamage}"
+        data-burn-delta="${damage.Burn}"
+        data-heat-delta="${damage.Heat}"
+      >
+        <i class="fas fa-undo"></i>
+      </a>
+    </div>`;
     taskPromises.push(createChatMessageStep(this, chatContent));
     await Promise.all(taskPromises);
     return totalDamage;

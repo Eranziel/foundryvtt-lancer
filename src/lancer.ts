@@ -102,7 +102,7 @@ import { beginItemChatFlow } from "./module/flows/item";
 import { onHotbarDrop } from "./module/flows/hotbar";
 import { registerFlows } from "./module/flows/register-flows";
 import { LancerNPCFeatureSheet } from "./module/item/npc-feature-sheet";
-import { applyDamage, rollDamageCallback } from "./module/flows/damage";
+import { applyDamage, rollDamageCallback, undoDamage } from "./module/flows/damage";
 import { tokenScrollText } from "./module/util/misc";
 
 const lp = LANCER.log_prefix;
@@ -554,6 +554,8 @@ Hooks.on("renderChatMessage", async (cm: ChatMessage, html: JQuery, data: any) =
   html.find(".lancer-damage-flow").on("click", rollDamageCallback);
 
   html.find(".lancer-damage-apply").on("click", applyDamage);
+
+  html.find(".lancer-damage-undo").on("click", undoDamage);
 
   // Handle clickable refs in chat messages
   handleRefClickOpen(html);

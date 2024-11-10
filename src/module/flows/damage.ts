@@ -773,3 +773,55 @@ export async function applyDamage(event: JQuery.ClickEvent) {
     { multiple, addBurn, ap: targetDamage.ap, paracausal: targetDamage.paracausal }
   );
 }
+
+export async function undoDamage(event: JQuery.ClickEvent) {
+  console.log("undoing damage");
+  const chatMessageElement = event.currentTarget.closest(".chat-message.message");
+  if (!chatMessageElement) {
+    ui.notifications?.error("Damage undo button not in chat message");
+    return;
+  }
+  const chatMessage = game.messages?.get(chatMessageElement.dataset.messageId);
+  if (!chatMessage) {
+    ui.notifications?.error("Damage undo button has no chat message");
+    return;
+  }
+  const target = await fromUuid(event.currentTarget.dataset?.uuid);
+  if (!target || !(target instanceof LancerActor)) {
+    ui.notifications?.error("Damage undo button has no target");
+    return;
+  }
+  if (!target.isOwner) {
+    ui.notifications?.error("You cannot undo damage to an actor you do not own");
+    return;
+  }
+  const overshieldDelta = parseInt(event.currentTarget.dataset.overshieldDelta);
+  const hpDelta = parseInt(event.currentTarget.dataset.hpDelta);
+  const burnDelta = parseInt(event.currentTarget.dataset.burnDelta);
+  const heatDelta = parseInt(event.currentTarget.dataset.heatDelta);
+  if (!overshieldDelta && !hpDelta && !burnDelta && !heatDelta) {
+    ui.notifications?.error("Damage undo button has no damage to undo!");
+    return;
+  }
+
+  const updateData: any = {
+    system: {
+      "overshield.value": target.system.overshield.value + overshieldDelta,
+      "hp.value": target.system.hp.value + hpDelta,
+      burn: target.system.burn - burnDelta,
+    },
+  };
+  if (target.is_mech() || target.is_npc() || target.is_deployable()) {
+    updateData.system["heat.value"] = target.system.heat.value - heatDelta;
+  }
+  // @ts-expect-error v10 types
+  const cmDoc = new DOMParser().parseFromString(chatMessage.content, "text/html");
+  cmDoc.querySelectorAll(".lancer-damage-undo").forEach((el: Element) => el.remove());
+  cmDoc.querySelectorAll("span").forEach((el: Element) => el.classList.add("strikethrough"));
+  const newChatMessageContent = cmDoc.body.innerHTML;
+  // .replace(/<a.*?lancer-damage-undo.*?<\/a>/, "")
+  // .replace(/<span>/, `<span style="text-decoration: line-through; opacity: 0.8;>`);
+
+  await target.update(updateData);
+  await chatMessage.update({ content: newChatMessageContent });
+}
