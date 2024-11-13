@@ -73,6 +73,13 @@ export async function preStructureRollChecks(
       ui.notifications!.info("Token has hp remaining. No need to roll structure.");
       return false;
     }
+    // If it's an NPC with a single structure, no need to roll. (Core Rule Book pp 281)
+    if (actor.system.structure.max === 1) {
+      await actor.update({
+        "system.structure": actor.system.structure.value - 1,
+      });
+      return true;
+    }
     const { openSlidingHud: open } = await import("../apps/slidinghud");
     try {
       await open("struct", { stat: "structure", title: "Structure Damage", lancerActor: actor });
