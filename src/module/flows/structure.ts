@@ -74,7 +74,7 @@ export async function preStructureRollChecks(
       return false;
     }
     // If it's an NPC with a single structure, no need to roll. (Core Rule Book pp 281)
-    if (actor.system.structure.max === 1 && actor.is_npc) {
+    if (actor.system.structure.max === 1 && actor.is_npc()) {
       await actor.update({
         "system.structure": actor.system.structure.value - 1,
       });
