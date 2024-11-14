@@ -468,6 +468,11 @@ Hooks.on("renderCombatTracker", (...[_app, html]: Parameters<Hooks.RenderApplica
     });
 });
 
+// Disable token vision and fog exploration by default in scene config
+Hooks.on("preCreateScene", (scene: any) => {
+  scene.updateSource({ tokenVision: false, fogExploration: false });
+});
+
 Hooks.on("renderChatMessage", async (cm: ChatMessage, html: JQuery, data: any) => {
   // Reapply listeners.
   initializeCollapses(html);
