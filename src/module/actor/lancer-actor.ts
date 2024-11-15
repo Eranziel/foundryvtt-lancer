@@ -35,6 +35,7 @@ import { rollEvalSync, tokenScrollText, TokenScrollTextOptions } from "../util/m
 import { BurnFlow } from "../flows/burn";
 import { createChatMessageStep } from "../flows/_render";
 import { ActorDataConstructorData } from "@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/data/data.mjs/actorData";
+import { DamageRollFlow } from "../flows/damage";
 
 const lp = LANCER.log_prefix;
 
@@ -1102,6 +1103,11 @@ export class LancerActor extends Actor {
 
   async beginBasicAttackFlow(title?: string): Promise<boolean> {
     const flow = new BasicAttackFlow(this, title ? { title } : undefined);
+    return await flow.begin();
+  }
+
+  async beginDamageFlow(title?: string): Promise<boolean> {
+    const flow = new DamageRollFlow(this, title ? { title } : undefined);
     return await flow.begin();
   }
 
