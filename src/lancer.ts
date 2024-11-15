@@ -223,7 +223,7 @@ Hooks.once("init", async function () {
   configureAmplify();
 
   // Register flow steps
-  const flowSteps = registerFlows();
+  const { flows, flowSteps } = registerFlows();
 
   // Assign custom classes and constants here
   // Create a Lancer namespace within the game global
@@ -250,6 +250,7 @@ Hooks.once("init", async function () {
       gridDist,
       lookupOwnedDeployables,
     },
+    flows,
     flowSteps,
     Flow,
     beginItemChatFlow,
@@ -466,6 +467,11 @@ Hooks.on("renderCombatTracker", (...[_app, html]: Parameters<Hooks.RenderApplica
       ev.preventDefault();
       new LancerCombatTrackerConfig(undefined, {}).render(true);
     });
+});
+
+// Disable token vision and fog exploration by default in scene config
+Hooks.on("preCreateScene", (scene: any) => {
+  scene.updateSource({ tokenVision: false, fogExploration: false });
 });
 
 Hooks.on("renderChatMessage", async (cm: ChatMessage, html: JQuery, data: any) => {

@@ -335,8 +335,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
           this.actor.beginBasicAttackFlow(flowArgs?.title ?? undefined);
           break;
         case BasicFlowType.Damage:
-          const flow = new DamageRollFlow(this.actor, flowArgs);
-          flow.begin();
+          this.actor.beginDamageFlow(flowArgs?.title ?? undefined);
           break;
         case BasicFlowType.TechAttack:
           this.actor.beginBasicTechAttackFlow(flowArgs?.title ?? undefined);
