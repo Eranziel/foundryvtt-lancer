@@ -223,7 +223,7 @@ Hooks.once("init", async function () {
   configureAmplify();
 
   // Register flow steps
-  const flowSteps = registerFlows();
+  const { flows, flowSteps } = registerFlows();
 
   // Assign custom classes and constants here
   // Create a Lancer namespace within the game global
@@ -250,6 +250,7 @@ Hooks.once("init", async function () {
       gridDist,
       lookupOwnedDeployables,
     },
+    flows,
     flowSteps,
     Flow,
     beginItemChatFlow,

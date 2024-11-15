@@ -4,8 +4,7 @@ import { BasicAttackFlow, registerAttackSteps, WeaponAttackFlow } from "./attack
 import { BondPowerFlow, registerBondPowerSteps } from "./bond";
 import { BurnFlow, registerBurnSteps } from "./burn";
 import { CascadeFlow, registerCascadeSteps } from "./cascade";
-import { registerDamageSteps } from "./damage";
-// import { DamageApplyFlow } from "./damage";
+import { DamageRollFlow, registerDamageSteps } from "./damage";
 import type { Flow, FlowState, Step } from "./flow";
 import { CoreActiveFlow, registerCoreActiveSteps } from "./frame";
 import { FullRepairFlow, registerFullRepairSteps } from "./full-repair";
@@ -28,6 +27,10 @@ export function registerFlows() {
   flows.set(ActionTrackFlow.name, ActionTrackFlow);
   flows.set(ActivationFlow.name, ActivationFlow);
   flows.set(BasicAttackFlow.name, BasicAttackFlow);
+  flows.set(DamageRollFlow.name, DamageRollFlow);
+  flows.set(TechAttackFlow.name, TechAttackFlow);
+  flows.set(WeaponAttackFlow.name, WeaponAttackFlow);
+  flows.set(BurnFlow.name, BurnFlow);
   flows.set(BondPowerFlow.name, BondPowerFlow);
   flows.set(CascadeFlow.name, CascadeFlow);
   flows.set(CoreActiveFlow.name, CoreActiveFlow);
@@ -43,10 +46,6 @@ export function registerFlows() {
   flows.set(StructureFlow.name, StructureFlow);
   flows.set(SystemFlow.name, SystemFlow);
   flows.set(TalentFlow.name, TalentFlow);
-  flows.set(TechAttackFlow.name, TechAttackFlow);
-  flows.set(WeaponAttackFlow.name, WeaponAttackFlow);
-  flows.set(BurnFlow.name, BurnFlow);
-  // flows.set(DamageApplyFlow.name, DamageApplyFlow);
 
   flowSteps.set("emptyStep", async (state: FlowState<any>) => !!state);
   registerTextSteps(flowSteps);
@@ -71,5 +70,5 @@ export function registerFlows() {
   registerActionTrackSteps(flowSteps);
 
   Hooks.callAll("lancer.registerFlows", flowSteps, flows);
-  return flowSteps;
+  return { flows, flowSteps };
 }
