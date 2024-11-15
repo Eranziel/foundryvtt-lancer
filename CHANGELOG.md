@@ -1,3 +1,12 @@
+# 2.4.1 (2024-11-14)
+
+## Bug Fixes
+
+- #587 - New scenes will have token vision and fog of exploration disabled by default. Congrats @sealtrowitz on your first (code) contribution!
+- #776 - Undoing end-of-turn burn ticks no longer lowers the actor's burn counter.
+- All flow classes are now available in `game.lancer.flows`, for easier access for macro/mod devs.
+- Properly register damage flow and refactor general damage button to follow the convention of other general flow buttons.
+
 # 2.4.0 (2024-11-10)
 
 ## Features
