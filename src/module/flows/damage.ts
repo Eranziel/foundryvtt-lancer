@@ -775,7 +775,6 @@ export async function applyDamage(event: JQuery.ClickEvent) {
 }
 
 export async function undoDamage(event: JQuery.ClickEvent) {
-  console.log("undoing damage");
   const chatMessageElement = event.currentTarget.closest(".chat-message.message");
   if (!chatMessageElement) {
     ui.notifications?.error("Damage undo button not in chat message");
@@ -797,7 +796,8 @@ export async function undoDamage(event: JQuery.ClickEvent) {
   }
   const overshieldDelta = parseInt(event.currentTarget.dataset.overshieldDelta);
   const hpDelta = parseInt(event.currentTarget.dataset.hpDelta);
-  const burnDelta = parseInt(event.currentTarget.dataset.burnDelta);
+  const burnDelta =
+    event.currentTarget.dataset.addBurn === "true" ? parseInt(event.currentTarget.dataset.burnDelta) : 0;
   const heatDelta = parseInt(event.currentTarget.dataset.heatDelta);
   if (!overshieldDelta && !hpDelta && !burnDelta && !heatDelta) {
     ui.notifications?.error("Damage undo button has no damage to undo!");

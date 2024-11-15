@@ -266,6 +266,7 @@ export class LancerActor extends Actor {
         data-hp-delta="${totalDamage}"
         data-burn-delta="${damage.Burn}"
         data-heat-delta="${damage.Heat}"
+        data-add-burn="${addBurn}"
       >
         <i class="fas fa-undo"></i>
       </a>
