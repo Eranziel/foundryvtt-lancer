@@ -1,3 +1,5 @@
+import type HexagonalGrid from "@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/grid/hexagonal.mjs";
+import type { Point } from "@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/types.mjs";
 import { getAutomationOptions } from "./settings";
 import { correctLegacyBarAttribute } from "./util/migrations";
 
@@ -84,26 +86,24 @@ export class LancerTokenDocument extends TokenDocument {
       }
     }
 
-    // @ts-expect-error
     return super.migrateData(source);
   }
 
   async _preCreate(...[data, options, user]: Parameters<TokenDocument["_preCreate"]>) {
+    // @ts-expect-error Figure out how to define flags
     if (getAutomationOptions().token_size && !this.getFlag(game.system.id, "manual_token_size")) {
       const new_size = Math.max(1, this.actor?.system.size ?? 1);
-      // @ts-expect-error v10
       this.updateSource({ width: new_size, height: new_size });
     }
     return super._preCreate(data, options, user);
   }
 
   _onRelatedUpdate(update: any, options: any) {
-    // @ts-expect-error
     super._onRelatedUpdate(update, options);
 
+    // @ts-expect-error Figure out how to define flags
     if (getAutomationOptions().token_size && !this.getFlag(game.system.id, "manual_token_size")) {
       let new_size = this.actor ? Math.max(1, this.actor.system.size) : undefined;
-      // @ts-expect-error v11
       if (this.isOwner && this.id && new_size !== undefined && (this.width !== new_size || this.height !== new_size)) {
         this.update({ width: new_size, height: new_size });
       }
@@ -115,13 +115,10 @@ export class LancerTokenDocument extends TokenDocument {
  * Get a basis space for the token. For odd, the center, for even, a predicable space with the center as a vertex
  */
 function getBasis(token: LancerToken) {
-  // @ts-expect-error v12
   const symmetrical = token.document.width === token.document.height;
-  // @ts-expect-error v12
-  const even = symmetrical && token.document.width % 2 == 0;
+  const even = symmetrical && (token.document.width ?? 0) % 2 == 0;
   if (!symmetrical || !even) return token.center;
-  // @ts-expect-error v12
-  const col: boolean = canvas.grid.columns;
+  const col: boolean = (<HexagonalGrid>canvas.grid)!.columns;
   const alt = altOrientation(token);
   const pt = { ...token.center };
   // @ts-expect-error v12
@@ -148,7 +145,6 @@ export class LancerToken extends Token {
   getShape() {
     // @ts-expect-error v12
     const size: { width: number; height: number } = this.getSize();
-    // @ts-expect-error v12
     if (canvas.grid!.isGridless && size.width === size.height) {
       return new PIXI.Circle(size.width / 2, size.height / 2, size.width / 2);
     }
@@ -175,9 +171,7 @@ export class LancerToken extends Token {
     }
 
     if (this._spaces.spaces.length === 0) {
-      // @ts-expect-error v12
       if (canvas.grid?.isHexagonal) {
-        // @ts-expect-error v12
         const regular = this.document.width === this.document.height;
 
         const basis = getBasis(this);
@@ -196,16 +190,13 @@ export class LancerToken extends Token {
         }));
         // @ts-expect-error v12
         this._spaces.spaces = cubes.map(c => canvas.grid!.cubeToPoint(c));
-        // @ts-expect-error v12
       } else if (canvas.grid?.isSquare) {
         // @ts-expect-error
         for (let i = 0; i < this.document.width; ++i) {
           // @ts-expect-error
           for (let j = 0; j < this.document.height; ++j) {
             this._spaces.spaces.push({
-              // @ts-expect-error v12
               x: this.position.x + (i + 0.5) * canvas.grid.sizeX,
-              // @ts-expect-error v12
               y: this.position.y + (j + 0.5) * canvas.grid.sizeY,
             });
           }
@@ -223,7 +214,7 @@ export class LancerToken extends Token {
 export function extendTokenConfig(...[app, html, _data]: Parameters<Hooks.RenderApplication<TokenConfig>>) {
   const auto = getAutomationOptions().token_size;
   if (!auto) return;
-  const manual = (app.object.getFlag(game.system.id, "manual_token_size") ?? false) as boolean;
+  const manual = (<LancerTokenDocument>app.object).getFlag(game.system.id, "manual_token_size") ?? false;
   html.find("[name=width]").closest(".form-group").before(`
     <div class="form-group slim">
       <label>${game.i18n.localize("lancer.tokenConfig.manual_token_size.label")}</label>
@@ -270,8 +261,8 @@ export function fix_modify_token_attribute(data: any) {
 declare global {
   interface FlagConfig {
     Token: {
-      [game.system.id]?: {
-        mm_size?: number | undefined;
+      ["lancer"]?: {
+        manual_token_size: boolean | undefined;
       };
       "hex-size-support"?: {
         borderSize?: number;

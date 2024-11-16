@@ -6,6 +6,7 @@ import CompconLoginForm from "./helpers/compcon-login-form";
 import { ActionTrackerConfig } from "./apps/action-tracker-settings";
 import { StatusIconConfig } from "./apps/status-icon-config";
 import { applyTheme } from "./themes";
+import type { fields } from "@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/data/module.mjs";
 
 export const registerSettings = function () {
   /**
@@ -32,7 +33,6 @@ export const registerSettings = function () {
     name: "Installed LCPs",
     scope: "world",
     config: false,
-    // @ts-expect-error There's probably a fix for this
     type: Object,
     default: { index: [] },
   });
@@ -57,7 +57,7 @@ export const registerSettings = function () {
   game.settings.register(game.system.id, LANCER.setting_ui_theme, {
     name: "lancer.uiTheme.name",
     hint: "lancer.uiTheme.hint",
-    scope: "user",
+    scope: "client",
     config: true,
     // @ts-expect-error v12
     type: new foundry.data.fields.StringField({
@@ -94,6 +94,7 @@ export const registerSettings = function () {
     label: "lancer.statusIconsConfig.menu-label",
     hint: "lancer.statusIconsConfig.menu-hint",
     icon: "cci cci-difficulty i--s",
+    // @ts-expect-error
     type: StatusIconConfig,
     restricted: true,
   });
@@ -101,7 +102,9 @@ export const registerSettings = function () {
   game.settings.register(game.system.id, LANCER.setting_status_icons, {
     scope: "world",
     config: false,
+    // @ts-expect-error
     type: StatusIconConfigOptions,
+    // @ts-expect-error
     default: new StatusIconConfigOptions(),
   });
 
@@ -117,7 +120,9 @@ export const registerSettings = function () {
   game.settings.register(game.system.id, LANCER.setting_automation, {
     scope: "world",
     config: false,
+    // @ts-expect-error
     type: AutomationOptions,
+    // @ts-expect-error
     default: new AutomationOptions(),
   });
 
@@ -126,6 +131,7 @@ export const registerSettings = function () {
     label: "lancer.actionTracker.menu-label",
     hint: "lancer.actionTracker.menu-hint",
     icon: "mdi mdi-state-machine",
+    // @ts-expect-error
     type: ActionTrackerConfig,
     restricted: true,
   });
@@ -155,14 +161,15 @@ export const registerSettings = function () {
 
   // Lancer initiative stuff
   CONFIG.LancerInitiative = {
-    module: game.system.id,
     templatePath: `systems/${game.system.id}/templates/combat/combat-tracker.hbs`,
   };
   game.settings.register(game.system.id, "combat-tracker-appearance", {
     scope: "client",
     config: false,
+    // @ts-expect-error
     type: CombatTrackerAppearance,
     onChange: setAppearance,
+    // @ts-expect-error
     default: new CombatTrackerAppearance(),
   });
   game.settings.register(game.system.id, "combat-tracker-sort", {
@@ -175,7 +182,7 @@ export const registerSettings = function () {
     },
     default: true,
   });
-  CONFIG.LancerInitiative.sort = game.settings.get(game.system.id, "combat-tracker-sort") as boolean;
+  CONFIG.LancerInitiative.sort = game.settings.get(game.system.id, "combat-tracker-sort");
   setAppearance(game.settings.get(game.system.id, "combat-tracker-appearance"));
 };
 
@@ -189,10 +196,7 @@ export function getAutomationOptions(): AutomationOptions {
   return game.settings.get(game.system.id, LANCER.setting_automation) ?? new AutomationOptions();
 }
 
-/**
- * Object for the various automation settings in the system
- */
-export interface AutomationOptions {
+interface AutomationOptionsSchema extends DataSchema {
   /**
    * Master switch for automation
    * @defaultValue `true`
@@ -203,50 +207,52 @@ export interface AutomationOptions {
    * damage, and other attack related checks.
    * @defaultValue `true`
    */
-  attacks: boolean;
+  attacks: fields.BooleanField<{ initial: true }>;
   /**
    * When a mech rolls a structure/overheat macro, should it automatically
    * decrease structure/stress?
    * @defaultValue `true`
    */
-  structure: boolean;
+  structure: fields.BooleanField<{ initial: true }>;
   /**
    * When a mech rolls an overcharge, should it automatically apply heat?
    * @defaultValue `true`
    */
-  overcharge_heat: boolean;
+  overcharge_heat: fields.BooleanField<{ initial: true }>;
   /**
    * When a mech rolls an attack with heat (self) and/or overkill, should it
    * automatically apply heat?
    * @defaultValue `true`
    */
-  attack_self_heat: boolean;
+  attack_self_heat: fields.BooleanField<{ initial: true }>;
   /**
    * Handle limited/loading items automatically, or leave that up to the user
    * @defaultValue `true`
    */
-  limited_loading: boolean;
+  limited_loading: fields.BooleanField<{ initial: true }>;
   /**
    * Automatically recharge NPC systems at the start of their turn
    * @defaultValue `true`
    */
-  npc_recharge: boolean;
+  npc_recharge: fields.BooleanField<{ initial: true }>;
   /**
    * Remove measured templates created by attacks when the turn changes
    * @defaultValue `false`
    */
-  remove_templates: boolean;
+  remove_templates: fields.BooleanField<{ initial: true }>;
   /**
    * Automatically manage token sizes based on the actor
    * @defaultValue `true`
    */
-  token_size: boolean;
+  token_size: fields.BooleanField<{ initial: true }>;
 }
 
-// @ts-expect-error v12
-export class AutomationOptions extends foundry.abstract.DataModel {
+/**
+ * Object for the various automation settings in the system
+ */
+export class AutomationOptions extends foundry.abstract.DataModel<AutomationOptionsSchema> {
   static defineSchema() {
-    const fields: any = foundry.data.fields;
+    const fields = foundry.data.fields;
     return {
       attacks: new fields.BooleanField({ required: true, initial: true }),
       structure: new fields.BooleanField({ required: true, initial: true }),
@@ -306,54 +312,53 @@ export interface ActionTrackerOptions {
 
 //
 // > STATUS ICON CONFIGURATION
-/**
- * Object for the various automation settings in the system
- */
-export interface StatusIconConfigOptions {
+interface StatusIconConfigOptionsSchema extends DataSchema {
   /**
    * Enable the default icon set for conditions & status
    * @defaultValue `true`
    */
-  defaultConditionsStatus: boolean;
+  defaultConditionsStatus: fields.BooleanField<{ initial: true }>;
   /**
    * Enable Cancermantis' icon set for conditions & status
    * @defaultValue `false`
    */
-  cancerConditionsStatus: boolean;
+  cancerConditionsStatus: fields.BooleanField<{ initial: false }>;
   /**
    * Enable Cancermantis' icon set for NPC templates
    * @defaultValue `false`
    */
-  cancerNPCTemplates: boolean;
+  cancerNPCTemplates: fields.BooleanField<{ initial: false }>;
   /**
    * Enable Hayley's icon set for conditions & status.
    * @defaultValue `false`
    */
-  hayleyConditionsStatus: boolean;
+  hayleyConditionsStatus: fields.BooleanField<{ initial: false }>;
   /**
    * Enable Hayley's icon set for PC system effects.
    * @defaultValue `false`
    */
-  hayleyPC: boolean;
+  hayleyPC: fields.BooleanField<{ initial: false }>;
   /**
    * Enable Hayley's icon set for NPC system effects.
    * @defaultValue `false`
    */
-  hayleyNPC: boolean;
+  hayleyNPC: fields.BooleanField<{ initial: false }>;
   /**
    * Enable Hayley's icon set for utility indicators.
    * @defaultValue `false`
    */
-  hayleyUtility: boolean;
+  hayleyUtility: fields.BooleanField<{ initial: false }>;
   /**
    * Enable Tommy's icon set for conditions & status.
    * @defaultValue `false`
    */
-  tommyConditionsStatus: boolean;
+  tommyConditionsStatus: fields.BooleanField<{ initial: false }>;
 }
 
-// @ts-expect-error v12
-export class StatusIconConfigOptions extends foundry.abstract.DataModel {
+/**
+ * Object for the various automation settings in the system
+ */
+export class StatusIconConfigOptions extends foundry.abstract.DataModel<StatusIconConfigOptionsSchema> {
   static defineSchema() {
     const fields: any = foundry.data.fields;
     return {
@@ -373,53 +378,52 @@ export class StatusIconConfigOptions extends foundry.abstract.DataModel {
 // > LANCER INITIATIVE CONFIG
 //
 
-export interface CombatTrackerAppearance {
+interface CombatTrackerAppearanceSchema extends DataSchema {
   /**
    * Css class to specify the icon
    * @default `cci cci-activate`
    */
-  icon: string;
+  icon: fields.StringField<{ required: true; initial: "cci cci-activate" }>;
   /**
    * Css class to specify deactivation icon
    * @default `cci cci-deactivate`
    */
-  deactivate: string;
+  deactivate: fields.StringField<{ required: true; initial: "cci cci-deactivate" }>;
   /**
    * Size of the icon in rem
    * @default `2`
    */
-  icon_size: number;
+  icon_size: fields.NumberField<{ initial: 2 }>;
   /**
    * Color for players in the tracker
    * @default `#44abe0`
    */
-  player_color: string;
+  player_color: fields.ColorField<{ initial: "#44abe0" }>;
   /**
    * Color for friendly npcs
    * @default `#44abe0`
    */
-  friendly_color: string;
+  friendly_color: fields.ColorField<{ initial: "#44abe0" }>;
   /**
    * Color for neutral npcs
    * @default `#146464`
    */
-  neutral_color: string;
+  neutral_color: fields.ColorField<{ initial: "#146464" }>;
   /**
    * Color for enemy npcs
    * @default `#d98f30`
    */
-  enemy_color: string;
+  enemy_color: fields.ColorField<{ initial: "#d98f30" }>;
   /**
    * Color for units that have finished their turn
    * @default `#444444`
    */
-  done_color: string;
+  done_color: fields.ColorField<{ initial: "#444444" }>;
 }
 
-// @ts-expect-error v12
-export class CombatTrackerAppearance extends foundry.abstract.DataModel {
+export class CombatTrackerAppearance extends foundry.abstract.DataModel<CombatTrackerAppearanceSchema> {
   static defineSchema() {
-    const fields: any = foundry.data.fields;
+    const fields = foundry.data.fields;
     return {
       icon: new fields.StringField({
         required: true,

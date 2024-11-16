@@ -6,7 +6,7 @@ import type { LancerCombat, LancerCombatant } from "./lancer-combat.js";
  * buttons and either move or remove the initiative button
  */
 export class LancerCombatTracker extends CombatTracker {
-  static override get defaultOptions(): CombatTracker.Options {
+  static override get defaultOptions(): ApplicationOptions {
     return {
       ...super.defaultOptions,
       template: CONFIG.LancerInitiative.templatePath!,
@@ -24,9 +24,9 @@ export class LancerCombatTracker extends CombatTracker {
    * units that have already gone to be moved to the bottom without the risk of
    * updateCombat events being eaten.
    */
-  override async getData(options?: Partial<CombatTracker.Options>): Promise<CombatTracker.Data> {
+  override async getData(options?: Partial<ApplicationOptions>): Promise<object> {
     const config = CONFIG.LancerInitiative;
-    const appearance = game.settings.get(game.system.id, "combat-tracker-appearance");
+    const appearance = game.settings.get(game.system.id, "combat-tracker-appearance") as CombatTrackerAppearance;
     const data = (await super.getData(options)) as {
       turns: {
         id: string;
@@ -46,7 +46,7 @@ export class LancerCombatTracker extends CombatTracker {
     };
     data.turns = data.turns.map(t => {
       const combatant: LancerCombatant | undefined = <LancerCombatant>(
-        this.viewed!.getEmbeddedDocument("Combatant", t.id)
+        (this.viewed!.getEmbeddedDocument("Combatant", t.id, {}) as unknown)
       );
       return {
         ...t,
@@ -69,7 +69,7 @@ export class LancerCombatTracker extends CombatTracker {
     data.icon_class = appearance.icon;
     data.deactivate_icon_class = appearance.deactivate;
     data.enable_initiative = CONFIG.LancerInitiative.enable_initiative ?? false;
-    return <CombatTracker.Data>data;
+    return data;
   }
 
   override activateListeners(html: JQuery<HTMLElement>): void {
@@ -100,21 +100,21 @@ export class LancerCombatTracker extends CombatTracker {
 
   protected async _onAddActivation(li: JQuery<HTMLElement>): Promise<void> {
     const combatant: LancerCombatant = <LancerCombatant>(
-      this.viewed!.getEmbeddedDocument("Combatant", li.data("combatant-id"))
+      (this.viewed!.getEmbeddedDocument("Combatant", li.data("combatant-id"), {}) as unknown)
     );
     await combatant.addActivations(1);
   }
 
   protected async _onRemoveActivation(li: JQuery<HTMLElement>): Promise<void> {
     const combatant: LancerCombatant = <LancerCombatant>(
-      this.viewed!.getEmbeddedDocument("Combatant", li.data("combatant-id"))
+      (this.viewed!.getEmbeddedDocument("Combatant", li.data("combatant-id"), {}) as unknown)
     );
     await combatant.addActivations(-1);
   }
 
   protected async _onUndoActivation(li: JQuery<HTMLElement>): Promise<void> {
     const combatant: LancerCombatant = <LancerCombatant>(
-      this.viewed!.getEmbeddedDocument("Combatant", li.data("combatant-id"))
+      (this.viewed!.getEmbeddedDocument("Combatant", li.data("combatant-id"), {}) as unknown)
     );
     await combatant.modifyCurrentActivations(1);
   }
@@ -144,11 +144,17 @@ export class LancerCombatTracker extends CombatTracker {
 
 export function setAppearance(val: CombatTrackerAppearance): void {
   document.documentElement.style.setProperty("--lancer-initiative-icon-size", `${val.icon_size}rem`);
-  document.documentElement.style.setProperty("--lancer-initiative-player-color", val.player_color);
-  document.documentElement.style.setProperty("--lancer-initiative-friendly-color", val.friendly_color);
-  document.documentElement.style.setProperty("--lancer-initiative-neutral-color", val?.neutral_color);
-  document.documentElement.style.setProperty("--lancer-initiative-enemy-color", val?.enemy_color);
-  document.documentElement.style.setProperty("--lancer-initiative-done-color", val?.done_color);
+  document.documentElement.style.setProperty("--lancer-initiative-player-color", val.player_color?.toString() ?? null);
+  document.documentElement.style.setProperty(
+    "--lancer-initiative-friendly-color",
+    val.friendly_color?.toString() ?? null
+  );
+  document.documentElement.style.setProperty(
+    "--lancer-initiative-neutral-color",
+    val?.neutral_color?.toString() ?? null
+  );
+  document.documentElement.style.setProperty("--lancer-initiative-enemy-color", val?.enemy_color?.toString() ?? null);
+  document.documentElement.style.setProperty("--lancer-initiative-done-color", val?.done_color?.toString() ?? null);
   game.combats?.render();
 }
 

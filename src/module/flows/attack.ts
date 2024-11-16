@@ -525,7 +525,6 @@ export async function printAttackCard(
 // If user is GM, apply status changes to attacked tokens
 Hooks.on("createChatMessage", async (cm: ChatMessage, options: any, id: string) => {
   // Consume lock-on if we are the primary GM
-  // @ts-expect-error Types user collection missing activeGM
   if (!game.users?.activeGM?.isSelf) return;
   const atkData: AttackFlag = cm.getFlag(game.system.id, "attackData") as any;
   if (!atkData || !atkData.targets) return;

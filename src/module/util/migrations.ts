@@ -1,11 +1,11 @@
 // Migration utility functions
 
+import type { DeepPartial } from "@league-of-foundry-developers/foundry-vtt-types/src/types/utils.mjs";
 import type { SourceData, SourceTemplates } from "../source-template";
 import type { PackedNpcClassStats } from "./unpacking/packed-types";
 
 // Looks through the raw game.data for probable lid matches. Returns a UUID
 function coarseLIDtoUUID(lid: string): string | null {
-  // @ts-expect-error v11
   let actor = game.data.actors?.find(x => x.system?.lid == lid);
   if (actor?._id) {
     return `Actor.${actor._id}`;
@@ -130,7 +130,7 @@ export function convertNpcStats(raw_data: Record<string, any>): DeepPartial<Sour
     };
 
     // Go through either all keys, or present keys
-    let record: Partial<SourceTemplates.NPC.StatBlock> = {};
+    let record: SourceTemplates.NPC.StatBlock = {} as any;
     for (let k of Object.keys(raw_data) as Array<keyof PackedNpcClassStats>) {
       let v = giv(k);
       if (v) record[key_map[k]] = v;

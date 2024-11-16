@@ -1,6 +1,6 @@
 import { EntryType } from "../enums";
 import { LancerItemSheetData } from "../interfaces";
-import { lookupDeployables, lookupLID } from "../util/lid";
+import { lookupDeployables } from "../util/lid";
 import { LancerItemSheet } from "./item-sheet";
 
 /**
@@ -12,7 +12,7 @@ export class LancerFrameSheet extends LancerItemSheet<EntryType.FRAME> {
    * @override
    * Extend and override the default options used by the generic Lancer item sheet
    */
-  static get defaultOptions(): ItemSheet.Options {
+  static get defaultOptions(): DocumentSheetOptions<Item> {
     return foundry.utils.mergeObject(super.defaultOptions, {
       width: 700,
       height: 750,

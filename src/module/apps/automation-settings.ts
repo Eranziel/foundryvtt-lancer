@@ -1,7 +1,7 @@
 import { AutomationOptions } from "../settings";
 import { LANCER } from "../config";
 
-interface AutomationConfigOptions extends FormApplication.Options {
+interface AutomationConfigOptions extends FormApplicationOptions {
   loadDefault: boolean;
   loadEmpty: boolean;
 }
@@ -30,12 +30,12 @@ export class AutomationConfig extends FormApplication<AutomationConfigOptions, A
   }
 
   /** @override */
-  getData(options: AutomationConfigOptions): AutomationOptions {
-    if (options.loadDefault) {
+  getData(options?: AutomationConfigOptions): AutomationOptions {
+    if (options?.loadDefault) {
       this.options.loadDefault = false;
       return new AutomationOptions();
     }
-    if (options.loadEmpty) {
+    if (options?.loadEmpty) {
       this.options.loadEmpty = false;
       const r = new AutomationOptions();
       Object.keys(r).forEach(k => ((<any>r)[k] = false));
@@ -53,7 +53,7 @@ export class AutomationConfig extends FormApplication<AutomationConfigOptions, A
 
   /** @override */
   async _updateObject(_: Event, data: Record<string, unknown>): Promise<void> {
-    game.settings.set(game.system.id, LANCER.setting_automation, data as any);
+    game.settings.set(game.system.id, LANCER.setting_automation, data as never);
   }
 
   /**

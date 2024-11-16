@@ -9,6 +9,7 @@ const lp = LANCER.log_prefix;
 
 export async function handleCombatUpdate(...[combat, changed]: Parameters<Hooks.UpdateDocument<typeof Combat>>) {
   if (game.user?.isGM) {
+    // @ts-expect-error changed has wrong type
     if (!("turn" in changed) && changed.round !== 1) return;
     if (game.combats!.get(combat.id!)?.combatants.contents.length == 0) return;
 
@@ -34,7 +35,6 @@ function processStartTurn(actor: LancerActor) {
   const automation = getAutomationOptions();
 
   // Handle NPC feature recharge
-  // @ts-expect-error v10 types
   if (automation.npc_recharge && actor.is_npc() && game.users?.activeGM?.isSelf) {
     actor.beginRechargeFlow();
   }

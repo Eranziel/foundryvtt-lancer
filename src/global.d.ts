@@ -1,13 +1,8 @@
-import type { AutomationOptions, CombatTrackerAppearance, StatusIconConfigOptions } from "./module/settings";
 import type { LancerActionManager } from "./module/action/action-manager";
+import type { AutomationOptions, CombatTrackerAppearance, StatusIconConfigOptions } from "./module/settings";
 import type { TerrainHeightToolsAPI } from "./types/terrain-height-tools";
 
 interface LancerInitiativeConfig<T extends string = string> {
-  /**
-   * Namespace for flags and settings. Should be the id of the system or
-   * module.
-   */
-  module: T;
   /**
    * Filepath to the handlebars template for LancerCombatTracker. Can be
    * omitted if LancerCombatTracker is not used.
@@ -38,13 +33,15 @@ declare global {
     game: never;
     canvas: never;
   }
-
-  namespace Game {
-    interface SystemData<T> {
-      id: "lancer";
-    }
+  interface AssumeHookRan {
+    ready: never;
   }
-  interface Game {
+
+  interface System {
+    id: "lancer";
+  }
+
+  interface ReadyGame {
     lancer: Record<string, unknown>;
     action_manager?: LancerActionManager;
   }
@@ -53,32 +50,45 @@ declare global {
     LancerInitiative: LancerInitiativeConfig<Game["system"]["id"]>;
   }
 
-  namespace ClientSettings {
-    interface Values {
-      "lancer.systemMigrationVersion": string;
-      "lancer.coreDataVersion": string;
-      "lancer.installedLCPs": {
-        index: IContentPackManifest[];
-      };
-      "lancer.keepStockIcons": boolean;
-      "lancer.hideWelcome": boolean;
-      "lancer.automationOptions": AutomationOptions;
-      "lancer.automationSwitch": boolean;
-      "lancer.attackSwitch": boolean;
-      "lancer.actionManager": boolean;
-      "lancer.actionManagerPlayersUse": boolean;
-      "lancer.autoOCHeat": boolean;
-      "lancer.autoOKillHeat": boolean;
-      "lancer.autoCalcStructure": boolean;
-      "lancer.squareGridDiagonals": "111" | "121" | "222" | "euc";
-      "lancer.statusIconConfig": StatusIconConfigOptions;
-      "lancer.uiTheme": "gms" | "gmsDark" | "msmc" | "horus" | "ha" | "ssc" | "ipsn" | "gal";
-      // "lancer.warningFor120": boolean; // Old setting, currently unused.
-      // "lancer.warningForBeta": boolean; // Old setting, currently unused.
-      "lancer.combatTrackerConfig": { sortTracker: boolean } | ClientSettings.Values["lancer.combatTrackerConfig"];
-      "lancer.dsnSetup": boolean;
-      "lancer.combat-tracker-appearance": CombatTrackerAppearance;
-    }
+  interface SettingConfig {
+    "lancer.systemMigrationVersion": string;
+    "lancer.coreDataVersion": string;
+    "lancer.installedLCPs": {
+      index: IContentPackManifest[];
+    };
+    "lancer.keepStockIcons": boolean;
+    "lancer.hideWelcome": boolean;
+    "lancer.automationOptions": AutomationOptions;
+    "lancer.automationSwitch": boolean;
+    "lancer.attackSwitch": boolean;
+    "lancer.actionManager": boolean;
+    "lancer.actionManagerPlayersUse": boolean;
+    "lancer.actionTracker": Record<string, unknown>;
+    "lancer.autoOCHeat": boolean;
+    "lancer.autoOKillHeat": boolean;
+    "lancer.autoCalcStructure": boolean;
+    "lancer.combat-tracker-sort": boolean;
+    "lancer.floatingNumbers": boolean;
+    "lancer.squareGridDiagonals": "111" | "121" | "222" | "euc";
+    "lancer.statusIconConfig": StatusIconConfigOptions;
+    "lancer.tagConfig": Record<string, unknown>;
+    "lancer.uiTheme": "gms" | "gmsDark" | "msmc" | "horus" | "ha" | "ssc" | "ipsn" | "gal";
+    // "lancer.warningFor120": boolean; // Old setting, currently unused.
+    // "lancer.warningForBeta": boolean; // Old setting, currently unused.
+    "lancer.combatTrackerConfig": { sortTracker: boolean } | ClientSettings.Values["lancer.combatTrackerConfig"];
+    "lancer.dsnSetup": boolean;
+    "lancer.combat-tracker-appearance": CombatTrackerAppearance;
+
+    "dice-so-nice.enabledSimultaneousRollForMessage": boolean;
+
+    "lancer-conditions.keepStockIcons": boolean;
+    "lancer-conditions.cancerConditionsStatus": boolean;
+    "lancer-conditions.cancerNPCTemplates": boolean;
+    "lancer-conditions.hayleyConditionsStatus": boolean;
+    "lancer-conditions.hayleyPC": boolean;
+    "lancer-conditions.hayleyNPC": boolean;
+    "lancer-conditions.hayleyUtility": boolean;
+    "lancer-conditions.tommyConditionsStatus": boolean;
   }
 
   /**

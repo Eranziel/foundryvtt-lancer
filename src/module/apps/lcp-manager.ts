@@ -233,7 +233,6 @@ class LCPManager extends Application {
 
   updateProgressBar(done: number, outOf: number) {
     let percent = Math.ceil((done / outOf) * 100);
-    // @ts-expect-error v9
     SceneNavigation.displayProgressBar({ label: "Importing...", pct: percent });
   }
 }
@@ -261,7 +260,6 @@ export async function updateCore(version: string, manager?: LCPManager) {
     return;
   }
 
-  // @ts-expect-error v9
   SceneNavigation.displayProgressBar({ label: "DONE", pct: 100 });
   await game.settings.set(game.system.id, LANCER.setting_core_data, version);
 }

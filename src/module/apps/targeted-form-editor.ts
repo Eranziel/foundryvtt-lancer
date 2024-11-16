@@ -1,7 +1,6 @@
 import { LancerActor } from "../actor/lancer-actor";
 import { drilldownDocument, resolveDotpath } from "../helpers/commons";
-import { LancerItem, LancerTALENT } from "../item/lancer-item";
-import { TagData } from "../models/bits/tag";
+import { LancerItem } from "../item/lancer-item";
 
 /**
  * A helper FormApplication subclass for editing a particular
@@ -23,7 +22,7 @@ export class TargetedEditForm<T> extends FormApplication {
   constructor(
     target: LancerItem | LancerActor,
     value_path: string,
-    options: Partial<FormApplication.Options> = {},
+    options: Partial<FormApplicationOptions> = {},
     resolve_func: () => any
   ) {
     super(

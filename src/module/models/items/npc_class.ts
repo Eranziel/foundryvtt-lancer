@@ -1,13 +1,15 @@
-import { EntryType } from "../../enums";
-import { regRefToLid, convertNpcStats } from "../../util/migrations";
-import { SourceData } from "../../source-template";
-import { PackedNpcClassData } from "../../util/unpacking/packed-types";
-import { ControlledLengthArrayField, LancerDataModel, LIDField, NpcStatBlockField, UnpackContext } from "../shared";
-import { template_universal_item } from "./shared";
+import type { DeepPartial } from "@league-of-foundry-developers/foundry-vtt-types/src/types/utils.mjs";
 import { frameToPath } from "../../actor/retrograde-map";
+import { EntryType } from "../../enums";
+import { SourceData } from "../../source-template";
+import { convertNpcStats, regRefToLid } from "../../util/migrations";
+import { PackedNpcClassData } from "../../util/unpacking/packed-types";
+import { ControlledLengthArrayField, LIDField, LancerDataModel, NpcStatBlockField, UnpackContext } from "../shared";
+import { template_universal_item } from "./shared";
 
 const fields: any = foundry.data.fields;
 
+// @ts-expect-error LancerDataModel needs to be redone
 export class NpcClassModel extends LancerDataModel<"NpcClassModel"> {
   static defineSchema() {
     return {
@@ -50,7 +52,6 @@ export class NpcClassModel extends LancerDataModel<"NpcClassModel"> {
       }
     }
 
-    // @ts-expect-error
     return super.migrateData(data);
   }
 }
@@ -75,8 +76,8 @@ export function unpackNpcClass(
       role: data.role,
       flavor: data.info.flavor,
       tactics: data.info.tactics,
-      base_features: data.base_features,
-      optional_features: data.optional_features,
+      base_features: data.base_features as any,
+      optional_features: data.optional_features as any,
       base_stats: convertNpcStats(data.stats),
     },
   };
