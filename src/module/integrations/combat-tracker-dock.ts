@@ -1,5 +1,6 @@
 import type { LancerActor } from "../actor/lancer-actor";
 import type { LancerCombatant } from "../combat/lancer-combat";
+import type { CombatTrackerAppearance } from "../settings";
 // Import our customized CSS
 import "./lancer-combat-tracker-dock.scss";
 
@@ -32,7 +33,7 @@ export function getInitiativeDisplay(combatant: LancerCombatant) {
 }
 
 function getColorByDispo(d: number) {
-  const app = game.settings.get(game.system.id, "combat-tracker-appearance");
+  const app = game.settings.get(game.system.id, "combat-tracker-appearance") as CombatTrackerAppearance;
   if (d === 2) return app.player_color;
   else if (d === 1) return app.friendly_color;
   else if (d === 0) return app.neutral_color;
@@ -61,14 +62,13 @@ export function getSystemIcons(combatant: LancerCombatant) {
   for (let i = 0; i < (combatant.activations.value ?? 0); ++i) {
     icons.push({
       icon: "cci cci-activate",
-      color: getColorByDispo(combatant.disposition),
+      color: getColorByDispo(combatant.disposition)?.toString(),
       fontSize: "1.5rem",
       visible: true,
       enabled: true,
       callback: (_e, combatant) => combatant.parent?.activateCombatant(combatant.id!),
     });
   }
-  // @ts-expect-error
   if (combatant.parent?.current.combatantId === combatant.id) {
     icons.push({
       icon: "cci cci-deactivate",

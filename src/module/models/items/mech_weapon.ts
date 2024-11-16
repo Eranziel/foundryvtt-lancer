@@ -1,3 +1,4 @@
+import type { DeepPartial } from "@league-of-foundry-developers/foundry-vtt-types/src/types/utils.mjs";
 import { EntryType, WeaponSize, WeaponType } from "../../enums";
 import { restrict_enum } from "../../helpers/commons";
 import { SourceData } from "../../source-template";
@@ -10,18 +11,18 @@ import { DamageField, unpackDamage } from "../bits/damage";
 import { RangeField, unpackRange } from "../bits/range";
 import { SynergyField, unpackSynergy } from "../bits/synergy";
 import { TagField, unpackTag } from "../bits/tag";
-import { ControlledLengthArrayField, LancerDataModel, LIDField, UnpackContext } from "../shared";
+import { ControlledLengthArrayField, LIDField, LancerDataModel, UnpackContext } from "../shared";
 import {
-  template_universal_item,
+  migrateManufacturer,
   template_destructible,
   template_licensed,
+  template_universal_item,
   template_uses,
-  migrateManufacturer,
 } from "./shared";
 
 const fields: any = foundry.data.fields;
 
-// @ts-ignore
+// @ts-expect-error LancerDataModel needs to be redone
 export class MechWeaponModel extends LancerDataModel<"MechWeaponModel"> {
   static defineSchema() {
     return {
@@ -73,8 +74,6 @@ export class MechWeaponModel extends LancerDataModel<"MechWeaponModel"> {
     if (data.source) {
       data.manufacturer = migrateManufacturer(data.source);
     }
-
-    // @ts-expect-error v11
     return super.migrateData(data);
   }
 }
@@ -167,7 +166,7 @@ export function unpackMechWeapon(
       no_mods: data.no_mods,
       no_synergies: data.no_synergy,
       actions: data.actions?.map(unpackAction) || [],
-      profiles,
+      profiles: profiles as any,
       selected_profile_index: 0,
       size: data.mount,
       sp: data.sp,

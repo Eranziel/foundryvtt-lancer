@@ -1,3 +1,4 @@
+import type { DeepPartial } from "@league-of-foundry-developers/foundry-vtt-types/src/types/utils.mjs";
 import { EntryType, OrgType } from "../../enums";
 import { SourceData } from "../../source-template";
 import { PackedOrganizationData } from "../../util/unpacking/packed-types";
@@ -6,7 +7,7 @@ import { template_universal_item } from "./shared";
 
 const fields: any = foundry.data.fields;
 
-// @ts-ignore
+// @ts-expect-error LancerDataModel needs to be redone
 export class OrganizationModel extends LancerDataModel {
   static defineSchema() {
     return {

@@ -1,7 +1,6 @@
 import { fromLidSync } from "./from-lid";
 
 export function addEnrichers() {
-  //@ts-expect-error v10
   CONFIG.TextEditor.enrichers = CONFIG.TextEditor.enrichers.concat([
     {
       pattern: /@LancerID\[(.+?)\](?:{(.+?)})?/gm,

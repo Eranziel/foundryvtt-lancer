@@ -1,5 +1,6 @@
+import type { DeepPartial } from "@league-of-foundry-developers/foundry-vtt-types/src/types/utils.mjs";
 import { EntryType } from "../../enums";
-import { restrict_choices, restrict_enum } from "../../helpers/commons";
+import { restrict_choices } from "../../helpers/commons";
 import { SourceData } from "../../source-template";
 import { PackedStatusData } from "../../util/unpacking/packed-types";
 import { LancerDataModel, UnpackContext } from "../shared";
@@ -7,6 +8,7 @@ import { template_universal_item } from "./shared";
 
 const fields: any = foundry.data.fields;
 
+// @ts-expect-error LancerDataModel needs to be redone
 export class StatusModel extends LancerDataModel<"StatusModel"> {
   static defineSchema() {
     return {
@@ -18,8 +20,6 @@ export class StatusModel extends LancerDataModel<"StatusModel"> {
 
   static migrateData(data: any) {
     if (data.type) data.type = data.type.toLowerCase(); // Fix "Condition" / "Status"
-
-    // @ts-expect-error v11
     return super.migrateData(data);
   }
 }

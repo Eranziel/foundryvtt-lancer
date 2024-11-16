@@ -15,15 +15,15 @@ export class LancerNPCClassSheet extends LancerItemSheet<EntryType.NPC_CLASS | E
    * @override
    * Extend and override the default options used by the generic Lancer item sheet
    */
-  static get defaultOptions(): ItemSheet.Options {
+  static get defaultOptions(): DocumentSheetOptions<Item> {
     return foundry.utils.mergeObject(super.defaultOptions, {
       width: 900,
       height: 750,
     });
   }
 
-  base_feature_items!: (LancerItem["data"] & { type: EntryType.NPC_FEATURE })[];
-  optional_feature_items!: (LancerItem["data"] & { type: EntryType.NPC_FEATURE })[];
+  base_feature_items!: (LancerItem & { type: EntryType.NPC_FEATURE })[];
+  optional_feature_items!: (LancerItem & { type: EntryType.NPC_FEATURE })[];
 
   async getData(): Promise<LancerItemSheetData<EntryType.NPC_CLASS | EntryType.NPC_TEMPLATE>> {
     let data = await super.getData();

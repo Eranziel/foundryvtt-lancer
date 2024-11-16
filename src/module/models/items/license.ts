@@ -1,3 +1,4 @@
+import type { DeepPartial } from "@league-of-foundry-developers/foundry-vtt-types/src/types/utils.mjs";
 import { EntryType } from "../../enums";
 import { SourceData } from "../../source-template";
 import { LancerDataModel, UnpackContext } from "../shared";
@@ -5,7 +6,7 @@ import { template_universal_item } from "./shared";
 
 const fields: any = foundry.data.fields;
 
-// @ts-ignore
+// @ts-expect-error LancerDataModel needs to be redone
 export class LicenseModel extends LancerDataModel<"LicenseModel"> {
   static defineSchema() {
     return {
@@ -22,7 +23,6 @@ export class LicenseModel extends LancerDataModel<"LicenseModel"> {
     }
     if (data.rank) data.curr_rank = data.rank;
 
-    // @ts-expect-error v11
     return super.migrateData(data);
   }
 }

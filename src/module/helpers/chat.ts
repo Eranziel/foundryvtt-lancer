@@ -1,9 +1,8 @@
 import type { HelperOptions } from "handlebars";
 import { LancerFlowState } from "../flows/interfaces";
-import { lancerDiceRoll } from "./commons";
 import { DamageData } from "../models/bits/damage";
 import { RangeData } from "../models/bits/range";
-import { DamageType } from "../enums";
+import { lancerDiceRoll } from "./commons";
 
 export function miniProfile(
   profile: { range: RangeData[]; damage?: DamageData[]; attack?: number; accuracy?: number },
@@ -66,7 +65,6 @@ export function attackTarget(hit: LancerFlowState.HitResultWithRoll, options: He
     : hit.hit
     ? `<span class="card clipped lancer-hit-chip hit">${game.i18n.format("lancer.chat-card.attack.hit")}</span>`
     : `<span class="card clipped lancer-hit-chip miss">${game.i18n.format("lancer.chat-card.attack.miss")}</span>`;
-  // @ts-expect-error v10 types
   const img = hit.target.document.texture.src;
   return `
     <div class="lancer-hit-target">
@@ -84,8 +82,7 @@ export function damageTarget(
   context: LancerFlowState.DamageRollData,
   options: HelperOptions
 ): string {
-  // @ts-expect-error v11 types
-  const statuses: Set<string> = target.target.actor?.statuses || new Set();
+  const statuses = target.target.actor?.statuses || new Set();
   const exposed = statuses.has("exposed");
   const resists = {
     energy: statuses.has("resistance_energy"),
@@ -158,7 +155,6 @@ export function damageTarget(
       `<span class="lancer-damage-tag" data-tooltip="Half Damage"><i class="mdi mdi-fraction-one-half i--xs"></i></span>`
     );
   const damageTagsDisplay = damageTags.length ? `<div class="lancer-damage-tags">${damageTags.join("")}</div>` : "";
-  // @ts-expect-error v10 types
   const img = target.target.document.texture.src;
   const uuid = target.target.document.uuid;
   return `

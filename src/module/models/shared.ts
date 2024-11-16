@@ -1,15 +1,16 @@
+import type { DeepPartial } from "@league-of-foundry-developers/foundry-vtt-types/src/types/utils.mjs";
 import { LancerActor } from "../actor/lancer-actor";
 import { DamageType, EntryType, RangeType, SystemType, WeaponSize, WeaponType } from "../enums";
 import { formatDotpath } from "../helpers/commons";
 import { LancerItem } from "../item/lancer-item";
-import { regRefToId, regRefToLid, regRefToUuid } from "../util/migrations";
 import { FullBoundedNum, SourceData } from "../source-template";
 import { SystemTemplates } from "../system-template";
+import { regRefToId, regRefToLid, regRefToUuid } from "../util/migrations";
 
 // @ts-ignore
 const fields: any = foundry.data.fields;
 
-// @ts-expect-error
+// @ts-expect-error LancerDataModel needs to be redone
 export class LancerDataModel<T> extends foundry.abstract.TypeDataModel<T> {
   /**
    * Create a full update payload, e.g. to preserve arrays
@@ -127,7 +128,6 @@ export class LIDField extends fields.StringField {
     try {
       super._validateType(value);
     } catch (e) {
-      // @ts-expect-error
       return new foundry.data.validation.DataModelValidationFailure({
         invalidValue: value,
         message: `Not a valid LID ${value}`,
@@ -189,7 +189,11 @@ export class EmbeddedRefField extends fields.StringField {
         console.log("Failed to resolve embedded ref: ID not found.", model, value);
         shell.status = "missing";
         shell.value = null;
-      } else if (this.allowed_types && sub instanceof LancerItem && !this.allowed_types.includes(sub.type)) {
+      } else if (
+        this.allowed_types &&
+        sub instanceof LancerItem &&
+        !this.allowed_types.includes(sub.type as EntryType)
+      ) {
         console.log(
           `Failed to resolve embedded ref: Wrong type ${sub.type} not in ${this.allowed_types.join("|")}`,
           model,
@@ -250,12 +254,10 @@ export class SyncUUIDRefField extends fields.StringField {
     try {
       super._validateType(value);
       if (value) {
-        //@ts-expect-error  Missing type
         foundry.utils.parseUuid(value);
         return true; // A definitive success
       }
     } catch (e) {
-      // @ts-expect-error Missing type for this Failure
       return new foundry.data.validation.DataModelValidationFailure({
         invalidValue: value,
         message: `Not a valid uuid ${value}`,

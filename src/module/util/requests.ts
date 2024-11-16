@@ -21,7 +21,7 @@ export async function requestImport(compendiumActor: LancerActor, forPilot: Lanc
 
   ChatMessage.create({
     blind: true,
-    whisper: game.users?.filter(u => u.isGM).map(u => u.id),
+    whisper: game.users?.filter((u: User) => u.isGM).map(u => u.id),
     content,
   });
 }
@@ -48,10 +48,9 @@ export async function fulfillImportActor(compDeployable: string | LancerActor, f
   // If pilot, get callsign
   return LancerActor.create({
     ...compDeployable.toObject(),
-    "system.owner": forActor.uuid,
+    system: { owner: forActor.uuid },
     name: deployableName(compDeployable.name!, forActor),
     folder: forActor.folder?.id,
-    // @ts-expect-error Should be fixed with v10 types
     ownership: foundry.utils.duplicate(forActor.ownership),
   });
 }

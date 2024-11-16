@@ -1,8 +1,8 @@
-import { template_action_tracking, template_statuses, template_universal_actor } from "./shared";
-import { LancerDataModel, EmbeddedRefField, SyncUUIDRefField, FullBoundedNumberField } from "../shared";
 import { EntryType } from "../../enums";
 import { regRefToUuid } from "../../util/migrations";
 import { CounterField } from "../bits/counter";
+import { EmbeddedRefField, FullBoundedNumberField, LancerDataModel, SyncUUIDRefField } from "../shared";
+import { template_action_tracking, template_statuses, template_universal_actor } from "./shared";
 
 const fields: any = foundry.data.fields;
 
@@ -53,6 +53,7 @@ const pilot_schema = {
 
 type PilotSchema = typeof pilot_schema;
 
+// @ts-expect-error LancerDataModel needs to be redone
 export class PilotModel extends LancerDataModel<"PilotModel"> {
   static defineSchema(): PilotSchema {
     return pilot_schema;
@@ -83,7 +84,6 @@ export class PilotModel extends LancerDataModel<"PilotModel"> {
       data.eng = data.mechSkills[3] ?? 0;
     }
 
-    // @ts-expect-error v11
     return super.migrateData(data);
   }
 }

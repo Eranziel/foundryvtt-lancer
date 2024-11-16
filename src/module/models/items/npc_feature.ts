@@ -1,7 +1,8 @@
+import type { DeepPartial } from "@league-of-foundry-developers/foundry-vtt-types/src/types/utils.mjs";
 import { EntryType, NpcFeatureType, NpcTechType } from "../../enums";
 import { restrict_enum } from "../../helpers/commons";
-import { convertNpcStats } from "../../util/migrations";
 import { SourceData, SourceTemplates } from "../../source-template";
+import { convertNpcStats } from "../../util/migrations";
 import {
   PackedNpcReactionData,
   PackedNpcSystemData,
@@ -17,6 +18,7 @@ import { template_destructible, template_universal_item, template_uses } from ".
 
 const fields: any = foundry.data.fields;
 
+// @ts-expect-error LancerDataModel needs to be redone
 export class NpcFeatureModel extends LancerDataModel<"NpcFeatureModel"> {
   static defineSchema() {
     return {
@@ -82,7 +84,6 @@ export class NpcFeatureModel extends LancerDataModel<"NpcFeatureModel"> {
       data.tech_attack = !!data.attack_bonus || !!data.accuracy;
     }
 
-    // @ts-expect-error
     return super.migrateData(data);
   }
 }

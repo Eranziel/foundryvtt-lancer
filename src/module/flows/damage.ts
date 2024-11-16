@@ -229,11 +229,11 @@ async function _rollDamage(
   // Add overkill if enabled.
   if (overkill) {
     damageRoll.terms.forEach(term => {
-      if (term instanceof Die) term.modifiers = ["x1", `kh${term.number}`].concat(term.modifiers);
+      if (term instanceof foundry.dice.terms.Die) term.modifiers = ["x1", `kh${term.number}`].concat(term.modifiers);
     });
   }
 
-  await damageRoll.evaluate({ async: true });
+  await damageRoll.evaluate();
   // @ts-expect-error DSN options aren't typed
   damageRoll.dice.forEach(d => (d.options.rollOrder = 2));
   const tooltip = await damageRoll.getTooltip();
@@ -508,7 +508,7 @@ async function applyOverkillHeat(state: FlowState<LancerFlowState.DamageRollData
   state.data.overkill_heat = 0;
   (state.data.has_crit_hit ? state.data.crit_damage_results : state.data.damage_results).forEach(result => {
     result.roll.terms.forEach(p => {
-      if (p instanceof DiceTerm) {
+      if (p instanceof foundry.dice.terms.DiceTerm) {
         p.results.forEach(r => {
           if (r.exploded) state.data!.overkill_heat! += 1;
         });
@@ -563,27 +563,27 @@ async function printDamageCard(
  */
 export async function getCritRoll(normal: Roll) {
   const t_roll = new Roll(normal.formula);
-  await t_roll.evaluate({ async: true });
+  await t_roll.evaluate();
 
-  const dice_rolls = Array<DiceTerm.Result[]>(normal.terms.length);
+  const dice_rolls = Array<foundry.dice.terms.DiceTerm.Result[]>(normal.terms.length);
   const keep_dice: number[] = Array(normal.terms.length).fill(0);
   normal.terms.forEach((term, i) => {
-    if (term instanceof Die) {
+    if (term instanceof foundry.dice.terms.Die) {
       dice_rolls[i] = term.results.map(r => {
         return { ...r };
       });
       const kh = parseInt(term.modifiers.find(m => m.startsWith("kh"))?.substr(2) ?? "0");
-      keep_dice[i] = kh || term.number;
+      keep_dice[i] = kh || (term.number ?? 0);
     }
   });
   t_roll.terms.forEach((term, i) => {
-    if (term instanceof Die) {
+    if (term instanceof foundry.dice.terms.Die) {
       dice_rolls[i].push(...term.results);
     }
   });
 
   // Just hold the active results in a sorted array, then mutate them
-  const actives: DiceTerm.Result[][] = Array(normal.terms.length).fill([]);
+  const actives: foundry.dice.terms.DiceTerm.Result[][] = Array(normal.terms.length).fill([]);
   dice_rolls.forEach((dice, i) => {
     actives[i] = dice.filter(d => d.active).sort((a, b) => a.result - b.result);
   });
@@ -597,14 +597,14 @@ export async function getCritRoll(normal: Roll) {
   // We can rebuild him. We have the technology. We can make him better than he
   // was. Better, stronger, faster
   const terms = normal.terms.map((t, i) => {
-    if (t instanceof Die) {
-      return new Die({
+    if (t instanceof foundry.dice.terms.Die) {
+      return new foundry.dice.terms.Die({
         ...t,
         modifiers: (t.modifiers.filter(m => m.startsWith("kh")).length
           ? t.modifiers
-          : [...t.modifiers, `kh${t.number}`]) as (keyof Die.Modifiers)[],
+          : [...t.modifiers, `kh${t.number}`]) as (keyof foundry.dice.terms.Die.Modifiers)[],
         results: dice_rolls[i],
-        number: t.number * 2,
+        number: t.number! * 2,
       });
     } else {
       return t;
@@ -813,7 +813,6 @@ export async function undoDamage(event: JQuery.ClickEvent) {
   if (target.is_mech() || target.is_npc() || target.is_deployable()) {
     updateData.system["heat.value"] = target.system.heat.value - heatDelta;
   }
-  // @ts-expect-error v10 types
   const cmDoc = new DOMParser().parseFromString(chatMessage.content, "text/html");
   cmDoc.querySelectorAll(".lancer-damage-undo").forEach((el: Element) => el.remove());
   cmDoc.querySelectorAll("span").forEach((el: Element) => el.classList.add("strikethrough"));

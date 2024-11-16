@@ -2,7 +2,7 @@ import { LANCER } from "../config";
 import { StatusIconConfigOptions } from "../settings";
 import { LancerActiveEffect } from "../effects/lancer-active-effect";
 
-interface StatusIconConfigAppOptions extends FormApplication.Options {
+interface StatusIconConfigAppOptions extends FormApplicationOptions {
   loadDefault: boolean;
 }
 
@@ -38,7 +38,7 @@ export class StatusIconConfig extends FormApplication<StatusIconConfigAppOptions
 
   /** @override */
   async _updateObject(_: Event, data: Record<string, unknown>): Promise<void> {
-    await game.settings.set(game.system.id, LANCER.setting_status_icons, data as any);
+    await game.settings.set(game.system.id, LANCER.setting_status_icons, data as never);
     await LancerActiveEffect.initConfig();
     await LancerActiveEffect.populateFromItems();
   }
