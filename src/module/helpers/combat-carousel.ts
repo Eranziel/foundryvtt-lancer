@@ -14,11 +14,12 @@ const dispositions: Record<number, string> = {
  * @param html - The jquery data for the form
  */
 export function handleRenderCombatCarousel(...[app, html]: Parameters<Hooks.RenderApplication<CombatCarousel>>) {
-  const icon = game.settings.get(game.system.id, "combat-tracker-appearance").icon;
+  // @ts-expect-error Figure out settings
+  const icon: string = game.settings.get(game.system.id, "combat-tracker-appearance").icon;
   html.addClass("lancer");
   html.find("li.card").each((_, e) => {
     const combatant_id = $(e).data("combatant-id");
-    const combatant = app.combat?.getEmbeddedDocument("Combatant", combatant_id) as LancerCombatant | undefined;
+    const combatant = app.combat?.getEmbeddedDocument("Combatant", combatant_id, {}) as LancerCombatant | undefined;
     $(e).addClass(dispositions[combatant?.disposition ?? -2]);
     const pending = combatant?.activations.value ?? 0;
     const done = (combatant?.activations.max ?? 1) - pending;

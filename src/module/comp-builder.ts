@@ -48,7 +48,6 @@ export async function clearAll(v1 = false): Promise<void> {
 
     const keys = Array.from(pack.index.keys());
     await pack.documentClass.deleteDocuments(keys, { pack: pack.collection });
-    // @ts-expect-error Pack folders is V11
     await Folder.deleteDocuments(Array.from(pack.folders.keys()), { pack: pack.collection });
   }
   await setAllLock(true, v1);
@@ -97,8 +96,7 @@ export async function importCP(
       let docs = await pack.getDocuments();
       // Get their ids
       docs.forEach(d => {
-        // @ts-expect-error Should be fixed with v10 types
-        existingLids.set((d as LancerActor | LancerItem).system.lid || d.name, d);
+        existingLids.set((d as LancerActor | LancerItem).system.lid || d.name, d as LancerActor | LancerItem);
       });
     }
 
@@ -163,13 +161,10 @@ export async function importCP(
       let pack = await get_pack(et);
       let folder: Folder | undefined = [EntryType.NPC, EntryType.STATUS].includes(et)
         ? undefined
-        : // @ts-expect-error Pack folders came with V11
-          pack.folders.find(f => f.getFlag(game.system.id, "entrytype") === et) ??
+        : pack.folders.find(f => f.getFlag(game.system.id, "entrytype" as never) === et) ??
           (await Folder.create(
             {
-              // @ts-expect-error Pack folders came with V11
               name: game.i18n.localize(`TYPES.${pack.metadata.type}.${et}`),
-              // @ts-expect-error Pack folders came with V11
               type: pack.metadata.type,
               [`flags.${game.system.id}.entrytype`]: et,
             },
@@ -267,7 +262,7 @@ export async function setAllLock(lock = false, v1 = false) {
     : new Set(Object.values(EntryType).map(get_pack_id));
   for (let p of pack_ids) {
     let pack = game.packs.get(p);
-    await pack?.configure({ private: false, locked: lock });
+    await pack?.configure({ locked: lock });
   }
 }
 

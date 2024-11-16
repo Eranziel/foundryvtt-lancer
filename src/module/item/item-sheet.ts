@@ -28,8 +28,8 @@ const lp = LANCER.log_prefix;
  * Extend the basic ItemSheet with some very simple modifications
  * @extends {ItemSheet}
  */
-export class LancerItemSheet<T extends LancerItemType> extends ItemSheet<ItemSheet.Options, LancerItemSheetData<T>> {
-  constructor(document: LancerItem, options: ItemSheet.Options) {
+export class LancerItemSheet<T extends LancerItemType> extends ItemSheet<DocumentSheetOptions<Item>> {
+  constructor(document: LancerItem, options: Partial<DocumentSheetOptions<Item>>) {
     super(document, options);
     if (this.item.is_mech_weapon()) {
       // @ts-ignore IDK if this even does anything
@@ -45,7 +45,7 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet<ItemShe
    * @override
    * Extend and override the default options used by the Item Sheet
    */
-  static get defaultOptions(): ItemSheet.Options {
+  static get defaultOptions(): DocumentSheetOptions<Item> {
     return foundry.utils.mergeObject(super.defaultOptions, {
       classes: ["lancer", "sheet", "item"],
       width: 700,
@@ -191,6 +191,7 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet<ItemShe
     if (this.item.is_status()) {
       data.status_types = StatusConditionType;
       if (!data.system.lid) {
+        // @ts-expect-error getData needs an overhaul for the new types
         data.system.lid = `status-${data.document.id}`;
       }
     }

@@ -1,3 +1,4 @@
+import type { DeepPartial } from "@league-of-foundry-developers/foundry-vtt-types/src/types/utils.mjs";
 import { EntryType, ReserveType } from "../../enums";
 import { restrict_enum } from "../../helpers/commons";
 import { SourceData } from "../../source-template";
@@ -12,7 +13,7 @@ import { template_bascdt, template_universal_item } from "./shared";
 
 const fields: any = foundry.data.fields;
 
-// @ts-ignore
+// @ts-expect-error LancerDataModel needs to be redone
 export class ReserveModel extends LancerDataModel {
   static defineSchema() {
     return {

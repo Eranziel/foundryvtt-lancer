@@ -1,3 +1,5 @@
+import type { DeepPartial } from "@league-of-foundry-developers/foundry-vtt-types/src/types/utils.mjs";
+import { frameToPath } from "../../actor/retrograde-map";
 import { ActivationType, EntryType, FrameEffectUse, MechType, MountType } from "../../enums";
 import { restrict_enum } from "../../helpers/commons";
 import { SourceData } from "../../source-template";
@@ -8,11 +10,9 @@ import { BonusField, unpackBonus } from "../bits/bonus";
 import { CounterField, unpackCounter } from "../bits/counter";
 import { SynergyField, unpackSynergy } from "../bits/synergy";
 import { TagField, unpackTag } from "../bits/tag";
-import { LancerDataModel, LIDField, UnpackContext } from "../shared";
-import { template_universal_item, template_licensed, migrateManufacturer } from "./shared";
-import { frameToPath } from "../../actor/retrograde-map";
+import { LIDField, LancerDataModel, UnpackContext } from "../shared";
+import { migrateManufacturer, template_licensed, template_universal_item } from "./shared";
 
-// @ts-ignore
 const fields: any = foundry.data.fields;
 
 const frame_schema = {
@@ -78,6 +78,7 @@ const frame_schema = {
   ...template_licensed(),
 };
 
+// @ts-expect-error LancerDataModel needs to be redone
 export class FrameModel extends LancerDataModel<"FrameModel"> {
   static defineSchema() {
     return frame_schema;
@@ -97,7 +98,6 @@ export class FrameModel extends LancerDataModel<"FrameModel"> {
       }
     }
 
-    // @ts-expect-error v11
     return super.migrateData(data);
   }
 }
@@ -149,14 +149,14 @@ export function unpackFrame(
       mounts: data.mounts,
       stats: data.stats,
       traits: data.traits?.map(t => ({
-        actions: t.actions?.map(unpackAction),
-        bonuses: t.bonuses?.map(unpackBonus),
-        counters: t.counters?.map(unpackCounter),
-        deployables: t.deployables?.map(d => unpackDeployable(d, context)),
+        actions: t.actions?.map(unpackAction) ?? [],
+        bonuses: t.bonuses?.map(unpackBonus) ?? [],
+        counters: t.counters?.map(unpackCounter) ?? [],
+        deployables: t.deployables?.map(d => unpackDeployable(d, context)) ?? [],
         description: t.description,
-        integrated: t.integrated,
+        integrated: t.integrated ?? [],
         name: t.name,
-        synergies: t.synergies?.map(unpackSynergy),
+        synergies: t.synergies?.map(unpackSynergy) ?? [],
         use: restrict_enum(FrameEffectUse, FrameEffectUse.Unknown, t.use),
       })),
     },

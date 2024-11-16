@@ -1,3 +1,4 @@
+import type { DeepPartial } from "@league-of-foundry-developers/foundry-vtt-types/src/types/utils.mjs";
 import { EntryType } from "../../enums";
 import { SourceData } from "../../source-template";
 import { PackedBondData } from "../../util/unpacking/packed-types";
@@ -8,6 +9,7 @@ import { template_universal_item } from "./shared";
 
 const fields: any = foundry.data.fields;
 
+// @ts-expect-error LancerDataModel needs to be redone
 export class BondModel extends LancerDataModel<"BondModel"> {
   static defineSchema() {
     return {

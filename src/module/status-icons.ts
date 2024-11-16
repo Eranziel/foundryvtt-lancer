@@ -877,16 +877,16 @@ export async function migrateLancerConditions() {
   console.log(`${lp} Migrating settings from Lancer Condition Icons`);
   if (game.modules.get("lancer-conditions")?.active) {
     const iconSettings: StatusIconConfigOptions = {
-      defaultConditionsStatus: (await game.settings.get("lancer-conditions", "keepStockIcons")) as boolean,
-      cancerConditionsStatus: (await game.settings.get("lancer-conditions", "cancerConditionsStatus")) as boolean,
-      cancerNPCTemplates: (await game.settings.get("lancer-conditions", "cancerNPCTemplates")) as boolean,
-      hayleyConditionsStatus: (await game.settings.get("lancer-conditions", "hayleyConditionsStatus")) as boolean,
-      hayleyPC: (await game.settings.get("lancer-conditions", "hayleyPC")) as boolean,
-      hayleyNPC: (await game.settings.get("lancer-conditions", "hayleyNPC")) as boolean,
-      hayleyUtility: (await game.settings.get("lancer-conditions", "hayleyUtility")) as boolean,
-      tommyConditionsStatus: (await game.settings.get("lancer-conditions", "tommyConditionsStatus")) as boolean,
-    };
-    game.settings.set(game.system.id, LANCER.setting_status_icons, iconSettings);
+      defaultConditionsStatus: game.settings.get("lancer-conditions", "keepStockIcons"),
+      cancerConditionsStatus: game.settings.get("lancer-conditions", "cancerConditionsStatus"),
+      cancerNPCTemplates: game.settings.get("lancer-conditions", "cancerNPCTemplates"),
+      hayleyConditionsStatus: game.settings.get("lancer-conditions", "hayleyConditionsStatus"),
+      hayleyPC: game.settings.get("lancer-conditions", "hayleyPC"),
+      hayleyNPC: game.settings.get("lancer-conditions", "hayleyNPC"),
+      hayleyUtility: game.settings.get("lancer-conditions", "hayleyUtility"),
+      tommyConditionsStatus: game.settings.get("lancer-conditions", "tommyConditionsStatus"),
+    } as any;
+    game.settings.set(game.system.id, LANCER.setting_status_icons, iconSettings as never);
 
     // Disable the module
     const mods = game.settings.get("core", "moduleConfiguration");

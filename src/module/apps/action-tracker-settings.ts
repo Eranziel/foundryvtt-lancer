@@ -5,9 +5,9 @@ import { ActionTrackerOptions, getActionTrackerOptions } from "../settings";
  * Settings form for customizing the icon appearance of the icon used in the
  * tracker
  */
-export class ActionTrackerConfig extends FormApplication<FormApplication.Options, ActionTrackerOptions> {
+export class ActionTrackerConfig extends FormApplication<FormApplicationOptions, ActionTrackerOptions> {
   /** @override */
-  static get defaultOptions(): FormApplication.Options {
+  static get defaultOptions(): FormApplicationOptions {
     return {
       ...super.defaultOptions,
       title: "lancer.actionTracker.menu-label",

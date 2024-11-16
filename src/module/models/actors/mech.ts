@@ -37,6 +37,7 @@ const mech_schema = {
 };
 
 type MechSchema = typeof mech_schema;
+// @ts-expect-error LancerDataModel needs to be redone
 export class MechModel extends LancerDataModel<"MechModel"> {
   static defineSchema(): MechSchema {
     return mech_schema;
@@ -64,7 +65,6 @@ export class MechModel extends LancerDataModel<"MechModel"> {
       }
     }
 
-    // @ts-expect-error v11
     return super.migrateData(data);
   }
 }

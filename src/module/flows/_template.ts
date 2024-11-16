@@ -1,4 +1,5 @@
 // Import TypeScript modules
+import type { Point } from "@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/types.mjs";
 import type { LancerToken } from "../token";
 
 /**
@@ -9,7 +10,7 @@ import type { LancerToken } from "../token";
 export function targetsFromTemplate(templateId: string): void {
   // @ts-expect-error v12
   const highlight = canvas?.interface?.grid?.getHighlightLayer(`MeasuredTemplate.${templateId}`);
-  const template = canvas.scene?.getEmbeddedDocument("MeasuredTemplate", templateId) as any;
+  const template = canvas.scene?.getEmbeddedDocument("MeasuredTemplate", templateId, {}) as any;
   const grid = canvas?.grid;
   if (
     highlight === undefined ||
@@ -100,7 +101,6 @@ export function targetsFromTemplate(templateId: string): void {
   // Test if each token occupies a targeted space and target it if true
   const targets = canvas
     .tokens!.placeables.filter(t => {
-      // @ts-expect-error v10
       let skip = (ignore?.tokens.includes(t.id) || ignore?.dispositions.includes(t.document.disposition)) ?? false;
       return !skip && test_token(t);
     })
@@ -138,9 +138,7 @@ function min_dist(seg: Ray, p: Point) {
 function in_cone_arc(ray: Ray, angle: number, p: Point) {
   // using unit vectors for brevity
   const a = Ray.fromAngle(ray.A.x, ray.A.y, ray.angle, 1);
-  // @ts-expect-error
   const b: Ray = Ray.towardsPoint(ray.A, p, 1);
-  // @ts-expect-error v12
   const theta = Math.acos(Math.clamp(-1, dot_product(a, b), 1));
   return theta < angle / 2;
 }

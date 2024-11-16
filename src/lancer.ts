@@ -113,7 +113,6 @@ addEnrichers();
 Hooks.once("init", function () {
   console.log(`Initializing LANCER RPG System ${LANCER.ASCII}`);
 
-  // @ts-expect-error Use the v11+ active effect logic - effects never transfer from an item. Critical to how we handle effects
   CONFIG.ActiveEffect.legacyTransferral = false;
 
   // Add this schema for each document type.
@@ -185,21 +184,25 @@ Hooks.once("init", function () {
       "tech_attack",
     ],
   };
-  // @ts-expect-error
   CONFIG.Actor.trackableAttributes = {
+    // @ts-expect-error
     base,
+    // @ts-expect-error
     ["deployable"]: {
       bar: [...base.bar],
       value: [...base.value, "cost", "instances"],
     },
+    // @ts-expect-error
     ["mech"]: {
       bar: [...base.bar, "structure", "stress", "repairs"],
       value: [...base.value, "action_tracker.move", "core_energy", "grit", "meltdown_timer", "overcharge"],
     },
+    // @ts-expect-error
     ["npc"]: {
       bar: [...base.bar, "structure", "stress"],
       value: [...base.value, "meltdown_timer", "tier"],
     },
+    // @ts-expect-error
     ["pilot"]: {
       bar: [...base.bar, "bond_state.stress", "bond_state.xp"],
       value: [...base.value, "grit", "level"],
@@ -207,9 +210,7 @@ Hooks.once("init", function () {
   };
 
   // Configure indexes
-  // @ts-expect-error
   CONFIG.Item.compendiumIndexFields = ["system.lid", "system.license"];
-  // @ts-expect-error
   CONFIG.Actor.compendiumIndexFields = ["system.lid"];
 
   // Register custom system settings
@@ -256,7 +257,15 @@ Hooks.once("init", function () {
     importActor: fulfillImportActor,
     targetsFromTemplate,
     migrations: migrations,
-    getAutomationOptions: getAutomationOptions,
+    getAutomationOptions: () => {
+      ui.notifications.warn(
+        "The getAutomationOptions helper is deprecated and will be removed i" +
+          'n Foundry v13. Use game.settings.get("lancer", "automationOptions' +
+          '") directly instead.',
+        { permanent: true }
+      );
+      return getAutomationOptions();
+    },
     fromLid: fromLid,
     fromLidMany: fromLidMany,
     fromLidSync: fromLidSync,
@@ -270,6 +279,7 @@ Hooks.once("init", function () {
   CONFIG.Token.objectClass = LancerToken;
   CONFIG.Combat.documentClass = LancerCombat;
   CONFIG.Combatant.documentClass = LancerCombatant;
+  // @ts-expect-error This is literally a subclass so idk why it's busted
   CONFIG.ui.combat = LancerCombatTracker;
 
   // Set up default system status icons
@@ -291,7 +301,7 @@ Hooks.once("init", function () {
 
   // Combat tracker HUD modules integration
   Hooks.on("renderCombatCarousel", handleRenderCombatCarousel);
-  if (game.modules.get("combat-tracker-dock")?.active) {
+  if (game.modules!.get("combat-tracker-dock")?.active) {
     (async () => {
       game.lancer.combatTrackerDock = await import("./module/integrations/combat-tracker-dock");
       Hooks.on("renderCombatDock", (...[_app, html]: Parameters<Hooks.RenderApplication>) => {
@@ -314,6 +324,7 @@ Hooks.once("setup", () => {
   // Change the default value of the grid based templates option
   // TODO Remove when we get https://github.com/foundryvtt/foundryvtt/issues/11477
   if (game.settings.settings.get("core.gridTemplates"))
+    // @ts-expect-error This is hacky, but valid
     game.settings.settings.get("core.gridTemplates")!.default = true;
 });
 
@@ -389,7 +400,7 @@ Hooks.on("updateToken", (_scene: Scene, _token: Token, diff: any, _options: any,
   if (diff.hasOwnProperty("y") || diff.hasOwnProperty("x")) return;
   game.action_manager?.update();
 });
-Hooks.on("updateActor", (_actor: LancerActor, changes: DeepPartial<LancerActor["data"]>): void => {
+Hooks.on("updateActor", (...[_actor, changes]: Parameters<Hooks.UpdateDocument<typeof Actor>>): void => {
   game.action_manager?.update();
   triggerStrussFlow(_actor, changes);
 });
@@ -405,9 +416,9 @@ Hooks.on("createCombat", (_actor: Actor) => {
 Hooks.on("deleteCombat", (_actor: Actor) => {
   game.action_manager?.update();
 });
-Hooks.on("updateCombat", (_combat: Combat, changes: DeepPartial<Combat["data"]>) => {
+Hooks.on("updateCombat", (_combat: Combat, changes: object) => {
   if (getAutomationOptions().remove_templates && "turn" in changes && game.user?.isGM) {
-    canvas.templates?.placeables.forEach(t => {
+    canvas?.templates?.placeables.forEach(t => {
       if (t.document.getFlag("lancer", "isAttack")) t.document.delete();
     });
   }
@@ -672,7 +683,6 @@ async function versionCheck(): Promise<"yes" | "no" | "too_old"> {
 
   // If it's 0 then it's a fresh install
   if (currentVersion === "0" || !currentVersion) {
-    // @ts-expect-error Should be fixed with v10 types
     game.settings.set(game.system.id, LANCER.setting_migration_version, game.system.version);
     await promptInstallCoreData();
     return "no";
@@ -684,7 +694,6 @@ async function versionCheck(): Promise<"yes" | "no" | "too_old"> {
   }
 
   // Otherwise return if version is even slightly out of date
-  // @ts-expect-error version property is missing
   return foundry.utils.isNewerVersion(game.system.version, currentVersion) ? "yes" : "no";
 }
 
@@ -755,7 +764,6 @@ async function showChangelog() {
     let renderChangelog = (changelog: string) => {
       new Dialog(
         {
-          // @ts-expect-error Should be fixed with v10 types
           title: `Welcome to LANCER v${game.system.version}`,
           content: WELCOME(changelog),
           buttons: {
@@ -779,7 +787,6 @@ async function showChangelog() {
 
     // Get an automatic changelog for our version
     let req = $.get(
-      // @ts-expect-error Should be fixed with v10 types
       `https://raw.githubusercontent.com/Eranziel/foundryvtt-lancer/v${game.system.version}/CHANGELOG.md`
     );
     req.done(async (data, _status) => {

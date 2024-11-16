@@ -1,3 +1,4 @@
+import type { DeepPartial } from "@league-of-foundry-developers/foundry-vtt-types/src/types/utils.mjs";
 import { EntryType } from "../../enums";
 import { SourceData } from "../../source-template";
 import { PackedTalentData } from "../../util/unpacking/packed-types";
@@ -6,12 +7,12 @@ import { ActionField, unpackAction } from "../bits/action";
 import { BonusField, unpackBonus } from "../bits/bonus";
 import { CounterField, unpackCounter } from "../bits/counter";
 import { SynergyField, unpackSynergy } from "../bits/synergy";
-import { LancerDataModel, LIDField, UnpackContext } from "../shared";
-import { template_universal_item, template_bascdt, template_destructible, template_licensed } from "./shared";
+import { LIDField, LancerDataModel, UnpackContext } from "../shared";
+import { template_universal_item } from "./shared";
 
 const fields: any = foundry.data.fields;
 
-// @ts-ignore
+// @ts-expect-error LancerDataModel needs to be redone
 export class TalentModel extends LancerDataModel {
   static defineSchema() {
     return {
@@ -55,15 +56,15 @@ export function unpackTalent(
       curr_rank: undefined,
       description: data.description,
       ranks: data.ranks.map(r => ({
-        actions: r.actions?.map(unpackAction),
-        bonuses: r.bonuses?.map(unpackBonus),
-        counters: r.counters?.map(unpackCounter),
-        deployables: r.deployables?.map(d => unpackDeployable(d, context)),
+        actions: r.actions?.map(unpackAction) ?? [],
+        bonuses: r.bonuses?.map(unpackBonus) ?? [],
+        counters: r.counters?.map(unpackCounter) ?? [],
+        deployables: r.deployables?.map(d => unpackDeployable(d, context)) ?? [],
         description: r.description,
         exclusive: r.exclusive,
-        integrated: r.integrated,
+        integrated: r.integrated!,
         name: r.name,
-        synergies: r.synergies?.map(unpackSynergy),
+        synergies: r.synergies?.map(unpackSynergy) ?? [],
       })),
       terse: data.terse,
     },

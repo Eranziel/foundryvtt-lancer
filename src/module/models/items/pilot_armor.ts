@@ -1,3 +1,4 @@
+import type { DeepPartial } from "@league-of-foundry-developers/foundry-vtt-types/src/types/utils.mjs";
 import { EntryType } from "../../enums";
 import { SourceData } from "../../source-template";
 import { PackedPilotArmorData } from "../../util/unpacking/packed-types";
@@ -11,7 +12,7 @@ import { template_universal_item, template_bascdt, template_uses } from "./share
 
 const fields: any = foundry.data.fields;
 
-// @ts-ignore
+// @ts-expect-error LancerDataModel needs to be redone
 export class PilotArmorModel extends LancerDataModel {
   static defineSchema() {
     return {

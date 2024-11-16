@@ -1,5 +1,6 @@
+import type { DeepPartial } from "@league-of-foundry-developers/foundry-vtt-types/src/types/utils.mjs";
 import { friendly_entrytype_name } from "../config";
-import { NpcFeatureType } from "../enums";
+import { EntryType, NpcFeatureType } from "../enums";
 import { getAutomationOptions } from "../settings";
 import { SourceData } from "../source-template";
 import { Flow, FlowState, Step } from "./flow";
@@ -81,7 +82,7 @@ export async function checkItemLimited(
     return true;
   }
   if (state.item.isLimited() && state.item.system.uses.value <= 0) {
-    let iType = friendly_entrytype_name(state.item.type);
+    let iType = friendly_entrytype_name(state.item.type as EntryType);
     ui.notifications!.warn(`${iType} ${state.item.name} has no remaining uses!`);
     return false;
   }

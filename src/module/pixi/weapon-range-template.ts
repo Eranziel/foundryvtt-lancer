@@ -83,15 +83,16 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
           creator: creator?.id,
           ignore: {
             tokens: [RangeType.Blast, RangeType.Burst].includes(type) || !creator ? [] : [creator.id],
-            dispositions: <TokenDocument["data"]["disposition"][]>[],
+            dispositions: <TokenDocument["disposition"][]>[],
           },
         },
       },
     };
 
-    const cls = CONFIG.MeasuredTemplate.documentClass;
-    const template = new cls(templateData, { parent: canvas.scene ?? undefined });
+    const cls = getDocumentClass("MeasuredTemplate");
+    const template = new cls(templateData as any, { parent: canvas.scene ?? undefined });
     const object = new this(template);
+    // @ts-expect-error Appv2 can't go here be we use appv1 for now
     object.actorSheet = creator?.actor?.sheet ?? undefined;
     return object;
   }
@@ -124,24 +125,22 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
     return this.activatePreviewListeners(initialLayer);
   }
 
-  private activatePreviewListeners(
-    initialLayer: CanvasLayer<CanvasLayerOptions> | null
-  ): Promise<MeasuredTemplateDocument> {
+  private activatePreviewListeners(initialLayer: CanvasLayer | null): Promise<MeasuredTemplateDocument> {
     return new Promise<MeasuredTemplateDocument>((resolve, reject) => {
       const handlers: any = {};
       let moveTime = 0;
 
       // Update placement (mouse-move)
-      handlers.mm = (event: PIXI.InteractionEvent) => {
+      handlers.mm = (event: PIXI.FederatedPointerEvent) => {
+        console.log(event.constructor);
         event.stopPropagation();
         let now = Date.now(); // Apply a 20ms throttle
         if (now - moveTime <= 20) return;
-        const center = event.data.getLocalPosition(this.layer);
+        const center = event.getLocalPosition(this.layer);
         let snapped = this.snapToCenter(center);
 
         if (this.isBurst) snapped = this.snapToToken(center);
 
-        // @ts-expect-error
         this.document.updateSource({ x: snapped.x, y: snapped.y });
         this.refresh();
         moveTime = now;
@@ -154,35 +153,32 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
         this.layer.preview?.removeChildren().forEach(c => c.destroy());
         canvas.stage?.off("mousemove", handlers.mm);
         canvas.stage?.off("mousedown", handlers.lc);
-        canvas.app!.view.oncontextmenu = null;
-        canvas.app!.view.onwheel = null;
+        (<HTMLCanvasElement>canvas.app!.view).oncontextmenu = null;
+        (<HTMLCanvasElement>canvas.app!.view).onwheel = null;
+        // @ts-expect-error Activate should be there but w/e
         initialLayer?.activate();
         if (do_reject) reject(new Error("Template creation cancelled"));
       };
 
       // Confirm the workflow (left-click)
-      handlers.lc = async (event: PIXI.InteractionEvent) => {
+      handlers.lc = async (event: PIXI.FederatedPointerEvent) => {
         handlers.rc(event, false);
-        let destination = this.snapToCenter(event.data.getLocalPosition(this.layer));
+        let destination = this.snapToCenter(event.getLocalPosition(this.layer));
         if (this.isBurst) {
-          destination = this.snapToToken(event.data.getLocalPosition(this.layer));
-          //@ts-expect-error v10
+          destination = this.snapToToken(event.getLocalPosition(this.layer));
           const token = this.document.flags[game.system.id].burstToken;
           if (token) {
-            //@ts-expect-error v10
             const ignore = this.document.flags[game.system.id].ignore.tokens;
             ignore.push(token);
-            //@ts-expect-error
             this.document.updateSource({
               [`flags.${game.system.id}.ignore.tokens`]: ignore,
             });
           }
         }
-        //@ts-expect-error
         this.document.updateSource(destination);
-        const template = (<MeasuredTemplateDocument[]>(
+        const template: MeasuredTemplateDocument | undefined = (
           await canvas.scene!.createEmbeddedDocuments("MeasuredTemplate", [this.document.toObject()])
-        )).shift();
+        )?.shift() as any;
         if (template === undefined) {
           reject(new Error("Template creation failed"));
           return;
@@ -192,7 +188,6 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
         let n_polls = 0;
         const poll = setInterval(() => {
           ++n_polls;
-          // @ts-expect-error
           if (template.object?.shape) {
             clearInterval(poll);
             resolve(template);
@@ -209,7 +204,6 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
         event.stopPropagation();
         let delta = canvas.grid!.type > CONST.GRID_TYPES.SQUARE ? 30 : 15;
         let snap = event.shiftKey ? delta : 5;
-        //@ts-expect-error
         this.document.updateSource({ direction: this.document.direction + snap * Math.sign(event.deltaY) });
         this.refresh();
       };
@@ -217,7 +211,9 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
       // Activate listeners
       canvas.stage!.on("mousemove", handlers.mm);
       canvas.stage!.on("mousedown", handlers.lc);
+      //@ts-expect-error
       canvas.app!.view.oncontextmenu = handlers.rc;
+      //@ts-expect-error
       canvas.app!.view.onwheel = handlers.mw;
     });
   }
@@ -226,7 +222,6 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
    * Snapping function to only snap to the center of spaces rather than corners.
    */
   private snapToCenter({ x, y }: { x: number; y: number }): { x: number; y: number } {
-    // @ts-expect-error v12
     const snapped = canvas.grid!.getCenterPoint({ x, y });
     return snapped;
   }
@@ -255,7 +250,6 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
         else return r;
       }, null);
     if (token) {
-      //@ts-expect-error
       this.document.updateSource({
         // @ts-expect-error v10
         distance: this.getBurstDistance(token.document.width),
@@ -263,7 +257,6 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
       });
       return token.center;
     } else {
-      //@ts-expect-error
       this.document.updateSource({ distance: this.getBurstDistance(1) });
       return this.snapToCenter({ x, y });
     }
@@ -273,21 +266,18 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
    * Get fine-tuned sizing data for Burst templates
    */
   private getBurstDistance(size: number): number {
-    return this.range.val + size / 2;
+    return (<RangeData>this.range).val + size / 2;
   }
 }
 
 declare global {
   interface FlagConfig {
     MeasuredTemplate: {
-      [game.system.id]: {
+      lancer: {
         range: RangeData;
         creator?: string;
         burstToken?: string;
-        ignore: {
-          tokens: string[];
-          dispositions: TokenDocument["data"]["disposition"][];
-        };
+        ignore: { tokens: string[]; dispositions: TokenDocument["disposition"][] };
         isAttack?: boolean;
       };
     };

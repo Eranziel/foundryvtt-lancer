@@ -1,6 +1,5 @@
 import { CombatTrackerAppearance } from "../settings";
 
-// @ts-expect-error v12
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
 export class LancerInitiativeConfigApp extends HandlebarsApplicationMixin(ApplicationV2) {
@@ -22,11 +21,10 @@ export class LancerInitiativeConfigApp extends HandlebarsApplicationMixin(Applic
     actions: { onReset: this.#onReset },
   };
 
-  async _prepareContext(opts: any) {
-    const appearance = game.settings.get(game.system.id, "combat-tracker-appearance");
+  async _prepareContext(opts: any): Promise<{}> {
+    const appearance = game.settings.get(game.system.id, "combat-tracker-appearance") as CombatTrackerAppearance;
     const ctx = {
       appearance: opts.reset ? new CombatTrackerAppearance() : appearance,
-      // @ts-expect-error v12
       fields: appearance.schema.fields,
       buttons: [
         { type: "submit", name: "submit", icon: "fas fa-save", label: "Save" },
@@ -38,7 +36,6 @@ export class LancerInitiativeConfigApp extends HandlebarsApplicationMixin(Applic
   }
 
   _onRender() {
-    // @ts-expect-error v12
     const element: HTMLElement = this.element;
     const icon = element.querySelector<HTMLAnchorElement>("a.preview");
     const fake_combatant = element.querySelector<HTMLDivElement>("div.fake-combatant");
@@ -66,7 +63,7 @@ export class LancerInitiativeConfigApp extends HandlebarsApplicationMixin(Applic
   }
 
   static async #formHandler(_ev: unknown, _form: unknown, formData: any) {
-    game.settings.set(game.system.id, "combat-tracker-appearance", formData.object);
+    game.settings.set(game.system.id, "combat-tracker-appearance", formData.object as never);
   }
 }
 
@@ -88,7 +85,6 @@ export function extendCombatTrackerConfig(...[app, [html]]: Parameters<Hooks.Ren
   group.appendChild(button);
   html.querySelector("div[data-setting-id='core.combatTheme']")?.after(group);
   if (game.user!.isGM) {
-    // @ts-expect-error v12
     const sort = new foundry.data.fields.BooleanField({
       initial: true,
       label: "LANCERINITIATIVE.SortTracker",
@@ -110,5 +106,5 @@ export function extendCombatTrackerConfig(...[app, [html]]: Parameters<Hooks.Ren
 export function onCloseCombatTrackerConfig(...[_app, [html]]: Parameters<Hooks.CloseApplication>) {
   if (!game.user!.isGM) return;
   const sort = html.querySelector<HTMLInputElement>("input[name=combat-tracker-sort]")?.checked;
-  game.settings.set(game.system.id, "combat-tracker-sort", sort);
+  game.settings.set(game.system.id, "combat-tracker-sort", sort as never);
 }

@@ -42,7 +42,6 @@ export async function createChatMessageStep(
 ) {
   if (rolls && !Array.isArray(rolls)) rolls = [rolls];
   let chat_data = {
-    // @ts-expect-error v12
     type: CONST.CHAT_MESSAGE_STYLES.IC,
     rolls,
     speaker: {
@@ -54,7 +53,6 @@ export async function createChatMessageStep(
     flags: flags ? { lancer: flags } : undefined,
   };
   if (!rolls) delete chat_data.rolls;
-  // @ts-expect-error types, possibly switch to getDocumentClass() in the future
   const cm = await ChatMessage.implementation.create(chat_data);
   cm?.render();
 }

@@ -190,8 +190,8 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
     });
   }
 
-  async getData() {
-    const data = await super.getData(); // Not fully populated yet!
+  async getData(): Promise<object> {
+    const data: any = await super.getData(); // Not fully populated yet!
 
     data.compConPilotList = pilotCache()
       .sort((p1, p2) => {
@@ -367,7 +367,7 @@ export function allMechPreview(_options: HelperOptions): string {
 
   /// I still feel like this is pretty inefficient... but it's probably the best we can do for now
   let owned_mechs = (game?.actors?.filter(
-    mech =>
+    (mech: LancerActor) =>
       mech.is_mech() &&
       mech.system.pilot?.status == "resolved" &&
       mech.system.pilot.value.id === _options.data.root.actor.id

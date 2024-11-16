@@ -1,6 +1,7 @@
+import type { DeepPartial } from "@league-of-foundry-developers/foundry-vtt-types/src/types/utils.mjs";
 import { EntryType, makeWeaponSizeChecklist, makeWeaponTypeChecklist } from "../../enums";
 import { SourceData } from "../../source-template";
-import { PackedMechSystemData, PackedWeaponModData } from "../../util/unpacking/packed-types";
+import { PackedWeaponModData } from "../../util/unpacking/packed-types";
 import { unpackDeployable } from "../actors/deployable";
 import { unpackAction } from "../bits/action";
 import { unpackBonus } from "../bits/bonus";
@@ -11,17 +12,17 @@ import { unpackSynergy } from "../bits/synergy";
 import { TagField, unpackTag } from "../bits/tag";
 import { LancerDataModel, UnpackContext, WeaponSizeChecklistField, WeaponTypeChecklistField } from "../shared";
 import {
-  template_universal_item,
+  migrateManufacturer,
   template_bascdt,
   template_destructible,
   template_licensed,
+  template_universal_item,
   template_uses,
-  migrateManufacturer,
 } from "./shared";
 
 const fields: any = foundry.data.fields;
 
-// @ts-ignore
+// @ts-expect-error LancerDataModel needs to be redone
 export class WeaponModModel extends LancerDataModel<"WeaponModModel"> {
   static defineSchema() {
     return {
@@ -45,8 +46,6 @@ export class WeaponModModel extends LancerDataModel<"WeaponModModel"> {
     if (data.source) {
       data.manufacturer = migrateManufacturer(data.source);
     }
-
-    // @ts-expect-error v11
     return super.migrateData(data);
   }
 }
