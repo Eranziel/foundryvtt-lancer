@@ -24,7 +24,7 @@
   "license": "",
   "devDependencies": {
     "@foundryvtt/foundryvtt-cli": "^1.0.0-rc.4",
-    "@league-of-foundry-developers/foundry-vtt-types": "0.8.9-10",
+    "@league-of-foundry-developers/foundry-vtt-types": "12.331.1-beta",
     "@sveltejs/vite-plugin-svelte": "^2.4.6",
     "@tsconfig/svelte": "^2.0.1",
     "archiver": "^3.1.1",
