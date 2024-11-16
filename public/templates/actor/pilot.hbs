@@ -44,6 +44,7 @@
     <a class="item lancer-tab medium" data-tab="narrative">{{localize "lancer.pilot-sheet.tabs.narrative"}}</a>
     <a class="item lancer-tab medium" data-tab="tactical">{{localize "lancer.pilot-sheet.tabs.tactical"}}</a>
     <a class="item lancer-tab medium" data-tab="loadout">{{localize "lancer.pilot-sheet.tabs.mech"}}</a>
+    <a class="item lancer-tab medium" data-tab="effects">{{localize "lancer.common-sheet.tabs.effects"}}</a>
   </nav>
 
   {{!-- Sheet Body --}}
@@ -214,8 +215,12 @@
         {{/if}}
       </div>
 
-      <div class="card clipped lancer-flow-button-grid">
+      <div class="card clipped">
+        <span class="lancer-header lancer-primary submajor">ATTACK UTILITIES</span>
+        <div class="lancer-flow-button-grid">
           {{{flow-button "BASIC ATTACK" "BasicAttack" }}}
+          {{{flow-button "DAMAGE" "Damage" }}}
+        </div>
       </div>
 
       {{!-- Armor + Weapons --}}
@@ -300,6 +305,11 @@
     <div class="tab loadout flexcol" data-group="primary" data-tab="loadout">
       {{!-- Active Mech --}}
       {{{ all-mech-preview }}}
+    </div>
+
+    {{!-- Effects Tab --}}
+    <div class="tab effects flexcol" data-group="primary" data-tab="effects">
+      {{{effect-categories-view actor effect_categories}}} 
     </div>
   </section>
 </form>

@@ -172,6 +172,7 @@ $theme-types: "primary" "secondary" "dark-gray" "light-gray" "tooltip"    // Gen
   "reaction" "protocol" "quick" "full" "move" "free"; // Action types
 @each $theme-type in $theme-types {
   /* Headers, buttons, and chips */
+  a.action.lancer-#{$theme-type},
   .lancer-header.lancer-#{$theme-type},
   .lancer-#{$theme-type} .lancer-header,
   button.lancer-#{$theme-type},
@@ -221,6 +222,16 @@ $theme-types: "primary" "secondary" "dark-gray" "light-gray" "tooltip"    // Gen
   /* An exception for each icon font */
   font-family: var(--main-font-family);
 }
+
+#chat-log .message-content {
+  padding: 5px !important;
+
+  & .strikethrough {
+    text-decoration: line-through;
+    opacity: 0.5;
+  }
+}
+
 /* Default text and background color for sheets */
 .lancer.sheet .window-content {
   color: var(--dark-text);
@@ -408,18 +419,17 @@ $theme-types: "primary" "secondary" "dark-gray" "light-gray" "tooltip"    // Gen
 
 .card.lancer-hit-chip {
   float: right;
-  width: 90px;
+  width: 100%;
+  margin: 3px 0;
   color: var(--light-text);
   background-color: var(--miss-color);
 
   &.hit {
     background-color: var(--hit-color);
-    width: 75px;
   }
 
   &.crit {
     background-color: var(--crit-color);
-    width: 75px;
   }
 }
 
@@ -427,19 +437,146 @@ $theme-types: "primary" "secondary" "dark-gray" "light-gray" "tooltip"    // Gen
   width: 50px;
   min-width: 50px;
   margin-right: 4px;
+  margin-top: 2px;
+  border: 2px solid var(--dark-gray-color);
+  border-radius: 5px;
   border-right: none;
   border-left: none;
 }
+
 .lancer-hit-text {
   display: inline-grid;
   text-align: start;
   width: 80%;
 }
+
 .lancer-hit-text-name {
-  font-size: 1.2em;
+  font-size: 1.1em;
   overflow: hidden;
   text-wrap: nowrap;
   text-overflow: ellipsis;
+}
+
+.lancer-hit-target {
+  margin: 0.1em 0;
+  display: grid;
+  grid-template-areas:
+    "img name hit"
+    "img roll roll";
+  grid-template-columns: 55px 2fr 1fr;
+  align-items: center;
+
+  .lancer-hit-thumb {
+    grid-area: img;
+    margin: 0;
+  }
+
+  .lancer-hit-text-name {
+    grid-area: name;
+  }
+
+  .lancer-hit-chip {
+    grid-area: hit;
+  }
+
+  .lancer-hit-roll {
+    grid-area: roll;
+  }
+
+  &:has(+ .lancer-hit-target) {
+    .lancer-hit-roll {
+      border-bottom: 1px dashed var(--dark-gray-color);
+    }
+  }
+}
+
+.lancer-damage-flow {
+  margin: 0 0.5em 0.25em 0.5em;
+  width: calc(100% - 1em);
+
+  i {
+    margin-right: 0.25em;
+  }
+}
+
+.lancer-damage-tag {
+  padding: 0.1em 0.5em;
+  background-color: var(--primary-color);
+  color: var(--light-text);
+  border-radius: 0.5em;
+  font-size: 0.8em;
+  display: flex;
+  align-content: center;
+  align-items: center;
+  text-wrap: nowrap;
+}
+.lancer-damage-targets {
+  margin: 0px 0.25em;
+
+  .lancer-damage-target {
+    margin: 0.3em 0;
+    display: grid;
+    grid-template-areas:
+      "img name button"
+      "img tags tags";
+    grid-template-columns: 55px auto min-content;
+    align-items: center;
+
+    .lancer-hit-thumb {
+      grid-area: img;
+      margin: 0;
+    }
+
+    .lancer-hit-text-name {
+      grid-area: name;
+      text-align: left;
+      height: 100%;
+      align-content: center;
+    }
+
+    .lancer-damage-totals {
+      grid-area: totals;
+    }
+
+    .lancer-damage-button-group {
+      grid-area: button;
+    }
+
+    .lancer-damage-rolls-tags {
+      grid-area: tags;
+      min-height: 1.3em;
+      padding: 0.1em;
+
+      .lancer-target-bonus-damage:not(:has(*)) {
+        display: none;
+
+        & ~ .lancer-damage-tags {
+          flex-grow: 1 !important;
+        }
+      }
+    }
+
+    .lancer-damage-tags {
+      display: flex;
+      flex-wrap: wrap;
+      justify-self: flex-end;
+      justify-content: flex-end;
+      align-items: center;
+      flex-grow: 0;
+    }
+
+    &:has(+ .lancer-damage-target) {
+      .lancer-damage-rolls-tags {
+        border-bottom: 1px dashed var(--dark-gray-color);
+      }
+    }
+
+    // Add a small margin below the last target if there's another
+    // header following
+    &:has(+ .lancer-mini-header) {
+      margin-bottom: 4px;
+    }
+  }
 }
 
 .card.lancer-charge-chip {
@@ -819,11 +956,16 @@ tr.lcp-index-header {
   clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
   -webkit-clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
   padding: 10px;
-}
+  transition: all 0.25s ease-in;
 
-.lancer-tab.active {
-  color: var(--light-text, fuchsia);
-  background-color: var(--primary-highlight, fuchsia);
+  &:hover {
+    background-color: var(--darken-2);
+  }
+
+  &.active {
+    color: var(--light-text, fuchsia);
+    background-color: var(--primary-highlight, fuchsia);
+  }
 }
 
 .tier-control {
@@ -885,9 +1027,18 @@ tr.lcp-index-header {
   align-items: center;
   flex-wrap: nowrap;
   white-space: nowrap;
-  margin: 5px;
+  margin: 5px 0;
   max-width: min-content;
   min-width: fit-content;
+
+  & > & {
+    margin: 0 5px;
+  }
+
+  &.lancer-button {
+    padding-left: 0;
+    padding-right: 0.5em;
+  }
 }
 
 /* Put on any ref or reffable location */
@@ -1534,6 +1685,7 @@ code.horus:hover {
 /* End of HORUS glitchy styles used in lancer-data */
 
 .roll-attack,
+.roll-damage,
 .roll-trigger,
 .system-macro,
 .gear-macro,
@@ -1541,7 +1693,7 @@ code.horus:hover {
 .item-macro,
 .core-passive-macro,
 .core-active-macro {
-  margin: 3px 10px;
+  margin: 5px 10px;
 }
 
 .roll-attack,
@@ -1565,7 +1717,8 @@ code.horus:hover {
 }
 
 .lancer-dice-roll {
-  padding: 3px;
+  padding-left: 3px;
+  padding-right: 3px;
 }
 
 .lancer-dice-formula,
@@ -2404,6 +2557,75 @@ a.activation-chip > i.mdi {
     text-shadow: none;
     box-shadow: none;
   }
+
+  // TODO: make all chat buttons tighter. Needs alignment
+  // work in other styles/chat cards.
+  .chat-message .lancer-damage-button-group & {
+    width: fit-content;
+    display: flex;
+
+    & i {
+      margin: 0;
+
+      &.damage--kinetic {
+        color: var(--light-text);
+      }
+
+      & ~ i {
+        margin-left: -0.4em;
+      }
+    }
+  }
+}
+
+.lancer-damage-button-group {
+  display: flex;
+  align-items: center;
+  max-width: min-content;
+  border-radius: 5px;
+  box-shadow: var(--button-shadow);
+
+  .lancer-damage-apply-select {
+    width: min-content;
+    border: 1px solid var(--darken-4);
+    border-radius: 5px;
+    padding: 0.25em;
+    background: var(--darken-1);
+    text-align: center;
+
+    & option {
+      background: var(--light-gray-color);
+      color: var(--dark-text);
+    }
+
+    &:has(+ .lancer-button) {
+      border-top-right-radius: 0px;
+      border-bottom-right-radius: 0px;
+      margin-right: 0px;
+      padding-right: 0px;
+      height: 29px;
+    }
+
+    & + .lancer-button {
+      border-top-left-radius: 0px;
+      border-bottom-left-radius: 0px;
+      margin-left: 0px;
+      padding-left: 0px;
+      margin-right: 0px;
+      height: 29px;
+      box-shadow: none;
+
+      &:hover {
+        box-shadow: var(--hover-bright);
+      }
+    }
+  }
+}
+
+.chat-message .lancer-damage-applied {
+  & i.cci {
+    margin-right: -0.2em;
+  }
 }
 
 .bond-xp-button {
@@ -2432,8 +2654,9 @@ a.activation-chip > i.mdi {
 .track-message.lancer-action-grid {
   flex-wrap: wrap;
 }
-.track-message .lancer-action-badge {
-  margin: 4px;
+.lancer-action-badge {
+  background-color: var(--light-gray-color);
+  margin: 3px;
   width: fit-content;
 }
 

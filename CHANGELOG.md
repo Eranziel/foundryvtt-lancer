@@ -1,3 +1,64 @@
+# 2.4.1 (2024-11-14)
+
+## Bug Fixes
+
+- #587 - New scenes will have token vision and fog of exploration disabled by default. Congrats @sealtrowitz on your first (code) contribution!
+- #776 - Undoing end-of-turn burn ticks no longer lowers the actor's burn counter.
+- All flow classes are now available in `game.lancer.flows`, for easier access for macro/mod devs.
+- Properly register damage flow and refactor general damage button to follow the convention of other general flow buttons.
+
+# 2.4.0 (2024-11-10)
+
+## Features
+
+- #776 - Add an undo button in damage chat messages.
+- #777 - Add buttons to open the damage HUD without an attack first.
+  - All actors have a generic "Damage" button next to the "Basic Attack" button, this opens the HUD with no damage configuration.
+  - Weapon damage type displays have been converted to a button, clicking this will open the damage HUD with that weapon's damage.
+- Add more tooltips to weapon cards - attack buttons, range type, NPC attack bonus/accuracy/difficulty, damage buttons.
+
+# 2.3.0 (2024-11-09)
+
+## Features
+
+- #189 - Damage application is here! For the time being this only applies to weapon attacks. Tech attacks will be able to use the damage roller/application in the future, but still need some rework to support it.
+  - #379 - Attack and damage rolling steps are now separate. Attack results have a "roll damage" button which shows a damage configuration HUD, which will then roll for damage and print a separate card to chat.
+  - #535 - Configurable bonus damage as part of the damage flow. Bonus damage can be configured globally for the attack, or added to specific targets. (Anyone Nuclear Cavaliers out there?) The hit quality for each target (crit, hit, or miss) can also be modified in the HUD, in case manual adjustments or additional targets are needed.
+  - Damage configuration includes toggles for AP, cannot-be-reduced (like from the Paracausal mod), and half-damage (like from Heavy Gunner). These can each be applied to the entire damage roll or to specific targets.
+  - The damage roll chat card has a button for each target to apply damage to that target. There is also a drop-down for each target to pick whether this damage should be applied at 1x, 2x, or be resisted.
+  - Resistance statuses have been added for each damage type. Tokens which have these statuses will resist the appropriate damage type as long as the damage was not configured as cannot-be-reduced.
+  - #497 - Automatic burn handling at end of turn. Actors with burn will be prompted to make their Engineering save at the end of their turn, and if they fail a damage card will be printed.
+  - Stats changes to tokens can show floating numbers above the token, e.g. "-5 HP". There is a new system setting to enable these numbers. The setting is separate for each client and is off by default.
+
+# 2.2.6 (2024-10-26)
+
+## Bug Fixes
+
+- #727 - Show active effects table on all actor sheets. (Partial fix for #727, but some of the requested functionality is not implemented yet.)
+- #767 - Terrain Height Tools integration - Do not draw LOS lines between attacker and target after Roll or Cancel is clicked on the attack HUD.
+- #768 - Correct Legendary NPC evaluation of crushing hits/irreversible meltdown. There is still a case where Foundry can select the less favourable result, causing the output to be crushing hit/irreversible meltdown, but this will be much more rare.
+- #771 - limited uses/loading/charged status on items are filled up when they are added to an actor.
+- #772 - Fix bugs in status population. The priority for status names, descriptions, and images are now: selected icon set in settings > world items > compendium items.
+
+## Misc
+
+- Improved the styling of sheet tabs, adding a highlight on hover and a small animation when switching.
+
+# 2.2.5 (2024-10-19)
+
+## Bug Fixes
+
+- #751 - Fix/restore the action tracker so it's usable again.
+- Hide deleted pilots in Comp/Con import drop-down list.
+- Fix monospace font for non-Windows machines.
+
+## Misc
+
+- #749 - Status-type items in the Items tab are automatically added to the token status menu options.
+- #765 - Descriptions for token statuses are now populated from Status-type items in the Items tab and the Statuses/Conditions compendium.
+- Add missing sheet applications to `game.lancer.applications` for intrepid module developers.
+- Remove redundant error logger (Foundry core logs these now).
+
 # 2.2.4 (2024-08-13)
 
 ## Bug Fixes

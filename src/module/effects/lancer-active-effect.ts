@@ -151,7 +151,7 @@ export class LancerActiveEffect extends ActiveEffect {
   }
 
   // Populate config with our static/compendium statuses instead of the builtin ones
-  static async populateConfig(from_compendium: boolean) {
+  static async initConfig() {
     const statusIconConfig = game.settings.get(game.system.id, LANCER.setting_status_icons) as StatusIconConfigOptions;
     // If no sets are selected, enable the default set
     if (
@@ -165,47 +165,66 @@ export class LancerActiveEffect extends ActiveEffect {
       !statusIconConfig.hayleyUtility &&
       !statusIconConfig.tommyConditionsStatus
     ) {
-      statusIconConfig.defaultConditionsStatus = true;
       await game.settings.set(game.system.id, LANCER.setting_status_icons, statusIconConfig);
+      statusIconConfig.defaultConditionsStatus = true;
     }
-    // @ts-expect-error TODO: Remove this expect when have v9 types
+
+    /**
+     * Helper function to populate the status config with the selected status icon set. For each icon in swapWith:
+     * - If the status is already in statuses, replace the icon with the one in swapWith
+     * - If the status is not in statuses, add it to statuses
+     * @param statuses The set of statuses being worked on, to be put back into CONFIG.statusEffects afterward
+     * @param swapWith The set of icons to swap in
+     * @returns The statuses set with the icons swapped, and any missing statuses added.
+     */
+    function _swapIcons(
+      // @ts-expect-error v10 types
+      statuses: StatusEffect[],
+      swapWith: { id: string; name: string; icon: string }[]
+      // @ts-expect-error v10 types
+    ): StatusEffect[] {
+      for (let icon of swapWith) {
+        let status = statuses.find(s => s.id === icon.id);
+        if (status) {
+          status.icon = icon.icon;
+        } else {
+          statuses.push({
+            id: icon.id,
+            name: icon.name,
+            icon: icon.icon,
+          });
+        }
+      }
+      return statuses;
+    }
+
+    // @ts-expect-error v10 types
     let configStatuses: StatusEffect[] = [];
     // Pull the default statuses from the compendium if it exists
     if (statusIconConfig.defaultConditionsStatus) {
-      let pack = game.packs.get(get_pack_id(EntryType.STATUS));
-      let pack_statuses: LancerSTATUS[] = [];
-      if (from_compendium) {
-        pack_statuses = ((await pack?.getDocuments({ type: EntryType.STATUS })) || []) as unknown as LancerSTATUS[];
-      }
-      if (pack_statuses.length) {
-        configStatuses = configStatuses.concat(pack_statuses.map(statusConfigEffect));
-      }
-      // Add any of the default status set which aren't in the compendium
-      configStatuses = configStatuses.concat(
-        defaultStatuses.filter(s => !configStatuses.find(stat => stat.id === s.id))
-      );
+      configStatuses = _swapIcons(configStatuses, defaultStatuses);
     }
     if (statusIconConfig.cancerConditionsStatus) {
-      configStatuses = configStatuses.concat(cancerConditionsStatus);
+      configStatuses = _swapIcons(configStatuses, cancerConditionsStatus);
     }
     if (statusIconConfig.hayleyConditionsStatus) {
-      configStatuses = configStatuses.concat(hayleyConditionsStatus);
+      configStatuses = _swapIcons(configStatuses, hayleyConditionsStatus);
     }
     if (statusIconConfig.tommyConditionsStatus) {
-      configStatuses = configStatuses.concat(tommyConditionsStatus);
+      configStatuses = _swapIcons(configStatuses, tommyConditionsStatus);
     }
     // Icons for other things which aren't mechanical condition/status
     if (statusIconConfig.cancerNPCTemplates) {
-      configStatuses = configStatuses.concat(cancerNPCTemplates);
+      configStatuses = _swapIcons(configStatuses, cancerNPCTemplates);
     }
     if (statusIconConfig.hayleyPC) {
-      configStatuses = configStatuses.concat(hayleyPC);
+      configStatuses = _swapIcons(configStatuses, hayleyPC);
     }
     if (statusIconConfig.hayleyNPC) {
-      configStatuses = configStatuses.concat(hayleyNPC);
+      configStatuses = _swapIcons(configStatuses, hayleyNPC);
     }
     if (statusIconConfig.hayleyUtility) {
-      configStatuses = configStatuses.concat(hayleyUtility);
+      configStatuses = _swapIcons(configStatuses, hayleyUtility);
     }
     console.log(`Lancer | ${configStatuses.length} status icons configured`);
     CONFIG.statusEffects = configStatuses;
@@ -214,6 +233,48 @@ export class LancerActiveEffect extends ActiveEffect {
     CONFIG.specialStatusEffects.INVISIBLE = "ignored";
     // @ts-expect-error v10 types
     CONFIG.specialStatusEffects.BLIND = "ignored";
+
+    Hooks.callAll("lancer.statusInitComplete");
+  }
+
+  /**
+   * Load statuses from the compendia and world items and backfill into CONFIG.statusEffects.
+   */
+  static async populateFromItems() {
+    const pack = game.packs.get(get_pack_id(EntryType.STATUS));
+    const packStatuses: LancerSTATUS[] = ((await pack?.getDocuments({ type: EntryType.STATUS })) ||
+      []) as unknown as LancerSTATUS[];
+    const worldStatuses: LancerSTATUS[] = game.items?.filter(i => i.type === EntryType.STATUS) as LancerSTATUS[];
+    // World statuses first so they take priority
+    const allStatuses = worldStatuses.concat(packStatuses);
+
+    if (!allStatuses.length) {
+      return;
+    }
+    // Update the status icons with data from the items. Add any statuses which are missing, and populate descriptions.
+    for (const status of allStatuses) {
+      if (!status.is_status() || !status.system.lid || !status.img) continue;
+      const existingStatus = CONFIG.statusEffects.find(s => s.id === status.system.lid);
+      if (!existingStatus) {
+        CONFIG.statusEffects.push({
+          id: status.system.lid,
+          // @ts-expect-error v10 types
+          name: status.name!,
+          icon: status.img,
+          description: status.system.effects,
+        });
+      } else {
+        existingStatus.icon = existingStatus.icon || status.img;
+        // @ts-expect-error v10 types
+        existingStatus.name = existingStatus.name || status.name;
+        if (status.system.effects) {
+          // @ts-expect-error v10 types
+          existingStatus.description = status.system.effects;
+        }
+      }
+    }
+
+    Hooks.callAll("lancer.statusesReady");
   }
 }
 

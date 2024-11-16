@@ -28,6 +28,7 @@ import { lookupOwnedDeployables } from "../util/lid";
 import { beginItemChatFlow } from "../flows/item";
 import { DroppableFlowType } from "../helpers/dragdrop";
 import { attachTagTooltips } from "../helpers/tags";
+import { DamageRollFlow } from "../flows/damage";
 const lp = LANCER.log_prefix;
 
 /**
@@ -327,8 +328,14 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
         case BasicFlowType.Overcharge:
           this.actor.beginOverchargeFlow();
           break;
+        case BasicFlowType.Burn:
+          this.actor.beginBurnFlow();
+          break;
         case BasicFlowType.BasicAttack:
           this.actor.beginBasicAttackFlow(flowArgs?.title ?? undefined);
+          break;
+        case BasicFlowType.Damage:
+          this.actor.beginDamageFlow(flowArgs?.title ?? undefined);
           break;
         case BasicFlowType.TechAttack:
           this.actor.beginBasicTechAttackFlow(flowArgs?.title ?? undefined);
@@ -370,6 +377,17 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
       const techId = techElement.dataset.uuid;
       const techItem = LancerItem.fromUuidSync(techId ?? "", `Invalid weapon ID: ${techId}`);
       techItem.beginTechAttackFlow();
+    });
+
+    let damageRollers = html.find(".roll-damage");
+    damageRollers.on("click", ev => {
+      if (!ev.currentTarget) return; // No target, let other handlers take care of it.
+      ev.stopPropagation();
+
+      const el = $(ev.currentTarget).closest("[data-uuid]")[0] as HTMLElement;
+      const itemId = el.dataset.uuid;
+      const item = LancerItem.fromUuidSync(itemId ?? "", `Invalid item ID: ${itemId}`);
+      item.beginDamageFlow();
     });
 
     let itemFlows = html.find(".chat-flow-button");

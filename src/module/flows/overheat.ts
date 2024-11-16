@@ -66,7 +66,7 @@ export async function preOverheatRollChecks(state: FlowState<LancerFlowState.Ove
       ui.notifications!.info("Token is not at heat cap. No need to roll stress.");
       return false;
     }
-    const { openSlidingHud: open } = await import("../helpers/slidinghud");
+    const { openSlidingHud: open } = await import("../apps/slidinghud");
     try {
       await open("stress", { stat: "stress", title: "Stress Damage", lancerActor: actor });
     } catch (_e) {
@@ -243,8 +243,18 @@ export async function checkOverheatMultipleOnes(state: FlowState<LancerFlowState
     return false;
   }
 
-  const roll = state.data.result?.roll;
-  if (!roll) throw new TypeError(`overheat check hasn't been rolled yet!`);
+  let roll = state.data.result?.roll;
+  if (!roll) throw new TypeError(`Overheat check hasn't been rolled yet!`);
+  // @ts-expect-error v10 types
+  if (roll.terms[0].rolls?.length > 1) {
+    // This was rolled multiple times - it should be an NPC with the legendary trait
+    // Find the selected roll - the one which wasn't discarded - and check whether it has multiple ones.
+    const chosenIndex = (roll.terms as Die[])[0].results.findIndex(r => !r.discarded);
+    // @ts-expect-error v10 types
+    roll = (roll.terms as Die[])[0].rolls[chosenIndex] || roll;
+  }
+  if (!roll) throw new TypeError(`Overheat check hasn't been rolled yet!`);
+
   // Irreversible Meltdowns
   let one_count = (roll.terms as Die[])[0].results.filter(v => v.result === 1).length;
   if (one_count > 1) {

@@ -73,7 +73,7 @@ export async function preStructureRollChecks(
       ui.notifications!.info("Token has hp remaining. No need to roll structure.");
       return false;
     }
-    const { openSlidingHud: open } = await import("../helpers/slidinghud");
+    const { openSlidingHud: open } = await import("../apps/slidinghud");
     try {
       await open("struct", { stat: "structure", title: "Structure Damage", lancerActor: actor });
     } catch (_e) {
@@ -233,8 +233,18 @@ export async function checkStructureMultipleOnes(
     return false;
   }
 
-  const roll = state.data.result?.roll;
+  let roll = state.data.result?.roll;
   if (!roll) throw new TypeError(`Structure check hasn't been rolled yet!`);
+  // @ts-expect-error v10 types
+  if (roll.terms[0].rolls?.length > 1) {
+    // This was rolled multiple times - it should be an NPC with the legendary trait
+    // Find the selected roll - the one which wasn't discarded - and check whether it has multiple ones.
+    const chosenIndex = (roll.terms as Die[])[0].results.findIndex(r => !r.discarded);
+    // @ts-expect-error v10 types
+    roll = (roll.terms as Die[])[0].rolls[chosenIndex] || roll;
+  }
+  if (!roll) throw new TypeError(`Structure check hasn't been rolled yet!`);
+
   // Crushing hits
   let one_count = (roll.terms as Die[])[0].results.filter(v => v.result === 1).length;
   if (one_count > 1) {

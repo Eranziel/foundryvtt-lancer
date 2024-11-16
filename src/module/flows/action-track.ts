@@ -68,9 +68,9 @@ function condensedActionBadgeHTML(actions: ActionTrackingData) {
     }
 
     return `
-        <button class="lancer-${action} lancer-action-badge${active ? ` active` : ""}${
-      false ? ` enabled` : ""
-    }"><i class="${mIcon} i--m"></i></button>`;
+    <button class="lancer-action-badge${active ? ` lancer-${action}` : ""}">
+      <i class="${mIcon} i--m white--text"></i>
+    </button>`;
   }
 
   let buttons = "";

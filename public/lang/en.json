@@ -36,6 +36,11 @@
     "placeholder": {
       "name": "Name"
     },
+    "common-sheet": {
+      "tabs": {
+        "effects": "<EFFECTS//ACTIVE>"
+      }
+    },
     "deployable-sheet": {
       "tabs": {
         "status": "<STATUS>",
@@ -52,8 +57,7 @@
       "tabs": {
         "stats": "<MECH//STATS>",
         "loadout": "<MECH//LOADOUT>",
-        "talents": "<PILOT//TALENTS>",
-        "effects": "<EFFECTS//ACTIVE>"
+        "talents": "<PILOT//TALENTS>"
       },
       "core": {
         "label": "CORE"
@@ -82,6 +86,9 @@
       },
       "features": {
         "label": "FEATURES"
+      },
+      "effects": {
+        "label": "ACTIVE EFFECTS"
       }
     },
     "pilot-sheet": {
@@ -141,10 +148,10 @@
       "title": {
         "attack": "// ATTACK //",
         "damage": "// DAMAGE //",
+        "reliable": "// RELIABLE //",
         "crit-damage": "// CRIT DAMAGE //",
         "self-heat": "// SELF HEAT //",
-        "defense-hit": "// HIT VS {defense}",
-        "e-defense-hit": "// HIT VS E-DEF",
+        "defense-hit": "// ATTACK VS {defense} //",
         "effect": "// EFFECT //",
         "on-attack": "// ON ATTACK //",
         "on-hit": "// ON HIT //",
@@ -166,9 +173,10 @@
         "effect": "EFFECT"
       },
       "attack": {
-        "crit": "{total} - CRIT",
-        "hit": "{total} - HIT",
-        "miss": "{total} - MISS"
+        "crit": "CRIT",
+        "hit": "HIT",
+        "miss": "MISS",
+        "roll-all-damage": "ROLL DAMAGE"
       },
       "exclamation": {
         "overkill": "OVERKILL!"
@@ -178,6 +186,10 @@
         "uncharged": "{target} + :: UNCHARGED"
       },
       "remaining": "{total} / {max} REMAINING"
+    },
+    "floatingDamageNumbers": {
+      "name": "Floating Damage Numbers",
+      "hint": "Enable floating damage numbers for changes to stats, including applying damage rolls. This setting is separate for each client."
     },
     "uiTheme": {
       "name": "UI Theme",
@@ -223,6 +235,8 @@
       "chains_of_prometheus": "Chains of Prometheus",
       "clamp_bomb": "Clamp Bomb",
       "commander": "Commander",
+      "cover_hard": "Cover - Hard",
+      "cover_soft": "Cover - Soft",
       "dangerzone": "Danger Zone",
       "destroyed": "Destroyed",
       "dimensional_shackles": "Dimensional Shackles",
@@ -277,6 +291,11 @@
       "pirate": "Pirate",
       "prone": "Prone",
       "reactor_meltdown": "Reactor Meltdown",
+      "resistance_burn": "Resist Burn",
+      "resistance_energy": "Resist Energy",
+      "resistance_explosive": "Resist Explosive",
+      "resistance_heat": "Resist Heat",
+      "resistance_kinetic": "Resist Kinetic",
       "retort_loop": "Retort Loop",
       "rpv": "RPV",
       "sanctuary": "Sanctuary",

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   version="1.1"
+   width="512"
+   height="512"
+   viewBox="0 0 24 24"
+   id="svg352"
+   sodipodi:docname="resistance_energy.svg"
+   inkscape:version="1.2.2 (732a01da63, 2022-12-09)"
+   inkscape:export-filename="resistance_energy.png"
+   inkscape:export-xdpi="96"
+   inkscape:export-ydpi="96"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs356" />
+  <sodipodi:namedview
+     id="namedview354"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     showgrid="false"
+     inkscape:zoom="1.6191406"
+     inkscape:cx="219.86972"
+     inkscape:cy="256.30881"
+     inkscape:window-width="1920"
+     inkscape:window-height="1009"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg352" />
+  <path
+     id="path350"
+     d="M 12 1.0000305 L 3 4.9999695 L 3 10.999969 C 3 15.576135 5.6107248 19.907443 9.4194031 21.992889 C 9.4407567 21.81053 9.4614953 21.628097 9.4831238 21.44577 C 9.5804908 20.955899 9.6778915 20.466035 9.7752686 19.976166 C 7.9364109 18.758546 6.4039169 16.75849 5.6022949 14.53125 L 3.7810364 14.53125 C 4.2261993 13.90726 4.6713554 13.283263 5.1165161 12.659271 C 5.0401452 12.181081 4.9999695 11.699637 4.9999695 11.219971 L 4.9999695 6.3000183 L 11.822662 3.2590942 C 12.165266 2.7788491 12.50783 2.2985742 12.850433 1.8183289 C 12.940431 1.7115488 13.030426 1.6047664 13.120422 1.4979858 L 12 1.0000305 z M 14.565582 2.1403198 C 14.548955 2.2801748 14.53257 2.4200607 14.515869 2.559906 C 14.409858 3.0931397 14.303829 3.6263738 14.197815 4.1596069 L 19.000031 6.3000183 L 19.000031 9.46875 L 20.218964 9.46875 C 19.812644 10.038293 19.406348 10.607855 19.000031 11.177399 L 19.000031 11.219971 C 19.000031 15.539966 15.749996 20.000001 12 21 C 11.99792 20.999445 11.995854 20.998817 11.993774 20.99826 C 11.712366 21.392726 11.430975 21.787206 11.149567 22.181671 C 11.026274 22.327973 10.902987 22.474274 10.779694 22.620575 C 11.177035 22.771279 11.584197 22.898436 12 22.999969 C 17.159995 21.739971 21 16.549964 21 10.999969 L 21 4.9999695 L 14.565582 2.1403198 z "
+     style="fill:#ffffff" />
+  <g
+     transform="matrix(0.0234375,0,0,-0.0234375,0,22.5)"
+     id="g58"
+     style="fill:#ffffff">
+    <path
+       fill="currentColor"
+       d="M 580,858 239,380 H 512 L 444,38 785,516 H 512 Z"
+       id="path56"
+       style="fill:#ffffff" />
+  </g>
+  <g
+     transform="matrix(0.0234375,0,0,-0.0234375,0,22.5)"
+     id="g58-8"
+     style="fill:#ffffff" />
+</svg>

@@ -3,7 +3,30 @@
  */
 
 import { ActionTrackingData, ActionType } from ".";
-import { LancerActor, LancerMECH } from "../actor/lancer-actor";
+import { LancerActor } from "../actor/lancer-actor";
+
+/**
+ * Similar to activationIcon, but for action tracking data
+ * @param action The action track action to get the icon for
+ * @returns CSS classes for the matching icon
+ */
+export function actionIcon(action: keyof ActionTrackingData): string {
+  switch (action) {
+    case "quick":
+      return "mdi mdi-hexagon-slice-3";
+    case "full":
+      return "mdi mdi-hexagon-slice-6";
+    case "reaction":
+      return "cci cci-reaction";
+    case "protocol":
+      return "cci cci-protocol";
+    case "move":
+      return "mdi mdi-arrow-right-bold-hexagon-outline";
+    case "free":
+    default:
+      return "cci cci-free-action";
+  }
+}
 
 export const _defaultActionData = (target: LancerActor) => {
   return {
@@ -29,7 +52,7 @@ export const _endTurnActionData = () => {
  * @returns actions map.
  */
 export function getActions(actor: LancerActor): ActionTrackingData | null {
-  if (actor.is_mech()) {
+  if (actor.is_mech() || actor.is_npc()) {
     return actor.system.action_tracker;
   } else {
     return null;
@@ -39,7 +62,7 @@ export function getActions(actor: LancerActor): ActionTrackingData | null {
  * Set proxy for ease of migration when we change over to MM data backing.
  */
 export async function updateActions(actor: LancerActor, actions: ActionTrackingData) {
-  await actor.update({ "data.action_tracker": actions });
+  await actor.update({ "system.action_tracker": actions });
   // this.token?.update({ "flags.lancer.actions": actions });
 }
 

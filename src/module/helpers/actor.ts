@@ -1,11 +1,12 @@
 import type { HelperOptions } from "handlebars";
 import { extendHelper, inc_if, resolveHelperDotpath, selected, std_num_input, std_x_of_y } from "./commons";
 import { ref_params, simple_ref_slot } from "./refs";
-import type { ActionType } from "../action";
+import { type ActionType } from "../action";
 import type { LancerActor, LancerMECH, LancerNPC, LancerPILOT } from "../actor/lancer-actor";
 import { getActionTrackerOptions } from "../settings";
 import { EntryType } from "../enums";
 import { LancerFlowState } from "../flows/interfaces";
+import { actionIcon } from "../action/action-tracker";
 
 // ---------------------------------------
 // Some simple stat editing thingies
@@ -13,10 +14,12 @@ import { LancerFlowState } from "../flows/interfaces";
 interface ButtonOverrides {
   icon?: string;
   classes?: string;
+  tooltip?: string;
 }
 
 function _flowButton(button_class: string, html_data: string, overrides: ButtonOverrides = {}): string {
-  return `<a class="${button_class} lancer-button ${overrides.classes ?? ""}" ${html_data}>
+  const tooltip = overrides.tooltip ? `data-tooltip="${overrides.tooltip}"` : "";
+  return `<a class="${button_class} lancer-button ${overrides.classes ?? ""}" ${html_data} ${tooltip}>
     <i class="fas ${overrides.icon ?? "fa-dice-d20"} i--dark i--s"></i>
   </a>`;
 }
@@ -59,16 +62,42 @@ export function stat_edit_card_max(
 }
 
 // Shows an X clipped card
-export function stat_edit_card(title: string, icon: string, data_path: string, options: HelperOptions): string {
+export function stat_edit_card(
+  title: string,
+  icon: string,
+  data_path: string,
+  options: HelperOptions & { rollable?: boolean }
+): string {
+  let flowButton: string = "";
+  if (options.rollable) {
+    if (data_path === "system.burn") {
+      flowButton = _basicFlowButton(getActorUUID(options)!, "Burn", {
+        icon: "cci cci-burn",
+        tooltip: "Roll a burn check and generate damage",
+      });
+    }
+  }
   return `
     <div class="card clipped">
       <div class="lancer-header lancer-primary ">
         <i class="${icon} i--m i--light header-icon"> </i>
         <span class="major">${title}</span>
       </div>
-      ${std_num_input(data_path, extendHelper(options, { classes: "lancer-stat" }))}
+      <div class="${flowButton ? "stat-flow-container" : "flexrow flex-center"}">
+        ${flowButton}
+        ${std_num_input(data_path, extendHelper(options, { classes: "lancer-stat" }))}
+      </div>
     </div>
     `;
+}
+
+export function stat_edit_rollable_card(
+  title: string,
+  icon: string,
+  data_path: string,
+  options: HelperOptions
+): string {
+  return stat_edit_card(title, icon, data_path, { ...options, rollable: true });
 }
 
 // Shows a readonly value clipped card
@@ -79,12 +108,15 @@ export function stat_view_card(
   options: HelperOptions & { rollable?: boolean }
 ): string {
   let dataVal = resolveHelperDotpath(options, data_path);
-  let flowButton: string = "";
-  let attackFlowButton: string = "";
+  let leftFlowButton: string = "";
+  let rightFlowButton: string = "";
   if (options.rollable) {
-    flowButton = _statFlowButton(getActorUUID(options)!, data_path);
+    leftFlowButton = _statFlowButton(getActorUUID(options)!, data_path);
     if (data_path === "system.grit" || data_path === "system.tier") {
-      attackFlowButton = _basicFlowButton(getActorUUID(options)!, "BasicAttack", { icon: "cci cci-weapon" });
+      rightFlowButton = _basicFlowButton(getActorUUID(options)!, "BasicAttack", {
+        icon: "cci cci-weapon",
+        tooltip: "Roll a basic attack",
+      });
     }
   }
   return `
@@ -93,10 +125,10 @@ export function stat_view_card(
         ${inc_if(`<i class="${icon} i--m i--light header-icon"> </i>`, icon)}
         <span class="major">${title}</span>
       </div>
-      <div class="${flowButton ? "stat-flow-container" : "flexrow flex-center"}">
-        ${flowButton}
+      <div class="${leftFlowButton || rightFlowButton ? "stat-flow-container" : "flexrow flex-center"}">
+        ${leftFlowButton}
         <span class="lancer-stat major" data-path="${data_path}">${dataVal}</span>
-        ${attackFlowButton}
+        ${rightFlowButton}
       </div>
     </div>
     `;
@@ -221,13 +253,17 @@ export function action_button(
     enabled = true;
   }
 
+  const icon = `<i class="${actionIcon(action)} i--m"></i>`;
+
   return `
-    <button class="lancer-action-button lancer-button lancer-${action ?? "quick"}${
-    active ? ` active activation-${action}` : ""
-  }${enabled ? ` enabled` : ""}" data-action="${action}" data-val="${action_val}">
-      ${title}
-    </button>
-    `;
+    <button
+      class="lancer-action-button lancer-button${enabled ? " enabled" : ""}${active ? ` active lancer-${action}` : ""}"
+      data-action="${action}"
+      data-val="${action_val}"
+  >
+    ${icon}
+    ${title}
+  </button>`;
 }
 
 // Suitable for any macros that take a single argument: the actor uuid
@@ -254,6 +290,9 @@ export function actor_flow_button(
       break;
     case BasicFlowType.BasicAttack:
       mIcon = "cci-weapon";
+      break;
+    case BasicFlowType.Damage:
+      mIcon = "cci-large-beam";
       break;
     case BasicFlowType.TechAttack:
       mIcon = "cci-tech-quick";

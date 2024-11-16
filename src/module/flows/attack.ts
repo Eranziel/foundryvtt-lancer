@@ -4,15 +4,14 @@ import { getAutomationOptions } from "../settings";
 import { LancerItem } from "../item/lancer-item";
 import { LancerActor, LancerNPC } from "../actor/lancer-actor";
 import { checkForHit } from "../helpers/automation/targeting";
-import { AccDiffData, AccDiffDataSerialized, RollModifier } from "../helpers/acc_diff";
+import { AccDiffHudData, AccDiffHudDataSerialized, RollModifier } from "../apps/acc_diff";
 import { renderTemplateStep } from "./_render";
 import { SystemTemplates } from "../system-template";
 import { UUIDRef } from "../source-template";
 import { LancerFlowState } from "./interfaces";
-import { openSlidingHud } from "../helpers/slidinghud";
+import { openSlidingHud } from "../apps/slidinghud";
 import { Flow, FlowState, Step } from "./flow";
 import { AttackType, RangeType, WeaponType } from "../enums";
-import { Range } from "../models/bits/range";
 
 const lp = LANCER.log_prefix;
 
@@ -32,7 +31,7 @@ function applyPluginsToRoll(str: string, plugins: RollModifier[]): string {
 }
 
 /** Create the attack roll(s) for a given attack configuration */
-export function attackRolls(flat_bonus: number, acc_diff: AccDiffData): LancerFlowState.AttackRolls {
+export function attackRolls(flat_bonus: number, acc_diff: AccDiffHudData): LancerFlowState.AttackRolls {
   let perRoll = Object.values(acc_diff.weapon.plugins);
   let base = perRoll.concat(Object.values(acc_diff.base.plugins));
   return {
@@ -48,11 +47,17 @@ export function attackRolls(flat_bonus: number, acc_diff: AccDiffData): LancerFl
   };
 }
 
-type AttackFlag = {
-  origin: string;
+export type AttackFlag = {
+  origin: string; // Attacker's ID. Somewhat deprecated, kept because LWFX is probably using it.
+  attackerUuid: string; // Attacker's UUID
+  attackerItemUuid?: string; // Item UUID used for the attack, if applicable
+  invade?: boolean;
   targets: {
     id: string;
     setConditions?: object; // keys are statusEffect ids, values are boolean to indicate whether to apply or remove
+    total: string;
+    hit: boolean;
+    crit: boolean;
   }[];
 };
 
@@ -64,7 +69,7 @@ export function registerAttackSteps(flowSteps: Map<string, Step<any, any> | Flow
   flowSteps.set("setAttackTargets", setAttackTargets);
   flowSteps.set("showAttackHUD", showAttackHUD);
   flowSteps.set("rollAttacks", rollAttacks);
-  flowSteps.set("rollDamages", rollDamages);
+  flowSteps.set("clearTargets", clearTargets);
   flowSteps.set("printAttackCard", printAttackCard);
 }
 
@@ -77,8 +82,6 @@ export class BasicAttackFlow extends Flow<LancerFlowState.AttackRollData> {
     "setAttackTargets",
     "showAttackHUD",
     "rollAttacks",
-    // TODO: think about whether/how basic attacks should be able to do damage (siege ram, I'm lookin' at you)
-    // "rollDamages",
     "applySelfHeat",
     "printAttackCard",
   ];
@@ -96,8 +99,6 @@ export class BasicAttackFlow extends Flow<LancerFlowState.AttackRollData> {
       attack_rolls: data?.attack_rolls || { roll: "", targeted: [] },
       attack_results: data?.attack_results || [],
       hit_results: data?.hit_results || [],
-      damage_results: data?.damage_results || [],
-      crit_damage_results: data?.crit_damage_results || [],
       reroll_data: data?.reroll_data || "",
       tags: data?.tags || [],
     };
@@ -123,8 +124,6 @@ export class WeaponAttackFlow extends Flow<LancerFlowState.WeaponRollData> {
     "setAttackTargets",
     "showAttackHUD",
     "rollAttacks",
-    // TODO: move damage rolling to damage flow
-    "rollDamages",
     "applySelfHeat",
     "updateItemAfterAction",
     "printAttackCard",
@@ -145,8 +144,6 @@ export class WeaponAttackFlow extends Flow<LancerFlowState.WeaponRollData> {
       attack_rolls: data?.attack_rolls || { roll: "", targeted: [] },
       attack_results: data?.attack_results || [],
       hit_results: data?.hit_results || [],
-      damage_results: data?.damage_results || [],
-      crit_damage_results: data?.crit_damage_results || [],
       reroll_data: data?.reroll_data || "",
       tags: data?.tags || [],
     };
@@ -170,7 +167,7 @@ export async function initAttackData(
   state: FlowState<
     LancerFlowState.AttackRollData | LancerFlowState.WeaponRollData | LancerFlowState.TechAttackRollData
   >,
-  options?: { title?: string; flat_bonus?: number; acc_diff?: AccDiffDataSerialized }
+  options?: { title?: string; flat_bonus?: number; acc_diff?: AccDiffHudDataSerialized }
 ): Promise<boolean> {
   if (!state.data) throw new TypeError(`Attack flow state missing!`);
   // If we only have an actor, it's a basic attack
@@ -187,8 +184,8 @@ export async function initAttackData(
     }
     // TODO: check bonuses for flat attack bonus
     state.data.acc_diff = options?.acc_diff
-      ? AccDiffData.fromObject(options.acc_diff)
-      : AccDiffData.fromParams(state.actor, [], state.data.title, Array.from(game.user!.targets));
+      ? AccDiffHudData.fromObject(options.acc_diff)
+      : AccDiffHudData.fromParams(state.actor, [], state.data.title, Array.from(game.user!.targets));
     return true;
   } else {
     // This title works for everything
@@ -213,8 +210,8 @@ export async function initAttackData(
         }
       }
       state.data.acc_diff = options?.acc_diff
-        ? AccDiffData.fromObject(options.acc_diff)
-        : AccDiffData.fromParams(state.item, profile.all_tags, state.data.title, Array.from(game.user!.targets));
+        ? AccDiffHudData.fromObject(options.acc_diff)
+        : AccDiffHudData.fromParams(state.item, profile.all_tags, state.data.title, Array.from(game.user!.targets));
       return true;
     } else if (state.item.is_mech_system()) {
       // Tech attack system
@@ -229,8 +226,13 @@ export async function initAttackData(
       state.data.flat_bonus = state.actor.system.tech_attack;
       // TODO: check bonuses for flat attack bonus
       state.data.acc_diff = options?.acc_diff
-        ? AccDiffData.fromObject(options.acc_diff)
-        : AccDiffData.fromParams(state.item, state.item.system.tags, state.data.title, Array.from(game.user!.targets));
+        ? AccDiffHudData.fromObject(options.acc_diff)
+        : AccDiffHudData.fromParams(
+            state.item,
+            state.item.system.tags,
+            state.data.title,
+            Array.from(game.user!.targets)
+          );
       return true;
     } else if (state.item.is_npc_feature()) {
       if (!state.actor.is_npc()) {
@@ -243,8 +245,8 @@ export async function initAttackData(
       state.data.attack_type = asWeapon.weapon_type === WeaponType.Melee ? AttackType.Melee : AttackType.Ranged;
       state.data.flat_bonus = asWeapon.attack_bonus[tier_index] ?? 0;
       state.data.acc_diff = options?.acc_diff
-        ? AccDiffData.fromObject(options.acc_diff)
-        : AccDiffData.fromParams(
+        ? AccDiffHudData.fromObject(options.acc_diff)
+        : AccDiffHudData.fromParams(
             state.item,
             asWeapon.tags,
             state.data.title,
@@ -264,8 +266,13 @@ export async function initAttackData(
       state.item.system;
       state.data.flat_bonus = state.actor.system.grit;
       state.data.acc_diff = options?.acc_diff
-        ? AccDiffData.fromObject(options.acc_diff)
-        : AccDiffData.fromParams(state.item, state.item.system.tags, state.data.title, Array.from(game.user!.targets));
+        ? AccDiffHudData.fromObject(options.acc_diff)
+        : AccDiffHudData.fromParams(
+            state.item,
+            state.item.system.tags,
+            state.data.title,
+            Array.from(game.user!.targets)
+          );
       return true;
     }
     ui.notifications!.error(`Error in attack flow - ${state.item.name} is an invalid type!`);
@@ -286,7 +293,7 @@ export async function checkWeaponLoaded(state: FlowState<LancerFlowState.WeaponR
   return true;
 }
 
-// TODO: AccDiffData does not allow changing tags after instantiation
+// TODO: AccDiffHudData does not allow changing tags after instantiation
 export async function setAttackTags(
   state: FlowState<
     LancerFlowState.AttackRollData | LancerFlowState.WeaponRollData | LancerFlowState.TechAttackRollData
@@ -309,9 +316,6 @@ export async function setAttackTags(
     // Check for self-heat
     const selfHeatTags = state.data.tags.filter(t => t.is_selfheat);
     if (!!(selfHeatTags && selfHeatTags.length)) state.data.self_heat = selfHeatTags[0].val;
-    // Check for overkill
-    const overkillTags = state.data.tags.filter(t => t.is_overkill);
-    if (!!(overkillTags && overkillTags.length)) state.data.overkill = true;
     // Check for smart
     const smartTags = state.data.tags.filter(t => t.is_smart);
     if (!!(smartTags && smartTags.length)) state.data.is_smart = true;
@@ -365,7 +369,7 @@ export async function setAttackTargets(
   options?: {}
 ): Promise<boolean> {
   if (!state.data) throw new TypeError(`Attack flow state missing!`);
-  // TODO: AccDiffData does not facilitate setting targets after instantiation?
+  // TODO: AccDiffHudData does not facilitate setting targets after instantiation?
   // TODO: set metadata for origin and target spaces
   // state.data.target_spaces;
   return true;
@@ -415,8 +419,9 @@ export async function rollAttacks(
         return {
           attack: { roll: attack_roll, tt: attack_tt },
           hit: {
-            token: { name: target.name!, img: target.actor?.img ?? "" },
+            target,
             total: String(attack_roll.total).padStart(2, "0"),
+            usedLockOn: !!targetingData.usedLockOn,
             hit: await checkForHit(state.data?.is_smart ?? false, attack_roll, actor),
             crit: (attack_roll.total || 0) >= 20,
           },
@@ -436,97 +441,12 @@ export async function rollAttacks(
   }
 }
 
-export async function rollDamages(state: FlowState<LancerFlowState.WeaponRollData>, options?: {}): Promise<boolean> {
-  if (!state.data) throw new TypeError(`Attack flow state missing!`);
-
-  if (state.item?.is_mech_weapon()) {
-    const profile = state.item.system.active_profile;
-    state.data.damage = profile.damage;
-    state.data.bonus_damage = profile.bonus_damage;
-  } else if (state.item?.is_npc_feature() && state.item.system.type === "Weapon") {
-    state.data.damage =
-      state.item.system.damage[state.item.system.tier_override || (state.actor as LancerNPC).system.tier - 1];
-  } else if (state.item?.is_pilot_weapon()) {
-    state.data.damage = state.item.system.damage;
-  } else {
-    ui.notifications!.warn(
-      state.item ? `Item ${state.item.id} is not a weapon!` : `Weapon attack flow is missing item!`
-    );
-    return false;
-  }
-
-  const has_normal_hit =
-    (state.data.hit_results.length === 0 && state.data.attack_results.some(attack => (attack.roll.total ?? 0) < 20)) ||
-    state.data.hit_results.some(hit => hit.hit && !hit.crit);
-  const has_crit_hit =
-    (state.data.hit_results.length === 0 && state.data.attack_results.some(attack => (attack.roll.total ?? 0) >= 20)) ||
-    state.data.hit_results.some(hit => hit.crit);
-
-  // TODO: move damage rolling into its own flow
-  // If we hit evaluate normal damage, even if we only crit, we'll use this in
-  // the next step for crits
-  if (has_normal_hit || has_crit_hit) {
-    for (const x of state.data.damage ?? []) {
-      if (!x.val || x.val == "0") continue; // Skip undefined and zero damage
-      let damageRoll: Roll | undefined = new Roll(x.val);
-      // Add overkill if enabled.
-      if (state.data.overkill) {
-        damageRoll.terms.forEach(term => {
-          if (term instanceof Die) term.modifiers = ["x1", `kh${term.number}`].concat(term.modifiers);
-        });
-      }
-
-      await damageRoll.evaluate({ async: true });
-      // @ts-expect-error DSN options aren't typed
-      damageRoll.dice.forEach(d => (d.options.rollOrder = 2));
-      const tooltip = await damageRoll.getTooltip();
-
-      state.data.damage_results.push({
-        roll: damageRoll,
-        tt: tooltip,
-        d_type: x.type,
-      });
-    }
-  }
-
-  // If there is at least one crit hit, evaluate crit damage
-  if (has_crit_hit) {
-    // NPCs do not follow the normal crit rules. They only get bonus damage from Deadly etc...
-    if (!state.actor.is_npc()) {
-      await Promise.all(
-        state.data.damage_results.map(async result => {
-          const c_roll = await getCritRoll(result.roll);
-          // @ts-expect-error DSN options aren't typed
-          c_roll.dice.forEach(d => (d.options.rollOrder = 2));
-          const tt = await c_roll.getTooltip();
-          state.data!.crit_damage_results.push({
-            roll: c_roll,
-            tt,
-            d_type: result.d_type,
-          });
-        })
-      );
-    } else {
-      state.data!.crit_damage_results = state.data!.damage_results;
-      // TODO: automation for Deadly
-      // Find any Deadly features and add a d6 for each
-    }
-  }
-  // If there were only crit hits and no normal hits, don't show normal damage in the results
-  state.data.damage_results = has_normal_hit ? state.data.damage_results : [];
-
-  // Calculate overkill heat
-  if (state.data.overkill) {
-    state.data.overkill_heat = 0;
-    (has_crit_hit ? state.data.crit_damage_results : state.data.damage_results).forEach(result => {
-      result.roll.terms.forEach(p => {
-        if (p instanceof DiceTerm) {
-          p.results.forEach(r => {
-            if (r.exploded) state.data!.overkill_heat! += 1;
-          });
-        }
-      });
-    });
+export async function clearTargets(
+  state: FlowState<LancerFlowState.AttackRollData | LancerFlowState.WeaponRollData | LancerFlowState.DamageRollData>
+): Promise<boolean> {
+  if (!state.data) throw new TypeError(`Flow state missing!`);
+  for (const t of game.user?.targets || []) {
+    t.setTarget(false, { releaseOthers: false });
   }
   return true;
 }
@@ -537,81 +457,39 @@ export async function printAttackCard(
 ): Promise<boolean> {
   if (!state.data) throw new TypeError(`Attack flow state missing!`);
   const template = options?.template || `systems/${game.system.id}/templates/chat/attack-card.hbs`;
-  const flags = {
+  const flags: { attackData: AttackFlag } = {
     attackData: {
-      origin: state.actor.id,
-      targets: state.data.attack_rolls.targeted.map(t => {
-        return { id: t.target.id, setConditions: !!t.usedLockOn ? { lockon: !t.usedLockOn } : undefined };
+      origin: state.actor.id!,
+      attackerUuid: state.actor.uuid!,
+      attackerItemUuid: state.item?.uuid,
+      targets: state.data.hit_results.map(hr => {
+        return {
+          id: hr.target.document.uuid,
+          setConditions: !!hr.usedLockOn ? { lockon: !hr.usedLockOn } : undefined,
+          total: hr.total,
+          hit: hr.hit,
+          crit: hr.crit,
+        };
       }),
     },
   };
   state.data.defense = state.data.is_smart ? "E-DEF" : "EVASION";
+  // Add roll data to the hit results for the HBS template
+  const hitResultsWithRolls: LancerFlowState.HitResultWithRoll[] = [];
+  for (const [index, hitResult] of state.data.hit_results.entries()) {
+    hitResultsWithRolls.push({
+      ...hitResult,
+      ...state.data.attack_results[index],
+    });
+  }
   const templateData = {
     ...state.data,
+    hit_results: hitResultsWithRolls,
     item_uuid: state.item?.uuid,
     profile: state.item?.currentProfile(),
   };
   await renderTemplateStep(state.actor, template, templateData, flags);
   return true;
-}
-
-/**
- * Given an evaluated roll, create a new roll that doubles the dice and reuses
- * the dice from the original roll.
- * @param normal The orignal Roll
- * @returns An evaluated Roll
- */
-export async function getCritRoll(normal: Roll) {
-  const t_roll = new Roll(normal.formula);
-  await t_roll.evaluate({ async: true });
-
-  const dice_rolls = Array<DiceTerm.Result[]>(normal.terms.length);
-  const keep_dice: number[] = Array(normal.terms.length).fill(0);
-  normal.terms.forEach((term, i) => {
-    if (term instanceof Die) {
-      dice_rolls[i] = term.results.map(r => {
-        return { ...r };
-      });
-      const kh = parseInt(term.modifiers.find(m => m.startsWith("kh"))?.substr(2) ?? "0");
-      keep_dice[i] = kh || term.number;
-    }
-  });
-  t_roll.terms.forEach((term, i) => {
-    if (term instanceof Die) {
-      dice_rolls[i].push(...term.results);
-    }
-  });
-
-  // Just hold the active results in a sorted array, then mutate them
-  const actives: DiceTerm.Result[][] = Array(normal.terms.length).fill([]);
-  dice_rolls.forEach((dice, i) => {
-    actives[i] = dice.filter(d => d.active).sort((a, b) => a.result - b.result);
-  });
-  actives.forEach((dice, i) =>
-    dice.forEach((d, j) => {
-      d.active = j >= keep_dice[i];
-      d.discarded = j < keep_dice[i];
-    })
-  );
-
-  // We can rebuild him. We have the technology. We can make him better than he
-  // was. Better, stronger, faster
-  const terms = normal.terms.map((t, i) => {
-    if (t instanceof Die) {
-      return new Die({
-        ...t,
-        modifiers: (t.modifiers.filter(m => m.startsWith("kh")).length
-          ? t.modifiers
-          : [...t.modifiers, `kh${t.number}`]) as (keyof Die.Modifiers)[],
-        results: dice_rolls[i],
-        number: t.number * 2,
-      });
-    } else {
-      return t;
-    }
-  });
-
-  return Roll.fromTerms(terms);
 }
 
 // If user is GM, apply status changes to attacked tokens

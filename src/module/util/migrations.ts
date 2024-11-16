@@ -10,7 +10,6 @@ function coarseLIDtoUUID(lid: string): string | null {
   if (actor?._id) {
     return `Actor.${actor._id}`;
   }
-  // @ts-expect-error v11
   let item = game.data.items?.find(x => x.system?.lid == lid);
   if (item?._id) {
     return `Item.${item._id}`;

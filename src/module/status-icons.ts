@@ -99,6 +99,41 @@ export const defaultStatuses = [
     name: "lancer.statusIconsNames.npc_tier_3",
     icon: `systems/lancer/assets/icons/white/npc_tier_3.svg`,
   },
+  {
+    id: "cover_hard",
+    name: "lancer.statusIconsNames.cover_hard",
+    icon: `systems/lancer/assets/icons/white/cover_hard.svg`,
+  },
+  {
+    id: "cover_soft",
+    name: "lancer.statusIconsNames.cover_soft",
+    icon: `systems/lancer/assets/icons/white/cover_soft.svg`,
+  },
+  {
+    id: "resistance_burn",
+    name: "lancer.statusIconsNames.resistance_burn",
+    icon: `systems/lancer/assets/icons/white/resistance_burn.svg`,
+  },
+  {
+    id: "resistance_energy",
+    name: "lancer.statusIconsNames.resistance_energy",
+    icon: `systems/lancer/assets/icons/white/resistance_energy.svg`,
+  },
+  {
+    id: "resistance_explosive",
+    name: "lancer.statusIconsNames.resistance_explosive",
+    icon: `systems/lancer/assets/icons/white/resistance_explosive.svg`,
+  },
+  {
+    id: "resistance_heat",
+    name: "lancer.statusIconsNames.resistance_heat",
+    icon: `systems/lancer/assets/icons/white/resistance_heat.svg`,
+  },
+  {
+    id: "resistance_kinetic",
+    name: "lancer.statusIconsNames.resistance_kinetic",
+    icon: `systems/lancer/assets/icons/white/resistance_kinetic.svg`,
+  },
 ];
 
 export const cancerConditionsStatus = [
@@ -186,6 +221,41 @@ export const cancerConditionsStatus = [
     id: "stunned",
     name: "lancer.statusIconsNames.stunned",
     icon: "systems/lancer/assets/icons/alt-status/cancercondstat/stunned.svg",
+  },
+  {
+    id: "cover_hard",
+    name: "lancer.statusIconsNames.cover_hard",
+    icon: `systems/lancer/assets/icons/white/cover_hard.svg`,
+  },
+  {
+    id: "cover_soft",
+    name: "lancer.statusIconsNames.cover_soft",
+    icon: `systems/lancer/assets/icons/white/cover_soft.svg`,
+  },
+  {
+    id: "resistance_burn",
+    name: "lancer.statusIconsNames.resistance_burn",
+    icon: `systems/lancer/assets/icons/white/resistance_burn.svg`,
+  },
+  {
+    id: "resistance_energy",
+    name: "lancer.statusIconsNames.resistance_energy",
+    icon: `systems/lancer/assets/icons/white/resistance_energy.svg`,
+  },
+  {
+    id: "resistance_explosive",
+    name: "lancer.statusIconsNames.resistance_explosive",
+    icon: `systems/lancer/assets/icons/white/resistance_explosive.svg`,
+  },
+  {
+    id: "resistance_heat",
+    name: "lancer.statusIconsNames.resistance_heat",
+    icon: `systems/lancer/assets/icons/white/resistance_heat.svg`,
+  },
+  {
+    id: "resistance_kinetic",
+    name: "lancer.statusIconsNames.resistance_kinetic",
+    icon: `systems/lancer/assets/icons/white/resistance_kinetic.svg`,
   },
 ];
 
@@ -327,6 +397,31 @@ export const hayleyConditionsStatus = [
     id: "stunned",
     name: "lancer.statusIconsNames.stunned",
     icon: "systems/lancer/assets/icons/alt-status/hayleycondstat/stunned.webp",
+  },
+  {
+    id: "resistance_burn",
+    name: "lancer.statusIconsNames.resistance_burn",
+    icon: `systems/lancer/assets/icons/white/resistance_burn.svg`,
+  },
+  {
+    id: "resistance_energy",
+    name: "lancer.statusIconsNames.resistance_energy",
+    icon: `systems/lancer/assets/icons/white/resistance_energy.svg`,
+  },
+  {
+    id: "resistance_explosive",
+    name: "lancer.statusIconsNames.resistance_explosive",
+    icon: `systems/lancer/assets/icons/white/resistance_explosive.svg`,
+  },
+  {
+    id: "resistance_heat",
+    name: "lancer.statusIconsNames.resistance_heat",
+    icon: `systems/lancer/assets/icons/white/resistance_heat.svg`,
+  },
+  {
+    id: "resistance_kinetic",
+    name: "lancer.statusIconsNames.resistance_kinetic",
+    icon: `systems/lancer/assets/icons/white/resistance_kinetic.svg`,
   },
 ];
 
@@ -739,6 +834,41 @@ export const tommyConditionsStatus = [
     id: "tiercust",
     name: "lancer.statusIconsNames.tiercust",
     icon: "systems/lancer/assets/icons/alt-status/tommystat/Tier Custom.webp",
+  },
+  {
+    id: "cover_hard",
+    name: "lancer.statusIconsNames.cover_hard",
+    icon: `systems/lancer/assets/icons/white/cover_hard.svg`,
+  },
+  {
+    id: "cover_soft",
+    name: "lancer.statusIconsNames.cover_soft",
+    icon: `systems/lancer/assets/icons/white/cover_soft.svg`,
+  },
+  {
+    id: "resistance_burn",
+    name: "lancer.statusIconsNames.resistance_burn",
+    icon: `systems/lancer/assets/icons/white/resistance_burn.svg`,
+  },
+  {
+    id: "resistance_energy",
+    name: "lancer.statusIconsNames.resistance_energy",
+    icon: `systems/lancer/assets/icons/white/resistance_energy.svg`,
+  },
+  {
+    id: "resistance_explosive",
+    name: "lancer.statusIconsNames.resistance_explosive",
+    icon: `systems/lancer/assets/icons/white/resistance_explosive.svg`,
+  },
+  {
+    id: "resistance_heat",
+    name: "lancer.statusIconsNames.resistance_heat",
+    icon: `systems/lancer/assets/icons/white/resistance_heat.svg`,
+  },
+  {
+    id: "resistance_kinetic",
+    name: "lancer.statusIconsNames.resistance_kinetic",
+    icon: `systems/lancer/assets/icons/white/resistance_kinetic.svg`,
   },
 ];
 

@@ -46,6 +46,15 @@ export const registerSettings = function () {
     default: {},
   });
 
+  game.settings.register(game.system.id, LANCER.setting_floating_damage_numbers, {
+    name: "lancer.floatingDamageNumbers.name",
+    hint: "lancer.floatingDamageNumbers.hint",
+    scope: "client",
+    config: true,
+    type: Boolean,
+    default: false,
+  });
+
   game.settings.register(game.system.id, LANCER.setting_ui_theme, {
     name: "lancer.uiTheme.name",
     hint: "lancer.uiTheme.hint",

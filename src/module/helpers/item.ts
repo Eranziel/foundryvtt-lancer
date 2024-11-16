@@ -159,17 +159,25 @@ export function damageEditor(path: string, options: HelperOptions): string {
  * Supply with the array of Damage[], as well as:
  * - classes: Any additional classes to put on the div holding them
  */
-export function damageArrayView(damages: Damage[], options: HelperOptions): string {
+export function damageArrayView(damages: Damage[], options: HelperOptions & { rollable?: boolean }): string {
   // Get the classes
   let classes = options.hash["classes"] || "";
   let results: string[] = [];
+  const openTag = options.rollable
+    ? `<a
+      class="flexrow no-grow compact-damage roll-damage lancer-button ${classes}"
+      style="max-width: min-content;"
+      data-tooltip="Roll damage for this weapon without attacking"
+    >`
+    : `<div class="flexrow no-grow compact-damage ${classes}">`;
+  const closeTag = options.rollable ? `</a>` : `</div>`;
   for (let damage of damages) {
     let damage_item = `<span class="compact-damage">
       <i class="cci ${damage.icon} i--m i--dark damage--${damage.type.toLowerCase()}"></i>
       ${damage.val}</span>`;
     results.push(damage_item);
   }
-  return `<div class="flexrow no-grow compact-damage ${classes}">${results.join(" ")}</div>`;
+  return `${openTag}${results.join(" ")}${closeTag}`;
 }
 
 /**
@@ -182,7 +190,7 @@ export function rangeArrayView(ranges: Range[], options: HelperOptions): string 
   // Build out results
   let results: string[] = [];
   for (let range of ranges) {
-    let range_item = `<span class="compact-range"><i class="cci ${range.icon} i--m i--dark"></i>${range.val}</span>`;
+    let range_item = `<span class="compact-range" data-tooltip="${range.type}"><i class="cci ${range.icon} i--m i--dark"></i>${range.val}</span>`;
     results.push(range_item);
   }
   return `<div class="flexrow no-grow compact-range ${classes}">${results.join(" ")}</div>`;
@@ -193,7 +201,7 @@ export function rangeArrayView(ranges: Range[], options: HelperOptions): string 
  * @param atk {number} Attack bonus to render
  */
 export function npcAttackBonusView(atk: number, txt: string = "ATTACK") {
-  return `<div class="compact-acc">
+  return `<div class="compact-acc" data-tooltip="Flat attack bonus">
     <i style="margin-right: 5px;" class="cci cci-reticule i--m"></i>
     <span class="medium"> ${atk < 0 ? "-" : "+"}${atk} ${txt}</span>
   </div>`;
@@ -216,7 +224,7 @@ export function npcAccuracyView(acc: number) {
     return "";
   }
 
-  return `<div class="compact-acc">
+  return `<div class="compact-acc" data-tooltip="Innate Accuracy/Difficulty">
       <i style="margin-right: 5px" class="cci cci-${icon} i--m"></i>
       <span class="medium">${text}</span>
     </div>`;
@@ -449,13 +457,16 @@ export function pilotWeaponRefview(weapon_path: string, options: HelperOptions):
     </div>
     <div class="flexcol">
       <div class="flexrow">
-        <a class="flexrow roll-attack lancer-button" style="max-width: min-content;">
+        <a
+          class="flexrow roll-attack lancer-button"
+          style="max-width: min-content;"
+          data-tooltip="Roll an attack with this weapon"
+        >
           <i class="fas fa-dice-d20 i--sm i--dark"></i>
-          
         </a>
         ${rangeArrayView(weapon.system.range, options)}
         <hr class="vsep">
-        ${damageArrayView(weapon.system.damage, options)}
+        ${damageArrayView(weapon.system.damage, { ...options, rollable: true })}
         
         ${inc_if(`<hr class="vsep"><div class="uses-wrapper">`, loading || limited)}
         <!-- Loading toggle, if we are loading-->
@@ -708,14 +719,16 @@ data-action="set" data-action-value="(int)${i}" data-path="${weapon_path}.system
         </a>
       </div> 
       <div class="lancer-body collapse" ${collapseParam(collapse, weapon, true)}>
-        ${weapon.system.sp ? `<strong>${weapon.system.sp} SP</strong>` : ""}
+        ${weapon.system.sp ? sp : ""}
         ${profiles}
         <div class="flexrow" style="text-align: left; white-space: nowrap;">
-          <a class="roll-attack lancer-button"><i class="fas fa-dice-d20 i--m i--dark"></i></a>
+          <a class="roll-attack lancer-button" data-tooltip="Roll an attack with this weapon">
+            <i class="fas fa-dice-d20 i--m i--dark"></i>
+          </a>
           <hr class="vsep">
           ${rangeArrayView(profile.all_range, options)}
           <hr class="vsep">
-          ${damageArrayView(profile.all_damage, options)}
+          ${damageArrayView(profile.all_damage, { ...options, rollable: true })}
 
           ${inc_if(`<hr class="vsep"><div class="uses-wrapper">`, loading || limited)}
           <!-- Loading toggle, if we are loading-->

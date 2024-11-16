@@ -26,16 +26,17 @@ import { CoreActiveFlow } from "../flows/frame";
 import { SimpleTextFlow } from "../flows/text";
 import { StatRollFlow } from "../flows/stat";
 import { SystemFlow } from "../flows/system";
+import { DamageRollFlow } from "../flows/damage";
 
 const lp = LANCER.log_prefix;
 
 interface LancerItemDataSource<T extends LancerItemType> {
   type: T;
-  data: SourceDataType<T>;
+  system: SourceDataType<T>;
 }
 interface LancerItemDataProperties<T extends LancerItemType> {
   type: T;
-  data: SystemDataType<T>;
+  system: SystemDataType<T>;
 }
 
 /**
@@ -599,6 +600,18 @@ export class LancerItem extends Item {
     return (this.getTags() ?? []).some(t => t.is_smart);
   }
 
+  isAP(): boolean {
+    return (this.getTags() ?? []).some(t => t.is_ap);
+  }
+
+  isOverkill(): boolean {
+    return (this.getTags() ?? []).some(t => t.is_overkill);
+  }
+
+  isReliable(): boolean {
+    return (this.getTags() ?? []).some(t => t.is_reliable);
+  }
+
   // Returns true & type information if this item has action data
   hasActions(): this is { system: { actions: ActionData[] } } {
     return (this as any).system.actions !== undefined;
@@ -660,6 +673,15 @@ export class LancerItem extends Item {
       return;
     }
     const flow = new TechAttackFlow(this);
+    await flow.begin();
+  }
+
+  async beginDamageFlow() {
+    if (!this.is_mech_weapon() && !this.is_npc_feature() && !this.is_pilot_weapon()) {
+      ui.notifications!.error(`Item ${this.id} cannot roll damage as it is not a weapon!`);
+      return;
+    }
+    const flow = new DamageRollFlow(this);
     await flow.begin();
   }
 

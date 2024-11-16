@@ -17,7 +17,7 @@
       <a class="item lancer-tab medium" data-tab="stats">{{localize "lancer.mech-sheet.tabs.stats"}}</a>
       <a class="item lancer-tab medium" data-tab="loadout">{{localize "lancer.mech-sheet.tabs.loadout"}}</a>
       <a class="item lancer-tab medium" data-tab="talents">{{localize "lancer.mech-sheet.tabs.talents"}}</a>
-      <a class="item lancer-tab medium" data-tab="effects">{{localize "lancer.mech-sheet.tabs.effects"}}</a>
+      <a class="item lancer-tab medium" data-tab="effects">{{localize "lancer.common-sheet.tabs.effects"}}</a>
     </nav>
   </div>
 
@@ -36,7 +36,7 @@
         {{{stat-view-card "SAVE" "cci cci-save" "system.save"}}}
         {{{stat-view-card "SENSORS" "cci cci-sensor" "system.sensor_range"}}}
         {{{tech-flow-card "TECH ATK" "cci cci-tech-full" "system.tech_attack"}}}
-        {{{stat-edit-card "BURN" "cci cci-burn" "system.burn"}}}
+        {{{stat-edit-rollable-card "BURN" "cci cci-burn" "system.burn"}}}
         {{{stat-edit-card "O.SHIELD" "mdi mdi-shield-star-outline" "system.overshield.value"}}}
         {{{stat-edit-max-card "REPAIRS" "cci cci-repair" "system.repairs.value" "system.repairs.max"}}}
         <div class="size-card">
@@ -89,7 +89,7 @@
           <span class="lancer-header lancer-primary submajor clipped-top">
             {{localize "lancer.mech-sheet.actions.label"}}
           </span>
-          <div class="lancer-action-grid">
+          <div class="lancer-flow-button-grid">
             {{{action-button "Protocol" "system.action_tracker.protocol" "protocol"}}}
             {{{action-button "Movement" "system.action_tracker.move" "move"}}}
             {{{action-button "Full Action" "system.action_tracker.full" "full"}}}
@@ -104,9 +104,10 @@
     <div class="tab loadout" data-group="primary" data-tab="loadout">
       {{{mech-frame "system.loadout.frame.value" system.core_energy}}}
       <div class="card clipped">
-        <span class="lancer-header lancer-primary submajor">BASIC ATTACKS</span>
+        <span class="lancer-header lancer-primary submajor">ATTACK UTILITIES</span>
         <div class="lancer-flow-button-grid">
           {{{flow-button "MELEE/RANGED" "BasicAttack" }}}
+          {{{flow-button "DAMAGE" "Damage" }}}
           {{{flow-button "TECH" "TechAttack" }}}
         </div>
       </div>

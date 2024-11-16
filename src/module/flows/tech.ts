@@ -1,7 +1,7 @@
 // Import TypeScript modules
 import { LANCER } from "../config";
 import { LancerActor } from "../actor/lancer-actor";
-import { AccDiffData, AccDiffDataSerialized } from "../helpers/acc_diff";
+import { AccDiffHudData, AccDiffHudDataSerialized } from "../apps/acc_diff";
 import { renderTemplateStep } from "./_render";
 import { SystemTemplates } from "../system-template";
 import { LancerFlowState } from "./interfaces";
@@ -10,6 +10,7 @@ import { resolveDotpath } from "../helpers/commons";
 import { ActivationType, AttackType } from "../enums";
 import { Flow, FlowState, Step } from "./flow";
 import { UUIDRef } from "../source-template";
+import { AttackFlag } from "./attack";
 
 const lp = LANCER.log_prefix;
 
@@ -53,8 +54,6 @@ export class TechAttackFlow extends Flow<LancerFlowState.TechAttackRollData> {
       attack_rolls: data?.attack_rolls || { roll: "", targeted: [] },
       attack_results: data?.attack_results || [],
       hit_results: data?.hit_results || [],
-      damage_results: data?.damage_results || [],
-      crit_damage_results: data?.crit_damage_results || [],
       reroll_data: data?.reroll_data || "",
       tags: data?.tags || [],
     };
@@ -65,7 +64,7 @@ export class TechAttackFlow extends Flow<LancerFlowState.TechAttackRollData> {
 
 function commonMechTechAttackInit(
   state: FlowState<LancerFlowState.TechAttackRollData>,
-  options?: { title?: string; flat_bonus?: number; acc_diff?: AccDiffDataSerialized; action_path?: string }
+  options?: { title?: string; flat_bonus?: number; acc_diff?: AccDiffHudDataSerialized; action_path?: string }
 ) {
   if (!state.data) throw new TypeError(`Tech attack flow state missing!`);
   if (!state.item) throw new TypeError(`Tech attack flow state missing item!`);
@@ -84,8 +83,8 @@ function commonMechTechAttackInit(
 
   // TODO: check bonuses for flat attack bonus
   state.data.acc_diff = options?.acc_diff
-    ? AccDiffData.fromObject(options.acc_diff)
-    : AccDiffData.fromParams(
+    ? AccDiffHudData.fromObject(options.acc_diff)
+    : AccDiffHudData.fromParams(
         state.item,
         state.item.getTags() ?? [],
         state.data.title,
@@ -98,7 +97,7 @@ function commonMechTechAttackInit(
 
 export async function initTechAttackData(
   state: FlowState<LancerFlowState.TechAttackRollData>,
-  options?: { title?: string; flat_bonus?: number; acc_diff?: AccDiffDataSerialized; action_path?: string }
+  options?: { title?: string; flat_bonus?: number; acc_diff?: AccDiffHudDataSerialized; action_path?: string }
 ): Promise<boolean> {
   if (!state.data) throw new TypeError(`Tech attack flow state missing!`);
   // If we only have an actor, it's a basic attack
@@ -116,8 +115,8 @@ export async function initTechAttackData(
       state.data.flat_bonus = state.actor.system.sys;
     }
     state.data.acc_diff = options?.acc_diff
-      ? AccDiffData.fromObject(options.acc_diff)
-      : AccDiffData.fromParams(state.actor, [], state.data.title, Array.from(game.user!.targets));
+      ? AccDiffHudData.fromObject(options.acc_diff)
+      : AccDiffHudData.fromParams(state.actor, [], state.data.title, Array.from(game.user!.targets));
     return true;
   } else {
     // This title works for everything
@@ -134,8 +133,8 @@ export async function initTechAttackData(
       let acc = asTech.accuracy ? asTech.accuracy[tier_index] ?? 0 : 0;
       state.data.flat_bonus = asTech.attack_bonus ? asTech.attack_bonus[tier_index] ?? 0 : 0;
       state.data.acc_diff = options?.acc_diff
-        ? AccDiffData.fromObject(options.acc_diff)
-        : AccDiffData.fromParams(state.item, asTech.tags, state.data.title, Array.from(game.user!.targets), acc);
+        ? AccDiffHudData.fromObject(options.acc_diff)
+        : AccDiffHudData.fromParams(state.item, asTech.tags, state.data.title, Array.from(game.user!.targets), acc);
       return true;
     } else if (state.item.is_mech_system() || state.item.is_frame()) {
       // Tech attack system
@@ -179,16 +178,33 @@ export async function printTechAttackCard(
 ): Promise<boolean> {
   if (!state.data) throw new TypeError(`Tech attack flow state missing!`);
   const template = options?.template || `systems/${game.system.id}/templates/chat/tech-attack-card.hbs`;
-  const flags = {
+  const flags: { attackData: AttackFlag } = {
     attackData: {
-      origin: state.actor.id,
-      targets: state.data.attack_rolls.targeted.map(t => {
-        return { id: t.target.id, setConditions: !!t.usedLockOn ? { lockon: !t.usedLockOn } : undefined };
+      origin: state.actor.id!,
+      attackerUuid: state.actor.uuid!,
+      attackerItemUuid: state.item?.uuid,
+      invade: state.data.invade,
+      targets: state.data.hit_results.map(hr => {
+        return {
+          id: hr.target.actor?.uuid || "",
+          setConditions: !!hr.usedLockOn ? { lockon: !hr.usedLockOn } : undefined,
+          total: hr.total,
+          hit: hr.hit,
+          crit: hr.crit,
+        };
       }),
     },
   };
+  const hitResultsWithRolls: LancerFlowState.HitResultWithRoll[] = [];
+  for (const [index, hitResult] of state.data.hit_results.entries()) {
+    hitResultsWithRolls.push({
+      ...hitResult,
+      ...state.data.attack_results[index],
+    });
+  }
   const templateData = {
     ...state.data,
+    hit_results: hitResultsWithRolls,
     item_uuid: state.item?.uuid,
     profile: state.item?.currentProfile(),
   };
