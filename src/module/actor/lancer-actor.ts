@@ -918,7 +918,7 @@ export class LancerActor extends Actor {
       ui.notifications?.error(message);
       throw new Error(message);
     }
-    // @ts-ignore Infinite recursion for some reason
+    // @ts-expect-error Infinite recursion for some reason
     if (x instanceof TokenDocument) x = x.actor!;
     if (!(x instanceof LancerActor)) {
       let message = `${messagePrefix ? messagePrefix + " | " : ""}Document ${x} not an actor.`;
@@ -937,7 +937,7 @@ export class LancerActor extends Actor {
       ui.notifications?.error(message);
       throw new Error(message);
     }
-    // @ts-ignore Infinite recursion for some reason
+    // @ts-expect-error Infinite recursion for some reason
     if (x instanceof TokenDocument) x = x.actor!;
     if (!(x instanceof LancerActor)) {
       let message = `${messagePrefix ? messagePrefix + " | " : ""}Document ${x} not an actor.`;

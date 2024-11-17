@@ -278,7 +278,7 @@ export async function resolveNativeDrop(drop: string | FoundryDropData): Promise
           }
         : null;
     } else if (drop.type == "JournalEntry") {
-      // @ts-ignore
+      // @ts-expect-error
       let document = await JournalEntry.fromDropData(drop);
       return document
         ? {
@@ -287,7 +287,7 @@ export async function resolveNativeDrop(drop: string | FoundryDropData): Promise
           }
         : null;
     } else if (drop.type == "Macro") {
-      // @ts-ignore
+      // @ts-expect-error
       let document = await Macro.fromDropData(drop);
       return document
         ? {
