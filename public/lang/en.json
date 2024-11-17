@@ -347,7 +347,9 @@
       "npc_recharge": "NPC Recharge",
       "npc_recharge-desc": "Automatically roll to recharge NPC systems at the start of their turn.",
       "token_size": "Manage Token Sizes",
-      "token_size-desc": "Automatically force tokens sizes to match the associated actor's size stat."
+      "token_size-desc": "Automatically force tokens sizes to match the associated actor's size stat.",
+      "one_struct_npc_roll": "Skip Basic NPC Structure Rolls",
+      "one_struct_npc_roll-desc": "Remove the structure roll prompt when single structure NPCs are destroyed."
     },
     "actionTracker": {
       "menu-name": "Action Tracker",

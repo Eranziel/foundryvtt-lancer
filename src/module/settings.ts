@@ -221,6 +221,7 @@ export function getAutomationOptions(useDefault = false): AutomationOptions {
     npc_recharge: true,
     remove_templates: false,
     token_size: true,
+    one_struct_npc_roll: false,
   };
   if (useDefault) return def;
   const settings = (game.settings.get(game.system.id, LANCER.setting_automation) as Record<string, boolean>) ?? {};
@@ -241,6 +242,7 @@ export function getAutomationOptions(useDefault = false): AutomationOptions {
       npc_recharge: false,
       remove_templates: false,
       token_size: false,
+      one_struct_npc_roll: false,
     };
   }
 }
@@ -297,6 +299,11 @@ export interface AutomationOptions {
    * @defaultValue `true`
    */
   token_size: boolean;
+  /**
+   * Skip structure rolls for NPCs with a single structure
+   * @defaultValue `false`
+   */
+  one_struct_npc_roll: boolean;
 }
 
 //
