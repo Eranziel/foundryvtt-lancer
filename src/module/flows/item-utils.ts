@@ -134,7 +134,7 @@ export async function applySelfHeat(
     if (state.actor.is_mech() || state.actor.is_npc()) {
       // TODO: overkill heat to move to damage flow
       await state.actor.update({
-        // @ts-ignore
+        // @ts-expect-error Missing overkill_heat
         "system.heat.value": state.actor.system.heat.value + (state.data.overkill_heat ?? 0) + self_heat,
       });
     }

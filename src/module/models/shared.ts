@@ -7,10 +7,9 @@ import { FullBoundedNum, SourceData } from "../source-template";
 import { SystemTemplates } from "../system-template";
 import { regRefToId, regRefToLid, regRefToUuid } from "../util/migrations";
 
-// @ts-ignore
 const fields: any = foundry.data.fields;
 
-// @ts-expect-error LancerDataModel needs to be redone
+// @ts-expect-error This probably needs a rework. It breaks types
 export class LancerDataModel<T> extends foundry.abstract.TypeDataModel<T> {
   /**
    * Create a full update payload, e.g. to preserve arrays

@@ -3,7 +3,7 @@
   let lockonCounter = 0;
   let counter = 0;
 
-  // @ts-ignore the only issue is that crossfade can take a fn for duration and blur can't
+  // @ts-expect-error the only issue is that crossfade can take a fn for duration and blur can't
   let [send, recv] = crossfade({ fallback: blur });
 </script>
 

@@ -33,9 +33,9 @@
   export let kind: "hase" | "attack";
 
   // tell svelte of externally computed dependency arrows
-  // @ts-ignore i.e., base depends on weapon
+  // @ts-expect-error i.e., base depends on weapon
   $: base = (weapon, base);
-  // @ts-ignore i.e., targets depend on weapon and base
+  // @ts-expect-error i.e., targets depend on weapon and base
   $: targets = (weapon, base, targets);
   $: profile = lancerItem ? findProfile() : null;
   $: ranges = lancerItem ? findRanges() : null;
@@ -51,8 +51,8 @@
     // Ignore target hovering after the form has been submitted, to avoid flickering when
     // the UI slides down.
     if (submitted) return;
+    // @ts-expect-error Infinite recursion?
     const thtModule = game.modules.get("terrain-height-tools");
-    // @ts-expect-error v10 types
     if (!thtModule?.active || foundry.utils.isNewerVersion("0.3.3", thtModule.version)) {
       // @ts-expect-error not supposed to use a private method
       target._onHoverIn(event);
@@ -63,7 +63,6 @@
 
   function targetHoverOut(event: MouseEvent, target: LancerToken) {
     const thtModule = game.modules.get("terrain-height-tools");
-    // @ts-expect-error v10 types
     if (!thtModule?.active || foundry.utils.isNewerVersion("0.3.3", thtModule.version)) {
       // @ts-expect-error not supposed to use a private method
       target._onHoverOut(event);
@@ -80,6 +79,8 @@
   }
 
   function clearLos() {
+    const thtModule = game.modules.get("terrain-height-tools");
+    if (!thtModule?.active || foundry.utils.isNewerVersion("0.3.3", thtModule.version)) return;
     terrainHeightTools!.clearLineOfSightRays();
   }
 
@@ -121,7 +122,6 @@
     const t = WeaponRangeTemplate.fromRange(range, token);
     if (!t) return;
     fade("out");
-    // @ts-expect-error v10
     t.document.updateSource({ [`flags.${game.system.id}.isAttack`]: true });
     t.placeTemplate()
       .catch(e => {
