@@ -129,7 +129,7 @@ export class LancerActiveEffect extends ActiveEffect {
     // If no sets are selected, enable the default set
     if (game.ready && !Object.keys(statusIconConfig).some(k => (<any>statusIconConfig)[k])) {
       statusIconConfig.defaultConditionsStatus = true;
-      await game.settings.set(game.system.id, LANCER.setting_status_icons, statusIconConfig as never);
+      await game.settings.set(game.system.id, LANCER.setting_status_icons, statusIconConfig);
     }
 
     /**
