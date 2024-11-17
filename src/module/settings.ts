@@ -102,9 +102,7 @@ export const registerSettings = function () {
   game.settings.register(game.system.id, LANCER.setting_status_icons, {
     scope: "world",
     config: false,
-    // @ts-expect-error
     type: StatusIconConfigOptions,
-    // @ts-expect-error
     default: new StatusIconConfigOptions(),
   });
 
@@ -120,9 +118,7 @@ export const registerSettings = function () {
   game.settings.register(game.system.id, LANCER.setting_automation, {
     scope: "world",
     config: false,
-    // @ts-expect-error
     type: AutomationOptions,
-    // @ts-expect-error
     default: new AutomationOptions(),
   });
 
@@ -166,10 +162,9 @@ export const registerSettings = function () {
   game.settings.register(game.system.id, "combat-tracker-appearance", {
     scope: "client",
     config: false,
-    // @ts-expect-error
     type: CombatTrackerAppearance,
-    onChange: setAppearance,
     // @ts-expect-error
+    onChange: setAppearance,
     default: new CombatTrackerAppearance(),
   });
   game.settings.register(game.system.id, "combat-tracker-sort", {

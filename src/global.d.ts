@@ -51,33 +51,31 @@ declare global {
   }
 
   interface SettingConfig {
-    "lancer.systemMigrationVersion": string;
-    "lancer.coreDataVersion": string;
-    "lancer.installedLCPs": {
-      index: IContentPackManifest[];
-    };
-    "lancer.keepStockIcons": boolean;
-    "lancer.hideWelcome": boolean;
-    "lancer.automationOptions": AutomationOptions;
-    "lancer.automationSwitch": boolean;
-    "lancer.attackSwitch": boolean;
     "lancer.actionManager": boolean;
     "lancer.actionManagerPlayersUse": boolean;
     "lancer.actionTracker": Record<string, unknown>;
+    "lancer.attackSwitch": boolean;
+    "lancer.autoCalcStructure": boolean;
     "lancer.autoOCHeat": boolean;
     "lancer.autoOKillHeat": boolean;
-    "lancer.autoCalcStructure": boolean;
+    "lancer.automationOptions": typeof AutomationOptions;
+    "lancer.automationSwitch": boolean;
+    "lancer.combat-tracker-appearance": typeof CombatTrackerAppearance;
     "lancer.combat-tracker-sort": boolean;
+    "lancer.combatTrackerConfig": { sortTracker: boolean } | ClientSettings.Values["lancer.combatTrackerConfig"];
+    "lancer.coreDataVersion": string;
+    "lancer.dsnSetup": boolean;
     "lancer.floatingNumbers": boolean;
+    "lancer.hideWelcome": boolean;
+    "lancer.installedLCPs": { index: IContentPackManifest[] };
+    "lancer.keepStockIcons": boolean;
     "lancer.squareGridDiagonals": "111" | "121" | "222" | "euc";
-    "lancer.statusIconConfig": StatusIconConfigOptions;
+    "lancer.statusIconConfig": typeof StatusIconConfigOptions;
+    "lancer.systemMigrationVersion": string;
     "lancer.tagConfig": Record<string, unknown>;
     "lancer.uiTheme": "gms" | "gmsDark" | "msmc" | "horus" | "ha" | "ssc" | "ipsn" | "gal";
     // "lancer.warningFor120": boolean; // Old setting, currently unused.
     // "lancer.warningForBeta": boolean; // Old setting, currently unused.
-    "lancer.combatTrackerConfig": { sortTracker: boolean } | ClientSettings.Values["lancer.combatTrackerConfig"];
-    "lancer.dsnSetup": boolean;
-    "lancer.combat-tracker-appearance": CombatTrackerAppearance;
 
     "dice-so-nice.enabledSimultaneousRollForMessage": boolean;
 
