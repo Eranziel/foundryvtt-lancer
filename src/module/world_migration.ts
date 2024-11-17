@@ -82,6 +82,17 @@ deprecated:</p>
   return message;
 }
 
+let toMigrate = 1;
+let migrated = 0;
+/**
+ * Update the progress bar for the migration
+ */
+function migrationProgress(count: number) {
+  migrated += count;
+  const percent = Math.floor((migrated / toMigrate) * 100);
+  SceneNavigation.displayProgressBar({ label: `Migrated ${migrated} of ${toMigrate} documents...`, pct: percent });
+}
+
 /**
  * Some changes aren't neatly handleable via DataModels,
  * such as changes to prototype tokens or flags.
@@ -90,21 +101,24 @@ deprecated:</p>
 export async function migrateWorld() {
   const curr_version = game.settings.get(game.system.id, LANCER.setting_migration_version);
 
+  const journals = await game.packs.get("lancer.lancer_info")?.getDocuments({ name: "LANCER System Information" });
+  if (journals.length) {
+    await journals[0].sheet?.render(true);
+  }
+
   // Migrate from the pre-2.0 compendium structure the combined compendiums
   if (foundry.utils.isNewerVersion("2.0.0", curr_version)) {
-    const journals = await game.packs.get("lancer.lancer_info")?.getDocuments({ name: "LANCER System Information" });
-    if (journals.length) {
-      await journals[0].sheet?.render(true);
-    }
-
     await clearCompendiumData({ v1: true });
     await migrateCompendiumStructure();
   }
   // Update World Compendium Packs, since updates comes with a more up to date version of lancerdata usually
   await updateCore(core_update);
 
+  SceneNavigation.displayProgressBar({ label: `Migration in progress...`, pct: 0 });
   // Clean out old data fields so they don't cause issues
   await commitDataModelMigrations();
+  // The above call seems to clear the progress bar, so show it again...
+  SceneNavigation.displayProgressBar({ label: `Migration in progress...`, pct: 0 });
 
   if (game.settings.get(game.system.id, LANCER.setting_core_data) !== core_update) {
     // Compendium migration failed.
@@ -128,6 +142,28 @@ Please refresh the page to try again.</p>`,
       default: "accept",
     }).render(true);
   }
+
+  function reduceScene(total: number, scene: Scene) {
+    return total + Number(scene.tokens.contents.reduce((t2, token) => (t2 += 1 + token.actor?.items.size), 0) || 0);
+  }
+
+  // TODO: this count isn't accurate, but I'm not sure what is missing.
+  // Gather up the total number of documents needing migration
+  toMigrate = game.items.size;
+  toMigrate += game.actors!.reduce((total, actor) => (total += 1 + actor.items.size), 0);
+  toMigrate += game.scenes!.reduce(reduceScene, 0);
+  for (const pack of game.packs.contents) {
+    if (pack.metadata.packageType !== "world") continue;
+    if (pack.metadata.type === "Item") toMigrate += pack.index.size;
+    else if (pack.metadata.type === "Actor") {
+      await pack.getDocuments();
+      toMigrate += pack.contents.reduce((t2, actor) => (t2 += 1 + actor.items.size), 0);
+    } else if (pack.metadata.type === "Scene") {
+      await pack.getDocuments();
+      toMigrate += pack.contents.reduce(reduceScene, 0);
+    }
+  }
+  console.log(`Migrating ${toMigrate} documents`);
 
   // Migrate compendiums
   for (let p of game.packs.contents) {
@@ -225,7 +261,7 @@ export async function migrateActor(actor: LancerActor): Promise<object> {
   // Migrate Owned Items
   let itemUpdates = await Promise.all(actor.items.contents.map(migrateItem));
   await actor.updateEmbeddedDocuments("Item", itemUpdates);
-  return updateData;
+  migrationProgress(1);
 }
 
 /**
@@ -250,7 +286,7 @@ export async function migrateItem(item: LancerItem): Promise<object> {
     }
   }
 
-  // Return the migrated update data
+  migrationProgress(1);
   return updateData;
 }
 
