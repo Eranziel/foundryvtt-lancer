@@ -1,7 +1,6 @@
 import { PackedCounterData } from "../../util/unpacking/packed-types";
 import { LIDField } from "../shared";
 
-// @ts-ignore
 const fields: any = foundry.data.fields;
 
 export interface CounterData {

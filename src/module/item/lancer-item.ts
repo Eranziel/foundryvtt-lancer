@@ -695,7 +695,7 @@ export class LancerItem extends Item {
   async beginActivationFlow(path?: string) {
     if (!path) {
       // If no path is provided, default to the first action
-      // @ts-ignore We know it doesn't exist on all types, that's why we're checking
+      // @ts-expect-error We know it doesn't exist on all types, that's why we're checking
       if (!this.system.actions || this.system.actions.length < 1) {
         ui.notifications!.error(`Item ${this.id} has no actions, how did you even get here?`);
         return;

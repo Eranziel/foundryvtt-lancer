@@ -17,7 +17,6 @@ import {
 import { Damage } from "./damage";
 import { Range } from "./range";
 
-// @ts-ignore
 const fields: any = foundry.data.fields;
 
 // Make all fields required, force val to string, and use checklists

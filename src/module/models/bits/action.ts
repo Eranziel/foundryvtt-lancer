@@ -4,7 +4,6 @@ import { LIDField } from "../shared";
 import { DamageData, DamageField, unpackDamage } from "./damage";
 import { RangeData, RangeField, unpackRange } from "./range";
 
-// @ts-ignore
 const fields: any = foundry.data.fields;
 
 // Lightly trimmed

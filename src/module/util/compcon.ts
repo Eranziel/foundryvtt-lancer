@@ -23,7 +23,7 @@ export async function populatePilotCache(): Promise<CachedCloudPilot[]> {
   }
   const res = await Storage.list("pilot", {
     level: "protected",
-    // @ts-ignore  Unclear if this still does anything
+    // @ts-expect-error  Unclear if this still does anything
     cacheControl: "no-cache",
     // Filter out deleted pilots (tagged with "delete" or "s3-remove-flag"), we want "active"
   }).then(result => {

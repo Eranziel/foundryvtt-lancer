@@ -32,7 +32,7 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet<Documen
   constructor(document: LancerItem, options: Partial<DocumentSheetOptions<Item>>) {
     super(document, options);
     if (this.item.is_mech_weapon()) {
-      // @ts-ignore IDK if this even does anything
+      // @ts-expect-error IDK if this even does anything
       // TODO Figure out if this even does anything
       this.options.initial = `profile${this.item.system.selected_profile_index}`;
     }
