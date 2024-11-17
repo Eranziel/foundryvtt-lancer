@@ -881,7 +881,7 @@ export async function migrateLancerConditions() {
   // Migrate settings from the module
   console.log(`${lp} Migrating settings from Lancer Condition Icons`);
   if (game.modules.get("lancer-conditions")?.active) {
-    const iconSettings: StatusIconConfigOptions = {
+    const iconSettings = {
       defaultConditionsStatus: game.settings.get("lancer-conditions", "keepStockIcons"),
       cancerConditionsStatus: game.settings.get("lancer-conditions", "cancerConditionsStatus"),
       cancerNPCTemplates: game.settings.get("lancer-conditions", "cancerNPCTemplates"),
@@ -890,8 +890,8 @@ export async function migrateLancerConditions() {
       hayleyNPC: game.settings.get("lancer-conditions", "hayleyNPC"),
       hayleyUtility: game.settings.get("lancer-conditions", "hayleyUtility"),
       tommyConditionsStatus: game.settings.get("lancer-conditions", "tommyConditionsStatus"),
-    } as any;
-    game.settings.set(game.system.id, LANCER.setting_status_icons, iconSettings as never);
+    };
+    game.settings.set(game.system.id, LANCER.setting_status_icons, iconSettings);
 
     // Disable the module
     const mods = game.settings.get("core", "moduleConfiguration");
