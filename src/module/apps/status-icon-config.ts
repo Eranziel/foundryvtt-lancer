@@ -38,7 +38,7 @@ export class StatusIconConfig extends FormApplication<StatusIconConfigAppOptions
 
   /** @override */
   async _updateObject(_: Event, data: Record<string, unknown>): Promise<void> {
-    await game.settings.set(game.system.id, LANCER.setting_status_icons, data as never);
+    await game.settings.set(game.system.id, LANCER.setting_status_icons, data);
     await LancerActiveEffect.initConfig();
     await LancerActiveEffect.populateFromItems();
   }

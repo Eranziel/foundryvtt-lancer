@@ -63,7 +63,7 @@ export class LancerInitiativeConfigApp extends HandlebarsApplicationMixin(Applic
   }
 
   static async #formHandler(_ev: unknown, _form: unknown, formData: any) {
-    game.settings.set(game.system.id, "combat-tracker-appearance", formData.object as never);
+    game.settings.set(game.system.id, "combat-tracker-appearance", formData.object);
   }
 }
 
@@ -106,5 +106,5 @@ export function extendCombatTrackerConfig(...[app, [html]]: Parameters<Hooks.Ren
 export function onCloseCombatTrackerConfig(...[_app, [html]]: Parameters<Hooks.CloseApplication>) {
   if (!game.user!.isGM) return;
   const sort = html.querySelector<HTMLInputElement>("input[name=combat-tracker-sort]")?.checked;
-  game.settings.set(game.system.id, "combat-tracker-sort", sort as never);
+  game.settings.set(game.system.id, "combat-tracker-sort", sort!);
 }
