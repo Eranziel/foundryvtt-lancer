@@ -33,7 +33,7 @@ export function getInitiativeDisplay(combatant: LancerCombatant) {
 }
 
 function getColorByDispo(d: number) {
-  const app = game.settings.get(game.system.id, "combat-tracker-appearance") as CombatTrackerAppearance;
+  const app = game.settings.get(game.system.id, "combat-tracker-appearance");
   if (d === 2) return app.player_color;
   else if (d === 1) return app.friendly_color;
   else if (d === 0) return app.neutral_color;

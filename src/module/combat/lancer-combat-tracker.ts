@@ -26,7 +26,7 @@ export class LancerCombatTracker extends CombatTracker {
    */
   override async getData(options?: Partial<ApplicationOptions>): Promise<object> {
     const config = CONFIG.LancerInitiative;
-    const appearance = game.settings.get(game.system.id, "combat-tracker-appearance") as CombatTrackerAppearance;
+    const appearance = game.settings.get(game.system.id, "combat-tracker-appearance");
     const data = (await super.getData(options)) as {
       turns: {
         id: string;

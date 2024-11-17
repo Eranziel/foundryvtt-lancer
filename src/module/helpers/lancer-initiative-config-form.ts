@@ -22,7 +22,7 @@ export class LancerInitiativeConfigApp extends HandlebarsApplicationMixin(Applic
   };
 
   async _prepareContext(opts: any): Promise<{}> {
-    const appearance = game.settings.get(game.system.id, "combat-tracker-appearance") as CombatTrackerAppearance;
+    const appearance = game.settings.get(game.system.id, "combat-tracker-appearance");
     const ctx = {
       appearance: opts.reset ? new CombatTrackerAppearance() : appearance,
       fields: appearance.schema.fields,
