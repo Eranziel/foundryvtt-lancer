@@ -176,8 +176,6 @@ async function showDamageHUD(state: FlowState<LancerFlowState.DamageRollData>): 
           crit: hudTarget.quality === HitQuality.Crit,
         };
       });
-    state.data.has_normal_hit = state.data.hit_results.some(hr => hr.hit && !hr.crit);
-    state.data.has_crit_hit = state.data.hit_results.some(hr => hr.crit);
 
     // Add hit results for any targets in HUD data which aren't in hit results already
     for (const t of state.data.damage_hud_data.targets) {
@@ -192,7 +190,8 @@ async function showDamageHUD(state: FlowState<LancerFlowState.DamageRollData>): 
     }
 
     // Update has_normal_hit and has_crit_hit flags
-    state.data.has_normal_hit = state.data.hit_results.some(hr => hr.hit && !hr.crit);
+    state.data.has_normal_hit =
+      state.data.hit_results.length === 0 || state.data.hit_results.some(hr => hr.hit && !hr.crit);
     state.data.has_crit_hit = state.data.hit_results.some(hr => hr.crit);
 
     // Set damage flags from HUD

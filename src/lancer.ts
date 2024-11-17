@@ -688,18 +688,23 @@ async function doMigration() {
   } else if (needsMigrate == "yes" && game.user!.isGM) {
     // Un-hide the welcome message
     await game.settings.set(game.system.id, LANCER.setting_welcome, false);
+    ui.notifications!.info(
+      // @ts-expect-error Packages do include a version string
+      `Starting migration to LANCER version ${game.system.version}. Please be patient and wait until migration completes.`,
+      { permanent: true }
+    );
     await migrations.migrateWorld();
     // Update the stored version number for next migration
-    // @ts-ignore Packages do include a version string
+    // @ts-expect-error Packages do include a version string
     await game.settings.set(game.system.id, LANCER.setting_migration_version, game.system.version);
   } else if (needsMigrate == "yes") {
     ui.notifications!.warn(
-      "Your GM needs to migrate this world. Please do not attempt to play the game while migrations are pending.",
+      "Your GM needs to migrate this world. Please do not attempt to play the game or edit anything until migrations are done.",
       { permanent: true }
     );
   } else if (needsMigrate == "no" && game.user!.isGM) {
     // Update the stored version number for next migration
-    // @ts-ignore Packages do include a version string
+    // @ts-expect-error Packages do include a version string
     await game.settings.set(game.system.id, LANCER.setting_migration_version, game.system.version);
   }
 }

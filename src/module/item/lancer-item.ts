@@ -681,7 +681,7 @@ export class LancerItem extends Item {
       ui.notifications!.error(`Item ${this.id} cannot roll damage as it is not a weapon!`);
       return;
     }
-    const flow = new DamageRollFlow(this);
+    const flow = new DamageRollFlow(this, { title: `${this.name} damage` });
     await flow.begin();
   }
 

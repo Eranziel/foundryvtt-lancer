@@ -82,6 +82,17 @@ deprecated:</p>
   return message;
 }
 
+let toMigrate = 1;
+let migrated = 0;
+/**
+ * Update the progress bar for the migration
+ */
+function migrationProgress(count: number) {
+  migrated += count;
+  const percent = Math.floor((migrated / toMigrate) * 100);
+  SceneNavigation.displayProgressBar({ label: `Migrated ${migrated} of ${toMigrate} documents...`, pct: percent });
+}
+
 /**
  * Some changes aren't neatly handleable via DataModels,
  * such as changes to prototype tokens or flags.
@@ -90,21 +101,24 @@ deprecated:</p>
 export async function migrateWorld() {
   const curr_version = game.settings.get(game.system.id, LANCER.setting_migration_version);
 
+  const journals = await game.packs.get("lancer.lancer_info")?.getDocuments({ name: "LANCER System Information" });
+  if (journals.length) {
+    await journals[0].sheet?.render(true);
+  }
+
   // Migrate from the pre-2.0 compendium structure the combined compendiums
   if (foundry.utils.isNewerVersion("2.0.0", curr_version)) {
-    const journals = await game.packs.get("lancer.lancer_info")?.getDocuments({ name: "LANCER System Information" });
-    if (journals.length) {
-      await journals[0].sheet?.render(true);
-    }
-
     await clearCompendiumData({ v1: true });
     await migrateCompendiumStructure();
   }
   // Update World Compendium Packs, since updates comes with a more up to date version of lancerdata usually
   await updateCore(core_update);
 
+  SceneNavigation.displayProgressBar({ label: `Migration in progress...`, pct: 0 });
   // Clean out old data fields so they don't cause issues
   await commitDataModelMigrations();
+  // The above call seems to clear the progress bar, so show it again...
+  SceneNavigation.displayProgressBar({ label: `Migration in progress...`, pct: 0 });
 
   if (game.settings.get(game.system.id, LANCER.setting_core_data) !== core_update) {
     // Compendium migration failed.
@@ -128,6 +142,28 @@ Please refresh the page to try again.</p>`,
       default: "accept",
     }).render(true);
   }
+
+  function reduceScene(total: number, scene: Scene) {
+    return total + Number(scene.tokens.contents.reduce((t2, token) => (t2 += 1 + token.actor?.items.size), 0) || 0);
+  }
+
+  // TODO: this count isn't accurate, but I'm not sure what is missing.
+  // Gather up the total number of documents needing migration
+  toMigrate = game.items.size;
+  toMigrate += game.actors!.reduce((total, actor) => (total += 1 + actor.items.size), 0);
+  toMigrate += game.scenes!.reduce(reduceScene, 0);
+  for (const pack of game.packs.contents) {
+    if (pack.metadata.packageType !== "world") continue;
+    if (pack.metadata.type === "Item") toMigrate += pack.index.size;
+    else if (pack.metadata.type === "Actor") {
+      await pack.getDocuments();
+      toMigrate += pack.contents.reduce((t2, actor) => (t2 += 1 + actor.items.size), 0);
+    } else if (pack.metadata.type === "Scene") {
+      await pack.getDocuments();
+      toMigrate += pack.contents.reduce(reduceScene, 0);
+    }
+  }
+  console.log(`Migrating ${toMigrate} documents`);
 
   // Migrate compendiums
   for (let p of game.packs.contents) {
@@ -179,17 +215,35 @@ export async function migrateCompendium(pack: Compendium) {
 
   // Iterate over compendium entries - applying fine-tuned migration functions
   if (pack.documentName == "Actor") {
-    let documents = (await pack.getDocuments()) as LancerActor[];
-    let updates = await Promise.all(documents.map(migrateActor));
-    await Actor.updateDocuments(updates, { pack: pack.collection, diff: false, recursive: false, noHook: true });
+    try {
+      let documents = (await pack.getDocuments()) as LancerActor[];
+      let updates = await Promise.all(documents.map(migrateActor));
+      await Actor.updateDocuments(updates, { pack: pack.collection, diff: false, recursive: false, noHook: true });
+    } catch (e) {
+      const packLabel = game.i18n.localize(pack.metadata.label);
+      console.error(`Error while migrating actor compendium ${packLabel}:`, e);
+      ui.notifications?.error(`Error while migrating actor compendium ${packLabel}. Check the console for details.`);
+    }
   } else if (pack.documentName == "Item") {
-    let documents = (await pack.getDocuments()) as LancerItem[];
-    let updates = await Promise.all(documents.map(migrateItem));
-    await Item.updateDocuments(updates, { pack: pack.collection, diff: false, recursive: false, noHook: true });
+    try {
+      let documents = (await pack.getDocuments()) as LancerItem[];
+      let updates = await Promise.all(documents.map(migrateItem));
+      await Item.updateDocuments(updates, { pack: pack.collection, diff: false, recursive: false, noHook: true });
+    } catch (e) {
+      const packLabel = game.i18n.localize(pack.metadata.label);
+      console.error(`Error while migrating item compendium ${packLabel}:`, e);
+      ui.notifications?.error(`Error while migrating item compendium ${packLabel}. Check the console for details.`);
+    }
   } else if (pack.documentName == "Scene") {
-    let documents = (await pack.getDocuments()) as Scene[];
-    let updates = await Promise.all(documents.map(migrateScene));
-    await Scene.updateDocuments(updates, { pack: pack.collection, diff: false, recursive: false, noHook: true });
+    try {
+      let documents = (await pack.getDocuments()) as Scene[];
+      let updates = await Promise.all(documents.map(migrateScene));
+      await Scene.updateDocuments(updates, { pack: pack.collection, diff: false, recursive: false, noHook: true });
+    } catch (e) {
+      const packLabel = game.i18n.localize(pack.metadata.label);
+      console.error(`Error while migrating scene ${packLabel}:`, e);
+      ui.notifications?.error(`Error while migrating scene ${packLabel}. Check the console for details.`);
+    }
   } else {
     // We don't migrate macros or journals
   }
@@ -210,22 +264,29 @@ export async function migrateCompendium(pack: Compendium) {
  * @return The updateData to apply to the provided actor
  */
 export async function migrateActor(actor: LancerActor): Promise<object> {
-  // Scaffold our update data
-  const updateData = {
-    _id: actor.id,
-    // @ts-expect-error
-    system: actor.system.toObject(true), // To commit any datamodel migrations
-  };
+  try {
+    // Scaffold our update data
+    const updateData = {
+      _id: actor.id,
+      // @ts-expect-error
+      system: actor.system.toObject(true), // To commit any datamodel migrations
+    };
 
-  let currVersion = game.settings.get(game.system.id, LANCER.setting_migration_version);
-  if (foundry.utils.isNewerVersion("2.0", currVersion)) {
-    // ...
+    let currVersion = game.settings.get(game.system.id, LANCER.setting_migration_version);
+    if (foundry.utils.isNewerVersion("2.0", currVersion)) {
+      // ...
+    }
+
+    // Migrate Owned Items
+    let itemUpdates = await Promise.all(actor.items.contents.map(migrateItem));
+    await actor.updateEmbeddedDocuments("Item", itemUpdates);
+    migrationProgress(1);
+    return updateData;
+  } catch (e) {
+    console.error(`Error while migrating actor [${actor.id} | ${actor.name}]:`, e);
+    ui.notifications?.error(`Error while migrating actor ${actor.name}. Check the console for details.`);
+    return {};
   }
-
-  // Migrate Owned Items
-  let itemUpdates = await Promise.all(actor.items.contents.map(migrateItem));
-  await actor.updateEmbeddedDocuments("Item", itemUpdates);
-  return updateData;
 }
 
 /**
@@ -235,23 +296,29 @@ export async function migrateActor(actor: LancerActor): Promise<object> {
  * @return The updateData to apply to the provided item
  */
 export async function migrateItem(item: LancerItem): Promise<object> {
-  const updateData = {
-    _id: item.id,
-    // @ts-expect-error
-    system: item.system.toObject(true), // To commit any datamodel migrations
-  };
+  try {
+    const updateData = {
+      _id: item.id,
+      // @ts-expect-error
+      system: item.system.toObject(true), // To commit any datamodel migrations
+    };
 
-  let currVersion = game.settings.get(game.system.id, LANCER.setting_migration_version);
-  if (item.type === "license") {
-    // #687 was a bug until 2.1.1. If the data is from before that, we need to fix it.
-    if (foundry.utils.isNewerVersion("2.1.1", currVersion)) {
-      console.log(`Fixing license lid for ${item.system.key}`);
-      updateData.system.lid = `lic_${item.system.key}`;
+    let currVersion = game.settings.get(game.system.id, LANCER.setting_migration_version);
+    if (item.type === "license") {
+      // #687 was a bug until 2.1.1. If the data is from before that, we need to fix it.
+      if (foundry.utils.isNewerVersion("2.1.1", currVersion)) {
+        console.log(`Fixing license lid for ${item.system.key}`);
+        updateData.system.lid = `lic_${item.system.key}`;
+      }
     }
-  }
 
-  // Return the migrated update data
-  return updateData;
+    migrationProgress(1);
+    // Return the migrated update data
+    return updateData;
+  } catch (e) {
+    console.error(`Error while migrating item ${item.id} ${item.name}:`, e);
+    return {};
+  }
 }
 
 /**
@@ -260,22 +327,33 @@ export async function migrateItem(item: LancerItem): Promise<object> {
  * @param scene  The Scene data to update
  */
 export async function migrateScene(scene: Scene) {
-  for (let token of scene.tokens.contents) {
-    try {
-      // Migrate unlinked token actors
-      if (!token.isLinked && token.actor) {
-        console.log(`Migrating unlinked token actor ${token.actor.name}`);
-        let updateData = await migrateActor(token.actor);
-        await token.actor.update(updateData);
+  try {
+    for (let token of scene.tokens.contents) {
+      try {
+        // Migrate unlinked token actors
+        if (!token.isLinked && token.actor) {
+          console.log(`Migrating unlinked token actor ${token.actor.name}`);
+          let updateData = await migrateActor(token.actor);
+          await token.actor.update(updateData);
+        }
+      } catch (e) {
+        console.error(
+          `Error while migrating unlinked token [${token.id} | ${token.name}] in scene [${scene.id} | ${scene.name}]:`,
+          e
+        );
+        ui.notifications?.error(
+          `Error while migrating unlinked token ${token.name} in scene ${scene.name}. Check the console for details.`
+        );
       }
-    } catch (e) {
-      console.error(`Error while migrating unlinked token ${token.name} in scene ${scene.name}:`, e);
     }
-  }
 
-  // Migrate all token documents
-  let tokenUpdates = await Promise.all(scene.tokens.contents.map(migrateTokenDocument));
-  await scene.updateEmbeddedDocuments("Token", tokenUpdates);
+    // Migrate all token documents
+    let tokenUpdates = await Promise.all(scene.tokens.contents.map(migrateTokenDocument));
+    await scene.updateEmbeddedDocuments("Token", tokenUpdates);
+  } catch (e) {
+    console.error(`Error while migrating scene [${scene.id} | ${scene.name}]:`, e);
+    ui.notifications?.error(`Error while migrating scene ${scene.name}. Check the console for details.`);
+  }
 }
 
 /**
@@ -284,17 +362,22 @@ export async function migrateScene(scene: Scene) {
  * @return The updateData to apply to the provided item
  */
 export async function migrateTokenDocument(token: LancerTokenDocument): Promise<object> {
-  const updateData = {
-    _id: token.id,
-  };
+  try {
+    const updateData = {
+      _id: token.id,
+    };
 
-  let currVersion = game.settings.get(game.system.id, LANCER.setting_migration_version);
-  if (foundry.utils.isNewerVersion("2.0", currVersion)) {
-    // ...
+    let currVersion = game.settings.get(game.system.id, LANCER.setting_migration_version);
+    if (foundry.utils.isNewerVersion("2.0", currVersion)) {
+      // ...
+    }
+
+    // Return update
+    return updateData;
+  } catch (e) {
+    console.error(`Error while migrating token [${token.id} | ${token.name}]:`, e);
+    return {};
   }
-
-  // Return update
-  return updateData;
 }
 
 /**

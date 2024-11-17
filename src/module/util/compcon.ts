@@ -27,7 +27,7 @@ export async function populatePilotCache(): Promise<CachedCloudPilot[]> {
     cacheControl: "no-cache",
     // Filter out deleted pilots (tagged with "delete" or "s3-remove-flag"), we want "active"
   }).then(result => {
-    return result.filter(x => x.key?.endsWith("--active"));
+    return result.results.filter(x => x.key?.endsWith("--active"));
   });
 
   const data = (await Promise.all(res.map(obj => (obj.key ? fetchPilot(obj.key) : null)))).map(
