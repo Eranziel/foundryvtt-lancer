@@ -1,35 +1,34 @@
+import type { ActionType } from "../action";
+import { modAction } from "../action/action-tracker";
+import { InventoryDialog } from "../apps/inventory";
 import { LANCER } from "../config";
+import { LancerActiveEffect } from "../effects/lancer-active-effect";
+import { EntryType } from "../enums";
+import { LancerFlowState } from "../flows/interfaces";
+import { beginItemChatFlow } from "../flows/item";
+import { CollapseHandler, applyCollapseListeners, initializeCollapses } from "../helpers/collapse";
 import { handleGenControls, handlePopoutTextEditor } from "../helpers/commons";
-import { handleDocDropping, LancerFlowDropData, ResolvedDropData } from "../helpers/dragdrop";
-import { handleCounterInteraction, handleInputPlusMinusButtons, handlePowerUsesInteraction } from "../helpers/item";
+import { DroppableFlowType, LancerFlowDropData, ResolvedDropData, handleDocDropping } from "../helpers/dragdrop";
+import { addExportButton } from "../helpers/io";
 import {
+  handleContextMenus,
+  handleCounterInteraction,
+  handleInputPlusMinusButtons,
+  handlePowerUsesInteraction,
+} from "../helpers/item";
+import {
+  handleChargedInteraction,
+  handleLoadedInteraction,
+  handleRefClickOpen,
   handleRefDragging,
   handleRefSlotDropping,
-  handleRefClickOpen,
   handleUsesInteraction,
-  handleLoadedInteraction,
-  handleChargedInteraction,
 } from "../helpers/refs";
-import type { LancerActorSheetData } from "../interfaces";
-import { LancerItem } from "../item/lancer-item";
-import { LancerActor, LancerActorType } from "./lancer-actor";
-import { applyCollapseListeners, CollapseHandler, initializeCollapses } from "../helpers/collapse";
-import { addExportButton } from "../helpers/io";
-import type { ActionType } from "../action";
-import { InventoryDialog } from "../apps/inventory";
-import { handleContextMenus } from "../helpers/item";
-import { getActionTrackerOptions } from "../settings";
-import { modAction } from "../action/action-tracker";
-import { insinuate } from "../util/doc";
-import { PrototypeToken } from "@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/data/data.mjs";
-import { LancerActiveEffect } from "../effects/lancer-active-effect";
-import { LancerFlowState } from "../flows/interfaces";
-import { lookupOwnedDeployables } from "../util/lid";
-import { beginItemChatFlow } from "../flows/item";
-import { DroppableFlowType } from "../helpers/dragdrop";
 import { attachTagTooltips } from "../helpers/tags";
-import { DamageRollFlow } from "../flows/damage";
-import { EntryType } from "../enums";
+import { LancerItem } from "../item/lancer-item";
+import { getActionTrackerOptions } from "../settings";
+import { lookupOwnedDeployables } from "../util/lid";
+import { LancerActor, LancerActorType } from "./lancer-actor";
 const lp = LANCER.log_prefix;
 
 /**
