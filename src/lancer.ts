@@ -47,7 +47,7 @@ tippy.setDefaultProps({ theme: "lancer-small", arrow: false, delay: [400, 200] }
 // tippy.setDefaultProps({ theme: "lancer", arrow: false, delay: [400, 200], hideOnClick: false, trigger: "click"});
 
 // Import node modules
-import { importCC } from "./module/actor/import";
+// import { importCC } from "./module/actor/import";
 import { LancerCombat, LancerCombatant } from "./module/combat/lancer-combat";
 import { LancerCombatTracker } from "./module/combat/lancer-combat-tracker";
 import { LancerActiveEffect } from "./module/effects/lancer-active-effect";
@@ -60,7 +60,7 @@ import { applyCollapseListeners, initializeCollapses } from "./module/helpers/co
 import { handleRenderCombatCarousel } from "./module/helpers/combat-carousel";
 import CompconLoginForm from "./module/helpers/compcon-login-form";
 import { applyGlobalDragListeners } from "./module/helpers/dragdrop";
-import { handleActorExport, validForExport } from "./module/helpers/io";
+// import { handleActorExport, validForExport } from "./module/helpers/io";
 import { extendCombatTrackerConfig, onCloseCombatTrackerConfig } from "./module/helpers/lancer-initiative-config-form";
 import { handleRefClickOpen } from "./module/helpers/refs";
 import { DeployableModel } from "./module/models/actors/deployable";

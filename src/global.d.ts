@@ -1,4 +1,22 @@
 import type { LancerActionManager } from "./module/action/action-manager";
+import type { BondModel } from "./module/models/items/bond";
+import type { CoreBonusModel } from "./module/models/items/core_bonus";
+import type { FrameModel } from "./module/models/items/frame";
+import type { LicenseModel } from "./module/models/items/license";
+import type { MechSystemModel } from "./module/models/items/mech_system";
+import type { MechWeaponModel } from "./module/models/items/mech_weapon";
+import type { NpcClassModel } from "./module/models/items/npc_class";
+import type { NpcFeatureModel } from "./module/models/items/npc_feature";
+import type { NpcTemplateModel } from "./module/models/items/npc_template";
+import type { OrganizationModel } from "./module/models/items/organization";
+import type { PilotArmorModel } from "./module/models/items/pilot_armor";
+import type { PilotGearModel } from "./module/models/items/pilot_gear";
+import type { PilotWeaponModel } from "./module/models/items/pilot_weapon";
+import type { ReserveModel } from "./module/models/items/reserve";
+import type { SkillModel } from "./module/models/items/skill";
+import type { StatusModel } from "./module/models/items/status";
+import type { TalentModel } from "./module/models/items/talent";
+import type { WeaponModModel } from "./module/models/items/weapon_mod";
 import type { AutomationOptions, CombatTrackerAppearance, StatusIconConfigOptions } from "./module/settings";
 import type { TerrainHeightToolsAPI } from "./types/terrain-height-tools";
 
@@ -48,6 +66,30 @@ declare global {
 
   interface CONFIG {
     LancerInitiative: LancerInitiativeConfig<Game["system"]["id"]>;
+  }
+
+  // TODO: Centralize models to a single namespace
+  interface DataModelConfig {
+    Item: {
+      bond: BondModel;
+      core_bonus: CoreBonusModel;
+      frame: FrameModel;
+      license: LicenseModel;
+      mech_system: MechSystemModel;
+      mech_weapon: MechWeaponModel;
+      npc_class: NpcClassModel;
+      npc_feature: NpcFeatureModel;
+      npc_template: NpcTemplateModel;
+      organization: OrganizationModel;
+      pilot_armor: PilotArmorModel;
+      pilot_gear: PilotGearModel;
+      pilot_weapon: PilotWeaponModel;
+      reserve: ReserveModel;
+      skill: SkillModel;
+      status: StatusModel;
+      talent: TalentModel;
+      weapon_mod: WeaponModModel;
+    };
   }
 
   interface SettingConfig {
