@@ -9,7 +9,7 @@ import { beginItemChatFlow } from "../flows/item";
 import { CollapseHandler, applyCollapseListeners, initializeCollapses } from "../helpers/collapse";
 import { handleGenControls, handlePopoutTextEditor } from "../helpers/commons";
 import { DroppableFlowType, LancerFlowDropData, ResolvedDropData, handleDocDropping } from "../helpers/dragdrop";
-import { addExportButton } from "../helpers/io";
+// import { addExportButton } from "../helpers/io";
 import {
   handleContextMenus,
   handleCounterInteraction,
@@ -112,7 +112,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<Acto
     handlePopoutTextEditor(html, this.actor);
 
     // Add export button.
-    addExportButton(this.object, html);
+    // addExportButton(this.object, html);
 
     // Add root dropping
     handleDocDropping(
