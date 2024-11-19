@@ -59,7 +59,6 @@ export const registerSettings = function () {
     hint: "lancer.uiTheme.hint",
     scope: "client",
     config: true,
-    // @ts-expect-error v12
     type: new foundry.data.fields.StringField({
       required: true,
       choices: {
@@ -75,8 +74,8 @@ export const registerSettings = function () {
       initial: "gms",
     }),
     onChange: v => {
-      if (!["gms", "gmsDark", "msmc", "horus", "ha", "ssc", "ipsn", "gal"].includes(v)) applyTheme("gms");
-      applyTheme(v);
+      if (!v || !["gms", "gmsDark", "msmc", "horus", "ha", "ssc", "ipsn", "gal"].includes(v)) applyTheme("gms");
+      else applyTheme(v);
     },
   });
 
@@ -172,7 +171,7 @@ export const registerSettings = function () {
     config: false,
     type: Boolean,
     onChange: v => {
-      CONFIG.LancerInitiative.sort = v as boolean;
+      CONFIG.LancerInitiative.sort = v;
       game.combats?.render();
     },
     default: true,
