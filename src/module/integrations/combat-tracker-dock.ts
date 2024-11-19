@@ -1,6 +1,5 @@
 import type { LancerActor } from "../actor/lancer-actor";
 import type { LancerCombatant } from "../combat/lancer-combat";
-import type { CombatTrackerAppearance } from "../settings";
 // Import our customized CSS
 import "./lancer-combat-tracker-dock.scss";
 
@@ -44,7 +43,7 @@ function getColorByDispo(d: number) {
 interface SystemIcon {
   icon: string;
   fontSize: string;
-  color?: string | null | undefined;
+  color?: Color | string | null | undefined;
   enabled?: boolean;
   visible?: boolean;
   // I legitimately do not know what the type on event is as it's not documented.
@@ -62,7 +61,7 @@ export function getSystemIcons(combatant: LancerCombatant) {
   for (let i = 0; i < (combatant.activations.value ?? 0); ++i) {
     icons.push({
       icon: "cci cci-activate",
-      color: getColorByDispo(combatant.disposition)?.toString(),
+      color: getColorByDispo(combatant.disposition),
       fontSize: "1.5rem",
       visible: true,
       enabled: true,
