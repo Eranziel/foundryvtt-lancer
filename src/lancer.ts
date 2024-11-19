@@ -136,13 +136,9 @@ Hooks.once("init", function () {
   CONFIG.Item.dataModels[EntryType.NPC_TEMPLATE] = NpcTemplateModel;
   CONFIG.Item.dataModels[EntryType.NPC_FEATURE] = NpcFeatureModel;
 
-  // @ts-expect-error
   CONFIG.Actor.dataModels[EntryType.MECH] = MechModel;
-  // @ts-expect-error
   CONFIG.Actor.dataModels[EntryType.PILOT] = PilotModel;
-  // @ts-expect-error
   CONFIG.Actor.dataModels[EntryType.NPC] = NpcModel;
-  // @ts-expect-error
   CONFIG.Actor.dataModels[EntryType.DEPLOYABLE] = DeployableModel;
 
   // Set up trackable resources for the various actor types

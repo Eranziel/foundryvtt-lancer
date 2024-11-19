@@ -14,13 +14,17 @@ import { SynergyField, unpackSynergy } from "../bits/synergy";
 import { TagField, unpackTag } from "../bits/tag";
 import { LancerDataModel, SyncUUIDRefField, UnpackContext } from "../shared";
 
-const fields: any = foundry.data.fields;
+const fields = foundry.data.fields;
 
 const deployable_schema = {
+  // @ts-expect-error
   actions: new fields.ArrayField(new ActionField()),
   // bonuses: new fields.ArrayField(new BonusField()),
+  // @ts-expect-error
   counters: new fields.ArrayField(new CounterField()),
+  // @ts-expect-error
   synergies: new fields.ArrayField(new SynergyField()),
+  // @ts-expect-error
   tags: new fields.ArrayField(new TagField()),
   activation: new fields.StringField({ choices: Object.values(ActivationType), initial: ActivationType.Quick }),
   stats: new fields.SchemaField({
@@ -55,8 +59,7 @@ const deployable_schema = {
 };
 
 type DeployableSchema = typeof deployable_schema;
-// @ts-expect-error LancerDataModel needs to be redone
-export class DeployableModel extends LancerDataModel<"DeployableModel"> {
+export class DeployableModel extends LancerDataModel<DataSchema, Actor> {
   static defineSchema(): DeployableSchema {
     return deployable_schema;
   }
