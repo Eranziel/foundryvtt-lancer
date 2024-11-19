@@ -132,7 +132,6 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
 
       // Update placement (mouse-move)
       handlers.mm = (event: PIXI.FederatedPointerEvent) => {
-        console.log(event.constructor);
         event.stopPropagation();
         let now = Date.now(); // Apply a 20ms throttle
         if (now - moveTime <= 20) return;
