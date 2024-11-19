@@ -4,14 +4,15 @@ import tippy from "tippy.js";
 import { getActionTrackerOptions } from "../settings";
 import { getActions, modAction, toggleAction, _defaultActionData } from "./action-tracker";
 
-// TODO: Properly namespace this flag into the system scope
 declare global {
   interface FlagConfig {
     User: {
-      "action-manager": {
-        pos: {
-          top: number;
-          left: number;
+      lancer: {
+        "action-manager": {
+          pos: {
+            top: number;
+            left: number;
+          };
         };
       };
     };
@@ -155,11 +156,9 @@ export class LancerActionManager extends Application {
   }
 
   private loadUserPos() {
-    // @ts-expect-error Should be fixed with v10 types
-    if (!game.user.getFlag(game.system.id, "action-manager.pos")) return;
+    if (!game.user?.getFlag(game.system.id, "action-manager").pos) return;
 
-    // @ts-expect-error Should be fixed with v10 types
-    const pos: any = game.user.getFlag(game.system.id, "action-manager.pos");
+    const pos = game.user.getFlag(game.system.id, "action-manager").pos;
     const appPos = this.position;
     return new Promise(resolve => {
       function loop() {
@@ -261,7 +260,7 @@ export class LancerActionManager extends Application {
             elmnt.style.left = xPos + "px";
           }
           console.log(`Action Manager | CACHING: ${xPos} || ${yPos}.`);
-          game.user?.update({ flags: { "action-manager": { pos: { top: yPos, left: xPos } } } });
+          game.user?.update({ flags: { lancer: { "action-manager": { pos: { top: yPos, left: xPos } } } } });
           appPos.top = yPos;
           appPos.left = xPos;
         }

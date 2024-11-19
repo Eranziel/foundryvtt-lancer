@@ -161,7 +161,7 @@ export async function importCP(
       let pack = await get_pack(et);
       let folder: Folder | undefined = [EntryType.NPC, EntryType.STATUS].includes(et)
         ? undefined
-        : pack.folders.find(f => f.getFlag(game.system.id, "entrytype" as never) === et) ??
+        : pack.folders.find(f => f.getFlag(game.system.id, "entrytype") === et) ??
           (await Folder.create(
             {
               name: game.i18n.localize(`TYPES.${pack.metadata.type}.${et}`),
@@ -278,4 +278,14 @@ export async function clearCompendiumData(options = { v1: false }) {
   await game.settings.set(game.system.id, LANCER.setting_lcps, new LCPIndex(null));
   await clearAll(options.v1);
   ui.notifications!.info(`LANCER Compendiums cleared.`);
+}
+
+declare global {
+  interface FlagConfig {
+    Folder: {
+      lancer: {
+        entrytype: EntryType;
+      };
+    };
+  }
 }

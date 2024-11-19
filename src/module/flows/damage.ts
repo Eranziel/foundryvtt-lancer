@@ -8,11 +8,10 @@ import { Damage, DamageData } from "../models/bits/damage";
 import { UUIDRef } from "../source-template";
 import { LancerToken, LancerTokenDocument } from "../token";
 import { renderTemplateStep } from "./_render";
-import { AttackFlag } from "./attack";
 import { Flow, FlowState, Step } from "./flow";
 import { LancerFlowState } from "./interfaces";
 
-type DamageFlag = {
+export type DamageFlag = {
   damageResults: LancerFlowState.DamageResultSerialized[];
   critDamageResults: LancerFlowState.DamageResultSerialized[];
   targetDamageResults: LancerFlowState.DamageTargetResultSerialized[];
@@ -631,8 +630,7 @@ export async function rollDamageCallback(event: JQuery.ClickEvent) {
   }
   const chatMessage = game.messages?.get(chatMessageElement.dataset.messageId);
   // Get attack data from the chat message
-  // @ts-expect-error v10 types
-  const attackData = chatMessage?.flags.lancer?.attackData as AttackFlag;
+  const attackData = chatMessage?.flags.lancer?.attackData;
   if (!chatMessage || !attackData) {
     ui.notifications?.error("Damage roll button has no attack data available");
     return;
@@ -712,8 +710,7 @@ export async function applyDamage(event: JQuery.ClickEvent) {
     return;
   }
   const chatMessage = game.messages?.get(chatMessageElement.dataset.messageId);
-  // @ts-expect-error v10 types
-  const damageData = chatMessage?.flags.lancer?.damageData as DamageFlag;
+  const damageData = chatMessage?.flags.lancer?.damageData;
   if (!chatMessage || !damageData) {
     ui.notifications?.error("Damage application button has no damage data available");
     return;
