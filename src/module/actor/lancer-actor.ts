@@ -281,9 +281,10 @@ export class LancerActor extends Actor {
    * We require a customized active effect application workflow
    */
   prepareBaseData() {
+    // TODO: Move these to the datamodels themselves
     // 1. First, finalize our system tasks. Items should be (minimally) prepared by now, so we can resolve embedded items
-    // @ts-expect-error
-    this.system.finalize_tasks();
+    // // @ts-expect-error
+    // this.system.finalize_tasks();
 
     // 2. Initialize our universal derived stat fields
     let sys: SystemTemplates.actor_universal = this.system;
