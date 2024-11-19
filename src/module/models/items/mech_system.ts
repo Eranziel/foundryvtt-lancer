@@ -19,16 +19,16 @@ import {
   template_uses,
 } from "./shared";
 
-const fields: any = foundry.data.fields;
+const fields = foundry.data.fields;
 
-// @ts-expect-error LancerDataModel needs to be redone
-export class MechSystemModel extends LancerDataModel<"MechSystemModel"> {
+export class MechSystemModel extends LancerDataModel<DataSchema, Item> {
   static defineSchema() {
     return {
       effect: new fields.HTMLField(),
       sp: new fields.NumberField({ nullable: false, initial: 0 }),
       description: new fields.HTMLField(),
       type: new fields.StringField(),
+      // @ts-expect-error
       ammo: new fields.ArrayField(new AmmoField()),
       ...template_universal_item(),
       ...template_bascdt(),

@@ -10,10 +10,9 @@ import { unpackTag } from "../bits/tag";
 import { LancerDataModel, UnpackContext } from "../shared";
 import { template_universal_item, template_bascdt, template_uses } from "./shared";
 
-const fields: any = foundry.data.fields;
+const fields = foundry.data.fields;
 
-// @ts-expect-error LancerDataModel needs to be redone
-export class PilotGearModel extends LancerDataModel {
+export class PilotGearModel extends LancerDataModel<DataSchema, Item> {
   static defineSchema() {
     return {
       description: new fields.StringField({ nullable: true }),

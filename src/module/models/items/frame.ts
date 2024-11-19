@@ -13,7 +13,7 @@ import { TagField, unpackTag } from "../bits/tag";
 import { LIDField, LancerDataModel, UnpackContext } from "../shared";
 import { migrateManufacturer, template_licensed, template_universal_item } from "./shared";
 
-const fields: any = foundry.data.fields;
+const fields = foundry.data.fields;
 
 const frame_schema = {
   description: new fields.HTMLField(),
@@ -39,11 +39,15 @@ const frame_schema = {
     new fields.SchemaField({
       name: new fields.StringField(),
       description: new fields.HTMLField(),
+      // @ts-expect-error
       bonuses: new fields.ArrayField(new BonusField()),
+      // @ts-expect-error
       counters: new fields.ArrayField(new CounterField()),
       integrated: new fields.ArrayField(new LIDField()),
       deployables: new fields.ArrayField(new LIDField()),
+      // @ts-expect-error
       actions: new fields.ArrayField(new ActionField()),
+      // @ts-expect-error
       synergies: new fields.ArrayField(new SynergyField()),
       // use: new fields.StringField({ nullable: false, choices: Object.values(FrameEffectUse), initial: FrameEffectUse.Unknown, }),
       use: new fields.StringField({ nullable: true, initial: null }), // ^ Core data does not adhere to this schema
@@ -59,27 +63,34 @@ const frame_schema = {
 
     active_name: new fields.StringField(),
     active_effect: new fields.HTMLField(),
+    // @ts-expect-error
     active_synergies: new fields.ArrayField(new SynergyField()),
+    // @ts-expect-error
     active_bonuses: new fields.ArrayField(new BonusField()),
+    // @ts-expect-error
     active_actions: new fields.ArrayField(new ActionField()),
 
     passive_name: new fields.StringField(),
     passive_effect: new fields.HTMLField(),
+    // @ts-expect-error
     passive_synergies: new fields.ArrayField(new SynergyField()),
+    // @ts-expect-error
     passive_bonuses: new fields.ArrayField(new BonusField()),
+    // @ts-expect-error
     passive_actions: new fields.ArrayField(new ActionField()),
 
     deployables: new fields.ArrayField(new LIDField()),
+    // @ts-expect-error
     counters: new fields.ArrayField(new CounterField()),
     integrated: new fields.ArrayField(new LIDField()),
+    // @ts-expect-error
     tags: new fields.ArrayField(new TagField()),
   }),
   ...template_universal_item(),
   ...template_licensed(),
 };
 
-// @ts-expect-error LancerDataModel needs to be redone
-export class FrameModel extends LancerDataModel<"FrameModel"> {
+export class FrameModel extends LancerDataModel<DataSchema, Item> {
   static defineSchema() {
     return frame_schema;
   }

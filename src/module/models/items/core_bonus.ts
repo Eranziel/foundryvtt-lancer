@@ -10,10 +10,9 @@ import { unpackSynergy } from "../bits/synergy";
 import { LancerDataModel, UnpackContext } from "../shared";
 import { migrateManufacturer, template_bascdt, template_universal_item } from "./shared";
 
-const fields: any = foundry.data.fields;
+const fields = foundry.data.fields;
 
-// @ts-expect-error LancerDataModel needs to be redone
-export class CoreBonusModel extends LancerDataModel<"CoreBonusModel"> {
+export class CoreBonusModel extends LancerDataModel<DataSchema, Item> {
   static defineSchema() {
     return {
       description: new fields.StringField({ nullable: true }),

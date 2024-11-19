@@ -16,15 +16,15 @@ import { TagField, unpackTag } from "../bits/tag";
 import { ControlledLengthArrayField, LancerDataModel, NpcStatBlockField, UnpackContext } from "../shared";
 import { template_destructible, template_universal_item, template_uses } from "./shared";
 
-const fields: any = foundry.data.fields;
+const fields = foundry.data.fields;
 
-// @ts-expect-error LancerDataModel needs to be redone
-export class NpcFeatureModel extends LancerDataModel<"NpcFeatureModel"> {
+export class NpcFeatureModel extends LancerDataModel<DataSchema, Item> {
   static defineSchema() {
     return {
       effect: new fields.HTMLField(),
       bonus: new NpcStatBlockField({ nullable: true }),
       override: new NpcStatBlockField({ nullable: true }),
+      // @ts-expect-error
       tags: new fields.ArrayField(new TagField()),
       type: new fields.StringField({ choices: Object.values(NpcFeatureType), initial: NpcFeatureType.Trait }),
 
@@ -35,7 +35,9 @@ export class NpcFeatureModel extends LancerDataModel<"NpcFeatureModel"> {
 
       // Weapon
       weapon_type: new fields.StringField(),
+      // @ts-expect-error
       damage: new fields.ArrayField(new fields.ArrayField(new DamageField())),
+      // @ts-expect-error
       range: new fields.ArrayField(new RangeField()),
       on_hit: new fields.HTMLField(),
       accuracy: new ControlledLengthArrayField(new fields.NumberField({ integer: true, initial: 0 }), { length: 3 }),

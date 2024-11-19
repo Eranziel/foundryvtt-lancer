@@ -11,10 +11,9 @@ import { unpackSynergy } from "../bits/synergy";
 import { LancerDataModel, UnpackContext } from "../shared";
 import { template_bascdt, template_universal_item } from "./shared";
 
-const fields: any = foundry.data.fields;
+const fields = foundry.data.fields;
 
-// @ts-expect-error LancerDataModel needs to be redone
-export class ReserveModel extends LancerDataModel {
+export class ReserveModel extends LancerDataModel<DataSchema, Item> {
   static defineSchema() {
     return {
       consumable: new fields.BooleanField(),

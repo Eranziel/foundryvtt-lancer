@@ -7,10 +7,9 @@ import { PackedNpcClassData } from "../../util/unpacking/packed-types";
 import { ControlledLengthArrayField, LIDField, LancerDataModel, NpcStatBlockField, UnpackContext } from "../shared";
 import { template_universal_item } from "./shared";
 
-const fields: any = foundry.data.fields;
+const fields = foundry.data.fields;
 
-// @ts-expect-error LancerDataModel needs to be redone
-export class NpcClassModel extends LancerDataModel<"NpcClassModel"> {
+export class NpcClassModel extends LancerDataModel<DataSchema, Item> {
   static defineSchema() {
     return {
       role: new fields.StringField(),
