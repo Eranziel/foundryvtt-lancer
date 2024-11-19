@@ -1,7 +1,8 @@
 <svelte:options accessors={true} />
 
 <script lang="ts">
-  import { type DamageHudWeapon, type DamageHudBase, type DamageHudTarget, HitQuality } from "./index";
+  import { type DamageHudWeapon, type DamageHudBase, type DamageHudTarget } from "./index";
+  import { HitQuality } from "./data";
 
   import { fade } from "svelte/transition";
   import { flip } from "svelte/animate";
