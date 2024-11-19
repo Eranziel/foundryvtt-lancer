@@ -526,7 +526,7 @@ export async function printAttackCard(
 Hooks.on("createChatMessage", async (cm: ChatMessage, options: any, id: string) => {
   // Consume lock-on if we are the primary GM
   if (!game.users?.activeGM?.isSelf) return;
-  const atkData: AttackFlag = cm.getFlag(game.system.id, "attackData") as any;
+  const atkData = cm.getFlag(game.system.id, "attackData");
   if (!atkData || !atkData.targets) return;
   atkData.targets.forEach(target => {
     // Find the target in this scene

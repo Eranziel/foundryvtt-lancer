@@ -1,4 +1,6 @@
 import type { LancerActionManager } from "./module/action/action-manager";
+import type { AttackFlag } from "./module/flows/attack";
+import type { DamageFlag } from "./module/flows/damage";
 import type { DeployableModel } from "./module/models/actors/deployable";
 import type { MechModel } from "./module/models/actors/mech";
 import type { NpcModel } from "./module/models/actors/npc";
@@ -99,6 +101,15 @@ declare global {
       status: StatusModel;
       talent: TalentModel;
       weapon_mod: WeaponModModel;
+    };
+  }
+
+  interface FlagConfig {
+    ChatMessage: {
+      lancer: {
+        attackData?: AttackFlag;
+        damageData?: DamageFlag;
+      };
     };
   }
 
