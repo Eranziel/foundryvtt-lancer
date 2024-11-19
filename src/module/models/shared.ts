@@ -1,4 +1,10 @@
-import type { DeepPartial } from "@league-of-foundry-developers/foundry-vtt-types/src/types/utils.mjs";
+import type { AnyDocument } from "@league-of-foundry-developers/foundry-vtt-types/src/foundry/client/data/abstract/client-document.mjs";
+import type {
+  AnyObject,
+  DeepPartial,
+  EmptyObject,
+  SimpleMerge,
+} from "@league-of-foundry-developers/foundry-vtt-types/src/types/utils.mjs";
 import { LancerActor } from "../actor/lancer-actor";
 import { DamageType, EntryType, RangeType, SystemType, WeaponSize, WeaponType } from "../enums";
 import { formatDotpath } from "../helpers/commons";
@@ -6,28 +12,40 @@ import { LancerItem } from "../item/lancer-item";
 import { FullBoundedNum, SourceData } from "../source-template";
 import { SystemTemplates } from "../system-template";
 import { regRefToId, regRefToLid, regRefToUuid } from "../util/migrations";
+import fields = foundry.data.fields;
 
-const fields: any = foundry.data.fields;
-
-// @ts-expect-error This probably needs a rework. It breaks types
-export class LancerDataModel<T> extends foundry.abstract.TypeDataModel<T> {
+export class LancerDataModel<
+  Schema extends DataSchema,
+  Parent extends AnyDocument,
+  BaseData extends AnyObject = EmptyObject,
+  DerivedData extends AnyObject = EmptyObject
+> extends foundry.abstract.TypeDataModel<Schema, Parent, BaseData, DerivedData> {
   /**
    * Create a full update payload, e.g. to preserve arrays
    * @param update_data the update data to apply
    */
   full_update_data(update_data: object): object {
-    // @ts-expect-error
-    let system = foundry.utils.duplicate(this._source);
+    const system = foundry.utils.duplicate(this._source);
     return fancy_merge_data({ system }, update_data);
   }
 
+  prepareBaseData() {
+    this.finalize_tasks();
+  }
+
+  // These are a workaround for the UUID ref fields
+  // Initialization happens too early
+  // TODO: Evaluate whether this is still needed or if this can be moved to the
+  // initialize method of the field
+
   // A list of tasks to be called to finish up preparations on this model
-  _pre_finalize_tasks!: Array<() => any>;
+  private _pre_finalize_tasks: Array<() => any> | undefined;
 
   /**
    * Add a job to this model to be called pre-finalize
    */
   add_pre_finalize_task(task: () => any) {
+    this._pre_finalize_tasks ??= [];
     this._pre_finalize_tasks.push(task);
   }
 
@@ -35,14 +53,8 @@ export class LancerDataModel<T> extends foundry.abstract.TypeDataModel<T> {
    * Call this in prepare data to finalize our jobs
    */
   finalize_tasks() {
-    this._pre_finalize_tasks.forEach(x => x());
+    this._pre_finalize_tasks?.forEach(x => x());
     this._pre_finalize_tasks = [];
-  }
-
-  // Have to override this to set up our tasks
-  _initialize(...args: any) {
-    this._pre_finalize_tasks = [];
-    super._initialize(...args);
   }
 }
 
@@ -64,24 +76,24 @@ export function fancy_merge_data(full_source_data: any, update_data: any): any {
     k = formatDotpath(k);
 
     // Detect deletes
-    let del = k.startsWith("-=");
+    const del = k.startsWith("-=");
     if (del) {
       k = k.slice(2);
     }
 
     // Detect dots
-    let di = k.indexOf(".");
+    const di = k.indexOf(".");
     if (di != -1) {
       if (del) {
         throw new Error("'-=' in dotpath must go at penultimate pathlet. E.x. 'system.whatever.-=val'");
       }
 
       // Dotpath - go recursive on that key
-      let fore = k.slice(0, di);
-      let aft = k.slice(di + 1);
+      const fore = k.slice(0, di);
+      const aft = k.slice(di + 1);
 
       // Find existing value and branch on its existence
-      let prior = full_source_data[fore];
+      const prior = full_source_data[fore];
       if (prior) {
         // Recursive
         full_source_data[fore] = fancy_merge_data(prior, { [aft]: v });
@@ -115,7 +127,7 @@ export function fancy_merge_data(full_source_data: any, update_data: any): any {
 export class LIDField extends fields.StringField {
   /** @override */
   _cast(value: any) {
-    let rrtl = regRefToLid(value);
+    const rrtl = regRefToLid(value);
     if (rrtl) return rrtl;
     if (value.lid) value = value.lid;
     if (value.system?.lid) value = value.system.lid;
@@ -135,17 +147,24 @@ export class LIDField extends fields.StringField {
   }
 }
 
-export class EmbeddedRefField extends fields.StringField {
+declare namespace EmbeddedRefField {
+  interface Options extends StringFieldOptions {
+    allowed_types?: EntryType[];
+  }
+}
+
+export class EmbeddedRefField extends fields.StringField<
+  EmbeddedRefField.Options,
+  fields.StringField.AssignmentType<EmbeddedRefField.Options>,
+  SystemTemplates.ResolvedEmbeddedRef<any> | null
+> {
   // The acceptable document.type's for this to resolve to. Null is any
   allowed_types: EntryType[] | null;
 
   /**
    * @param {StringFieldOptions} options  Options which configure the behavior of the field
    */
-  constructor(
-    readonly document_type: "Item" | "ActiveEffect",
-    options: { allowed_types?: EntryType[] } & Record<string, any> = {}
-  ) {
+  constructor(readonly document_type: "Item" | "ActiveEffect", options: EmbeddedRefField.Options = {}) {
     super(options);
     this.allowed_types = options.allowed_types ?? null;
   }
@@ -162,7 +181,7 @@ export class EmbeddedRefField extends fields.StringField {
 
   /** @override */
   _cast(value: any) {
-    let rrti = regRefToId(this.document_type, value);
+    const rrti = regRefToId(this.document_type, value);
     if (rrti) return rrti;
     if (value?.id) value = value.id;
     if (value?.value !== undefined) value = value.value;
@@ -171,18 +190,21 @@ export class EmbeddedRefField extends fields.StringField {
   }
 
   /** @inheritdoc */
-  initialize(value: string | null, model: LancerDataModel<any>): null | SystemTemplates.ResolvedEmbeddedRef<any> {
+  initialize(
+    value: fields.StringField.InitializedType<EmbeddedRefField.Options>,
+    model: LancerDataModel<any, any>
+  ): null | SystemTemplates.ResolvedEmbeddedRef<any> {
+    super.initialize;
     if (!value) return null;
 
     // Create shell
-    let shell = {
+    const shell = {
       id: value,
     } as SystemTemplates.ResolvedEmbeddedRef<any>;
 
     // Create job
     model.add_pre_finalize_task(() => {
-      let sub: LancerItem | ActiveEffect | null =
-        // @ts-expect-error
+      const sub: LancerItem | ActiveEffect | null =
         model?.parent?.getEmbeddedDocument(this.document_type, value) ?? null;
       if (!sub) {
         console.log("Failed to resolve embedded ref: ID not found.", model, value);
@@ -211,19 +233,26 @@ export class EmbeddedRefField extends fields.StringField {
   }
 }
 
+declare namespace SyncUUIDRefField {
+  interface Options extends StringFieldOptions {
+    allowed_types?: EntryType[];
+  }
+}
+
 // Similar to the foreignDocumentField, except untyped and supports uuids
 // Supports only sync lookup
-export class SyncUUIDRefField extends fields.StringField {
+export class SyncUUIDRefField extends fields.StringField<
+  SyncUUIDRefField.Options,
+  fields.StringField.AssignmentType<SyncUUIDRefField.Options>,
+  SystemTemplates.ResolvedSyncUuidRef<any> | null
+> {
   // The acceptable document.type's for this to resolve to. Null is any
   allowed_types: string[] | null;
 
   /**
    * @param {StringFieldOptions} options  Options which configure the behavior of the field
    */
-  constructor(
-    readonly document_type: "Actor" | "Item",
-    options: { allowed_types?: EntryType[] } & Record<string, any> = {}
-  ) {
+  constructor(readonly document_type: "Actor" | "Item", options: SyncUUIDRefField.Options = {}) {
     super(options);
     this.allowed_types = options.allowed_types ?? null;
   }
@@ -240,7 +269,7 @@ export class SyncUUIDRefField extends fields.StringField {
 
   /** @override */
   _cast(value: any) {
-    let rrtu = regRefToUuid(this.document_type, value);
+    const rrtu = regRefToUuid(this.document_type, value);
     if (rrtu) return rrtu;
     if (value?.uuid) value = value.uuid;
     if (value?.value !== undefined) value = value.value;
@@ -269,13 +298,13 @@ export class SyncUUIDRefField extends fields.StringField {
     if (!value) return null;
 
     // Create shell
-    let shell = {
+    const shell = {
       id: value,
     } as SystemTemplates.ResolvedSyncUuidRef<any>;
 
     // Create job
     model.add_pre_finalize_task(() => {
-      let syncRes = fromUuidSync(value) as LancerActor | LancerItem;
+      const syncRes = fromUuidSync(value) as LancerActor | LancerItem;
       if (!syncRes) {
         console.error(`Failed to resolve uuid ref: Not found ${value}`, model, value);
         shell.status = "missing";
@@ -304,15 +333,37 @@ export class SyncUUIDRefField extends fields.StringField {
   }
 }
 
+declare namespace FakeBoundedNumberField {
+  interface Options extends NumberFieldOptions {}
+  type DefaultOptions = SimpleMerge<
+    fields.NumberField.DefaultOptions,
+    {
+      integer: true;
+      nullable: false;
+      initial: number;
+    }
+  >;
+  type InitializedType = {
+    min: number;
+    max: number;
+    value: number;
+  };
+}
 // Use this to represent a field that is effectively just a number, but should present as a min/max/value field in expanded `system` data
 // This is 10% so we can show them with bars, and 90% because usually the max is computed and we don't want to confuse anyone
-export class FakeBoundedNumberField extends fields.NumberField {
-  constructor(options: object = {}) {
+export class FakeBoundedNumberField<
+  Options extends FakeBoundedNumberField.Options = FakeBoundedNumberField.DefaultOptions
+> extends fields.NumberField<
+  Options,
+  fields.NumberField.AssignmentType<Options>,
+  FakeBoundedNumberField.InitializedType
+> {
+  constructor(options: Options = {} as any) {
     super(options);
   }
 
   /** @override */
-  initialize(value: number, model: any) {
+  initialize(value: number, _model: any) {
     // Expand to a somewhat reasonable range. `prepareData` functions should handle the rest
     return {
       min: this.options?.min ?? 0,
@@ -330,11 +381,26 @@ export class FakeBoundedNumberField extends fields.NumberField {
   }
 }
 
-export class FullBoundedNumberField extends fields.SchemaField {
-  defaultValue: number = 10;
-  defaultMax: number = 10;
+declare namespace FullBoundedNumberField {
+  interface Options extends fields.SchemaField.Options<Fields> {
+    min?: number;
+    max?: number;
+    initialValue?: number;
+  }
+  interface Fields extends DataSchema {
+    min: fields.NumberField<{}>;
+    max: fields.NumberField<{}>;
+    value: fields.NumberField<{}>;
+  }
+}
+export class FullBoundedNumberField extends fields.SchemaField<
+  FullBoundedNumberField.Fields,
+  FullBoundedNumberField.Options
+> {
+  static defaultValue: number = 10;
+  static defaultMax: number = 10;
 
-  constructor(options: { min?: number; max?: number; initialValue?: number } = {}) {
+  constructor(options: FullBoundedNumberField.Options = {}) {
     super(
       {
         min: new fields.NumberField({ integer: true, nullable: false, initial: options?.min ?? 0 }),
@@ -350,7 +416,7 @@ export class FullBoundedNumberField extends fields.SchemaField {
   }
 
   /** @override */
-  initialize(value: FullBoundedNum, model: any) {
+  initialize(value: FullBoundedNum, _model: any) {
     // Expand to a somewhat reasonable range. `prepareData` functions should handle the rest
     return {
       min: value.min ?? this.options?.min ?? 0,
@@ -384,50 +450,81 @@ export class FullBoundedNumberField extends fields.SchemaField {
   }
 }
 
+declare namespace ChecklistField {
+  type Field<T extends Record<string, string>> = {
+    [K in T[keyof T]]: fields.BooleanField<{ initial: true }>;
+  };
+  interface Options<T extends Record<string, string>> extends fields.SchemaField.Options<Field<T>> {}
+}
 // Schemafields for our type checklists
-export class ChecklistField extends fields.SchemaField {
-  constructor(target_enum: Record<string, string>, options = {}) {
-    let scaffold: Record<string, any> = {};
+export class ChecklistField<List extends Record<string, string>> extends fields.SchemaField<
+  ChecklistField.Field<List>,
+  ChecklistField.Options<List>
+> {
+  constructor(target_enum: List, options: ChecklistField.Options<List> = {}) {
+    const scaffold: ChecklistField.Field<List> = {} as any;
     for (let val of Object.values(target_enum)) {
+      // @ts-expect-error
       scaffold[val] = new fields.BooleanField({ initial: true });
     }
     super(scaffold, options);
   }
 }
 
-export class DamageTypeChecklistField extends ChecklistField {
-  constructor(options = {}) {
+export class DamageTypeChecklistField extends ChecklistField<typeof DamageType> {
+  constructor(options: ChecklistField.Options<typeof DamageType> = {}) {
     super(DamageType, options);
   }
 }
 
-export class RangeTypeChecklistField extends ChecklistField {
-  constructor(options = {}) {
+export class RangeTypeChecklistField extends ChecklistField<typeof RangeType> {
+  constructor(options: ChecklistField.Options<typeof RangeType> = {}) {
     super(RangeType, options);
   }
 }
 
-export class WeaponTypeChecklistField extends ChecklistField {
-  constructor(options = {}) {
+export class WeaponTypeChecklistField extends ChecklistField<typeof WeaponType> {
+  constructor(options: ChecklistField.Options<typeof WeaponType> = {}) {
     super(WeaponType, options);
   }
 }
-export class WeaponSizeChecklistField extends ChecklistField {
-  constructor(options = {}) {
+export class WeaponSizeChecklistField extends ChecklistField<typeof WeaponSize> {
+  constructor(options: ChecklistField.Options<typeof WeaponSize> = {}) {
     super(WeaponSize, options);
   }
 }
 
-export class SystemTypeChecklistField extends ChecklistField {
-  constructor(options = {}) {
+export class SystemTypeChecklistField extends ChecklistField<typeof SystemType> {
+  constructor(options: ChecklistField.Options<typeof SystemType> = {}) {
     super(SystemType, options);
   }
 }
 
+declare namespace NpcStatBlockField {
+  interface Fields extends DataSchema {
+    activations: fields.NumberField<{}>;
+    armor: fields.NumberField<{}>;
+    hp: fields.NumberField<{}>;
+    evasion: fields.NumberField<{}>;
+    edef: fields.NumberField<{}>;
+    heatcap: fields.NumberField<{}>;
+    speed: fields.NumberField<{}>;
+    sensor_range: fields.NumberField<{}>;
+    save: fields.NumberField<{}>;
+    hull: fields.NumberField<{}>;
+    agi: fields.NumberField<{}>;
+    sys: fields.NumberField<{}>;
+    eng: fields.NumberField<{}>;
+    size: fields.NumberField<{}>;
+    structure: fields.NumberField<{}>;
+    stress: fields.NumberField<{}>;
+  }
+  interface Options extends fields.SchemaField.Options<Fields> {}
+}
 /** A single tier of npc stats */
-export class NpcStatBlockField extends fields.SchemaField {
-  constructor(options: { nullable: boolean }) {
-    let nullable = options.nullable;
+export class NpcStatBlockField extends fields.SchemaField<NpcStatBlockField.Fields, NpcStatBlockField.Options> {
+  constructor(options: NpcStatBlockField.Options) {
+    const nullable = options.nullable;
     super(
       {
         activations: new fields.NumberField({ integer: true, nullable, initial: nullable ? null : 1 }),
@@ -452,11 +549,27 @@ export class NpcStatBlockField extends fields.SchemaField {
   }
 }
 
+declare namespace ControlledLengthArrayField {
+  interface Options<ElementType> extends fields.ArrayField.Options<ElementType> {
+    length: number;
+    overflow?: boolean | undefined;
+  }
+}
+
 // Handles an additional "length" option, and mandates that it remain at that length
 // If "overflow" option = truthy, then just forces there to be AT LEAST length
-export class ControlledLengthArrayField extends fields.ArrayField {
+export class ControlledLengthArrayField<
+  ElementField extends fields.DataField.Any,
+  AssignmentElementField = fields.ArrayField.AssignmentElementType<ElementField>,
+  InitializedElementType = fields.ArrayField.InitializedElementType<ElementField>
+> extends fields.ArrayField<
+  ElementField,
+  AssignmentElementField,
+  InitializedElementType,
+  ControlledLengthArrayField.Options<AssignmentElementField>
+> {
   // Constructor demands options
-  constructor(element: any, options: any) {
+  constructor(element: ElementField, options: ControlledLengthArrayField.Options<AssignmentElementField>) {
     super(element, options);
     if (!Number.isInteger(options.length))
       throw new TypeError("ControlledLengthArrayField requires an integer 'length' option!");
@@ -468,7 +581,7 @@ export class ControlledLengthArrayField extends fields.ArrayField {
     if (!Array.isArray(value)) return value; // Give up early
     // Extend or contract as appropriate
     while (value.length < this.options.length) {
-      let new_elt = typeof this.element.initial == "function" ? this.element.initial() : this.element.initial;
+      const new_elt = typeof this.element.initial == "function" ? this.element.initial() : this.element.initial;
       value.push(foundry.utils.duplicate(new_elt));
     }
     if (!this.options.overflow && value.length > this.options.length) value = value.slice(0, this.options.length);
