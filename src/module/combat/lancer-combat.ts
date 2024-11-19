@@ -171,7 +171,7 @@ export class LancerCombatant extends Combatant {
 
   /**
    * The disposition for this combatant. In order, manually specified for this
-   * combatant, token dispostion, token disposition for the associated actor,
+   * combatant, token disposition, token disposition for the associated actor,
    * -2.
    */
   get disposition(): number {
@@ -226,7 +226,7 @@ declare global {
     Combatant: {
       lancer: {
         activations: Activations;
-        disposition: number;
+        disposition?: number;
         tour: string;
       };
     };
