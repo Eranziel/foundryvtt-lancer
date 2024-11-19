@@ -5,10 +5,9 @@ import { PackedSkillData } from "../../util/unpacking/packed-types";
 import { LancerDataModel, UnpackContext } from "../shared";
 import { template_universal_item } from "./shared";
 
-const fields: any = foundry.data.fields;
+const fields = foundry.data.fields;
 
-// @ts-expect-error LancerDataModel needs to be redone
-export class SkillModel extends LancerDataModel {
+export class SkillModel extends LancerDataModel<DataSchema, Item> {
   static defineSchema() {
     return {
       description: new fields.HTMLField(),

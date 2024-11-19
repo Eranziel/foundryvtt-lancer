@@ -6,10 +6,9 @@ import { PackedStatusData } from "../../util/unpacking/packed-types";
 import { LancerDataModel, UnpackContext } from "../shared";
 import { template_universal_item } from "./shared";
 
-const fields: any = foundry.data.fields;
+const fields = foundry.data.fields;
 
-// @ts-expect-error LancerDataModel needs to be redone
-export class StatusModel extends LancerDataModel<"StatusModel"> {
+export class StatusModel extends LancerDataModel<DataSchema, Item> {
   static defineSchema() {
     return {
       effects: new fields.HTMLField(),

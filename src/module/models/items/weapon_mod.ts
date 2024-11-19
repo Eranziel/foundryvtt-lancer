@@ -20,14 +20,16 @@ import {
   template_uses,
 } from "./shared";
 
-const fields: any = foundry.data.fields;
+const fields = foundry.data.fields;
 
-// @ts-expect-error LancerDataModel needs to be redone
-export class WeaponModModel extends LancerDataModel<"WeaponModModel"> {
+export class WeaponModModel extends LancerDataModel<DataSchema, Item> {
   static defineSchema() {
     return {
+      // @ts-expect-error
       added_tags: new fields.ArrayField(new TagField()),
+      // @ts-expect-error
       added_damage: new fields.ArrayField(new DamageField()),
+      // @ts-expect-error
       added_range: new fields.ArrayField(new RangeField()),
       effect: new fields.HTMLField(),
       description: new fields.HTMLField(),
