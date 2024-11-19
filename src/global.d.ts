@@ -1,4 +1,8 @@
 import type { LancerActionManager } from "./module/action/action-manager";
+import type { DeployableModel } from "./module/models/actors/deployable";
+import type { MechModel } from "./module/models/actors/mech";
+import type { NpcModel } from "./module/models/actors/npc";
+import type { PilotModel } from "./module/models/actors/pilot";
 import type { BondModel } from "./module/models/items/bond";
 import type { CoreBonusModel } from "./module/models/items/core_bonus";
 import type { FrameModel } from "./module/models/items/frame";
@@ -70,6 +74,12 @@ declare global {
 
   // TODO: Centralize models to a single namespace
   interface DataModelConfig {
+    Actor: {
+      deployable: DeployableModel;
+      mech: MechModel;
+      npc: NpcModel;
+      pilot: PilotModel;
+    };
     Item: {
       bond: BondModel;
       core_bonus: CoreBonusModel;
@@ -115,7 +125,18 @@ declare global {
     "lancer.statusIconConfig": typeof StatusIconConfigOptions;
     "lancer.systemMigrationVersion": string;
     "lancer.tagConfig": Record<string, unknown>;
-    "lancer.uiTheme": "gms" | "gmsDark" | "msmc" | "horus" | "ha" | "ssc" | "ipsn" | "gal";
+    "lancer.uiTheme": foundry.data.fields.StringField<{
+      choices: {
+        gms: "lancer.uiTheme.gms";
+        gmsDark: "lancer.uiTheme.gmsDark";
+        msmc: "lancer.uiTheme.msmc";
+        horus: "lancer.uiTheme.horus";
+        ha: "lancer.uiTheme.ha";
+        ssc: "lancer.uiTheme.ssc";
+        ipsn: "lancer.uiTheme.ipsn";
+        gal: "lancer.uiTheme.gal";
+      };
+    }>;
     // "lancer.warningFor120": boolean; // Old setting, currently unused.
     // "lancer.warningForBeta": boolean; // Old setting, currently unused.
 

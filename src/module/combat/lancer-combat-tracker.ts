@@ -142,7 +142,8 @@ export class LancerCombatTracker extends CombatTracker {
   }
 }
 
-export function setAppearance(val: CombatTrackerAppearance): void {
+export function setAppearance(val?: CombatTrackerAppearance): void {
+  if (!val) return;
   document.documentElement.style.setProperty("--lancer-initiative-icon-size", `${val.icon_size}rem`);
   document.documentElement.style.setProperty("--lancer-initiative-player-color", val.player_color?.toString() ?? null);
   document.documentElement.style.setProperty(
