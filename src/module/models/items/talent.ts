@@ -10,10 +10,9 @@ import { SynergyField, unpackSynergy } from "../bits/synergy";
 import { LIDField, LancerDataModel, UnpackContext } from "../shared";
 import { template_universal_item } from "./shared";
 
-const fields: any = foundry.data.fields;
+const fields = foundry.data.fields;
 
-// @ts-expect-error LancerDataModel needs to be redone
-export class TalentModel extends LancerDataModel {
+export class TalentModel extends LancerDataModel<DataSchema, Item> {
   static defineSchema() {
     return {
       curr_rank: new fields.NumberField({ nullable: false, initial: 1, min: 1, max: 3 }),
@@ -25,10 +24,14 @@ export class TalentModel extends LancerDataModel {
           name: new fields.StringField(),
           description: new fields.HTMLField(),
           exclusive: new fields.BooleanField({ initial: false }),
+          // @ts-expect-error
           actions: new fields.ArrayField(new ActionField()),
+          // @ts-expect-error
           bonuses: new fields.ArrayField(new BonusField()),
+          // @ts-expect-error
           synergies: new fields.ArrayField(new SynergyField()),
           deployables: new fields.ArrayField(new LIDField()),
+          // @ts-expect-error
           counters: new fields.ArrayField(new CounterField()),
           integrated: new fields.ArrayField(new LIDField()),
         })

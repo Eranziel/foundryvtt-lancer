@@ -20,22 +20,25 @@ import {
   template_uses,
 } from "./shared";
 
-const fields: any = foundry.data.fields;
+const fields = foundry.data.fields;
 
-// @ts-expect-error LancerDataModel needs to be redone
-export class MechWeaponModel extends LancerDataModel<"MechWeaponModel"> {
+export class MechWeaponModel extends LancerDataModel<DataSchema, Item> {
   static defineSchema() {
     return {
       deployables: new fields.ArrayField(new LIDField()),
       integrated: new fields.ArrayField(new LIDField()),
       sp: new fields.NumberField({ nullable: false, initial: 0 }),
+      // @ts-expect-error
       actions: new fields.ArrayField(new ActionField()),
       profiles: new ControlledLengthArrayField(
         new fields.SchemaField({
           name: new fields.StringField({ initial: "Base Profile" }),
           type: new fields.StringField({ choices: Object.values(WeaponType), initial: WeaponType.Rifle }),
+          // @ts-expect-error
           damage: new fields.ArrayField(new DamageField()),
+          // @ts-expect-error
           range: new fields.ArrayField(new RangeField()),
+          // @ts-expect-error
           tags: new fields.ArrayField(new TagField()),
           description: new fields.StringField(),
           effect: new fields.StringField(),
@@ -45,9 +48,13 @@ export class MechWeaponModel extends LancerDataModel<"MechWeaponModel"> {
           cost: new fields.NumberField({ nullable: false, initial: 0 }),
           skirmishable: new fields.BooleanField(),
           barrageable: new fields.BooleanField(),
+          // @ts-expect-error
           actions: new fields.ArrayField(new ActionField()),
+          // @ts-expect-error
           bonuses: new fields.ArrayField(new BonusField()),
+          // @ts-expect-error
           synergies: new fields.ArrayField(new SynergyField()),
+          // @ts-expect-error
           counters: new fields.ArrayField(new CounterField()),
         }),
         { length: 1, overflow: true }

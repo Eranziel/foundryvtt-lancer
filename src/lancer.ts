@@ -117,41 +117,23 @@ Hooks.once("init", function () {
 
   // Add this schema for each document type.
   // game.documentTypes.Item.forEach(type => CONFIG.Item.dataModels[type] = MyItemModel);
-  // @ts-expect-error
   CONFIG.Item.dataModels[EntryType.PILOT_ARMOR] = PilotArmorModel;
-  // @ts-expect-error
   CONFIG.Item.dataModels[EntryType.PILOT_GEAR] = PilotGearModel;
-  // @ts-expect-error
   CONFIG.Item.dataModels[EntryType.PILOT_WEAPON] = PilotWeaponModel;
-  // @ts-expect-error
   CONFIG.Item.dataModels[EntryType.CORE_BONUS] = CoreBonusModel;
-  // @ts-expect-error
   CONFIG.Item.dataModels[EntryType.FRAME] = FrameModel;
-  // @ts-expect-error
   CONFIG.Item.dataModels[EntryType.LICENSE] = LicenseModel;
-  // @ts-expect-error
   CONFIG.Item.dataModels[EntryType.MECH_WEAPON] = MechWeaponModel;
-  // @ts-expect-error
   CONFIG.Item.dataModels[EntryType.MECH_SYSTEM] = MechSystemModel;
-  // @ts-expect-error
   CONFIG.Item.dataModels[EntryType.WEAPON_MOD] = WeaponModModel;
-  // @ts-expect-error
   CONFIG.Item.dataModels[EntryType.RESERVE] = ReserveModel;
-  // @ts-expect-error
   CONFIG.Item.dataModels[EntryType.ORGANIZATION] = OrganizationModel;
-  // @ts-expect-error
   CONFIG.Item.dataModels[EntryType.SKILL] = SkillModel;
-  // @ts-expect-error
   CONFIG.Item.dataModels[EntryType.STATUS] = StatusModel;
-  // @ts-expect-error
   CONFIG.Item.dataModels[EntryType.TALENT] = TalentModel;
-  // @ts-expect-error
   CONFIG.Item.dataModels[EntryType.BOND] = BondModel;
-  // @ts-expect-error
   CONFIG.Item.dataModels[EntryType.NPC_CLASS] = NpcClassModel;
-  // @ts-expect-error
   CONFIG.Item.dataModels[EntryType.NPC_TEMPLATE] = NpcTemplateModel;
-  // @ts-expect-error
   CONFIG.Item.dataModels[EntryType.NPC_FEATURE] = NpcFeatureModel;
 
   // @ts-expect-error
