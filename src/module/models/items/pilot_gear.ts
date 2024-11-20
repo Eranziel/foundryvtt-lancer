@@ -12,14 +12,20 @@ import { template_universal_item, template_bascdt, template_uses } from "./share
 
 const fields = foundry.data.fields;
 
-export class PilotGearModel extends LancerDataModel<DataSchema, Item> {
+function pilot_gear_schema() {
+  return {
+    description: new fields.StringField({ nullable: true }),
+    ...template_universal_item(),
+    ...template_uses(),
+    ...template_bascdt(),
+  };
+}
+
+type PilotGearSchema = ReturnType<typeof pilot_gear_schema> & DataSchema;
+
+export class PilotGearModel extends LancerDataModel<PilotGearSchema, Item> {
   static defineSchema() {
-    return {
-      description: new fields.StringField({ nullable: true }),
-      ...template_universal_item(),
-      ...template_uses(),
-      ...template_bascdt(),
-    };
+    return pilot_gear_schema();
   }
 }
 

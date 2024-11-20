@@ -4,7 +4,7 @@ import { LIDField } from "../shared";
 import { DamageData, DamageField, unpackDamage } from "./damage";
 import { RangeData, RangeField, unpackRange } from "./range";
 
-const fields: any = foundry.data.fields;
+import fields = foundry.data.fields;
 
 // Lightly trimmed
 export interface ActionData {
@@ -86,8 +86,34 @@ class FrequencyField extends fields.StringField {
   }
 }
 
+export interface ActionFieldSchema extends DataSchema {
+  lid: LIDField;
+  name: fields.StringField;
+  activation: fields.StringField<{ choices: string[] }>;
+  cost: fields.NumberField<{ min: 0; integer: true; nullable: false }>;
+  frequency: FrequencyField;
+  init: fields.HTMLField;
+  trigger: fields.HTMLField;
+  terse: fields.HTMLField;
+  detail: fields.HTMLField;
+  pilot: fields.BooleanField;
+  mech: fields.BooleanField;
+  tech_attack: fields.BooleanField;
+  // confirm:  fields.StringField;
+  // available_mounted:  fields.BooleanField;
+  heat_cost: fields.NumberField<{ min: 0; integer: true; nullable: false }>;
+  // TODO: synergy_locations: make em more fancy or somethin
+  synergy_locations: fields.ArrayField<fields.StringField>;
+  damage: fields.ArrayField<DamageField>;
+  range: fields.ArrayField<RangeField>;
+  // ignore_used?
+  // log:  fields.StringField;
+}
+
+type Options = fields.SchemaField.Options<ActionFieldSchema>;
+
 // Action field is frequent, but not exactly deserving of a custom class like damage or range. It still needs a custom field (frequency)
-export class ActionField extends fields.SchemaField {
+export class ActionField extends fields.SchemaField<ActionFieldSchema, Options> {
   constructor(options = {}) {
     super(
       {

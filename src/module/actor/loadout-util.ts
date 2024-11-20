@@ -40,7 +40,7 @@ export class LoadoutHelper {
   // For mechs this is everthing in system.loadout, IE: Mech weapons, Mech Systems, Frame
   listLoadout(): Array<LancerItem> {
     let result = [] as LancerItem[];
-    let it = this.actor.itemTypes;
+    let it = this.actor.itemTypes as any;
     if (this.actor.is_mech()) {
       if (this.actor.system.loadout.frame?.status == "resolved") result.push(this.actor.system.loadout.frame.value);
       // Do all of the weapons/systems/mods on our loadout
@@ -375,6 +375,7 @@ export class LoadoutHelper {
 
       // If frame has an integrated weapon, insert that (or those) as our first weapon(s)
       for (let integrated_lid of frame.system.core_system.integrated) {
+        // @ts-ignore
         let corr_item = this.actor.items.find(x => x.system.lid == integrated_lid);
         if (corr_item && corr_item.is_mech_weapon()) {
           newMounts.push({

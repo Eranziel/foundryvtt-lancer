@@ -2,7 +2,7 @@ import { LANCER } from "../../config";
 import { PackedTagData, PackedTagTemplateData } from "../../util/unpacking/packed-types";
 import { LIDField } from "../shared";
 
-const fields: any = foundry.data.fields;
+import fields = foundry.data.fields;
 
 // Stored on items
 export interface TagData {
@@ -185,9 +185,16 @@ export class Tag implements Readonly<TagData> {
   }
 }
 
+interface TagFieldSchema extends DataSchema {
+  lid: LIDField;
+  val: fields.StringField<{ nullable: false }>;
+}
+
+type Options = fields.SchemaField.Options<TagFieldSchema>;
+
 // Tag fields populate fuller metadata from the settings (or something? It's tbd), in spite of the field itself just being an lid value pair
-export class TagField extends fields.SchemaField {
-  constructor(options = {}) {
+export class TagField extends fields.SchemaField<TagFieldSchema, Options> {
+  constructor(options: Options = {}) {
     super(
       {
         lid: new LIDField(),

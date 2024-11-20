@@ -7,16 +7,22 @@ import { template_universal_item } from "./shared";
 
 const fields = foundry.data.fields;
 
-export class OrganizationModel extends LancerDataModel<DataSchema, Item> {
+function organization_schema() {
+  return {
+    description: new fields.HTMLField(),
+    actions: new fields.StringField(),
+    efficiency: new fields.NumberField({ integer: true, initial: 0, minimum: 0, maximum: 6 }),
+    influence: new fields.NumberField({ integer: true, initial: 0, minimum: 0, maximum: 6 }),
+    purpose: new fields.StringField({ initial: OrgType.Military }),
+    ...template_universal_item(),
+  };
+}
+
+type OrganizationSchema = ReturnType<typeof organization_schema> & DataSchema;
+
+export class OrganizationModel extends LancerDataModel<OrganizationSchema, Item> {
   static defineSchema() {
-    return {
-      description: new fields.HTMLField(),
-      actions: new fields.StringField(),
-      efficiency: new fields.NumberField({ integer: true, initial: 0, minimum: 0, maximum: 6 }),
-      influence: new fields.NumberField({ integer: true, initial: 0, minimum: 0, maximum: 6 }),
-      purpose: new fields.StringField({ initial: OrgType.Military }),
-      ...template_universal_item(),
-    };
+    return organization_schema();
   }
 }
 

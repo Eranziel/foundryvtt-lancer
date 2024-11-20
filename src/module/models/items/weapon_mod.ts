@@ -22,26 +22,29 @@ import {
 
 const fields = foundry.data.fields;
 
-export class WeaponModModel extends LancerDataModel<DataSchema, Item> {
+function weapon_mod_schema() {
+  return {
+    added_tags: new fields.ArrayField(new TagField()),
+    added_damage: new fields.ArrayField(new DamageField()),
+    added_range: new fields.ArrayField(new RangeField()),
+    effect: new fields.HTMLField(),
+    description: new fields.HTMLField(),
+    sp: new fields.NumberField({ nullable: false, initial: 0 }),
+    allowed_types: new WeaponTypeChecklistField(),
+    allowed_sizes: new WeaponSizeChecklistField(),
+    ...template_universal_item(),
+    ...template_bascdt(),
+    ...template_destructible(),
+    ...template_licensed(),
+    ...template_uses(),
+  };
+}
+
+type WeaponModSchema = ReturnType<typeof weapon_mod_schema> & DataSchema;
+
+export class WeaponModModel extends LancerDataModel<WeaponModSchema, Item> {
   static defineSchema() {
-    return {
-      // @ts-expect-error
-      added_tags: new fields.ArrayField(new TagField()),
-      // @ts-expect-error
-      added_damage: new fields.ArrayField(new DamageField()),
-      // @ts-expect-error
-      added_range: new fields.ArrayField(new RangeField()),
-      effect: new fields.HTMLField(),
-      description: new fields.HTMLField(),
-      sp: new fields.NumberField({ nullable: false, initial: 0 }),
-      allowed_types: new WeaponTypeChecklistField(),
-      allowed_sizes: new WeaponSizeChecklistField(),
-      ...template_universal_item(),
-      ...template_bascdt(),
-      ...template_destructible(),
-      ...template_licensed(),
-      ...template_uses(),
-    };
+    return weapon_mod_schema();
   }
 
   static migrateData(data: any) {

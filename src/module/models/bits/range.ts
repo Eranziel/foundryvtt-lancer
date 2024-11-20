@@ -1,10 +1,8 @@
-import { LancerMECH } from "../../actor/lancer-actor";
 import { RangeType, RangeTypeChecklist } from "../../enums";
 import { restrict_enum } from "../../helpers/commons";
-import { LancerMECH_WEAPON, LancerWEAPON_MOD } from "../../item/lancer-item";
 import { PackedRangeData } from "../../util/unpacking/packed-types";
 
-const fields: any = foundry.data.fields;
+import fields = foundry.data.fields;
 
 // Clone of RegRangeData
 export interface RangeData {
@@ -101,9 +99,16 @@ export class Range implements Required<RangeData> {
   }
 }
 
+interface RangeFieldSchema extends DataSchema {
+  type: fields.StringField<{ choices: string[] }>;
+  val: fields.NumberField<{ min: 0; integer: true; initial: 1; nullable: false }>;
+}
+
+type Options = fields.SchemaField.Options<RangeFieldSchema>;
+
 // Maps RangeData to a Range class
-export class RangeField extends fields.SchemaField {
-  constructor(options = {}) {
+export class RangeField extends fields.SchemaField<RangeFieldSchema, Options> {
+  constructor(options: Options = {}) {
     super(
       {
         type: new fields.StringField({ choices: Object.values(RangeType), initial: RangeType.Range }),

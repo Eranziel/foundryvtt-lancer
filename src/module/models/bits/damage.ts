@@ -2,7 +2,7 @@ import { DamageType, DamageTypeChecklist } from "../../enums";
 import { restrict_enum } from "../../helpers/commons";
 import { PackedDamageData } from "../../util/unpacking/packed-types";
 
-const fields: any = foundry.data.fields;
+import fields = foundry.data.fields;
 
 // Clone of RegDamageData
 export interface DamageData {
@@ -126,9 +126,16 @@ export class Damage implements Readonly<DamageData> {
   }
 }
 
+export interface DamageFieldSchema extends DataSchema {
+  type: fields.StringField<{ choices: string[] }>;
+  val: fields.StringField<{ initial: "1d6"; nullable: false; required: true; trim: true }>;
+}
+
+type Options = fields.SchemaField.Options<DamageFieldSchema>;
+
 // Maps DamageData to a damage class
-export class DamageField extends fields.SchemaField {
-  constructor(options = {}) {
+export class DamageField extends fields.SchemaField<DamageFieldSchema, Options> {
+  constructor(options: Options = {}) {
     super(
       {
         type: new fields.StringField({ choices: Object.values(DamageType), initial: DamageType.Kinetic }),

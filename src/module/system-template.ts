@@ -19,6 +19,7 @@ import {
   LancerBOND,
   LancerCORE_BONUS,
   LancerFRAME,
+  LancerItem,
   LancerMECH_SYSTEM,
   LancerMECH_WEAPON,
   LancerNPC_CLASS,
@@ -64,6 +65,7 @@ export namespace SystemTemplates {
 
   // And, here are the ones where we ended up modifying them!
   export type actor_universal = {
+    [key: string]: unknown;
     // These are exactly the same
     lid: string;
     burn: number;
@@ -508,7 +510,7 @@ export namespace SystemData {
     player_name: string;
     status: string;
     text_appearance: string;
-    bond: LancerBOND | null;
+    bond: (LancerItem & { system: DataModelConfig["Item"][EntryType.BOND] }) | null;
     bond_state: {
       xp: FullBoundedNum;
       stress: FullBoundedNum;

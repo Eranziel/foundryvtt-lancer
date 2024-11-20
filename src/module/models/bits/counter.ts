@@ -1,7 +1,7 @@
 import { PackedCounterData } from "../../util/unpacking/packed-types";
 import { LIDField } from "../shared";
 
-const fields: any = foundry.data.fields;
+import fields = foundry.data.fields;
 
 export interface CounterData {
   lid: string;
@@ -12,9 +12,20 @@ export interface CounterData {
   value: number;
 }
 
+export interface CounterFieldFields extends DataSchema {
+  lid: LIDField;
+  name: fields.StringField;
+  min: fields.NumberField<{ integer: true; nullable: false; initial: 0 }>;
+  max: fields.NumberField<{ integer: true; nullable: true; initial: 6 }>;
+  default_value: fields.NumberField<{ integer: true; nullable: false; initial: 0 }>;
+  value: fields.NumberField<{ integer: true; nullable: false; initial: 0 }>;
+}
+
+type Options = fields.SchemaField.Options<CounterFieldFields>;
+
 // A single <type, value> pairing for damage. mimics RegCounterData
-export class CounterField extends fields.SchemaField {
-  constructor(options = {}) {
+export class CounterField extends fields.SchemaField<CounterFieldFields, Options, CounterData> {
+  constructor(options: Options = {}) {
     super(
       {
         lid: new LIDField(),
@@ -28,10 +39,10 @@ export class CounterField extends fields.SchemaField {
     );
   }
 
-  static migrateData(value: any) {
-    value.value = value.value ?? value.val;
-    super.migrateData(value);
-  }
+  // static migrateData(value: any) {
+  //   value.value ??= value.val;
+  //   super.migrateData(value);
+  // }
 
   static bound_val(value: CounterData, sub_val: number) {
     sub_val = Math.round(sub_val);
@@ -41,9 +52,9 @@ export class CounterField extends fields.SchemaField {
   }
 
   /** @inheritdoc */
-  clean(value: CounterData, data: any, options: any) {
-    // Attempt to move our .val back in bounds
-    value = super.clean(value, data, options);
+  clean(value: CounterData, options: any) {
+    // @ts-expect-error Attempt to move our .val back in bounds
+    value = super.clean(value, options);
     value.value = CounterField.bound_val(value, value.value || 0);
     value.default_value = CounterField.bound_val(value, value.default_value || 0);
     return value;

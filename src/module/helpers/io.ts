@@ -330,7 +330,6 @@ function handlePilotExport(actor: LegacyLancerActor) {
       {
         id: nanoid(),
         name: mech.name,
-        // @ts-expect-error
         frame: frame ? frame.system.id : undefined,
         active: true,
         current_structure: mech.structure.value,

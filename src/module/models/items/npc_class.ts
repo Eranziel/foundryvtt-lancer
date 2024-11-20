@@ -9,17 +9,23 @@ import { template_universal_item } from "./shared";
 
 const fields = foundry.data.fields;
 
-export class NpcClassModel extends LancerDataModel<DataSchema, Item> {
+function npc_class_schema() {
+  return {
+    role: new fields.StringField(),
+    flavor: new fields.HTMLField(),
+    tactics: new fields.HTMLField(),
+    base_features: new fields.SetField(new LIDField()),
+    optional_features: new fields.SetField(new LIDField()),
+    base_stats: new ControlledLengthArrayField(new NpcStatBlockField({ nullable: false }), { length: 3 }),
+    ...template_universal_item(),
+  };
+}
+
+type NpcClassSchema = ReturnType<typeof npc_class_schema> & DataSchema;
+
+export class NpcClassModel extends LancerDataModel<NpcClassSchema, Item> {
   static defineSchema() {
-    return {
-      role: new fields.StringField(),
-      flavor: new fields.HTMLField(),
-      tactics: new fields.HTMLField(),
-      base_features: new fields.SetField(new LIDField()),
-      optional_features: new fields.SetField(new LIDField()),
-      base_stats: new ControlledLengthArrayField(new NpcStatBlockField({ nullable: false }), { length: 3 }),
-      ...template_universal_item(),
-    };
+    return npc_class_schema();
   }
 
   static migrateData(data: any) {

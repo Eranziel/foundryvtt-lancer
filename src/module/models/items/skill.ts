@@ -7,14 +7,20 @@ import { template_universal_item } from "./shared";
 
 const fields = foundry.data.fields;
 
-export class SkillModel extends LancerDataModel<DataSchema, Item> {
+function skill_schema() {
+  return {
+    description: new fields.HTMLField(),
+    detail: new fields.StringField(),
+    curr_rank: new fields.NumberField({ nullable: false, initial: 1, min: 1, max: 3 }),
+    ...template_universal_item(),
+  };
+}
+
+type SkillSchema = ReturnType<typeof skill_schema> & DataSchema;
+
+export class SkillModel extends LancerDataModel<SkillSchema, Item> {
   static defineSchema() {
-    return {
-      description: new fields.HTMLField(),
-      detail: new fields.StringField(),
-      curr_rank: new fields.NumberField({ nullable: false, initial: 1, min: 1, max: 3 }),
-      ...template_universal_item(),
-    };
+    return skill_schema();
   }
 
   static migrateData(data: any) {

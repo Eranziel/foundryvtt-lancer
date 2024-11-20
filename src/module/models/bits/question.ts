@@ -7,13 +7,7 @@ export interface BondQuestionData {
 
 export class BondQuestionField extends fields.SchemaField {
   constructor(options = {}) {
-    super(
-      {
-        question: new fields.StringField({ nullable: false }),
-        options: new fields.ArrayField(new fields.StringField({ nullable: false })),
-      },
-      options
-    );
+    super({}, options);
   }
 }
 

@@ -16,52 +16,51 @@ import { LancerDataModel, SyncUUIDRefField, UnpackContext } from "../shared";
 
 const fields = foundry.data.fields;
 
-const deployable_schema = {
-  // @ts-expect-error
-  actions: new fields.ArrayField(new ActionField()),
-  // bonuses: new fields.ArrayField(new BonusField()),
-  // @ts-expect-error
-  counters: new fields.ArrayField(new CounterField()),
-  // @ts-expect-error
-  synergies: new fields.ArrayField(new SynergyField()),
-  // @ts-expect-error
-  tags: new fields.ArrayField(new TagField()),
-  activation: new fields.StringField({ choices: Object.values(ActivationType), initial: ActivationType.Quick }),
-  stats: new fields.SchemaField({
-    armor: new fields.NumberField({ min: 0, integer: true, nullable: false, initial: 0 }),
-    edef: new fields.NumberField({ min: 0, integer: true, nullable: false, initial: 10 }),
-    evasion: new fields.NumberField({ min: 0, integer: true, nullable: false, initial: 10 }),
-    heatcap: new fields.NumberField({ min: 0, integer: true, nullable: false, initial: 0 }),
-    hp: new fields.StringField({ initial: "5" }),
-    save: new fields.NumberField({ min: 0, integer: true, nullable: false, initial: 10 }),
-    size: new fields.NumberField({ min: 0.5, integer: false, nullable: false, initial: 0.5 }),
-    speed: new fields.NumberField({ min: 0, integer: true, nullable: false, initial: 0 }),
-  }),
-  cost: new fields.NumberField({ min: 0, integer: true, nullable: false, initial: 1 }),
-  instances: new fields.NumberField({ min: 1, integer: true, nullable: false, initial: 1 }),
-  deactivation: new fields.StringField({ choices: Object.values(ActivationType), initial: null, nullable: true }),
-  detail: new fields.HTMLField(),
-  recall: new fields.StringField({ choices: Object.values(ActivationType), initial: null, nullable: true }),
-  redeploy: new fields.StringField({ choices: Object.values(ActivationType), initial: null, nullable: true }),
+function deployable_schema() {
+  return {
+    actions: new fields.ArrayField(new ActionField()),
+    // bonuses: new fields.ArrayField(new BonusField()),
+    counters: new fields.ArrayField(new CounterField()),
+    synergies: new fields.ArrayField(new SynergyField()),
+    tags: new fields.ArrayField(new TagField()),
+    activation: new fields.StringField({ choices: Object.values(ActivationType), initial: ActivationType.Quick }),
+    stats: new fields.SchemaField({
+      armor: new fields.NumberField({ min: 0, integer: true, nullable: false, initial: 0 }),
+      edef: new fields.NumberField({ min: 0, integer: true, nullable: false, initial: 10 }),
+      evasion: new fields.NumberField({ min: 0, integer: true, nullable: false, initial: 10 }),
+      heatcap: new fields.NumberField({ min: 0, integer: true, nullable: false, initial: 0 }),
+      hp: new fields.StringField({ initial: "5" }),
+      save: new fields.NumberField({ min: 0, integer: true, nullable: false, initial: 10 }),
+      size: new fields.NumberField({ min: 0.5, integer: false, nullable: false, initial: 0.5 }),
+      speed: new fields.NumberField({ min: 0, integer: true, nullable: false, initial: 0 }),
+    }),
+    cost: new fields.NumberField({ min: 0, integer: true, nullable: false, initial: 1 }),
+    instances: new fields.NumberField({ min: 1, integer: true, nullable: false, initial: 1 }),
+    deactivation: new fields.StringField({ choices: Object.values(ActivationType), initial: null, nullable: true }),
+    detail: new fields.HTMLField(),
+    recall: new fields.StringField({ choices: Object.values(ActivationType), initial: null, nullable: true }),
+    redeploy: new fields.StringField({ choices: Object.values(ActivationType), initial: null, nullable: true }),
 
-  type: new fields.StringField({ choices: Object.values(DeployableType), initial: DeployableType.Deployable }),
-  avail_mounted: new fields.BooleanField({ initial: true }),
-  avail_unmounted: new fields.BooleanField({ initial: false }),
-  deployer: new SyncUUIDRefField("Actor", { allowed_types: [EntryType.MECH, EntryType.PILOT, EntryType.NPC] }),
-  owner: new SyncUUIDRefField("Actor", { allowed_types: [EntryType.MECH, EntryType.PILOT, EntryType.NPC] }),
-  // destroyed: new fields.BooleanField({ initial: false }),
-  // notes: new fields.HTMLField(),
+    type: new fields.StringField({ choices: Object.values(DeployableType), initial: DeployableType.Deployable }),
+    avail_mounted: new fields.BooleanField({ initial: true }),
+    avail_unmounted: new fields.BooleanField({ initial: false }),
+    deployer: new SyncUUIDRefField("Actor", { allowed_types: [EntryType.MECH, EntryType.PILOT, EntryType.NPC] }),
+    owner: new SyncUUIDRefField("Actor", { allowed_types: [EntryType.MECH, EntryType.PILOT, EntryType.NPC] }),
+    // destroyed: new fields.BooleanField({ initial: false }),
+    // notes: new fields.HTMLField(),
 
-  // destroyed: new fields.BooleanField({ initial: false }),
-  ...template_universal_actor(),
-  ...template_heat(),
-  ...template_statuses(),
-};
+    // destroyed: new fields.BooleanField({ initial: false }),
+    ...template_universal_actor(),
+    ...template_heat(),
+    ...template_statuses(),
+  };
+}
 
-type DeployableSchema = typeof deployable_schema;
-export class DeployableModel extends LancerDataModel<DataSchema, Actor> {
-  static defineSchema(): DeployableSchema {
-    return deployable_schema;
+type DeployableSchema = ReturnType<typeof deployable_schema> & DataSchema;
+
+export class DeployableModel extends LancerDataModel<DeployableSchema, Actor> {
+  static defineSchema() {
+    return deployable_schema();
   }
 
   static migrateData(data: any) {

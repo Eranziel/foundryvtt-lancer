@@ -18,56 +18,59 @@ import { template_destructible, template_universal_item, template_uses } from ".
 
 const fields = foundry.data.fields;
 
-export class NpcFeatureModel extends LancerDataModel<DataSchema, Item> {
+function npc_feature_schema() {
+  return {
+    effect: new fields.HTMLField(),
+    bonus: new NpcStatBlockField({ nullable: true }),
+    override: new NpcStatBlockField({ nullable: true }),
+    tags: new fields.ArrayField(new TagField()),
+    type: new fields.StringField({ choices: Object.values(NpcFeatureType), initial: NpcFeatureType.Trait }),
+
+    charged: new fields.BooleanField(),
+    loaded: new fields.BooleanField(),
+
+    tier_override: new fields.NumberField({ integer: true, min: 0, max: 3 }),
+
+    // Weapon
+    weapon_type: new fields.StringField(),
+    damage: new fields.ArrayField(new fields.ArrayField(new DamageField())),
+    range: new fields.ArrayField(new RangeField()),
+    on_hit: new fields.HTMLField(),
+    accuracy: new ControlledLengthArrayField(new fields.NumberField({ integer: true, initial: 0 }), { length: 3 }),
+    attack_bonus: new ControlledLengthArrayField(new fields.NumberField({ integer: true, initial: 0 }), {
+      length: 3,
+    }),
+
+    // Trait - N/A
+
+    // Reaction
+    trigger: new fields.StringField(),
+
+    // System - N/A
+
+    // Tech - mostly covered by weapon
+    tech_type: new fields.StringField({ choices: Object.values(NpcTechType), initial: NpcTechType.Quick }),
+    tech_attack: new fields.BooleanField({ nullable: true, initial: null }),
+
+    // Origin data - track where it came from
+    origin: new fields.SchemaField({
+      type: new fields.StringField(),
+      name: new fields.StringField(),
+      base: new fields.BooleanField(),
+    }),
+
+    // Templates
+    ...template_destructible(),
+    ...template_uses(),
+    ...template_universal_item(),
+  };
+}
+
+type NpcFeatureSchema = ReturnType<typeof npc_feature_schema> & DataSchema;
+
+export class NpcFeatureModel extends LancerDataModel<NpcFeatureSchema, Item> {
   static defineSchema() {
-    return {
-      effect: new fields.HTMLField(),
-      bonus: new NpcStatBlockField({ nullable: true }),
-      override: new NpcStatBlockField({ nullable: true }),
-      // @ts-expect-error
-      tags: new fields.ArrayField(new TagField()),
-      type: new fields.StringField({ choices: Object.values(NpcFeatureType), initial: NpcFeatureType.Trait }),
-
-      charged: new fields.BooleanField(),
-      loaded: new fields.BooleanField(),
-
-      tier_override: new fields.NumberField({ integer: true, min: 0, max: 3 }),
-
-      // Weapon
-      weapon_type: new fields.StringField(),
-      // @ts-expect-error
-      damage: new fields.ArrayField(new fields.ArrayField(new DamageField())),
-      // @ts-expect-error
-      range: new fields.ArrayField(new RangeField()),
-      on_hit: new fields.HTMLField(),
-      accuracy: new ControlledLengthArrayField(new fields.NumberField({ integer: true, initial: 0 }), { length: 3 }),
-      attack_bonus: new ControlledLengthArrayField(new fields.NumberField({ integer: true, initial: 0 }), {
-        length: 3,
-      }),
-
-      // Trait - N/A
-
-      // Reaction
-      trigger: new fields.StringField(),
-
-      // System - N/A
-
-      // Tech - mostly covered by weapon
-      tech_type: new fields.StringField({ choices: Object.values(NpcTechType), initial: NpcTechType.Quick }),
-      tech_attack: new fields.BooleanField({ nullable: true, initial: null }),
-
-      // Origin data - track where it came from
-      origin: new fields.SchemaField({
-        type: new fields.StringField(),
-        name: new fields.StringField(),
-        base: new fields.BooleanField(),
-      }),
-
-      // Templates
-      ...template_destructible(),
-      ...template_uses(),
-      ...template_universal_item(),
-    };
+    return npc_feature_schema();
   }
 
   static migrateData(data: any) {

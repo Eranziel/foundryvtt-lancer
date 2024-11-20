@@ -30,6 +30,7 @@ export class InventoryDialog extends Dialog {
   /** @override */
   static get defaultOptions(): DialogOptions {
     return foundry.utils.mergeObject(super.defaultOptions, {
+      // @ts-ignore Infinite loop?
       template: `systems/${game.system.id}/templates/window/inventory.hbs`,
       width: 600,
       height: "auto",
@@ -65,22 +66,27 @@ export class InventoryDialog extends Dialog {
       cats = [
         {
           label: "Frames",
+          // @ts-ignore Items collection is typed as any?
           items: actor.items.filter(i => i.is_frame()),
         },
         {
           label: "Weapons",
+          // @ts-ignore Items collection is typed as any?
           items: actor.items.filter(i => i.is_mech_weapon()),
         },
         {
           label: "Systems",
+          // @ts-ignore Items collection is typed as any?
           items: actor.items.filter(i => i.is_mech_system()),
         },
         {
           label: "Mods",
+          // @ts-ignore Items collection is typed as any?
           items: actor.items.filter(i => i.is_weapon_mod()),
         },
         {
           label: "Statuses",
+          // @ts-ignore Items collection is typed as any?
           items: actor.items.filter(i => i.is_status()),
         },
       ];
@@ -88,42 +94,52 @@ export class InventoryDialog extends Dialog {
       cats = [
         {
           label: "Weapons",
+          // @ts-ignore Items collection is typed as any?
           items: actor.items.filter(i => i.is_pilot_weapon()),
         },
         {
           label: "Armor",
+          // @ts-ignore Items collection is typed as any?
           items: actor.items.filter(i => i.is_pilot_armor()),
         },
         {
           label: "Gear",
+          // @ts-ignore Items collection is typed as any?
           items: actor.items.filter(i => i.is_pilot_gear()),
         },
         {
           label: "Talents",
+          // @ts-ignore Items collection is typed as any?
           items: actor.items.filter(i => i.is_talent()),
         },
         {
           label: "Skills",
+          // @ts-ignore Items collection is typed as any?
           items: actor.items.filter(i => i.is_skill()),
         },
         {
           label: "Licenses",
+          // @ts-ignore Items collection is typed as any?
           items: actor.items.filter(i => i.is_license()),
         },
         {
           label: "Core Bonuses",
+          // @ts-ignore Items collection is typed as any?
           items: actor.items.filter(i => i.is_core_bonus()),
         },
         {
           label: "Reserves",
+          // @ts-ignore Items collection is typed as any?
           items: actor.items.filter(i => i.is_reserve()),
         },
         {
           label: "Organizations",
+          // @ts-ignore Items collection is typed as any?
           items: actor.items.filter(i => i.is_organization()),
         },
         {
           label: "Statuses",
+          // @ts-ignore Items collection is typed as any?
           items: actor.items.filter(i => i.is_status()),
         },
       ];

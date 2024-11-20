@@ -40,34 +40,7 @@ const lp = LANCER.log_prefix;
 
 const DEFAULT_OVERCHARGE_SEQUENCE = "+1,+1d3,+1d6,+1d6+4" as const;
 
-interface LancerActorDataSource<T extends EntryType> {
-  type: T;
-  data: SourceDataType<T>;
-}
-interface LancerActorDataProperties<T extends LancerActorType> {
-  type: T;
-  data: SystemDataType<T>;
-}
-
-type LancerActorSource =
-  | LancerActorDataSource<EntryType.PILOT>
-  | LancerActorDataSource<EntryType.MECH>
-  | LancerActorDataSource<EntryType.NPC>
-  | LancerActorDataSource<EntryType.DEPLOYABLE>;
-
-type LancerActorProperties =
-  | LancerActorDataProperties<EntryType.PILOT>
-  | LancerActorDataProperties<EntryType.MECH>
-  | LancerActorDataProperties<EntryType.NPC>
-  | LancerActorDataProperties<EntryType.DEPLOYABLE>;
-
 declare global {
-  interface SourceConfig {
-    Actor: LancerActorSource;
-  }
-  interface DataConfig {
-    Actor: LancerActorProperties;
-  }
   interface DocumentClassConfig {
     Actor: typeof LancerActor;
   }
@@ -89,9 +62,6 @@ export class LancerActor extends Actor {
 
   // Helps us handle structuring/overheating, as well as providing miscellaneous utility functions for struct/stress
   strussHelper!: StrussHelper; // = new StrussHelper(this);
-
-  // @ts-expect-error - Foundry initializes this.
-  system: SystemData.Pilot | SystemData.Mech | SystemData.Npc | SystemData.Deployable;
 
   // Promises for NPC class/template swap. That work is initiated by a sync method,
   // so we need a way to track when the work is finished.
@@ -124,6 +94,7 @@ export class LancerActor extends Actor {
     let changes = {} as Record<string, number>;
 
     // Damage multipliers - exposed and whichever multiple chosen by the user
+    // @ts-ignore Infinite recursion
     const exposed = this.system.statuses.exposed;
     // Ensure the multiple is valid, default to 1x
     if (![0.5, 1, 2].includes(multiple)) multiple = 1;
@@ -156,10 +127,10 @@ export class LancerActor extends Actor {
     if (!paracausal && !this.system.statuses.shredded) {
       const defenseFavor = true; // getAutomationOptions().defenderArmor
       // TODO: figure out how to fix this typing
-      // @ts-expect-error
+      // @ts-ignore
       const resistArmorDamage = armoredDamageTypes.filter(t => resistAll || this.system.resistances[t.toLowerCase()]);
       const normalArmorDamage = armoredDamageTypes.filter(t => !resistArmorDamage.includes(t));
-      // @ts-expect-error
+      // @ts-ignore
       const resistApDamage = apDamageTypes.filter(t => resistAll || this.system.resistances[t.toLowerCase()]);
       let armor = ap ? 0 : this.system.armor;
       let leftoverArmor: number; // Temp 'storage' variable for tracking used armor
@@ -288,15 +259,15 @@ export class LancerActor extends Actor {
 
     // 2. Initialize our universal derived stat fields
     let sys: SystemTemplates.actor_universal = this.system;
-    sys.edef = 0;
-    sys.evasion = 0;
-    sys.speed = 0;
-    sys.armor = 0;
-    sys.size = 0;
-    sys.save = 0;
-    sys.sensor_range = 0;
-    sys.tech_attack = 0;
-    sys.statuses = {
+    sys.edef ??= 0;
+    sys.evasion ??= 0;
+    sys.speed ??= 0;
+    sys.armor ??= 0;
+    sys.size ??= 0;
+    sys.save ??= 0;
+    sys.sensor_range ??= 0;
+    sys.tech_attack ??= 0;
+    sys.statuses ??= {
       dangerzone: false,
       downandout: false,
       engaged: false,
@@ -313,7 +284,7 @@ export class LancerActor extends Actor {
       stunned: false,
       hidden: false,
     };
-    sys.resistances = {
+    sys.resistances ??= {
       burn: false,
       energy: false,
       explosive: false,
@@ -321,7 +292,7 @@ export class LancerActor extends Actor {
       kinetic: false,
       variable: false,
     };
-    sys.bonuses = {
+    sys.bonuses ??= {
       weapon_bonuses: [],
     };
     /*
@@ -334,6 +305,7 @@ export class LancerActor extends Actor {
     // 3. Establish type specific attributes / perform type specific prep steps
     // HASE is pretty generic. All but pilot need defaults - pilot gets from source
     if (this.is_mech() || this.is_deployable() || this.is_npc()) {
+      // @ts-ignore Infinite recursion IG
       this.system.hull = 0;
       this.system.agi = 0;
       this.system.sys = 0;
@@ -341,51 +313,12 @@ export class LancerActor extends Actor {
     }
 
     if (this.is_pilot()) {
-      this.system.grit = Math.ceil(this.system.level / 2);
-      this.system.hp.max = lancer_data.rules.base_pilot_hp + this.system.grit;
-      this.system.bond = (this.items.find(i => i.is_bond()) ?? null) as unknown as LancerBOND | null;
-      this.system.size = 0.5;
-      this.system.sensor_range = 5;
-      this.system.save = this.system.grit + 10;
     } else if (this.is_mech()) {
-      // Aggregate sp/ai
-      let equipped_sp = 0;
-      let equipped_ai = 0;
-      for (let system of this.system.loadout.systems) {
-        if (system?.status == "resolved") {
-          equipped_sp += system.value.system.sp;
-          equipped_ai += system.value.system.tags.some(t => t.is_ai) ? 1 : 0;
-        }
-      }
-      for (let mount of this.system.loadout.weapon_mounts) {
-        for (let slot of mount.slots) {
-          if (slot.weapon?.status == "resolved") {
-            equipped_sp += slot.weapon.value.system.sp;
-          }
-          if (slot.mod?.status == "resolved") {
-            equipped_sp += slot.mod.value.system.sp;
-            equipped_ai += slot.mod.value.system.tags.some(t => t.is_ai) ? 1 : 0;
-            if (slot.weapon?.value) {
-              slot.weapon.value.system.mod = slot.mod.value;
-            }
-          }
-        }
-      }
-
-      // Initialize loadout statistics. Maxs will be fixed by active effects
-      this.system.loadout.sp = { max: 0, min: 0, value: equipped_sp };
-      this.system.loadout.ai_cap = { max: 1, min: 0, value: equipped_ai };
-      this.system.loadout.limited_bonus = 0;
-
-      // Other misc
-      this.system.overcharge_sequence = DEFAULT_OVERCHARGE_SEQUENCE;
-      this.system.level = 0;
-      this.system.grit = 0;
-      this.system.stress_repair_cost = 2;
-      this.system.structure_repair_cost = 2;
     } else if (this.is_npc()) {
-      this.system.class = this.items.find(i => i.is_npc_class()) as unknown as LancerNPC_CLASS;
-      this.system.templates = this.items.filter(i => i.is_npc_template()) as unknown as LancerNPC_TEMPLATE[];
+      this.system.class = this.items.find((i: LancerItem) => i.is_npc_class()) as unknown as LancerNPC_CLASS;
+      this.system.templates = this.items.filter((i: LancerItem) =>
+        i.is_npc_template()
+      ) as unknown as LancerNPC_TEMPLATE[];
     } else if (this.is_deployable()) {
       sys.armor = this.system.stats.armor;
       sys.edef = this.system.stats.edef;
@@ -420,7 +353,7 @@ export class LancerActor extends Actor {
     this._markStatuses();
 
     // Special case for the emperor - subtract grit
-    if (this.is_mech() && this.items.find(i => i.system.lid === "mf_emperor")) {
+    if (this.is_mech() && this.items.find((i: LancerItem) => i.system.lid === "mf_emperor")) {
       this.system.hp.max -= this.system.grit;
     }
 
@@ -434,7 +367,7 @@ export class LancerActor extends Actor {
   _markStatuses() {
     if (!this.statuses) return;
     for (const status of this.statuses.keys()) {
-      // @ts-expect-error
+      // @ts-ignore
       this.system.statuses[status] = true;
       // Mark resistances based on statuses
       switch (status) {
@@ -521,7 +454,7 @@ export class LancerActor extends Actor {
    * @override
    */
   async update(data: any, options: any = {}) {
-    // @ts-expect-error
+    // @ts-ignore
     data = this.system.full_update_data(data);
     return super.update(data, options);
   }
@@ -562,6 +495,7 @@ export class LancerActor extends Actor {
         [EntryType.PILOT]: CONST.TOKEN_DISPOSITIONS.FRIENDLY,
         [EntryType.DEPLOYABLE]: CONST.TOKEN_DISPOSITIONS.NEUTRAL,
         [EntryType.MECH]: CONST.TOKEN_DISPOSITIONS.FRIENDLY,
+        ["base"]: undefined,
       }[this.type] ?? CONST.TOKEN_DISPOSITIONS.FRIENDLY;
 
     // Put in the basics
@@ -675,7 +609,7 @@ export class LancerActor extends Actor {
     ) as LancerItem[];
     if (this.is_npc() && itemDocs.some(d => d.is_npc_class())) {
       oldClass = this.items.find(
-        item => item.is_npc_class() && !itemDocs.find(doc => item._id === doc._id)
+        (item: LancerItem) => item.is_npc_class() && !itemDocs.find(doc => item._id === doc._id)
       ) as LancerNPC_CLASS;
     }
 
@@ -773,16 +707,16 @@ export class LancerActor extends Actor {
   }
 
   // Typeguards
-  is_pilot(): this is LancerPILOT {
+  is_pilot(): this is LancerActor & { system: DataModelConfig["Actor"][EntryType.PILOT] } {
     return this.type === EntryType.PILOT;
   }
-  is_mech(): this is LancerMECH {
+  is_mech(): this is LancerActor & { system: DataModelConfig["Actor"][EntryType.MECH] } {
     return this.type === EntryType.MECH;
   }
-  is_npc(): this is LancerNPC {
+  is_npc(): this is LancerActor & { system: DataModelConfig["Actor"][EntryType.NPC] } {
     return this.type === EntryType.NPC;
   }
-  is_deployable(): this is LancerDEPLOYABLE {
+  is_deployable(): this is LancerActor & { system: DataModelConfig["Actor"][EntryType.DEPLOYABLE] } {
     return this.type === EntryType.DEPLOYABLE;
   }
 
@@ -794,9 +728,11 @@ export class LancerActor extends Actor {
   async removeClassFeatures(item: LancerItem) {
     if (!this.is_npc() || (!item.is_npc_class() && !item.is_npc_template())) return;
     const targetFeatures = [...item.system.base_features, ...item.system.optional_features];
+    // @ts-ignore
     let matches = this.itemTypes.npc_feature.filter(feat => targetFeatures.includes(feat.system.lid));
     await this._safeDeleteDescendant(
       "Item",
+      // @ts-ignore
       matches.filter(x => x)
     );
   }
@@ -846,6 +782,7 @@ export class LancerActor extends Actor {
     if (!this.is_npc()) return [];
     let result = [];
     for (let predicateLid of featureLids) {
+      // @ts-ignore
       for (let candidate_feature of this.itemTypes.npc_feature as LancerNPC_FEATURE[]) {
         if (candidate_feature.system.lid == predicateLid) {
           result.push(candidate_feature);
@@ -1160,10 +1097,10 @@ export class LancerActor extends Actor {
 }
 
 // Typeguards
-export type LancerPILOT = LancerActor & { system: SystemData.Pilot };
-export type LancerMECH = LancerActor & { system: SystemData.Mech };
-export type LancerNPC = LancerActor & { system: SystemData.Npc };
-export type LancerDEPLOYABLE = LancerActor & { system: SystemData.Deployable };
+// export type LancerPILOT = LancerActor & { system: SystemData.Pilot };
+// export type LancerMECH = LancerActor & { system: SystemData.Mech };
+// export type LancerNPC = LancerActor & { system: SystemData.Npc };
+// export type LancerDEPLOYABLE = LancerActor & { system: SystemData.Deployable };
 
 export type LancerActorType = EntryType.MECH | EntryType.DEPLOYABLE | EntryType.NPC | EntryType.PILOT;
 export const ACTOR_TYPES: LancerActorType[] = [EntryType.MECH, EntryType.DEPLOYABLE, EntryType.NPC, EntryType.PILOT];

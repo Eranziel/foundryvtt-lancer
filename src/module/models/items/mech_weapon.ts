@@ -22,59 +22,57 @@ import {
 
 const fields = foundry.data.fields;
 
-export class MechWeaponModel extends LancerDataModel<DataSchema, Item> {
-  static defineSchema() {
-    return {
-      deployables: new fields.ArrayField(new LIDField()),
-      integrated: new fields.ArrayField(new LIDField()),
-      sp: new fields.NumberField({ nullable: false, initial: 0 }),
-      // @ts-expect-error
-      actions: new fields.ArrayField(new ActionField()),
-      profiles: new ControlledLengthArrayField(
-        new fields.SchemaField({
-          name: new fields.StringField({ initial: "Base Profile" }),
-          type: new fields.StringField({ choices: Object.values(WeaponType), initial: WeaponType.Rifle }),
-          // @ts-expect-error
-          damage: new fields.ArrayField(new DamageField()),
-          // @ts-expect-error
-          range: new fields.ArrayField(new RangeField()),
-          // @ts-expect-error
-          tags: new fields.ArrayField(new TagField()),
-          description: new fields.StringField(),
-          effect: new fields.StringField(),
-          on_attack: new fields.StringField(),
-          on_hit: new fields.StringField(),
-          on_crit: new fields.StringField(),
-          cost: new fields.NumberField({ nullable: false, initial: 0 }),
-          skirmishable: new fields.BooleanField(),
-          barrageable: new fields.BooleanField(),
-          // @ts-expect-error
-          actions: new fields.ArrayField(new ActionField()),
-          // @ts-expect-error
-          bonuses: new fields.ArrayField(new BonusField()),
-          // @ts-expect-error
-          synergies: new fields.ArrayField(new SynergyField()),
-          // @ts-expect-error
-          counters: new fields.ArrayField(new CounterField()),
-        }),
-        { length: 1, overflow: true }
-      ),
-      loaded: new fields.BooleanField(),
-      selected_profile_index: new fields.NumberField({ nullable: false, initial: 0 }),
-      size: new fields.StringField({
-        choices: Object.values(WeaponSize).concat("Ship-class" as unknown as WeaponSize),
-        initial: WeaponSize.Main,
+function mech_weapon_schema() {
+  return {
+    deployables: new fields.ArrayField(new LIDField()),
+    integrated: new fields.ArrayField(new LIDField()),
+    sp: new fields.NumberField({ nullable: false, initial: 0 }),
+    actions: new fields.ArrayField(new ActionField()),
+    profiles: new ControlledLengthArrayField(
+      new fields.SchemaField({
+        name: new fields.StringField({ initial: "Base Profile" }),
+        type: new fields.StringField({ choices: Object.values(WeaponType), initial: WeaponType.Rifle }),
+        damage: new fields.ArrayField(new DamageField()),
+        range: new fields.ArrayField(new RangeField()),
+        tags: new fields.ArrayField(new TagField()),
+        description: new fields.StringField(),
+        effect: new fields.StringField(),
+        on_attack: new fields.StringField(),
+        on_hit: new fields.StringField(),
+        on_crit: new fields.StringField(),
+        cost: new fields.NumberField({ nullable: false, initial: 0 }),
+        skirmishable: new fields.BooleanField(),
+        barrageable: new fields.BooleanField(),
+        actions: new fields.ArrayField(new ActionField()),
+        bonuses: new fields.ArrayField(new BonusField()),
+        synergies: new fields.ArrayField(new SynergyField()),
+        counters: new fields.ArrayField(new CounterField()),
       }),
-      no_core_bonuses: new fields.BooleanField(),
-      no_mods: new fields.BooleanField(),
-      no_bonuses: new fields.BooleanField(),
-      no_synergies: new fields.BooleanField(),
-      no_attack: new fields.BooleanField(),
-      ...template_universal_item(),
-      ...template_destructible(),
-      ...template_licensed(),
-      ...template_uses(),
-    };
+      { length: 1, overflow: true }
+    ),
+    loaded: new fields.BooleanField(),
+    selected_profile_index: new fields.NumberField({ nullable: false, initial: 0 }),
+    size: new fields.StringField({
+      choices: Object.values(WeaponSize).concat("Ship-class" as unknown as WeaponSize),
+      initial: WeaponSize.Main,
+    }),
+    no_core_bonuses: new fields.BooleanField(),
+    no_mods: new fields.BooleanField(),
+    no_bonuses: new fields.BooleanField(),
+    no_synergies: new fields.BooleanField(),
+    no_attack: new fields.BooleanField(),
+    ...template_universal_item(),
+    ...template_destructible(),
+    ...template_licensed(),
+    ...template_uses(),
+  };
+}
+
+type MechWeaponSchema = ReturnType<typeof mech_weapon_schema> & DataSchema;
+
+export class MechWeaponModel extends LancerDataModel<MechWeaponSchema, Item> {
+  static defineSchema() {
+    return mech_weapon_schema();
   }
 
   static migrateData(data: any) {

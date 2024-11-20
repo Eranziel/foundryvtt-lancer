@@ -14,21 +14,25 @@ import { template_bascdt, template_universal_item, template_uses } from "./share
 
 const fields = foundry.data.fields;
 
-export class PilotWeaponModel extends LancerDataModel<DataSchema, Item> {
-  static defineSchema() {
-    return {
-      description: new fields.StringField({ nullable: true }),
-      // @ts-expect-error
-      range: new fields.ArrayField(new RangeField()),
-      // @ts-expect-error
-      damage: new fields.ArrayField(new DamageField()),
-      effect: new fields.StringField(),
-      loaded: new fields.BooleanField(),
+function pilot_weapon_schema() {
+  return {
+    description: new fields.StringField({ nullable: true }),
+    range: new fields.ArrayField(new RangeField()),
+    damage: new fields.ArrayField(new DamageField()),
+    effect: new fields.StringField(),
+    loaded: new fields.BooleanField(),
 
-      ...template_universal_item(),
-      ...template_uses(),
-      ...template_bascdt(),
-    };
+    ...template_universal_item(),
+    ...template_uses(),
+    ...template_bascdt(),
+  };
+}
+
+type PilotWeaponSchema = ReturnType<typeof pilot_weapon_schema> & DataSchema;
+
+export class PilotWeaponModel extends LancerDataModel<PilotWeaponSchema, Item> {
+  static defineSchema() {
+    return pilot_weapon_schema();
   }
 }
 

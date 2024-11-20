@@ -19,23 +19,6 @@ export interface AmmoData {
   restricted_sizes: WeaponSizeChecklist | null;
 }
 
-export class AmmoField extends fields.SchemaField {
-  constructor(options = {}) {
-    super(
-      {
-        name: new fields.StringField({ nullable: false }),
-        description: new fields.StringField({ nullable: false }),
-        cost: new fields.NumberField({ nullable: true }),
-        allowed_types: new WeaponTypeChecklistField(),
-        allowed_sizes: new WeaponSizeChecklistField(),
-        restricted_types: new WeaponTypeChecklistField(),
-        restricted_sizes: new WeaponSizeChecklistField(),
-      },
-      options
-    );
-  }
-}
-
 export function unpackAmmo(data: PackedAmmoData): AmmoData {
   return {
     name: data.name,

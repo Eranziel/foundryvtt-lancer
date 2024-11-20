@@ -8,14 +8,20 @@ import { template_universal_item } from "./shared";
 
 const fields = foundry.data.fields;
 
-export class NpcTemplateModel extends LancerDataModel<DataSchema, Item> {
+function npc_template_schema() {
+  return {
+    description: new fields.HTMLField(),
+    base_features: new fields.SetField(new LIDField()),
+    optional_features: new fields.SetField(new LIDField()),
+    ...template_universal_item(),
+  };
+}
+
+type NpcTemplateSchema = ReturnType<typeof npc_template_schema> & DataSchema;
+
+export class NpcTemplateModel extends LancerDataModel<NpcTemplateSchema, Item> {
   static defineSchema() {
-    return {
-      description: new fields.HTMLField(),
-      base_features: new fields.SetField(new LIDField()),
-      optional_features: new fields.SetField(new LIDField()),
-      ...template_universal_item(),
-    };
+    return npc_template_schema();
   }
 
   static migrateData(data: any) {

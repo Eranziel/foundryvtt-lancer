@@ -27,11 +27,15 @@ import {
   PackedPilotData,
   PackedPilotEquipmentState,
 } from "../util/unpacking/packed-types";
-import { LancerActor, LancerMECH, LancerPILOT } from "./lancer-actor";
+import { LancerActor } from "./lancer-actor";
 import { frameToPath } from "./retrograde-map";
 
+type MechActor = LancerActor & { system: DataModelConfig["Actor"][EntryType.MECH] };
+type PilotActor = LancerActor & { system: DataModelConfig["Actor"][EntryType.PILOT] };
+
 // Imports packed pilot data, from either a vault id or gist id
-export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearFirst = false) {
+export async function importCC(pilot: PilotActor, data: PackedPilotData, clearFirst = false) {
+  // @ts-ignore infinite recursion
   const coreVersion = game.settings.get(game.system.id, LANCER.setting_core_data);
   if (!coreVersion) {
     ui.notifications?.warn("You must build the Core data in the Lancer Compendium Manager before importing.");
@@ -285,8 +289,8 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
       },
       prototypeToken: {
         name: data.name,
-        // @ts-expect-error
-        "texture.src": replaceDefaultResource(pilot.prototypeToken?.texture?.src, data.cloud_portrait, pilot.img),
+        // // @ts-expect-error
+        "texture.src": replaceDefaultResource(pilot.prototypeToken?.texture?.src, data.cloud_portrait, pilot.img!),
       },
     });
 
@@ -294,9 +298,9 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
     let active_mech_uuid = "";
     for (let cloud_mech of data.mechs) {
       // Find the existing mech, or create one as necessary
-      let mech = game.actors!.find(
-        (m: LancerActor) => m.is_mech() && m.system.lid == cloud_mech.id
-      ) as unknown as LancerMECH | null;
+      let mech = game.actors!.find((m: LancerActor) => m.is_mech() && m.system.lid == cloud_mech.id) as
+        | (LancerActor & { system: DataModelConfig["Actor"][EntryType.MECH] })
+        | null;
       if (!mech) {
         if (!game.user?.hasPermission("ACTOR_CREATE")) {
           ui.notifications?.warn(
@@ -309,7 +313,7 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
           name: cloud_mech.name,
           type: EntryType.MECH,
           folder: pilot.folder?.id,
-        })) as unknown as LancerMECH;
+        })) as MechActor;
       }
 
       // Make a helper to get (a unique copy of) a given lid item, importing if necessary

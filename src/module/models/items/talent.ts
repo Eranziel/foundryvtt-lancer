@@ -12,33 +12,35 @@ import { template_universal_item } from "./shared";
 
 const fields = foundry.data.fields;
 
-export class TalentModel extends LancerDataModel<DataSchema, Item> {
+function talent_schema() {
+  return {
+    curr_rank: new fields.NumberField({ nullable: false, initial: 1, min: 1, max: 3 }),
+    description: new fields.HTMLField(),
+    terse: new fields.StringField(),
+
+    ranks: new fields.ArrayField(
+      new fields.SchemaField({
+        name: new fields.StringField(),
+        description: new fields.HTMLField(),
+        exclusive: new fields.BooleanField({ initial: false }),
+        actions: new fields.ArrayField(new ActionField()),
+        bonuses: new fields.ArrayField(new BonusField()),
+        synergies: new fields.ArrayField(new SynergyField()),
+        deployables: new fields.ArrayField(new LIDField()),
+        counters: new fields.ArrayField(new CounterField()),
+        integrated: new fields.ArrayField(new LIDField()),
+      })
+    ),
+
+    ...template_universal_item(),
+  };
+}
+
+type TalentSchema = ReturnType<typeof talent_schema> & DataSchema;
+
+export class TalentModel extends LancerDataModel<TalentSchema, Item> {
   static defineSchema() {
-    return {
-      curr_rank: new fields.NumberField({ nullable: false, initial: 1, min: 1, max: 3 }),
-      description: new fields.HTMLField(),
-      terse: new fields.StringField(),
-
-      ranks: new fields.ArrayField(
-        new fields.SchemaField({
-          name: new fields.StringField(),
-          description: new fields.HTMLField(),
-          exclusive: new fields.BooleanField({ initial: false }),
-          // @ts-expect-error
-          actions: new fields.ArrayField(new ActionField()),
-          // @ts-expect-error
-          bonuses: new fields.ArrayField(new BonusField()),
-          // @ts-expect-error
-          synergies: new fields.ArrayField(new SynergyField()),
-          deployables: new fields.ArrayField(new LIDField()),
-          // @ts-expect-error
-          counters: new fields.ArrayField(new CounterField()),
-          integrated: new fields.ArrayField(new LIDField()),
-        })
-      ),
-
-      ...template_universal_item(),
-    };
+    return talent_schema();
   }
 }
 

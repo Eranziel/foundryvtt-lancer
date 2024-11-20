@@ -22,7 +22,7 @@ import {
   WeaponTypeChecklistField,
 } from "../shared";
 
-const fields: any = foundry.data.fields;
+import fields = foundry.data.fields;
 
 export interface SynergyData {
   locations: SynergyLocation[];
@@ -34,8 +34,20 @@ export interface SynergyData {
   weapon_sizes: WeaponSizeChecklist | null;
 }
 
-export class SynergyField extends fields.SchemaField {
-  constructor(options = {}) {
+export interface SynergyFieldSchema extends DataSchema {
+  locations: fields.ArrayField<fields.StringField<{ choices: typeof AllSynergyLocations; initial: "any" }>>;
+  detail: fields.StringField<{ nullable: false }>;
+  damage_types: DamageTypeChecklistField;
+  range_types: RangeTypeChecklistField;
+  weapon_types: WeaponTypeChecklistField;
+  weapon_sizes: WeaponSizeChecklistField;
+  system_types: SystemTypeChecklistField;
+}
+
+type Options = fields.SchemaField.Options<SynergyFieldSchema>;
+
+export class SynergyField extends fields.SchemaField<SynergyFieldSchema, Options> {
+  constructor(options: Options = {}) {
     super(
       {
         locations: new fields.ArrayField(new fields.StringField({ choices: AllSynergyLocations, initial: "any" })),

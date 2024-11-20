@@ -6,14 +6,20 @@ import { template_universal_item } from "./shared";
 
 const fields = foundry.data.fields;
 
-export class LicenseModel extends LancerDataModel<DataSchema, Item> {
+function license_schema() {
+  return {
+    key: new fields.StringField(),
+    manufacturer: new fields.StringField(),
+    curr_rank: new fields.NumberField({ nullable: false, initial: 1, min: 1, max: 3 }),
+    ...template_universal_item(),
+  };
+}
+
+type LicenseSchema = ReturnType<typeof license_schema> & DataSchema;
+
+export class LicenseModel extends LancerDataModel<LicenseSchema, Item> {
   static defineSchema() {
-    return {
-      key: new fields.StringField(),
-      manufacturer: new fields.StringField(),
-      curr_rank: new fields.NumberField({ nullable: false, initial: 1, min: 1, max: 3 }),
-      ...template_universal_item(),
-    };
+    return license_schema();
   }
 
   static migrateData(data: any) {

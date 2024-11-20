@@ -4,12 +4,12 @@ import { SourceData } from "../../source-template";
 import { PackedMechSystemData } from "../../util/unpacking/packed-types";
 import { unpackDeployable } from "../actors/deployable";
 import { unpackAction } from "../bits/action";
-import { AmmoField, unpackAmmo } from "../bits/ammo";
+import { unpackAmmo } from "../bits/ammo";
 import { unpackBonus } from "../bits/bonus";
 import { unpackCounter } from "../bits/counter";
 import { unpackSynergy } from "../bits/synergy";
 import { unpackTag } from "../bits/tag";
-import { LancerDataModel, UnpackContext } from "../shared";
+import { LancerDataModel, UnpackContext, WeaponSizeChecklistField, WeaponTypeChecklistField } from "../shared";
 import {
   migrateManufacturer,
   template_bascdt,
@@ -21,21 +21,36 @@ import {
 
 const fields = foundry.data.fields;
 
-export class MechSystemModel extends LancerDataModel<DataSchema, Item> {
+function mech_system_schema() {
+  return {
+    effect: new fields.HTMLField(),
+    sp: new fields.NumberField({ nullable: false, initial: 0 }),
+    description: new fields.HTMLField(),
+    type: new fields.StringField(),
+    ammo: new fields.ArrayField(
+      new fields.SchemaField({
+        name: new fields.StringField({ nullable: false }),
+        description: new fields.StringField({ nullable: false }),
+        cost: new fields.NumberField({ nullable: true }),
+        allowed_types: new WeaponTypeChecklistField(),
+        allowed_sizes: new WeaponSizeChecklistField(),
+        restricted_types: new WeaponTypeChecklistField(),
+        restricted_sizes: new WeaponSizeChecklistField(),
+      })
+    ),
+    ...template_universal_item(),
+    ...template_bascdt(),
+    ...template_destructible(),
+    ...template_licensed(),
+    ...template_uses(),
+  };
+}
+
+type MechSystemSchema = ReturnType<typeof mech_system_schema> & DataSchema;
+
+export class MechSystemModel extends LancerDataModel<MechSystemSchema, Item> {
   static defineSchema() {
-    return {
-      effect: new fields.HTMLField(),
-      sp: new fields.NumberField({ nullable: false, initial: 0 }),
-      description: new fields.HTMLField(),
-      type: new fields.StringField(),
-      // @ts-expect-error
-      ammo: new fields.ArrayField(new AmmoField()),
-      ...template_universal_item(),
-      ...template_bascdt(),
-      ...template_destructible(),
-      ...template_licensed(),
-      ...template_uses(),
-    };
+    return mech_system_schema();
   }
 
   static migrateData(data: any) {

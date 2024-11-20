@@ -2,24 +2,50 @@ import type { DeepPartial } from "@league-of-foundry-developers/foundry-vtt-type
 import { EntryType } from "../../enums";
 import { SourceData } from "../../source-template";
 import { PackedBondData } from "../../util/unpacking/packed-types";
-import { PowerField, unpackPower } from "../bits/power";
-import { BondQuestionField } from "../bits/question";
+import { unpackPower } from "../bits/power";
 import { LancerDataModel } from "../shared";
 import { template_universal_item } from "./shared";
 
 const fields = foundry.data.fields;
 
-export class BondModel extends LancerDataModel<DataSchema, Item> {
+function bond_schema() {
+  return {
+    major_ideals: new fields.ArrayField(new fields.StringField()),
+    minor_ideals: new fields.ArrayField(new fields.StringField()),
+    questions: new fields.ArrayField(
+      new fields.SchemaField({
+        question: new fields.StringField({ nullable: false }),
+        options: new fields.ArrayField(new fields.StringField({ nullable: false })),
+      })
+    ),
+    powers: new fields.ArrayField(
+      new fields.SchemaField({
+        name: new fields.StringField({ nullable: false }),
+        description: new fields.StringField({ nullable: false }),
+        unlocked: new fields.BooleanField(),
+        frequency: new fields.StringField({ required: false, nullable: true }),
+        uses: new fields.SchemaField(
+          {
+            min: new fields.NumberField({ integer: true, initial: 0 }),
+            max: new fields.NumberField({ integer: true, initial: 0 }),
+            value: new fields.NumberField({ integer: true, initial: 0 }),
+          },
+          { required: false, nullable: true }
+        ),
+        veteran: new fields.BooleanField(),
+        master: new fields.BooleanField(),
+        prerequisite: new fields.StringField({ required: false, nullable: true }),
+      })
+    ),
+    ...template_universal_item(),
+  };
+}
+
+type BondSchema = ReturnType<typeof bond_schema> & DataSchema;
+
+export class BondModel extends LancerDataModel<BondSchema, Item> {
   static defineSchema() {
-    return {
-      major_ideals: new fields.ArrayField(new fields.StringField()),
-      minor_ideals: new fields.ArrayField(new fields.StringField()),
-      // @ts-expect-error
-      questions: new fields.ArrayField(new BondQuestionField()),
-      // @ts-expect-error
-      powers: new fields.ArrayField(new PowerField()),
-      ...template_universal_item(),
-    };
+    return bond_schema();
   }
 }
 

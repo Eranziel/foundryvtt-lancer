@@ -8,13 +8,19 @@ import { template_universal_item } from "./shared";
 
 const fields = foundry.data.fields;
 
-export class StatusModel extends LancerDataModel<DataSchema, Item> {
+function status_schema() {
+  return {
+    effects: new fields.HTMLField(),
+    type: new fields.StringField({ choices: ["status", "condition", "effect"], initial: "effect" }),
+    ...template_universal_item(),
+  };
+}
+
+type StatusSchema = ReturnType<typeof status_schema> & DataSchema;
+
+export class StatusModel extends LancerDataModel<StatusSchema, Item> {
   static defineSchema() {
-    return {
-      effects: new fields.HTMLField(),
-      type: new fields.StringField({ choices: ["status", "condition", "effect"], initial: "effect" }),
-      ...template_universal_item(),
-    };
+    return status_schema();
   }
 
   static migrateData(data: any) {

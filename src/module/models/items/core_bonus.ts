@@ -12,16 +12,22 @@ import { migrateManufacturer, template_bascdt, template_universal_item } from ".
 
 const fields = foundry.data.fields;
 
-export class CoreBonusModel extends LancerDataModel<DataSchema, Item> {
+function core_bonus_schema() {
+  return {
+    description: new fields.StringField({ nullable: true }),
+    effect: new fields.StringField(),
+    mounted_effect: new fields.StringField(),
+    manufacturer: new fields.StringField(),
+    ...template_universal_item(),
+    ...template_bascdt(),
+  };
+}
+
+type CoreBonusSchema = ReturnType<typeof core_bonus_schema> & DataSchema;
+
+export class CoreBonusModel extends LancerDataModel<CoreBonusSchema, Item> {
   static defineSchema() {
-    return {
-      description: new fields.StringField({ nullable: true }),
-      effect: new fields.StringField(),
-      mounted_effect: new fields.StringField(),
-      manufacturer: new fields.StringField(),
-      ...template_universal_item(),
-      ...template_bascdt(),
-    };
+    return core_bonus_schema();
   }
 
   static migrateData(data: any) {
