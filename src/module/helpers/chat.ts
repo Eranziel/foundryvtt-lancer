@@ -71,7 +71,7 @@ export function attackTarget(hit: LancerFlowState.HitResultWithRoll, options: He
   return `
     <div class="lancer-hit-target">
       <img class="lancer-hit-thumb" src="${img}" />
-      <span class="lancer-hit-text-name"><b>${hit.target.name}</b></span>
+      <span class="lancer-hit-text-name" data-tooltip="${hit.target.name}"><b>${hit.target.name}</b></span>
       ${hitChip}
       <div class="lancer-hit-roll">
         ${lancerDiceRoll(hit.roll, hit.tt as string, "cci cci-reticule i--sm")}
@@ -164,7 +164,7 @@ export function damageTarget(
   return `
     <div class="lancer-damage-target" data-uuid=${uuid}>
       <img class="lancer-hit-thumb" src="${img}" />
-      <span class="lancer-hit-text-name"><b>${target.target.name}</b></span>
+      <span class="lancer-hit-text-name" data-tooltip="${target.target.name}"><b>${target.target.name}</b></span>
       <div
         class="lancer-damage-button-group"
         data-target="${target.target.document.uuid}"
