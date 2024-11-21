@@ -690,7 +690,7 @@ async function doMigration() {
     await game.settings.set(game.system.id, LANCER.setting_welcome, false);
     ui.notifications!.info(
       // @ts-expect-error Packages do include a version string
-      `Starting migration to LANCER version ${game.system.version}. Please be patient and wait until migration completes.`,
+      `Migrating to LANCER version ${game.system.version}. Please be patient and wait until migration completes.`,
       { permanent: true }
     );
     await migrations.migrateWorld();

@@ -24,6 +24,7 @@ export async function commitDataModelMigrations() {
   ui.notifications?.info("All world Actors, Items, and Scenes migrated and data models cleaned.");
 }
 
+const migrationProgressBarLabel = () => `Migration to v${game.system.version} in progress...`;
 let toMigrate = 1;
 let migrated = 0;
 /**
@@ -32,7 +33,7 @@ let migrated = 0;
 function migrationProgress(count: number) {
   migrated += count;
   const percent = Math.floor((migrated / toMigrate) * 100);
-  SceneNavigation.displayProgressBar({ label: `Migrated ${migrated} of ${toMigrate} documents...`, pct: percent });
+  SceneNavigation.displayProgressBar({ label: migrationProgressBarLabel(), pct: percent });
 }
 
 /**
@@ -56,11 +57,10 @@ export async function migrateWorld() {
   // Update World Compendium Packs, since updates comes with a more up to date version of lancerdata usually
   await updateCore(core_update);
 
-  SceneNavigation.displayProgressBar({ label: `Migration in progress...`, pct: 0 });
+  // For some reason the commitDataModelMigrations call clears the progress bar, so we delay showing it.
+  setTimeout(() => SceneNavigation.displayProgressBar({ label: migrationProgressBarLabel(), pct: 0 }), 1000);
   // Clean out old data fields so they don't cause issues
   await commitDataModelMigrations();
-  // The above call seems to clear the progress bar, so show it again...
-  SceneNavigation.displayProgressBar({ label: `Migration in progress...`, pct: 0 });
 
   if (game.settings.get(game.system.id, LANCER.setting_core_data) !== core_update) {
     // Compendium migration failed.
@@ -86,7 +86,17 @@ Please refresh the page to try again.</p>`,
   }
 
   function reduceScene(total: number, scene: Scene) {
-    return total + Number(scene.tokens.contents.reduce((t2, token) => (t2 += 1 + token.actor?.items.size), 0) || 0);
+    return (
+      total +
+      scene.tokens.contents.reduce((t2, token) => {
+        t2 += 1; // Always count the token
+        if (!token.isLinked) {
+          // Add the actor and items
+          t2 += 1 + (token.actor?.items.size || 0);
+        }
+        return t2;
+      }, 0)
+    );
   }
 
   // TODO: this count isn't accurate, but I'm not sure what is missing.
@@ -95,7 +105,6 @@ Please refresh the page to try again.</p>`,
   toMigrate += game.actors!.reduce((total, actor) => (total += 1 + actor.items.size), 0);
   toMigrate += game.scenes!.reduce(reduceScene, 0);
   for (const pack of game.packs.contents) {
-    if (pack.metadata.packageType !== "world") continue;
     if (pack.metadata.type === "Item") toMigrate += pack.index.size;
     else if (pack.metadata.type === "Actor") {
       await pack.getDocuments();
@@ -105,7 +114,7 @@ Please refresh the page to try again.</p>`,
       toMigrate += pack.contents.reduce(reduceScene, 0);
     }
   }
-  console.log(`Migrating ${toMigrate} documents`);
+  console.log(`Migrating approximately ${toMigrate} documents`);
 
   // Migrate compendiums
   for (let p of game.packs.contents) {
@@ -126,6 +135,8 @@ Please refresh the page to try again.</p>`,
 
   // Set world as having migrated successfully
   await game.settings.set(game.system.id, LANCER.setting_migration_version, game.system.version);
+  // Update the progress bar to 100%
+  migrationProgress(toMigrate);
 
   // Set the version for future migration and welcome message checking
   ui.notifications.info(`LANCER System Migration to version ${game.system.version} completed!`, {
@@ -314,6 +325,7 @@ export async function migrateTokenDocument(token: LancerTokenDocument): Promise<
       // ...
     }
 
+    migrationProgress(1);
     // Return update
     return updateData;
   } catch (e) {
