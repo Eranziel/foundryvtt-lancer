@@ -2567,14 +2567,14 @@ a.activation-chip > i.mdi {
     & i {
       margin: 0;
 
-      &.damage--kinetic {
-        color: var(--light-text);
-      }
-
       & ~ i {
         margin-left: -0.4em;
       }
     }
+  }
+
+  & i.damage--kinetic {
+    color: var(--light-text);
   }
 }
 
