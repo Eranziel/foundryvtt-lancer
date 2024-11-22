@@ -17,7 +17,7 @@ export class AutomationConfig extends FormApplication<FormApplication.Options, A
       title: "lancer.automation.menu-label",
       id: "lancer-automation-settings",
       template: `systems/${game.system.id}/templates/window/automation-config.hbs`,
-      classes: ["lancer", "automation-config"],
+      classes: ["automation-config"],
       width: 350,
     };
   }
