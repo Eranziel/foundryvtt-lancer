@@ -21,6 +21,7 @@
   import { targetsFromTemplate } from "../../flows/_template";
   import type { LancerActor } from "../../actor/lancer-actor";
   import HudCheckbox from "../components/HudCheckbox.svelte";
+  import { LancerToken } from "../../token";
 
   export let weapon: AccDiffHudWeapon;
   export let base: AccDiffHudBase;
@@ -46,13 +47,32 @@
     el.focus();
   }
 
-  function drawLos(target: Token) {
-    // Ignore drawing LOS after the form has been submitted, to avoid flickering LOS lines as
+  function targetHoverIn(event: MouseEvent, target: LancerToken) {
+    // Ignore target hovering after the form has been submitted, to avoid flickering when
     // the UI slides down.
     if (submitted) return;
     const thtModule = game.modules.get("terrain-height-tools");
     // @ts-expect-error v10 types
-    if (!thtModule?.active || foundry.utils.isNewerVersion("0.3.3", thtModule.version)) return;
+    if (!thtModule?.active || foundry.utils.isNewerVersion("0.3.3", thtModule.version)) {
+      // @ts-expect-error not supposed to use a private method
+      target._onHoverIn(event);
+    } else {
+      drawLos(target);
+    }
+  }
+
+  function targetHoverOut(event: MouseEvent, target: LancerToken) {
+    const thtModule = game.modules.get("terrain-height-tools");
+    // @ts-expect-error v10 types
+    if (!thtModule?.active || foundry.utils.isNewerVersion("0.3.3", thtModule.version)) {
+      // @ts-expect-error not supposed to use a private method
+      target._onHoverOut(event);
+    } else {
+      clearLos();
+    }
+  }
+
+  function drawLos(target: Token) {
     const tokens = lancerActor?.getActiveTokens(true) ?? lancerItem?.actor?.getActiveTokens(true);
     const attacker = tokens?.shift();
     if (!attacker || attacker === target) return;
@@ -60,9 +80,6 @@
   }
 
   function clearLos() {
-    const thtModule = game.modules.get("terrain-height-tools");
-    // @ts-expect-error v10 types
-    if (!thtModule?.active || foundry.utils.isNewerVersion("0.3.3", thtModule.version)) return;
     terrainHeightTools!.clearLineOfSightRays();
   }
 
@@ -196,7 +213,11 @@
                 <Cover bind:cover={base.cover} class="accdiff-base-cover flexcol" disabled={weapon.seeking} />
               </div>
             {:else if targets.length == 1}
-              <div transition:slide|local on:mouseenter={() => drawLos(targets[0].target)} on:mouseleave={clearLos}>
+              <div
+                transition:slide|local
+                on:mouseenter={ev => targetHoverIn(ev, targets[0].target)}
+                on:mouseleave={ev => targetHoverOut(ev, targets[0].target)}
+              >
                 <Cover bind:cover={targets[0].cover} class="accdiff-base-cover flexcol" disabled={weapon.seeking} />
               </div>
             {/if}
@@ -251,8 +272,8 @@
           {:else if targets.length == 1}
             <div
               class="flexrow flex-center accdiff-total"
-              on:mouseenter={() => drawLos(targets[0].target)}
-              on:mouseleave={clearLos}
+              on:mouseenter={ev => targetHoverIn(ev, targets[0].target)}
+              on:mouseleave={ev => targetHoverOut(ev, targets[0].target)}
             >
               <Total bind:target={targets[0]} id="total-display-0" onlyTarget={true} />
             </div>
@@ -264,8 +285,8 @@
                   out:slide={{ duration: 100 }}
                   animate:flip={{ duration: 200 }}
                   class="flexcol card accdiff-target"
-                  on:mouseenter={() => drawLos(data.target)}
-                  on:mouseleave={clearLos}
+                  on:mouseenter={ev => targetHoverIn(ev, data.target)}
+                  on:mouseleave={ev => targetHoverOut(ev, data.target)}
                 >
                   <label class="target-name flexrow lancer-mini-header" for={data.target.id}>
                     🞂<span>{data.target.document.name}</span>🞀

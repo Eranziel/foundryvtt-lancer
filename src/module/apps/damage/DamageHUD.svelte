@@ -16,6 +16,7 @@
   import { DamageType } from "../../enums";
   import HitRadio from "./HitRadio.svelte";
   import { LancerActor } from "../../actor/lancer-actor";
+  import { LancerToken } from "../../token";
 
   export let title: string;
   export let kind: "damage";
@@ -171,6 +172,15 @@
 
     base = base;
   }
+
+  function targetHoverIn(event: any, target: LancerToken) {
+    // @ts-expect-error
+    target._onHoverIn(event);
+  }
+  function targetHoverOut(event: any, target: LancerToken) {
+    // @ts-expect-error
+    target._onHoverOut(event);
+  }
 </script>
 
 <form
@@ -280,7 +290,11 @@
   <!-- Target cards -->
   <div class="damage-hud-targets">
     {#if targets.length === 1}
-      <div class={`single-target-container ${targetHitQualityClass}`}>
+      <div
+        class={`single-target-container ${targetHitQualityClass}`}
+        on:mouseenter={ev => targetHoverIn(ev, targets[0].target)}
+        on:mouseleave={ev => targetHoverOut(ev, targets[0].target)}
+      >
         <span class="target-name flexrow lancer-mini-header">🞂<b>{targets[0].target.name}</b>🞀</span>
         <div class="target-body flexrow">
           <img
@@ -293,7 +307,12 @@
       </div>
     {:else if targets.length > 1}
       {#each targets as target (target.target.id)}
-        <div class="target-container {targets.length <= 1 ? 'solo' : ''}" animate:flip={{ duration: 200 }}>
+        <div
+          class="target-container {targets.length <= 1 ? 'solo' : ''}"
+          animate:flip={{ duration: 200 }}
+          on:mouseenter={ev => targetHoverIn(ev, target.target)}
+          on:mouseleave={ev => targetHoverOut(ev, target.target)}
+        >
           <DamageTarget {target} on:ap={updateTargets} on:paracausal={updateTargets} on:halfDmg={updateTargets} />
         </div>
       {/each}
