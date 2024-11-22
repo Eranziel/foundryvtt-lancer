@@ -1,9 +1,9 @@
-import { LancerCombat } from "../../combat/lancer-combat";
 import { modAction } from "../../action/action-tracker";
 import { LancerActor } from "../../actor/lancer-actor";
-import { ActionTrackFlow } from "../../flows/action-track";
-import { getActionTrackerOptions, getAutomationOptions } from "../../settings";
+import { LancerCombat } from "../../combat/lancer-combat";
 import { LANCER } from "../../config";
+import { ActionTrackFlow } from "../../flows/action-track";
+import { getAutomationOptions } from "../../settings";
 
 const lp = LANCER.log_prefix;
 
@@ -46,7 +46,7 @@ function processStartTurn(actor: LancerActor) {
   refreshReactions(game.combat);
 
   // Print chat messages.
-  if (getActionTrackerOptions().printMessages) {
+  if (game.settings.get(game.system.id, LANCER.setting_actionTracker).printMessages) {
     new ActionTrackFlow(actor, { start: true }).begin();
   }
 }
@@ -63,7 +63,7 @@ function processEndTurn(actor: LancerActor) {
   }
 
   // Print chat messages.
-  if (getActionTrackerOptions().printMessages) {
+  if (game.settings.get(game.system.id, LANCER.setting_actionTracker).printMessages) {
     new ActionTrackFlow(actor, { start: false }).begin();
   }
 }

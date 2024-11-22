@@ -23,7 +23,12 @@ import type { SkillModel } from "./module/models/items/skill";
 import type { StatusModel } from "./module/models/items/status";
 import type { TalentModel } from "./module/models/items/talent";
 import type { WeaponModModel } from "./module/models/items/weapon_mod";
-import type { AutomationOptions, CombatTrackerAppearance, StatusIconConfigOptions } from "./module/settings";
+import type {
+  ActionTrackerOptions,
+  AutomationOptions,
+  CombatTrackerAppearance,
+  StatusIconConfigOptions,
+} from "./module/settings";
 import type { TerrainHeightToolsAPI } from "./types/terrain-height-tools";
 
 interface LancerInitiativeConfig<T extends string = string> {
@@ -116,7 +121,7 @@ declare global {
   interface SettingConfig {
     "lancer.actionManager": boolean;
     "lancer.actionManagerPlayersUse": boolean;
-    "lancer.actionTracker": Record<string, unknown>;
+    "lancer.actionTracker": typeof ActionTrackerOptions;
     "lancer.attackSwitch": boolean;
     "lancer.autoCalcStructure": boolean;
     "lancer.autoOCHeat": boolean;

@@ -26,7 +26,6 @@ import {
 } from "../helpers/refs";
 import { attachTagTooltips } from "../helpers/tags";
 import { LancerItem } from "../item/lancer-item";
-import { getActionTrackerOptions } from "../settings";
 import { lookupOwnedDeployables } from "../util/lid";
 import { LancerActor, LancerActorType } from "./lancer-actor";
 const lp = LANCER.log_prefix;
@@ -279,7 +278,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<Acto
     elements.on("click", async ev => {
       ev.stopPropagation();
 
-      if (game.user?.isGM || getActionTrackerOptions().allowPlayers) {
+      if (game.user?.isGM || game.settings.get(game.system.id, LANCER.setting_actionTracker).allowPlayers) {
         const params = ev.currentTarget.dataset;
         const action = params.action as ActionType | undefined;
         const data = await this.getData();

@@ -1,8 +1,8 @@
-import type { LancerActor } from "../actor/lancer-actor";
-import type { ActionTrackingData, ActionType } from ".";
 import tippy from "tippy.js";
-import { getActionTrackerOptions } from "../settings";
-import { getActions, modAction, toggleAction, _defaultActionData } from "./action-tracker";
+import type { ActionTrackingData, ActionType } from ".";
+import type { LancerActor } from "../actor/lancer-actor";
+import { LANCER } from "../config";
+import { getActions, modAction, toggleAction } from "./action-tracker";
 
 declare global {
   interface FlagConfig {
@@ -32,7 +32,9 @@ export class LancerActionManager extends Application {
 
   async init() {
     // TODO: find the correct place to specify what game.system.id is expected to be
-    LancerActionManager.enabled = getActionTrackerOptions().showHotbar && !game.settings.get("core", "noCanvas");
+    LancerActionManager.enabled =
+      game.settings.get(game.system.id, LANCER.setting_actionTracker).showHotbar &&
+      !game.settings.get("core", "noCanvas");
     if (LancerActionManager.enabled) {
       this.loadUserPos();
       await this.updateControlledToken();
@@ -62,7 +64,7 @@ export class LancerActionManager extends Application {
       position: this.position,
       name: this.target && this.target.name.toLocaleUpperCase(),
       actions: this.getActions(),
-      clickable: game.user?.isGM || getActionTrackerOptions().allowPlayers,
+      clickable: game.user?.isGM || game.settings.get(game.system.id, LANCER.setting_actionTracker).allowPlayers,
     };
     return data;
   }
@@ -90,7 +92,10 @@ export class LancerActionManager extends Application {
   }
 
   async updateConfig() {
-    if (getActionTrackerOptions().showHotbar && !game.settings.get("core", "noCanvas")) {
+    if (
+      game.settings.get(game.system.id, LANCER.setting_actionTracker).showHotbar &&
+      !game.settings.get("core", "noCanvas")
+    ) {
       await this.update();
       LancerActionManager.enabled = true;
     } else {
@@ -269,6 +274,6 @@ export class LancerActionManager extends Application {
   }
 
   private canMod() {
-    return game.user?.isGM || getActionTrackerOptions().allowPlayers;
+    return game.user?.isGM || game.settings.get(game.system.id, LANCER.setting_actionTracker).allowPlayers;
   }
 }

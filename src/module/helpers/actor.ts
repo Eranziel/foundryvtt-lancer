@@ -1,12 +1,12 @@
 import type { HelperOptions } from "handlebars";
-import { extendHelper, inc_if, resolveHelperDotpath, selected, std_num_input, std_x_of_y } from "./commons";
-import { ref_params, simple_ref_slot } from "./refs";
 import { type ActionType } from "../action";
+import { actionIcon } from "../action/action-tracker";
 import type { LancerActor, LancerMECH, LancerNPC, LancerPILOT } from "../actor/lancer-actor";
-import { getActionTrackerOptions } from "../settings";
+import { LANCER } from "../config";
 import { EntryType } from "../enums";
 import { LancerFlowState } from "../flows/interfaces";
-import { actionIcon } from "../action/action-tracker";
+import { extendHelper, inc_if, resolveHelperDotpath, selected, std_num_input, std_x_of_y } from "./commons";
+import { ref_params, simple_ref_slot } from "./refs";
 
 // ---------------------------------------
 // Some simple stat editing thingies
@@ -249,7 +249,7 @@ export function action_button(
   }
 
   let enabled = false;
-  if (game.user?.isGM || getActionTrackerOptions().allowPlayers) {
+  if (game.user?.isGM || game.settings.get(game.system.id, LANCER.setting_actionTracker).allowPlayers) {
     enabled = true;
   }
 
