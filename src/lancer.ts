@@ -558,25 +558,27 @@ Hooks.on("renderChatMessage", async (cm: ChatMessage, html: JQuery, data: any) =
   });
 
   // Highlight attack and damage targets on hover
+  const hoverCallback = async (
+    ev:
+      | JQuery.MouseEnterEvent<HTMLElement, undefined, HTMLElement, HTMLElement>
+      | JQuery.MouseLeaveEvent<HTMLElement, undefined, HTMLElement, HTMLElement>
+  ) => {
+    const targetId = $(ev.target).closest("[data-uuid]").data("uuid");
+    console.log(targetId);
+    if (!targetId) return;
+    const token = (await fromUuid(targetId)) as LancerToken | null;
+    if (!token) return;
+    if (ev.type === "mouseover") {
+      // @ts-expect-error we're not supposed to call the private method, oops
+      token.object._onHoverIn(ev);
+    } else if (ev.type === "mouseout") {
+      // @ts-expect-error we're not supposed to call the private method, oops
+      token.object._onHoverOut(ev);
+    }
+  };
   const atkDmgTargets = html.find(".lancer-hit-target, .lancer-damage-target");
-  atkDmgTargets.on("mouseenter", async ev => {
-    const targetId = $(ev.target).closest("[data-uuid]").data("uuid");
-    console.log(targetId);
-    if (!targetId) return;
-    const token = (await fromUuid(targetId)) as LancerToken | null;
-    if (!token) return;
-    // @ts-expect-error we're not supposed to call the private method, oops
-    token.object._onHoverIn(ev);
-  });
-  atkDmgTargets.on("mouseleave", async ev => {
-    const targetId = $(ev.target).closest("[data-uuid]").data("uuid");
-    console.log(targetId);
-    if (!targetId) return;
-    const token = (await fromUuid(targetId)) as LancerToken | null;
-    if (!token) return;
-    // @ts-expect-error we're not supposed to call the private method, oops
-    token.object._onHoverOut(ev);
-  });
+  atkDmgTargets.on("mouseenter", hoverCallback);
+  atkDmgTargets.on("mouseleave", hoverCallback);
 
   html.find(".lancer-damage-flow").on("click", rollDamageCallback);
 
