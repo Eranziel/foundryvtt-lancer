@@ -557,6 +557,27 @@ Hooks.on("renderChatMessage", async (cm: ChatMessage, html: JQuery, data: any) =
     }
   });
 
+  // Highlight attack and damage targets on hover
+  const atkDmgTargets = html.find(".lancer-hit-target, .lancer-damage-target");
+  atkDmgTargets.on("mouseenter", async ev => {
+    const targetId = $(ev.target).closest("[data-uuid]").data("uuid");
+    console.log(targetId);
+    if (!targetId) return;
+    const token = (await fromUuid(targetId)) as LancerToken | null;
+    if (!token) return;
+    // @ts-expect-error we're not supposed to call the private method, oops
+    token.object._onHoverIn(ev);
+  });
+  atkDmgTargets.on("mouseleave", async ev => {
+    const targetId = $(ev.target).closest("[data-uuid]").data("uuid");
+    console.log(targetId);
+    if (!targetId) return;
+    const token = (await fromUuid(targetId)) as LancerToken | null;
+    if (!token) return;
+    // @ts-expect-error we're not supposed to call the private method, oops
+    token.object._onHoverOut(ev);
+  });
+
   html.find(".lancer-damage-flow").on("click", rollDamageCallback);
 
   html.find(".lancer-damage-apply").on("click", applyDamage);

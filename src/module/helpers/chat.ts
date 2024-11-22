@@ -68,8 +68,9 @@ export function attackTarget(hit: LancerFlowState.HitResultWithRoll, options: He
     : `<span class="card clipped lancer-hit-chip miss">${game.i18n.format("lancer.chat-card.attack.miss")}</span>`;
   // @ts-expect-error v10 types
   const img = hit.target.document.texture.src;
+  const uuid = hit.target.document.uuid;
   return `
-    <div class="lancer-hit-target">
+    <div class="lancer-hit-target" data-uuid=${uuid}>
       <img class="lancer-hit-thumb" src="${img}" />
       <span class="lancer-hit-text-name" data-tooltip="${hit.target.name}"><b>${hit.target.name}</b></span>
       ${hitChip}
@@ -167,7 +168,7 @@ export function damageTarget(
       <span class="lancer-hit-text-name" data-tooltip="${target.target.name}"><b>${target.target.name}</b></span>
       <div
         class="lancer-damage-button-group"
-        data-target="${target.target.document.uuid}"
+        data-target="${uuid}"
         data-hit="${target.hit}"
         data-crit="${target.crit}"
         data-add-burn="${context.add_burn}"
