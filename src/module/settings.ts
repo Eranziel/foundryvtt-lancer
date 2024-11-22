@@ -1,12 +1,12 @@
-import { setAppearance } from "./combat/lancer-combat-tracker";
-import type { LancerCombat, LancerCombatant } from "./combat/lancer-combat";
-import { LANCER } from "./config";
-import { AutomationConfig } from "./apps/automation-settings";
-import CompconLoginForm from "./helpers/compcon-login-form";
 import { ActionTrackerConfig } from "./apps/action-tracker-settings";
+import { AutomationConfig } from "./apps/automation-settings";
 import { StatusIconConfig } from "./apps/status-icon-config";
+import type { LancerCombat, LancerCombatant } from "./combat/lancer-combat";
+import { setAppearance } from "./combat/lancer-combat-tracker";
+import { LANCER } from "./config";
+import CompconLoginForm from "./helpers/compcon-login-form";
 import { applyTheme } from "./themes";
-import type { fields } from "@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/data/module.mjs";
+import fields = foundry.data.fields;
 
 export const registerSettings = function () {
   /**
@@ -134,7 +134,7 @@ export const registerSettings = function () {
   game.settings.register(game.system.id, LANCER.setting_actionTracker, {
     scope: "world",
     config: false,
-    type: Object,
+    type: ActionTrackerOptions,
     default: {},
   });
 
@@ -262,46 +262,36 @@ export class AutomationOptions extends foundry.abstract.DataModel<AutomationOpti
 
 //
 // > ACTION TRACKER AUTOMATION
-// TODO Move this to a DataModel once the action tracker is working again
-/**
- * Retrieve the automation settings for the system. If automation is turned
- * off, all keys will be `false`.
- * @param useDefault - Control if the returned value is the default.
- *                     (default: `false`)
- */
-export function getActionTrackerOptions(useDefault = false): ActionTrackerOptions {
-  const def: ActionTrackerOptions = {
-    showHotbar: true,
-    allowPlayers: true,
-    printMessages: false,
-  };
-  if (useDefault) return def;
-  const set = game.settings.get(game.system.id, LANCER.setting_actionTracker) as Partial<ActionTrackerOptions>;
-  return {
-    ...def,
-    ...set,
-  };
-}
 
 /**
  * Object for the various automation settings in the system
  */
-export interface ActionTrackerOptions {
+interface ActionTrackerOptionsSchema extends DataSchema {
   /**
    * Whether the hotbar should be displayed.
    * @defaultValue `true`
    */
-  showHotbar: boolean;
+  showHotbar: fields.BooleanField<{ initial: true }>;
   /**
    * Whether the players (non-GMs) can modify actions.
    * @defaultValue `true`
    */
-  allowPlayers: boolean;
+  allowPlayers: fields.BooleanField<{ initial: true }>;
   /**
    * Whether to print turn start/end chat messages.
    * @defaultValue `true`
    */
-  printMessages: boolean;
+  printMessages: fields.BooleanField<{ initial: true }>;
+}
+
+export class ActionTrackerOptions extends foundry.abstract.DataModel<ActionTrackerOptionsSchema> {
+  static defineSchema(): ActionTrackerOptionsSchema {
+    return {
+      showHotbar: new fields.BooleanField({ initial: true, required: true }),
+      allowPlayers: new fields.BooleanField({ initial: true, required: true }),
+      printMessages: new fields.BooleanField({ initial: true, required: true }),
+    };
+  }
 }
 
 //

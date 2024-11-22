@@ -1,5 +1,5 @@
 import { LANCER } from "../config";
-import { ActionTrackerOptions, getActionTrackerOptions } from "../settings";
+import { ActionTrackerOptions } from "../settings";
 
 /**
  * Settings form for customizing the icon appearance of the icon used in the
@@ -20,10 +20,7 @@ export class ActionTrackerConfig extends FormApplication<FormApplicationOptions,
 
   /** @override */
   getData(): ActionTrackerOptions {
-    return {
-      ...getActionTrackerOptions(true),
-      ...(game.settings.get(game.system.id, LANCER.setting_actionTracker) as Partial<ActionTrackerOptions>),
-    };
+    return game.settings.get(game.system.id, LANCER.setting_actionTracker);
   }
 
   /** @override */
@@ -36,8 +33,6 @@ export class ActionTrackerConfig extends FormApplication<FormApplicationOptions,
 
   /** @override */
   async _updateObject(_: Event, data: Record<string, unknown>): Promise<void> {
-    const defs = getActionTrackerOptions();
-    const set = foundry.utils.diffObject(defs, data, { inner: true });
     game.settings.set(game.system.id, LANCER.setting_actionTracker, data);
   }
 
