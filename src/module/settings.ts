@@ -4,6 +4,7 @@ import { StatusIconConfig } from "./apps/status-icon-config";
 import type { LancerCombat, LancerCombatant } from "./combat/lancer-combat";
 import { setAppearance } from "./combat/lancer-combat-tracker";
 import { LANCER } from "./config";
+import { LancerActiveEffect } from "./effects/lancer-active-effect";
 import CompconLoginForm from "./helpers/compcon-login-form";
 import { applyTheme } from "./themes";
 import fields = foundry.data.fields;
@@ -102,6 +103,10 @@ export const registerSettings = function () {
     scope: "world",
     config: false,
     type: StatusIconConfigOptions,
+    onChange: async () => {
+      await LancerActiveEffect.initConfig();
+      await LancerActiveEffect.populateFromItems();
+    },
     default: new StatusIconConfigOptions(),
   });
 
@@ -387,14 +392,61 @@ export class StatusIconConfigOptions extends foundry.abstract.DataModel<StatusIc
   static defineSchema() {
     const fields: any = foundry.data.fields;
     return {
-      defaultConditionsStatus: new fields.BooleanField({ required: true, initial: true }),
-      cancerConditionsStatus: new fields.BooleanField({ required: true, initial: false }),
-      cancerNPCTemplates: new fields.BooleanField({ required: true, initial: false }),
-      hayleyConditionsStatus: new fields.BooleanField({ required: true, initial: false }),
-      hayleyPC: new fields.BooleanField({ required: true, initial: false }),
-      hayleyNPC: new fields.BooleanField({ required: true, initial: false }),
-      hayleyUtility: new fields.BooleanField({ required: true, initial: false }),
-      tommyConditionsStatus: new fields.BooleanField({ required: true, initial: false }),
+      defaultConditionsStatus: new fields.BooleanField({
+        required: true,
+        initial: true,
+        label: "lancer.statusIconsConfig.defaultConditionsStatus",
+        hint: "lancer.statusIconsConfig.defaultConditionsStatus-desc",
+      }),
+
+      cancerConditionsStatus: new fields.BooleanField({
+        required: true,
+        initial: false,
+        label: "lancer.statusIconsConfig.cancerConditionsStatus",
+        hint: "lancer.statusIconsConfig.cancerConditionsStatus-desc",
+      }),
+
+      cancerNPCTemplates: new fields.BooleanField({
+        required: true,
+        initial: false,
+        label: "lancer.statusIconsConfig.cancerNPCTemplates",
+        hint: "lancer.statusIconsConfig.cancerNPCTemplates-desc",
+      }),
+
+      hayleyConditionsStatus: new fields.BooleanField({
+        required: true,
+        initial: false,
+        label: "lancer.statusIconsConfig.hayleyConditionsStatus",
+        hint: "lancer.statusIconsConfig.hayleyConditionsStatus-desc",
+      }),
+
+      hayleyPC: new fields.BooleanField({
+        required: true,
+        initial: false,
+        label: "lancer.statusIconsConfig.hayleyPC",
+        hint: "lancer.statusIconsConfig.hayleyPC-desc",
+      }),
+
+      hayleyNPC: new fields.BooleanField({
+        required: true,
+        initial: false,
+        label: "lancer.statusIconsConfig.hayleyNPC",
+        hint: "lancer.statusIconsConfig.hayleyNPC-desc",
+      }),
+
+      hayleyUtility: new fields.BooleanField({
+        required: true,
+        initial: false,
+        label: "lancer.statusIconsConfig.hayleyUtility",
+        hint: "lancer.statusIconsConfig.hayleyUtility-desc",
+      }),
+
+      tommyConditionsStatus: new fields.BooleanField({
+        required: true,
+        initial: false,
+        label: "lancer.statusIconsConfig.tommyConditionsStatus",
+        hint: "lancer.statusIconsConfig.tommyConditionsStatus-desc",
+      }),
     };
   }
 }
