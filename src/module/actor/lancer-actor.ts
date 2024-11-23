@@ -567,6 +567,7 @@ export class LancerActor extends Actor {
         [EntryType.PILOT]: CONST.TOKEN_DISPOSITIONS.FRIENDLY,
         [EntryType.DEPLOYABLE]: CONST.TOKEN_DISPOSITIONS.NEUTRAL,
         [EntryType.MECH]: CONST.TOKEN_DISPOSITIONS.FRIENDLY,
+        ["base"]: undefined,
       }[this.type] ?? CONST.TOKEN_DISPOSITIONS.FRIENDLY;
 
     // Put in the basics
@@ -799,10 +800,11 @@ export class LancerActor extends Actor {
   async removeClassFeatures(item: LancerItem) {
     if (!this.is_npc() || (!item.is_npc_class() && !item.is_npc_template())) return;
     const targetFeatures = [...item.system.base_features, ...item.system.optional_features];
+    // @ts-ignore Intermittent types error
     let matches = this.itemTypes.npc_feature.filter(feat => targetFeatures.includes(feat.system.lid));
     await this._safeDeleteDescendant(
       "Item",
-      matches.filter(x => x)
+      matches.filter((x: LancerItem | undefined) => x)
     );
   }
 
@@ -851,6 +853,7 @@ export class LancerActor extends Actor {
     if (!this.is_npc()) return [];
     let result = [];
     for (let predicateLid of featureLids) {
+      // @ts-ignore Intermittent types error
       for (let candidate_feature of this.itemTypes.npc_feature as LancerNPC_FEATURE[]) {
         if (candidate_feature.system.lid == predicateLid) {
           result.push(candidate_feature);
