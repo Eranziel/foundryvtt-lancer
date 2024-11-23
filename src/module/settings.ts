@@ -110,6 +110,7 @@ export const registerSettings = function () {
     label: "lancer.automation.menu-label",
     hint: "lancer.automation.menu-hint",
     icon: "mdi mdi-state-machine",
+    // @ts-expect-error
     type: AutomationConfig,
     restricted: true,
   });
@@ -248,14 +249,54 @@ export class AutomationOptions extends foundry.abstract.DataModel<AutomationOpti
   static defineSchema() {
     const fields = foundry.data.fields;
     return {
-      attacks: new fields.BooleanField({ required: true, initial: true }),
-      structure: new fields.BooleanField({ required: true, initial: true }),
-      overcharge_heat: new fields.BooleanField({ required: true, initial: true }),
-      attack_self_heat: new fields.BooleanField({ required: true, initial: true }),
-      limited_loading: new fields.BooleanField({ required: true, initial: true }),
-      npc_recharge: new fields.BooleanField({ required: true, initial: true }),
-      remove_templates: new fields.BooleanField({ required: true, initial: false }),
-      token_size: new fields.BooleanField({ required: true, initial: true }),
+      attacks: new fields.BooleanField({
+        required: true,
+        initial: true,
+        label: "lancer.automation.attacks",
+        hint: "lancer.automation.attacks-desc",
+      }),
+      structure: new fields.BooleanField({
+        required: true,
+        initial: true,
+        label: "lancer.automation.structure",
+        hint: "lancer.automation.structure-desc",
+      }),
+      overcharge_heat: new fields.BooleanField({
+        required: true,
+        initial: true,
+        label: "lancer.automation.overcharge_heat",
+        hint: "lancer.automation.overcharge_heat-desc",
+      }),
+      attack_self_heat: new fields.BooleanField({
+        required: true,
+        initial: true,
+        label: "lancer.automation.attack_self_heat",
+        hint: "lancer.automation.attack_self_heat-desc",
+      }),
+      limited_loading: new fields.BooleanField({
+        required: true,
+        initial: true,
+        label: "lancer.automation.limited_loading",
+        hint: "lancer.automation.limited_loading-desc",
+      }),
+      npc_recharge: new fields.BooleanField({
+        required: true,
+        initial: true,
+        label: "lancer.automation.npc_recharge",
+        hint: "lancer.automation.npc_recharge-desc",
+      }),
+      remove_templates: new fields.BooleanField({
+        required: true,
+        initial: false,
+        label: "lancer.automation.remove_templates",
+        hint: "lancer.automation.remove_templates-desc",
+      }),
+      token_size: new fields.BooleanField({
+        required: true,
+        initial: true,
+        label: "lancer.automation.token_size",
+        hint: "lancer.automation.token_size-desc",
+      }),
     };
   }
 }

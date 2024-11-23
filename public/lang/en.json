@@ -340,7 +340,7 @@
       "overcharge_heat-desc": "Automatically apply heat when rolling overcharge",
       "attack_self_heat": "Self Heat from Attacks",
       "attack_self_heat-desc": "When a weapon has the Overkill or Heat (self) tags, automatically apply any heat.",
-      "remove_templates": "Remove Templates Each Turn",
+      "remove_templates": "Autoremove Templates",
       "remove_templates-desc": "When the turn changes, should measured templates from attacks be cleared?",
       "limited_loading": "Manage Limited/Loading",
       "limited_loading-desc": "When items are used, should their limited and loading status be automatically managed and tracked?",
