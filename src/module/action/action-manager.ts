@@ -8,8 +8,8 @@ declare global {
   interface FlagConfig {
     User: {
       lancer: {
-        "action-manager": {
-          pos: {
+        "action-manager"?: {
+          pos?: {
             top: number;
             left: number;
           };
@@ -161,9 +161,9 @@ export class LancerActionManager extends Application {
   }
 
   private loadUserPos() {
-    if (!game.user?.getFlag(game.system.id, "action-manager").pos) return;
+    if (!game.user?.getFlag(game.system.id, "action-manager")?.pos) return;
 
-    const pos = game.user.getFlag(game.system.id, "action-manager").pos;
+    const pos = game.user.getFlag(game.system.id, "action-manager")!.pos!;
     const appPos = this.position;
     return new Promise(resolve => {
       function loop() {
