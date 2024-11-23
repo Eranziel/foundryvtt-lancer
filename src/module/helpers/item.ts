@@ -1568,7 +1568,12 @@ function _handleContextMenus(
       const refElement = html.closest(".set")[0];
       if (!refElement) return false;
       const uuid = refElement.dataset.uuid;
-      let item = uuid ? (fromUuidSync(uuid) as LancerItem | null) : (dd(html)?.terminus as LancerItem | null);
+      let item = null;
+      try {
+        item = uuid ? (fromUuidSync(uuid) as LancerItem | null) : (dd(html)?.terminus as LancerItem | null);
+      } catch {
+        /* Do nothing */
+      }
       return (
         !view_only &&
         item instanceof LancerItem &&
@@ -1595,7 +1600,12 @@ function _handleContextMenus(
       const refElement = html.closest(".set")[0];
       if (!refElement) return false;
       const uuid = refElement.dataset.uuid;
-      let item = (uuid ? fromUuidSync(uuid) : dd(html)?.terminus) as LancerItem | null;
+      let item = null;
+      try {
+        item = (uuid ? fromUuidSync(uuid) : dd(html)?.terminus) as LancerItem | null;
+      } catch {
+        /* Do nothing */
+      }
       return (
         !view_only &&
         item instanceof LancerItem &&
@@ -1611,7 +1621,12 @@ function _handleContextMenus(
     icon: '<i class="fas fa-fw fa-trash"></i>',
     callback: async (html: JQuery) => {
       const uuid = html.closest(".set")[0].dataset.uuid;
-      let item = (uuid ? fromUuidSync(uuid) : dd(html)?.terminus) as LancerItem | null;
+      let item = null;
+      try {
+        item = (uuid ? fromUuidSync(uuid) : dd(html)?.terminus) as LancerItem | null;
+      } catch {
+        /* Do nothing */
+      }
       if (item instanceof LancerItem && doc instanceof LancerActor) {
         doc.removeClassFeatures(item);
       }

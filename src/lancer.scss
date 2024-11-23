@@ -2734,6 +2734,11 @@ a.action {
   min-width: 20px;
 }
 
+.locked .lancer-context-menu {
+  // Hide context menus on locked sheets
+  display: none;
+}
+
 .tippy-box[data-theme~="lancer-large"] {
   background: var(--tooltip-background) !important;
   background-color: var(--tooltip-background) !important;
