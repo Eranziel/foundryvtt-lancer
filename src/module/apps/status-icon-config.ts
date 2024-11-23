@@ -37,8 +37,6 @@ export class StatusIconConfig extends HandlebarsApplicationMixin(ApplicationV2<{
 
   async _prepareContext(opts: DeepPartial<RenderOptions>): Promise<{}> {
     const config = game.settings.get(game.system.id, LANCER.setting_status_icons);
-    const blank = new StatusIconConfigOptions();
-    Object.keys(blank).forEach(k => ((<any>blank)[k] = false));
     const ctx = {
       config: opts.loadDefault ? new StatusIconConfigOptions() : config,
       fields: config.schema.fields,

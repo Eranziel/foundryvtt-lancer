@@ -333,9 +333,24 @@ interface ActionTrackerOptionsSchema extends DataSchema {
 export class ActionTrackerOptions extends foundry.abstract.DataModel<ActionTrackerOptionsSchema> {
   static defineSchema(): ActionTrackerOptionsSchema {
     return {
-      showHotbar: new fields.BooleanField({ initial: true, required: true }),
-      allowPlayers: new fields.BooleanField({ initial: true, required: true }),
-      printMessages: new fields.BooleanField({ initial: true, required: true }),
+      showHotbar: new fields.BooleanField({
+        initial: true,
+        required: true,
+        label: "lancer.actionTracker.showHotbar",
+        hint: "lancer.actionTracker.showHotbar-desc",
+      }),
+      allowPlayers: new fields.BooleanField({
+        initial: true,
+        required: true,
+        label: "lancer.actionTracker.allowPlayers",
+        hint: "lancer.actionTracker.allowPlayers-desc",
+      }),
+      printMessages: new fields.BooleanField({
+        initial: true,
+        required: true,
+        label: "lancer.actionTracker.printMessages",
+        hint: "lancer.actionTracker.printMessages-desc",
+      }),
     };
   }
 }
