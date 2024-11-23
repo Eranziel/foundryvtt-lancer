@@ -405,7 +405,7 @@ interface StatusIconConfigOptionsSchema extends DataSchema {
  */
 export class StatusIconConfigOptions extends foundry.abstract.DataModel<StatusIconConfigOptionsSchema> {
   static defineSchema() {
-    const fields: any = foundry.data.fields;
+    const fields = foundry.data.fields;
     return {
       defaultConditionsStatus: new fields.BooleanField({
         required: true,
