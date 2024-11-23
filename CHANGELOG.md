@@ -1,3 +1,21 @@
+# 2.4.2 (2024-11-22)
+
+## Bug Fixes
+
+- #782 - Drastically improve the legibility of the system settings windows (status icon config, automation config, action tracker config).
+- #791 - Fix a bug preventing targetless damage rolls from being displayed in chat.
+- Migration improvements and bug fixes
+  - Journal is shown immediately to better inform users what is happening and show the troubleshooting steps.
+  - Errors when migrating each document should now be caught so that the rest of the migration can continue. Notifications and console logs are generated to inform the user that there was a problem.
+  - Display progress bar during migration.
+- Fix a bug causing compendium actor sheets to take up the full screen.
+
+## Improvements
+
+- Improve legibility of kinetic damage icons on any buttons.
+- Add tooltips to attack/damage target names in chat so that the full name can be read if it is too long for the available space.
+- Add on-hover highlighting of attack and damage targets, making the associated token behave as though it were being hovered (show token border, show name and/or bars if configured). This applies to both the attack/damage HUDs and chat cards.
+
 # 2.4.1 (2024-11-14)
 
 ## Bug Fixes
