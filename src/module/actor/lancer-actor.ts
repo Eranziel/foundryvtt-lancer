@@ -960,93 +960,107 @@ export class LancerActor extends Actor {
     // Overshield
     if ((data as any).system?.overshield?.value !== undefined) {
       const val = this.system.overshield.value - (data as any).system.overshield.value;
-      scrollingTexts.push({
-        tokenId,
-        content: `${val < 0 ? "+" : "-"}${Math.abs(val).toString()} Overshield`,
-        style: {
-          anchor: CONST.TEXT_ANCHOR_POINTS.TOP,
-          direction: val < 0 ? CONST.TEXT_ANCHOR_POINTS.TOP : CONST.TEXT_ANCHOR_POINTS.BOTTOM,
-          fill: "0x9f6bff",
-        },
-      });
+      if (val) {
+        scrollingTexts.push({
+          tokenId,
+          content: `${val < 0 ? "+" : "-"}${Math.abs(val).toString()} Overshield`,
+          style: {
+            anchor: CONST.TEXT_ANCHOR_POINTS.TOP,
+            direction: val < 0 ? CONST.TEXT_ANCHOR_POINTS.TOP : CONST.TEXT_ANCHOR_POINTS.BOTTOM,
+            fill: "0x9f6bff",
+          },
+        });
+      }
     }
     // HP
     if ((data as any).system?.hp?.value !== undefined) {
       const val = this.system.hp.value - (data as any).system.hp.value;
-      scrollingTexts.push({
-        tokenId,
-        content: `${val < 0 ? "+" : "-"}${Math.abs(val).toString()} HP`,
-        style: {
-          anchor: CONST.TEXT_ANCHOR_POINTS.CENTER,
-          direction: val < 0 ? CONST.TEXT_ANCHOR_POINTS.TOP : CONST.TEXT_ANCHOR_POINTS.BOTTOM,
-          fill: "0xc2e03e",
-        },
-      });
+      if (val) {
+        scrollingTexts.push({
+          tokenId,
+          content: `${val < 0 ? "+" : "-"}${Math.abs(val).toString()} HP`,
+          style: {
+            anchor: CONST.TEXT_ANCHOR_POINTS.CENTER,
+            direction: val < 0 ? CONST.TEXT_ANCHOR_POINTS.TOP : CONST.TEXT_ANCHOR_POINTS.BOTTOM,
+            fill: "0xc2e03e",
+          },
+        });
+      }
     }
     // Burn
     if ((data as any).system?.burn !== undefined) {
       const val = this.system.burn - (data as any).system.burn;
-      scrollingTexts.push({
-        tokenId,
-        content: `${val < 0 ? "+" : "-"}${Math.abs(val).toString()} Burn`,
-        style: {
-          anchor: CONST.TEXT_ANCHOR_POINTS.BOTTOM,
-          direction: val < 0 ? CONST.TEXT_ANCHOR_POINTS.TOP : CONST.TEXT_ANCHOR_POINTS.BOTTOM,
-          fill: "0xc43333",
-        },
-      });
+      if (val) {
+        scrollingTexts.push({
+          tokenId,
+          content: `${val < 0 ? "+" : "-"}${Math.abs(val).toString()} Burn`,
+          style: {
+            anchor: CONST.TEXT_ANCHOR_POINTS.BOTTOM,
+            direction: val < 0 ? CONST.TEXT_ANCHOR_POINTS.TOP : CONST.TEXT_ANCHOR_POINTS.BOTTOM,
+            fill: "0xc43333",
+          },
+        });
+      }
     }
     // Heat
     if (this.hasHeatcap() && (data as any).system?.heat?.value !== undefined) {
       const val = this.system.heat.value - (data as any).system.heat.value;
-      scrollingTexts.push({
-        tokenId,
-        content: `${val < 0 ? "+" : "-"}${Math.abs(val).toString()} Heat`,
-        style: {
-          anchor: CONST.TEXT_ANCHOR_POINTS.BOTTOM,
-          direction: val < 0 ? CONST.TEXT_ANCHOR_POINTS.TOP : CONST.TEXT_ANCHOR_POINTS.BOTTOM,
-          fill: "0xc76f38",
-        },
-      });
+      if (val) {
+        scrollingTexts.push({
+          tokenId,
+          content: `${val < 0 ? "+" : "-"}${Math.abs(val).toString()} Heat`,
+          style: {
+            anchor: CONST.TEXT_ANCHOR_POINTS.BOTTOM,
+            direction: val < 0 ? CONST.TEXT_ANCHOR_POINTS.TOP : CONST.TEXT_ANCHOR_POINTS.BOTTOM,
+            fill: "0xc76f38",
+          },
+        });
+      }
     }
     // Structure
     if ((this.is_mech() || this.is_npc()) && (data as any).system?.structure?.value !== undefined) {
       const val = this.system.structure.value - (data as any).system.structure.value;
-      scrollingTexts.push({
-        tokenId,
-        content: `${val < 0 ? "+" : "-"}${Math.abs(val).toString()} Structure`,
-        style: {
-          anchor: CONST.TEXT_ANCHOR_POINTS.CENTER,
-          direction: val < 0 ? CONST.TEXT_ANCHOR_POINTS.TOP : CONST.TEXT_ANCHOR_POINTS.BOTTOM,
-          fill: "0x1f9eff",
-        },
-      });
+      if (val) {
+        scrollingTexts.push({
+          tokenId,
+          content: `${val < 0 ? "+" : "-"}${Math.abs(val).toString()} Structure`,
+          style: {
+            anchor: CONST.TEXT_ANCHOR_POINTS.CENTER,
+            direction: val < 0 ? CONST.TEXT_ANCHOR_POINTS.TOP : CONST.TEXT_ANCHOR_POINTS.BOTTOM,
+            fill: "0x1f9eff",
+          },
+        });
+      }
     }
     // Stress
     if ((this.is_mech() || this.is_npc()) && (data as any).system?.stress?.value !== undefined) {
       const val = this.system.stress.value - (data as any).system.stress.value;
-      scrollingTexts.push({
-        tokenId,
-        content: `${val < 0 ? "+" : "-"}${Math.abs(val).toString()} Stress`,
-        style: {
-          anchor: CONST.TEXT_ANCHOR_POINTS.CENTER,
-          direction: val < 0 ? CONST.TEXT_ANCHOR_POINTS.TOP : CONST.TEXT_ANCHOR_POINTS.BOTTOM,
-          fill: "0xff7b00",
-        },
-      });
+      if (val) {
+        scrollingTexts.push({
+          tokenId,
+          content: `${val < 0 ? "+" : "-"}${Math.abs(val).toString()} Stress`,
+          style: {
+            anchor: CONST.TEXT_ANCHOR_POINTS.CENTER,
+            direction: val < 0 ? CONST.TEXT_ANCHOR_POINTS.TOP : CONST.TEXT_ANCHOR_POINTS.BOTTOM,
+            fill: "0xff7b00",
+          },
+        });
+      }
     }
     // Repairs
     if (this.is_mech() && (data as any).system?.repairs !== undefined) {
       const val = this.system.repairs.value - (data as any).system.repairs.value;
-      scrollingTexts.push({
-        tokenId,
-        content: `${val < 0 ? "+" : "-"}${Math.abs(val).toString()} Repairs`,
-        style: {
-          anchor: CONST.TEXT_ANCHOR_POINTS.CENTER,
-          direction: val < 0 ? CONST.TEXT_ANCHOR_POINTS.TOP : CONST.TEXT_ANCHOR_POINTS.BOTTOM,
-          fill: "0x8c8c8c",
-        },
-      });
+      if (val) {
+        scrollingTexts.push({
+          tokenId,
+          content: `${val < 0 ? "+" : "-"}${Math.abs(val).toString()} Repairs`,
+          style: {
+            anchor: CONST.TEXT_ANCHOR_POINTS.CENTER,
+            direction: val < 0 ? CONST.TEXT_ANCHOR_POINTS.TOP : CONST.TEXT_ANCHOR_POINTS.BOTTOM,
+            fill: "0x8c8c8c",
+          },
+        });
+      }
     }
 
     // Now, show each one in sequence
