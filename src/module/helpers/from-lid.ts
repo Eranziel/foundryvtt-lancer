@@ -1,4 +1,5 @@
 import type { LancerActor } from "../actor/lancer-actor";
+import { EntryType } from "../enums";
 import type { LancerItem } from "../item/lancer-item";
 
 /**
@@ -81,12 +82,14 @@ export function fromLidSync(lid: string, { source = "all" }: Partial<FromLidOpts
     | LancerItem
     | {
         _id: string;
+        folder: string;
         img: string;
         name: string;
         pack: string;
         sort: number;
-        type: string;
         system: { lid: string };
+        type: EntryType;
+        uuid: string;
       }
     | undefined;
 }
