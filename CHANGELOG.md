@@ -1,3 +1,12 @@
+# 2.4.3 (2024-11-30)
+
+## Bug Fixes
+
+- #798 - Fix a bug which could allow floating text to appear over tokens with no change. e.g. "-0 HP".
+- Fix a bug preventing migrations from completing.
+- Fix a bug causing errors due to the "base" type actors/items which some modules apparently to create.
+- Fix a bug preventing mech sheets from opening in the case where they have a pilot assigned and then that pilot is deleted.
+
 # 2.4.2 (2024-11-22)
 
 ## Bug Fixes
