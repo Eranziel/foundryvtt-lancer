@@ -123,11 +123,11 @@ Please refresh the page to try again.</p>`,
     }
   }
   // Migrate World Actors
-  let all_actor_updates = await Promise.all(game.actors.contents.map(migrateActor));
+  let all_actor_updates = (await Promise.all(game.actors.contents.map(migrateActor))).filter(u => u && !!u._id);
   await Actor.updateDocuments(all_actor_updates);
 
   // Migrate World Items
-  let all_item_updates = await Promise.all(game.items.contents.map(migrateItem));
+  let all_item_updates = (await Promise.all(game.items.contents.map(migrateItem))).filter(u => u && !!u._id);
   await Item.updateDocuments(all_item_updates);
 
   // Migrate World Scenes
@@ -170,7 +170,7 @@ export async function migrateCompendium(pack: Compendium) {
   if (pack.documentName == "Actor") {
     try {
       let documents = (await pack.getDocuments()) as LancerActor[];
-      let updates = await Promise.all(documents.map(migrateActor));
+      let updates = (await Promise.all(documents.map(migrateActor))).filter(u => u && !!u._id);
       await Actor.updateDocuments(updates, { pack: pack.collection, diff: false, recursive: false, noHook: true });
     } catch (e) {
       const packLabel = game.i18n.localize(pack.metadata.label);
@@ -180,7 +180,7 @@ export async function migrateCompendium(pack: Compendium) {
   } else if (pack.documentName == "Item") {
     try {
       let documents = (await pack.getDocuments()) as LancerItem[];
-      let updates = await Promise.all(documents.map(migrateItem));
+      let updates = (await Promise.all(documents.map(migrateItem))).filter(u => u && !!u._id);
       await Item.updateDocuments(updates, { pack: pack.collection, diff: false, recursive: false, noHook: true });
     } catch (e) {
       const packLabel = game.i18n.localize(pack.metadata.label);
@@ -231,7 +231,7 @@ export async function migrateActor(actor: LancerActor): Promise<object> {
     }
 
     // Migrate Owned Items
-    let itemUpdates = await Promise.all(actor.items.contents.map(migrateItem));
+    let itemUpdates = (await Promise.all(actor.items.contents.map(migrateItem))).filter(u => u && !!u._id);
     await actor.updateEmbeddedDocuments("Item", itemUpdates);
     migrationProgress(1);
     return updateData;
@@ -301,7 +301,7 @@ export async function migrateScene(scene: Scene) {
     }
 
     // Migrate all token documents
-    let tokenUpdates = await Promise.all(scene.tokens.contents.map(migrateTokenDocument));
+    let tokenUpdates = (await Promise.all(scene.tokens.contents.map(migrateTokenDocument))).filter(u => u && !!u._id);
     await scene.updateEmbeddedDocuments("Token", tokenUpdates);
   } catch (e) {
     console.error(`Error while migrating scene [${scene.id} | ${scene.name}]:`, e);
