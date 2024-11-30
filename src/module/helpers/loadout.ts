@@ -258,9 +258,9 @@ export function pilotSlot(data_path: string, options: HelperOptions): string {
     <img class="ref set pilot click-open" 
          ${ref_params(pilot, data_path)} 
          data-accept-types="${EntryType.PILOT}"
-         style="height: 100%" src="${pilot.img}"/>
+         style="height: 100%" src="${pilot.img || "systems/lancer/assets/icons/pilot.svg"}"/>
     <div class="lancer-header lancer-primary license-level">
-      <span>LL${pilot.system.level}</span>
+      <span>LL${pilot.system?.level || `[--]`}</span>
     </div>
 </div>`;
 }
