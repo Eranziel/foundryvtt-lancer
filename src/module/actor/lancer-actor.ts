@@ -282,6 +282,11 @@ export class LancerActor extends Actor {
    * We require a customized active effect application workflow
    */
   prepareBaseData() {
+    // Some modules create actors with type "base", or potentially others we don't care about
+    if (!ACTOR_TYPES.includes(this.type)) {
+      console.log("Actor is not a LancerActor:", this);
+      return super.prepareBaseData();
+    }
     // 1. First, finalize our system tasks. Items should be (minimally) prepared by now, so we can resolve embedded items
     // @ts-expect-error
     this.system.finalize_tasks();

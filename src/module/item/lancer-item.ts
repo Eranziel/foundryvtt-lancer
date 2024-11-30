@@ -221,6 +221,8 @@ export class LancerItem extends Item {
    */
   prepareBaseData() {
     super.prepareBaseData();
+    // Some modules create items with type "base", or potentially others we don't care about
+    if (!ITEM_TYPES.includes(this.type)) return;
 
     // Collect all tags on mech weapons
     if (this.is_mech_weapon()) {
