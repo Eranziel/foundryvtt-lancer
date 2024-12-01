@@ -282,6 +282,7 @@ export class LancerActor extends Actor {
    */
   prepareBaseData() {
     // Some modules create actors with type "base", or potentially others we don't care about
+    //@ts-expect-error V12 typing in progress
     if (!ACTOR_TYPES.includes(this.type)) {
       console.log("Actor is not a LancerActor:", this);
       return super.prepareBaseData();
