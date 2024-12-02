@@ -655,7 +655,7 @@ export async function rollDamageCallback(event: JQuery.ClickEvent) {
   }
   const hit_results: LancerFlowState.HitResult[] = [];
   for (const t of attackData.targets) {
-    const target = (await fromUuid(t.id)) as LancerToken | null;
+    const target = (await fromUuid(t.uuid)) as LancerToken | null;
     // @ts-expect-error v11 types
     if (!target || target.documentName !== "Token") {
       ui.notifications?.error("Invalid target for damage roll");

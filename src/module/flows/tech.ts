@@ -186,7 +186,8 @@ export async function printTechAttackCard(
       invade: state.data.invade,
       targets: state.data.hit_results.map(hr => {
         return {
-          id: hr.target.actor?.uuid || "",
+          id: hr.target.actor?.id || "",
+          uuid: hr.target.actor?.uuid || "",
           setConditions: !!hr.usedLockOn ? { lockon: !hr.usedLockOn } : undefined,
           total: hr.total,
           hit: hr.hit,
