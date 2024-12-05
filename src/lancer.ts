@@ -57,7 +57,6 @@ import { registerHandlebarsHelpers } from "./module/helpers";
 import { handleCombatUpdate } from "./module/helpers/automation/combat";
 import { gridDist } from "./module/helpers/automation/targeting";
 import { applyCollapseListeners, initializeCollapses } from "./module/helpers/collapse";
-import { handleRenderCombatCarousel } from "./module/helpers/combat-carousel";
 import CompconLoginForm from "./module/helpers/compcon-login-form";
 import { applyGlobalDragListeners } from "./module/helpers/dragdrop";
 // import { handleActorExport, validForExport } from "./module/helpers/io";
@@ -278,7 +277,12 @@ Hooks.once("init", function () {
   Hooks.on("renderHeadsUpDisplay", slidingHUD.attach);
 
   // Combat tracker HUD modules integration
-  Hooks.on("renderCombatCarousel", handleRenderCombatCarousel);
+  if (game.modules.get("combat-carousel")?.active) {
+    (async () => {
+      const { handleRenderCombatCarousel } = await import("./module/integrations/combat-carousel");
+      Hooks.on("renderCombatCarousel", handleRenderCombatCarousel);
+    })();
+  }
   if (game.modules!.get("combat-tracker-dock")?.active) {
     (async () => {
       game.lancer.combatTrackerDock = await import("./module/integrations/combat-tracker-dock");

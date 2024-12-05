@@ -1,4 +1,5 @@
 import type { LancerCombat, LancerCombatant } from "../combat/lancer-combat";
+import "./lancer-combat-carousel.scss";
 
 const dispositions: Record<number, string> = {
   [-2]: "",
@@ -14,20 +15,20 @@ const dispositions: Record<number, string> = {
  * @param html - The jquery data for the form
  */
 export function handleRenderCombatCarousel(...[app, html]: Parameters<Hooks.RenderApplication<CombatCarousel>>) {
-  const icon = game.settings.get(game.system.id, "combat-tracker-appearance").icon;
+  const { icon, deactivate } = game.settings.get(game.system.id, "combat-tracker-appearance");
   html.addClass("lancer");
   html.find("li.card").each((_, e) => {
     const combatant_id = $(e).data("combatant-id");
     const combatant = app.combat?.getEmbeddedDocument("Combatant", combatant_id, {}) as LancerCombatant | undefined;
     $(e).addClass(dispositions[combatant?.disposition ?? -2]);
     const pending = combatant?.activations.value ?? 0;
-    const done = (combatant?.activations.max ?? 1) - pending;
+    const done = combatant?.combat?.combatant === combatant ? 1 : 0;
     $(e)
       .find("div.initiative")
       .before(
         '<div class="lancer-activate">' +
           `<a class="${icon} lancer-combat-control" data-control="activateCombatant"></a>`.repeat(pending) +
-          `<i class="${icon} lancer-combat-control done" data-control="deactivateCombatant"></i>`.repeat(done) +
+          `<i class="${deactivate} lancer-combat-control done" data-control="deactivateCombatant"></i>`.repeat(done) +
           "</div>"
       );
   });
