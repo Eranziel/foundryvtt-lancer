@@ -1,0 +1,42 @@
+#combat-carousel.lancer {
+  li.card {
+    div.lancer-activate {
+      a,
+      i {
+        font-size: var(--lancer-initiative-icon-size);
+      }
+
+      i.done {
+        color: var(--lancer-initiative-done-color);
+      }
+      position: absolute;
+      right: 0;
+      padding: 2px 0px;
+      border-radius: 25%;
+      z-index: 20;
+    }
+    text-align: left;
+    margin: 0px;
+  }
+
+  li.card.player {
+    div.lancer-activate a {
+      color: var(--lancer-initiative-player-color);
+    }
+  }
+  li.card.friendly {
+    div.lancer-activate a {
+      color: var(--lancer-initiative-friendly-color);
+    }
+  }
+  li.card.neutral {
+    div.lancer-activate a {
+      color: var(--lancer-initiative-neutral-color);
+    }
+  }
+  li.card.enemy {
+    div.lancer-activate a {
+      color: var(--lancer-initiative-enemy-color);
+    }
+  }
+}
