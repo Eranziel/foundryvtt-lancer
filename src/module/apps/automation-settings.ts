@@ -18,7 +18,7 @@ interface Configuration extends foundry.applications.api.ApplicationV2.Configura
 export class AutomationConfig extends HandlebarsApplicationMixin(ApplicationV2<{}, Configuration, RenderOptions>) {
   static PARTS = {
     form: { template: "systems/lancer/templates/settings/automation-config.hbs" },
-    footer: { template: "templates/generic/form-footer.hbs" },
+    footer: { template: "templates/generic/form-footer.hbs", classes: ["flexrow"] },
   };
 
   static DEFAULT_OPTIONS = {

@@ -5,7 +5,7 @@ const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 export class LancerInitiativeConfigApp extends HandlebarsApplicationMixin(ApplicationV2) {
   static PARTS = {
     form: { template: "systems/lancer/templates/combat/lancer-initiative-settings-v2.hbs" },
-    footer: { template: "templates/generic/form-footer.hbs" },
+    footer: { template: "templates/generic/form-footer.hbs", classes: ["flexrow"] },
   };
 
   static DEFAULT_OPTIONS = {

@@ -17,11 +17,11 @@ interface Configuration extends foundry.applications.api.ApplicationV2.Configura
 export class StatusIconConfig extends HandlebarsApplicationMixin(ApplicationV2<{}, Configuration, RenderOptions>) {
   static PARTS = {
     form: { template: "systems/lancer/templates/settings/status-icon-settings.hbs" },
-    footer: { template: "templates/generic/form-footer.hbs" },
+    footer: { template: "templates/generic/form-footer.hbs", classes: ["flexrow"] },
   };
 
   static DEFAULT_OPTIONS = {
-    id: "lancer-automation-settings",
+    id: "lancer-status-icon-settings",
     tag: "form",
     position: { width: 450 },
     window: { title: "lancer.statusIconsConfig.menu-label" },

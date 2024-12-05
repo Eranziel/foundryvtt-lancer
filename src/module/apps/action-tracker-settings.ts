@@ -17,11 +17,11 @@ interface Configuration extends foundry.applications.api.ApplicationV2.Configura
 export class ActionTrackerConfig extends HandlebarsApplicationMixin(ApplicationV2<{}, Configuration, RenderOptions>) {
   static PARTS = {
     form: { template: "systems/lancer/templates/settings/action-tracker-config.hbs" },
-    footer: { template: "templates/generic/form-footer.hbs" },
+    footer: { template: "templates/generic/form-footer.hbs", classes: ["flexrow"] },
   };
 
   static DEFAULT_OPTIONS = {
-    id: "lancer-automation-settings",
+    id: "lancer-action-tracker-settings",
     tag: "form",
     position: { width: 450 },
     window: { title: "lancer.actionTracker.menu-label" },
