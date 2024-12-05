@@ -3,7 +3,6 @@ import { LancerActor } from "../../actor/lancer-actor";
 import { LancerCombat } from "../../combat/lancer-combat";
 import { LANCER } from "../../config";
 import { ActionTrackFlow } from "../../flows/action-track";
-import { getAutomationOptions } from "../../settings";
 
 const lp = LANCER.log_prefix;
 
@@ -32,7 +31,7 @@ export async function handleCombatUpdate(...[combat, changed]: Parameters<Hooks.
 function processStartTurn(actor: LancerActor) {
   console.log(`${lp} Processing start-of-turn combat automation for ${actor.name}`);
 
-  const automation = getAutomationOptions();
+  const automation = game.settings.get(game.system.id, LANCER.setting_automation);
 
   // Handle NPC feature recharge
   if (automation.npc_recharge && actor.is_npc() && game.users?.activeGM?.isSelf) {

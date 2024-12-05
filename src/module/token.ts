@@ -1,6 +1,6 @@
 import type HexagonalGrid from "@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/grid/hexagonal.mjs";
 import type { Point } from "@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/types.mjs";
-import { getAutomationOptions } from "./settings";
+import { LANCER } from "./config";
 import { correctLegacyBarAttribute } from "./util/migrations";
 
 declare global {
@@ -9,6 +9,13 @@ declare global {
   }
   interface PlaceableObjectClassConfig {
     Token: typeof LancerToken;
+  }
+  interface FlagConfig {
+    Token: {
+      lancer: {
+        manual_token_size?: boolean | undefined;
+      };
+    };
   }
 }
 
@@ -90,8 +97,11 @@ export class LancerTokenDocument extends TokenDocument {
   }
 
   async _preCreate(...[data, options, user]: Parameters<TokenDocument["_preCreate"]>) {
-    // @ts-expect-error Figure out how to define flags
-    if (getAutomationOptions().token_size && !this.getFlag(game.system.id, "manual_token_size")) {
+    if (
+      game.settings.get(game.system.id, LANCER.setting_automation).token_size &&
+      // @ts-expect-error Figure out how to define flags
+      !this.getFlag(game.system.id, "manual_token_size")
+    ) {
       const new_size = Math.max(1, this.actor?.system.size ?? 1);
       this.updateSource({ width: new_size, height: new_size });
     }
@@ -101,8 +111,11 @@ export class LancerTokenDocument extends TokenDocument {
   _onRelatedUpdate(update: any, options: any) {
     super._onRelatedUpdate(update, options);
 
-    // @ts-expect-error Figure out how to define flags
-    if (getAutomationOptions().token_size && !this.getFlag(game.system.id, "manual_token_size")) {
+    if (
+      game.settings.get(game.system.id, LANCER.setting_automation).token_size &&
+      // @ts-expect-error Figure out how to define flags
+      !this.getFlag(game.system.id, "manual_token_size")
+    ) {
       let new_size = this.actor ? Math.max(1, this.actor.system.size) : undefined;
       if (this.isOwner && this.id && new_size !== undefined && (this.width !== new_size || this.height !== new_size)) {
         this.update({ width: new_size, height: new_size });
@@ -212,8 +225,8 @@ export class LancerToken extends Token {
 }
 
 export function extendTokenConfig(...[app, html, _data]: Parameters<Hooks.RenderApplication<TokenConfig>>) {
-  const auto = getAutomationOptions().token_size;
-  if (!auto) return;
+  const { token_size } = game.settings.get(game.system.id, LANCER.setting_automation);
+  if (!token_size) return;
   const manual = (<LancerTokenDocument>app.object).getFlag(game.system.id, "manual_token_size") ?? false;
   html.find("[name=width]").closest(".form-group").before(`
     <div class="form-group slim">
@@ -255,24 +268,5 @@ export function fix_modify_token_attribute(data: any) {
 
       console.log(`Overrode assignment from ${key} to ${new_key}`);
     }
-  }
-}
-
-declare global {
-  interface FlagConfig {
-    Token: {
-      ["lancer"]?: {
-        manual_token_size: boolean | undefined;
-      };
-      "hex-size-support"?: {
-        borderSize?: number;
-        altSnapping?: boolean;
-        evenSnap?: boolean;
-        alwaysShowBorder?: boolean;
-        alternateOrientation?: boolean;
-        pivotx?: number;
-        pivoty?: number;
-      };
-    };
   }
 }

@@ -1,7 +1,6 @@
 // Import TypeScript modules
 import { LancerActor } from "../actor/lancer-actor";
 import { LANCER } from "../config";
-import { getAutomationOptions } from "../settings";
 import { UUIDRef } from "../source-template";
 import { renderTemplateStep } from "./_render";
 import { Flow, FlowState, Step } from "./flow";
@@ -68,7 +67,7 @@ export async function preStructureRollChecks(
     return false;
   }
 
-  if (getAutomationOptions().structure && !state.data?.reroll_data) {
+  if (game.settings.get(game.system.id, LANCER.setting_automation).structure && !state.data?.reroll_data) {
     if (actor.system.hp.value > 0) {
       ui.notifications!.info("Token has hp remaining. No need to roll structure.");
       return false;
@@ -440,7 +439,7 @@ export function triggerStrussFlow(actor: LancerActor, changed: unknown) {
   if (!actor.is_mech() && !actor.is_npc()) return;
   // Check for overheating / structure
   if (
-    getAutomationOptions().structure &&
+    game.settings.get(game.system.id, LANCER.setting_automation).structure &&
     actor.isOwner &&
     !(
       game.users?.players.reduce((a, u) => a || (u.active && actor.testUserPermission(u, "OWNER")), false) &&

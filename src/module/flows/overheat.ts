@@ -1,7 +1,6 @@
 // Import TypeScript modules
 import { LancerActor } from "../actor/lancer-actor";
 import { LANCER } from "../config";
-import { getAutomationOptions } from "../settings";
 import { UUIDRef } from "../source-template";
 import { renderTemplateStep } from "./_render";
 import { Flow, FlowState, Step } from "./flow";
@@ -61,7 +60,7 @@ export async function preOverheatRollChecks(state: FlowState<LancerFlowState.Ove
     return false;
   }
 
-  if (getAutomationOptions().structure && !state.data?.reroll_data) {
+  if (game.settings.get(game.system.id, LANCER.setting_automation).structure && !state.data?.reroll_data) {
     if (actor.system.heat.value <= actor.system.heat.max) {
       ui.notifications!.info("Token is not at heat cap. No need to roll stress.");
       return false;
