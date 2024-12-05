@@ -399,7 +399,11 @@ Hooks.on("deleteCombat", (_actor: Actor) => {
   game.action_manager?.update();
 });
 Hooks.on("updateCombat", (_combat: Combat, changes: object) => {
-  if (getAutomationOptions().remove_templates && "turn" in changes && game.user?.isGM) {
+  if (
+    game.settings.get(game.system.id, LANCER.setting_automation).remove_templates &&
+    "turn" in changes &&
+    game.user?.isGM
+  ) {
     canvas?.templates?.placeables.forEach(t => {
       if (t.document.getFlag("lancer", "isAttack")) t.document.delete();
     });

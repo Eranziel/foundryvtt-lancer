@@ -1,11 +1,11 @@
 // Import TypeScript modules
-import { getAutomationOptions } from "../settings";
 import { LancerActor } from "../actor/lancer-actor";
-import { renderTemplateStep } from "./_render";
-import { LancerFlowState } from "./interfaces";
-import { Flow, FlowState } from "./flow";
-import { UUIDRef } from "../source-template";
+import { LANCER } from "../config";
 import { LancerItem } from "../item/lancer-item";
+import { UUIDRef } from "../source-template";
+import { renderTemplateStep } from "./_render";
+import { Flow, FlowState } from "./flow";
+import { LancerFlowState } from "./interfaces";
 
 export function registerOverchargeSteps(flowSteps: Map<string, any>) {
   flowSteps.set("initOverchargeData", initOverchargeData);
@@ -63,7 +63,7 @@ async function updateOverchargeActor(state: FlowState<LancerFlowState.Overcharge
     "system.overcharge": state.data.level,
   });
   // Only increase heat if we haven't disabled it
-  if (getAutomationOptions().overcharge_heat) {
+  if (game.settings.get(game.system.id, LANCER.setting_automation).overcharge_heat) {
     await state.actor.update({
       "system.heat.value": state.actor.system.heat.value + state.data.result.roll.total!,
     });
