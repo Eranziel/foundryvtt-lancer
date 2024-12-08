@@ -1,17 +1,16 @@
 // Import TypeScript modules
-import { LANCER } from "../config";
-import { getAutomationOptions } from "../settings";
-import { LancerItem } from "../item/lancer-item";
-import { LancerActor, LancerNPC } from "../actor/lancer-actor";
-import { checkForHit } from "../helpers/automation/targeting";
+import { LancerActor } from "../actor/lancer-actor";
 import { AccDiffHudData, AccDiffHudDataSerialized, RollModifier } from "../apps/acc_diff";
-import { renderTemplateStep } from "./_render";
-import { SystemTemplates } from "../system-template";
-import { UUIDRef } from "../source-template";
-import { LancerFlowState } from "./interfaces";
 import { openSlidingHud } from "../apps/slidinghud";
-import { Flow, FlowState, Step } from "./flow";
+import { LANCER } from "../config";
 import { AttackType, RangeType, WeaponType } from "../enums";
+import { checkForHit } from "../helpers/automation/targeting";
+import { LancerItem } from "../item/lancer-item";
+import { UUIDRef } from "../source-template";
+import { SystemTemplates } from "../system-template";
+import { renderTemplateStep } from "./_render";
+import { Flow, FlowState, Step } from "./flow";
+import { LancerFlowState } from "./interfaces";
 
 const lp = LANCER.log_prefix;
 
@@ -282,7 +281,8 @@ export async function initAttackData(
 
 export async function checkWeaponLoaded(state: FlowState<LancerFlowState.WeaponRollData>): Promise<boolean> {
   // If this automation option is not enabled, skip the check.
-  if (!getAutomationOptions().limited_loading && getAutomationOptions().attacks) return true;
+  const { limited_loading, attacks } = game.settings.get(game.system.id, LANCER.setting_automation);
+  if (!limited_loading && attacks) return true;
   if (!state.item || (!state.item.is_mech_weapon() && !state.item.is_pilot_weapon() && !state.item.is_npc_feature())) {
     return false;
   }
@@ -402,12 +402,16 @@ export async function rollAttacks(
 
   state.data.attack_rolls = attackRolls(state.data.flat_bonus, state.data.acc_diff);
 
-  if (getAutomationOptions().attacks && state.data.attack_rolls.targeted.length > 0) {
+  if (
+    game.settings.get(game.system.id, LANCER.setting_automation).attacks &&
+    state.data.attack_rolls.targeted.length > 0
+  ) {
     let data = await Promise.all(
       state.data.attack_rolls.targeted.map(async targetingData => {
         let target = targetingData.target;
         let actor = target.actor as LancerActor;
-        let attack_roll = await new Roll(targetingData.roll).evaluate({ async: true });
+        // This is really async despit the warning
+        let attack_roll = await new Roll(targetingData.roll).evaluate();
         // @ts-expect-error DSN options aren't typed
         attack_roll.dice.forEach(d => (d.options.rollOrder = 1));
         const attack_tt = await attack_roll.getTooltip();
@@ -433,7 +437,8 @@ export async function rollAttacks(
     state.data.hit_results = data.map(d => d.hit);
     return true;
   } else {
-    let attack_roll = await new Roll(state.data.attack_rolls.roll).evaluate({ async: true });
+    // This is really async despit the warning
+    let attack_roll = await new Roll(state.data.attack_rolls.roll).evaluate();
     const attack_tt = await attack_roll.getTooltip();
     state.data.attack_results = [{ roll: attack_roll, tt: attack_tt }];
     state.data.hit_results = [];
@@ -496,7 +501,7 @@ export async function printAttackCard(
 Hooks.on("createChatMessage", async (cm: ChatMessage, options: any, id: string) => {
   // Consume lock-on if we are a GM
   if (!game.user?.isGM) return;
-  const atkData: AttackFlag = cm.getFlag(game.system.id, "attackData") as any;
+  const atkData = cm.getFlag(game.system.id, "attackData");
   if (!atkData || !atkData.targets) return;
   atkData.targets.forEach(target => {
     // Find the target in this scene

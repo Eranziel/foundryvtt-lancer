@@ -4,7 +4,6 @@ import { LIDField } from "../shared";
 import { DamageData, DamageField, unpackDamage } from "./damage";
 import { RangeData, RangeField, unpackRange } from "./range";
 
-// @ts-ignore
 const fields: any = foundry.data.fields;
 
 // Lightly trimmed
@@ -38,7 +37,7 @@ export interface ActionData {
 class FrequencyField extends fields.StringField {
   /** @inheritdoc */
   static get _defaults() {
-    return mergeObject(super._defaults, {
+    return foundry.utils.mergeObject(super._defaults, {
       required: true,
       blank: false,
       nullable: true,

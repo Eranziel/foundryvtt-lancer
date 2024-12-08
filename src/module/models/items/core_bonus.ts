@@ -1,3 +1,4 @@
+import type { DeepPartial } from "@league-of-foundry-developers/foundry-vtt-types/src/types/utils.mjs";
 import { EntryType } from "../../enums";
 import { SourceData } from "../../source-template";
 import { PackedCoreBonusData } from "../../util/unpacking/packed-types";
@@ -7,12 +8,11 @@ import { unpackBonus } from "../bits/bonus";
 import { unpackCounter } from "../bits/counter";
 import { unpackSynergy } from "../bits/synergy";
 import { LancerDataModel, UnpackContext } from "../shared";
-import { template_universal_item, template_bascdt, migrateManufacturer } from "./shared";
+import { migrateManufacturer, template_bascdt, template_universal_item } from "./shared";
 
-const fields: any = foundry.data.fields;
+const fields = foundry.data.fields;
 
-// @ts-ignore
-export class CoreBonusModel extends LancerDataModel<"CoreBonusModel"> {
+export class CoreBonusModel extends LancerDataModel<DataSchema, Item> {
   static defineSchema() {
     return {
       description: new fields.StringField({ nullable: true }),
@@ -29,7 +29,6 @@ export class CoreBonusModel extends LancerDataModel<"CoreBonusModel"> {
       data.manufacturer = migrateManufacturer(data.source);
     }
 
-    // @ts-expect-error v11
     return super.migrateData(data);
   }
 }

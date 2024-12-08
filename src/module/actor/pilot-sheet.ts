@@ -26,7 +26,7 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
    * @returns {Object}
    */
   static get defaultOptions(): ActorSheet.Options {
-    return mergeObject(super.defaultOptions, {
+    return foundry.utils.mergeObject(super.defaultOptions, {
       classes: ["lancer", "sheet", "actor", "pilot"],
       template: `systems/${game.system.id}/templates/actor/pilot.hbs`,
       width: 900,
@@ -190,27 +190,21 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
     });
   }
 
-  async getData() {
-    const data = await super.getData(); // Not fully populated yet!
-    const pilot = this.actor as LancerPILOT;
+  async getData(): Promise<object> {
+    const data: any = await super.getData(); // Not fully populated yet!
 
-    data.pilotCache = pilotCache();
-
-    // use the select if and only if we have the pilot in our cache
-    let pilotInSelect = data.pilotCache.find(p => p.cloudID == pilot.system.cloud_id);
-
-    if (pilotInSelect) {
-      // if this is a vault id we know of
-      data.vaultID = pilot.system.cloud_id;
-      data.rawID = "";
-    } else if (pilot.system.cloud_id && pilot.system.cloud_id.match(shareCodeMatcher)) {
-      // If this was a share code, show it in the input box so it can be edited
-      data.vaultID = "";
-      data.rawID = pilot.system.cloud_id;
-    } else {
-      data.rawID = "";
-      data.vaultID = "";
-    }
+    data.compConPilotList = pilotCache()
+      .sort((p1, p2) => {
+        if (p1.callsign < p2.callsign) return -1;
+        if (p1.callsign > p2.callsign) return 1;
+        if (p1.name < p2.name) return -1;
+        if (p1.name > p2.name) return 1;
+        return 0;
+      })
+      .reduce((acc, pilot) => {
+        acc[`${pilot.callsign} // ${pilot.name}`] = pilot.cloudID;
+        return acc;
+      }, {} as Record<string, string>);
 
     return data;
   }
@@ -373,7 +367,7 @@ export function allMechPreview(_options: HelperOptions): string {
 
   /// I still feel like this is pretty inefficient... but it's probably the best we can do for now
   let owned_mechs = (game?.actors?.filter(
-    mech =>
+    (mech: LancerActor) =>
       mech.is_mech() &&
       mech.system.pilot?.status == "resolved" &&
       mech.system.pilot.value.id === _options.data.root.actor.id

@@ -7,7 +7,6 @@ import {
 import { PackedAmmoData } from "../../util/unpacking/packed-types";
 import { WeaponSizeChecklistField, WeaponTypeChecklistField } from "../shared";
 
-// @ts-ignore
 const fields: any = foundry.data.fields;
 
 export interface AmmoData {

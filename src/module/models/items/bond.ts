@@ -1,3 +1,4 @@
+import type { DeepPartial } from "@league-of-foundry-developers/foundry-vtt-types/src/types/utils.mjs";
 import { EntryType } from "../../enums";
 import { SourceData } from "../../source-template";
 import { PackedBondData } from "../../util/unpacking/packed-types";
@@ -6,14 +7,16 @@ import { BondQuestionField } from "../bits/question";
 import { LancerDataModel } from "../shared";
 import { template_universal_item } from "./shared";
 
-const fields: any = foundry.data.fields;
+const fields = foundry.data.fields;
 
-export class BondModel extends LancerDataModel<"BondModel"> {
+export class BondModel extends LancerDataModel<DataSchema, Item> {
   static defineSchema() {
     return {
       major_ideals: new fields.ArrayField(new fields.StringField()),
       minor_ideals: new fields.ArrayField(new fields.StringField()),
+      // @ts-expect-error
       questions: new fields.ArrayField(new BondQuestionField()),
+      // @ts-expect-error
       powers: new fields.ArrayField(new PowerField()),
       ...template_universal_item(),
     };

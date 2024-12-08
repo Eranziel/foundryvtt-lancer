@@ -1,4 +1,6 @@
-import { getAutomationOptions } from "./settings";
+import type HexagonalGrid from "@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/grid/hexagonal.mjs";
+import type { Point } from "@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/types.mjs";
+import { LANCER } from "./config";
 import { correctLegacyBarAttribute } from "./util/migrations";
 
 declare global {
@@ -7,6 +9,13 @@ declare global {
   }
   interface PlaceableObjectClassConfig {
     Token: typeof LancerToken;
+  }
+  interface FlagConfig {
+    Token: {
+      lancer: {
+        manual_token_size?: boolean | undefined;
+      };
+    };
   }
 }
 
@@ -48,18 +57,16 @@ function cubesBySize({
         .map(c => {
           if (!alt && !columns) return c;
           if (!alt && columns) return { q: c.r, r: c.s, s: c.q };
-          return { q: -c.s, r: -c.q, s: -c.r };
+          if (alt && columns) return { q: -c.r, r: -c.s, s: -c.q };
+          return { q: -c.q, r: -c.r, s: -c.s };
         })
     );
   }
 }
 
 function altOrientation(token: LancerToken): boolean {
-  // @ts-expect-error
-  const HSSisAltOrientation = game.modules.get("hex-size-support")?.api?.isAltOrientation;
-  // @ts-expect-error
-  if (!HSSisAltOrientation) return token.document.width === 2;
-  return HSSisAltOrientation(token);
+  // @ts-expect-error v12
+  return (token.document.hexagonalShape & 1) === 1;
 }
 
 /**
@@ -86,31 +93,52 @@ export class LancerTokenDocument extends TokenDocument {
       }
     }
 
-    // @ts-expect-error
     return super.migrateData(source);
   }
 
   async _preCreate(...[data, options, user]: Parameters<TokenDocument["_preCreate"]>) {
-    if (getAutomationOptions().token_size && !this.getFlag(game.system.id, "manual_token_size")) {
+    if (
+      game.settings.get(game.system.id, LANCER.setting_automation).token_size &&
+      // @ts-expect-error Figure out how to define flags
+      !this.getFlag(game.system.id, "manual_token_size")
+    ) {
       const new_size = Math.max(1, this.actor?.system.size ?? 1);
-      // @ts-expect-error v10
       this.updateSource({ width: new_size, height: new_size });
     }
     return super._preCreate(data, options, user);
   }
 
   _onRelatedUpdate(update: any, options: any) {
-    // @ts-expect-error
     super._onRelatedUpdate(update, options);
 
-    if (getAutomationOptions().token_size && !this.getFlag(game.system.id, "manual_token_size")) {
+    if (
+      game.settings.get(game.system.id, LANCER.setting_automation).token_size &&
+      // @ts-expect-error Figure out how to define flags
+      !this.getFlag(game.system.id, "manual_token_size")
+    ) {
       let new_size = this.actor ? Math.max(1, this.actor.system.size) : undefined;
-      // @ts-expect-error v11
       if (this.isOwner && this.id && new_size !== undefined && (this.width !== new_size || this.height !== new_size)) {
         this.update({ width: new_size, height: new_size });
       }
     }
   }
+}
+
+/**
+ * Get a basis space for the token. For odd, the center, for even, a predicable space with the center as a vertex
+ */
+function getBasis(token: LancerToken) {
+  const symmetrical = token.document.width === token.document.height;
+  const even = symmetrical && (token.document.width ?? 0) % 2 == 0;
+  if (!symmetrical || !even) return token.center;
+  const col: boolean = (<HexagonalGrid>canvas.grid)!.columns;
+  const alt = altOrientation(token);
+  const pt = { ...token.center };
+  // @ts-expect-error v12
+  if (col) pt.x = pt.x + ((alt ? -1 : 1) * canvas.grid.sizeX) / 2;
+  // @ts-expect-error v12
+  else pt.y = pt.y + ((alt ? -1 : 1) * canvas.grid.sizeY) / 2;
+  return pt;
 }
 
 /**
@@ -124,6 +152,17 @@ export class LancerToken extends Token {
       at: { x: -1, y: -1 },
       spaces: [],
     };
+  }
+
+  /** @override */
+  getShape() {
+    // @ts-expect-error v12
+    const size: { width: number; height: number } = this.getSize();
+    if (canvas.grid!.isGridless && size.width === size.height) {
+      return new PIXI.Circle(size.width / 2, size.height / 2, size.width / 2);
+    }
+    // @ts-expect-error v12
+    return super.getShape() as PIXI.Polygon | PIXI.Rectangle;
   }
 
   /**
@@ -145,42 +184,33 @@ export class LancerToken extends Token {
     }
 
     if (this._spaces.spaces.length === 0) {
-      if (canvas.grid?.isHex) {
-        // @ts-expect-error
-        const cube_space = HexagonalGrid.offsetToCube(
-          // @ts-expect-error
-          HexagonalGrid.pixelsToOffset(this.center, canvas.grid.grid.options),
-          // @ts-expect-error
-          canvas.grid.grid.options
-        );
+      if (canvas.grid?.isHexagonal) {
+        const regular = this.document.width === this.document.height;
+
+        const basis = getBasis(this);
+        // @ts-expect-error v12
+        const base_cube = canvas.grid.pointToCube(basis);
         const cubes = cubesBySize({
           // @ts-expect-error
-          size: this.document.width,
+          size: regular ? this.document.width : 1,
           alt: altOrientation(this),
-          columns: canvas.grid!.grid!.options.columns!,
-        }).map(c => ({
-          q: c.q + cube_space.q,
-          r: c.r + cube_space.r,
-          s: c.s + cube_space.s,
-        }));
-        this._spaces.spaces = cubes.map(c => {
           // @ts-expect-error
-          const p = HexagonalGrid.offsetToPixels(
-            // @ts-expect-error
-            HexagonalGrid.cubeToOffset(c, canvas.grid.grid.options),
-            // @ts-expect-error
-            canvas.grid.grid.options
-          );
-          return { x: p.x + Math.floor(canvas.grid!.grid!.w / 2), y: p.y + Math.floor(canvas.grid!.grid!.h / 2) };
-        });
-      } else if (canvas.grid?.type === CONST.GRID_TYPES.SQUARE) {
+          columns: canvas.grid!.columns,
+        }).map(c => ({
+          q: c.q + base_cube.q,
+          r: c.r + base_cube.r,
+          s: c.s + base_cube.s,
+        }));
+        // @ts-expect-error v12
+        this._spaces.spaces = cubes.map(c => canvas.grid!.cubeToPoint(c));
+      } else if (canvas.grid?.isSquare) {
         // @ts-expect-error
         for (let i = 0; i < this.document.width; ++i) {
           // @ts-expect-error
           for (let j = 0; j < this.document.height; ++j) {
             this._spaces.spaces.push({
-              x: this.position.x + (i + 0.5) * canvas.grid.w,
-              y: this.position.y + (j + 0.5) * canvas.grid.h,
+              x: this.position.x + (i + 0.5) * canvas.grid.sizeX,
+              y: this.position.y + (j + 0.5) * canvas.grid.sizeY,
             });
           }
         }
@@ -195,9 +225,9 @@ export class LancerToken extends Token {
 }
 
 export function extendTokenConfig(...[app, html, _data]: Parameters<Hooks.RenderApplication<TokenConfig>>) {
-  const auto = getAutomationOptions().token_size;
-  if (!auto) return;
-  const manual = (app.object.getFlag(game.system.id, "manual_token_size") ?? false) as boolean;
+  const { token_size } = game.settings.get(game.system.id, LANCER.setting_automation);
+  if (!token_size) return;
+  const manual = (<LancerTokenDocument>app.object).getFlag(game.system.id, "manual_token_size") ?? false;
   html.find("[name=width]").closest(".form-group").before(`
     <div class="form-group slim">
       <label>${game.i18n.localize("lancer.tokenConfig.manual_token_size.label")}</label>
@@ -238,24 +268,5 @@ export function fix_modify_token_attribute(data: any) {
 
       console.log(`Overrode assignment from ${key} to ${new_key}`);
     }
-  }
-}
-
-declare global {
-  interface FlagConfig {
-    Token: {
-      [game.system.id]?: {
-        mm_size?: number | undefined;
-      };
-      "hex-size-support"?: {
-        borderSize?: number;
-        altSnapping?: boolean;
-        evenSnap?: boolean;
-        alwaysShowBorder?: boolean;
-        alternateOrientation?: boolean;
-        pivotx?: number;
-        pivoty?: number;
-      };
-    };
   }
 }

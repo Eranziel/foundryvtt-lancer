@@ -1,31 +1,29 @@
-import { LancerCombat } from "../../combat/lancer-combat";
 import { modAction } from "../../action/action-tracker";
 import { LancerActor } from "../../actor/lancer-actor";
-import { ActionTrackFlow } from "../../flows/action-track";
-import { getActionTrackerOptions, getAutomationOptions } from "../../settings";
+import { LancerCombat } from "../../combat/lancer-combat";
 import { LANCER } from "../../config";
+import { ActionTrackFlow } from "../../flows/action-track";
 
 const lp = LANCER.log_prefix;
 
 export async function handleCombatUpdate(...[combat, changed]: Parameters<Hooks.UpdateDocument<typeof Combat>>) {
   if (game.user?.isGM) {
+    // @ts-expect-error changed has wrong type
     if (!("turn" in changed) && changed.round !== 1) return;
     if (game.combats!.get(combat.id!)?.combatants.contents.length == 0) return;
 
-    if (getAutomationOptions().enabled) {
-      // TODO: Update foundryvtt typings.
-      const nextActor = lookup(combat, (combat.current as any).combatantId);
-      const prevActor = lookup(combat, (combat.previous as any).combatantId);
+    // TODO: Update foundryvtt typings.
+    const nextActor = lookup(combat, (combat.current as any).combatantId);
+    const prevActor = lookup(combat, (combat.previous as any).combatantId);
 
-      // Handle end-of-turn for previous combatant.
-      if (prevActor) {
-        processEndTurn(prevActor);
-      }
+    // Handle end-of-turn for previous combatant.
+    if (prevActor) {
+      processEndTurn(prevActor);
+    }
 
-      // Handle refreshing for next combatant.
-      if (nextActor) {
-        processStartTurn(nextActor);
-      }
+    // Handle refreshing for next combatant.
+    if (nextActor) {
+      processStartTurn(nextActor);
     }
   }
 }
@@ -33,11 +31,10 @@ export async function handleCombatUpdate(...[combat, changed]: Parameters<Hooks.
 function processStartTurn(actor: LancerActor) {
   console.log(`${lp} Processing start-of-turn combat automation for ${actor.name}`);
 
-  const automation = getAutomationOptions();
+  const automation = game.settings.get(game.system.id, LANCER.setting_automation);
 
   // Handle NPC feature recharge
-  // @ts-expect-error v10 types
-  if (automation.enabled && automation.npc_recharge && actor.is_npc() && game.users?.activeGM?.isSelf) {
+  if (automation.npc_recharge && actor.is_npc() && game.users?.activeGM?.isSelf) {
     actor.beginRechargeFlow();
   }
 
@@ -48,7 +45,7 @@ function processStartTurn(actor: LancerActor) {
   refreshReactions(game.combat);
 
   // Print chat messages.
-  if (getActionTrackerOptions().printMessages) {
+  if (game.settings.get(game.system.id, LANCER.setting_actionTracker).printMessages) {
     new ActionTrackFlow(actor, { start: true }).begin();
   }
 }
@@ -65,7 +62,7 @@ function processEndTurn(actor: LancerActor) {
   }
 
   // Print chat messages.
-  if (getActionTrackerOptions().printMessages) {
+  if (game.settings.get(game.system.id, LANCER.setting_actionTracker).printMessages) {
     new ActionTrackFlow(actor, { start: false }).begin();
   }
 }

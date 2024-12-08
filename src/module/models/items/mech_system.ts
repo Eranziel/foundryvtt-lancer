@@ -1,3 +1,4 @@
+import type { DeepPartial } from "@league-of-foundry-developers/foundry-vtt-types/src/types/utils.mjs";
 import { EntryType } from "../../enums";
 import { SourceData } from "../../source-template";
 import { PackedMechSystemData } from "../../util/unpacking/packed-types";
@@ -10,23 +11,24 @@ import { unpackSynergy } from "../bits/synergy";
 import { unpackTag } from "../bits/tag";
 import { LancerDataModel, UnpackContext } from "../shared";
 import {
-  template_universal_item,
+  migrateManufacturer,
   template_bascdt,
   template_destructible,
   template_licensed,
+  template_universal_item,
   template_uses,
-  migrateManufacturer,
 } from "./shared";
 
-const fields: any = foundry.data.fields;
+const fields = foundry.data.fields;
 
-export class MechSystemModel extends LancerDataModel<"MechSystemModel"> {
+export class MechSystemModel extends LancerDataModel<DataSchema, Item> {
   static defineSchema() {
     return {
       effect: new fields.HTMLField(),
       sp: new fields.NumberField({ nullable: false, initial: 0 }),
       description: new fields.HTMLField(),
       type: new fields.StringField(),
+      // @ts-expect-error
       ammo: new fields.ArrayField(new AmmoField()),
       ...template_universal_item(),
       ...template_bascdt(),
@@ -41,7 +43,6 @@ export class MechSystemModel extends LancerDataModel<"MechSystemModel"> {
       data.manufacturer = migrateManufacturer(data.source);
     }
 
-    // @ts-expect-error v11
     return super.migrateData(data);
   }
 }

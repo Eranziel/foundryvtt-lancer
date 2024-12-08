@@ -2,12 +2,12 @@ import { LANCER } from "../config";
 import { LancerActor, LancerMECH } from "../actor/lancer-actor";
 import { EntryType } from "../enums";
 import { ChangeWatchHelper } from "../util/misc";
-import { LancerActiveEffect, LancerActiveEffectConstructorData } from "./lancer-active-effect";
+import { LancerActiveEffect } from "./lancer-active-effect";
 const lp = LANCER.log_prefix;
 
 export interface InheritedEffectsState {
   from_uuid: string; // Who's giving it? We only inherit one at a time
-  data: LancerActiveEffectConstructorData[]; // The effect constructor data
+  data: object[]; // The effect constructor data
   visible: boolean; // Whether creation/deletion/update of this effect should cause a render
 }
 
@@ -31,7 +31,7 @@ export class EffectHelper {
   // Set the expected effects from a given uuid
   // Kick off an update if update == true
   // If render, then the update will require redraw.
-  async setEphemeralEffects(source_uuid: string, data: LancerActiveEffectConstructorData[], visible: boolean = true) {
+  async setEphemeralEffects(source_uuid: string, data: [], visible: boolean = true) {
     let es: InheritedEffectsState = {
       from_uuid: source_uuid,
       data,
@@ -79,11 +79,11 @@ export class EffectHelper {
    * Collect from our current effects (and pilot/mech innate effects) any that should be passed down to descendants.
    * as well as from any innate features (pilot grit, mech save target, etc)
    */
-  collectPassdownEffects(): LancerActiveEffectConstructorData[] {
+  collectPassdownEffects() {
     if (this.actor.is_deployable()) return [];
 
     // Start with all of them
-    let effects = [...this.actor.allApplicableEffects()].map(e => e.toObject()) as LancerActiveEffectConstructorData[];
+    let effects = [...this.actor.allApplicableEffects()].map(e => e.toObject());
 
     // Remove all that we "consume" at this level. AKA only pass down unhandled effects
     effects = effects.filter(e => {
@@ -125,9 +125,8 @@ export class EffectHelper {
     const propagateTo = async (target: LancerActor) => {
       console.debug(`Actor ${this.actor.name} propagating effects to ${target.name}`);
       // Add new from this pilot
-      let changes: LancerActiveEffectConstructorData[] = foundry.utils.duplicate(
-        this._passdownEffectTracker.curr_value
-      );
+      let changes = foundry.utils.duplicate(this._passdownEffectTracker.curr_value);
+      // @ts-expect-error
       changes.forEach(c => {
         c.flags[game.system.id] ??= {};
         c.flags[game.system.id].deep_origin = c.origin;

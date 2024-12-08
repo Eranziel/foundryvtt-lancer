@@ -36,14 +36,14 @@ export function handleActorExport(actor: LegacyLancerActor | LancerActor, downlo
   // @ts-expect-error Should be fixed with v10 types
   switch (actor.type) {
     case "pilot":
-      // @ts-ignore I'm just going to assume all of this works but it probably doesn't
+      // @ts-expect-error I'm just going to assume all of this works but it probably doesn't
       dump = handlePilotExport(actor);
       break;
     case "mech":
       // dump = handlePilotExport(actor);
       break;
     case "npc":
-      // @ts-ignore I'm just going to assume all of this works but it probably doesn't
+      // @ts-expect-error I'm just going to assume all of this works but it probably doesn't
       dump = handleNPCExport(actor);
       break;
   }
@@ -57,7 +57,6 @@ export function handleActorExport(actor: LegacyLancerActor | LancerActor, downlo
     const a = document.createElement("a");
     const dumpFile = new Blob([JSON.stringify(dump, undefined, 2)], { type: "text/plain" });
     a.href = URL.createObjectURL(dumpFile);
-    // @ts-ignore I'm just going to assume all of this works but it probably doesn't
     a.download = `${actor.name.toLocaleLowerCase().replace(" ", "_")}.json`;
     a.click();
     URL.revokeObjectURL(a.href);
@@ -67,7 +66,7 @@ export function handleActorExport(actor: LegacyLancerActor | LancerActor, downlo
 }
 
 export function addExportButton(actor: LegacyLancerActor | LancerActor, html: JQuery) {
-  // @ts-ignore I'm just going to assume all of this works but it probably doesn't
+  // @ts-expect-error I'm just going to assume all of this works but it probably doesn't
   const id = actor._id;
   if (!document.getElementById(id) && validForExport(actor)) {
     // if (!document.getElementById(id)) {
@@ -325,14 +324,13 @@ function handlePilotExport(actor: LegacyLancerActor) {
       .map((item: any) => {
         return { id: item.system.id, rank: item.system.rank };
       }),
-    // @ts-ignore I'm just going to assume all of this works but it probably doesn't
     core_bonuses: items.filter((item: Item) => item.type === "core_bonus").map((item: any) => item.system.id),
     loadout: pilotLoadout,
     mechs: [
       {
         id: nanoid(),
         name: mech.name,
-        // @ts-ignore I'm just going to assume all of this works but it probably doesn't
+        // @ts-expect-error
         frame: frame ? frame.system.id : undefined,
         active: true,
         current_structure: mech.structure.value,
@@ -417,6 +415,6 @@ function mapWeapon(weapon: any): FakePackedWeapon {
 }
 
 export function validForExport(actor: LegacyLancerActor | LancerActor) {
-  // @ts-ignore I'm just going to assume all of this works but it probably doesn't
+  // @ts-expect-error I'm just going to assume all of this works but it probably doesn't
   return !actor.system?.cc_ver?.startsWith("MchMnd2");
 }

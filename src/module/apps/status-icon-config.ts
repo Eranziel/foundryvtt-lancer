@@ -1,53 +1,59 @@
+import type { DeepPartial } from "@league-of-foundry-developers/foundry-vtt-types/src/types/utils.mjs";
 import { LANCER } from "../config";
-import { StatusIconConfigOptions, getStatusIconConfigOptions } from "../settings";
-import { LancerActiveEffect } from "../effects/lancer-active-effect";
+import { StatusIconConfigOptions } from "../settings";
+
+const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
+
+interface RenderOptions extends foundry.applications.api.ApplicationV2.RenderOptions {
+  loadDefault: boolean;
+}
+
+interface Configuration extends foundry.applications.api.ApplicationV2.Configuration {}
 
 /**
  * Settings form for customizing the icon appearance of the icon used in the
  * tracker
  */
-export class StatusIconConfig extends FormApplication<FormApplication.Options, StatusIconConfigOptions> {
-  /** @override */
-  static get defaultOptions(): FormApplication.Options {
-    return {
-      ...super.defaultOptions,
-      title: "lancer.statusIconsConfig.menu-label",
-      id: "lancer-statusIconsConfig-settings",
-      template: `systems/${game.system.id}/templates/window/statusicons-config.hbs`,
-      classes: ["status-icon-config"],
-      width: 350,
+export class StatusIconConfig extends HandlebarsApplicationMixin(ApplicationV2<{}, Configuration, RenderOptions>) {
+  static PARTS = {
+    form: { template: "systems/lancer/templates/settings/status-icon-settings.hbs" },
+    footer: { template: "templates/generic/form-footer.hbs", classes: ["flexrow"] },
+  };
+
+  static DEFAULT_OPTIONS = {
+    id: "lancer-status-icon-settings",
+    tag: "form",
+    position: { width: 450 },
+    window: { title: "lancer.statusIconsConfig.menu-label" },
+    form: {
+      handler: this.#formHandler,
+      submitOnChange: false,
+      closeOnSubmit: true,
+    },
+    actions: {
+      onReset: this.#onReset,
+    },
+  } as const;
+
+  async _prepareContext(opts: DeepPartial<RenderOptions>): Promise<{}> {
+    const config = game.settings.get(game.system.id, LANCER.setting_status_icons);
+    const ctx = {
+      config: opts.loadDefault ? new StatusIconConfigOptions() : config,
+      fields: config.schema.fields,
+      buttons: [
+        { type: "submit", name: "submit", icon: "fas fa-save", label: "Save" },
+        { type: "button", name: "reset", icon: "fas fa-undo", label: "SETTINGS.Reset", action: "onReset" },
+      ],
     };
+    return ctx;
   }
 
-  /** @override */
-  getData(): StatusIconConfigOptions {
-    return {
-      ...getStatusIconConfigOptions(true),
-      ...(game.settings.get(game.system.id, LANCER.setting_status_icons) as Partial<StatusIconConfigOptions>),
-    };
+  static async #formHandler(this: StatusIconConfig, _ev: unknown, _form: unknown, formData: any) {
+    const res = formData.object;
+    await game.settings.set(game.system.id, LANCER.setting_status_icons, res);
   }
 
-  /** @override */
-  activateListeners(html: JQuery<HTMLFormElement>): void {
-    html.find("input[name=enabled]").on("change", e => {
-      const val = (<HTMLInputElement>e.target).checked;
-      html.find("input:not([name=enabled])").prop("disabled", !val);
-    });
-  }
-
-  /** @override */
-  async _updateObject(_: Event, data: Record<string, unknown>): Promise<void> {
-    await game.settings.set(game.system.id, LANCER.setting_status_icons, data);
-    await LancerActiveEffect.initConfig();
-    await LancerActiveEffect.populateFromItems();
-  }
-
-  /**
-   * Sets all settings handled by the form to undefined in order to revert to
-   * their default values.
-   */
-  async resetSettings(): Promise<unknown> {
-    await game.settings.set(game.system.id, LANCER.setting_status_icons, {});
-    return this.render();
+  static async #onReset(this: StatusIconConfig) {
+    this.render(false, { loadDefault: true });
   }
 }

@@ -1,11 +1,10 @@
 // Import TypeScript modules
+import { LancerActor } from "../actor/lancer-actor";
 import { LANCER } from "../config";
 import { UUIDRef } from "../source-template";
-import { getAutomationOptions } from "../settings";
-import { LancerFlowState } from "./interfaces";
-import { Flow, FlowState, Step } from "./flow";
-import { LancerActor } from "../actor/lancer-actor";
 import { renderTemplateStep } from "./_render";
+import { Flow, FlowState, Step } from "./flow";
+import { LancerFlowState } from "./interfaces";
 
 const lp = LANCER.log_prefix;
 
@@ -68,7 +67,7 @@ export async function preStructureRollChecks(
     return false;
   }
 
-  if (getAutomationOptions().structure && !state.data?.reroll_data) {
+  if (game.settings.get(game.system.id, LANCER.setting_automation).structure && !state.data?.reroll_data) {
     if (actor.system.hp.value > 0) {
       ui.notifications!.info("Token has hp remaining. No need to roll structure.");
       return false;
@@ -162,7 +161,7 @@ export async function rollStructureTable(state: FlowState<LancerFlowState.Primar
   ) {
     formula = `{${formula}, ${formula}}kh`;
   }
-  let roll: Roll = await new Roll(formula).evaluate({ async: true });
+  let roll: Roll = await new Roll(formula).evaluate();
 
   let result = roll.total;
   if (result === undefined) return false;
@@ -239,14 +238,14 @@ export async function checkStructureMultipleOnes(
   if (roll.terms[0].rolls?.length > 1) {
     // This was rolled multiple times - it should be an NPC with the legendary trait
     // Find the selected roll - the one which wasn't discarded - and check whether it has multiple ones.
-    const chosenIndex = (roll.terms as Die[])[0].results.findIndex(r => !r.discarded);
+    const chosenIndex = (roll.terms as foundry.dice.terms.Die[])[0].results.findIndex(r => !r.discarded);
     // @ts-expect-error v10 types
     roll = (roll.terms as Die[])[0].rolls[chosenIndex] || roll;
   }
   if (!roll) throw new TypeError(`Structure check hasn't been rolled yet!`);
 
   // Crushing hits
-  let one_count = (roll.terms as Die[])[0].results.filter(v => v.result === 1).length;
+  let one_count = (roll.terms as foundry.dice.terms.Die[])[0].results.filter(v => v.result === 1).length;
   if (one_count > 1) {
     state.data.title = structTableTitles[0];
     state.data.desc = structTableDescriptions(roll.total ?? 1, 1);
@@ -403,8 +402,8 @@ export async function secondaryStructureRoll(
     return false;
   }
 
-  // @ts-ignore
-  let roll = await new Roll(state.data.roll_str).evaluate({ async: true });
+  // This is really async despit the warning
+  let roll = await new Roll(state.data.roll_str).evaluate();
   let result = roll.total!;
   state.data.result = {
     roll,
@@ -436,11 +435,11 @@ async function printSecondaryStructureCard(
 /**
  * This function should be attached to the actor update hook to trigger structure/stress flows
  */
-export function triggerStrussFlow(actor: LancerActor, changed: DeepPartial<LancerActor["data"]>) {
+export function triggerStrussFlow(actor: LancerActor, changed: unknown) {
   if (!actor.is_mech() && !actor.is_npc()) return;
   // Check for overheating / structure
   if (
-    getAutomationOptions().structure &&
+    game.settings.get(game.system.id, LANCER.setting_automation).structure &&
     actor.isOwner &&
     !(
       game.users?.players.reduce((a, u) => a || (u.active && actor.testUserPermission(u, "OWNER")), false) &&

@@ -22,7 +22,6 @@ import {
   WeaponTypeChecklistField,
 } from "../shared";
 
-// @ts-ignore
 const fields: any = foundry.data.fields;
 
 export interface SynergyData {

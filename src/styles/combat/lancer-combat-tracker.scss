@@ -1,0 +1,84 @@
+li.combatant {
+  border-radius: 5px;
+  &.player {
+    border-left: 3px solid var(--lancer-initiative-player-color);
+    border-right: 3px solid var(--lancer-initiative-player-color);
+    &.active::after {
+      border-color: var(--lancer-initiative-player-color);
+    }
+  }
+  &.friendly {
+    border-left: 3px solid var(--lancer-initiative-friendly-color);
+    border-right: 3px solid var(--lancer-initiative-friendly-color);
+    &.active::after {
+      border-color: var(--lancer-initiative-friendly-color);
+    }
+  }
+  &.neutral {
+    border-left: 3px solid var(--lancer-initiative-neutral-color);
+    border-right: 3px solid var(--lancer-initiative-neutral-color);
+    &.active::after {
+      border-color: var(--lancer-initiative-neutral-color);
+    }
+  }
+  &.enemy {
+    border-left: 3px solid var(--lancer-initiative-enemy-color);
+    border-right: 3px solid var(--lancer-initiative-enemy-color);
+    &.active::after {
+      border-color: var(--lancer-initiative-enemy-color);
+    }
+  }
+  &.secret {
+    border-left: 3px solid var(--lancer-initiative-secret-color);
+    border-right: 3px solid var(--lancer-initiative-secret-color);
+    &.active::after {
+      border-color: var(--lancer-initiative-secret-color);
+    }
+  }
+}
+
+[data-tab="combat"] #combat-tracker {
+  .combatant .token-initiative {
+    padding-left: 0.5em;
+    margin-right: 0.25rem;
+    align-items: center;
+    display: flex;
+    position: relative;
+    flex: 0 0 auto;
+  }
+  .combatant .token-initiative i,
+  .combatant .token-initiative a {
+    font-size: var(--lancer-initiative-icon-size);
+  }
+  .combatant.active .token-initiative a.done {
+    color: var(--lancer-initiative-done-color);
+  }
+  .combatant.player .token-initiative a {
+    color: var(--lancer-initiative-player-color);
+  }
+  .combatant.friendly .token-initiative a {
+    color: var(--lancer-initiative-friendly-color);
+  }
+  .combatant.neutral .token-initiative a {
+    color: var(--lancer-initiative-neutral-color);
+  }
+  .combatant.enemy .token-initiative a {
+    color: var(--lancer-initiative-enemy-color);
+  }
+  .combatant.secret .token-initiative a {
+    color: var(--lancer-initiative-secret-color);
+  }
+  li.combatant.turn-done {
+    color: inherit;
+    text-decoration: inherit;
+  }
+}
+
+#combat,
+#combat-popout {
+  #combat-tracker li.combatant.turn-done {
+    // Furnace crap
+    color: inherit;
+    text-decoration: inherit;
+  }
+}

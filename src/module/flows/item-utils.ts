@@ -1,6 +1,6 @@
-import { friendly_entrytype_name } from "../config";
-import { NpcFeatureType } from "../enums";
-import { getAutomationOptions } from "../settings";
+import type { DeepPartial } from "@league-of-foundry-developers/foundry-vtt-types/src/types/utils.mjs";
+import { LANCER, friendly_entrytype_name } from "../config";
+import { EntryType, NpcFeatureType } from "../enums";
 import { SourceData } from "../source-template";
 import { Flow, FlowState, Step } from "./flow";
 import { LancerFlowState } from "./interfaces";
@@ -17,7 +17,8 @@ export async function checkItemDestroyed(
   state: FlowState<LancerFlowState.WeaponRollData | LancerFlowState.TechAttackRollData | LancerFlowState.ActionUseData>
 ): Promise<boolean> {
   // If this automation option is not enabled, skip the check.
-  if (!getAutomationOptions().limited_loading && getAutomationOptions().attacks) return true;
+  const { limited_loading, attacks } = game.settings.get(game.system.id, LANCER.setting_automation);
+  if (!limited_loading && attacks) return true;
   if (!state.item) return true; // This flow is actor-based, so there is no item to be destroyed.
   if (
     state.item.is_frame() ||
@@ -54,7 +55,8 @@ export async function checkItemLimited(
   state: FlowState<LancerFlowState.WeaponRollData | LancerFlowState.TechAttackRollData | LancerFlowState.ActionUseData>
 ): Promise<boolean> {
   // If this automation option is not enabled, skip the check.
-  if (!getAutomationOptions().limited_loading && getAutomationOptions().attacks) return true;
+  const { limited_loading, attacks } = game.settings.get(game.system.id, LANCER.setting_automation);
+  if (!limited_loading && attacks) return true;
   if (!state.item) return true; // This flow is actor-based, so there is no item to be destroyed.
   if (state.item.is_talent()) {
     return true; // These items don't support limited uses
@@ -81,7 +83,7 @@ export async function checkItemLimited(
     return true;
   }
   if (state.item.isLimited() && state.item.system.uses.value <= 0) {
-    let iType = friendly_entrytype_name(state.item.type);
+    let iType = friendly_entrytype_name(state.item.type as EntryType);
     ui.notifications!.warn(`${iType} ${state.item.name} has no remaining uses!`);
     return false;
   }
@@ -92,7 +94,8 @@ export async function checkItemCharged(
   state: FlowState<LancerFlowState.WeaponRollData | LancerFlowState.TechAttackRollData | LancerFlowState.ActionUseData>
 ): Promise<boolean> {
   // If this automation option is not enabled, skip the check.
-  if (!getAutomationOptions().limited_loading && getAutomationOptions().attacks) return true;
+  const { limited_loading, attacks } = game.settings.get(game.system.id, LANCER.setting_automation);
+  if (!limited_loading && attacks) return true;
   if (!state.item) return true; // This flow is actor-based, so there is no item to be destroyed.
   if (!state.item.is_npc_feature()) return true; // Recharge only applies to NPC features
 
@@ -121,7 +124,7 @@ export async function applySelfHeat(
   let self_heat = 0;
 
   if (state.data.self_heat) {
-    const roll = await new Roll(state.data.self_heat).roll({ async: true });
+    const roll = await new Roll(state.data.self_heat).evaluate();
     self_heat = roll.total!;
     state.data.self_heat_result = {
       roll,
@@ -129,11 +132,11 @@ export async function applySelfHeat(
     };
   }
 
-  if (getAutomationOptions().attack_self_heat) {
+  if (game.settings.get(game.system.id, LANCER.setting_automation).attack_self_heat) {
     if (state.actor.is_mech() || state.actor.is_npc()) {
       // TODO: overkill heat to move to damage flow
       await state.actor.update({
-        // @ts-ignore
+        // @ts-expect-error Missing overkill_heat
         "system.heat.value": state.actor.system.heat.value + (state.data.overkill_heat ?? 0) + self_heat,
       });
     }
@@ -152,7 +155,8 @@ export async function updateItemAfterAction(
   options?: {}
 ): Promise<boolean> {
   if (!state.data) throw new TypeError(`Flow state missing!`);
-  if (state.item && getAutomationOptions().limited_loading && getAutomationOptions().attacks) {
+  const { limited_loading, attacks } = game.settings.get(game.system.id, LANCER.setting_automation);
+  if (state.item && limited_loading && attacks) {
     let item_changes: DeepPartial<SourceData.MechWeapon | SourceData.NpcFeature | SourceData.PilotWeapon> = {};
     if (state.item.isLoading()) item_changes.loaded = false;
     if (state.item.isLimited()) item_changes.uses = { value: Math.max(state.item.system.uses.value - 1, 0) };

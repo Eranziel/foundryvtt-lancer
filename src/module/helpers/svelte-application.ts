@@ -1,6 +1,6 @@
 import type SvelteComponent from "*.svelte";
 
-type SvelteAppOptions = Application.Options & {
+type SvelteAppOptions = ApplicationOptions & {
   intro?: boolean;
 };
 
@@ -49,7 +49,7 @@ export default class SvelteApp<DataModel> extends Application {
     if (!html.get(0)) return;
     let component = new this.klass({
       target: html.get(0)!,
-      props: this.data,
+      props: this.data as Record<string, unknown>,
       intro: !!this.options.intro,
     });
     component.$on("submit", (_e: Event) => {
