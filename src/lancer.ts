@@ -60,7 +60,7 @@ import { applyCollapseListeners, initializeCollapses } from "./module/helpers/co
 import CompconLoginForm from "./module/helpers/compcon-login-form";
 import { applyGlobalDragListeners } from "./module/helpers/dragdrop";
 // import { handleActorExport, validForExport } from "./module/helpers/io";
-import { extendCombatTrackerConfig, onCloseCombatTrackerConfig } from "./module/helpers/lancer-initiative-config-form";
+import { extendCombatTrackerConfig, onCloseCombatTrackerConfig } from "./module/apps/lancer-initiative-config-form";
 import { handleRefClickOpen } from "./module/helpers/refs";
 import { DeployableModel } from "./module/models/actors/deployable";
 import { MechModel } from "./module/models/actors/mech";
