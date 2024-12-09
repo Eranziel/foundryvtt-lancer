@@ -23,8 +23,7 @@ export function targetsFromTemplate(templateId: string): void {
   let test_token: (t: LancerToken) => boolean;
   if (canvas.grid?.type === CONST.GRID_TYPES.GRIDLESS) {
     test_token = (token: LancerToken) => {
-      // @ts-expect-error v10/v11 document changes
-      const token_radius = token.document.width / 2;
+      const token_radius = token.document.width! / 2;
       // @ts-expect-error v12 grid
       const range: number = canvas.grid!.measurePath([token.center, template]).distance;
 
@@ -100,10 +99,14 @@ export function targetsFromTemplate(templateId: string): void {
 
   // Test if each token occupies a targeted space and target it if true
   const targets = canvas
-    .tokens!.placeables.filter(t => {
-      let skip = (ignore?.tokens.includes(t.id) || ignore?.dispositions.includes(t.document.disposition)) ?? false;
-      return !skip && test_token(t);
+    .tokens!.quadtree!.getObjects(template.object.bounds, {
+      collisionTest: o => {
+        const t = o.t as any as LancerToken;
+        let skip = (ignore?.tokens.includes(t.id) || ignore?.dispositions.includes(t.document.disposition)) ?? false;
+        return !skip && test_token(t);
+      },
     })
+    .toObject()
     .map(t => t.id);
   game.user!.updateTokenTargets(targets);
   game.user!.broadcastActivity({ targets });
