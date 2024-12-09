@@ -1,7 +1,6 @@
 import type HexagonalGrid from "@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/grid/hexagonal.mjs";
 import type { Point } from "@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/types.mjs";
 import { LANCER } from "./config";
-import { correctLegacyBarAttribute } from "./util/migrations";
 
 declare global {
   interface DocumentClassConfig {
@@ -37,9 +36,9 @@ function cubesBySize({
   columns: boolean;
 }): { q: number; r: number; s: number }[] {
   // Safeguard against infinite recursion due to non-integer sizes
-  const _size = Math.ceil(size);
-  if (_size % 2 === 1) {
-    let l = Math.floor(_size / 2);
+  size = Math.ceil(size);
+  if (size % 2 === 1) {
+    let l = Math.floor(size / 2);
     let res = [];
     for (let q = -l; q <= l; ++q) {
       for (let r = Math.max(-l, -q - l); r <= Math.min(l, -q + l); ++r) {
@@ -50,9 +49,9 @@ function cubesBySize({
   } else {
     // Even size. Get the next larger size and remove spaces on the edge at and below the centerline
     return (
-      cubesBySize({ size: _size + 1, alt, columns })
+      cubesBySize({ size: size + 1, alt, columns })
         // non-negative r is the center line and below, edge is size/2 spaces from the "center"
-        .filter(c => !(c.r >= 0 && (Math.abs(c.q) + Math.abs(c.r) + Math.abs(c.s)) / 2 === _size / 2))
+        .filter(c => !(c.r >= 0 && (Math.abs(c.q) + Math.abs(c.r) + Math.abs(c.s)) / 2 === size / 2))
         // Rotate based on token and grid settings
         .map(c => {
           if (!alt && !columns) return c;
@@ -74,28 +73,6 @@ function altOrientation(token: LancerToken): boolean {
  * @extends {TokenDocument}
  */
 export class LancerTokenDocument extends TokenDocument {
-  // Called as part of foundry document initialization process. Fix malformed data.
-  // When adding new code, do so at the bottom to reflect changes over time (in case order matters)
-  static migrateData(source: any) {
-    // Fix the standard bars individually
-    if (source.bar1?.attribute?.includes("derived")) {
-      source.bar1.attribute = correctLegacyBarAttribute(source.bar1.attribute);
-    }
-    if (source.bar2?.attribute?.includes("derived")) {
-      source.bar2.attribute = correctLegacyBarAttribute(source.bar2.attribute);
-    }
-
-    // Fix bar brawlers
-    if (source.flags?.barbrawl?.resourceBars) {
-      let bb_data = source.flags.barbrawl;
-      for (let bar of Object.values(bb_data.resourceBars) as Array<{ attribute: string | null }>) {
-        if (bar.attribute?.includes("derived")) bar.attribute = correctLegacyBarAttribute(bar.attribute);
-      }
-    }
-
-    return super.migrateData(source);
-  }
-
   async _preCreate(...[data, options, user]: Parameters<TokenDocument["_preCreate"]>) {
     if (
       game.settings.get(game.system.id, LANCER.setting_automation).token_size &&
@@ -248,25 +225,4 @@ export function extendTokenConfig(...[app, html, _data]: Parameters<Hooks.Render
   html.find("[name=width]").prop("disabled", !manual);
   html.find("[name=height]").prop("disabled", !manual);
   app.setPosition();
-}
-
-// Make derived fields properly update their intended origin target
-export function un_derive_attr_key(key: string) {
-  // Cut the .derived, and also remove any trailing .value to resolve pseudo-bars
-  let new_key = key.replace(/derived\./, "");
-  return new_key.replace(/\.value$/, "");
-}
-
-// Makes calls to modify_token_attribute re-route to the appropriate field
-export function fix_modify_token_attribute(data: any) {
-  for (let key of Object.keys(data)) {
-    // If starts with "data.derived", replace with just "data"
-    if (key.includes("data.derived.")) {
-      let new_key = un_derive_attr_key(key);
-      data[new_key] = data[key];
-      delete data[key];
-
-      console.log(`Overrode assignment from ${key} to ${new_key}`);
-    }
-  }
 }
