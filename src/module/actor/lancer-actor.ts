@@ -1,6 +1,5 @@
 import { LANCER, replaceDefaultResource, TypeIcon } from "../config";
 import { DamageType, EntryType } from "../enums";
-import { fix_modify_token_attribute } from "../token";
 import { AppliedDamage } from "./damage-calc";
 import { SystemData, SystemDataType, SystemTemplates } from "../system-template";
 import { SourceDataType } from "../source-template";
@@ -548,7 +547,6 @@ export class LancerActor extends Actor {
     }
 
     // Call a hook to handle token resource bar updates
-    fix_modify_token_attribute(updates);
     const allowed = Hooks.call("modifyTokenAttribute", { attribute, value, isDelta, isBar }, updates);
     return allowed ? this.update(updates) : this;
   }
