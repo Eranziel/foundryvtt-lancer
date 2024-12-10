@@ -35,7 +35,7 @@ export class HTMLEditDialog extends FormApplication {
   /* -------------------------------------------- */
 
   /** @override */
-  static get defaultOptions(): FormApplication.Options {
+  static get defaultOptions(): FormApplicationOptions {
     return foundry.utils.mergeObject(super.defaultOptions, {
       template: `systems/${game.system.id}/templates/window/html_editor.hbs`,
       width: 650,
@@ -55,7 +55,7 @@ export class HTMLEditDialog extends FormApplication {
     let new_data = {
       text: this.text,
     };
-    return mergeObject(super.getData(), new_data);
+    return foundry.utils.mergeObject(super.getData(), new_data);
   }
 
   /** @override */

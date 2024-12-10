@@ -1,3 +1,4 @@
+import type { DeepPartial } from "@league-of-foundry-developers/foundry-vtt-types/src/types/utils.mjs";
 import { EntryType } from "../../enums";
 import { SourceData } from "../../source-template";
 import { PackedPilotWeaponData } from "../../util/unpacking/packed-types";
@@ -9,16 +10,17 @@ import { RangeField, unpackRange } from "../bits/range";
 import { unpackSynergy } from "../bits/synergy";
 import { unpackTag } from "../bits/tag";
 import { LancerDataModel, UnpackContext } from "../shared";
-import { template_universal_item, template_bascdt, template_uses } from "./shared";
+import { template_bascdt, template_universal_item, template_uses } from "./shared";
 
-const fields: any = foundry.data.fields;
+const fields = foundry.data.fields;
 
-// @ts-ignore
-export class PilotWeaponModel extends LancerDataModel {
+export class PilotWeaponModel extends LancerDataModel<DataSchema, Item> {
   static defineSchema() {
     return {
       description: new fields.StringField({ nullable: true }),
+      // @ts-expect-error
       range: new fields.ArrayField(new RangeField()),
+      // @ts-expect-error
       damage: new fields.ArrayField(new DamageField()),
       effect: new fields.StringField(),
       loaded: new fields.BooleanField(),

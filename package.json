@@ -24,7 +24,7 @@
   "license": "",
   "devDependencies": {
     "@foundryvtt/foundryvtt-cli": "^1.0.0-rc.4",
-    "@league-of-foundry-developers/foundry-vtt-types": "0.8.9-10",
+    "@league-of-foundry-developers/foundry-vtt-types": "github:League-of-Foundry-Developers/foundry-vtt-types#main",
     "@sveltejs/vite-plugin-svelte": "^2.4.6",
     "@tsconfig/svelte": "^2.0.1",
     "archiver": "^3.1.1",
@@ -44,7 +44,7 @@
     "svelte-language-server": "^0.14.8",
     "svelte-preprocess": "^5.0.4",
     "tslib": "^1.14.1",
-    "typescript": "^4.7.3",
+    "typescript": "^5.4.5",
     "vite": "^4.5.3",
     "vite-plugin-checker": "^0.6.2",
     "yargs": "^15.4.1"

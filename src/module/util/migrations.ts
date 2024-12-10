@@ -1,11 +1,11 @@
 // Migration utility functions
 
+import type { DeepPartial } from "@league-of-foundry-developers/foundry-vtt-types/src/types/utils.mjs";
 import type { SourceData, SourceTemplates } from "../source-template";
 import type { PackedNpcClassStats } from "./unpacking/packed-types";
 
 // Looks through the raw game.data for probable lid matches. Returns a UUID
 function coarseLIDtoUUID(lid: string): string | null {
-  // @ts-expect-error v11
   let actor = game.data.actors?.find(x => x.system?.lid == lid);
   if (actor?._id) {
     return `Actor.${actor._id}`;
@@ -61,30 +61,6 @@ export function regRefToLid(rr: any): null | string {
   return rr.fallback_lid || null;
 }
 
-// Returns a corrected bar attribute or, if one could not be deduced, just hp
-// Used for fixing old derived.* attrs
-export function correctLegacyBarAttribute(attr_name: string | null): string {
-  attr_name = attr_name || ""; // sanity
-  // if (attr_name.includes("heat")) {
-  //   return "heat";
-  // } else if (attr_name.includes("hp")) {
-  //   return "hp";
-  // } else if (attr_name.includes("shield")) {
-  //   return "overshield";
-  // } else if (attr_name.includes("burn")) {
-  //   return "burn";
-  // } else if (attr_name.includes("struct")) {
-  //   return "structure";
-  // } else if (attr_name.includes("stress")) {
-  //   return "stress";
-  // } else if (attr_name.includes("rep")) {
-  //   return "repairs";
-  // } else {
-  //   return "hp"; // a safe alternative
-  // }
-  return attr_name;
-}
-
 /** Converts a stat array from compcon/old lancer standard to modern standards */
 export function convertNpcStats(raw_data: Record<string, any>): DeepPartial<SourceData.NpcClass["base_stats"]> {
   let stats: DeepPartial<SourceData.NpcClass["base_stats"]> = [];
@@ -130,7 +106,7 @@ export function convertNpcStats(raw_data: Record<string, any>): DeepPartial<Sour
     };
 
     // Go through either all keys, or present keys
-    let record: Partial<SourceTemplates.NPC.StatBlock> = {};
+    let record: SourceTemplates.NPC.StatBlock = {} as any;
     for (let k of Object.keys(raw_data) as Array<keyof PackedNpcClassStats>) {
       let v = giv(k);
       if (v) record[key_map[k]] = v;

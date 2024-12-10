@@ -1,12 +1,11 @@
-import { LANCER } from "../config";
 import { LancerActor } from "../actor/lancer-actor";
+import { LANCER } from "../config";
 import { LancerItem } from "../item/lancer-item";
-import { SourceData, UUIDRef } from "../source-template";
+import { PowerData } from "../models/bits/power";
+import { UUIDRef } from "../source-template";
+import { renderTemplateStep } from "./_render";
 import { Flow, FlowState, Step } from "./flow";
 import { LancerFlowState } from "./interfaces";
-import { getAutomationOptions } from "../settings";
-import { PowerData } from "../models/bits/power";
-import { renderTemplateStep } from "./_render";
 
 const lp = LANCER.log_prefix;
 
@@ -77,7 +76,7 @@ export async function updatePowerUses(
 ): Promise<boolean> {
   if (!state.data) throw new TypeError(`Bond Power flow state missing!`);
   if (!state.item || !state.item.is_bond()) throw new TypeError(`Bond Power flow item is not a bond!`);
-  if (state.item && getAutomationOptions().limited_loading) {
+  if (state.item && game.settings.get(game.system.id, LANCER.setting_automation).limited_loading) {
     const power: PowerData = state.item.system.powers[state.data.powerIndex];
     if (power.uses) {
       let item_changes = { [`system.powers.${state.data.powerIndex}.uses.value`]: power.uses.value - 1 };

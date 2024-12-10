@@ -1,3 +1,4 @@
+import type { DeepPartial } from "@league-of-foundry-developers/foundry-vtt-types/src/types/utils.mjs";
 import { EntryType, WeaponSize, WeaponType } from "../../enums";
 import { restrict_enum } from "../../helpers/commons";
 import { SourceData } from "../../source-template";
@@ -10,31 +11,34 @@ import { DamageField, unpackDamage } from "../bits/damage";
 import { RangeField, unpackRange } from "../bits/range";
 import { SynergyField, unpackSynergy } from "../bits/synergy";
 import { TagField, unpackTag } from "../bits/tag";
-import { ControlledLengthArrayField, LancerDataModel, LIDField, UnpackContext } from "../shared";
+import { ControlledLengthArrayField, LIDField, LancerDataModel, UnpackContext } from "../shared";
 import {
-  template_universal_item,
+  migrateManufacturer,
   template_destructible,
   template_licensed,
+  template_universal_item,
   template_uses,
-  migrateManufacturer,
 } from "./shared";
 
-const fields: any = foundry.data.fields;
+const fields = foundry.data.fields;
 
-// @ts-ignore
-export class MechWeaponModel extends LancerDataModel<"MechWeaponModel"> {
+export class MechWeaponModel extends LancerDataModel<DataSchema, Item> {
   static defineSchema() {
     return {
       deployables: new fields.ArrayField(new LIDField()),
       integrated: new fields.ArrayField(new LIDField()),
       sp: new fields.NumberField({ nullable: false, initial: 0 }),
+      // @ts-expect-error
       actions: new fields.ArrayField(new ActionField()),
       profiles: new ControlledLengthArrayField(
         new fields.SchemaField({
           name: new fields.StringField({ initial: "Base Profile" }),
           type: new fields.StringField({ choices: Object.values(WeaponType), initial: WeaponType.Rifle }),
+          // @ts-expect-error
           damage: new fields.ArrayField(new DamageField()),
+          // @ts-expect-error
           range: new fields.ArrayField(new RangeField()),
+          // @ts-expect-error
           tags: new fields.ArrayField(new TagField()),
           description: new fields.StringField(),
           effect: new fields.StringField(),
@@ -44,9 +48,13 @@ export class MechWeaponModel extends LancerDataModel<"MechWeaponModel"> {
           cost: new fields.NumberField({ nullable: false, initial: 0 }),
           skirmishable: new fields.BooleanField(),
           barrageable: new fields.BooleanField(),
+          // @ts-expect-error
           actions: new fields.ArrayField(new ActionField()),
+          // @ts-expect-error
           bonuses: new fields.ArrayField(new BonusField()),
+          // @ts-expect-error
           synergies: new fields.ArrayField(new SynergyField()),
+          // @ts-expect-error
           counters: new fields.ArrayField(new CounterField()),
         }),
         { length: 1, overflow: true }
@@ -73,8 +81,6 @@ export class MechWeaponModel extends LancerDataModel<"MechWeaponModel"> {
     if (data.source) {
       data.manufacturer = migrateManufacturer(data.source);
     }
-
-    // @ts-expect-error v11
     return super.migrateData(data);
   }
 }
@@ -167,7 +173,7 @@ export function unpackMechWeapon(
       no_mods: data.no_mods,
       no_synergies: data.no_synergy,
       actions: data.actions?.map(unpackAction) || [],
-      profiles,
+      profiles: profiles as any,
       selected_profile_index: 0,
       size: data.mount,
       sp: data.sp,

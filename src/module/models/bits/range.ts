@@ -4,7 +4,6 @@ import { restrict_enum } from "../../helpers/commons";
 import { LancerMECH_WEAPON, LancerWEAPON_MOD } from "../../item/lancer-item";
 import { PackedRangeData } from "../../util/unpacking/packed-types";
 
-// @ts-ignore
 const fields: any = foundry.data.fields;
 
 // Clone of RegRangeData

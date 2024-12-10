@@ -1,0 +1,27 @@
+<section>
+  {{formGroup fields.icon value=appearance.icon localize=true}}
+  {{formGroup fields.deactivate value=appearance.deactivate localize=true}}
+  {{formGroup fields.icon_size value=appearance.icon_size localize=true}}
+
+  <div class="app" id="preview-combat">
+    <div class="fake-combatant flexrow" style="border-color: {{appearance.player_color}}">
+      <img class="token-image" src="icons/svg/mystery-man.svg" />
+      <div class="token-name flexcol">
+        <h4>Icon Preview</h4>
+      </div>
+      <div class="token-initiative">
+        <a
+          class="preview {{appearance.icon}}"
+          style="color: {{appearance.player_color}}; font-size: {{appearance.icon_size}}rem"
+        ></a>
+      </div>
+    </div>
+  </div>
+
+  {{formGroup fields.player_color value=appearance.player_color localize=true}}
+  {{formGroup fields.friendly_color value=appearance.friendly_color localize=true}}
+  {{formGroup fields.neutral_color value=appearance.neutral_color localize=true}}
+  {{formGroup fields.enemy_color value=appearance.enemy_color localize=true}}
+  {{!-- {{formGroup fields.secret_color value=appearance.secret_color localize=true}} --}}
+  {{formGroup fields.done_color value=appearance.done_color localize=true}}
+</section>

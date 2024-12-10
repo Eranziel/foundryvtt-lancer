@@ -1,17 +1,18 @@
-import type { LancerActor } from "../actor/lancer-actor";
-import type { ActionTrackingData, ActionType } from ".";
 import tippy from "tippy.js";
-import { getActionTrackerOptions } from "../settings";
-import { getActions, modAction, toggleAction, _defaultActionData } from "./action-tracker";
+import type { ActionTrackingData, ActionType } from ".";
+import type { LancerActor } from "../actor/lancer-actor";
+import { LANCER } from "../config";
+import { getActions, modAction, toggleAction } from "./action-tracker";
 
-// TODO: Properly namespace this flag into the system scope
 declare global {
   interface FlagConfig {
     User: {
-      "action-manager": {
-        pos: {
-          top: number;
-          left: number;
+      lancer: {
+        "action-manager"?: {
+          pos?: {
+            top: number;
+            left: number;
+          };
         };
       };
     };
@@ -31,7 +32,9 @@ export class LancerActionManager extends Application {
 
   async init() {
     // TODO: find the correct place to specify what game.system.id is expected to be
-    LancerActionManager.enabled = getActionTrackerOptions().showHotbar && !game.settings.get("core", "noCanvas");
+    LancerActionManager.enabled =
+      game.settings.get(game.system.id, LANCER.setting_actionTracker).showHotbar &&
+      !game.settings.get("core", "noCanvas");
     if (LancerActionManager.enabled) {
       this.loadUserPos();
       await this.updateControlledToken();
@@ -41,7 +44,7 @@ export class LancerActionManager extends Application {
 
   /** @override */
   static get defaultOptions() {
-    return mergeObject(super.defaultOptions, {
+    return foundry.utils.mergeObject(super.defaultOptions, {
       template: `systems/${game.system.id}/templates/window/action_manager.hbs`,
       width: 310,
       height: 70,
@@ -59,10 +62,9 @@ export class LancerActionManager extends Application {
   getData(_options = {}) {
     const data = {
       position: this.position,
-      // @ts-expect-error Should be fixed with v10 types
       name: this.target && this.target.name.toLocaleUpperCase(),
       actions: this.getActions(),
-      clickable: game.user?.isGM || getActionTrackerOptions().allowPlayers,
+      clickable: game.user?.isGM || game.settings.get(game.system.id, LANCER.setting_actionTracker).allowPlayers,
     };
     return data;
   }
@@ -90,7 +92,10 @@ export class LancerActionManager extends Application {
   }
 
   async updateConfig() {
-    if (getActionTrackerOptions().showHotbar && !game.settings.get("core", "noCanvas")) {
+    if (
+      game.settings.get(game.system.id, LANCER.setting_actionTracker).showHotbar &&
+      !game.settings.get("core", "noCanvas")
+    ) {
       await this.update();
       LancerActionManager.enabled = true;
     } else {
@@ -156,11 +161,9 @@ export class LancerActionManager extends Application {
   }
 
   private loadUserPos() {
-    // @ts-expect-error Should be fixed with v10 types
-    if (!game.user.getFlag(game.system.id, "action-manager.pos")) return;
+    if (!game.user?.getFlag(game.system.id, "action-manager")?.pos) return;
 
-    // @ts-expect-error Should be fixed with v10 types
-    const pos: any = game.user.getFlag(game.system.id, "action-manager.pos");
+    const pos = game.user.getFlag(game.system.id, "action-manager")!.pos!;
     const appPos = this.position;
     return new Promise(resolve => {
       function loop() {
@@ -262,7 +265,7 @@ export class LancerActionManager extends Application {
             elmnt.style.left = xPos + "px";
           }
           console.log(`Action Manager | CACHING: ${xPos} || ${yPos}.`);
-          game.user?.update({ flags: { "action-manager": { pos: { top: yPos, left: xPos } } } });
+          game.user?.update({ flags: { lancer: { "action-manager": { pos: { top: yPos, left: xPos } } } } });
           appPos.top = yPos;
           appPos.left = xPos;
         }
@@ -271,6 +274,6 @@ export class LancerActionManager extends Application {
   }
 
   private canMod() {
-    return game.user?.isGM || getActionTrackerOptions().allowPlayers;
+    return game.user?.isGM || game.settings.get(game.system.id, LANCER.setting_actionTracker).allowPlayers;
   }
 }

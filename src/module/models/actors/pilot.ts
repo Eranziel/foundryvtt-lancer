@@ -1,10 +1,10 @@
-import { template_action_tracking, template_statuses, template_universal_actor } from "./shared";
-import { LancerDataModel, EmbeddedRefField, SyncUUIDRefField, FullBoundedNumberField } from "../shared";
 import { EntryType } from "../../enums";
 import { regRefToUuid } from "../../util/migrations";
 import { CounterField } from "../bits/counter";
+import { EmbeddedRefField, FullBoundedNumberField, LancerDataModel, SyncUUIDRefField } from "../shared";
+import { template_action_tracking, template_statuses, template_universal_actor } from "./shared";
 
-const fields: any = foundry.data.fields;
+const fields = foundry.data.fields;
 
 const pilot_schema = {
   active_mech: new SyncUUIDRefField("Actor", { allowed_types: [EntryType.MECH] }),
@@ -42,7 +42,9 @@ const pilot_schema = {
     }),
     answers: new fields.ArrayField(new fields.StringField()),
     minor_ideal: new fields.StringField(),
+    // @ts-expect-error
     burdens: new fields.ArrayField(new CounterField()),
+    // @ts-expect-error
     clocks: new fields.ArrayField(new CounterField()),
   }),
 
@@ -53,7 +55,7 @@ const pilot_schema = {
 
 type PilotSchema = typeof pilot_schema;
 
-export class PilotModel extends LancerDataModel<"PilotModel"> {
+export class PilotModel extends LancerDataModel<DataSchema, Actor> {
   static defineSchema(): PilotSchema {
     return pilot_schema;
   }
@@ -83,7 +85,6 @@ export class PilotModel extends LancerDataModel<"PilotModel"> {
       data.eng = data.mechSkills[3] ?? 0;
     }
 
-    // @ts-expect-error v11
     return super.migrateData(data);
   }
 }

@@ -2,7 +2,6 @@ import { DamageType, DamageTypeChecklist } from "../../enums";
 import { restrict_enum } from "../../helpers/commons";
 import { PackedDamageData } from "../../util/unpacking/packed-types";
 
-// @ts-ignore
 const fields: any = foundry.data.fields;
 
 // Clone of RegDamageData

@@ -215,9 +215,9 @@ export async function get_pack(
     const basename = id.split(".")[1];
     const metadata: CompendiumCollection.Metadata = {
       name: basename,
-      //@ts-ignore - entity property deprecated, v9 uses type instead.
       type: entity_type,
       label: `lancer.compendium.${basename}`,
+      // @ts-expect-error Banner data not in types
       banner: `./systems/lancer/assets/banners/${basename}.svg`,
       system: "lancer",
       // sort: PackSort[basename],
