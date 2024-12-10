@@ -40,8 +40,11 @@ export class LancerCombat extends Combat {
   }
 
   override async startCombat(): Promise<this> {
+    this._playCombatSound("startEncounter");
+    const updateData = { round: 1, turn: null };
+    Hooks.callAll("combatStart", this, updateData);
     await this.resetActivations();
-    await this.update({ round: 1, turn: null });
+    await this.update(updateData);
     return this;
   }
 
@@ -97,6 +100,14 @@ export class LancerCombat extends Combat {
     this.combatants.forEach(c => c.updateSource({ initiative: null }));
     await this.update({ turn: null, combatants: this.combatants.toObject() }, { diff: false });
     return this;
+  }
+
+  /**
+   * Filter out next up turn notifications sound since the next up isn't deterministic
+   */
+  override _playCombatSound(...[announcement]: Parameters<Combat["_playCombatSound"]>) {
+    if (announcement === "nextUp") return;
+    return super._playCombatSound(announcement);
   }
 
   /**
