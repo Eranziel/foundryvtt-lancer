@@ -1,4 +1,5 @@
 // Import TypeScript modules
+import type { Point } from "@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/types.mjs";
 import type { LancerToken } from "../token";
 
 /**
@@ -7,8 +8,9 @@ import type { LancerToken } from "../token";
  * @param templateId - The id of the template to use
  */
 export function targetsFromTemplate(templateId: string): void {
-  const highlight = canvas?.grid?.getHighlightLayer(`MeasuredTemplate.${templateId}`);
-  const template = canvas.scene?.getEmbeddedDocument("MeasuredTemplate", templateId) as any;
+  // @ts-expect-error v12
+  const highlight = canvas?.interface?.grid?.getHighlightLayer(`MeasuredTemplate.${templateId}`);
+  const template = canvas.scene?.getEmbeddedDocument("MeasuredTemplate", templateId, {}) as any;
   const grid = canvas?.grid;
   if (
     highlight === undefined ||
@@ -21,9 +23,9 @@ export function targetsFromTemplate(templateId: string): void {
   let test_token: (t: LancerToken) => boolean;
   if (canvas.grid?.type === CONST.GRID_TYPES.GRIDLESS) {
     test_token = (token: LancerToken) => {
-      // @ts-expect-error v10/v11 document changes
-      const token_radius = token.document.width / 2;
-      const range = canvas.grid!.measureDistance(token.center, template);
+      const token_radius = token.document.width! / 2;
+      // @ts-expect-error v12 grid
+      const range: number = canvas.grid!.measurePath([token.center, template]).distance;
 
       if (template.t === "circle") {
         return range <= token_radius + template.distance;
@@ -97,11 +99,14 @@ export function targetsFromTemplate(templateId: string): void {
 
   // Test if each token occupies a targeted space and target it if true
   const targets = canvas
-    .tokens!.placeables.filter(t => {
-      // @ts-expect-error v10
-      let skip = (ignore?.tokens.includes(t.id) || ignore?.dispositions.includes(t.document.disposition)) ?? false;
-      return !skip && test_token(t);
+    .tokens!.quadtree!.getObjects(template.object.bounds, {
+      collisionTest: o => {
+        const t = o.t as any as LancerToken;
+        let skip = (ignore?.tokens.includes(t.id) || ignore?.dispositions.includes(t.document.disposition)) ?? false;
+        return !skip && test_token(t);
+      },
     })
+    .toObject()
     .map(t => t.id);
   game.user!.updateTokenTargets(targets);
   game.user!.broadcastActivity({ targets });
@@ -136,8 +141,7 @@ function min_dist(seg: Ray, p: Point) {
 function in_cone_arc(ray: Ray, angle: number, p: Point) {
   // using unit vectors for brevity
   const a = Ray.fromAngle(ray.A.x, ray.A.y, ray.angle, 1);
-  // @ts-expect-error
   const b: Ray = Ray.towardsPoint(ray.A, p, 1);
-  const theta = Math.acos(Math.clamped(-1, dot_product(a, b), 1));
+  const theta = Math.acos(Math.clamp(-1, dot_product(a, b), 1));
   return theta < angle / 2;
 }

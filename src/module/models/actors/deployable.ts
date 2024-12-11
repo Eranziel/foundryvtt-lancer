@@ -1,25 +1,30 @@
 import { template_heat, template_statuses, template_universal_actor } from "./shared";
 
-import { LancerDataModel, SyncUUIDRefField, UnpackContext } from "../shared";
-import { PackedDeployableData } from "../../util/unpacking/packed-types";
+import type { DeepPartial } from "@league-of-foundry-developers/foundry-vtt-types/src/types/utils.mjs";
+import { ActivationType, DeployableType, EntryType } from "../../enums";
+import { restrict_enum } from "../../helpers/commons";
 import { SourceData } from "../../source-template";
+import { slugify } from "../../util/lid";
+import { fixCCFormula } from "../../util/misc";
+import { PackedDeployableData } from "../../util/unpacking/packed-types";
 import { ActionField, unpackAction } from "../bits/action";
 import { unpackBonus } from "../bits/bonus";
 import { CounterField, unpackCounter } from "../bits/counter";
 import { SynergyField, unpackSynergy } from "../bits/synergy";
 import { TagField, unpackTag } from "../bits/tag";
-import { restrict_enum } from "../../helpers/commons";
-import { ActivationType, DeployableType, EntryType } from "../../enums";
-import { slugify } from "../../util/lid";
-import { fixCCFormula } from "../../util/misc";
+import { LancerDataModel, SyncUUIDRefField, UnpackContext } from "../shared";
 
-const fields: any = foundry.data.fields;
+const fields = foundry.data.fields;
 
 const deployable_schema = {
+  // @ts-expect-error
   actions: new fields.ArrayField(new ActionField()),
   // bonuses: new fields.ArrayField(new BonusField()),
+  // @ts-expect-error
   counters: new fields.ArrayField(new CounterField()),
+  // @ts-expect-error
   synergies: new fields.ArrayField(new SynergyField()),
+  // @ts-expect-error
   tags: new fields.ArrayField(new TagField()),
   activation: new fields.StringField({ choices: Object.values(ActivationType), initial: ActivationType.Quick }),
   stats: new fields.SchemaField({
@@ -54,7 +59,7 @@ const deployable_schema = {
 };
 
 type DeployableSchema = typeof deployable_schema;
-export class DeployableModel extends LancerDataModel<"DeployableModel"> {
+export class DeployableModel extends LancerDataModel<DataSchema, Actor> {
   static defineSchema(): DeployableSchema {
     return deployable_schema;
   }
@@ -94,7 +99,6 @@ export class DeployableModel extends LancerDataModel<"DeployableModel"> {
       }
     }
 
-    // @ts-expect-error v11
     return super.migrateData(data);
   }
 }

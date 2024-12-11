@@ -1,3 +1,4 @@
+import type { DeepPartial } from "@league-of-foundry-developers/foundry-vtt-types/src/types/utils.mjs";
 import { EntryType, ReserveType } from "../../enums";
 import { restrict_enum } from "../../helpers/commons";
 import { SourceData } from "../../source-template";
@@ -10,10 +11,9 @@ import { unpackSynergy } from "../bits/synergy";
 import { LancerDataModel, UnpackContext } from "../shared";
 import { template_bascdt, template_universal_item } from "./shared";
 
-const fields: any = foundry.data.fields;
+const fields = foundry.data.fields;
 
-// @ts-ignore
-export class ReserveModel extends LancerDataModel {
+export class ReserveModel extends LancerDataModel<DataSchema, Item> {
   static defineSchema() {
     return {
       consumable: new fields.BooleanField(),

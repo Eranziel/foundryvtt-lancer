@@ -63,18 +63,11 @@ export function fixCCFormula(formula: string) {
  * @param data Data to provide the dice formula, accessible via @
  * @returns The roll total
  */
-export function rollEvalSync(formula: string, data: object): number {
+export function rollEvalSync(formula: string, data?: any): number {
   let roll = new Roll(formula, data);
   try {
-    // @ts-expect-error
-    if (foundry.utils.isNewerVersion(game.version, "12")) {
-      // Then do the v12 version
-      // @ts-ignore
-      roll.evaluateSync();
-    } else {
-      // Then do the v11 version
-      roll.roll({ async: false });
-    }
+    // Then do the v12 version
+    roll.evaluateSync();
   } catch (e) {
     return 0;
   }

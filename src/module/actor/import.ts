@@ -32,7 +32,7 @@ import { frameToPath } from "./retrograde-map";
 
 // Imports packed pilot data, from either a vault id or gist id
 export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearFirst = false) {
-  const coreVersion = await game.settings.get(game.system.id, LANCER.setting_core_data);
+  const coreVersion = game.settings.get(game.system.id, LANCER.setting_core_data);
   if (!coreVersion) {
     ui.notifications?.warn("You must build the Core data in the Lancer Compendium Manager before importing.");
     return;
@@ -54,12 +54,11 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
 
   try {
     let unit_folder = pilot.folder;
-    // @ts-expect-error Should be fixed with v10 types
     let permission = foundry.utils.duplicate(pilot.ownership);
 
     // Check whether players are allowed to create Actors
     let canCreate = !game.user?.can("ACTOR_CREATE");
-    let gmsOnline = game.users?.some(u => u.isGM && u.active);
+    let gmsOnline = game.users?.some((u: User) => u.isGM && u.active);
     if (!canCreate && !gmsOnline) {
       new Dialog({
         title: "Cannot Create Actors",
@@ -226,7 +225,7 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
 
       // Delete all old items of certain types when done
       let toDelete = pilot_item_pool.filter(x =>
-        [EntryType.TALENT, EntryType.SKILL, EntryType.CORE_BONUS].includes(x.type!)
+        [EntryType.TALENT, EntryType.SKILL, EntryType.CORE_BONUS].includes(x.type! as EntryType)
       );
       await pilot._safeDeleteDescendant("Item", toDelete);
     }
@@ -295,7 +294,9 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
     let active_mech_uuid = "";
     for (let cloud_mech of data.mechs) {
       // Find the existing mech, or create one as necessary
-      let mech = game.actors!.find(m => m.is_mech() && m.system.lid == cloud_mech.id) as unknown as LancerMECH | null;
+      let mech = game.actors!.find(
+        (m: LancerActor) => m.is_mech() && m.system.lid == cloud_mech.id
+      ) as unknown as LancerMECH | null;
       if (!mech) {
         if (!game.user?.hasPermission("ACTOR_CREATE")) {
           ui.notifications?.warn(
@@ -416,7 +417,6 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
           name: pilot.system.callsign || cloud_mech.name,
           disposition: CONST.TOKEN_DISPOSITIONS.FRIENDLY,
           "texture.src": replaceDefaultResource(
-            // @ts-expect-error
             mech.prototypeToken?.texture?.src,
             cloud_mech.cloud_portrait,
             frame ? frameToPath(frame.name) : null

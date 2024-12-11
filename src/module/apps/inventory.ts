@@ -11,7 +11,7 @@ interface FilledCategory {
 
 export interface InventoryDialogData {
   content: string;
-  buttons: Record<string, Dialog.Button>;
+  buttons: Record<string, DialogButton>;
   categories: FilledCategory[];
 }
 
@@ -20,7 +20,7 @@ export interface InventoryDialogData {
  * @extends {Dialog}
  */
 export class InventoryDialog extends Dialog {
-  constructor(readonly actor: LancerActor, dialogData: Dialog.Data, options: Partial<Dialog.Options> = {}) {
+  constructor(readonly actor: LancerActor, dialogData: DialogData, options: Partial<DialogOptions> = {}) {
     super(dialogData, options);
     this.actor = actor;
   }
@@ -28,20 +28,19 @@ export class InventoryDialog extends Dialog {
   /* -------------------------------------------- */
 
   /** @override */
-  static get defaultOptions() {
-    return mergeObject(super.defaultOptions, {
+  static get defaultOptions(): DialogOptions {
+    return foundry.utils.mergeObject(super.defaultOptions, {
       template: `systems/${game.system.id}/templates/window/inventory.hbs`,
       width: 600,
       height: "auto",
       classes: ["lancer", "inventory-editor"],
-    });
+    }) as any;
   }
 
-  // @ts-expect-error Dialog is apparently cut off from async in league types
-  async getData(): Promise<InventoryDialogData> {
+  async getData(): Promise<object> {
     // Fill out our categories
     return {
-      ...super.getData(),
+      ...(await super.getData()),
       categories: this.populate_categories(this.actor),
     };
   }
