@@ -8,18 +8,9 @@ import type { LancerToken } from "../token";
  * @param templateId - The id of the template to use
  */
 export function targetsFromTemplate(templateId: string): void {
-  // @ts-expect-error v12
-  const highlight = canvas?.interface?.grid?.getHighlightLayer(`MeasuredTemplate.${templateId}`);
   const template = canvas.scene?.getEmbeddedDocument("MeasuredTemplate", templateId, {}) as any;
   const grid = canvas?.grid;
-  if (
-    highlight === undefined ||
-    template === undefined ||
-    canvas === undefined ||
-    grid === undefined ||
-    canvas.ready !== true
-  )
-    return;
+  if (template === undefined || canvas === undefined || grid === undefined || canvas.ready !== true) return;
   let test_token: (t: LancerToken) => boolean;
   if (canvas.grid?.type === CONST.GRID_TYPES.GRIDLESS) {
     test_token = (token: LancerToken) => {
@@ -74,7 +65,7 @@ export function targetsFromTemplate(templateId: string): void {
         );
       }
       if (template.t === "rect") {
-        if (highlight.geometry.containsPoint(token.center)) return true;
+        if (template.object._getGridHighlightShape().contains(token.center.x, token.center.y)) return true;
         let s1 = Ray.fromAngle(template.object.ray.A.x, template.object.ray.A.y, 0, template.object.ray.dx);
         let s2 = new Ray(s1.B, template.object.ray.B);
         let s3 = Ray.fromAngle(s2.B.x, s2.B.y, Math.PI, template.object.ray.dx);
@@ -89,10 +80,16 @@ export function targetsFromTemplate(templateId: string): void {
 
       return false;
     };
-  } else
+  } else {
+    const { sizeX, sizeY } = canvas.grid!;
+    const template_offsets = (<{ x: number; y: number }[]>template.object._getGridHighlightPositions()).map(
+      ({ x, y }) => canvas.grid!.getOffset({ x: x + sizeX / 2, y: y + sizeY / 2 })
+    );
     test_token = (token: LancerToken) => {
-      return Array.from(token.getOccupiedSpaces()).reduce((a, p) => a || highlight.geometry.containsPoint(p), false);
+      const token_offsets = token.getOccupiedSpaces().map(p => canvas.grid!.getOffset(p));
+      return token_offsets.some(o => template_offsets.some(e => o.i === e.i && o.j === e.j));
     };
+  }
 
   // Get list of tokens and dispositions to ignore.
   let ignore = canvas.templates!.get(templateId)!.document.getFlag(game.system.id, "ignore");
