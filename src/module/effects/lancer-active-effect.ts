@@ -228,6 +228,9 @@ export class LancerActiveEffect extends ActiveEffect {
     }
     console.log(`Lancer | ${configStatuses.length} status icons configured`);
     CONFIG.statusEffects = configStatuses;
+    // Use downandout to mark units as defeated
+    // @ts-expect-error v10 types
+    CONFIG.specialStatusEffects.DEFEATED = "downandout";
     // Disable the vision mechanics Foundry applies to certain status names
     // @ts-expect-error v10 types
     CONFIG.specialStatusEffects.INVISIBLE = "ignored";
