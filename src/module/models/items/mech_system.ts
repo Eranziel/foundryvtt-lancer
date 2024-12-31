@@ -1,4 +1,4 @@
-import type { DeepPartial } from "@league-of-foundry-developers/foundry-vtt-types/src/types/utils.mjs";
+import type { DeepPartial } from "@league-of-foundry-developers/foundry-vtt-types/src/utils/index.mjs";
 import { EntryType } from "../../enums";
 import { SourceData } from "../../source-template";
 import { PackedMechSystemData } from "../../util/unpacking/packed-types";
@@ -21,7 +21,7 @@ import {
 
 const fields = foundry.data.fields;
 
-export class MechSystemModel extends LancerDataModel<DataSchema, Item> {
+export class MechSystemModel extends LancerDataModel<foundry.data.fields.DataSchema, Item> {
   static defineSchema() {
     return {
       effect: new fields.HTMLField(),

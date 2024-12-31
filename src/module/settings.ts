@@ -196,7 +196,7 @@ export function getAutomationOptions(): AutomationOptions {
   return game.settings.get(game.system.id, LANCER.setting_automation) ?? new AutomationOptions();
 }
 
-interface AutomationOptionsSchema extends DataSchema {
+type AutomationOptionsSchema = fields.DataSchema & {
   /**
    * Master switch for automation
    * @defaultValue `true`
@@ -245,7 +245,7 @@ interface AutomationOptionsSchema extends DataSchema {
    * @defaultValue `true`
    */
   token_size: fields.BooleanField<{ initial: true }>;
-}
+};
 
 /**
  * Object for the various automation settings in the system
@@ -312,7 +312,7 @@ export class AutomationOptions extends foundry.abstract.DataModel<AutomationOpti
 /**
  * Object for the various automation settings in the system
  */
-interface ActionTrackerOptionsSchema extends DataSchema {
+type ActionTrackerOptionsSchema = fields.DataSchema & {
   /**
    * Whether the hotbar should be displayed.
    * @defaultValue `true`
@@ -328,7 +328,7 @@ interface ActionTrackerOptionsSchema extends DataSchema {
    * @defaultValue `true`
    */
   printMessages: fields.BooleanField<{ initial: true }>;
-}
+};
 
 export class ActionTrackerOptions extends foundry.abstract.DataModel<ActionTrackerOptionsSchema> {
   static defineSchema(): ActionTrackerOptionsSchema {
@@ -357,7 +357,7 @@ export class ActionTrackerOptions extends foundry.abstract.DataModel<ActionTrack
 
 //
 // > STATUS ICON CONFIGURATION
-interface StatusIconConfigOptionsSchema extends DataSchema {
+type StatusIconConfigOptionsSchema = fields.DataSchema & {
   /**
    * Enable the default icon set for conditions & status
    * @defaultValue `true`
@@ -398,7 +398,7 @@ interface StatusIconConfigOptionsSchema extends DataSchema {
    * @defaultValue `false`
    */
   tommyConditionsStatus: fields.BooleanField<{ initial: false }>;
-}
+};
 
 /**
  * Object for the various automation settings in the system
@@ -470,7 +470,7 @@ export class StatusIconConfigOptions extends foundry.abstract.DataModel<StatusIc
 // > LANCER INITIATIVE CONFIG
 //
 
-interface CombatTrackerAppearanceSchema extends DataSchema {
+type CombatTrackerAppearanceSchema = fields.DataSchema & {
   /**
    * Css class to specify the icon
    * @default `cci cci-activate`
@@ -511,7 +511,7 @@ interface CombatTrackerAppearanceSchema extends DataSchema {
    * @default `#444444`
    */
   done_color: fields.ColorField<{ initial: "#444444" }>;
-}
+};
 
 export class CombatTrackerAppearance extends foundry.abstract.DataModel<CombatTrackerAppearanceSchema> {
   static defineSchema() {

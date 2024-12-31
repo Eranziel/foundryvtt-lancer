@@ -1,4 +1,4 @@
-import type { DeepPartial } from "@league-of-foundry-developers/foundry-vtt-types/src/types/utils.mjs";
+import type { DeepPartial } from "@league-of-foundry-developers/foundry-vtt-types/src/utils/index.mjs";
 import { EntryType, WeaponSize, WeaponType } from "../../enums";
 import { restrict_enum } from "../../helpers/commons";
 import { SourceData } from "../../source-template";
@@ -22,7 +22,7 @@ import {
 
 const fields = foundry.data.fields;
 
-export class MechWeaponModel extends LancerDataModel<DataSchema, Item> {
+export class MechWeaponModel extends LancerDataModel<foundry.data.fields.DataSchema, Item> {
   static defineSchema() {
     return {
       deployables: new fields.ArrayField(new LIDField()),

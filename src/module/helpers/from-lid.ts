@@ -26,6 +26,7 @@ export async function fromLidMany(lids: string[], { source = "all" }: Partial<Fr
   if (search_world)
     docs.push(
       ...(game.items?.filter(i => lids.includes(i.system.lid)) as unknown[]),
+      // @ts-expect-error
       ...(game.actors?.filter(a => lids.includes(a.system.lid)) as unknown[])
     );
 
@@ -62,6 +63,7 @@ export function fromLidSync(lid: string, { source = "all" }: Partial<FromLidOpts
   let document: unknown;
 
   if (search_world)
+    // @ts-expect-error
     document = game.items?.find(i => i.system.lid === lid) ?? game.actors?.find(a => a.system.lid === lid);
 
   if (!document && search_compendium) {

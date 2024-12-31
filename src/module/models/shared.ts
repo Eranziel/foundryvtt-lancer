@@ -4,7 +4,7 @@ import type {
   DeepPartial,
   EmptyObject,
   SimpleMerge,
-} from "@league-of-foundry-developers/foundry-vtt-types/src/types/utils.mjs";
+} from "@league-of-foundry-developers/foundry-vtt-types/src/utils/index.mjs";
 import { LancerActor } from "../actor/lancer-actor";
 import { DamageType, EntryType, RangeType, SystemType, WeaponSize, WeaponType } from "../enums";
 import { formatDotpath } from "../helpers/commons";
@@ -15,7 +15,7 @@ import { regRefToId, regRefToLid, regRefToUuid } from "../util/migrations";
 import fields = foundry.data.fields;
 
 export class LancerDataModel<
-  Schema extends DataSchema,
+  Schema extends foundry.data.fields.DataSchema,
   Parent extends AnyDocument,
   BaseData extends AnyObject = EmptyObject,
   DerivedData extends AnyObject = EmptyObject
@@ -148,7 +148,7 @@ export class LIDField extends fields.StringField {
 }
 
 declare namespace EmbeddedRefField {
-  interface Options extends StringFieldOptions {
+  interface Options extends fields.StringField.Options {
     allowed_types?: EntryType[];
   }
 }
@@ -234,7 +234,7 @@ export class EmbeddedRefField extends fields.StringField<
 }
 
 declare namespace SyncUUIDRefField {
-  interface Options extends StringFieldOptions {
+  interface Options extends fields.StringField.Options {
     allowed_types?: EntryType[];
   }
 }
@@ -334,7 +334,7 @@ export class SyncUUIDRefField extends fields.StringField<
 }
 
 declare namespace FakeBoundedNumberField {
-  interface Options extends NumberFieldOptions {}
+  interface Options extends fields.NumberField.Options {}
   type DefaultOptions = SimpleMerge<
     fields.NumberField.DefaultOptions,
     {
@@ -387,11 +387,11 @@ declare namespace FullBoundedNumberField {
     max?: number;
     initialValue?: number;
   }
-  interface Fields extends DataSchema {
+  type Fields = fields.DataSchema & {
     min: fields.NumberField<{}>;
     max: fields.NumberField<{}>;
     value: fields.NumberField<{}>;
-  }
+  };
 }
 export class FullBoundedNumberField extends fields.SchemaField<
   FullBoundedNumberField.Fields,
@@ -501,7 +501,7 @@ export class SystemTypeChecklistField extends ChecklistField<typeof SystemType> 
 }
 
 declare namespace NpcStatBlockField {
-  interface Fields extends DataSchema {
+  interface Fields extends fields.DataSchema {
     activations: fields.NumberField<{}>;
     armor: fields.NumberField<{}>;
     hp: fields.NumberField<{}>;
@@ -564,9 +564,9 @@ export class ControlledLengthArrayField<
   InitializedElementType = fields.ArrayField.InitializedElementType<ElementField>
 > extends fields.ArrayField<
   ElementField,
+  ControlledLengthArrayField.Options<AssignmentElementField>,
   AssignmentElementField,
-  InitializedElementType,
-  ControlledLengthArrayField.Options<AssignmentElementField>
+  InitializedElementType
 > {
   // Constructor demands options
   constructor(element: ElementField, options: ControlledLengthArrayField.Options<AssignmentElementField>) {

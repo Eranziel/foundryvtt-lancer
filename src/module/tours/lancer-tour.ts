@@ -90,7 +90,8 @@ export class LancerPilotTour extends LancerTour {
     if (this.currentStep?.id === "folders" && !game.user?.isGM) this.currentStep.selector = null!;
     await super._preStep();
     if (!this.actor) {
-      this.actor = await Actor.create(
+      // @ts-expect-error
+      this.actor = await Actor.implementation.create(
         {
           name: "Test Pilot",
           type: EntryType.PILOT,
@@ -119,7 +120,8 @@ export class LancerNPCTour extends LancerTour {
   protected async _preStep() {
     await super._preStep();
     if (!this.npc) {
-      this.npc = await Actor.create(
+      // @ts-expect-error
+      this.npc = await Actor.implementation.create(
         {
           name: "Test NPC",
           type: EntryType.NPC,
@@ -171,7 +173,8 @@ export class LancerSlidingHudTour extends LancerTour {
     await super._preStep();
     if (!this.npc) {
       const id = get_player_data()[0];
-      this.npc = await Actor.create(
+      // @ts-expect-error
+      this.npc = await Actor.implementation.create(
         {
           ...id,
           type: EntryType.NPC,
@@ -233,9 +236,10 @@ export class LancerCombatTour extends LancerTour {
     delete this.combat;
   }
 
-  protected async _setupCombat() {
-    return Combat.create({
+  protected async _setupCombat(): Promise<LancerCombat | undefined> {
+    return Combat.implementation.create({
       [`flags.${game.system.id}.tour`]: true,
+      // @ts-expect-error
       combatants: [
         ...get_player_data(),
         {
@@ -259,7 +263,7 @@ export class LancerCombatTour extends LancerTour {
           [`flags.${game.system.id}.disposition` as const]: -1,
         },
       ].map(foundry.utils.expandObject),
-    });
+    }) as Promise<LancerCombat | undefined>;
   }
 }
 

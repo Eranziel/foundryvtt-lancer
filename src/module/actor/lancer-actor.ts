@@ -1,8 +1,23 @@
+import { type DatabaseDeleteOperation } from "@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/abstract/_types.mjs";
+import * as lancer_data from "@massif/lancer-data";
 import { LANCER, replaceDefaultResource, TypeIcon } from "../config";
+import { npcInnateEffects, pilotInnateEffects } from "../effects/converter";
+import { EffectHelper } from "../effects/effector";
+import { LancerActiveEffect } from "../effects/lancer-active-effect";
 import { DamageType, EntryType } from "../enums";
-import { AppliedDamage } from "./damage-calc";
-import { SystemData, SystemDataType, SystemTemplates } from "../system-template";
-import { SourceDataType } from "../source-template";
+import { createChatMessageStep } from "../flows/_render";
+import { BasicAttackFlow } from "../flows/attack";
+import { BurnFlow } from "../flows/burn";
+import { DamageRollFlow } from "../flows/damage";
+import { FullRepairFlow } from "../flows/full-repair";
+import { NPCRechargeFlow } from "../flows/npc";
+import { OverchargeFlow } from "../flows/overcharge";
+import { OverheatFlow } from "../flows/overheat";
+import { StabilizeFlow } from "../flows/stabilize";
+import { StatRollFlow } from "../flows/stat";
+import { StructureFlow } from "../flows/structure";
+import { TechAttackFlow } from "../flows/tech";
+import { fromLidMany } from "../helpers/from-lid";
 import {
   LancerBOND,
   LancerFRAME,
@@ -11,29 +26,14 @@ import {
   LancerNPC_FEATURE,
   LancerNPC_TEMPLATE,
 } from "../item/lancer-item";
-import { LancerActiveEffect } from "../effects/lancer-active-effect";
-import { frameToPath } from "./retrograde-map";
-import { EffectHelper } from "../effects/effector";
+import { SourceDataType } from "../source-template";
+import { SystemData, SystemDataType, SystemTemplates } from "../system-template";
 import { insinuate } from "../util/doc";
-import { lookupLID } from "../util/lid";
-import { LoadoutHelper } from "./loadout-util";
-import { StrussHelper } from "./struss-util";
-import { StructureFlow } from "../flows/structure";
-import { OverheatFlow } from "../flows/overheat";
-import { BasicAttackFlow } from "../flows/attack";
-import { npcInnateEffects, pilotInnateEffects } from "../effects/converter";
-import { TechAttackFlow } from "../flows/tech";
-import { FullRepairFlow } from "../flows/full-repair";
-import { StatRollFlow } from "../flows/stat";
-import { OverchargeFlow } from "../flows/overcharge";
-import { NPCRechargeFlow } from "../flows/npc";
-import * as lancer_data from "@massif/lancer-data";
-import { StabilizeFlow } from "../flows/stabilize";
 import { rollEvalSync, tokenScrollText, TokenScrollTextOptions } from "../util/misc";
-import { BurnFlow } from "../flows/burn";
-import { createChatMessageStep } from "../flows/_render";
-import { DamageRollFlow } from "../flows/damage";
-import { type DatabaseDeleteOperation } from "@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/abstract/_types.mjs";
+import { AppliedDamage } from "./damage-calc";
+import { LoadoutHelper } from "./loadout-util";
+import { frameToPath } from "./retrograde-map";
+import { StrussHelper } from "./struss-util";
 
 const lp = LANCER.log_prefix;
 
@@ -97,6 +97,7 @@ export class LancerActor extends Actor {
   npcClassSwapPromises: Promise<any>[] = [];
 
   // These cannot be instantiated the normal way (e.x. via constructor)
+  // TODO: These need to be refactored if they can't be in the constructor or made getters
   _configure(options: unknown) {
     // @ts-expect-error
     super._configure(options);
@@ -283,7 +284,7 @@ export class LancerActor extends Actor {
     // Some modules create actors with type "base", or potentially others we don't care about
     //@ts-expect-error V12 typing in progress
     if (!ACTOR_TYPES.includes(this.type)) {
-      console.log("Actor is not a LancerActor:", this);
+      console.log(lp, "Actor is not a LancerActor:", this);
       return super.prepareBaseData();
     }
     // TODO: Move these to the datamodels themselves
@@ -417,6 +418,10 @@ export class LancerActor extends Actor {
   prepareDerivedData() {
     // Ask items to prepare their final attributes using weapon_bonuses / equip information
     for (let item of this.items.contents) {
+      // This should be in item data prep. This method runs immediately after
+      // Item and AE prep, so unless this depends on AE prep, it's unnecessary
+      // complexity here. If it has to be a collection thing, it should be a
+      // new step added to the main prepareData method.
       item.prepareFinalAttributes();
     }
 
@@ -561,6 +566,7 @@ export class LancerActor extends Actor {
     let img = data?.img || TypeIcon(this.type);
 
     let disposition: typeof CONST["TOKEN_DISPOSITIONS"][keyof typeof CONST["TOKEN_DISPOSITIONS"]] =
+      // @ts-expect-error
       {
         [EntryType.NPC]: CONST.TOKEN_DISPOSITIONS.HOSTILE,
         [EntryType.PILOT]: CONST.TOKEN_DISPOSITIONS.FRIENDLY,
@@ -598,9 +604,8 @@ export class LancerActor extends Actor {
     // If changing active mech, all mechs need to render to recompute if they are the active mech
     let changing_active_mech = (changed as any).system?.active_mech !== undefined;
     if (changing_active_mech) {
-      let owned_mechs: LancerActor[] = game.actors!.filter(
-        (a: LancerActor) => a.is_mech() && a.system.pilot?.value == this
-      );
+      // @ts-expect-error
+      let owned_mechs: LancerActor[] = game.actors.filter(a => a.is_mech() && a.system.pilot?.value == this);
       owned_mechs?.forEach(m => m.render());
     }
 
@@ -667,7 +672,7 @@ export class LancerActor extends Actor {
   _onCreateDescendantDocuments(
     parent: ClientDocument,
     collection: "items" | "effects",
-    documents: LancerItem[] | LancerActiveEffect[],
+    documents: any[], //LancerItem[] | LancerActiveEffect[],
     changes: any[],
     options: any,
     userId: string
@@ -718,7 +723,7 @@ export class LancerActor extends Actor {
   _onUpdateDescendantDocuments(
     parent: ClientDocument,
     collection: "items" | "effects",
-    documents: LancerItem[] | LancerActiveEffect[],
+    documents: any[], // LancerItem[] | LancerActiveEffect[],
     changes: any[],
     options: any,
     userId: string
@@ -733,7 +738,7 @@ export class LancerActor extends Actor {
   _onDeleteDescendantDocuments(
     parent: ClientDocument,
     collection: "items" | "effects",
-    documents: LancerItem[] | LancerActiveEffect[],
+    documents: any[], // LancerItem[] | LancerActiveEffect[],
     changes: any,
     options: any,
     userId: string
@@ -889,11 +894,9 @@ export class LancerActor extends Actor {
     }
 
     // And add all new features
-    let baseFeatures = (await Promise.all(
-      Array.from(newClass.system.base_features).map(lid => lookupLID(lid, EntryType.NPC_FEATURE))
-    )) as LancerItem[];
+    const baseFeatures = await fromLidMany(Array.from(newClass.system.base_features));
     await insinuate(
-      baseFeatures.filter(x => x),
+      baseFeatures.filter(x => x instanceof Item),
       this
     );
     needsRefresh = true;
@@ -921,7 +924,6 @@ export class LancerActor extends Actor {
       ui.notifications?.error(message);
       throw new Error(message);
     }
-    // @ts-expect-error Infinite recursion for some reason
     if (x instanceof TokenDocument) x = x.actor!;
     if (!(x instanceof LancerActor)) {
       let message = `${messagePrefix ? messagePrefix + " | " : ""}Document ${x} not an actor.`;
@@ -940,7 +942,6 @@ export class LancerActor extends Actor {
       ui.notifications?.error(message);
       throw new Error(message);
     }
-    // @ts-expect-error Infinite recursion for some reason
     if (x instanceof TokenDocument) x = x.actor!;
     if (!(x instanceof LancerActor)) {
       let message = `${messagePrefix ? messagePrefix + " | " : ""}Document ${x} not an actor.`;

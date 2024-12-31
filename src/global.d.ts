@@ -119,6 +119,7 @@ declare global {
   }
 
   interface SettingConfig {
+    "core.gridTemplates": boolean;
     "lancer.actionManager": boolean;
     "lancer.actionManagerPlayersUse": boolean;
     "lancer.actionTracker": typeof ActionTrackerOptions;

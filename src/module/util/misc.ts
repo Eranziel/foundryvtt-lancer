@@ -78,7 +78,7 @@ export type TokenScrollTextOptions = {
   tokenId?: string;
   content?: string;
   style?: {
-    anchor?: 0 | 1 | 2 | 3 | 4;
+    anchor?: CONST.TEXT_ANCHOR_POINTS;
     direction?: 0 | 1 | 2 | 3 | 4;
     duration?: number;
     fontSize?: number;

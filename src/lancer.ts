@@ -306,7 +306,6 @@ Hooks.once("setup", () => {
   // Change the default value of the grid based templates option
   // TODO Remove when we get https://github.com/foundryvtt/foundryvtt/issues/11477
   if (game.settings.settings.get("core.gridTemplates"))
-    // @ts-expect-error This is hacky, but valid
     game.settings.settings.get("core.gridTemplates")!.default = true;
 });
 
@@ -384,7 +383,7 @@ Hooks.on("updateToken", (_scene: Scene, _token: Token, diff: any, _options: any,
 });
 Hooks.on("updateActor", (...[_actor, changes]: Parameters<Hooks.UpdateDocument<typeof Actor>>): void => {
   game.action_manager?.update();
-  triggerStrussFlow(_actor, changes);
+  triggerStrussFlow(_actor as LancerActor, changes);
 });
 Hooks.on("closeSettingsConfig", () => {
   game.action_manager?.updateConfig();
