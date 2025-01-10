@@ -62,6 +62,7 @@ export const LANCER = {
   setting_ui_theme: "uiTheme" as const,
   setting_compcon_login: "compconLogin" as const,
   setting_status_icons: "statusIconConfig" as const,
+  setting_grit_disable: "disableGritBonus" as const,
   setting_automation: "automationOptions" as const,
   setting_automation_switch: "automationSwitch" as const,
   setting_automation_attack: "attackSwitch" as const, // Deprecated

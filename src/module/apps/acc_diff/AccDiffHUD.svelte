@@ -236,6 +236,14 @@
         <PlusMinusInput bind:value={base.difficulty} id="accdiff-other-diff" />
       </div>
     </div>
+    <label class="flexrow accdiff-footer accdiff-weight lancer-border-primary" for="accdiff-flat-bonus">
+      Flat Bonus
+    </label>
+    <div id="accdiff-flat-bonus" class="accdiff-grid">
+      <div class="accdiff-other-grid lancer-border-primary" style="border-right-width: 1px;border-right-style: dashed;">
+        <PlusMinusInput bind:value={base.flatBonusInjected} id="accdiff-flat-mod" />
+      </div>
+    </div>
     <div class="flex-col accdiff-footer lancer-border-primary">
       {#if ranges && ranges.length > 0}
         <span class="accdiff-weight flex-center flexrow">Targeting</span>

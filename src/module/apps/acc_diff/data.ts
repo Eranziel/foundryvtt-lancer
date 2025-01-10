@@ -79,6 +79,7 @@ export class AccDiffHudWeapon {
 }
 
 export class AccDiffHudBase {
+  flatBonusInjected: number;
   accuracy: number;
   difficulty: number;
   cover: Cover;
@@ -89,6 +90,7 @@ export class AccDiffHudBase {
 
   static get schema() {
     return {
+      flatBonusInjected: t.number,
       accuracy: t.number,
       difficulty: t.number,
       cover: coverSchema,
@@ -103,6 +105,7 @@ export class AccDiffHudBase {
   }
 
   constructor(obj: t.TypeOf<typeof AccDiffHudBase.schemaCodec>) {
+    this.flatBonusInjected = obj.flatBonusInjected;
     this.accuracy = obj.accuracy;
     this.difficulty = obj.difficulty;
     this.cover = obj.cover;
@@ -110,7 +113,13 @@ export class AccDiffHudBase {
   }
 
   get raw() {
-    return { accuracy: this.accuracy, difficulty: this.difficulty, cover: this.cover, plugins: this.plugins };
+    return {
+      flatBonusInjected: this.flatBonusInjected,
+      accuracy: this.accuracy,
+      difficulty: this.difficulty,
+      cover: this.cover,
+      plugins: this.plugins,
+    };
   }
 
   hydrate(d: AccDiffHudData) {
@@ -360,6 +369,7 @@ export class AccDiffHudData {
     }
 
     let base = {
+      flatBonusInjected: 0,
       cover: Cover.None,
       accuracy: starting[0],
       difficulty: starting[1],
