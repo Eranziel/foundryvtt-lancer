@@ -207,12 +207,12 @@ export async function initAttackData(
         state.data.flat_bonus = 0;
       } else {
         state.data.flat_bonus = state.actor.system.grit;
-        // Add a +1 flat bonus for Death's Heads. This data isn't in lancer-data, so has to be hard-coded.
-        if (state.actor.system.loadout.frame?.value?.system.lid == "mf_deaths_head") {
-          // Death's Head gets +1 to all ranged attacks, which means if there's a non-threat range, it gets the bonus
-          if (state.item.system.active_profile.range.some(r => r.type !== RangeType.Threat)) {
-            state.data.flat_bonus += 1;
-          }
+      }
+      // Add a +1 flat bonus for Death's Heads. This data isn't in lancer-data, so has to be hard-coded.
+      if (state.actor.system.loadout.frame?.value?.system.lid == "mf_deaths_head") {
+        // Death's Head gets +1 to all ranged attacks, which means if there's a non-threat range, it gets the bonus
+        if (state.item.system.active_profile.range.some(r => r.type !== RangeType.Threat)) {
+          state.data.flat_bonus += 1;
         }
       }
 
