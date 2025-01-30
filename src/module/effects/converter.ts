@@ -606,11 +606,21 @@ export function convertBonus(origin: string, name: string, bonus: BonusData): nu
       break;
     case "cheap_struct":
       target_type = EntryType.MECH;
-      changes.push({ mode, value: 1 as any, priority, key: "system.structure_repair_cost" });
+      changes.push({
+        mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+        value: "1",
+        priority,
+        key: "system.structure_repair_cost",
+      });
       break;
     case "cheap_stress":
       target_type = EntryType.MECH;
-      changes.push({ mode, value: 1 as any, priority, key: "system.stress_repair_cost" });
+      changes.push({
+        mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
+        value: "1",
+        priority,
+        key: "system.stress_repair_cost",
+      });
       break;
     case "overcharge":
       target_type = EntryType.MECH;
