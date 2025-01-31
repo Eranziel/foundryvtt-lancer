@@ -202,12 +202,7 @@ export async function initAttackData(
       let profile = state.item.system.active_profile;
       state.data.attack_type = profile.type === WeaponType.Melee ? AttackType.Melee : AttackType.Ranged;
 
-      const shouldDisableGrit = game.settings.get(game.system.id, LANCER.setting_grit_disable) as Boolean;
-      if (shouldDisableGrit) {
-        state.data.flat_bonus = 0;
-      } else {
-        state.data.flat_bonus = state.actor.system.grit;
-      }
+      state.data.flat_bonus = state.actor.system.grit;
       // Add a +1 flat bonus for Death's Heads. This data isn't in lancer-data, so has to be hard-coded.
       if (state.actor.system.loadout.frame?.value?.system.lid == "mf_deaths_head") {
         // Death's Head gets +1 to all ranged attacks, which means if there's a non-threat range, it gets the bonus

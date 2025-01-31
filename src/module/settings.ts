@@ -6,7 +6,6 @@ import CompconLoginForm from "./helpers/compcon-login-form";
 import { ActionTrackerConfig } from "./apps/action-tracker-settings";
 import { StatusIconConfig } from "./apps/status-icon-config";
 import { applyTheme } from "./themes";
-import { boolean } from "io-ts";
 
 export const registerSettings = function () {
   /**
@@ -199,15 +198,6 @@ export const registerSettings = function () {
       game.combats?.render();
     },
     default: true,
-  });
-
-  game.settings.register(game.system.id, LANCER.setting_grit_disable, {
-    name: "Disable Grit Bonus",
-    hint: "Disables grit bonus and Deaths' Head attack bonus",
-    scope: "world",
-    config: true,
-    type: Boolean,
-    default: false,
   });
 
   Hooks.callAll("LancerInitiativeInit");

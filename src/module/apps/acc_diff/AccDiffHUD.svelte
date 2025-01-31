@@ -237,10 +237,10 @@
       </div>
     </div>
     <label class="flexrow accdiff-footer accdiff-weight lancer-border-primary" for="accdiff-flat-bonus">
-      Flat Bonus
+      Flat Modifier
     </label>
     <div id="accdiff-flat-bonus" class="accdiff-grid">
-      <div class="accdiff-other-grid lancer-border-primary" style="border-right-width: 1px;border-right-style: dashed;">
+      <div class="accdiff-other-grid lancer-border-primary">
         <PlusMinusInput bind:value={base.flatBonusInjected} id="accdiff-flat-mod" />
       </div>
     </div>
