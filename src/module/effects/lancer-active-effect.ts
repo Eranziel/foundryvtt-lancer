@@ -224,7 +224,8 @@ export class LancerActiveEffect extends ActiveEffect {
         CONFIG.statusEffects.push({
           id: status.system.lid,
           name: status.name,
-          icon: status.img,
+          // @ts-expect-error v12 property renamed
+          img: status.img,
           description: status.system.effects,
         });
       } else {

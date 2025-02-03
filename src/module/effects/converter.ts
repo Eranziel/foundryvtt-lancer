@@ -72,7 +72,7 @@ export function frameInnateEffect(frame: LancerFRAME) {
   return {
     flags: { lancer: { ephemeral: true } },
     name: frame.name!,
-    icon: frame.img,
+    img: frame.img,
     origin: frame.uuid,
     transfer: true,
     changes,
@@ -189,7 +189,8 @@ export function pilotInnateEffects(pilot: LancerActor): LancerActiveEffect[] {
           value: pilot.system.level.toString(),
         },
       ],
-      icon: pilot.img,
+      // @ts-expect-error v12 property renamed
+      img: pilot.img,
       origin: pilot.uuid,
       flags: {
         lancer: {
@@ -221,7 +222,8 @@ export function pilotInnateEffects(pilot: LancerActor): LancerActiveEffect[] {
           value: pilot.system.level.toString(),
         },
       ],
-      icon: pilot.img,
+      // @ts-expect-error
+      img: pilot.img,
       origin: pilot.uuid,
       flags: {
         lancer: {
@@ -257,7 +259,8 @@ export function npcInnateEffects(npc: LancerActor): LancerActiveEffect[] {
           value: npc.system.tier.toString(),
         },
       ],
-      icon: npc.img,
+      // @ts-expect-error v12 property renamed
+      img: npc.img,
       origin: npc.uuid,
       flags: {
         lancer: {
@@ -289,7 +292,7 @@ export function statusInnateEffect(status: LancerSTATUS) {
     name: status.name!,
     changes,
     origin: status.uuid,
-    icon: status.img,
+    img: status.img,
     flags: {
       lancer: {
         ephemeral: true,
@@ -316,7 +319,7 @@ export function statusConfigEffect(status: LancerSTATUS): any {
     name: base.name,
     changes: base.changes,
     origin: base.origin,
-    img: base.icon,
+    img: base.img,
     flags: {
       lancer: {
         status_type: status.system.type,
@@ -403,7 +406,7 @@ export function npcClassInnateEffect(class_: LancerNPC_CLASS) {
   return {
     flags: { lancer: { ephemeral: true } },
     name: class_.name!,
-    icon: class_.img,
+    img: class_.img,
     origin: class_.uuid,
     transfer: true,
     changes,
@@ -423,7 +426,7 @@ export function npcFeatureBonusEffects(feature: LancerNPC_FEATURE) {
     return {
       flags: { lancer: { ephemeral: true } },
       name: `${feature.name!} - bonuses`,
-      icon: feature.img,
+      img: feature.img,
       origin: feature.uuid,
       transfer: true,
       changes,
@@ -446,7 +449,7 @@ export function npcFeatureOverrideEffects(feature: LancerNPC_FEATURE) {
     return {
       flags: { lancer: { ephemeral: true } },
       name: `${feature.name!} - overrides`,
-      icon: feature.img,
+      img: feature.img,
       origin: feature.uuid,
       transfer: true,
       changes,
@@ -463,6 +466,7 @@ export function convertBonus(origin: string, name: string, bonus: BonusData) {
     return {
       name,
       flags: {
+        // @ts-ignore Kill me (infinite recursion in types)
         [game.system.id]: {
           target_type: EntryType.MECH,
           ephemeral: true,
