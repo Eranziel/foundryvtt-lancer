@@ -53,7 +53,7 @@ export type AttackFlag = {
   attackerItemUuid?: string; // Item UUID used for the attack, if applicable
   invade?: boolean;
   targets: {
-    id: string;
+    uuid: string;
     setConditions?: object; // keys are statusEffect ids, values are boolean to indicate whether to apply or remove
     total: string;
     hit: boolean;
@@ -464,7 +464,8 @@ export async function printAttackCard(
       attackerItemUuid: state.item?.uuid,
       targets: state.data.hit_results.map(hr => {
         return {
-          id: hr.target.document.uuid,
+          id: hr.target.document.id,
+          uuid: hr.target.document.uuid,
           setConditions: !!hr.usedLockOn ? { lockon: !hr.usedLockOn } : undefined,
           total: hr.total,
           hit: hr.hit,
@@ -494,24 +495,25 @@ export async function printAttackCard(
 
 // If user is GM, apply status changes to attacked tokens
 Hooks.on("createChatMessage", async (cm: ChatMessage, options: any, id: string) => {
-  // Consume lock-on if we are a GM
-  if (!game.user?.isGM) return;
+  // Consume lock-on if we are the primary GM
+  // @ts-expect-error Types user collection missing activeGM
+  if (!game.users?.activeGM?.isSelf) return;
   const atkData: AttackFlag = cm.getFlag(game.system.id, "attackData") as any;
   if (!atkData || !atkData.targets) return;
   atkData.targets.forEach(target => {
     // Find the target in this scene
-    const tokenActor = game.canvas.scene?.tokens.find(token => token.id === target.id)?.actor;
+    const tokenActor = game.canvas.scene?.tokens.find(token => token.uuid === target.uuid)?.actor;
     if (!tokenActor) return;
     const statusToApply = [];
     const statusToRemove = [];
     for (const [stat, val] of Object.entries(target.setConditions || {})) {
       if (val) {
         // Apply status
-        console.log(`(Not) Applying ${stat} to Token ${target.id}`);
+        console.log(`(Not) Applying ${stat} to Token ${target.uuid}`);
         // TODO
       } else {
         // Remove status
-        console.log(`Removing ${stat} from Token ${target.id}`);
+        console.log(`Removing ${stat} from Token ${target.uuid}`);
         statusToRemove.push(stat);
       }
     }
