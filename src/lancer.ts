@@ -564,7 +564,6 @@ Hooks.on("renderChatMessage", async (cm: ChatMessage, html: JQuery, data: any) =
       | JQuery.MouseLeaveEvent<HTMLElement, undefined, HTMLElement, HTMLElement>
   ) => {
     const targetId = $(ev.target).closest("[data-uuid]").data("uuid");
-    console.log(targetId);
     if (!targetId) return;
     const token = (await fromUuid(targetId)) as LancerToken | null;
     if (!token) return;
