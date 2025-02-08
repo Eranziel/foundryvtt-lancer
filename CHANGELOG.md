@@ -1,3 +1,25 @@
+# 2.5.0 (2025-02-08)
+
+This will be the final release for Foundry v11, barring any critical bug fixes.
+
+## Features
+
+- #799 - Add a space for configurable flat attack bonuses in the attack HUD. This also adds a display for non-configurable flat bonuses, such as Grit or Tech Attack.
+
+## Misc
+
+- #753 - Add an Intangible icon to Hayley's Condition & Status icon set.
+- Change the Comp/Con login dialog to say "Comp/Con Email" instead of "Comp/Con Username" to reduce confusion.
+- Use the "Down and Out" status icon for the defeated state, instead of the default skull icon. If you wish to keep the old skull icon instead, make a "Down and Out" status item in your world and assign it the image path `icons/svg/skull.svg`.
+
+## Bug Fixes
+
+- #781 - Fix some styling so "undo damage" buttons do not bleed out of the chat card area.
+- #801 - Fix automation for consuming lock on with attacks. The lock on status will once again be removed after the attack, as long as a GM user is logged in.
+- #812 - Show limited uses indicator on NPC reactions and tech items.
+- #814 - Fix a bug causing the `cheap_struct` and `cheap_stress` bonus types to add to structure/stress repair cost, instead of overriding it.
+- Use actor image instead of token image for attack/damage targets in chat. This prevents broken images in chat when targeting an animated token.
+
 # 2.4.3 (2024-11-30)
 
 ## Bug Fixes
