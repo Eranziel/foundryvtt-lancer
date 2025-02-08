@@ -199,6 +199,7 @@ export const registerSettings = function () {
     },
     default: true,
   });
+
   Hooks.callAll("LancerInitiativeInit");
   setAppearance(getTrackerAppearance());
 };

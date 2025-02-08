@@ -201,6 +201,7 @@ export async function initAttackData(
       }
       let profile = state.item.system.active_profile;
       state.data.attack_type = profile.type === WeaponType.Melee ? AttackType.Melee : AttackType.Ranged;
+
       state.data.flat_bonus = state.actor.system.grit;
       // Add a +1 flat bonus for Death's Heads. This data isn't in lancer-data, so has to be hard-coded.
       if (state.actor.system.loadout.frame?.value?.system.lid == "mf_deaths_head") {
@@ -209,6 +210,7 @@ export async function initAttackData(
           state.data.flat_bonus += 1;
         }
       }
+
       state.data.acc_diff = options?.acc_diff
         ? AccDiffHudData.fromObject(options.acc_diff)
         : AccDiffHudData.fromParams(state.item, profile.all_tags, state.data.title, Array.from(game.user!.targets));
@@ -384,6 +386,7 @@ export async function showAttackHUD(
   if (!state.data) throw new TypeError(`Attack flow state missing!`);
   try {
     state.data.acc_diff = await openSlidingHud("attack", state.data.acc_diff!);
+    state.data.flat_bonus += state.data.acc_diff.base.flatBonusInjected;
   } catch (_e) {
     // User hit cancel, abort the flow.
     return false;
