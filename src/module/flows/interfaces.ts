@@ -107,6 +107,7 @@ export namespace LancerFlowState {
   // Configuration passed to initiate an attack roll
   export interface AttackRollData extends Omit<BaseRollData, "type"> {
     type: "attack";
+    grit: number;
     flat_bonus: number;
     acc_diff?: AccDiffHudData;
 

@@ -99,12 +99,52 @@
     };
   }
 
+  function isAttack() {
+    return kind === "attack";
+  }
+
   function isTech() {
-    if (!lancerItem) return false;
+    if (!lancerItem) return title.toLowerCase() === "tech attack";
     if (lancerItem.is_mech_weapon()) return false;
     if (lancerItem.is_pilot_weapon()) return false;
     if (lancerItem.is_npc_feature() && lancerItem.system.type === NpcFeatureType.Weapon) return false;
     return true;
+  }
+
+  function gritLabel() {
+    // This is a tech attack
+    if (isTech()) {
+      if (lancerItem?.is_npc_feature() && lancerItem.system.type === NpcFeatureType.Tech) {
+        return "Tech Item Base";
+      }
+      return "Tech Attack";
+    }
+    // Not a tech attack and we have an item. Base the label on the item type.
+    if (lancerItem) {
+      if (lancerItem.is_mech_weapon() || lancerItem.is_pilot_weapon()) {
+        return "Grit";
+      }
+      if (lancerItem.is_npc_feature() && lancerItem.system.type === NpcFeatureType.Weapon) {
+        return "Weapon Base";
+      }
+    }
+    // Not a tech attack and we have no item. Base the label on the actor type.
+    if (lancerActor) {
+      if (lancerActor.is_npc()) {
+        return "Tier";
+      }
+      if (lancerActor.is_mech() || lancerActor.is_pilot() || lancerActor.is_deployable()) {
+        return "Grit";
+      }
+    }
+    // Default fallback
+    return "Grit";
+  }
+
+  function gritSign() {
+    console.log(typeof base.grit);
+    if (base.grit > 0) return "+";
+    return "";
   }
 
   function findProfile() {
@@ -236,14 +276,19 @@
         <PlusMinusInput bind:value={base.difficulty} id="accdiff-other-diff" />
       </div>
     </div>
-    <label class="flexrow accdiff-footer accdiff-weight lancer-border-primary" for="accdiff-flat-bonus">
-      Flat Modifier
-    </label>
-    <div id="accdiff-flat-bonus" class="accdiff-grid">
-      <div class="accdiff-other-grid lancer-border-primary">
-        <PlusMinusInput bind:value={base.flatBonusInjected} id="accdiff-flat-mod" />
+    {#if isAttack()}
+      <label class="flexrow accdiff-footer accdiff-weight lancer-border-primary" for="accdiff-flat-bonus">
+        Flat Modifier
+      </label>
+      <div id="accdiff-flat-bonus" class="accdiff-grid">
+        <div class="accdiff-other-grid lancer-border-primary">
+          <span><b>{gritLabel()}:</b> {gritSign()}{base.grit}</span>
+        </div>
+        <div class="accdiff-other-grid">
+          <PlusMinusInput bind:value={base.flatBonus} id="accdiff-flat-mod" />
+        </div>
       </div>
-    </div>
+    {/if}
     <div class="flex-col accdiff-footer lancer-border-primary">
       {#if ranges && ranges.length > 0}
         <span class="accdiff-weight flex-center flexrow">Targeting</span>
@@ -384,6 +429,7 @@
     padding-left: 5px;
     display: flex;
     justify-content: center;
+    align-items: center;
   }
   :global(.accdiff-weight) {
     justify-content: center;

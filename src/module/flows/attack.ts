@@ -92,6 +92,7 @@ export class BasicAttackFlow extends Flow<LancerFlowState.AttackRollData> {
       type: "attack",
       title: data?.title || "",
       roll_str: data?.roll_str || "",
+      grit: data?.grit || 0,
       flat_bonus: data?.flat_bonus || 0,
       attack_type: data?.attack_type || AttackType.Melee,
       action: data?.action || null,
@@ -137,6 +138,7 @@ export class WeaponAttackFlow extends Flow<LancerFlowState.WeaponRollData> {
       type: "weapon",
       title: data?.title || "",
       roll_str: data?.roll_str || "",
+      grit: data?.grit || 0,
       flat_bonus: data?.flat_bonus || 0,
       attack_type: data?.attack_type || AttackType.Melee,
       action: data?.action || null,
@@ -178,14 +180,22 @@ export async function initAttackData(
     state.data.attack_type = isTech ? AttackType.Tech : AttackType.Melee; // Virtually all basic attacks are melee, so it's a good default
     state.data.flat_bonus = 0;
     if (state.actor.is_pilot() || state.actor.is_mech() || state.actor.is_deployable()) {
-      state.data.flat_bonus = isTech ? state.actor.system.tech_attack : state.actor.system.grit;
+      if (isTech) state.data.grit = state.actor.system.tech_attack;
+      else state.data.grit = state.actor.system.grit;
     } else if (state.actor.is_npc()) {
-      state.data.flat_bonus = isTech ? state.actor.system.sys : state.actor.system.tier;
+      state.data.grit = isTech ? state.actor.system.sys : state.actor.system.tier;
     }
     // TODO: check bonuses for flat attack bonus
     state.data.acc_diff = options?.acc_diff
       ? AccDiffHudData.fromObject(options.acc_diff)
-      : AccDiffHudData.fromParams(state.actor, [], state.data.title, Array.from(game.user!.targets));
+      : AccDiffHudData.fromParams(
+          state.actor,
+          [],
+          state.data.title,
+          Array.from(game.user!.targets),
+          state.data.grit,
+          state.data.flat_bonus
+        );
     return true;
   } else {
     // This title works for everything
@@ -202,7 +212,7 @@ export async function initAttackData(
       let profile = state.item.system.active_profile;
       state.data.attack_type = profile.type === WeaponType.Melee ? AttackType.Melee : AttackType.Ranged;
 
-      state.data.flat_bonus = state.actor.system.grit;
+      state.data.grit = state.actor.system.grit;
       // Add a +1 flat bonus for Death's Heads. This data isn't in lancer-data, so has to be hard-coded.
       if (state.actor.system.loadout.frame?.value?.system.lid == "mf_deaths_head") {
         // Death's Head gets +1 to all ranged attacks, which means if there's a non-threat range, it gets the bonus
@@ -213,7 +223,14 @@ export async function initAttackData(
 
       state.data.acc_diff = options?.acc_diff
         ? AccDiffHudData.fromObject(options.acc_diff)
-        : AccDiffHudData.fromParams(state.item, profile.all_tags, state.data.title, Array.from(game.user!.targets));
+        : AccDiffHudData.fromParams(
+            state.item,
+            profile.all_tags,
+            state.data.title,
+            Array.from(game.user!.targets),
+            state.data.grit,
+            state.data.flat_bonus
+          );
       return true;
     } else if (state.item.is_mech_system()) {
       // Tech attack system
@@ -225,7 +242,7 @@ export async function initAttackData(
         ui.notifications?.warn("Cannot use a system on a non-piloted mech!");
         return false;
       }
-      state.data.flat_bonus = state.actor.system.tech_attack;
+      state.data.grit = state.actor.system.tech_attack;
       // TODO: check bonuses for flat attack bonus
       state.data.acc_diff = options?.acc_diff
         ? AccDiffHudData.fromObject(options.acc_diff)
@@ -233,7 +250,9 @@ export async function initAttackData(
             state.item,
             state.item.system.tags,
             state.data.title,
-            Array.from(game.user!.targets)
+            Array.from(game.user!.targets),
+            state.data.grit,
+            state.data.flat_bonus
           );
       return true;
     } else if (state.item.is_npc_feature()) {
@@ -245,7 +264,7 @@ export async function initAttackData(
 
       let asWeapon = state.item.system as SystemTemplates.NPC.WeaponData;
       state.data.attack_type = asWeapon.weapon_type === WeaponType.Melee ? AttackType.Melee : AttackType.Ranged;
-      state.data.flat_bonus = asWeapon.attack_bonus[tier_index] ?? 0;
+      state.data.grit = asWeapon.attack_bonus[tier_index] ?? 0;
       state.data.acc_diff = options?.acc_diff
         ? AccDiffHudData.fromObject(options.acc_diff)
         : AccDiffHudData.fromParams(
@@ -253,6 +272,8 @@ export async function initAttackData(
             asWeapon.tags,
             state.data.title,
             Array.from(game.user!.targets),
+            state.data.grit,
+            state.data.flat_bonus,
             asWeapon.accuracy[tier_index] ?? 0
           );
       return true;
@@ -266,14 +287,16 @@ export async function initAttackData(
         ? AttackType.Ranged
         : AttackType.Melee;
       state.item.system;
-      state.data.flat_bonus = state.actor.system.grit;
+      state.data.grit = state.actor.system.grit;
       state.data.acc_diff = options?.acc_diff
         ? AccDiffHudData.fromObject(options.acc_diff)
         : AccDiffHudData.fromParams(
             state.item,
             state.item.system.tags,
             state.data.title,
-            Array.from(game.user!.targets)
+            Array.from(game.user!.targets),
+            state.data.grit,
+            state.data.flat_bonus
           );
       return true;
     }
@@ -386,7 +409,8 @@ export async function showAttackHUD(
   if (!state.data) throw new TypeError(`Attack flow state missing!`);
   try {
     state.data.acc_diff = await openSlidingHud("attack", state.data.acc_diff!);
-    state.data.flat_bonus += state.data.acc_diff.base.flatBonusInjected;
+    state.data.grit = state.data.acc_diff.base.grit;
+    state.data.flat_bonus = state.data.acc_diff.base.flatBonus;
   } catch (_e) {
     // User hit cancel, abort the flow.
     return false;
@@ -403,7 +427,7 @@ export async function rollAttacks(
   if (!state.data) throw new TypeError(`Attack flow state missing!`);
   if (!state.data.acc_diff) throw new TypeError(`Accuracy/difficulty data missing!`);
 
-  state.data.attack_rolls = attackRolls(state.data.flat_bonus, state.data.acc_diff);
+  state.data.attack_rolls = attackRolls(state.data.grit + state.data.flat_bonus, state.data.acc_diff);
 
   if (getAutomationOptions().attacks && state.data.attack_rolls.targeted.length > 0) {
     let data = await Promise.all(
