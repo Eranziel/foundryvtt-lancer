@@ -1,9 +1,9 @@
-import { LancerItemSheet } from "./item-sheet";
-import { handleContextMenus } from "../helpers/item";
 import { EntryType } from "../enums";
-import { LancerItem, LancerLICENSE } from "./lancer-item";
 import { handleDocDropping } from "../helpers/dragdrop";
+import { handleContextMenus } from "../helpers/item";
 import { get_pack_id } from "../util/doc";
+import { LancerItemSheet } from "./item-sheet";
+import { LancerItem } from "./lancer-item";
 
 /**
  * Extend the generic Lancer item sheet
@@ -14,8 +14,8 @@ export class LancerLicenseSheet extends LancerItemSheet<EntryType.LICENSE> {
    * @override
    * Extend and override the default options used by the generic Lancer item sheet
    */
-  static get defaultOptions(): ItemSheet.Options {
-    return mergeObject(super.defaultOptions, {
+  static get defaultOptions(): DocumentSheetOptions<Item> {
+    return foundry.utils.mergeObject(super.defaultOptions, {
       width: 700,
       height: 750,
     });

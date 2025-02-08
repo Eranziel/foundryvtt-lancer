@@ -5,7 +5,6 @@ import { FakeBoundedNumberField, LIDField } from "../shared";
 import { TagField } from "../bits/tag";
 import { BonusField } from "../bits/bonus";
 
-//@ts-ignore
 const fields: any = foundry.data.fields;
 
 export function template_universal_item() {

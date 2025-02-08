@@ -1,13 +1,14 @@
+import type { DeepPartial } from "@league-of-foundry-developers/foundry-vtt-types/src/types/utils.mjs";
 import { EntryType } from "../../enums";
-import { regRefToLid } from "../../util/migrations";
 import { SourceData } from "../../source-template";
+import { regRefToLid } from "../../util/migrations";
 import { PackedNpcTemplateData } from "../../util/unpacking/packed-types";
 import { LancerDataModel, LIDField, UnpackContext } from "../shared";
 import { template_universal_item } from "./shared";
 
-const fields: any = foundry.data.fields;
+const fields = foundry.data.fields;
 
-export class NpcTemplateModel extends LancerDataModel<"NpcTemplateModel"> {
+export class NpcTemplateModel extends LancerDataModel<DataSchema, Item> {
   static defineSchema() {
     return {
       description: new fields.HTMLField(),
@@ -24,7 +25,6 @@ export class NpcTemplateModel extends LancerDataModel<"NpcTemplateModel"> {
       ?.map((of: string | object) => regRefToLid(of))
       .filter((x: any) => x);
 
-    // @ts-expect-error
     return super.migrateData(data);
   }
 }
@@ -44,8 +44,8 @@ export function unpackNpcTemplate(
     system: {
       lid: data.id,
       description: data.description,
-      base_features: data.base_features,
-      optional_features: data.optional_features,
+      base_features: data.base_features as any,
+      optional_features: data.optional_features as any,
     },
   };
 }

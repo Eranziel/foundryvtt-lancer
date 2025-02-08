@@ -1,48 +1,44 @@
+import type { ActionType } from "../action";
+import { modAction } from "../action/action-tracker";
+import { InventoryDialog } from "../apps/inventory";
 import { LANCER } from "../config";
+import { LancerActiveEffect } from "../effects/lancer-active-effect";
+import { EntryType } from "../enums";
+import { LancerFlowState } from "../flows/interfaces";
+import { beginItemChatFlow } from "../flows/item";
+import { CollapseHandler, applyCollapseListeners, initializeCollapses } from "../helpers/collapse";
 import { handleGenControls, handlePopoutTextEditor } from "../helpers/commons";
-import { handleDocDropping, LancerFlowDropData, ResolvedDropData } from "../helpers/dragdrop";
-import { handleCounterInteraction, handleInputPlusMinusButtons, handlePowerUsesInteraction } from "../helpers/item";
+import { DroppableFlowType, LancerFlowDropData, ResolvedDropData, handleDocDropping } from "../helpers/dragdrop";
+// import { addExportButton } from "../helpers/io";
 import {
+  handleContextMenus,
+  handleCounterInteraction,
+  handleInputPlusMinusButtons,
+  handlePowerUsesInteraction,
+} from "../helpers/item";
+import {
+  handleChargedInteraction,
+  handleLoadedInteraction,
+  handleRefClickOpen,
   handleRefDragging,
   handleRefSlotDropping,
-  handleRefClickOpen,
   handleUsesInteraction,
-  handleLoadedInteraction,
-  handleChargedInteraction,
 } from "../helpers/refs";
-import type { LancerActorSheetData } from "../interfaces";
-import { LancerItem } from "../item/lancer-item";
-import { LancerActor, LancerActorType } from "./lancer-actor";
-import { applyCollapseListeners, CollapseHandler, initializeCollapses } from "../helpers/collapse";
-import { addExportButton } from "../helpers/io";
-import type { ActionType } from "../action";
-import { InventoryDialog } from "../apps/inventory";
-import { handleContextMenus } from "../helpers/item";
-import { getActionTrackerOptions } from "../settings";
-import { modAction } from "../action/action-tracker";
-import { insinuate } from "../util/doc";
-import { PrototypeTokenData } from "@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/data/data.mjs";
-import { LancerActiveEffect } from "../effects/lancer-active-effect";
-import { LancerFlowState } from "../flows/interfaces";
-import { lookupOwnedDeployables } from "../util/lid";
-import { beginItemChatFlow } from "../flows/item";
-import { DroppableFlowType } from "../helpers/dragdrop";
 import { attachTagTooltips } from "../helpers/tags";
-import { DamageRollFlow } from "../flows/damage";
+import { LancerItem } from "../item/lancer-item";
+import { lookupOwnedDeployables } from "../util/lid";
+import { LancerActor, LancerActorType } from "./lancer-actor";
 const lp = LANCER.log_prefix;
 
 /**
  * Extend the basic ActorSheet
  */
-export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
-  ActorSheet.Options,
-  LancerActorSheetData<T>
-> {
+export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<ActorSheet.Options> {
   // Tracks collapse state between renders
   protected collapse_handler = new CollapseHandler();
 
   static get defaultOptions(): ActorSheet.Options {
-    return mergeObject(super.defaultOptions, {
+    return foundry.utils.mergeObject(super.defaultOptions, {
       scrollY: [".scroll-body"],
     });
   }
@@ -115,7 +111,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
     handlePopoutTextEditor(html, this.actor);
 
     // Add export button.
-    addExportButton(this.object, html);
+    // addExportButton(this.object, html);
 
     // Add root dropping
     handleDocDropping(
@@ -159,7 +155,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
       const flowArgs = JSON.parse(flowElement.dataset.flowArgs ?? "{}");
       if (flowSubtype) {
         data = {
-          lancerType: this.actor.type,
+          lancerType: this.actor.type as EntryType,
           uuid: this.actor.uuid,
           flowType,
           flowSubtype,
@@ -171,7 +167,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
       const statPath = el.dataset.path;
       if (!statPath) throw Error("No stat path found!");
       data = {
-        lancerType: this.actor.type,
+        lancerType: this.actor.type as EntryType,
         uuid: this.actor.uuid,
         flowType: DroppableFlowType.STAT,
         args: { statPath },
@@ -182,7 +178,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
       if (!weaponId) throw Error("No weapon ID found!");
       const weapon = LancerItem.fromUuidSync(weaponId, `Invalid weapon ID: ${weaponId}`);
       data = {
-        lancerType: weapon.type,
+        lancerType: weapon.type as EntryType,
         uuid: weaponId,
         flowType: DroppableFlowType.ATTACK,
         args: {},
@@ -193,7 +189,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
       if (!techId) throw Error("No tech ID found!");
       const techItem = LancerItem.fromUuidSync(techId, `Invalid tech ID: ${techId}`);
       data = {
-        lancerType: techItem.type,
+        lancerType: techItem.type as EntryType,
         uuid: techId,
         flowType: DroppableFlowType.TECH_ATTACK,
         args: {},
@@ -203,7 +199,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
       if (!el || !el.dataset.uuid) throw Error(`No item UUID found!`);
       const item = LancerItem.fromUuidSync(el.dataset.uuid, `Invalid item ID: ${el.dataset.uuid}`);
       data = {
-        lancerType: item.type,
+        lancerType: item.type as EntryType,
         uuid: el.dataset.uuid,
         flowType: DroppableFlowType.CHAT,
         args: { ...el.dataset },
@@ -214,7 +210,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
       if (!skillId) throw Error("No skill ID found!");
       const skill = LancerItem.fromUuidSync(skillId, `Invalid skill ID: ${skillId}`);
       data = {
-        lancerType: skill.type,
+        lancerType: skill.type as EntryType,
         uuid: skillId,
         flowType: DroppableFlowType.SKILL,
         args: { skillId },
@@ -226,7 +222,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
       const bond = LancerItem.fromUuidSync(bondId, `Invalid bond ID: ${bondId}`);
       const powerIndex = parseInt(powerElement.dataset.powerIndex ?? "-1");
       data = {
-        lancerType: bond.type,
+        lancerType: bond.type as EntryType,
         uuid: bondId,
         flowType: DroppableFlowType.BOND_POWER,
         args: { powerIndex },
@@ -237,7 +233,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
       if (!itemId) throw Error("No item ID found!");
       const item = LancerItem.fromUuidSync(itemId, `Invalid item ID: ${itemId}`);
       data = {
-        lancerType: item.type,
+        lancerType: item.type as EntryType,
         uuid: itemId,
         flowType: DroppableFlowType.EFFECT,
         args: {},
@@ -253,14 +249,14 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
       const item = LancerItem.fromUuidSync(itemId, `Invalid item ID: ${itemId}`);
       if (isAction) {
         data = {
-          lancerType: item.type,
+          lancerType: item.type as EntryType,
           uuid: itemId,
           flowType: DroppableFlowType.ACTIVATION,
           args: { path },
         };
       } else if (isCoreSystem) {
         data = {
-          lancerType: item.type,
+          lancerType: item.type as EntryType,
           uuid: itemId,
           flowType: DroppableFlowType.CORE_ACTIVE,
           args: { path },
@@ -282,7 +278,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
     elements.on("click", async ev => {
       ev.stopPropagation();
 
-      if (game.user?.isGM || getActionTrackerOptions().allowPlayers) {
+      if (game.user?.isGM || game.settings.get(game.system.id, LANCER.setting_actionTracker).allowPlayers) {
         const params = ev.currentTarget.dataset;
         const action = params.action as ActionType | undefined;
         const data = await this.getData();
@@ -293,7 +289,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
           } else {
             spend = params.val === "true";
           }
-          modAction(data.actor, spend, action);
+          modAction((<any>data).actor as LancerActor, spend, action);
         }
       } else {
         console.log(`${game.user?.name} :: Users currently not allowed to toggle actions through action manager.`);
@@ -542,8 +538,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
   _propagateData(formData: any): any {
     // Pushes relevant field data from the form to other appropriate locations,
     // e.x. to synchronize name between token and actor
-    // @ts-expect-error should be fixed and not need the "as" with v10 types
-    let token = this.actor.prototypeToken as PrototypeTokenData;
+    let token = this.actor.prototypeToken;
 
     if (!token) {
       // Set the prototype token image if the prototype token isn't initialized
@@ -551,7 +546,6 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
       formData["prototypeToken.name"] = formData["name"];
     } else {
       // Update token image if it matches the old actor image - keep in sync
-      // @ts-expect-error
       if (this.actor.img === token.texture.src && this.actor.img !== formData["img"]) {
         formData["prototypeToken.texture.src"] = formData["img"];
       }
@@ -581,17 +575,13 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<
    * Prepare data for rendering the Actor sheet
    * The prepared data object contains both the actor data as well as additional sheet options
    */
-  async getData(): Promise<LancerActorSheetData<T>> {
-    const data = await super.getData(); // Not fully populated yet!
+  async getData(): Promise<object> {
+    const data: any = await super.getData(); // Not fully populated yet!
     data.collapse = {};
-    // @ts-expect-error
     data.system = this.actor.system; // Alias
-    // @ts-expect-error
     if (data.system.loadout) {
-      // @ts-expect-error
       for (const [key, value] of Object.entries(data.system.loadout)) {
         if (!Array.isArray(value)) continue;
-        // @ts-expect-error
         data.system.loadout[key] = (value as { id: string; status: string; value: LancerItem }[]).sort(
           (a: any, b: any) => a?.value?.sort - b?.value?.sort
         );

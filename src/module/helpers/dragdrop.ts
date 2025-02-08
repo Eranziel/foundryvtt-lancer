@@ -1,8 +1,7 @@
 import { LancerActor } from "../actor/lancer-actor";
+import { EntryType } from "../enums";
 import { LancerItem } from "../item/lancer-item";
 import { safe_json_parse } from "./commons";
-import { FetcherCache, PENDING } from "../util/async";
-import { EntryType } from "../enums";
 
 ////////////// HERE BE DRAGON DROPS ////////////
 // Very useful:
@@ -279,7 +278,7 @@ export async function resolveNativeDrop(drop: string | FoundryDropData): Promise
           }
         : null;
     } else if (drop.type == "JournalEntry") {
-      // @ts-ignore
+      // @ts-expect-error
       let document = await JournalEntry.fromDropData(drop);
       return document
         ? {
@@ -288,7 +287,7 @@ export async function resolveNativeDrop(drop: string | FoundryDropData): Promise
           }
         : null;
     } else if (drop.type == "Macro") {
-      // @ts-ignore
+      // @ts-expect-error
       let document = await Macro.fromDropData(drop);
       return document
         ? {
@@ -317,7 +316,7 @@ function dragging_class(for_type: EntryType): string {
 function setGlobalDrag(to: LancerActor | LancerItem | Macro | Journal | Scene | null) {
   // Clear if necessary
   if (GlobalDragPreview?.type == "Actor" || GlobalDragPreview?.type == "Item") {
-    $("body").removeClass(dragging_class(GlobalDragPreview.document.type));
+    $("body").removeClass(dragging_class(GlobalDragPreview.document.type as EntryType));
   }
 
   // Store the draggee
@@ -348,7 +347,7 @@ function setGlobalDrag(to: LancerActor | LancerItem | Macro | Journal | Scene | 
 
   // Add an appropriate class
   if (GlobalDragPreview?.type == "Actor" || GlobalDragPreview?.type == "Item") {
-    $("body").addClass(dragging_class(GlobalDragPreview.document.type));
+    $("body").addClass(dragging_class(GlobalDragPreview.document.type as EntryType));
   }
 }
 

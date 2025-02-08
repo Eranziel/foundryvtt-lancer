@@ -11,8 +11,9 @@ export class LancerCombat extends Combat {
     return super._sortCombatants(a, b);
   }
 
-  protected override async _preCreate(...[data, options, user]: Parameters<Combat["_preCreate"]>): Promise<void> {
-    // @ts-expect-error v10
+  protected override async _preCreate(
+    ...[data, options, user]: Parameters<Combat["_preCreate"]>
+  ): Promise<boolean | void> {
     this.updateSource({ turn: null });
     return super._preCreate(data, options, user);
   }
@@ -20,7 +21,6 @@ export class LancerCombat extends Combat {
   async _manageTurnEvents(adjustedTurn: any) {
     // Avoid the Foundry bug where this is called on create, before this.previous is set.
     if (!this.previous) return;
-    // @ts-expect-error v10 types
     super._manageTurnEvents(adjustedTurn);
   }
 
@@ -28,45 +28,49 @@ export class LancerCombat extends Combat {
    * Set all combatants to their max activations
    */
   async resetActivations(): Promise<LancerCombatant[]> {
-    const module = CONFIG.LancerInitiative.module;
     const skipDefeated = "skipDefeated" in this.settings && this.settings.skipDefeated;
     const updates = this.combatants.map(c => {
       return {
         _id: c.id,
-        [`flags.${module}.activations.value`]:
-          // @ts-expect-error V10 typings
+        [`flags.${game.system.id}.activations.value`]:
           skipDefeated && c.isDefeated ? 0 : (<LancerCombatant>c).activations.max ?? 0,
       };
     });
     return <Promise<LancerCombatant[]>>this.updateEmbeddedDocuments("Combatant", updates);
   }
 
-  override async startCombat(): Promise<this | undefined> {
+  override async startCombat(): Promise<this> {
+    this._playCombatSound("startEncounter");
+    const updateData = { round: 1, turn: null };
+    Hooks.callAll("combatStart", this, updateData);
     await this.resetActivations();
-    return this.update({ round: 1, turn: null });
+    await this.update(updateData);
+    return this;
   }
 
-  override async nextRound(): Promise<this | undefined> {
+  override async nextRound(): Promise<this> {
     await this.resetActivations();
     const updateData = { round: this.round + 1, turn: null };
     let advanceTime = Math.max(this.turns.length - (this.turn || 0), 0) * CONFIG.time.turnTime;
     advanceTime += CONFIG.time.roundTime;
     const updateOptions = { advanceTime, direction: 1 };
     Hooks.callAll("combatRound", this, updateData, updateOptions);
-    return this.update(updateData, updateOptions as any);
+    await this.update(updateData, updateOptions as any);
+    return this;
   }
 
   /**
    * Ends the current turn without starting a new one
    */
-  override async nextTurn(): Promise<this | undefined> {
+  override async nextTurn(): Promise<this> {
     const updateData = { turn: null };
     const updateOptions = { advanceTime: 0, direction: 0 };
     Hooks.callAll("combatTurn", this, updateData, updateOptions);
-    return this.update(updateData, updateOptions as any);
+    await this.update(updateData, updateOptions as any);
+    return this;
   }
 
-  override async previousRound(): Promise<this | undefined> {
+  override async previousRound(): Promise<this> {
     await this.resetActivations();
     const round = Math.max(this.round - 1, 0);
     let advanceTime = 0;
@@ -74,7 +78,8 @@ export class LancerCombat extends Combat {
     const updateData = { round, turn: null };
     const updateOptions = { advanceTime, direction: -1 };
     Hooks.callAll("combatRound", this, updateData, updateOptions);
-    return this.update(updateData, updateOptions as any);
+    await this.update(updateData, updateOptions as any);
+    return this;
   }
 
   /**
@@ -86,14 +91,23 @@ export class LancerCombat extends Combat {
     const updateOptions = { advanceTime: -CONFIG.time.turnTime, direction: -1 };
     await this.combatant?.modifyCurrentActivations(1);
     Hooks.callAll("combatTurn", this, updateData, updateOptions);
-    return this.update(updateData, updateOptions as any);
+    await this.update(updateData, updateOptions as any);
+    return this;
   }
 
-  override async resetAll(): Promise<this | undefined> {
+  override async resetAll(): Promise<this> {
     await this.resetActivations();
-    // @ts-expect-error V10 typings
     this.combatants.forEach(c => c.updateSource({ initiative: null }));
-    return this.update({ turn: null, combatants: this.combatants.toObject() }, { diff: false });
+    await this.update({ turn: null, combatants: this.combatants.toObject() }, { diff: false });
+    return this;
+  }
+
+  /**
+   * Filter out next up turn notifications sound since the next up isn't deterministic
+   */
+  override _playCombatSound(...[announcement]: Parameters<Combat["_playCombatSound"]>) {
+    if (announcement === "nextUp") return;
+    return super._playCombatSound(announcement);
   }
 
   /**
@@ -104,7 +118,7 @@ export class LancerCombat extends Combat {
   async activateCombatant(id: string, override = false): Promise<this | undefined> {
     if (!(game.user?.isGM || (this.turn == null && this.combatants.get(id)?.isOwner) || override))
       return this.requestActivation(id);
-    const combatant = <LancerCombatant | undefined>this.getEmbeddedDocument("Combatant", id);
+    const combatant = <LancerCombatant | undefined>this.getEmbeddedDocument("Combatant", id, {});
     if (!combatant?.activations.value) return this;
     await combatant?.modifyCurrentActivations(-1);
     const turn = this.turns.findIndex(t => t.id === id);
@@ -146,22 +160,15 @@ export class LancerCombatant extends Combatant {
 
   override prepareBaseData(): void {
     super.prepareBaseData();
-    const module = CONFIG.LancerInitiative.module;
-    if (
-      // @ts-expect-error
-      this.flags?.[module]?.activations?.max === undefined &&
-      canvas?.ready
-    ) {
+    if (this.flags?.[game.system.id]?.activations?.max === undefined && canvas?.ready) {
       const activations = foundry.utils.getProperty(this.actor?.getRollData() ?? {}, "activations") ?? 1;
-      // @ts-expect-error v10
       this.updateSource({
-        [`flags.${module}.activations`]: {
+        [`flags.${game.system.id}.activations`]: {
           max: activations,
           value: (this.parent?.round ?? 0) > 0 ? activations : 0,
         },
       });
     }
-    // @ts-expect-error v10
     this.initiative ??= 0;
   }
 
@@ -169,27 +176,24 @@ export class LancerCombatant extends Combatant {
    * The current activation data for the combatant.
    */
   get activations(): Activations {
-    const module = CONFIG.LancerInitiative.module;
-    return <Activations>this.getFlag(module, "activations") ?? {};
+    // @ts-expect-error FlagConfig not working
+    return this.getFlag(game.system.id, "activations") ?? {};
   }
 
   /**
    * The disposition for this combatant. In order, manually specified for this
-   * combatant, token dispostion, token disposition for the associated actor,
+   * combatant, token disposition, token disposition for the associated actor,
    * -2.
    */
   get disposition(): number {
-    const module = CONFIG.LancerInitiative.module;
-    return (
-      <number>this.getFlag(module, "disposition") ??
-      (this.actor?.hasPlayerOwner ?? false
-        ? 2
-        : // @ts-expect-error v10
-          this.token?.disposition ??
-          // @ts-expect-error v10
-          this.actor?.prototypeToken.disposition ??
-          -2)
-    );
+    const disposition =
+      // @ts-expect-error FlagConfig not working
+      <number>this.getFlag(game.system.id, "disposition") ??
+      this.token?.disposition ??
+      this.actor?.prototypeToken.disposition ??
+      -2;
+    if (disposition === CONST.TOKEN_DISPOSITIONS.FRIENDLY && this.hasPlayerOwner) return 2;
+    return disposition;
   }
 
   /**
@@ -197,10 +201,9 @@ export class LancerCombatant extends Combatant {
    * @param num - The number of maximum activations to add (can be negative)
    */
   async addActivations(num: number): Promise<this | undefined> {
-    const module = CONFIG.LancerInitiative.module;
     if (num === 0) return this;
     return this.update({
-      [`flags.${module}.activations`]: {
+      [`flags.${game.system.id}.activations`]: {
         max: Math.max((this.activations.max ?? 1) + num, 1),
         value: Math.max((this.activations.value ?? 0) + num, 0),
       },
@@ -212,11 +215,10 @@ export class LancerCombatant extends Combatant {
    * @param num - The number of current activations to add (can be negative)
    */
   async modifyCurrentActivations(num: number): Promise<this | undefined> {
-    const module = CONFIG.LancerInitiative.module;
     if (num === 0) return this;
     return this.update({
-      [`flags.${module}.activations`]: {
-        value: Math.clamped((this.activations?.value ?? 0) + num, 0, this.activations?.max ?? 1),
+      [`flags.${game.system.id}.activations`]: {
+        value: Math.clamp((this.activations?.value ?? 0) + num, 0, this.activations?.max ?? 1),
       },
     });
   }
@@ -228,4 +230,16 @@ export class LancerCombatant extends Combatant {
 interface Activations {
   max?: number;
   value?: number;
+}
+
+declare global {
+  interface FlagConfig {
+    Combatant: {
+      lancer: {
+        activations: Activations;
+        disposition?: number;
+        tour: string;
+      };
+    };
+  }
 }

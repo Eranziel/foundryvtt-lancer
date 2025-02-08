@@ -1,29 +1,10 @@
 declare global {
-  interface Game {
-    tours: any;
+  // Extend tourstep
+  interface TourStep {
+    click?: boolean;
+    sidebarTab?: string;
+    inApp?: boolean;
   }
-  class Tour {
-    static fromJSON(json_file: string): Promise<Tour>;
-    currentStep: TourStep;
-
-    start(): Promise<unknown>;
-    exit(): void;
-    complete(): Promise<void>;
-    next(): Promise<void>;
-    previous(): Promise<void>;
-    protected _preStep(): Promise<void>;
-    protected _postStep(): Promise<void>;
-  }
-}
-
-interface TourStep {
-  id: string;
-  selector: string;
-  title: string;
-  content: string;
-  click?: boolean;
-  sidebarTab?: string;
-  inApp?: boolean;
 }
 
 import { LancerActor } from "../actor/lancer-actor";
@@ -65,7 +46,7 @@ export class LancerTour extends Tour {
   protected async _postStep() {
     await super._postStep();
     if (this.currentStep?.click) {
-      document.querySelector<HTMLElement>(this.currentStep.selector)?.click();
+      document.querySelector<HTMLElement>(this.currentStep.selector!)?.click();
     }
   }
 }
@@ -78,7 +59,7 @@ export class LancerLcpTour extends LancerTour {
   protected async _preStep() {
     await super._preStep();
     if (!this.manager) this.manager = new LCPManager();
-    if (this.currentStep.id === "lcpImport") {
+    if (this.currentStep?.id === "lcpImport") {
       // This is a fake lcp that contains no items
       const lcp_tribute = window.atob(
         "UEsDBBQAAAAIAANod1iaTB1/iQAAAMEAAAARABwAbGNwX21hbmlmZXN0Lmpzb25VVAkAA6UY/2Wl" +
@@ -92,7 +73,7 @@ export class LancerLcpTour extends LancerTour {
       // Delay to avoid race condition
       await new Promise(resolve => setTimeout(resolve, 30));
     }
-    if (this.currentStep.inApp) {
+    if (this.currentStep?.inApp) {
       // @ts-expect-error Bypass protected
       await this.manager._render(true);
     }
@@ -163,7 +144,7 @@ export class LancerNPCTour extends LancerTour {
     }
     // @ts-expect-error Bypass protected
     await this.npc?.sheet?._render(true);
-    if (["baseFeatures", "optionalFeatures"].includes(this.currentStep?.id)) {
+    if (["baseFeatures", "optionalFeatures"].includes(this.currentStep?.id!)) {
       // @ts-expect-error Bypass protected
       await this.npc?.system?.class?.sheet?._render(true);
     }
@@ -239,7 +220,7 @@ export class LancerCombatTour extends LancerTour {
     if (!this.combat) this.combat = (await this._setupCombat())!;
     await this.combat.activate();
     if (!this.combat.started) await this.combat.startCombat();
-    if (this.currentStep.id === "endTurn") {
+    if (this.currentStep?.id === "endTurn") {
       const turn = this.combat.turns.find(t => t.getFlag(game.system.id, "tour") === "ultra")?.id ?? "";
       await this.combat.activateCombatant(turn, true);
       // Delay to avoid race condition

@@ -12,7 +12,7 @@ export class LancerDeployableSheet extends LancerActorSheet<EntryType.DEPLOYABLE
    * Extend and override the default options used by the NPC Sheet
    */
   static get defaultOptions(): ActorSheet.Options {
-    return mergeObject(super.defaultOptions, {
+    return foundry.utils.mergeObject(super.defaultOptions, {
       classes: ["lancer", "sheet", "actor", "deployable"],
       template: `systems/${game.system.id}/templates/actor/deployable.hbs`,
       width: 800,
@@ -30,7 +30,9 @@ export class LancerDeployableSheet extends LancerActorSheet<EntryType.DEPLOYABLE
   // Need to allow this stuff for setting deployable
   canRootDrop(item: ResolvedDropData): boolean {
     // Accept actors
-    return item.type == "Actor" && [EntryType.PILOT, EntryType.MECH, EntryType.NPC].includes(item.document.type);
+    return (
+      item.type == "Actor" && [EntryType.PILOT, EntryType.MECH, EntryType.NPC].includes(item.document.type as EntryType)
+    );
   }
 
   async onRootDrop(

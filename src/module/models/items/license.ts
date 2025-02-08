@@ -1,12 +1,12 @@
+import type { DeepPartial } from "@league-of-foundry-developers/foundry-vtt-types/src/types/utils.mjs";
 import { EntryType } from "../../enums";
 import { SourceData } from "../../source-template";
 import { LancerDataModel, UnpackContext } from "../shared";
 import { template_universal_item } from "./shared";
 
-const fields: any = foundry.data.fields;
+const fields = foundry.data.fields;
 
-// @ts-ignore
-export class LicenseModel extends LancerDataModel<"LicenseModel"> {
+export class LicenseModel extends LancerDataModel<DataSchema, Item> {
   static defineSchema() {
     return {
       key: new fields.StringField(),
@@ -22,7 +22,6 @@ export class LicenseModel extends LancerDataModel<"LicenseModel"> {
     }
     if (data.rank) data.curr_rank = data.rank;
 
-    // @ts-expect-error v11
     return super.migrateData(data);
   }
 }

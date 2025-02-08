@@ -1,4 +1,5 @@
 // Import TypeScript modules
+import type { Point } from "@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/types.mjs";
 import type { LancerToken } from "../token";
 
 /**
@@ -7,23 +8,15 @@ import type { LancerToken } from "../token";
  * @param templateId - The id of the template to use
  */
 export function targetsFromTemplate(templateId: string): void {
-  const highlight = canvas?.grid?.getHighlightLayer(`MeasuredTemplate.${templateId}`);
-  const template = canvas.scene?.getEmbeddedDocument("MeasuredTemplate", templateId) as any;
+  const template = canvas.scene?.getEmbeddedDocument("MeasuredTemplate", templateId, {}) as any;
   const grid = canvas?.grid;
-  if (
-    highlight === undefined ||
-    template === undefined ||
-    canvas === undefined ||
-    grid === undefined ||
-    canvas.ready !== true
-  )
-    return;
+  if (template === undefined || canvas === undefined || grid === undefined || canvas.ready !== true) return;
   let test_token: (t: LancerToken) => boolean;
   if (canvas.grid?.type === CONST.GRID_TYPES.GRIDLESS) {
     test_token = (token: LancerToken) => {
-      // @ts-expect-error v10/v11 document changes
-      const token_radius = token.document.width / 2;
-      const range = canvas.grid!.measureDistance(token.center, template);
+      const token_radius = token.document.width! / 2;
+      // @ts-expect-error v12 grid
+      const range: number = canvas.grid!.measurePath([token.center, template]).distance;
 
       if (template.t === "circle") {
         return range <= token_radius + template.distance;
@@ -72,7 +65,7 @@ export function targetsFromTemplate(templateId: string): void {
         );
       }
       if (template.t === "rect") {
-        if (highlight.geometry.containsPoint(token.center)) return true;
+        if (template.object._getGridHighlightShape().contains(token.center.x, token.center.y)) return true;
         let s1 = Ray.fromAngle(template.object.ray.A.x, template.object.ray.A.y, 0, template.object.ray.dx);
         let s2 = new Ray(s1.B, template.object.ray.B);
         let s3 = Ray.fromAngle(s2.B.x, s2.B.y, Math.PI, template.object.ray.dx);
@@ -87,21 +80,30 @@ export function targetsFromTemplate(templateId: string): void {
 
       return false;
     };
-  } else
+  } else {
+    const { sizeX, sizeY } = canvas.grid!;
+    const template_offsets = (<{ x: number; y: number }[]>template.object._getGridHighlightPositions()).map(
+      ({ x, y }) => canvas.grid!.getOffset({ x: x + sizeX / 2, y: y + sizeY / 2 })
+    );
     test_token = (token: LancerToken) => {
-      return Array.from(token.getOccupiedSpaces()).reduce((a, p) => a || highlight.geometry.containsPoint(p), false);
+      const token_offsets = token.getOccupiedSpaces().map(p => canvas.grid!.getOffset(p));
+      return token_offsets.some(o => template_offsets.some(e => o.i === e.i && o.j === e.j));
     };
+  }
 
   // Get list of tokens and dispositions to ignore.
   let ignore = canvas.templates!.get(templateId)!.document.getFlag(game.system.id, "ignore");
 
   // Test if each token occupies a targeted space and target it if true
   const targets = canvas
-    .tokens!.placeables.filter(t => {
-      // @ts-expect-error v10
-      let skip = (ignore?.tokens.includes(t.id) || ignore?.dispositions.includes(t.document.disposition)) ?? false;
-      return !skip && test_token(t);
+    .tokens!.quadtree!.getObjects(template.object.bounds, {
+      collisionTest: o => {
+        const t = o.t as any as LancerToken;
+        let skip = (ignore?.tokens.includes(t.id) || ignore?.dispositions.includes(t.document.disposition)) ?? false;
+        return !skip && test_token(t);
+      },
     })
+    .toObject()
     .map(t => t.id);
   game.user!.updateTokenTargets(targets);
   game.user!.broadcastActivity({ targets });
@@ -136,8 +138,7 @@ function min_dist(seg: Ray, p: Point) {
 function in_cone_arc(ray: Ray, angle: number, p: Point) {
   // using unit vectors for brevity
   const a = Ray.fromAngle(ray.A.x, ray.A.y, ray.angle, 1);
-  // @ts-expect-error
   const b: Ray = Ray.towardsPoint(ray.A, p, 1);
-  const theta = Math.acos(Math.clamped(-1, dot_product(a, b), 1));
+  const theta = Math.acos(Math.clamp(-1, dot_product(a, b), 1));
   return theta < angle / 2;
 }

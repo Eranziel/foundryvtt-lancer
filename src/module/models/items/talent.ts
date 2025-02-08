@@ -1,3 +1,4 @@
+import type { DeepPartial } from "@league-of-foundry-developers/foundry-vtt-types/src/types/utils.mjs";
 import { EntryType } from "../../enums";
 import { SourceData } from "../../source-template";
 import { PackedTalentData } from "../../util/unpacking/packed-types";
@@ -6,13 +7,12 @@ import { ActionField, unpackAction } from "../bits/action";
 import { BonusField, unpackBonus } from "../bits/bonus";
 import { CounterField, unpackCounter } from "../bits/counter";
 import { SynergyField, unpackSynergy } from "../bits/synergy";
-import { LancerDataModel, LIDField, UnpackContext } from "../shared";
-import { template_universal_item, template_bascdt, template_destructible, template_licensed } from "./shared";
+import { LIDField, LancerDataModel, UnpackContext } from "../shared";
+import { template_universal_item } from "./shared";
 
-const fields: any = foundry.data.fields;
+const fields = foundry.data.fields;
 
-// @ts-ignore
-export class TalentModel extends LancerDataModel {
+export class TalentModel extends LancerDataModel<DataSchema, Item> {
   static defineSchema() {
     return {
       curr_rank: new fields.NumberField({ nullable: false, initial: 1, min: 1, max: 3 }),
@@ -24,10 +24,14 @@ export class TalentModel extends LancerDataModel {
           name: new fields.StringField(),
           description: new fields.HTMLField(),
           exclusive: new fields.BooleanField({ initial: false }),
+          // @ts-expect-error
           actions: new fields.ArrayField(new ActionField()),
+          // @ts-expect-error
           bonuses: new fields.ArrayField(new BonusField()),
+          // @ts-expect-error
           synergies: new fields.ArrayField(new SynergyField()),
           deployables: new fields.ArrayField(new LIDField()),
+          // @ts-expect-error
           counters: new fields.ArrayField(new CounterField()),
           integrated: new fields.ArrayField(new LIDField()),
         })
@@ -55,15 +59,15 @@ export function unpackTalent(
       curr_rank: undefined,
       description: data.description,
       ranks: data.ranks.map(r => ({
-        actions: r.actions?.map(unpackAction),
-        bonuses: r.bonuses?.map(unpackBonus),
-        counters: r.counters?.map(unpackCounter),
-        deployables: r.deployables?.map(d => unpackDeployable(d, context)),
+        actions: r.actions?.map(unpackAction) ?? [],
+        bonuses: r.bonuses?.map(unpackBonus) ?? [],
+        counters: r.counters?.map(unpackCounter) ?? [],
+        deployables: r.deployables?.map(d => unpackDeployable(d, context)) ?? [],
         description: r.description,
         exclusive: r.exclusive,
-        integrated: r.integrated,
+        integrated: r.integrated!,
         name: r.name,
-        synergies: r.synergies?.map(unpackSynergy),
+        synergies: r.synergies?.map(unpackSynergy) ?? [],
       })),
       terse: data.terse,
     },

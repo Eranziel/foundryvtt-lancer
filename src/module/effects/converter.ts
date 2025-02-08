@@ -1,16 +1,9 @@
-import type { EffectChangeDataConstructorData } from "@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/data/data.mjs/effectChangeData";
-import { LancerActor, LancerNPC, LancerPILOT } from "../actor/lancer-actor";
+import { LancerActor, LancerNPC } from "../actor/lancer-actor";
 import { EntryType } from "../enums";
 import { LancerFRAME, LancerMECH_WEAPON, LancerNPC_CLASS, LancerNPC_FEATURE, LancerSTATUS } from "../item/lancer-item";
 import { BonusData } from "../models/bits/bonus";
 import { SystemData, SystemTemplates } from "../system-template";
-import {
-  AE_MODE_APPEND_JSON,
-  AE_MODE_SET_JSON,
-  LancerActiveEffect,
-  LancerActiveEffectConstructorData,
-  LancerEffectTarget,
-} from "./lancer-active-effect";
+import { AE_MODE_APPEND_JSON, LancerActiveEffect, LancerEffectTarget } from "./lancer-active-effect";
 
 const FRAME_STAT_PRIORITY = 10; // Also handles npc classes
 const BONUS_STAT_PRIORITY = 20;
@@ -21,7 +14,7 @@ const FEATURE_OVERRIDE_PRIORITY = 50;
 // Makes an active effect for a frame.
 type FrameStatKey = keyof SystemData.Frame["stats"];
 type MechStatKey = keyof SystemData.Mech;
-export function frameInnateEffect(frame: LancerFRAME): LancerActiveEffectConstructorData {
+export function frameInnateEffect(frame: LancerFRAME) {
   let keys: Array<FrameStatKey & MechStatKey> = [
     "armor",
     "edef",
@@ -32,8 +25,7 @@ export function frameInnateEffect(frame: LancerFRAME): LancerActiveEffectConstru
     "speed",
     "tech_attack",
   ];
-  // @ts-expect-error Shouldn't be restricted to not take numbers I don't think
-  let changes: LancerActiveEffectConstructorData["changes"] = keys.map(key => ({
+  let changes = keys.map(key => ({
     key: `system.${key}`,
     mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
     priority: FRAME_STAT_PRIORITY,
@@ -44,49 +36,43 @@ export function frameInnateEffect(frame: LancerFRAME): LancerActiveEffectConstru
     key: "system.hp.max",
     mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
     priority: FRAME_STAT_PRIORITY,
-    // @ts-expect-error
     value: frame.system.stats.hp,
   });
   changes!.push({
     key: "system.structure.max",
     mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
     priority: FRAME_STAT_PRIORITY,
-    // @ts-expect-error
     value: frame.system.stats.structure,
   });
   changes!.push({
     key: "system.stress.max",
     mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
     priority: FRAME_STAT_PRIORITY,
-    // @ts-expect-error
     value: frame.system.stats.stress,
   });
   changes!.push({
     key: "system.heat.max",
     mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
     priority: FRAME_STAT_PRIORITY,
-    // @ts-expect-error
     value: frame.system.stats.heatcap,
   });
   changes!.push({
     key: "system.repairs.max",
     mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
     priority: FRAME_STAT_PRIORITY,
-    // @ts-expect-error
     value: frame.system.stats.repcap,
   });
   changes!.push({
     key: "system.loadout.sp.max",
     mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
     priority: FRAME_STAT_PRIORITY,
-    // @ts-expect-error
     value: frame.system.stats.sp,
   });
 
   return {
     flags: { lancer: { ephemeral: true } },
     name: frame.name!,
-    icon: frame.img,
+    img: frame.img,
     origin: frame.uuid,
     transfer: true,
     changes,
@@ -102,7 +88,6 @@ export function pilotInnateEffects(pilot: LancerActor): LancerActiveEffect[] {
   // Bake GRIT+HASE into an active effect
   let mech_effect = new LancerActiveEffect(
     {
-      // @ts-expect-error types are missing `name`
       name: "Pilot → Mech Bonuses",
       changes: [
         // HASE
@@ -204,7 +189,8 @@ export function pilotInnateEffects(pilot: LancerActor): LancerActiveEffect[] {
           value: pilot.system.level.toString(),
         },
       ],
-      icon: pilot.img,
+      // @ts-expect-error v12 property renamed
+      img: pilot.img,
       origin: pilot.uuid,
       flags: {
         lancer: {
@@ -220,7 +206,6 @@ export function pilotInnateEffects(pilot: LancerActor): LancerActiveEffect[] {
 
   let deployable_effect = new LancerActiveEffect(
     {
-      // @ts-expect-error types are missing `name`
       name: "Pilot → Deployable Bonuses",
       changes: [
         // Much simpler
@@ -237,7 +222,8 @@ export function pilotInnateEffects(pilot: LancerActor): LancerActiveEffect[] {
           value: pilot.system.level.toString(),
         },
       ],
-      icon: pilot.img,
+      // @ts-expect-error
+      img: pilot.img,
       origin: pilot.uuid,
       flags: {
         lancer: {
@@ -263,7 +249,6 @@ export function npcInnateEffects(npc: LancerActor): LancerActiveEffect[] {
 
   let deployable_effect = new LancerActiveEffect(
     {
-      // @ts-expect-error types are missing `name`
       name: "NPC → Deployable Bonuses",
       changes: [
         // Much simpler
@@ -274,7 +259,8 @@ export function npcInnateEffects(npc: LancerActor): LancerActiveEffect[] {
           value: npc.system.tier.toString(),
         },
       ],
-      icon: npc.img,
+      // @ts-expect-error v12 property renamed
+      img: npc.img,
       origin: npc.uuid,
       flags: {
         lancer: {
@@ -294,8 +280,8 @@ export function npcInnateEffects(npc: LancerActor): LancerActiveEffect[] {
 /**
  * Creates the ActiveEffect data for a status/condition
  */
-export function statusInnateEffect(status: LancerSTATUS): LancerActiveEffectConstructorData {
-  let changes: LancerActiveEffectConstructorData["changes"] = [
+export function statusInnateEffect(status: LancerSTATUS) {
+  let changes = [
     {
       key: `system.statuses.${status.system.lid}`,
       mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
@@ -306,7 +292,7 @@ export function statusInnateEffect(status: LancerSTATUS): LancerActiveEffectCons
     name: status.name!,
     changes,
     origin: status.uuid,
-    icon: status.img,
+    img: status.img,
     flags: {
       lancer: {
         ephemeral: true,
@@ -333,7 +319,7 @@ export function statusConfigEffect(status: LancerSTATUS): any {
     name: base.name,
     changes: base.changes,
     origin: base.origin,
-    icon: base.icon,
+    img: base.img,
     flags: {
       lancer: {
         status_type: status.system.type,
@@ -367,19 +353,13 @@ const npc_keys: Array<ClassStatKey> = [
 ];
 
 // Make a bonus appropriate to the provided stat key
-function makeNpcBonus(
-  stat: ClassStatKey,
-  value: number,
-  mode: EffectChangeDataConstructorData["mode"],
-  priority: number
-): EffectChangeDataConstructorData {
+function makeNpcBonus(stat: ClassStatKey, value: number, mode: ActiveEffect["changes"][0]["mode"], priority: number) {
   switch (stat) {
     case "hp":
       return {
         key: "system.hp.max",
         mode,
         priority,
-        // @ts-expect-error
         value,
       };
     case "heatcap":
@@ -387,7 +367,6 @@ function makeNpcBonus(
         key: "system.heat.max",
         mode,
         priority,
-        // @ts-expect-error
         value,
       };
     case "structure":
@@ -395,7 +374,6 @@ function makeNpcBonus(
         key: "system.structure.max",
         mode,
         priority,
-        // @ts-expect-error
         value,
       };
     case "stress":
@@ -403,7 +381,6 @@ function makeNpcBonus(
         key: "system.stress.max",
         mode,
         priority,
-        // @ts-expect-error
         value,
       };
     default:
@@ -412,25 +389,24 @@ function makeNpcBonus(
         key: `system.${stat}`,
         mode,
         priority,
-        // @ts-expect-error
         value,
       };
   }
 }
 
 // Create innate effect for an npc class, AKA its base stats adjusted for tier
-export function npcClassInnateEffect(class_: LancerNPC_CLASS): LancerActiveEffectConstructorData {
+export function npcClassInnateEffect(class_: LancerNPC_CLASS) {
   let tier = (class_?.actor as LancerNPC | undefined)?.system.tier ?? 1;
   let bs = class_.system.base_stats[tier - 1];
 
-  let changes: LancerActiveEffectConstructorData["changes"] = npc_keys.map(key =>
+  let changes = npc_keys.map(key =>
     makeNpcBonus(key, bs[key], CONST.ACTIVE_EFFECT_MODES.OVERRIDE, FRAME_STAT_PRIORITY)
   );
 
   return {
     flags: { lancer: { ephemeral: true } },
     name: class_.name!,
-    icon: class_.img,
+    img: class_.img,
     origin: class_.uuid,
     transfer: true,
     changes,
@@ -438,8 +414,8 @@ export function npcClassInnateEffect(class_: LancerNPC_CLASS): LancerActiveEffec
 }
 
 // Converts the system.bonus of an npc feature into an array
-export function npcFeatureBonusEffects(feature: LancerNPC_FEATURE): LancerActiveEffectConstructorData | null {
-  let changes: LancerActiveEffectConstructorData["changes"] = [];
+export function npcFeatureBonusEffects(feature: LancerNPC_FEATURE) {
+  let changes = [];
   for (let key of npc_keys) {
     let value = feature.system.bonus[key];
     if (value !== null) {
@@ -450,7 +426,7 @@ export function npcFeatureBonusEffects(feature: LancerNPC_FEATURE): LancerActive
     return {
       flags: { lancer: { ephemeral: true } },
       name: `${feature.name!} - bonuses`,
-      icon: feature.img,
+      img: feature.img,
       origin: feature.uuid,
       transfer: true,
       changes,
@@ -461,8 +437,8 @@ export function npcFeatureBonusEffects(feature: LancerNPC_FEATURE): LancerActive
 }
 
 // Converts the system.override of an npc feature into an array
-export function npcFeatureOverrideEffects(feature: LancerNPC_FEATURE): LancerActiveEffectConstructorData | null {
-  let changes: LancerActiveEffectConstructorData["changes"] = [];
+export function npcFeatureOverrideEffects(feature: LancerNPC_FEATURE) {
+  let changes = [];
   for (let key of npc_keys) {
     let value = feature.system.override[key];
     if (value !== null) {
@@ -473,7 +449,7 @@ export function npcFeatureOverrideEffects(feature: LancerNPC_FEATURE): LancerAct
     return {
       flags: { lancer: { ephemeral: true } },
       name: `${feature.name!} - overrides`,
-      icon: feature.img,
+      img: feature.img,
       origin: feature.uuid,
       transfer: true,
       changes,
@@ -484,12 +460,13 @@ export function npcFeatureOverrideEffects(feature: LancerNPC_FEATURE): LancerAct
 }
 
 // Converts a single bonus to a single active effect
-export function convertBonus(origin: string, name: string, bonus: BonusData): null | LancerActiveEffectConstructorData {
+export function convertBonus(origin: string, name: string, bonus: BonusData) {
   // Separate logic for "restricted" bonuses
   if (bonus.lid == "damage" || bonus.lid == "range") {
     return {
       name,
       flags: {
+        // @ts-ignore Kill me (infinite recursion in types)
         [game.system.id]: {
           target_type: EntryType.MECH,
           ephemeral: true,
@@ -510,7 +487,7 @@ export function convertBonus(origin: string, name: string, bonus: BonusData): nu
   } else {
     // ui.notifications?.warn("Bonus restrictions have no effect");
   }
-  let changes: Required<LancerActiveEffectConstructorData["changes"]> = [];
+  let changes = [];
   let disabled = false;
   let target_type: LancerEffectTarget | undefined = undefined;
 

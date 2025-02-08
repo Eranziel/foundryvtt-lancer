@@ -904,9 +904,7 @@ export function saveCancelButtons() {
 // Reads the specified form to a JSON object, including unchecked inputs
 // Wraps the build in foundry method
 export function read_form(form_element: HTMLFormElement): Record<string, string | number | boolean> {
-  // @ts-ignore The typings don't yet include this utility class
   let form_data = new FormDataExtended(form_element);
-  // @ts-ignore We may want to double check this, but it's probably fine
   return form_data.object;
 }
 

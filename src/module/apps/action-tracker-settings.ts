@@ -1,52 +1,59 @@
+import type { DeepPartial } from "@league-of-foundry-developers/foundry-vtt-types/src/types/utils.mjs";
 import { LANCER } from "../config";
-import { ActionTrackerOptions, getActionTrackerOptions } from "../settings";
+import { ActionTrackerOptions } from "../settings";
+
+const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
+
+interface RenderOptions extends foundry.applications.api.ApplicationV2.RenderOptions {
+  loadDefault: boolean;
+}
+
+interface Configuration extends foundry.applications.api.ApplicationV2.Configuration {}
 
 /**
  * Settings form for customizing the icon appearance of the icon used in the
  * tracker
  */
-export class ActionTrackerConfig extends FormApplication<FormApplication.Options, ActionTrackerOptions> {
-  /** @override */
-  static get defaultOptions(): FormApplication.Options {
-    return {
-      ...super.defaultOptions,
-      title: "lancer.actionTracker.menu-label",
-      id: "lancer-actionTracker-settings",
-      template: `systems/${game.system.id}/templates/window/actiontracker-config.hbs`,
-      classes: ["action-tracker-config"],
-      width: 350,
+export class ActionTrackerConfig extends HandlebarsApplicationMixin(ApplicationV2<{}, Configuration, RenderOptions>) {
+  static PARTS = {
+    form: { template: "systems/lancer/templates/settings/action-tracker-config.hbs" },
+    footer: { template: "templates/generic/form-footer.hbs", classes: ["flexrow"] },
+  };
+
+  static DEFAULT_OPTIONS = {
+    id: "lancer-action-tracker-settings",
+    tag: "form",
+    position: { width: 450 },
+    window: { title: "lancer.actionTracker.menu-label" },
+    form: {
+      handler: this.#formHandler,
+      submitOnChange: false,
+      closeOnSubmit: true,
+    },
+    actions: {
+      onReset: this.#onReset,
+    },
+  } as const;
+
+  async _prepareContext(opts: DeepPartial<RenderOptions>): Promise<{}> {
+    const config = game.settings.get(game.system.id, LANCER.setting_actionTracker);
+    const ctx = {
+      config: opts.loadDefault ? new ActionTrackerOptions() : config,
+      fields: config.schema.fields,
+      buttons: [
+        { type: "submit", name: "submit", icon: "fas fa-save", label: "Save" },
+        { type: "button", name: "reset", icon: "fas fa-undo", label: "SETTINGS.Reset", action: "onReset" },
+      ],
     };
+    return ctx;
   }
 
-  /** @override */
-  getData(): ActionTrackerOptions {
-    return {
-      ...getActionTrackerOptions(true),
-      ...(game.settings.get(game.system.id, LANCER.setting_actionTracker) as Partial<ActionTrackerOptions>),
-    };
+  static async #formHandler(this: ActionTrackerConfig, _ev: unknown, _form: unknown, formData: any) {
+    const res = formData.object;
+    await game.settings.set(game.system.id, LANCER.setting_actionTracker, res);
   }
 
-  /** @override */
-  activateListeners(html: JQuery<HTMLFormElement>): void {
-    html.find("input[name=enabled]").on("change", e => {
-      const val = (<HTMLInputElement>e.target).checked;
-      html.find("input:not([name=enabled])").prop("disabled", !val);
-    });
-  }
-
-  /** @override */
-  async _updateObject(_: Event, data: Record<string, unknown>): Promise<void> {
-    const defs = getActionTrackerOptions();
-    const set = foundry.utils.diffObject(defs, data, { inner: true });
-    game.settings.set(game.system.id, LANCER.setting_actionTracker, data);
-  }
-
-  /**
-   * Sets all settings handled by the form to undefined in order to revert to
-   * their default values.
-   */
-  async resetSettings(): Promise<unknown> {
-    await game.settings.set(game.system.id, LANCER.setting_actionTracker, {});
-    return this.render();
+  static async #onReset(this: ActionTrackerConfig) {
+    this.render(false, { loadDefault: true });
   }
 }

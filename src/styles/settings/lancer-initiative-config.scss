@@ -1,0 +1,37 @@
+#lancer-initiative-settings {
+  #preview-combat {
+    padding: 0px;
+    margin: 1rem;
+  }
+  .token-image {
+    height: var(--sidebar-item-height);
+    width: var(--sidebar-item-height);
+    max-width: var(--sidebar-item-height);
+    border: 0px;
+  }
+  .fake-combatant {
+    border: 3px;
+    padding-right: 0.5em;
+    border-top: 0px;
+    border-bottom: 0px;
+    border-radius: 5px;
+    border-style: solid;
+    h4 {
+      text-shadow: 1px 1px 4px var(--color-shadow-dark);
+      font-size: var(--font-size-14);
+      flex: 0 0 24px;
+      line-height: 28px;
+      margin: 0 0 2px;
+      padding: 0;
+      font-weight: normal;
+    }
+    .token-initiative {
+      display: flex;
+      position: relative;
+      flex: 0 0 auto;
+      text-align: center;
+      align-items: center;
+      padding-left: 0.5em;
+    }
+  }
+}

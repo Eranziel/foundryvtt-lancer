@@ -1,10 +1,8 @@
 import { LANCER, replaceDefaultResource, TypeIcon } from "../config";
 import { DamageType, EntryType } from "../enums";
-import { fix_modify_token_attribute } from "../token";
 import { AppliedDamage } from "./damage-calc";
 import { SystemData, SystemDataType, SystemTemplates } from "../system-template";
 import { SourceDataType } from "../source-template";
-import { getAutomationOptions } from "../settings";
 import {
   LancerBOND,
   LancerFRAME,
@@ -34,8 +32,8 @@ import { StabilizeFlow } from "../flows/stabilize";
 import { rollEvalSync, tokenScrollText, TokenScrollTextOptions } from "../util/misc";
 import { BurnFlow } from "../flows/burn";
 import { createChatMessageStep } from "../flows/_render";
-import { ActorDataConstructorData } from "@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/data/data.mjs/actorData";
 import { DamageRollFlow } from "../flows/damage";
+import { type DatabaseDeleteOperation } from "@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/abstract/_types.mjs";
 
 const lp = LANCER.log_prefix;
 
@@ -283,13 +281,15 @@ export class LancerActor extends Actor {
    */
   prepareBaseData() {
     // Some modules create actors with type "base", or potentially others we don't care about
+    //@ts-expect-error V12 typing in progress
     if (!ACTOR_TYPES.includes(this.type)) {
       console.log("Actor is not a LancerActor:", this);
       return super.prepareBaseData();
     }
+    // TODO: Move these to the datamodels themselves
     // 1. First, finalize our system tasks. Items should be (minimally) prepared by now, so we can resolve embedded items
-    // @ts-expect-error
-    this.system.finalize_tasks();
+    // // @ts-expect-error
+    // this.system.finalize_tasks();
 
     // 2. Initialize our universal derived stat fields
     let sys: SystemTemplates.actor_universal = this.system;
@@ -437,9 +437,7 @@ export class LancerActor extends Actor {
 
   /** Check which statuses this actor has active and set system.status accordingly */
   _markStatuses() {
-    // @ts-expect-error v11
     if (!this.statuses) return;
-    // @ts-expect-error v11
     for (const status of this.statuses.keys()) {
       // @ts-expect-error
       this.system.statuses[status] = true;
@@ -505,7 +503,6 @@ export class LancerActor extends Actor {
    * @override
    */
   *allApplicableEffects() {
-    // @ts-expect-error v11
     yield* super.allApplicableEffects();
 
     // Yield all inherited ephemeral effects
@@ -550,7 +547,6 @@ export class LancerActor extends Actor {
     }
 
     // Call a hook to handle token resource bar updates
-    fix_modify_token_attribute(updates);
     const allowed = Hooks.call("modifyTokenAttribute", { attribute, value, isDelta, isBar }, updates);
     return allowed ? this.update(updates) : this;
   }
@@ -562,23 +558,23 @@ export class LancerActor extends Actor {
   protected async _preCreate(...[data, options, user]: Parameters<Actor["_preCreate"]>): Promise<void> {
     await super._preCreate(data, options, user);
 
-    let img = data.img || TypeIcon(this.type);
+    let img = data?.img || TypeIcon(this.type);
 
-    let disposition: ValueOf<typeof CONST["TOKEN_DISPOSITIONS"]> =
+    let disposition: typeof CONST["TOKEN_DISPOSITIONS"][keyof typeof CONST["TOKEN_DISPOSITIONS"]] =
       {
         [EntryType.NPC]: CONST.TOKEN_DISPOSITIONS.HOSTILE,
         [EntryType.PILOT]: CONST.TOKEN_DISPOSITIONS.FRIENDLY,
         [EntryType.DEPLOYABLE]: CONST.TOKEN_DISPOSITIONS.NEUTRAL,
         [EntryType.MECH]: CONST.TOKEN_DISPOSITIONS.FRIENDLY,
+        ["base"]: undefined,
       }[this.type] ?? CONST.TOKEN_DISPOSITIONS.FRIENDLY;
 
     // Put in the basics
-    // @ts-expect-error Should be fixed with v10 types
     this.updateSource({
       img,
       // Link the token to the Actor for pilots and mechs, but not for NPCs or deployables
       prototypeToken: {
-        actorLink: [EntryType.PILOT, EntryType.MECH].includes(this.type),
+        actorLink: [EntryType.PILOT, EntryType.MECH].includes(this.type as EntryType),
         disposition: disposition,
       },
     });
@@ -602,7 +598,9 @@ export class LancerActor extends Actor {
     // If changing active mech, all mechs need to render to recompute if they are the active mech
     let changing_active_mech = (changed as any).system?.active_mech !== undefined;
     if (changing_active_mech) {
-      let owned_mechs = game.actors!.filter(a => a.is_mech() && a.system.pilot?.value == this);
+      let owned_mechs: LancerActor[] = game.actors!.filter(
+        (a: LancerActor) => a.is_mech() && a.system.pilot?.value == this
+      );
       owned_mechs?.forEach(m => m.render());
     }
 
@@ -617,7 +615,7 @@ export class LancerActor extends Actor {
 
     // Assigning a pilot to a mech or a deployer to a deployable should trigger effect propagation in the new owner
     if ((this.is_mech() || this.is_deployable()) && (changed as any).system?.owner) {
-      const owner = LancerActor.fromUuid((changed as any).system.owner).then((a: LancerActor) => {
+      LancerActor.fromUuid((changed as any).system.owner).then((a: LancerActor) => {
         if (a) {
           a.effectHelper.propagateEffects(true);
         }
@@ -667,7 +665,7 @@ export class LancerActor extends Actor {
    * effects are kept in lockstep as items are created, updated, and deleted
    */
   _onCreateDescendantDocuments(
-    parent: foundry.abstract.Document<any>,
+    parent: ClientDocument,
     collection: "items" | "effects",
     documents: LancerItem[] | LancerActiveEffect[],
     changes: any[],
@@ -686,7 +684,6 @@ export class LancerActor extends Actor {
       ) as LancerNPC_CLASS;
     }
 
-    // @ts-expect-error
     super._onCreateDescendantDocuments(parent, collection, documents, changes, options, userId);
 
     if (game.userId != userId) return;
@@ -719,14 +716,13 @@ export class LancerActor extends Actor {
 
   /** @inheritdoc */
   _onUpdateDescendantDocuments(
-    parent: foundry.abstract.Document<any>,
+    parent: ClientDocument,
     collection: "items" | "effects",
     documents: LancerItem[] | LancerActiveEffect[],
     changes: any[],
     options: any,
     userId: string
   ) {
-    // @ts-expect-error
     super._onUpdateDescendantDocuments(parent, collection, documents, changes, options, userId);
     if (game.userId == userId) {
       this.effectHelper.propagateEffects(false); // Effects have changed - may need to propagate
@@ -735,14 +731,13 @@ export class LancerActor extends Actor {
 
   /** @inheritdoc */
   _onDeleteDescendantDocuments(
-    parent: foundry.abstract.Document<any>,
+    parent: ClientDocument,
     collection: "items" | "effects",
     documents: LancerItem[] | LancerActiveEffect[],
-    changes: any[],
+    changes: any,
     options: any,
     userId: string
   ) {
-    // @ts-expect-error
     super._onDeleteDescendantDocuments(parent, collection, documents, changes, options, userId);
 
     // Mark them all as deleted for delete-deduplication purposes
@@ -766,8 +761,8 @@ export class LancerActor extends Actor {
    */
   async _safeDeleteDescendant(
     collection: "Item" | "ActiveEffect",
-    effects: ActiveEffect[] | Item[],
-    options?: DocumentModificationContext
+    effects: ActiveEffect[] | LancerItem[],
+    options?: DatabaseDeleteOperation & {} & {}
   ): Promise<any> {
     if (!effects.length) return;
     let toDelete = [];
@@ -804,10 +799,11 @@ export class LancerActor extends Actor {
   async removeClassFeatures(item: LancerItem) {
     if (!this.is_npc() || (!item.is_npc_class() && !item.is_npc_template())) return;
     const targetFeatures = [...item.system.base_features, ...item.system.optional_features];
+    // @ts-ignore Intermittent types error
     let matches = this.itemTypes.npc_feature.filter(feat => targetFeatures.includes(feat.system.lid));
     await this._safeDeleteDescendant(
       "Item",
-      matches.filter(x => x)
+      matches.filter((x: LancerItem | undefined) => x)
     );
   }
 
@@ -818,7 +814,6 @@ export class LancerActor extends Actor {
    * @returns         The newFrame if any updates were performed
    */
   async swapFrameImage(newFrame: LancerFRAME | LancerNPC_CLASS): Promise<void> {
-    // @ts-expect-error v10 types
     if (!game.users.activeGM?.isSelf || !(this.is_mech() || this.is_npc())) return;
 
     let new_frame_path = frameToPath(newFrame?.name);
@@ -826,7 +821,6 @@ export class LancerActor extends Actor {
       ? "systems/lancer/assets/icons/mech.svg"
       : "systems/lancer/assets/icons/npc_class.svg";
 
-    // @ts-expect-error Should be fixed with v10 types
     let curr_token: string | null | undefined = this.prototypeToken?.texture?.src;
     let curr_actor: string | null | undefined = this.img;
 
@@ -858,6 +852,7 @@ export class LancerActor extends Actor {
     if (!this.is_npc()) return [];
     let result = [];
     for (let predicateLid of featureLids) {
+      // @ts-ignore Intermittent types error
       for (let candidate_feature of this.itemTypes.npc_feature as LancerNPC_FEATURE[]) {
         if (candidate_feature.system.lid == predicateLid) {
           result.push(candidate_feature);
@@ -874,7 +869,6 @@ export class LancerActor extends Actor {
    * @param newClass The new class which is being added
    */
   async _swapNpcClass(oldClass: LancerNPC_CLASS | null, newClass: LancerNPC_CLASS | LancerNPC_TEMPLATE): Promise<void> {
-    // @ts-expect-error v10 types
     if (!game.users.activeGM?.isSelf || !this.is_npc() || (!newClass.is_npc_class() && !newClass.is_npc_template()))
       return;
     // Flag to know if we need to reset stats
@@ -927,7 +921,7 @@ export class LancerActor extends Actor {
       ui.notifications?.error(message);
       throw new Error(message);
     }
-    // @ts-ignore Infinite recursion for some reason
+    // @ts-expect-error Infinite recursion for some reason
     if (x instanceof TokenDocument) x = x.actor!;
     if (!(x instanceof LancerActor)) {
       let message = `${messagePrefix ? messagePrefix + " | " : ""}Document ${x} not an actor.`;
@@ -946,7 +940,7 @@ export class LancerActor extends Actor {
       ui.notifications?.error(message);
       throw new Error(message);
     }
-    // @ts-ignore Infinite recursion for some reason
+    // @ts-expect-error Infinite recursion for some reason
     if (x instanceof TokenDocument) x = x.actor!;
     if (!(x instanceof LancerActor)) {
       let message = `${messagePrefix ? messagePrefix + " | " : ""}Document ${x} not an actor.`;
@@ -956,7 +950,7 @@ export class LancerActor extends Actor {
     return x;
   }
 
-  async statChangeScrollingText(data: DeepPartial<ActorDataConstructorData>) {
+  async statChangeScrollingText(data: unknown) {
     // Show scrolling text above the token on overshield, hp, burn, and heat changes
     const tokenId = this.token?.id || canvas?.scene?.tokens.find(t => t.actor?.id === this.id)?.id;
     if (!tokenId) return;
@@ -1182,7 +1176,6 @@ export class LancerActor extends Actor {
 
     // ...
 
-    // @ts-expect-error
     return super.migrateData(source);
   }
 }

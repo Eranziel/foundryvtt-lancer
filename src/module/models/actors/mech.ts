@@ -3,7 +3,7 @@ import { template_action_tracking, template_heat, template_struss, template_univ
 import { LancerDataModel, EmbeddedRefField, SyncUUIDRefField, FullBoundedNumberField } from "../shared";
 import { EntryType, FittingSize, MountType } from "../../enums";
 
-const fields: any = foundry.data.fields;
+const fields = foundry.data.fields;
 
 const mech_schema = {
   overcharge: new fields.NumberField({ min: 0, integer: true, nullable: false, initial: 0 }),
@@ -37,7 +37,7 @@ const mech_schema = {
 };
 
 type MechSchema = typeof mech_schema;
-export class MechModel extends LancerDataModel<"MechModel"> {
+export class MechModel extends LancerDataModel<DataSchema, Actor> {
   static defineSchema(): MechSchema {
     return mech_schema;
   }
@@ -64,7 +64,6 @@ export class MechModel extends LancerDataModel<"MechModel"> {
       }
     }
 
-    // @ts-expect-error v11
     return super.migrateData(data);
   }
 }
