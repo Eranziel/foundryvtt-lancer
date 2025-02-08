@@ -89,6 +89,7 @@ export function npcReactionView(path: string, options: HelperOptions): string {
     path,
     npcFeature,
     `<div class="flexcol lancer-body">
+      ${npcFeature.system.tags.find(tag => tag.lid === "tg_limited") ? limitedUsesIndicator(npcFeature, path) : ""}
       ${npcFeature.system.tags.find(tag => tag.lid === "tg_recharge") ? chargedIndicator(npcFeature, path) : ""}
       ${effectBox("TRIGGER", (npcFeature.system as SystemTemplates.NPC.ReactionData).trigger, { flow: true })}
       ${effectBox("EFFECT", npcFeature.system.effect)}
@@ -130,6 +131,7 @@ export function npcTechView(path: string, options: HelperOptions) {
 
   let sep = `<hr class="vsep">`;
   let subheaderItems = [];
+  let subheader2Items = [];
   if (featureData.tech_attack) {
     subheaderItems.push(
       `<a class="roll-tech lancer-button" data-tooltip="Roll an attack with this system">
@@ -151,6 +153,8 @@ export function npcTechView(path: string, options: HelperOptions) {
     subheaderItems.push(chargedIndicator(npcFeature, path));
   }
 
+  if (npcFeature.system.tags.some(t => t.is_limited)) subheader2Items.push(limitedUsesIndicator(npcFeature, path));
+
   return npcFeatureScaffold(
     path,
     npcFeature,
@@ -158,6 +162,9 @@ export function npcTechView(path: string, options: HelperOptions) {
     <div class="lancer-body flex-col">
       <div class="flexrow">
         ${subheaderItems.join(sep)}
+      </div>
+      <div class="flexrow no-wrap">
+        ${subheader2Items.join()}
       </div>
       <div class="flexcol" style="padding: 0 10px;">
         ${effectBox("EFFECT", featureData.effect, { flow: !featureData.tech_attack })}
