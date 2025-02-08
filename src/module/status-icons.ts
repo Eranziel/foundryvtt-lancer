@@ -364,6 +364,11 @@ export const hayleyConditionsStatus = [
     icon: "systems/lancer/assets/icons/alt-status/hayleycondstat/invisible.webp",
   },
   {
+    id: "intangible",
+    name: "lancer.statusIconsNames.intangible",
+    icon: "systems/lancer/assets/icons/alt-status/hayleycondstat/intangible.webp",
+  },
+  {
     id: "jammed",
     name: "lancer.statusIconsNames.jammed",
     icon: "systems/lancer/assets/icons/alt-status/hayleycondstat/jammed.webp",
