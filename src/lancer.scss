@@ -346,14 +346,14 @@ $theme-types: "primary" "secondary" "dark-gray" "light-gray" "tooltip"    // Gen
 .chat-popout {
   & .message {
     background: rgba(237, 237, 237);
-    border-radius: 25px 5px;
+    border-radius: 20px 5px;
     padding: 0;
     // overflow: hidden;
   }
 
   & .message-header {
     overflow: hidden;
-    border-radius: 22px 1px 0 0;
+    border-radius: 17px 1px 0 0;
     background-color: var(--primary-color, fuchsia);
     padding: 5px 10px;
   }
