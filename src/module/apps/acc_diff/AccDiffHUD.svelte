@@ -468,6 +468,8 @@
     display: grid;
     grid-template-columns: auto auto auto;
     grid-row-gap: 12px;
+    max-height: 320px;
+    overflow-y: scroll;
   }
 
   .accdiff-target {
