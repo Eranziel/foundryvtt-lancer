@@ -4,11 +4,11 @@ This will be the final release for Foundry v11, barring any critical bug fixes.
 
 ## Features
 
-- #799 - Add a space for configurable flat attack bonuses in the attack HUD. This also adds a display for non-configurable flat bonuses, such as Grit or Tech Attack.
+- #799 - Add a space for configurable flat attack bonuses in the attack HUD. This also adds a display for non-configurable flat bonuses, such as Grit or Tech Attack. Thanks, @eamondo2!
 
 ## Misc
 
-- #753 - Add an Intangible icon to Hayley's Condition & Status icon set.
+- #753 - Add an Intangible icon to Hayley's Condition & Status icon set. Thanks for providing the icon, @DirkMcThermot!
 - Change the Comp/Con login dialog to say "Comp/Con Email" instead of "Comp/Con Username" to reduce confusion.
 - Use the "Down and Out" status icon for the defeated state, instead of the default skull icon. If you wish to keep the old skull icon instead, make a "Down and Out" status item in your world and assign it the image path `icons/svg/skull.svg`.
 
