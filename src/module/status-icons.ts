@@ -366,7 +366,7 @@ export const hayleyConditionsStatus = [
   {
     id: "intangible",
     name: "lancer.statusIconsNames.intangible",
-    icon: "systems/lancer/assets/icons/alt-status/hayleycondstat/intangible.webp",
+    img: "systems/lancer/assets/icons/alt-status/hayleycondstat/intangible.webp",
   },
   {
     id: "jammed",

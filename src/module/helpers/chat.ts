@@ -65,7 +65,7 @@ export function attackTarget(hit: LancerFlowState.HitResultWithRoll, options: He
     : hit.hit
     ? `<span class="card clipped lancer-hit-chip hit">${game.i18n.format("lancer.chat-card.attack.hit")}</span>`
     : `<span class="card clipped lancer-hit-chip miss">${game.i18n.format("lancer.chat-card.attack.miss")}</span>`;
-  const img = hit.target.actor.img;
+  const img = hit.target.actor?.img;
   const uuid = hit.target.document.uuid;
   return `
     <div class="lancer-hit-target" data-uuid=${uuid}>
@@ -156,7 +156,7 @@ export function damageTarget(
       `<span class="lancer-damage-tag" data-tooltip="Half Damage"><i class="mdi mdi-fraction-one-half i--xs"></i></span>`
     );
   const damageTagsDisplay = damageTags.length ? `<div class="lancer-damage-tags">${damageTags.join("")}</div>` : "";
-  const img = target.target.actor.img;
+  const img = target.target.actor?.img;
   const uuid = target.target.document.uuid;
   return `
     <div class="lancer-damage-target" data-uuid=${uuid}>
