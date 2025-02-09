@@ -40,7 +40,7 @@
     {#each officialData as pack}
       <input class="content-checkbox" name={pack.id} type="checkbox" bind:checked={officialContentSelect[pack.id]} />
       <span class="content-label">
-        {pack.name}
+        {pack.title}
         {#if pack.url}
           <a href={pack.url} target="_blank" rel="noopener noreferrer">
             <i class="fas fa-external-link-alt" />
