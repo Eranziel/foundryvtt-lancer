@@ -1,6 +1,4 @@
 <script lang="ts">
-  export let coreVersion: string;
-  export let coreUpdate: string | null;
   export let officialData: {
     id: string;
     name: string;
@@ -22,28 +20,8 @@
   }
 </script>
 
-<div class="card clipped flexcol">
+<div class="flexcol card clipped-bot" style={$$restProps.style}>
   <div class="lancer-header lancer-primary major">Official LANCER Content</div>
-  <div class="form fields flexrow" style="align-items: center">
-    <span style="margin: 5px 10px">
-      {#if coreVersion}
-        Core Data is at v{coreVersion}
-      {:else}
-        Core Data has not been built yet
-      {/if}
-    </span>
-    {#if coreVersion !== coreUpdate}
-      <button type="button" class="lcp-core-update" title="Update Core Data" tabindex="-1" style="margin: 5px 10px">
-        <i class="cci cci-content-manager i--m" />
-        Update to v{coreUpdate}
-      </button>
-    {:else}
-      <button type="button" class="lcp-core-update" title="Rebuild Core Data" tabindex="-1" style="margin: 5px 10px">
-        <i class="cci cci-content-manager i--m" />
-        Rebuild Core Data
-      </button>
-    {/if}
-  </div>
   <!-- Official LCPs -->
   <div id="massif-data">
     <div class="header">
@@ -82,6 +60,11 @@
       <span class="avail-version">{pack.availableVersion}</span>
     {/each}
   </div>
+
+  <button type="button" class="lcp-massif-build" title="Import/Update Selected" tabindex="-1" style="margin: 5px 10px">
+    <i class="cci cci-content-manager i--m" />
+    Import/Update Selected
+  </button>
 </div>
 
 <style lang="scss">
@@ -97,7 +80,8 @@
 
     .header {
       font-weight: bold;
-      border-bottom: 1px solid var(--secondary-color);
+      border-bottom: 2px solid var(--secondary-color);
+      align-content: center;
     }
 
     .content-checkbox {

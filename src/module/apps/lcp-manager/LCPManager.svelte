@@ -19,23 +19,28 @@
     availableVersion: string;
   }[];
   export let manifest: any;
+  export let cp: any;
   export let lcps: LCPIndex;
 
   // console.log(`${lp} LCP Manager 2.0 mounted`);
 
   // TODO: bring in LCP management logic from the old LCP manager
+  function lcpLoaded(event: CustomEvent<{ cp: any; manifest: any }>) {
+    manifest = event.detail.manifest;
+    cp = event.detail.cp;
+    console.log(`${lp} LCP loaded`, cp, manifest);
+  }
 </script>
 
 <div class="main-layout">
   <!-- TODO: event when clicking a package row to show details -->
-  <MassifContent {coreVersion} {coreUpdate} {officialData} />
-
-  <LcpDetails {manifest} />
-
+  <MassifContent {officialData} style="grid-area: massif-content" />
   <!-- TODO: event when selecting a new manifest -->
-  <LcpSelector />
+  <LcpSelector style="grid-area: lcp-selector" />
 
-  <LcpInstalledList {lcps} />
+  <LcpDetails {manifest} style="grid-area: lcp-details" />
+
+  <LcpInstalledList {lcps} style="grid-area: lcp-installed" />
 </div>
 
 <style lang="scss">
@@ -44,24 +49,8 @@
     grid-template-columns: 1fr 1fr;
     grid-template-rows: auto auto;
     grid-template-areas:
-      "massif-content lcp-details"
-      "lcp-selector lcp-installed";
+      "massif-content lcp-selector"
+      "lcp-details lcp-installed";
     gap: 10px;
-  }
-
-  .lcp-importer {
-    grid-area: lcp-details;
-  }
-
-  .lcp-installed {
-    grid-area: lcp-installed;
-  }
-
-  .lcp-selector {
-    grid-area: lcp-selector;
-  }
-
-  .massif-content {
-    grid-area: massif;
   }
 </style>

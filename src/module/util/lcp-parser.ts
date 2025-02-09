@@ -56,7 +56,7 @@ async function getZipData<T>(zip: JSZip, filename: string): Promise<T[]> {
   return readResult || [];
 }
 
-export async function parseContentPack(binString: Buffer | string): Promise<IContentPack> {
+export async function parseContentPack(binString: ArrayBuffer | string): Promise<IContentPack> {
   const zip = await JSZip.loadAsync(binString);
 
   const manifest = await readZipJSON<IContentPackManifest>(zip, "lcp_manifest.json");
