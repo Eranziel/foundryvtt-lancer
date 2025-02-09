@@ -8,6 +8,8 @@ import * as wallflowerPackage from "@massif/wallflower-data/package.json";
 import * as ktbPackage from "@massif/ktb-data/package.json";
 import * as osrPackage from "@massif/osr-data/package.json";
 import * as dustgravePackage from "@massif/dustgrave-data/package.json";
+import * as ssmrPackage from "@massif/ssmr-data/package.json";
+import * as sotwPackage from "@massif/sotw-data/package.json";
 
 export const core_update = lancerDataPackage.version;
 
@@ -112,7 +114,7 @@ class LCPManager2 extends Application {
       },
       {
         id: "long-rim",
-        // name: "The Long Rim: a Lancer Setting",
+        // itchName: "The Long Rim: a Lancer Setting",
         name: "Lancer Long Rim Data",
         availableVersion: longRimPackage.version,
         currentVersion: this.lcpIndex.index?.find(m => m.name === "Lancer Long Rim Data")?.version || "--",
@@ -120,7 +122,7 @@ class LCPManager2 extends Application {
       },
       {
         id: "wallflower",
-        // name: "No Room for a Wallflower: Act 1",
+        // itchName: "No Room for a Wallflower: Act 1",
         name: "Lancer Wallflower Data",
         availableVersion: wallflowerPackage.version,
         currentVersion: this.lcpIndex.index?.find(m => m.name === "Lancer Wallflower Data")?.version || "--",
@@ -128,7 +130,7 @@ class LCPManager2 extends Application {
       },
       {
         id: "ktb",
-        // name: "The Karrakin Trade Baronies: a Lancer Setting",
+        // itchName: "The Karrakin Trade Baronies: a Lancer Setting",
         name: "Lancer KTB Data",
         availableVersion: ktbPackage.version,
         currentVersion: this.lcpIndex.index?.find(m => m.name === "Lancer KTB Data")?.version || "--",
@@ -136,7 +138,7 @@ class LCPManager2 extends Application {
       },
       {
         id: "osr",
-        // name: "Operation Solstice Rain",
+        // itchName: "Operation Solstice Rain",
         name: "Operation Solstice Rain Data",
         availableVersion: osrPackage.version,
         currentVersion: this.lcpIndex.index?.find(m => m.name === "Operation Solstice Rain Data")?.version || "--",
@@ -144,11 +146,28 @@ class LCPManager2 extends Application {
       },
       {
         id: "dustgrave",
-        // name: "Dustgrave",
+        // itchName: "Dustgrave",
         name: "LANCER: Dustgrave",
         availableVersion: dustgravePackage.version,
         currentVersion: this.lcpIndex.index?.find(m => m.name === "LANCER: Dustgrave")?.version || "--",
         url: "https://massif-press.itch.io/dustgrave",
+      },
+      {
+        id: "ssmr",
+        // itchName: "Siren's Song: A Mountain's Remorse",
+        name: "Siren's Song, A Mountain's Remorse",
+        availableVersion: ssmrPackage.version,
+        currentVersion:
+          this.lcpIndex.index?.find(m => m.name === "Siren's Song, A Mountain's Remorse")?.version || "--",
+        url: "https://massif-press.itch.io/sirens-song",
+      },
+      {
+        id: "sotw",
+        // itchName: "Shadow of the Wolf",
+        name: "Shadow of the Wolf",
+        availableVersion: sotwPackage.version,
+        currentVersion: this.lcpIndex.index?.find(m => m.name === "Shadow of the Wolf")?.version || "--",
+        url: "https://massif-press.itch.io/shadow-of-the-wolf",
       },
     ];
   }

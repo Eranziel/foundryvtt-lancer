@@ -31,13 +31,12 @@ import { WeaponRangeTemplate } from "./module/pixi/weapon-range-template";
 
 // Import helpers
 import { addLCPManager, core_update, updateCore } from "./module/apps/lcp-manager";
+import { addLCPManager2 } from "./module/apps/lcp-manager/lcp-manager-2";
 import { attachTagTooltips } from "./module/helpers/tags";
 import { preloadTemplates } from "./module/preload-templates";
 import { getAutomationOptions, registerSettings } from "./module/settings";
 import { applyTheme } from "./module/themes";
 import * as migrations from "./module/world_migration";
-import { addLCPManager, updateCore, core_update } from "./module/apps/lcp-manager";
-import { addLCPManager2 } from "./module/apps/lcp-manager/lcp-manager-2";
 
 // Import sliding HUD (used for accuracy/difficulty windows)
 import * as slidingHUD from "./module/apps/slidinghud";
