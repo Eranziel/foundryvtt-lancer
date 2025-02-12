@@ -311,6 +311,9 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
           type: EntryType.MECH,
           folder: unitFolder?.id,
           ownership: permission,
+          system: {
+            pilot: pilot.uuid,
+          },
         })) as unknown as LancerMECH;
       }
       if (!mech.canUserModify(game.user!, "update")) {

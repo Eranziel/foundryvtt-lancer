@@ -40,14 +40,12 @@ export async function fulfillImportActor(compDeployable: string | LancerActor, f
   forActor = await LancerActor.fromUuid(forActor);
   if (!compDeployable || !forActor) throw new Error("Invalid actor(s) provided for import!");
 
-  // If pilot, get callsign
-  return LancerActor.create({
-    ...compDeployable.toObject(),
-    system: { owner: forActor.uuid },
-    name: deployableName(compDeployable.name!, forActor),
-    folder: forActor.folder?.id,
-    ownership: foundry.utils.duplicate(forActor.ownership),
-  });
+  const actorData = compDeployable.toObject() as any;
+  actorData.system.owner = forActor.uuid;
+  actorData.name = deployableName(actorData.name!, forActor);
+  actorData.folder = forActor.folder?.id;
+  actorData.ownership = foundry.utils.duplicate(forActor.ownership);
+  return LancerActor.create(actorData);
 }
 
 // Returns a name for a deployable that includes its owners name or callsign as appropriate
