@@ -277,9 +277,6 @@ export async function insinuate(items: Array<LancerItem>, to: LancerActor): Prom
  * @param owner Who to associate the deployables with
  */
 export async function importDeployablesFor(item: LancerItem, owner: LancerActor) {
-  // Deployables owned by pilot, not mech
-  if (owner.is_mech() && owner.system.pilot?.status == "resolved") owner = owner.system.pilot.value;
-
   let existing = lookupOwnedDeployables(owner);
   let existingLIDs = Object.keys(existing);
   let deps: string[] = [];

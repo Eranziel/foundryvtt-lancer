@@ -309,8 +309,15 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
         mech = (await LancerActor.create({
           name: cloudMech.name,
           type: EntryType.MECH,
-          folder: pilot.folder?.id,
+          folder: unitFolder?.id,
+          ownership: permission,
         })) as unknown as LancerMECH;
+      }
+      if (!mech.canUserModify(game.user!, "update")) {
+        ui.notifications?.warn(
+          `Could not import mech '${cloudMech.name}' as you lack the permission to update the actor. Please ask your GM for assistance.`
+        );
+        continue;
       }
 
       // Make a helper to get (a unique copy of) a given lid item, importing if necessary
