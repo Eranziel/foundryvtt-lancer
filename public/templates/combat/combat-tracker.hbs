@@ -91,6 +91,10 @@
                         <i class="fa-solid fa-arrows-to-eye"></i>
                     </a>
                     {{/unless}}
+                    <span class="activations" data-tooltip="lancer.Actor.FIELDS.activations.label">
+                        <i class="cci cci-activate"></i>
+                        <span>{{this.activations}}</span>
+                    </span>
                     <div class="token-effects">
                         {{#each this.effects}}
                         <img class="token-effect" src="{{this}}"/>

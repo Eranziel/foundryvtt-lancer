@@ -1,6 +1,9 @@
 /* TODO: Maybe multiple stylesheets is a good idea? Check out ITCSS and segment them by their layer */
 /* TODO: Webcomponents. Tags, cards, compact stat */
 
+@use "styles/settings/lancer-initiative-config";
+@use "styles/combat/lancer-combat-tracker";
+
 /* Item/document types, useful for shorthand */
 $item-types: core_bonus environment faction frame manufacturer npc_class npc_template npc_feature weapon_mod mech_system
   mech_weapon organization pilot_armor pilot_gear pilot_weapon reserve sitrep skill status tag talent quirk;
@@ -33,14 +36,6 @@ $document-types: join($item-types, $actor-types);
   --ssc-color: #d1920a;
   --horus-color: #00a256;
   --ha-color: #6e4373;
-
-  /* Lancer initiative vars */
-  --lancer-initiative-icon-size: 1rem;
-  --lancer-initiative-player-color: #000000;
-  --lancer-initiative-friendly-color: #000000;
-  --lancer-initiative-neutral-color: #000000;
-  --lancer-initiative-enemy-color: #000000;
-  --lancer-initiative-done-color: #000000;
 
   /* Gear and type color vars */
   --system-color: #58b434;
@@ -136,9 +131,6 @@ $document-types: join($item-types, $actor-types);
     0 100%
   );
 }
-
-@import "styles/settings/lancer-initiative-config";
-@import "styles/combat/lancer-combat-tracker";
 
 code {
   padding: 0px 5px !important;
