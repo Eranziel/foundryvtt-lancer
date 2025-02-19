@@ -2,7 +2,7 @@
   "id": "lancer",
   "title": "LANCER",
   "description": "<p>A Foundry VTT game system for <a href=\"https://massif-press.itch.io/corebook-pdf\">Lancer</a> by <a href=\"https://massif-press.itch.io/\">Massif Press</a>, a mud-and-lasers tactical mech RPG.</p><p>\"Lancer for FoundryVTT\" is not an official <i>Lancer</i> product; it is a third party work, and is not affiliated with Massif Press. \"Lancer for FoundryVTT\" is published via the <i>Lancer</i> Third Party License.</p><p><i>Lancer</i> is copyright Massif Press.</p>",
-  "version": "2.5.0",
+  "version": "2.6.0",
   "compatibility": {
     "minimum": 12,
     "verified": 12,
@@ -22,13 +22,23 @@
   "styles": ["style.css", "fonts/compcon/glyphs.css", "fonts/mdi.css"],
   "documentTypes": {
     "Actor": {
-      "npc": { "htmlFields": ["notes"] },
-      "pilot": { "htmlFields": ["background", "history", "notes", "text_appearance"] },
-      "mech": { "htmlFields": ["notes"] },
-      "deployable": { "htmlFields": ["detail", "action.init", "action.terse", "action.detail"] }
+      "npc": {
+        "htmlFields": ["notes"]
+      },
+      "pilot": {
+        "htmlFields": ["background", "history", "notes", "text_appearance"]
+      },
+      "mech": {
+        "htmlFields": ["notes"]
+      },
+      "deployable": {
+        "htmlFields": ["detail", "action.init", "action.terse", "action.detail"]
+      }
     },
     "Item": {
-      "core_bonus": { "htmlFields": ["description", "effect", "mounted_effect"] },
+      "core_bonus": {
+        "htmlFields": ["description", "effect", "mounted_effect"]
+      },
       "frame": {
         "htmlFields": [
           "description",
@@ -38,20 +48,48 @@
         ]
       },
       "license": {},
-      "npc_class": { "htmlFields": ["flavor", "tactics"] },
-      "npc_template": { "htmlFields": ["description"] },
-      "npc_feature": { "htmlFields": ["effect", "on_hit"] },
-      "weapon_mod": { "htmlFields": ["effect", "description"] },
-      "mech_system": { "htmlFields": ["effect", "description"] },
-      "mech_weapon": { "htmlFields": [] },
-      "organization": { "htmlFields": ["description"] },
-      "pilot_armor": { "htmlFields": ["description"] },
-      "pilot_gear": { "htmlFields": ["description"] },
-      "pilot_weapon": { "htmlFields": ["description", "effect"] },
-      "reserve": { "htmlFields": ["description"] },
-      "status": { "htmlFields": ["effects"] },
-      "talent": { "htmlFields": ["description"] },
-      "skill": { "htmlFields": ["description"] },
+      "npc_class": {
+        "htmlFields": ["flavor", "tactics"]
+      },
+      "npc_template": {
+        "htmlFields": ["description"]
+      },
+      "npc_feature": {
+        "htmlFields": ["effect", "on_hit"]
+      },
+      "weapon_mod": {
+        "htmlFields": ["effect", "description"]
+      },
+      "mech_system": {
+        "htmlFields": ["effect", "description"]
+      },
+      "mech_weapon": {
+        "htmlFields": []
+      },
+      "organization": {
+        "htmlFields": ["description"]
+      },
+      "pilot_armor": {
+        "htmlFields": ["description"]
+      },
+      "pilot_gear": {
+        "htmlFields": ["description"]
+      },
+      "pilot_weapon": {
+        "htmlFields": ["description", "effect"]
+      },
+      "reserve": {
+        "htmlFields": ["description"]
+      },
+      "status": {
+        "htmlFields": ["effects"]
+      },
+      "talent": {
+        "htmlFields": ["description"]
+      },
+      "skill": {
+        "htmlFields": ["description"]
+      },
       "bond": { "htmlFields": [] }
     }
   },
@@ -91,7 +129,7 @@
   "secondaryTokenAttribute": "heat",
   "url": "https://github.com/Eranziel/foundryvtt-lancer",
   "manifest": "https://github.com/Eranziel/foundryvtt-lancer/releases/latest/download/system.json",
-  "download": "https://github.com/Eranziel/foundryvtt-lancer/releases/download/v2.5.0/lancer-v2.5.0.zip",
+  "download": "https://github.com/Eranziel/foundryvtt-lancer/releases/download/v2.6.0/lancer-v2.6.0.zip",
   "license": "GNU GPLv3",
   "readme": "https://github.com/Eranziel/foundryvtt-lancer/blob/master/README.md",
   "bugs": "https://github.com/Eranziel/foundryvtt-lancer/issues/new/choose",

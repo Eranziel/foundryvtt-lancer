@@ -1,3 +1,13 @@
+# 2.6.0 (2025-02-16)
+
+## Features
+
+- #650 - v12 Support! This release brings support for Foundry v12 and drops support for Foundry v11. Huge thanks to @BoltsJ for doing the heavy lifting!
+
+## Bug Fixes
+
+- Fix a bug during import causing pilots to be set as the deployer of their mech's deployables.
+
 # 2.5.0 (2025-02-08)
 
 This will be the final release for Foundry v11, barring any critical bug fixes.
