@@ -137,17 +137,17 @@
   "media": [
     {
       "type": "cover",
-      "url": "https://massifpress.com/_next/image?url=%2Fimages%2Flegal%2Fpowered_by_Lancer-02.svg&w=640&q=75",
+      "url": "https://raw.githubusercontent.com/Eranziel/foundryvtt-lancer/refs/heads/master/public/assets/banners/powered_by_Lancer-white-on-black-cover.svg",
       "caption": "Powered by Lancer"
     },
     {
       "type": "setup",
-      "url": "https://massifpress.com/_next/image?url=%2Fimages%2Flegal%2Fpowered_by_Lancer-02.svg&w=640&q=75",
+      "url": "https://raw.githubusercontent.com/Eranziel/foundryvtt-lancer/refs/heads/master/public/assets/banners/powered_by_Lancer-white-on-black-setup.svg",
       "caption": "Powered by Lancer"
     },
     {
       "type": "icon",
-      "url": "https://massifpress.com/_next/image?url=%2Fimages%2Flegal%2Fpowered_by_Lancer-02.svg&w=640&q=75",
+      "url": "https://raw.githubusercontent.com/Eranziel/foundryvtt-lancer/refs/heads/master/public/assets/banners/powered_by_Lancer-white-on-black-icon.svg",
       "caption": "Powered by Lancer"
     }
   ],
