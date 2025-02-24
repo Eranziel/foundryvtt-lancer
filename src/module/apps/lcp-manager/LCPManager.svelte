@@ -10,11 +10,13 @@
   const lp = LANCER.log_prefix;
 
   export let lcpData: LCPData[];
-  let fileContentSummary: ContentSummary;
-  let contentPack: IContentPack;
-  let hoveredContentSummary: ContentSummary;
-  $: summaryIsFromHover = hoveredContentSummary !== null;
-  $: contentSummary = hoveredContentSummary ?? fileContentSummary;
+  let contentPack: IContentPack | null = null;
+  let fileContentSummary: ContentSummary | null = null;
+  let hoveredContentSummary: ContentSummary | null = null;
+  let aggregateContentSummary: ContentSummary | null = null;
+
+  $: temporarySummary = hoveredContentSummary !== null;
+  $: contentSummary = hoveredContentSummary ?? fileContentSummary ?? aggregateContentSummary;
 
   // TODO: bring in LCP management logic from the old LCP manager
   function lcpLoaded(event: CustomEvent<{ cp: IContentPack; contentSummary: ContentSummary }>) {
@@ -31,11 +33,16 @@
 
 <div class="lcp-manager flexrow">
   <!-- TODO: event when clicking a package row to show details -->
-  <LCPTable {lcpData} style="grid-area: massif-content" on:lcpHovered={lcpHovered} />
+  <LCPTable
+    {lcpData}
+    style="grid-area: massif-content"
+    on:lcpHovered={lcpHovered}
+    on:aggregateSummary={event => (aggregateContentSummary = event.detail)}
+  />
   <div class="lcp-manager__detail-column">
     <!-- TODO: event when selecting a new manifest -->
     <LcpSelector {contentPack} style="grid-area: lcp-selector" on:lcpLoaded={lcpLoaded} />
-    <LcpDetails {contentSummary} temporarySummary={summaryIsFromHover} style="grid-area: lcp-details" />
+    <LcpDetails {contentSummary} {temporarySummary} style="grid-area: lcp-details" />
   </div>
 </div>
 
