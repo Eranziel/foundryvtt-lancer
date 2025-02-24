@@ -1,6 +1,5 @@
 <script lang="ts">
   import { createEventDispatcher } from "svelte";
-  import LcpDetails from "./LCPDetails.svelte";
   import { parseContentPack } from "../../util/lcp-parser";
   import { LANCER } from "../../config";
   const lp = LANCER.log_prefix;

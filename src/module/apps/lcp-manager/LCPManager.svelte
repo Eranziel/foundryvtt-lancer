@@ -4,18 +4,13 @@
   import { LANCER } from "../../config";
   import LcpDetails from "./LCPDetails.svelte";
   import LcpSelector from "./LCPSelector.svelte";
-  import MassifContent from "./MassifContent.svelte";
+  import { LCPData } from "./massif-content-map";
+  import LCPTable from "./LCPTable.svelte";
   const lp = LANCER.log_prefix;
 
-  export let lcpData: {
-    id: string;
-    title: string;
-    url?: string;
-    currentVersion: string;
-    availableVersion: string;
-  }[];
-  export let manifest: any;
-  export let contentPack: any;
+  export let lcpData: LCPData[];
+  let manifest: any;
+  let contentPack: any;
 
   // TODO: bring in LCP management logic from the old LCP manager
   function lcpLoaded(event: CustomEvent<{ cp: any; manifest: any }>) {
@@ -27,7 +22,7 @@
 
 <div class="main-layout">
   <!-- TODO: event when clicking a package row to show details -->
-  <MassifContent {lcpData} style="grid-area: massif-content" />
+  <LCPTable {lcpData} style="grid-area: massif-content" />
   <div>
     <!-- TODO: event when selecting a new manifest -->
     <LcpSelector {contentPack} style="grid-area: lcp-selector" />

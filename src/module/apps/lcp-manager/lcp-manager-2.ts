@@ -9,8 +9,6 @@ let lcpManager: LCPManager;
 
 type LCPManagerData = {
   lcpData: LCPData[];
-  manifest: any;
-  contentPack: IContentPack | null;
 };
 
 async function attachLCPManager(target: HTMLElement, initialData: Promise<LCPManagerData>) {
@@ -77,17 +75,11 @@ class LCPIndex {
 }
 
 class LCPManager2 extends Application {
-  lcpFile: File | null;
-  cp: IContentPack | null;
-  manifest: any;
   officialData: LCPData[];
   lcpIndex: LCPIndex;
 
   constructor(...args: any[]) {
     super(...args);
-    this.lcpFile = null;
-    this.cp = null;
-    this.manifest = null;
     this.lcpIndex = new LCPIndex(game.settings.get(game.system.id, LANCER.setting_lcps).index);
     this.officialData = [];
   }
@@ -120,8 +112,6 @@ class LCPManager2 extends Application {
       }));
     const data = {
       lcpData: [...this.officialData, ...indexData],
-      manifest: this.manifest,
-      contentPack: this.cp,
     };
     return data;
   }
