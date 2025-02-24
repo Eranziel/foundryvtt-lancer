@@ -1,15 +1,16 @@
 import { LANCER } from "../../config";
-const lp = LANCER.log_prefix;
 import { IContentPack, IContentPackManifest } from "../../util/unpacking/packed-types";
 import type LCPManager from "./LCPManager.svelte";
-import { getOfficialData } from "./massif-content-map";
+import { getOfficialData, LCPData } from "./massif-content-map";
+
+const lp = LANCER.log_prefix;
 
 let lcpManager: LCPManager;
 
 type LCPManagerData = {
-  officialData: { id: string; title: string; url?: string; currentVersion: string; availableVersion: string }[];
+  lcpData: LCPData[];
   manifest: any;
-  lcps: LCPIndex;
+  contentPack: IContentPack | null;
 };
 
 async function attachLCPManager(target: HTMLElement, initialData: Promise<LCPManagerData>) {
@@ -79,7 +80,7 @@ class LCPManager2 extends Application {
   lcpFile: File | null;
   cp: IContentPack | null;
   manifest: any;
-  officialData: { id: string; title: string; url?: string; currentVersion: string; availableVersion: string }[];
+  officialData: LCPData[];
   lcpIndex: LCPIndex;
 
   constructor(...args: any[]) {
@@ -92,7 +93,7 @@ class LCPManager2 extends Application {
   }
 
   static get defaultOptions() {
-    return mergeObject(super.defaultOptions, {
+    return foundry.utils.mergeObject(super.defaultOptions, {
       template: `systems/${game.system.id}/templates/lcp/lcp-manager-2.hbs`,
       title: "LANCER Compendium Manager",
       id: "lcp-manager",
@@ -106,10 +107,21 @@ class LCPManager2 extends Application {
     if (!this.officialData.length) {
       this.officialData = await getOfficialData(this.lcpIndex);
     }
+
+    const indexData: LCPData[] = this.lcpIndex.index
+      // Filter out any LCPs that are in the index and in the official data
+      .filter(lcp => !this.officialData.find(odLcp => lcp.name === odLcp.title && lcp.author && odLcp.author))
+      .map(lcp => ({
+        ...lcp,
+        title: lcp.name,
+        id: lcp.item_prefix || lcp.name.replace(/\s/g, "-").toLowerCase(),
+        availableVersion: "",
+        currentVersion: lcp.version,
+      }));
     const data = {
-      officialData: this.officialData,
+      lcpData: [...this.officialData, ...indexData],
       manifest: this.manifest,
-      lcps: this.lcpIndex,
+      contentPack: this.cp,
     };
     return data;
   }

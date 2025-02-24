@@ -1,27 +1,28 @@
 <script lang="ts">
-  export let officialData: {
+  export let lcpData: {
     id: string;
-    name: string;
+    title: string;
+    author: string;
     url?: string;
     currentVersion: string;
     availableVersion: string;
   }[];
 
   let officialContentSelect: Record<string, boolean> = {};
-  for (const pack of officialData) {
+  for (const pack of lcpData) {
     officialContentSelect[pack.id] = true;
   }
   $: selectAllOfficial = Object.values(officialContentSelect).every(v => v);
 
   function toggleSelectAllOfficial() {
-    for (const pack of officialData) {
+    for (const pack of lcpData) {
       officialContentSelect[pack.id] = !selectAllOfficial;
     }
   }
 </script>
 
-<div class="flexcol card clipped-bot" style={$$restProps.style}>
-  <div class="lancer-header lancer-primary major">Official LANCER Content</div>
+<div class="flexcol" style={$$restProps.style}>
+  <div class="lancer-header clipped-top lancer-primary major">Official LANCER Content</div>
   <!-- Official LCPs -->
   <div id="massif-data">
     <div class="header">
@@ -34,13 +35,20 @@
       />
     </div>
     <span class="header">TITLE</span>
+    <span class="header">AUTHOR</span>
+    <span class="header" />
     <span class="header">CURRENT</span>
     <span class="header" />
     <span class="header">AVAILABLE</span>
-    {#each officialData as pack}
+    {#each lcpData as pack}
       <input class="content-checkbox" name={pack.id} type="checkbox" bind:checked={officialContentSelect[pack.id]} />
       <span class="content-label">
         {pack.title}
+      </span>
+      <span class="content-label">
+        {pack.author}
+      </span>
+      <span class="content-label">
         {#if pack.url}
           <a href={pack.url} target="_blank" rel="noopener noreferrer">
             <i class="fas fa-external-link-alt" />
@@ -75,7 +83,7 @@
 
   #massif-data {
     display: grid;
-    grid-template-columns: 3em 3fr 1fr 3em 1fr;
+    grid-template-columns: 3em 2fr 2fr auto 1fr 3em 1fr;
     grid-template-rows: auto;
 
     .header {
@@ -89,10 +97,6 @@
 
     .content-label {
       margin: 5px 10px;
-
-      a {
-        float: right;
-      }
     }
 
     .curr-version {

@@ -53,8 +53,6 @@
   <!-- TODO: nice styling for the file selector -->
   <input id="lcp-file" type="file" name="lcp-up" class="lcp-up" accept=".lcp" on:change={fileSelected} />
   <!-- TODO: progress bar? -->
-
-  <LcpDetails {manifest} style="grid-area: lcp-details" />
 </div>
 
 <style lang="scss">

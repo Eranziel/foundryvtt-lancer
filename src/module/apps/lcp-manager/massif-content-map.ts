@@ -1,10 +1,14 @@
 import { LANCER } from "../../config";
+import { IContentPackManifest } from "../../util/unpacking/packed-types";
 import { LCPIndex } from "../lcp-manager";
 
-type LCPManifest = {
-  name: string;
-  website: string;
-  // And other stuff too, but we don't care about the rest here
+export type LCPData = {
+  id: string;
+  title: string;
+  author: string;
+  url?: string;
+  currentVersion: string;
+  availableVersion: string;
 };
 
 // Get the version from the npm package
@@ -12,17 +16,21 @@ function getPackageVersion(pkg: { version: string }) {
   return pkg.version;
 }
 
-function getTitle(manifest: LCPManifest) {
+function getTitle(manifest: IContentPackManifest) {
   return manifest.name;
 }
 
+function getAuthor(manifest: IContentPackManifest) {
+  return manifest.author;
+}
+
 // Find the installed version in the LCP index
-function getInstalledVersion(manifest: LCPManifest, lcpIndex: LCPIndex) {
+function getInstalledVersion(manifest: IContentPackManifest, lcpIndex: LCPIndex) {
   return lcpIndex.index?.find(m => m.name === manifest.name)?.version || "--";
 }
 
 // Get the URL from the LCP manifest
-function getUrl(manifest: LCPManifest) {
+function getUrl(manifest: IContentPackManifest) {
   return manifest.website || "";
 }
 
@@ -66,12 +74,13 @@ async function massifContentPacks() {
   ];
 }
 
-export async function getOfficialData(lcpIndex?: LCPIndex) {
+export async function getOfficialData(lcpIndex?: LCPIndex): Promise<LCPData[]> {
   const lancerDataPackage = await import("@massif/lancer-data/package.json");
 
   const coreData = {
     id: "core-data",
     title: "Lancer Core Data",
+    author: "Massif Press",
     availableVersion: lancerDataPackage.version as string,
     currentVersion: game.settings.get("lancer", LANCER.setting_core_data) || "--",
     url: "https://massif-press.itch.io/corebook-pdf-free",
@@ -79,20 +88,23 @@ export async function getOfficialData(lcpIndex?: LCPIndex) {
   // TODO: add link to npc data?
 
   const massifContent = await massifContentPacks();
-  const nonCoreContent = await Promise.all(
-    massifContent.map(async content => {
-      // Skip anything that's broken
-      if (!content.pkg || !content.manifest) return null;
+  const nonCoreContent = (
+    await Promise.all(
+      massifContent.map(async content => {
+        // Skip anything that's broken
+        if (!content.pkg || !content.manifest) return null;
 
-      return {
-        id: content.id,
-        title: getTitle(content.manifest),
-        availableVersion: getPackageVersion(content.pkg),
-        currentVersion: lcpIndex ? getInstalledVersion(content.manifest, lcpIndex) : "--",
-        url: getUrl(content.manifest),
-      };
-    })
-  );
+        return {
+          id: content.id,
+          title: getTitle(content.manifest),
+          author: getAuthor(content.manifest),
+          availableVersion: getPackageVersion(content.pkg),
+          currentVersion: lcpIndex ? getInstalledVersion(content.manifest, lcpIndex) : "--",
+          url: getUrl(content.manifest),
+        };
+      })
+    )
+  ).filter(c => c !== null);
 
-  return [coreData, ...nonCoreContent.filter(c => c !== null)];
+  return [coreData, ...nonCoreContent];
 }
