@@ -64,7 +64,11 @@
       <span>AVAILABLE</span>
     </div>
     {#each lcpData as pack}
-      <div class="row" on:mouseenter={() => onMouseenterRow(pack.id)} on:mouseleave={() => onMouseleaveRow(pack.id)}>
+      <div
+        class={`row${pack.availableVersion ? " has-data" : ""}`}
+        on:mouseenter={() => onMouseenterRow(pack.id)}
+        on:mouseleave={() => onMouseleaveRow(pack.id)}
+      >
         <input class="content-checkbox" name={pack.id} type="checkbox" bind:checked={officialContentSelect[pack.id]} />
         <span class="content-label">
           {pack.title}
@@ -116,6 +120,7 @@
 
     .row {
       display: grid;
+      position: relative;
       grid-template-columns: 3em 2fr 2fr auto 1fr 3em 1fr;
 
       &:not(.header):hover {

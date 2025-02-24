@@ -13,6 +13,7 @@
   let fileContentSummary: ContentSummary;
   let contentPack: IContentPack;
   let hoveredContentSummary: ContentSummary;
+  $: summaryIsFromHover = hoveredContentSummary !== null;
   $: contentSummary = hoveredContentSummary ?? fileContentSummary;
 
   // TODO: bring in LCP management logic from the old LCP manager
@@ -28,19 +29,33 @@
   }
 </script>
 
-<div class="main-layout flexrow">
+<div class="lcp-manager flexrow">
   <!-- TODO: event when clicking a package row to show details -->
   <LCPTable {lcpData} style="grid-area: massif-content" on:lcpHovered={lcpHovered} />
   <div class="lcp-manager__detail-column">
     <!-- TODO: event when selecting a new manifest -->
     <LcpSelector {contentPack} style="grid-area: lcp-selector" on:lcpLoaded={lcpLoaded} />
-    <LcpDetails {contentSummary} style="grid-area: lcp-details" />
+    <LcpDetails {contentSummary} temporarySummary={summaryIsFromHover} style="grid-area: lcp-details" />
   </div>
 </div>
 
 <style lang="scss">
-  .lcp-manager__detail-column {
-    padding-left: 10px;
-    padding-right: 10px;
+  .lcp-manager {
+    .lcp-manager__detail-column {
+      padding-left: 10px;
+      padding-right: 10px;
+    }
+
+    :global(.lcp-table .row.has-data:not(.header):hover)::after {
+      content: "";
+      display: block;
+      position: absolute;
+      left: 100%;
+      background-color: var(--darken-1);
+      min-width: 10px;
+      max-width: 10px;
+      height: calc(100% + 20px);
+      clip-path: polygon(0 0, 100% 0, 100% 100%, 0 calc(100% - 20px));
+    }
   }
 </style>

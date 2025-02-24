@@ -70,7 +70,7 @@
         />
       {/if}
     </div>
-    {#if !contentSummary.aggregate}
+    {#if !temporarySummary && !contentSummary.aggregate}
       <button type="button" class="lcp-import" title="Import LCP" tabindex="-1">
         <i class="cci cci-content-manager i--m" />
         Import LCP
@@ -80,6 +80,11 @@
 </div>
 
 <style lang="scss">
+  .lcp-details.card {
+    margin-left: 0;
+    margin-right: 0;
+  }
+
   .manifest-image {
     max-width: 400px;
     max-height: 400px;
