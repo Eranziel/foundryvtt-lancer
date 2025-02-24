@@ -2,11 +2,12 @@
   import { createEventDispatcher } from "svelte";
   import { parseContentPack } from "../../util/lcp-parser";
   import { LANCER } from "../../config";
+  import { ContentSummary, generateLcpSummary } from "./massif-content-map";
   const lp = LANCER.log_prefix;
 
   const dispatch = createEventDispatcher();
 
-  let manifest: any = null;
+  let contentSummary: ContentSummary | null = null;
 
   function fileSelected(event: any) {
     const file = event.target?.files[0];
@@ -28,22 +29,13 @@
   async function _onLcpLoaded(fileData: ArrayBuffer | null) {
     if (!fileData) return;
     let cp = await parseContentPack(fileData);
-    manifest = {
-      ...cp.manifest,
-      item_prefix: "",
-      skills: cp.data.skills?.length ?? 0,
-      talents: cp.data.talents?.length ?? 0,
-      gear: cp.data.pilotGear?.length ?? 0,
-      frames: cp.data.frames?.length,
-      systems: cp.data.systems?.length,
-      weapons: cp.data.weapons?.length,
-      mods: cp.data.mods?.length,
-      npc_classes: cp.data.npcClasses?.length,
-      npc_templates: cp.data.npcTemplates?.length,
-      npc_features: cp.data.npcFeatures?.length,
-    };
-    console.log(`${lp} Manifest of selected LCP:`, manifest);
-    // dispatch("lcpLoaded", { cp, manifest });
+    if (!cp.data) {
+      ui.notifications.error(`Failed to parse LCP`);
+      return;
+    }
+    contentSummary = generateLcpSummary(cp);
+    console.log(`${lp} Contents of selected LCP:`, contentSummary);
+    dispatch("lcpLoaded", { cp, contentSummary });
   }
 </script>
 
