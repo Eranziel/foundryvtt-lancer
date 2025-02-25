@@ -1,25 +1,23 @@
 import { LANCER } from "../../config";
 import { IContentPack, IContentPackManifest } from "../../util/unpacking/packed-types";
-import type LCPManager from "./LCPManager.svelte";
-import { getOfficialData, LCPData } from "./massif-content-map";
+import { getOfficialData, LCPData, mergeOfficialDataAndLcpIndex } from "./massif-content-map";
 
 const lp = LANCER.log_prefix;
 
-let lcpManager: LCPManager;
+let LCPManager: any;
 
 type LCPManagerData = {
   lcpData: LCPData[];
 };
 
 async function attachLCPManager(target: HTMLElement, initialData: Promise<LCPManagerData>) {
-  if (!lcpManager) {
-    let LCPManager = (await import("./LCPManager.svelte")).default;
-    lcpManager = new LCPManager({
-      target,
-      props: await initialData,
-    });
+  if (!LCPManager) {
+    LCPManager = (await import("./LCPManager.svelte")).default;
   }
-  return lcpManager;
+  return new LCPManager({
+    target,
+    props: await initialData,
+  });
 }
 
 export function addLCPManager2(app: Application, html: any) {
