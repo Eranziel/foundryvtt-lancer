@@ -6,18 +6,22 @@
 
   export let lcpData: LCPData[];
 
-  let officialContentSelect: Record<string, boolean> = {};
-
-  $: selectAllOfficial = Object.values(officialContentSelect).every(v => v);
+  $: selectAllRows = Object.values(rowSelectionTracker).every(v => !v.selectable || v.checked);
 
   onMount(() => debounceAggregateSummary());
 
+  let rowSelectionTracker: Record<string, { checked: boolean; selectable: boolean }> = {};
   for (const pack of lcpData) {
-    officialContentSelect[pack.id] = true;
+    rowSelectionTracker[pack.id] = {
+      checked: pack.availableVersion >= pack.currentVersion,
+      selectable: Boolean(pack.availableVersion),
+    };
   }
+
   function toggleSelectAllOfficial() {
     for (const pack of lcpData) {
-      officialContentSelect[pack.id] = !selectAllOfficial;
+      if (!rowSelectionTracker[pack.id].selectable) continue;
+      rowSelectionTracker[pack.id].checked = !selectAllRows;
     }
   }
 
@@ -28,7 +32,7 @@
     website: "https://massif-press.itch.io/",
   };
   function generateAggregateSummary() {
-    const selected = lcpData.filter(p => officialContentSelect[p.id]);
+    const selected = lcpData.filter(p => rowSelectionTracker[p.id]);
     const totalContent: ContentSummary = selected.reduce(
       (acc, lcp) => {
         if (!lcp.cp?.data) return acc;
@@ -74,7 +78,6 @@
 
   let hoveredRow: string | null = null;
   function onMouseenterRow(id: string) {
-    console.log("enter", id);
     hoveredRow = id;
     const rowLcp = lcpData.find(p => p.id === id);
     if (!rowLcp || !rowLcp.cp || !rowLcp.cp.data) {
@@ -88,7 +91,6 @@
   function onMouseleaveRow(id: string) {
     setTimeout(() => {
       if (hoveredRow === id) {
-        console.log("== leave", id);
         hoveredRow = null;
         dispatch("lcpHovered", null);
       }
@@ -106,7 +108,7 @@
           class="header content-checkbox"
           name="select-all"
           type="checkbox"
-          bind:checked={selectAllOfficial}
+          bind:checked={selectAllRows}
           on:click={toggleSelectAllOfficial}
           on:change={() => debounceAggregateSummary()}
         />
@@ -124,13 +126,17 @@
         on:mouseenter={() => onMouseenterRow(pack.id)}
         on:mouseleave={() => onMouseleaveRow(pack.id)}
       >
-        <input
-          class="content-checkbox"
-          name={pack.id}
-          type="checkbox"
-          bind:checked={officialContentSelect[pack.id]}
-          on:change={() => debounceAggregateSummary()}
-        />
+        {#if rowSelectionTracker[pack.id].selectable}
+          <input
+            class="content-checkbox"
+            name={pack.id}
+            type="checkbox"
+            bind:checked={rowSelectionTracker[pack.id].checked}
+            on:change={() => debounceAggregateSummary()}
+          />
+        {:else}
+          <span class="content-checkbox" />
+        {/if}
         <span class="content-label">
           {pack.title}
         </span>
@@ -146,12 +152,14 @@
         </span>
         <span class="curr-version">{pack.currentVersion}</span>
         <span class="content-icon">
-          {#if pack.currentVersion === pack.availableVersion}
-            <i class="fas fa-check" />
-          {:else if officialContentSelect[pack.id]}
-            <i class="fas fa-arrow-right" />
-          {:else}
-            <i class="fas fa-lock" />
+          {#if pack.availableVersion}
+            {#if pack.currentVersion === pack.availableVersion}
+              <i class="fas fa-check" />
+            {:else if rowSelectionTracker[pack.id]}
+              <i class="fas fa-arrow-right" />
+            {:else}
+              <i class="fas fa-lock" />
+            {/if}
           {/if}
         </span>
         <span class="avail-version">{pack.availableVersion}</span>
@@ -195,8 +203,8 @@
       align-content: center;
     }
 
-    .content-checkbox {
-    }
+    // .content-checkbox {
+    // }
 
     .content-label {
       margin: 5px 10px;
