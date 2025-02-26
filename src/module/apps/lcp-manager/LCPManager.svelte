@@ -28,6 +28,11 @@
 
   // TODO: bring in LCP management logic from the old LCP manager
   function lcpLoaded(event: CustomEvent<{ cp: IContentPack; contentSummary: ContentSummary }>) {
+    if (!event.detail) {
+      contentPack = null;
+      fileContentSummary = null;
+      return;
+    }
     fileContentSummary = event.detail.contentSummary;
     contentPack = event.detail.cp;
     console.log(`${lp} LCP loaded`, contentPack, fileContentSummary);
