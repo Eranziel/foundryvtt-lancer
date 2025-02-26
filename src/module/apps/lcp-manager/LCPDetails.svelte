@@ -1,80 +1,108 @@
 <script lang="ts">
   import { createEventDispatcher } from "svelte";
+  import { fade } from "svelte/transition";
   import { ContentSummary } from "./massif-content-map";
 
   const dispatch = createEventDispatcher();
 
   export let contentSummary: ContentSummary | null = null;
   export let temporarySummary: boolean;
-  $: title = contentSummary
-    ? `${contentSummary.name}${contentSummary.version ? ` v${contentSummary.version}` : ""}`
+  let oldContentSummary: ContentSummary | null = null;
+  let fadeDirection: "fade-in" | "fade-out" = "fade-in";
+  $: title = oldContentSummary
+    ? `${oldContentSummary.name}${oldContentSummary.version ? ` v${oldContentSummary.version}` : ""}`
     : "No LCP Selected";
+  $: {
+    if (contentSummary !== oldContentSummary) {
+      fadeDirection = "fade-out";
+      setTimeout(() => {
+        oldContentSummary = contentSummary;
+        fadeDirection = "fade-in";
+      }, 100); // Time must match transition duration
+    }
+  }
 </script>
 
 <!-- Show LCP name, art, and contents -->
 <div class="lcp-details card clipped" style="{$$restProps.style} grid-column: 1/3;">
-  <div class="lancer-header lancer-primary major">{title}</div>
+  <div class="lancer-header lancer-primary major"><span class={`transition ${fadeDirection}`}>{title}</span></div>
   <!-- New LCP Manifest -->
-  {#if contentSummary}
-    {#if contentSummary.website}
-      <a href={contentSummary.website} class="medium" style="margin: 5px;">by {contentSummary.author}</a>
-    {:else}
-      <div class="major" style="margin: 10px;">by {contentSummary.author}</div>
-    {/if}
-    <div class="flexrow" style="margin: 5px;">
-      <div class="lcp-description minor desc-text">
-        {#if contentSummary.image_url}
-          <img
-            class="manifest-image"
-            src={contentSummary.image_url}
-            title={contentSummary.name}
-            alt={contentSummary.name}
-          />
-        {/if}
-        {#if contentSummary.description}
-          {@html contentSummary.description}
-        {/if}
-        <p>Contents:</p>
-        <ul>
-          {#if contentSummary.skills}
-            <li><span class="lcp-manifest-badge">{contentSummary.skills}</span> pilot skills</li>
-          {/if}
-          {#if contentSummary.talents}
-            <li><span class="lcp-manifest-badge">{contentSummary.talents}</span> talents</li>
-          {/if}
-          {#if contentSummary.gear}
-            <li><span class="lcp-manifest-badge">{contentSummary.gear}</span> pilot gear</li>
-          {/if}
-          {#if contentSummary.frames}
-            <li><span class="lcp-manifest-badge">{contentSummary.frames}</span> frames</li>
-          {/if}
-          {#if contentSummary.systems}
-            <li><span class="lcp-manifest-badge">{contentSummary.systems}</span> mech systems</li>
-          {/if}
-          {#if contentSummary.weapons}
-            <li><span class="lcp-manifest-badge">{contentSummary.weapons}</span> mech weapons</li>
-          {/if}
-          {#if contentSummary.mods}
-            <li><span class="lcp-manifest-badge">{contentSummary.mods}</span> weapon mods</li>
-          {/if}
-          {#if contentSummary.npc_classes}
-            <li><span class="lcp-manifest-badge">{contentSummary.npc_classes}</span> NPC classes</li>
-          {/if}
-          {#if contentSummary.npc_templates}
-            <li><span class="lcp-manifest-badge">{contentSummary.npc_templates}</span> NPC templates</li>
-          {/if}
-          {#if contentSummary.npc_features}
-            <li><span class="lcp-manifest-badge">{contentSummary.npc_features}</span> NPC features</li>
-          {/if}
-        </ul>
+  {#if oldContentSummary}
+    <div transition:fade>
+      {#if oldContentSummary.website}
+        <a href={oldContentSummary.website} class={`medium transition ${fadeDirection}`} style="margin: 5px;"
+          >by {oldContentSummary.author}</a
+        >
+      {:else}
+        <div class={`medium transition ${fadeDirection}`} style="margin: 10px;">by {oldContentSummary.author}</div>
+      {/if}
+      <div class="flexrow" style="margin: 5px;">
+        <div class="lcp-description minor desc-text">
+          <div class={`transition ${fadeDirection}`}>
+            {#if oldContentSummary.image_url}
+              <img
+                class={`manifest-image transition ${fadeDirection}`}
+                src={oldContentSummary.image_url}
+                title={oldContentSummary.name}
+                alt={oldContentSummary.name}
+              />
+            {/if}
+            {#if oldContentSummary.description}
+              {@html oldContentSummary.description}
+            {/if}
+            <p>Contents:</p>
+            <ul>
+              {#if oldContentSummary.bonds}
+                <li><span class="lcp-manifest-badge">{oldContentSummary.bonds}</span> bonds</li>
+              {/if}
+              {#if oldContentSummary.skills}
+                <li><span class="lcp-manifest-badge">{oldContentSummary.skills}</span> pilot skills</li>
+              {/if}
+              {#if oldContentSummary.talents}
+                <li><span class="lcp-manifest-badge">{oldContentSummary.talents}</span> talents</li>
+              {/if}
+              {#if oldContentSummary.gear}
+                <li><span class="lcp-manifest-badge">{oldContentSummary.gear}</span> pilot gear</li>
+              {/if}
+              {#if oldContentSummary.frames}
+                <li><span class="lcp-manifest-badge">{oldContentSummary.frames}</span> frames</li>
+              {/if}
+              {#if oldContentSummary.systems}
+                <li><span class="lcp-manifest-badge">{oldContentSummary.systems}</span> mech systems</li>
+              {/if}
+              {#if oldContentSummary.weapons}
+                <li><span class="lcp-manifest-badge">{oldContentSummary.weapons}</span> mech weapons</li>
+              {/if}
+              {#if oldContentSummary.mods}
+                <li><span class="lcp-manifest-badge">{oldContentSummary.mods}</span> weapon mods</li>
+              {/if}
+              {#if oldContentSummary.npc_classes}
+                <li><span class="lcp-manifest-badge">{oldContentSummary.npc_classes}</span> NPC classes</li>
+              {/if}
+              {#if oldContentSummary.npc_templates}
+                <li><span class="lcp-manifest-badge">{oldContentSummary.npc_templates}</span> NPC templates</li>
+              {/if}
+              {#if oldContentSummary.npc_features}
+                <li><span class="lcp-manifest-badge">{oldContentSummary.npc_features}</span> NPC features</li>
+              {/if}
+            </ul>
+          </div>
+        </div>
       </div>
+      {#if !temporarySummary && !oldContentSummary.aggregate}
+        <button
+          transition:fade
+          type="button"
+          class="lcp-import"
+          title="Import LCP"
+          tabindex="-1"
+          on:click={() => dispatch("importLcp")}
+        >
+          <i class="cci cci-content-manager i--m" />
+          Import LCP
+        </button>
+      {/if}
     </div>
-    {#if !temporarySummary && !contentSummary.aggregate}
-      <button type="button" class="lcp-import" title="Import LCP" tabindex="-1" on:click={() => dispatch("importLcp")}>
-        <i class="cci cci-content-manager i--m" />
-        Import LCP
-      </button>
-    {/if}
   {/if}
 </div>
 
@@ -84,6 +112,16 @@
     margin-right: 0;
   }
 
+  .transition {
+    &.fade-in {
+      opacity: 1;
+      transition: opacity ease-in 0.333s;
+    }
+    &.fade-out {
+      opacity: 0;
+      transition: opacity ease-in 0.1s;
+    }
+  }
   .manifest-image {
     max-width: 400px;
     max-height: 400px;

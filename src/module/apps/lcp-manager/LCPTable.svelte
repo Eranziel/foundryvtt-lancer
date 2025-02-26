@@ -28,7 +28,7 @@
   const aggregateManifest = {
     author: "Massif Press",
     name: "Selected Official Sources",
-    description: "Total items selected for import/update:",
+    description: "",
     website: "https://massif-press.itch.io/",
   };
   function generateAggregateSummary() {
@@ -187,6 +187,7 @@
     title="Import/Update Selected"
     tabindex="-1"
     style="margin: 5px 10px"
+    disabled={!lcpData.some(p => rowSelectionTracker[p.id].checked)}
     on:click={dispatchLcpsToInstall}
   >
     <i class="cci cci-content-manager i--m" />
@@ -199,6 +200,7 @@
     title="Clear Compendium Data"
     tabindex="-1"
     style="margin: 5px 10px"
+    disabled={!lcpData.some(p => p.currentVersion !== "--")}
     on:click={clearCompendiums}
   >
     <i class="fas fa-trash i--s" />

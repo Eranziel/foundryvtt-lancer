@@ -1,6 +1,7 @@
 <svelte:options accessors={true} />
 
 <script lang="ts">
+  import { fade } from "svelte/transition";
   import { LANCER } from "../../config";
   import LcpDetails from "./LCPDetails.svelte";
   import LcpSelector from "./LCPSelector.svelte";
@@ -145,11 +146,13 @@
   <div class="lcp-manager__progress-area">
     <div class="lcp-manager__progress">
       {#if importing || importingMany}
-        <span class="monospace">{`${importingLcp?.manifest.name} v${importingLcp?.manifest.version}`} {barWidth}%</span>
-        <div class="lcp-manager__progress-bar" style="width: {barWidth}%" />
+        <span transition:fade class="monospace"
+          >{`${importingLcp?.manifest.name} v${importingLcp?.manifest.version}`} {barWidth}%</span
+        >
+        <div transition:fade class="lcp-manager__progress-bar" style="width: {barWidth}%" />
       {/if}
       {#if importingMany}
-        <div class="lcp-manager__progress-bar" style="width: {secondBarWidth}%" />
+        <div transition:fade class="lcp-manager__progress-bar" style="width: {secondBarWidth}%" />
       {/if}
     </div>
   </div>
