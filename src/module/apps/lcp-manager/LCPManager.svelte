@@ -7,7 +7,7 @@
   import { ContentSummary, LCPData } from "./massif-content-map";
   import LCPTable from "./LCPTable.svelte";
   import { IContentPack, IContentPackManifest } from "../../util/unpacking/packed-types";
-  import { importCP } from "../../comp-builder";
+  import { clearCompendiumData, importCP } from "../../comp-builder";
   import { LCPIndex } from "./lcp-manager-2";
   const lp = LANCER.log_prefix;
 
@@ -93,6 +93,11 @@
     let percent = Math.ceil((done / outOf) * 100);
     SceneNavigation.displayProgressBar({ label: "Importing...", pct: percent });
   }
+
+  async function clearCompendiums() {
+    await clearCompendiumData();
+    // TODO: Rebuild the LCP list
+  }
 </script>
 
 <div class="lcp-manager flexrow">
@@ -103,6 +108,7 @@
     on:lcpHovered={lcpHovered}
     on:aggregateSummary={event => (aggregateContentSummary = event.detail)}
     on:installManyLcps={event => importManyLcps(event.detail)}
+    on:clearCompendiums={clearCompendiums}
   />
   <div class="lcp-manager__detail-column">
     <!-- TODO: event when selecting a new manifest -->

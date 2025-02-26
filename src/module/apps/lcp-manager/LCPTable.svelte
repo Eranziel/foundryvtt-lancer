@@ -190,6 +190,18 @@
     <i class="cci cci-content-manager i--m" />
     Import/Update Selected
   </button>
+
+  <button
+    type="button"
+    class="lcp-bulk-import"
+    title="Clear Compendium Data"
+    tabindex="-1"
+    style="margin: 5px 10px"
+    on:click={clearCompendiums}
+  >
+    <i class="fas fa-trash i--s" />
+    Clear Compendium Data
+  </button>
 </div>
 
 <style lang="scss">
