@@ -13,7 +13,7 @@
   let rowSelectionTracker: Record<string, { checked: boolean; selectable: boolean }> = {};
   for (const pack of lcpData) {
     rowSelectionTracker[pack.id] = {
-      checked: pack.availableVersion >= pack.currentVersion,
+      checked: pack.availableVersion > pack.currentVersion,
       selectable: Boolean(pack.availableVersion),
     };
   }
@@ -32,7 +32,7 @@
     website: "https://massif-press.itch.io/",
   };
   function generateAggregateSummary() {
-    const selected = lcpData.filter(p => rowSelectionTracker[p.id]);
+    const selected = lcpData.filter(p => rowSelectionTracker[p.id].checked);
     const totalContent: ContentSummary = selected.reduce(
       (acc, lcp) => {
         if (!lcp.cp?.data) return acc;
@@ -96,11 +96,23 @@
       }
     }, 50);
   }
+
+  function dispatchLcpsToInstall() {
+    const selected = lcpData.filter(p => rowSelectionTracker[p.id].checked);
+    dispatch(
+      "installManyLcps",
+      selected.map(p => p.cp)
+    );
+  }
+
+  function clearCompendiums() {
+    dispatch("clearCompendiums");
+  }
 </script>
 
 <div class="lcp-table flexcol" style={$$restProps.style}>
-  <div class="lancer-header clipped-top lancer-primary major">Official LANCER Content</div>
-  <!-- Official LCPs -->
+  <div class="lancer-header clipped-top lancer-primary major">Available and Installed Content</div>
+  <!-- LCP table. Official content is listed first, manually installed content at the end. -->
   <div id="massif-data">
     <div class="row header">
       <div>
@@ -167,7 +179,14 @@
     {/each}
   </div>
 
-  <button type="button" class="lcp-bulk-import" title="Import/Update Selected" tabindex="-1" style="margin: 5px 10px">
+  <button
+    type="button"
+    class="lcp-bulk-import"
+    title="Import/Update Selected"
+    tabindex="-1"
+    style="margin: 5px 10px"
+    on:click={dispatchLcpsToInstall}
+  >
     <i class="cci cci-content-manager i--m" />
     Import/Update Selected
   </button>

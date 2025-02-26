@@ -139,6 +139,9 @@ export async function getOfficialData(lcpIndex?: LCPIndex): Promise<LCPData[]> {
     url: "https://massif-press.itch.io/corebook-pdf-free",
     cp: getBaseContentPack(),
   };
+  // HACK: base content pack should build this in itself
+  coreData.cp.manifest.version = coreData.availableVersion;
+
   // TODO: add link to npc data?
 
   const massifContent = await massifContentPacks();

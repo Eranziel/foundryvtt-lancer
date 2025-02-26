@@ -4,7 +4,7 @@
   import { LANCER } from "../../config";
   import LcpDetails from "./LCPDetails.svelte";
   import LcpSelector from "./LCPSelector.svelte";
-  import { ContentSummary, getOfficialData, LCPData, mergeOfficialDataAndLcpIndex } from "./massif-content-map";
+  import { ContentSummary, LCPData } from "./massif-content-map";
   import LCPTable from "./LCPTable.svelte";
   import { IContentPack, IContentPackManifest } from "../../util/unpacking/packed-types";
   import { importCP } from "../../comp-builder";
@@ -41,25 +41,28 @@
     // lcpData = mergeOfficialDataAndLcpIndex(officialData, lcpIndex);
   }
 
-  async function importLcp() {
-    if (!contentPack) return;
-    console.log(`${lp} Importing LCP`, contentPack);
-
+  function _canImportLcp(): boolean {
     if (!game.user?.isGM) {
       ui.notifications!.warn(`Only GM can modify the Compendiums.`);
-      return;
+      return false;
     }
     if (!coreVersion) {
       ui.notifications!.warn(`Please update the Core data before importing LCPs.`);
-      return;
+      return false;
     }
-    if (!contentPack) {
-      ui.notifications!.error(`You must select an LCP file before importing.`);
-      return;
-    }
+    return true;
+  }
 
-    const cp = contentPack;
-    const manifest = contentPack.manifest;
+  async function importLcp(cp: IContentPack | null = null) {
+    if (!cp) cp = contentPack;
+    if (!cp) {
+      ui.notifications.error(`You must select an LCP file before importing.`);
+      return;
+    }
+    if (!_canImportLcp()) return;
+    console.log(`${lp} Importing LCP`, cp);
+
+    const manifest = cp.manifest;
     if (!cp || !manifest) return;
 
     ui.notifications!.info(`Starting import of ${cp.manifest.name} v${cp.manifest.version}. Please wait.`);
@@ -70,7 +73,20 @@
     updateProgressBar(1, 1);
     console.log(`${lp} Import of ${cp.manifest.name} v${cp.manifest.version} complete.`);
 
-    updateLcpIndex(manifest);
+    if (cp.manifest.name === "Lancer Core Book Data" && cp.manifest.author === "Massif Press") {
+      await game.settings.set(game.system.id, LANCER.setting_core_data, cp.manifest.version);
+    } else {
+      updateLcpIndex(manifest);
+    }
+  }
+
+  async function importManyLcps(lcps: IContentPack[]) {
+    if (!_canImportLcp()) return;
+
+    for (const cp of lcps) {
+      if (!cp) continue;
+      await importLcp(cp);
+    }
   }
 
   function updateProgressBar(done: number, outOf: number) {
@@ -86,11 +102,17 @@
     style="grid-area: massif-content"
     on:lcpHovered={lcpHovered}
     on:aggregateSummary={event => (aggregateContentSummary = event.detail)}
+    on:installManyLcps={event => importManyLcps(event.detail)}
   />
   <div class="lcp-manager__detail-column">
     <!-- TODO: event when selecting a new manifest -->
     <LcpSelector {contentPack} style="grid-area: lcp-selector" on:lcpLoaded={lcpLoaded} />
-    <LcpDetails {contentSummary} {temporarySummary} style="grid-area: lcp-details" on:importLcp={importLcp} />
+    <LcpDetails
+      {contentSummary}
+      {temporarySummary}
+      style="grid-area: lcp-details"
+      on:importLcp={event => importLcp()}
+    />
   </div>
 </div>
 
