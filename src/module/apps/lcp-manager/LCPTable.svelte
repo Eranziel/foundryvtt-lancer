@@ -36,6 +36,7 @@
     const totalContent: ContentSummary = selected.reduce(
       (acc, lcp) => {
         if (!lcp.cp?.data) return acc;
+        acc.bonds += lcp.cp.data.bonds?.length ?? 0;
         acc.skills += lcp.cp.data.skills?.length ?? 0;
         acc.talents += lcp.cp.data.talents?.length ?? 0;
         acc.gear += lcp.cp.data.pilotGear?.length ?? 0;
@@ -51,6 +52,7 @@
       {
         aggregate: true,
         ...aggregateManifest,
+        bonds: 0,
         skills: 0,
         talents: 0,
         gear: 0,

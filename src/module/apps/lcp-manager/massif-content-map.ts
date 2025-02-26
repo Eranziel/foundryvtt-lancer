@@ -19,6 +19,7 @@ export type LCPData = {
 export type ContentSummary = IContentPackManifest & {
   aggregate?: boolean;
   item_prefix: string;
+  bonds: number;
   skills: number;
   talents: number;
   gear: number;
@@ -36,6 +37,7 @@ export function generateLcpSummary(cp: any): ContentSummary {
   return {
     ...cp.manifest,
     item_prefix: "",
+    bonds: data.bonds?.length ?? 0,
     skills: data.skills?.length ?? 0,
     talents: data.talents?.length ?? 0,
     gear: data.pilotGear?.length ?? 0,
