@@ -10,6 +10,7 @@ $document-types: join($item-types, $actor-types);
 /* Settings Layer*/
 :root {
   --main-font-family: Helvetica, Arial, sans-serif;
+  --monospace-font-family: Consolas, "Courier New", Courier, monaco, monospace;
 
   /* Sheet theme vars */
   --primary-color: #991e2a;
@@ -1503,13 +1504,13 @@ input[type="text"].lancer-input {
 }
 
 .monospace {
-  font-family: Consolas, "Courier New", Courier, monaco, monospace;
+  font-family: var(--monospace-font-family);
 }
 
 .desc-text {
   text-align: left;
   padding: 0.5em;
-  font-family: Consolas, "Courier New", Courier, monaco, monospace;
+  font-family: var(--monospace-font-family);
 
   border: 1px solid #999;
   border-radius: 5px;
@@ -1551,7 +1552,7 @@ input[type="text"].lancer-input {
 /* Start of HORUS glitchy styles used in lancer-data */
 code {
   padding: 4px 12px 4px 12px;
-  font-family: monospace, monospace;
+  font-family: var(--monospace-font-family);
 }
 
 code.horus {
