@@ -49,8 +49,7 @@ command: >-
   const startingNumber = 1;
 
   //permissionLevel - This sets the default permission level of the scan entry
-  (from CONST.DOCUMENT_OWNERSHIP_LEVELS, use NONE, LIMITED, OBSERVER, or
-  OWNER).
+  (from CONST.DOCUMENT_OWNERSHIP_LEVELS, use NONE, LIMITED, OBSERVER, or OWNER).
 
   const permissionLevel = CONST.DOCUMENT_OWNERSHIP_LEVELS.OWNER;
 
@@ -375,10 +374,10 @@ command: >-
       scanEntry = game.journal.getName(scanName);
       let scanPage = scanEntry.pages.getName(scanName);
       await scanPage.update({
-          _id: matchingJournalEntries[0]._id,
-          text: {
-              content: scanContent,
-          },
+        _id: matchingJournalEntries[0]._id,
+        text: {
+          content: scanContent,
+        },
       });
     } else {
       console.log("Creating a new scan");
@@ -388,13 +387,13 @@ command: >-
       );
       const scanName = nameTemplate + scanCount + ` - ` + actor.name;
       let scanPage = new JournalEntryPage({
-          name: scanName,
-          type: "text",
-          text: { content: scanContent},
+        name: scanName,
+        type: "text",
+        text: { content: scanContent },
       });
       scanEntry = await JournalEntry.create({
-          folder: journalFolder.id,
-          name: scanName,
+        folder: journalFolder.id,
+        name: scanName,
       });
       scanEntry.createEmbeddedDocuments("JournalEntryPage", [scanPage]);
     }
@@ -413,8 +412,10 @@ ownership:
 _stats:
   systemId: lancer
   systemVersion: 2.1.5
-  coreVersion: '11.315'
+  coreVersion: '12.331'
   createdTime: null
-  modifiedTime: 1720304546588
-  lastModifiedBy: VTqqjv3vCWDxBIi5
+  modifiedTime: 1740552081051
+  lastModifiedBy: Ol18KgPyh9PbrR3Z
+  compendiumSource: null
+  duplicateSource: null
 _key: '!macros!z0pdvwE0FitMzwRJ'
