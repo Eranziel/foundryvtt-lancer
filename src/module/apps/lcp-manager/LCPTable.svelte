@@ -33,6 +33,8 @@
   };
   function generateAggregateSummary() {
     const selected = lcpData.filter(p => rowSelectionTracker[p.id].checked);
+    if (!selected.length) return null;
+    if (selected.length === 1) return generateLcpSummary(selected[0].cp);
     const totalContent: ContentSummary = selected.reduce(
       (acc, lcp) => {
         if (!lcp.cp?.data) return acc;
