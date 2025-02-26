@@ -80,7 +80,7 @@ async function massifContentPacks() {
       id: "long-rim",
       pkg: await import("@massif/long-rim-data/package.json"),
       manifest: await import("@massif/long-rim-data/lib/lcp_manifest.json"),
-      // @ts-expect-error
+      // @ts-expect-error Help welcome!
       cpData: (await import("@massif/long-rim-data")) as IContentPack["data"],
     },
     {

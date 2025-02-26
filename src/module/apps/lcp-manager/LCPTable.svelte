@@ -227,8 +227,11 @@
     .row {
       display: grid;
       position: relative;
-      grid-template-columns: 3em 2fr 2fr auto 1fr 3em 1fr;
+      grid-template-columns: 2.5em 2fr 2fr 2.5em 1fr 3em 1fr;
 
+      &:not(.header):nth-of-type(odd) {
+        background-color: var(--darken-2);
+      }
       &:not(.header):hover {
         background-color: var(--darken-1);
       }
