@@ -1,5 +1,8 @@
 <script lang="ts">
+  import { createEventDispatcher } from "svelte";
   import { ContentSummary } from "./massif-content-map";
+
+  const dispatch = createEventDispatcher();
 
   export let contentSummary: ContentSummary | null = null;
   export let temporarySummary: boolean;
@@ -67,7 +70,7 @@
       </div>
     </div>
     {#if !temporarySummary && !contentSummary.aggregate}
-      <button type="button" class="lcp-import" title="Import LCP" tabindex="-1">
+      <button type="button" class="lcp-import" title="Import LCP" tabindex="-1" on:click={() => dispatch("importLcp")}>
         <i class="cci cci-content-manager i--m" />
         Import LCP
       </button>

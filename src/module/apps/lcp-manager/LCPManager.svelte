@@ -4,9 +4,11 @@
   import { LANCER } from "../../config";
   import LcpDetails from "./LCPDetails.svelte";
   import LcpSelector from "./LCPSelector.svelte";
-  import { ContentSummary, LCPData } from "./massif-content-map";
+  import { ContentSummary, getOfficialData, LCPData, mergeOfficialDataAndLcpIndex } from "./massif-content-map";
   import LCPTable from "./LCPTable.svelte";
-  import { IContentPack } from "../../util/unpacking/packed-types";
+  import { IContentPack, IContentPackManifest } from "../../util/unpacking/packed-types";
+  import { importCP } from "../../comp-builder";
+  import { LCPIndex } from "./lcp-manager-2";
   const lp = LANCER.log_prefix;
 
   export let lcpData: LCPData[];
@@ -17,6 +19,7 @@
 
   $: temporarySummary = hoveredContentSummary !== null;
   $: contentSummary = hoveredContentSummary ?? fileContentSummary ?? aggregateContentSummary;
+  $: coreVersion = lcpData.find(lcp => lcp.id === "core")?.currentVersion;
 
   // TODO: bring in LCP management logic from the old LCP manager
   function lcpLoaded(event: CustomEvent<{ cp: IContentPack; contentSummary: ContentSummary }>) {
@@ -27,7 +30,52 @@
 
   function lcpHovered(event: CustomEvent<ContentSummary>) {
     hoveredContentSummary = event.detail;
-    console.log(`${lp} LCP hovered`, hoveredContentSummary);
+  }
+
+  async function updateLcpIndex(manifest: IContentPackManifest) {
+    const lcpIndex = new LCPIndex(game.settings.get(game.system.id, LANCER.setting_lcps).index);
+    lcpIndex.updateManifest(manifest);
+    await game.settings.set(game.system.id, LANCER.setting_lcps, lcpIndex);
+    // TODO: Rebuild the LCP list
+    // const officialData = await getOfficialData();
+    // lcpData = mergeOfficialDataAndLcpIndex(officialData, lcpIndex);
+  }
+
+  async function importLcp() {
+    if (!contentPack) return;
+    console.log(`${lp} Importing LCP`, contentPack);
+
+    if (!game.user?.isGM) {
+      ui.notifications!.warn(`Only GM can modify the Compendiums.`);
+      return;
+    }
+    if (!coreVersion) {
+      ui.notifications!.warn(`Please update the Core data before importing LCPs.`);
+      return;
+    }
+    if (!contentPack) {
+      ui.notifications!.error(`You must select an LCP file before importing.`);
+      return;
+    }
+
+    const cp = contentPack;
+    const manifest = contentPack.manifest;
+    if (!cp || !manifest) return;
+
+    ui.notifications!.info(`Starting import of ${cp.manifest.name} v${cp.manifest.version}. Please wait.`);
+    updateProgressBar(0, 1);
+    console.log(`${lp} Starting import of ${cp.manifest.name} v${cp.manifest.version}.`);
+    console.log(`${lp} Parsed content pack:`, cp);
+    await importCP(cp, (x, y) => updateProgressBar(x, y));
+    updateProgressBar(1, 1);
+    console.log(`${lp} Import of ${cp.manifest.name} v${cp.manifest.version} complete.`);
+
+    updateLcpIndex(manifest);
+  }
+
+  function updateProgressBar(done: number, outOf: number) {
+    let percent = Math.ceil((done / outOf) * 100);
+    SceneNavigation.displayProgressBar({ label: "Importing...", pct: percent });
   }
 </script>
 
@@ -42,7 +90,7 @@
   <div class="lcp-manager__detail-column">
     <!-- TODO: event when selecting a new manifest -->
     <LcpSelector {contentPack} style="grid-area: lcp-selector" on:lcpLoaded={lcpLoaded} />
-    <LcpDetails {contentSummary} {temporarySummary} style="grid-area: lcp-details" />
+    <LcpDetails {contentSummary} {temporarySummary} style="grid-area: lcp-details" on:importLcp={importLcp} />
   </div>
 </div>
 

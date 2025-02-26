@@ -1,5 +1,5 @@
 import { LANCER } from "../../config";
-import { IContentPack, IContentPackManifest } from "../../util/unpacking/packed-types";
+import { IContentPackManifest } from "../../util/unpacking/packed-types";
 import { getOfficialData, LCPData, mergeOfficialDataAndLcpIndex } from "./massif-content-map";
 
 const lp = LANCER.log_prefix;
@@ -42,7 +42,8 @@ export function addLCPManager2(app: Application, html: any) {
   }
 }
 
-class LCPIndex {
+// TODO: deprecate and remove LCPIndex
+export class LCPIndex {
   index: IContentPackManifest[];
 
   constructor(index: IContentPackManifest[] | null) {
@@ -97,19 +98,8 @@ class LCPManager2 extends Application {
     if (!this.officialData.length) {
       this.officialData = await getOfficialData(this.lcpIndex);
     }
-
-    const indexData: LCPData[] = this.lcpIndex.index
-      // Filter out any LCPs that are in the index and in the official data
-      .filter(lcp => !this.officialData.find(odLcp => lcp.name === odLcp.title && lcp.author && odLcp.author))
-      .map(lcp => ({
-        ...lcp,
-        title: lcp.name,
-        id: lcp.item_prefix || lcp.name.replace(/\s/g, "-").toLowerCase(),
-        availableVersion: "",
-        currentVersion: lcp.version,
-      }));
     const data = {
-      lcpData: [...this.officialData, ...indexData],
+      lcpData: mergeOfficialDataAndLcpIndex(this.officialData, this.lcpIndex),
     };
     return data;
   }
