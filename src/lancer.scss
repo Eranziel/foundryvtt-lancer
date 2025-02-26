@@ -2562,6 +2562,13 @@ a.activation-chip > i.mdi {
     box-shadow: none;
   }
 
+  &:disabled {
+    cursor: not-allowed;
+    text-shadow: none;
+    box-shadow: none;
+    filter: brightness(0.7);
+  }
+
   // TODO: make all chat buttons tighter. Needs alignment
   // work in other styles/chat cards.
   .chat-message .lancer-damage-button-group & {
