@@ -350,6 +350,7 @@ export type SynergyLocation =
   | "any" // Acts as a wildcard
   | "active_effects"
   | "rest"
+  | "core_power"
   | "weapon"
   | "system"
   | "deployable"
@@ -385,11 +386,13 @@ export type SynergyLocation =
   | "systems"
   | "engineering"
   | "brace"
-  | "cascade";
+  | "cascade"
+  | "pilot_weapon";
 export const AllSynergyLocations = [
   "any", // Acts as a wildcard
   "active_effects",
   "rest",
+  "core_power",
   "weapon",
   "system",
   "deployable",
@@ -426,6 +429,7 @@ export const AllSynergyLocations = [
   "engineering",
   "brace",
   "cascade",
+  "pilot_weapon",
 ];
 
 export enum DeployableType {
