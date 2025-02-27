@@ -1,7 +1,6 @@
 import { LANCER } from "../../config";
 import { getBaseContentPack } from "../../util/lcp-parser";
 import { IContentPack, IContentPackManifest } from "../../util/unpacking/packed-types";
-import { data as LongRimData } from "../../util/lcp/long-rim-types";
 import { LCPIndex } from "../lcp-manager";
 
 // TODO: rename this file so it's about generic LCP helper logic
