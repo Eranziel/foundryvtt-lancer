@@ -1,5 +1,5 @@
 import { LANCER } from "../../config";
-import { getBaseContentPack } from "../../util/lcp-parser";
+import { getBaseContentPack } from "../../util/lcps";
 import { IContentPack, IContentPackManifest } from "../../util/unpacking/packed-types";
 import { LCPIndex } from "../lcp-manager";
 

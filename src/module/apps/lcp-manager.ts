@@ -2,7 +2,7 @@ import { LANCER } from "../config";
 const lp = LANCER.log_prefix;
 import { importCP, clearCompendiumData, setAllLock } from "../comp-builder";
 import { IContentPack, IContentPackManifest } from "../util/unpacking/packed-types";
-import { getBaseContentPack, parseContentPack } from "../util/lcp-parser";
+import { getBaseContentPack, parseContentPack } from "../util/lcps";
 import * as lancerDataPackage from "@massif/lancer-data/package.json";
 import * as longRimPackage from "../../../node_modules/@massif/long-rim-data/package.json";
 import * as wallflowerPackage from "../../../node_modules/@massif/wallflower-data/package.json";
