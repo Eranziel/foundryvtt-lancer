@@ -1,8 +1,16 @@
 import { LancerActor, LancerNPC } from "../actor/lancer-actor";
 import { EntryType } from "../enums";
-import { LancerFRAME, LancerMECH_WEAPON, LancerNPC_CLASS, LancerNPC_FEATURE, LancerSTATUS } from "../item/lancer-item";
+import {
+  LancerFRAME,
+  LancerItem,
+  LancerMECH_WEAPON,
+  LancerNPC_CLASS,
+  LancerNPC_FEATURE,
+  LancerSTATUS,
+} from "../item/lancer-item";
 import { BonusData } from "../models/bits/bonus";
 import { SystemData, SystemTemplates } from "../system-template";
+import { rollEvalSync } from "../util/misc";
 import { AE_MODE_APPEND_JSON, LancerActiveEffect, LancerEffectTarget } from "./lancer-active-effect";
 
 const FRAME_STAT_PRIORITY = 10; // Also handles npc classes
@@ -460,7 +468,9 @@ export function npcFeatureOverrideEffects(feature: LancerNPC_FEATURE) {
 }
 
 // Converts a single bonus to a single active effect
-export function convertBonus(origin: string, name: string, bonus: BonusData) {
+export function convertBonus(item: LancerItem, name: string, bonus: BonusData) {
+  const uuid = item.uuid;
+  const owner = item.actor;
   // Separate logic for "restricted" bonuses
   if (bonus.lid == "damage" || bonus.lid == "range") {
     return {
@@ -482,7 +492,7 @@ export function convertBonus(origin: string, name: string, bonus: BonusData) {
       ],
       transfer: true,
       disabled: false,
-      origin: origin,
+      origin: uuid,
     };
   } else {
     // ui.notifications?.warn("Bonus restrictions have no effect");
@@ -495,7 +505,21 @@ export function convertBonus(origin: string, name: string, bonus: BonusData) {
   // However, if one or the other is set, we do tweak our AE mode as a halfhearted compatibility attempt
   let mode = bonus.replace || bonus.overwrite ? CONST.ACTIVE_EFFECT_MODES.OVERRIDE : CONST.ACTIVE_EFFECT_MODES.ADD;
   let priority = bonus.replace || bonus.overwrite ? 50 : BONUS_STAT_PRIORITY;
+  // Attempt to replace special keys in bonus values. Supported keys are {ll} and {grit}. These
+  // require the item to belong to either a pilot or an active mech.
   let value = bonus.val;
+  if (value.includes("{ll}")) {
+    const ll = `${owner?.is_pilot() || owner?.is_mech() ? owner.system.level : 0}`;
+    value = value.replace("{ll}", ll);
+  }
+  if (value.includes("{grit}")) {
+    const grit = `${owner?.is_pilot() || owner?.is_mech() ? owner.system.grit : 0}`;
+    value = value.replace("{grit}", grit);
+  }
+  // Convert formulas to a single value
+  if (value.includes("-") || value.includes("+")) {
+    value = `${rollEvalSync(value)}`;
+  }
 
   // First try to infer the target type.
   switch (bonus.lid) {
@@ -704,7 +728,7 @@ export function convertBonus(origin: string, name: string, bonus: BonusData) {
       changes.push({ mode, value, priority, key: "system.speed" });
       break;
     default:
-      console.warn(`Bonus of type ${bonus.lid} not yet supported. Please fix or remove it. Source: ${origin}`);
+      console.warn(`Bonus of type ${bonus.lid} not yet supported. Please fix or remove it. Source: ${uuid}`);
       return null; // This effect is unsupported
   }
   // Return a normal bonus
@@ -719,7 +743,7 @@ export function convertBonus(origin: string, name: string, bonus: BonusData) {
     changes,
     transfer: true,
     disabled: false,
-    origin: origin,
+    origin: uuid,
   };
 }
 
