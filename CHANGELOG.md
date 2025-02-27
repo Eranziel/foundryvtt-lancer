@@ -1,5 +1,11 @@
 # 2.6.0 (2025-02-16)
 
+## Bug Fixes
+
+- #823 - Fix a bug causing Emperors to have "NaN" max hp.
+
+# 2.6.0 (2025-02-16)
+
 ## Features
 
 - #650 - v12 Support! This release brings support for Foundry v12 and drops support for Foundry v11. Huge thanks to @BoltsJ for doing the heavy lifting!
