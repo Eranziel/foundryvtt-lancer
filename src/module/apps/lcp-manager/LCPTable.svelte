@@ -1,6 +1,6 @@
 <script lang="ts">
   import { createEventDispatcher, onMount } from "svelte";
-  import { ContentSummary, generateLcpSummary, LCPData } from "./massif-content-map";
+  import { ContentSummary, generateLcpSummary, LCPData } from "../../util/lcps";
 
   const dispatch = createEventDispatcher();
 

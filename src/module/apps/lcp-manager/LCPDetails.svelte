@@ -1,7 +1,7 @@
 <script lang="ts">
   import { createEventDispatcher } from "svelte";
   import { fade } from "svelte/transition";
-  import { ContentSummary } from "./massif-content-map";
+  import { ContentSummary } from "../../util/lcps";
 
   const dispatch = createEventDispatcher();
 

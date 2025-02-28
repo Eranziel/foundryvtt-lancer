@@ -5,7 +5,7 @@
   import { LANCER } from "../../config";
   import LcpDetails from "./LCPDetails.svelte";
   import LcpSelector from "./LCPSelector.svelte";
-  import { ContentSummary, LCPData } from "./massif-content-map";
+  import { ContentSummary, LCPData } from "../../util/lcps";
   import LCPTable from "./LCPTable.svelte";
   import { IContentPack, IContentPackManifest } from "../../util/unpacking/packed-types";
   import { clearCompendiumData, importCP } from "../../comp-builder";

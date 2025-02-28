@@ -1,6 +1,6 @@
 import { LANCER } from "../../config";
 import { IContentPackManifest } from "../../util/unpacking/packed-types";
-import { getOfficialData, LCPData, mergeOfficialDataAndLcpIndex } from "./massif-content-map";
+import { getOfficialData, LCPData, mergeOfficialDataAndLcpIndex } from "../../util/lcps";
 
 const lp = LANCER.log_prefix;
 
@@ -61,9 +61,6 @@ export class LCPIndex {
   updateManifest(manifest: IContentPackManifest) {
     for (let i = 0; i < this.index.length; i++) {
       const m = this.index[i];
-      // if (Array.isArray(m) && m.length === 0) {
-      //   this.index.splice(i, 1);
-      // }
       if (m.name === manifest.name && m.author === manifest.author) {
         this.index.splice(i, 1);
         break;
