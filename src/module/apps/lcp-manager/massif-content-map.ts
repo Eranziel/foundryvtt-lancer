@@ -21,6 +21,7 @@ export type ContentSummary = IContentPackManifest & {
   bonds: number;
   skills: number;
   talents: number;
+  reserves: number;
   gear: number;
   frames: number;
   systems: number;
@@ -39,6 +40,7 @@ export function generateLcpSummary(cp: any): ContentSummary {
     bonds: data.bonds?.length ?? 0,
     skills: data.skills?.length ?? 0,
     talents: data.talents?.length ?? 0,
+    reserves: data.reserves?.length ?? 0,
     gear: data.pilotGear?.length ?? 0,
     frames: data.frames?.length ?? 0,
     systems: data.systems?.length ?? 0,

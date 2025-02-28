@@ -52,14 +52,17 @@
             {/if}
             <p>Contents:</p>
             <ul>
-              {#if oldContentSummary.bonds}
-                <li><span class="lcp-manifest-badge">{oldContentSummary.bonds}</span> bonds</li>
-              {/if}
               {#if oldContentSummary.skills}
                 <li><span class="lcp-manifest-badge">{oldContentSummary.skills}</span> pilot skills</li>
               {/if}
               {#if oldContentSummary.talents}
                 <li><span class="lcp-manifest-badge">{oldContentSummary.talents}</span> talents</li>
+              {/if}
+              {#if oldContentSummary.bonds}
+                <li><span class="lcp-manifest-badge">{oldContentSummary.bonds}</span> bonds</li>
+              {/if}
+              {#if oldContentSummary.reserves}
+                <li><span class="lcp-manifest-badge">{oldContentSummary.reserves}</span> reserves</li>
               {/if}
               {#if oldContentSummary.gear}
                 <li><span class="lcp-manifest-badge">{oldContentSummary.gear}</span> pilot gear</li>
