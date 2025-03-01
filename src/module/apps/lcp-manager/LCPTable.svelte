@@ -5,6 +5,7 @@
   const dispatch = createEventDispatcher();
 
   export let lcpData: LCPData[];
+  export let disabled: boolean = false;
   export const deselect = () => {
     for (const pack of lcpData) {
       rowSelectionTracker[pack.id].checked = false;
@@ -139,6 +140,7 @@
           class="header content-checkbox"
           name="select-all"
           type="checkbox"
+          {disabled}
           bind:checked={selectAllRows}
           on:click={toggleSelectAllOfficial}
           on:change={() => debounceAggregateSummary()}
@@ -162,6 +164,7 @@
             class="content-checkbox"
             name={pack.id}
             type="checkbox"
+            {disabled}
             bind:checked={rowSelectionTracker[pack.id].checked}
             on:change={() => debounceAggregateSummary()}
           />
@@ -204,7 +207,7 @@
     title="Import/Update Selected"
     tabindex="-1"
     style="margin: 5px 10px"
-    disabled={!lcpData.some(p => rowSelectionTracker[p.id].checked)}
+    disabled={disabled || !lcpData.some(p => rowSelectionTracker[p.id].checked)}
     on:click={dispatchLcpsToInstall}
   >
     <i class="cci cci-content-manager i--m" />
@@ -217,7 +220,7 @@
     title="Clear Compendium Data"
     tabindex="-1"
     style="margin: 5px 10px"
-    disabled={!lcpData.some(p => p.currentVersion !== "--")}
+    disabled={disabled || !lcpData.some(p => p.currentVersion !== "--")}
     on:click={clearCompendiums}
   >
     <i class="fas fa-trash i--s" />

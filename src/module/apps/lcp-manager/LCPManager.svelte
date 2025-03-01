@@ -19,12 +19,14 @@
   let aggregateContentSummary: ContentSummary | null = null;
   let importingLcp: IContentPack | null = null;
   let importing: boolean = false;
-  let barWidth: number = 0;
   let importingMany: boolean = false;
+  let clearing: boolean = false;
+  let barWidth: number = 0;
   let secondBarWidth: number = 0;
   let deselectTable: () => void;
   let deselectFiles: () => void;
 
+  $: busy = importing || importingMany || clearing;
   $: contentSummary = hoveredContentSummary ?? fileContentSummary ?? aggregateContentSummary;
   $: showImportButton = hoveredContentSummary !== null && !contentSummary?.aggregate;
   $: coreVersion = lcpData.find(lcp => lcp.id === "core")?.currentVersion;
@@ -132,11 +134,13 @@
   }
 
   async function clearCompendiums() {
+    clearing = true;
     await clearCompendiumData();
     const officialData = await getOfficialData();
     const index = new LCPIndex(game.settings.get(game.system.id, LANCER.setting_lcps).index);
     lcpData = mergeOfficialDataAndLcpIndex(officialData, index);
     deselectFiles();
+    clearing = false;
   }
 </script>
 
@@ -144,6 +148,7 @@
   <div class="flexrow" style="flex: 1 1;">
     <LCPTable
       {lcpData}
+      bind:disabled={busy}
       bind:deselect={deselectTable}
       on:lcpHovered={lcpHovered}
       on:aggregateSummary={updateAggregateSummary}
@@ -151,8 +156,14 @@
       on:clearCompendiums={clearCompendiums}
     />
     <div class="lcp-manager__detail-column">
-      <LcpSelector style="grid-area: lcp-selector" bind:deselect={deselectFiles} on:lcpLoaded={lcpLoaded} />
+      <LcpSelector
+        style="grid-area: lcp-selector"
+        bind:disabled={busy}
+        bind:deselect={deselectFiles}
+        on:lcpLoaded={lcpLoaded}
+      />
       <LcpDetails
+        bind:disabled={busy}
         {contentSummary}
         {showImportButton}
         style="grid-area: lcp-details"

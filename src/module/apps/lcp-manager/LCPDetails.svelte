@@ -7,6 +7,8 @@
 
   export let contentSummary: ContentSummary | null = null;
   export let showImportButton: boolean;
+  export let disabled: boolean = false;
+
   let oldContentSummary: ContentSummary | null = null;
   let fadeDirection: "fade-in" | "fade-out" = "fade-in";
   $: title = oldContentSummary
@@ -99,6 +101,7 @@
           class="lcp-import"
           title="Import LCP"
           tabindex="-1"
+          {disabled}
           on:click={() => dispatch("importLcp")}
         >
           <i class="cci cci-content-manager i--m" />

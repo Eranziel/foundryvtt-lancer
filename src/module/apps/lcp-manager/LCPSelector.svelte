@@ -4,6 +4,7 @@
 
   const dispatch = createEventDispatcher();
 
+  export let disabled: boolean = false;
   export const deselect = () => {
     selectedFiles = null;
     filename = null;
@@ -52,6 +53,7 @@
         name="lcp-up"
         class="lcp-up"
         accept=".lcp"
+        {disabled}
         bind:files={selectedFiles}
         on:change={fileSelected}
       />
@@ -61,7 +63,7 @@
         {filename || "Choose file..."}</span
       >
     </label>
-    <button class="lancer-button deselect-file" on:click={deselect}>
+    <button class="lancer-button deselect-file" {disabled} on:click={deselect}>
       <i class="fas fa-broom" /> Unselect File
     </button>
   </div>
@@ -93,6 +95,17 @@
     margin: 0;
     // Hide the actual file input
     opacity: 0;
+
+    &:disabled {
+      cursor: not-allowed;
+    }
+    &:disabled + .file-custom,
+    &:disabled + .file-custom__button {
+      cursor: not-allowed;
+      text-shadow: none;
+      box-shadow: none;
+      filter: brightness(0.7);
+    }
   }
   .file-custom {
     position: absolute;
