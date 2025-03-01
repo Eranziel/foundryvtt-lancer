@@ -4,6 +4,14 @@
 
   const dispatch = createEventDispatcher();
 
+  export const deselect = () => {
+    selectedFiles = null;
+    filename = null;
+    console.log("Deselecting file");
+    dispatch("lcpLoaded", null);
+  };
+
+  let selectedFiles: FileList | null = null;
   let filename: string | null = null;
   let contentSummary: ContentSummary | null = null;
 
@@ -44,6 +52,7 @@
         name="lcp-up"
         class="lcp-up"
         accept=".lcp"
+        bind:files={selectedFiles}
         on:change={fileSelected}
       />
 
@@ -52,13 +61,7 @@
         {filename || "Choose file..."}</span
       >
     </label>
-    <button
-      class="lancer-button unselect-file"
-      on:click={() => {
-        filename = null;
-        dispatch("lcpLoaded", null);
-      }}
-    >
+    <button class="lancer-button deselect-file" on:click={deselect}>
       <i class="fas fa-broom" /> Unselect File
     </button>
   </div>
@@ -71,7 +74,7 @@
     justify-content: center;
     align-items: center;
   }
-  .unselect-file {
+  .deselect-file {
     margin: 0.25rem;
     flex: 1 1;
   }

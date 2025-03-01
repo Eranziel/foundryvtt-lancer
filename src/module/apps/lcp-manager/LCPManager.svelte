@@ -22,12 +22,13 @@
   let barWidth: number = 0;
   let importingMany: boolean = false;
   let secondBarWidth: number = 0;
+  let deselectTable: () => void;
+  let deselectFiles: () => void;
 
-  $: temporarySummary = hoveredContentSummary !== null;
   $: contentSummary = hoveredContentSummary ?? fileContentSummary ?? aggregateContentSummary;
+  $: showImportButton = hoveredContentSummary !== null && !contentSummary?.aggregate;
   $: coreVersion = lcpData.find(lcp => lcp.id === "core")?.currentVersion;
 
-  // TODO: bring in LCP management logic from the old LCP manager
   function lcpLoaded(event: CustomEvent<{ cp: IContentPack; contentSummary: ContentSummary }>) {
     if (!event.detail) {
       contentPack = null;
@@ -37,10 +38,18 @@
     fileContentSummary = event.detail.contentSummary;
     contentPack = event.detail.cp;
     console.log(`${lp} LCP loaded`, contentPack, fileContentSummary);
+    deselectTable();
   }
 
   function lcpHovered(event: CustomEvent<ContentSummary>) {
     hoveredContentSummary = event.detail;
+  }
+
+  function updateAggregateSummary(event: CustomEvent<ContentSummary>) {
+    aggregateContentSummary = event.detail;
+    contentPack = null;
+    fileContentSummary = null;
+    deselectFiles();
   }
 
   async function updateLcpIndex(manifest: IContentPackManifest) {
@@ -124,20 +133,19 @@
 
 <div class="lcp-manager">
   <div class="flexrow" style="flex: 1 1;">
-    <!-- TODO: event when clicking a package row to show details -->
     <LCPTable
       {lcpData}
+      bind:deselect={deselectTable}
       on:lcpHovered={lcpHovered}
-      on:aggregateSummary={event => (aggregateContentSummary = event.detail)}
+      on:aggregateSummary={updateAggregateSummary}
       on:installManyLcps={event => importManyLcps(event.detail)}
       on:clearCompendiums={clearCompendiums}
     />
     <div class="lcp-manager__detail-column">
-      <!-- TODO: event when selecting a new manifest -->
-      <LcpSelector {contentPack} style="grid-area: lcp-selector" on:lcpLoaded={lcpLoaded} />
+      <LcpSelector style="grid-area: lcp-selector" bind:deselect={deselectFiles} on:lcpLoaded={lcpLoaded} />
       <LcpDetails
         {contentSummary}
-        {temporarySummary}
+        {showImportButton}
         style="grid-area: lcp-details"
         on:importLcp={event => importLcp()}
       />

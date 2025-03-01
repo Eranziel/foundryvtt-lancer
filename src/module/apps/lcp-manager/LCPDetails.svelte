@@ -6,7 +6,7 @@
   const dispatch = createEventDispatcher();
 
   export let contentSummary: ContentSummary | null = null;
-  export let temporarySummary: boolean;
+  export let showImportButton: boolean;
   let oldContentSummary: ContentSummary | null = null;
   let fadeDirection: "fade-in" | "fade-out" = "fade-in";
   $: title = oldContentSummary
@@ -92,7 +92,7 @@
           </div>
         </div>
       </div>
-      {#if !temporarySummary && !oldContentSummary.aggregate}
+      {#if !showImportButton && !oldContentSummary.aggregate}
         <button
           transition:fade
           type="button"

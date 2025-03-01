@@ -5,6 +5,11 @@
   const dispatch = createEventDispatcher();
 
   export let lcpData: LCPData[];
+  export const deselect = () => {
+    for (const pack of lcpData) {
+      rowSelectionTracker[pack.id].checked = false;
+    }
+  };
 
   $: selectAllRows = Object.values(rowSelectionTracker).every(v => !v.selectable || v.checked);
 
@@ -34,7 +39,11 @@
   function generateAggregateSummary() {
     const selected = lcpData.filter(p => rowSelectionTracker[p.id].checked);
     if (!selected.length) return null;
-    if (selected.length === 1) return generateLcpSummary(selected[0].cp);
+    if (selected.length === 1) {
+      const summary = generateLcpSummary(selected[0].cp);
+      summary.aggregate = true;
+      return summary;
+    }
     const totalContent: ContentSummary = selected.reduce(
       (acc, lcp) => {
         if (!lcp.cp?.data) return acc;
