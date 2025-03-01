@@ -136,8 +136,8 @@ export function generateLcpSummary(cp: any): ContentSummary {
 }
 
 // Get the version from the npm package
-function getPackageVersion(pkg: { version: string }) {
-  return pkg.version;
+function getPackageVersion(manifest: IContentPackManifest) {
+  return manifest.version;
 }
 
 // Get the title from the LCP manifest
@@ -331,63 +331,60 @@ export async function getBaseContentPack(): Promise<LCPData> {
 }
 
 /**
- *
- * @returns An array
+ * Dynamically import the Massif content packs. This allows initial page load to be lighter when
+ * the user is not dealing with compendium management.
+ * @returns An array of objects, each containing the ID, manifest, and data for a content pack.
  */
-async function massifContentPacks(): Promise<
-  { id: string; pkg: object & { version: string }; manifest: IContentPackManifest; cpData: NpmLancerData }[]
-> {
+async function massifContentPacks(): Promise<{ id: string; manifest: IContentPackManifest; cpData: NpmLancerData }[]> {
   return [
     {
       id: "long-rim",
-      pkg: await import("@massif/long-rim-data/package.json"),
       manifest: await import("@massif/long-rim-data/lib/lcp_manifest.json"),
       // @ts-expect-error Help welcome!
       cpData: (await import("@massif/long-rim-data")) as NpmLancerData,
     },
     {
       id: "wallflower",
-      pkg: await import("@massif/wallflower-data/package.json"),
       manifest: await import("@massif/wallflower-data/lib/lcp_manifest.json"),
       // @ts-expect-error
       cpData: (await import("@massif/wallflower-data")) as NpmLancerData,
     },
     {
       id: "ktb",
-      pkg: await import("@massif/ktb-data/package.json"),
       manifest: await import("@massif/ktb-data/lib/lcp_manifest.json"),
       // @ts-expect-error
       cpData: (await import("@massif/ktb-data")) as NpmLancerData,
     },
     {
       id: "osr",
-      pkg: await import("@massif/osr-data/package.json"),
       manifest: await import("@massif/osr-data/lib/lcp_manifest.json"),
       // @ts-expect-error
       cpData: (await import("@massif/osr-data")) as NpmLancerData,
     },
     {
       id: "dustgrave",
-      pkg: await import("@massif/dustgrave-data/package.json"),
       manifest: await import("@massif/dustgrave-data/lib/lcp_manifest.json"),
       // @ts-expect-error
       cpData: (await import("@massif/dustgrave-data")) as NpmLancerData,
     },
     {
       id: "ssmr",
-      pkg: await import("@massif/ssmr-data/package.json"),
       manifest: await import("@massif/ssmr-data/lib/lcp_manifest.json"),
       // @ts-expect-error
       cpData: (await import("@massif/ssmr-data")) as NpmLancerData,
     },
     {
+      id: "ows",
+      manifest: await import("@massif/ows-data/lib/lcp_manifest.json"),
+      // @ts-expect-error
+      cpData: (await import("@massif/ows-data")) as NpmLancerData,
+    },
+    {
       id: "sotw",
-      pkg: await import("@massif/sotw-data/package.json"),
       manifest: await import("@massif/sotw-data/lib/lcp_manifest.json"),
       // @ts-expect-error
       cpData: (await import("@massif/sotw-data")) as NpmLancerData,
     },
-    // TODO: add winter scar
   ];
 }
 
@@ -404,13 +401,13 @@ export async function getOfficialData(lcpIndex?: LCPIndex): Promise<LCPData[]> {
     await Promise.all(
       massifContent.map(async content => {
         // Skip anything that's broken
-        if (!content.pkg || !content.manifest) return null;
+        if (!content.manifest || !content.cpData) return null;
 
         const lcpData: LCPData = {
           id: content.id,
           title: getTitle(content.manifest),
           author: getAuthor(content.manifest),
-          availableVersion: getPackageVersion(content.pkg),
+          availableVersion: getPackageVersion(content.manifest),
           currentVersion: lcpIndex ? getInstalledVersion(content.manifest, lcpIndex) : "--",
           url: getUrl(content.manifest),
           cp: convertNpmDataToContentPack(content.cpData, content.id, content.manifest),
