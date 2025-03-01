@@ -37,6 +37,11 @@
     }
   }
 
+  function toggleRow(packId: string) {
+    rowSelectionTracker[packId].checked = !rowSelectionTracker[packId].checked;
+    debounceAggregateSummary();
+  }
+
   const aggregateManifest = {
     author: "Massif Press",
     name: "Selected Official Sources",
@@ -57,6 +62,7 @@
         acc.bonds += lcp.cp.data.bonds?.length ?? 0;
         acc.skills += lcp.cp.data.skills?.length ?? 0;
         acc.talents += lcp.cp.data.talents?.length ?? 0;
+        acc.reserves += lcp.cp.data.reserves?.length ?? 0;
         acc.gear += lcp.cp.data.pilotGear?.length ?? 0;
         acc.frames += lcp.cp.data.frames?.length ?? 0;
         acc.systems += lcp.cp.data.systems?.length ?? 0;
@@ -73,6 +79,7 @@
         bonds: 0,
         skills: 0,
         talents: 0,
+        reserves: 0,
         gear: 0,
         frames: 0,
         systems: 0,
@@ -158,6 +165,8 @@
         class={`row${pack.availableVersion ? " has-data" : ""}`}
         on:mouseenter={() => onMouseenterRow(pack.id)}
         on:mouseleave={() => onMouseleaveRow(pack.id)}
+        on:click={() => toggleRow(pack.id)}
+        on:keypress={() => toggleRow(pack.id)}
       >
         {#if rowSelectionTracker[pack.id].selectable}
           <input
@@ -179,7 +188,7 @@
         </span>
         <span class="content-label">
           {#if pack.url}
-            <a href={pack.url} target="_blank" rel="noopener noreferrer">
+            <a href={pack.url} target="_blank" rel="noopener noreferrer" on:click={e => e.stopPropagation()}>
               <i class="fas fa-external-link-alt" />
             </a>
           {/if}
