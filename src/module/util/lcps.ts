@@ -1,8 +1,6 @@
 import JSZip, { JSZipObject } from "jszip";
 import { LANCER } from "../config";
 import { LCPIndex } from "../apps/lcp-manager/lcp-manager-2";
-// TODO: Don't use typed-lancerdata, or at least dynamically import it.
-import * as lancerData from "./typed-lancerdata";
 import {
   AnyPackedNpcFeatureData,
   IContentPack,
@@ -21,10 +19,60 @@ import {
   PackedTalentData,
   PackedWeaponModData,
   PackedReserveData,
+  PackedActionData,
+  PackedSitrepData,
+  PackedEnvironmentData,
 } from "./unpacking/packed-types";
 
 export const CORE_BREW_ID = "core";
 
+/**
+ * Type for Lancer data provided by npm packages. This includes the original lancer-data as
+ * well as all of the content packs since - Long Rim, Wallflower, KTB, etc.
+ */
+export type NpmLancerData = {
+  // Only lancer-data includes info, the rest use lcp_manifest instead
+  info?: {
+    name: string;
+    author: string;
+    version: string;
+    description: string;
+    website: string;
+    active: true;
+  };
+  // lancer-data doesn't include a manifest, has info instead
+  lcp_manifest?: IContentPackManifest;
+  glossary?: {
+    name: string;
+    description: string; // v-html
+  }[];
+  actions?: PackedActionData[];
+  // backgrounds?: PackedBackground[];
+  bonds?: PackedBondData[];
+  core_bonuses?: PackedCoreBonusData[];
+  environments?: PackedEnvironmentData[];
+  // factions?: PackedFactionData[];
+  frames?: PackedFrameData[];
+  // manufacturers?: PackedManufacturerData[];
+  mods?: PackedWeaponModData[];
+  npc_classes?: PackedNpcClassData[];
+  npc_features?: AnyPackedNpcFeatureData[];
+  npc_templates?: PackedNpcTemplateData[];
+  pilot_gear?: PackedPilotEquipmentData[];
+  reserves?: PackedReserveData[];
+  sitreps?: PackedSitrepData[];
+  skills?: PackedSkillData[];
+  statuses?: PackedStatusData[];
+  systems?: PackedMechSystemData[];
+  tags?: PackedTagTemplateData[];
+  talents?: PackedTalentData[];
+  weapons?: PackedMechWeaponData[];
+  // rules?: Rules[];
+};
+
+/**
+ * Data regarding an LCP, suitable for use in the LCP Manager app.
+ */
 export type LCPData = {
   id: string;
   title: string;
@@ -35,6 +83,9 @@ export type LCPData = {
   cp?: IContentPack;
 };
 
+/**
+ * Summary of an LCP's contents, for use in the LCP Manager app.
+ */
 export type ContentSummary = IContentPackManifest & {
   aggregate?: boolean;
   item_prefix: string;
@@ -89,10 +140,12 @@ function getPackageVersion(pkg: { version: string }) {
   return pkg.version;
 }
 
+// Get the title from the LCP manifest
 function getTitle(manifest: IContentPackManifest) {
   return manifest.name;
 }
 
+// Get the author from the LCP manifest
 function getAuthor(manifest: IContentPackManifest) {
   return manifest.author;
 }
@@ -143,11 +196,9 @@ export async function parseContentPack(binString: ArrayBuffer | string): Promise
       .replace(/[^A-Za-z0-9_]/g, "")
       .toLowerCase();
     if (manifest.item_prefix) {
-      // return `${manifest.item_prefix}__${type}_${sanitizedName}`;
-      // return `${manifest.item_prefix}__${sanitizedName}`;
+      return `${manifest.item_prefix}__${type}_${sanitizedName}`;
     }
-    return sanitizedName;
-    // return `${type}_${sanitizedName}`;
+    return `${type}__${sanitizedName}`;
   };
 
   function generateIDs<T extends { id: string; name: string }>(data: T[], dataPrefix?: string): T[] {
@@ -159,8 +210,6 @@ export async function parseContentPack(binString: ArrayBuffer | string): Promise
     return data;
   }
 
-  // const manufacturers = await getZipData<PackedManufacturerData>(zip, "manufacturers.json");
-  // const factions = await getZipData<PackedFactionData>(zip, "factions.json");
   const coreBonuses = generateIDs(await getZipData<PackedCoreBonusData>(zip, "core_bonuses.json"), "cb");
   const frames = generateIDs(await getZipData<PackedFrameData>(zip, "frames.json"), "mf");
   const weapons = generateIDs(await getZipData<PackedMechWeaponData>(zip, "weapons.json"), "mw");
@@ -170,7 +219,7 @@ export async function parseContentPack(binString: ArrayBuffer | string): Promise
   const skills = generateIDs(await getZipData<PackedSkillData>(zip, "skills.json"), "sk");
   const talents = generateIDs(await getZipData<PackedTalentData>(zip, "talents.json"), "t");
   const bonds = generateIDs(await getZipData<PackedBondData>(zip, "bonds.json"), "bond");
-  const reserves = generateIDs(await getZipData<PackedReserveData>(zip, "reserve.json"), "res");
+  const reserves = generateIDs(await getZipData<PackedReserveData>(zip, "reserve.json"), "reserve");
   const tags = generateIDs(await getZipData<PackedTagTemplateData>(zip, "tags.json"), "tg");
   const statuses = generateIDs(
     (await getZipData<PackedStatusData>(zip, "statuses.json")).map(status => ({
@@ -191,8 +240,6 @@ export async function parseContentPack(binString: ArrayBuffer | string): Promise
     active: false,
     manifest,
     data: {
-      // manufacturers,
-      // factions,
       coreBonuses,
       frames,
       weapons,
@@ -212,117 +259,146 @@ export async function parseContentPack(binString: ArrayBuffer | string): Promise
   };
 }
 
-// So we don't have to treat it separately
-export function getBaseContentPack(): IContentPack {
-  // lancerData.
+/**
+ * The key names that we expect in an IContentPack are slightly different than what we get from
+ * the npm packages. This function converts the npm package keys to the format we expect.
+ * It also removes any placeholder items (IDs starting with "missing_"), which Comp/Con uses for missing items.
+ * @param data The data from the npm package
+ * @param id An id string for the content pack
+ * @param manifest Optional manifest to use as a fallback if the npm package doesn't have one. Necessary
+ *   for the core book data, i.e. lancer-data.
+ * @returns Content pack object suitable for use in the LCP Manager app.
+ */
+function convertNpmDataToContentPack(data: NpmLancerData, id: string, manifest?: IContentPackManifest): IContentPack {
+  if (!data.lcp_manifest && !manifest) {
+    throw new Error("No manifest provided for content pack.");
+  }
+  // Filter function to remove the placeholders for missing items.
+  const removePlaceholders = (x: any) => !x.id || !x.id.startsWith("missing_");
   return {
+    id,
     active: true,
-    id: CORE_BREW_ID,
-    manifest: {
-      author: "Massif Press",
-      item_prefix: "", // Don't want one
-      name: "Lancer Core Book Data",
-      version: "1.X",
-    },
+    manifest: (data.lcp_manifest || manifest) as IContentPackManifest,
     data: {
-      // yeet all of the unresolved items
-      coreBonuses: lancerData.core_bonuses.filter(m => m.id != "missing_corebonus"),
-      // factions: lancerData.factions,
-      frames: lancerData.frames.filter(m => m.id != "missing_frame"),
-      // manufacturers: lancerData.manufacturers,
-      mods: lancerData.mods.filter(m => m.id != "missing_weaponmod"),
-      npcClasses: lancerData.npc_classes,
-      npcFeatures: lancerData.npc_features,
-      npcTemplates: lancerData.npc_templates,
-      pilotGear: lancerData.pilot_gear.filter(
-        m => !["missing_pilotweapon", "missing_pilotarmor", "missing_pilotgear"].includes(m.id)
-      ),
-      systems: lancerData.systems.filter(m => m.id != "missing_mechsystem"),
-      tags: lancerData.tags,
-      talents: lancerData.talents.filter(m => m.id != "missing_frame"),
-      weapons: lancerData.weapons.filter(m => m.id != "missing_mechweapon"),
-
-      environments: lancerData.environments,
-      reserves: lancerData.reserves,
-      sitreps: lancerData.sitreps,
-      skills: lancerData.skills,
-      statuses: lancerData.statuses,
+      coreBonuses: data.core_bonuses?.filter(removePlaceholders),
+      frames: data.frames?.filter(removePlaceholders),
+      weapons: data.weapons?.filter(removePlaceholders),
+      systems: data.systems?.filter(removePlaceholders),
+      mods: data.mods?.filter(removePlaceholders),
+      pilotGear: data.pilot_gear?.filter(removePlaceholders),
+      skills: data.skills?.filter(removePlaceholders),
+      talents: data.talents?.filter(removePlaceholders),
+      bonds: data.bonds?.filter(removePlaceholders),
+      reserves: data.reserves?.filter(removePlaceholders),
+      tags: data.tags?.filter(removePlaceholders),
+      statuses: data.statuses?.filter(removePlaceholders),
+      npcClasses: data.npc_classes?.filter(removePlaceholders),
+      npcFeatures: data.npc_features?.filter(removePlaceholders),
+      npcTemplates: data.npc_templates?.filter(removePlaceholders),
     },
   };
 }
 
-async function massifContentPacks() {
+/**
+ * The core book data is packaged slightly differently from the other content packs, so this
+ * function converts it to a consistent structure.
+ * @returns The base content pack for the Lancer Core Book, i.e. lancer-data.
+ */
+export async function getBaseContentPack(): Promise<LCPData> {
+  const lancerDataPackage = await import("@massif/lancer-data/package.json");
+  const lancerData = (await import("@massif/lancer-data")) as NpmLancerData;
+  const author = "Massif Press";
+  const name = "Lancer Core Book Data";
+  const version = lancerDataPackage.version;
+  const url = "https://massif-press.itch.io/corebook-pdf-free";
+  const manifest = {
+    author,
+    item_prefix: "", // Don't want one
+    name,
+    version,
+    website: url,
+    image_url: "https://img.itch.zone/aW1hZ2UvNDIyNjI3LzI1MDY2NTMuanBn/347x500/6cEGFF.jpg",
+  };
+  return {
+    id: CORE_BREW_ID,
+    title: name,
+    author,
+    availableVersion: version,
+    currentVersion: game.settings.get("lancer", LANCER.setting_core_data) || "--",
+    url,
+    cp: convertNpmDataToContentPack(lancerData, CORE_BREW_ID, manifest),
+  };
+}
+
+/**
+ *
+ * @returns An array
+ */
+async function massifContentPacks(): Promise<
+  { id: string; pkg: object & { version: string }; manifest: IContentPackManifest; cpData: NpmLancerData }[]
+> {
   return [
     {
       id: "long-rim",
       pkg: await import("@massif/long-rim-data/package.json"),
       manifest: await import("@massif/long-rim-data/lib/lcp_manifest.json"),
       // @ts-expect-error Help welcome!
-      cpData: (await import("@massif/long-rim-data")) as IContentPack["data"],
+      cpData: (await import("@massif/long-rim-data")) as NpmLancerData,
     },
     {
       id: "wallflower",
       pkg: await import("@massif/wallflower-data/package.json"),
       manifest: await import("@massif/wallflower-data/lib/lcp_manifest.json"),
       // @ts-expect-error
-      cpData: (await import("@massif/wallflower-data")) as IContentPack["data"],
+      cpData: (await import("@massif/wallflower-data")) as NpmLancerData,
     },
     {
       id: "ktb",
       pkg: await import("@massif/ktb-data/package.json"),
       manifest: await import("@massif/ktb-data/lib/lcp_manifest.json"),
       // @ts-expect-error
-      cpData: (await import("@massif/ktb-data")) as IContentPack["data"],
+      cpData: (await import("@massif/ktb-data")) as NpmLancerData,
     },
     {
       id: "osr",
       pkg: await import("@massif/osr-data/package.json"),
       manifest: await import("@massif/osr-data/lib/lcp_manifest.json"),
       // @ts-expect-error
-      cpData: (await import("@massif/osr-data")) as IContentPack["data"],
+      cpData: (await import("@massif/osr-data")) as NpmLancerData,
     },
     {
       id: "dustgrave",
       pkg: await import("@massif/dustgrave-data/package.json"),
       manifest: await import("@massif/dustgrave-data/lib/lcp_manifest.json"),
       // @ts-expect-error
-      cpData: (await import("@massif/dustgrave-data")) as IContentPack["data"],
+      cpData: (await import("@massif/dustgrave-data")) as NpmLancerData,
     },
     {
       id: "ssmr",
       pkg: await import("@massif/ssmr-data/package.json"),
       manifest: await import("@massif/ssmr-data/lib/lcp_manifest.json"),
       // @ts-expect-error
-      cpData: (await import("@massif/ssmr-data")) as IContentPack["data"],
+      cpData: (await import("@massif/ssmr-data")) as NpmLancerData,
     },
     {
       id: "sotw",
       pkg: await import("@massif/sotw-data/package.json"),
       manifest: await import("@massif/sotw-data/lib/lcp_manifest.json"),
       // @ts-expect-error
-      cpData: (await import("@massif/sotw-data")) as IContentPack["data"],
+      cpData: (await import("@massif/sotw-data")) as NpmLancerData,
     },
+    // TODO: add winter scar
   ];
 }
 
+/**
+ * Get all of the official data for Lancer, including the core book and all content packs.
+ * The objects in the final array are in the correct format for the LCP Manager app to consume.
+ * @param lcpIndex An optional LCP index. This is used to determine the installed version of each LCP.
+ * @returns An array of LCPData objects, one for each content pack.
+ */
 export async function getOfficialData(lcpIndex?: LCPIndex): Promise<LCPData[]> {
-  const lancerDataPackage = await import("@massif/lancer-data/package.json");
-
-  const coreContentPack = getBaseContentPack();
-  const coreData = {
-    id: coreContentPack.id,
-    title: coreContentPack.manifest.name,
-    author: "Massif Press",
-    availableVersion: lancerDataPackage.version as string,
-    currentVersion: game.settings.get("lancer", LANCER.setting_core_data) || "--",
-    url: "https://massif-press.itch.io/corebook-pdf-free",
-    cp: getBaseContentPack(),
-  };
-  // HACK: base content pack should build this in itself
-  coreData.cp.manifest.version = coreData.availableVersion;
-
-  // TODO: add link to npc data?
-
+  const coreData: LCPData = await getBaseContentPack();
   const massifContent = await massifContentPacks();
   const nonCoreContent: LCPData[] = (
     await Promise.all(
@@ -337,21 +413,22 @@ export async function getOfficialData(lcpIndex?: LCPIndex): Promise<LCPData[]> {
           availableVersion: getPackageVersion(content.pkg),
           currentVersion: lcpIndex ? getInstalledVersion(content.manifest, lcpIndex) : "--",
           url: getUrl(content.manifest),
-          cp: {
-            id: content.id,
-            active: true,
-            manifest: content.manifest,
-            data: content.cpData,
-          },
+          cp: convertNpmDataToContentPack(content.cpData, content.id, content.manifest),
         };
         return lcpData;
       })
     )
-  ).filter(c => c !== null);
+  ).filter(c => c !== null) as LCPData[]; // Don't know why this "as" is necessary, there won't be any nulls.
 
   return [coreData, ...nonCoreContent];
 }
 
+/**
+ * Merge the official data with the LCP index data, so that installed 3rd party LCPs are included in the result.
+ * @param officialData Array of official content packs
+ * @param lcpIndex Index of the currently installed content packs
+ * @returns An array of LCPData objects, one for each content pack, with the official data merged with the index data
+ */
 export function mergeOfficialDataAndLcpIndex(officialData: LCPData[], lcpIndex: LCPIndex): LCPData[] {
   const indexData: LCPData[] = lcpIndex.index
     // Filter out any LCPs that are in the index and in the official data

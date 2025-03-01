@@ -300,7 +300,7 @@ export async function updateCore(version: string, manager?: LCPManager) {
 
   console.log(`${lp} Updating Lancer Core data to v${version}`);
   try {
-    await importCP(getBaseContentPack(), progress_func);
+    // await importCP(getBaseContentPack(), progress_func);
   } catch (err) {
     console.error(err);
 
