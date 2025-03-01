@@ -16,11 +16,17 @@
   onMount(() => debounceAggregateSummary());
 
   let rowSelectionTracker: Record<string, { checked: boolean; selectable: boolean }> = {};
-  for (const pack of lcpData) {
-    rowSelectionTracker[pack.id] = {
-      checked: pack.availableVersion > pack.currentVersion,
-      selectable: Boolean(pack.availableVersion),
-    };
+  $: {
+    if (typeof lcpData !== "undefined") {
+      for (const pack of lcpData) {
+        if (!rowSelectionTracker[pack.id]) {
+          rowSelectionTracker[pack.id] = {
+            checked: pack.availableVersion > pack.currentVersion,
+            selectable: Boolean(pack.availableVersion),
+          };
+        }
+      }
+    }
   }
 
   function toggleSelectAllOfficial() {

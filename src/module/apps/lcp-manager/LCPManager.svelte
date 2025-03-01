@@ -5,7 +5,7 @@
   import { LANCER } from "../../config";
   import LcpDetails from "./LCPDetails.svelte";
   import LcpSelector from "./LCPSelector.svelte";
-  import { ContentSummary, LCPData } from "../../util/lcps";
+  import { ContentSummary, getOfficialData, LCPData, mergeOfficialDataAndLcpIndex } from "../../util/lcps";
   import LCPTable from "./LCPTable.svelte";
   import { IContentPack, IContentPackManifest } from "../../util/unpacking/packed-types";
   import { clearCompendiumData, importCP } from "../../comp-builder";
@@ -37,7 +37,6 @@
     }
     fileContentSummary = event.detail.contentSummary;
     contentPack = event.detail.cp;
-    console.log(`${lp} LCP loaded`, contentPack, fileContentSummary);
     deselectTable();
   }
 
@@ -56,9 +55,18 @@
     const lcpIndex = new LCPIndex(game.settings.get(game.system.id, LANCER.setting_lcps).index);
     lcpIndex.updateManifest(manifest);
     await game.settings.set(game.system.id, LANCER.setting_lcps, lcpIndex);
-    // TODO: Rebuild the LCP list
-    // const officialData = await getOfficialData();
-    // lcpData = mergeOfficialDataAndLcpIndex(officialData, lcpIndex);
+    const updatedLcp = lcpData.find(lcp => lcp.title === manifest.name && lcp.author === manifest.author);
+    if (updatedLcp) updatedLcp.currentVersion = manifest.version;
+    else
+      lcpData.push({
+        title: manifest.name,
+        author: manifest.author,
+        currentVersion: manifest.version,
+        availableVersion: "",
+        url: manifest.website,
+        id: manifest.item_prefix || manifest.name.replace(/\s/g, "-").toLowerCase(),
+      });
+    lcpData = [...lcpData];
   }
 
   function _canImportLcp(): boolean {
@@ -80,7 +88,6 @@
       return;
     }
     if (!_canImportLcp()) return;
-    console.log(`${lp} Importing LCP`, cp);
 
     const manifest = cp.manifest;
     if (!cp || !manifest) return;
@@ -102,9 +109,8 @@
 
     if (cp.manifest.name === "Lancer Core Book Data" && cp.manifest.author === "Massif Press") {
       await game.settings.set(game.system.id, LANCER.setting_core_data, cp.manifest.version);
-    } else {
-      updateLcpIndex(manifest);
     }
+    updateLcpIndex(manifest);
   }
 
   async function importManyLcps(lcps: IContentPack[]) {
@@ -127,7 +133,10 @@
 
   async function clearCompendiums() {
     await clearCompendiumData();
-    // TODO: Rebuild the LCP list
+    const officialData = await getOfficialData();
+    const index = new LCPIndex(game.settings.get(game.system.id, LANCER.setting_lcps).index);
+    lcpData = mergeOfficialDataAndLcpIndex(officialData, index);
+    deselectFiles();
   }
 </script>
 
