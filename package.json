@@ -55,6 +55,7 @@
     "@massif/lancer-data": "^3.1.7",
     "@massif/long-rim-data": "^1.2.2",
     "@massif/osr-data": "^1.2.0",
+    "@massif/ows-data": "^1.0.1",
     "@massif/sotw-data": "^1.0.2",
     "@massif/ssmr-data": "^1.7.0",
     "@massif/wallflower-data": "^2.1.0",
