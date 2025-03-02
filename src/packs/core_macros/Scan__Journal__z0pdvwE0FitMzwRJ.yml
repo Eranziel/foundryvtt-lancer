@@ -49,10 +49,9 @@ command: >-
   const startingNumber = 1;
 
   //permissionLevel - This sets the default permission level of the scan entry
-  (from CONST.DOCUMENT_PERMISSION_LEVELS, use NONE, LIMITED, OBSERVER, or
-  OWNER).
+  (from CONST.DOCUMENT_OWNERSHIP_LEVELS, use NONE, LIMITED, OBSERVER, or OWNER).
 
-  const permissionLevel = CONST.DOCUMENT_PERMISSION_LEVELS.OWNER;
+  const permissionLevel = CONST.DOCUMENT_OWNERSHIP_LEVELS.OWNER;
 
   //updateExisting - This macro will check if a scan journal entry exists and
   update it, set this to false if you want it to create a new scan journal
@@ -132,7 +131,8 @@ command: >-
           sc_desc = `Trigger: ${i.system.trigger}<br>${sc_desc}`;
         }
       }
-      let sc_entry = `<details><summary>${sc_name}</summary><p>${sc_desc}</p></details>`;
+      if (!sc_desc.startsWith("<p>") && !sc_desc.startsWith("<P>")) sc_desc = `<p>${sc_desc}</p>`;
+      let sc_entry = `<details><summary>${sc_name}</summary>${sc_desc}</details>`;
       sc_list += sc_entry;
     });
     return sc_list;
@@ -364,33 +364,38 @@ command: >-
     //This checks and updates the scan entry for the target(s) if a single scan entry exists in the specified folder for the target(s) along with the updateExisting flag.
     //If either are false then this creates a new scan entry.
 
-    let scanObj = {};
-
-    scanObj.folder = journalFolder.id;
-
     let scanEntry;
 
-    let matchingJournalEntries = journalFolder.contents.filter(e => e.name.match(actor.name));
+    let matchingJournalEntries = journalFolder.contents.filter(e => e.name.includes(actor.name));
 
     if (matchingJournalEntries.length == 1 && updateExisting === true) {
       console.log("Updating an existing scan");
-      scanObj.name = matchingJournalEntries[0].name;
-      scanObj._id = matchingJournalEntries[0]._id;
-      scanObj.text = {
-        content: scanContent,
-      };
-      scanEntry = game.journal.getName(scanObj.name);
-      let scanPage = scanEntry.pages.getName(scanObj.name);
-      await scanPage.update(scanObj);
+      const scanName = matchingJournalEntries[0].name;
+      scanEntry = game.journal.getName(scanName);
+      let scanPage = scanEntry.pages.getName(scanName);
+      await scanPage.update({
+        _id: matchingJournalEntries[0]._id,
+        text: {
+          content: scanContent,
+        },
+      });
     } else {
       console.log("Creating a new scan");
       let scanCount = zeroPad(
         journalFolder.contents.filter(e => e.name.startsWith(nameTemplate)).length + startingNumber,
         numberLength
       );
-      scanObj.name = nameTemplate + scanCount + ` - ` + actor.name;
-      scanObj.content = scanContent;
-      scanEntry = await JournalEntry.create(scanObj);
+      const scanName = nameTemplate + scanCount + ` - ` + actor.name;
+      let scanPage = new JournalEntryPage({
+        name: scanName,
+        type: "text",
+        text: { content: scanContent },
+      });
+      scanEntry = await JournalEntry.create({
+        folder: journalFolder.id,
+        name: scanName,
+      });
+      scanEntry.createEmbeddedDocuments("JournalEntryPage", [scanPage]);
     }
 
     scanEntry.update({ permission: { default: permissionLevel } });
@@ -407,8 +412,10 @@ ownership:
 _stats:
   systemId: lancer
   systemVersion: 2.1.5
-  coreVersion: '11.315'
+  coreVersion: '12.331'
   createdTime: null
-  modifiedTime: 1720304546588
-  lastModifiedBy: VTqqjv3vCWDxBIi5
+  modifiedTime: 1740552081051
+  lastModifiedBy: Ol18KgPyh9PbrR3Z
+  compendiumSource: null
+  duplicateSource: null
 _key: '!macros!z0pdvwE0FitMzwRJ'
