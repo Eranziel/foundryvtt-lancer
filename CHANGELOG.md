@@ -1,4 +1,14 @@
-# 2.6.0 (2025-02-26)
+# 2.6.2 (2025-03-01)
+
+## Bug Fixes
+
+- #806 - Automatically add flat bonus to attack HUD for "ranged_attack" and "tech_attack" bonus from items.
+- #809 - Add Deployable/Drone/Mine tags to items which have the matching kind of deployable, to match Comp/Con's similar functionality.
+- #822 - Fix "Scan (Journal)" macro for v12.
+- #821 - Add "bolster" and "flying" to all core icon sets for future integration with Lancer Ruler Integration.
+- Fix data model errors logged when importing the Shadow of the Wolf LCP.
+
+# 2.6.1 (2025-02-26)
 
 ## Bug Fixes
 
