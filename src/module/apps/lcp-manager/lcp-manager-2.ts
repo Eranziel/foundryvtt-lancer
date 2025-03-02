@@ -10,7 +10,7 @@ type LCPManagerData = {
   lcpData: LCPData[];
 };
 
-async function attachLCPManager(target: HTMLElement, initialData: Promise<LCPManagerData>) {
+async function attachLCPManager(target: HTMLElement, initialData: Promise<LCPManagerData | {}>) {
   if (!LCPManager) {
     LCPManager = (await import("./LCPManager.svelte")).default;
   }
@@ -91,14 +91,8 @@ class LCPManager2 extends Application {
     });
   }
 
-  async getData(): Promise<LCPManagerData> {
-    if (!this.officialData.length) {
-      this.officialData = await getOfficialData(this.lcpIndex);
-    }
-    const data = {
-      lcpData: mergeOfficialDataAndLcpIndex(this.officialData, this.lcpIndex),
-    };
-    return data;
+  async getData(): Promise<{}> {
+    return {};
   }
 
   activateListeners(html: JQuery<HTMLElement>) {

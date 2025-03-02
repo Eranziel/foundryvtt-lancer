@@ -3,6 +3,7 @@
 <script lang="ts">
   import { fade } from "svelte/transition";
   import { LANCER } from "../../config";
+  import Spinner from "../components/Spinner.svelte";
   import LcpDetails from "./LCPDetails.svelte";
   import LcpSelector from "./LCPSelector.svelte";
   import { ContentSummary, getOfficialData, LCPData, mergeOfficialDataAndLcpIndex } from "../../util/lcps";
@@ -12,7 +13,8 @@
   import { LCPIndex } from "./lcp-manager-2";
   const lp = LANCER.log_prefix;
 
-  export let lcpData: LCPData[];
+  let lcpData: LCPData[] = [];
+  let loading: boolean = true;
   let contentPack: IContentPack | null = null;
   let fileContentSummary: ContentSummary | null = null;
   let hoveredContentSummary: ContentSummary | null = null;
@@ -30,6 +32,15 @@
   $: contentSummary = hoveredContentSummary ?? fileContentSummary ?? aggregateContentSummary;
   $: showImportButton = hoveredContentSummary !== null && !contentSummary?.aggregate;
   $: coreVersion = lcpData.find(lcp => lcp.id === "core")?.currentVersion;
+
+  async function init() {
+    loading = true;
+    const officialData = await getOfficialData();
+    const index = new LCPIndex(game.settings.get(game.system.id, LANCER.setting_lcps).index);
+    lcpData = mergeOfficialDataAndLcpIndex(officialData, index);
+    loading = false;
+  }
+  init();
 
   function lcpLoaded(event: CustomEvent<{ cp: IContentPack; contentSummary: ContentSummary }>) {
     if (!event.detail) {
@@ -145,45 +156,51 @@
 </script>
 
 <div class="lcp-manager">
-  <div class="flexrow" style="flex: 1 1;">
-    <LCPTable
-      {lcpData}
-      bind:disabled={busy}
-      bind:deselect={deselectTable}
-      on:lcpHovered={lcpHovered}
-      on:aggregateSummary={updateAggregateSummary}
-      on:installManyLcps={event => importManyLcps(event.detail)}
-      on:clearCompendiums={clearCompendiums}
-    />
-    <div class="lcp-manager__detail-column">
-      <LcpSelector
-        style="grid-area: lcp-selector"
-        bind:disabled={busy}
-        bind:deselect={deselectFiles}
-        on:lcpLoaded={lcpLoaded}
-      />
-      <LcpDetails
-        bind:disabled={busy}
-        {contentSummary}
-        {showImportButton}
-        style="grid-area: lcp-details"
-        on:importLcp={event => importLcp()}
-      />
+  {#if loading}
+    <div class="flexrow" style="margin: 5em;">
+      <Spinner><span class="monospace">Loading data, please wait…</span></Spinner>
     </div>
-  </div>
-  <div class="lcp-manager__progress-area">
-    <div class="lcp-manager__progress">
-      {#if importing || importingMany}
-        <span transition:fade class="monospace"
-          >{`${importingLcp?.manifest.name} v${importingLcp?.manifest.version}`} {barWidth}%</span
-        >
-        <div transition:fade class="lcp-manager__progress-bar" style="width: {barWidth}%" />
-      {/if}
-      {#if importingMany}
-        <div transition:fade class="lcp-manager__progress-bar" style="width: {secondBarWidth}%" />
-      {/if}
+  {:else}
+    <div class="flexrow" style="flex: 1 1;">
+      <LCPTable
+        {lcpData}
+        bind:disabled={busy}
+        bind:deselect={deselectTable}
+        on:lcpHovered={lcpHovered}
+        on:aggregateSummary={updateAggregateSummary}
+        on:installManyLcps={event => importManyLcps(event.detail)}
+        on:clearCompendiums={clearCompendiums}
+      />
+      <div class="lcp-manager__detail-column">
+        <LcpSelector
+          style="grid-area: lcp-selector"
+          bind:disabled={busy}
+          bind:deselect={deselectFiles}
+          on:lcpLoaded={lcpLoaded}
+        />
+        <LcpDetails
+          bind:disabled={busy}
+          {contentSummary}
+          {showImportButton}
+          style="grid-area: lcp-details"
+          on:importLcp={event => importLcp()}
+        />
+      </div>
     </div>
-  </div>
+    <div class="lcp-manager__progress-area">
+      <div class="lcp-manager__progress">
+        {#if importing || importingMany}
+          <span transition:fade class="monospace"
+            >{`${importingLcp?.manifest.name} v${importingLcp?.manifest.version}`} {barWidth}%</span
+          >
+          <div transition:fade class="lcp-manager__progress-bar" style="width: {barWidth}%" />
+        {/if}
+        {#if importingMany}
+          <div transition:fade class="lcp-manager__progress-bar" style="width: {secondBarWidth}%" />
+        {/if}
+      </div>
+    </div>
+  {/if}
 </div>
 
 <style lang="scss">
