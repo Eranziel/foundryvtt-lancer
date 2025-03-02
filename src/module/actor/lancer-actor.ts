@@ -327,6 +327,7 @@ export class LancerActor extends Actor {
       variable: false,
     };
     sys.bonuses = {
+      flat: {},
       weapon_bonuses: [],
     };
     /*

@@ -123,6 +123,7 @@ export namespace SystemTemplates {
 
     // Set principally by active effects
     bonuses: {
+      flat: Record<string, number>;
       weapon_bonuses: BonusData[];
     };
     // TODO

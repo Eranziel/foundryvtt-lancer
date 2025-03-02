@@ -111,7 +111,7 @@ export async function initTechAttackData(
     }
     state.data.title = options?.title ?? "TECH ATTACK";
     state.data.attack_type = AttackType.Tech;
-    state.data.flat_bonus = 0;
+    state.data.flat_bonus = state.actor.system.bonuses.flat.tech_attack || 0;
     if (state.actor.is_pilot() || state.actor.is_mech()) {
       state.data.grit = state.actor.system.tech_attack;
     } else if (state.actor.is_npc()) {
