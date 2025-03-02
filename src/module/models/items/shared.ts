@@ -1,9 +1,12 @@
 import { CounterField } from "../bits/counter";
 import { ActionField } from "../bits/action";
 import { SynergyField } from "../bits/synergy";
-import { FakeBoundedNumberField, LIDField } from "../shared";
-import { TagField } from "../bits/tag";
+import { FakeBoundedNumberField, LIDField, UnpackContext } from "../shared";
+import { TagData, TagField, unpackTag } from "../bits/tag";
 import { BonusField } from "../bits/bonus";
+import { PackedDeployableData, PackedTagData } from "../../util/unpacking/packed-types";
+import { unpackDeployable } from "../actors/deployable";
+import { DeployableType } from "../../enums";
 
 const fields: any = foundry.data.fields;
 
@@ -53,4 +56,21 @@ export function migrateManufacturer(source: {
   reg_name?: string;
 }): string {
   return source?.fallback_lid || "GMS";
+}
+
+export function addDeployableTags(
+  packedDeployables: PackedDeployableData[] | undefined,
+  packedTags: PackedTagData[] | undefined,
+  context: UnpackContext
+): { deployables?: string[]; tags?: TagData[] } {
+  const deployableIds = packedDeployables?.map(d => unpackDeployable(d, context));
+  const deployables = context.createdDeployables.filter(d => d.system.lid && deployableIds?.includes(d.system.lid));
+  const tags = packedTags?.map(unpackTag);
+  if (deployables?.length) {
+    const depTypes = new Set(deployables.map(d => d.system.type));
+    if (depTypes.has(DeployableType.Deployable)) tags?.push({ lid: "tg_deployable", val: "0" });
+    if (depTypes.has(DeployableType.Drone)) tags?.push({ lid: "tg_drone", val: "0" });
+    if (depTypes.has(DeployableType.Mine)) tags?.push({ lid: "tg_mine", val: "0" });
+  }
+  return { deployables: deployableIds, tags };
 }

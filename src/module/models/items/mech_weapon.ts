@@ -10,9 +10,10 @@ import { CounterField, unpackCounter } from "../bits/counter";
 import { DamageField, unpackDamage } from "../bits/damage";
 import { RangeField, unpackRange } from "../bits/range";
 import { SynergyField, unpackSynergy } from "../bits/synergy";
-import { TagField, unpackTag } from "../bits/tag";
+import { TagData, TagField, unpackTag } from "../bits/tag";
 import { ControlledLengthArrayField, LIDField, LancerDataModel, UnpackContext } from "../shared";
 import {
+  addDeployableTags,
   migrateManufacturer,
   template_destructible,
   template_licensed,
@@ -95,21 +96,28 @@ export function unpackMechWeapon(
 } {
   let profiles: Array<Partial<SourceData.MechWeapon["profiles"][0]>> = [];
 
+  let { deployables: parentDeployables, tags: parentTags } = addDeployableTags(data.deployables, data.tags, context);
   // These can live at parent or profile level - extract them first
-  let parent_deployables = data.deployables?.map(d => unpackDeployable(d, context)) ?? [];
-  let parent_integrated = data.integrated ?? [];
-  let parent_tags = data.tags?.map(unpackTag) ?? [];
+  parentDeployables = parentDeployables ?? [];
+  parentTags = parentTags ?? [];
+  let parentIntegrated = data.integrated ?? [];
 
   // Then unpack profiles, using the entire structure as a pseudo-profile if no specific profiles are given
-  let has_profiles = (data.profiles?.length ?? 0) > 0;
-  for (let prof of has_profiles ? data.profiles : [data]) {
+  let hasProfiles = (data.profiles?.length ?? 0) > 0;
+  for (let prof of hasProfiles ? data.profiles : [data]) {
     // Unpack sub components iff not substituted in from parent
-    let prof_deployables = has_profiles ? prof.deployables?.map(d => unpackDeployable(d, context)) ?? [] : [];
-    let prof_integrated = has_profiles ? prof.deployables?.map(d => unpackDeployable(d, context)) ?? [] : [];
+    let profileDeployables: string[] = [];
+    let profileTags: TagData[] = [];
+    if (hasProfiles) {
+      const { deployables: newDeployables, tags: newTags } = addDeployableTags(prof.deployables, prof.tags, context);
+
+      profileDeployables = newDeployables ?? [];
+      profileTags = newTags ?? [];
+    }
 
     // Then just store them at parent level
-    parent_deployables.push(...prof_deployables);
-    parent_integrated.push(...prof_integrated);
+    parentDeployables.push(...profileDeployables);
+    parentIntegrated.push(...(prof.integrated ?? []));
 
     // Barrageable have a weird interaction.
     let barrageable: boolean;
@@ -132,7 +140,7 @@ export function unpackMechWeapon(
     }
 
     // The rest is left to the profile
-    let tags = has_profiles ? [...parent_tags, ...(prof.tags?.map(unpackTag) ?? [])] : parent_tags;
+    let tags = hasProfiles ? [...parentTags, ...profileTags] : parentTags;
     profiles.push({
       damage: prof.damage?.filter(d => d.val != "N/A").map(unpackDamage),
       range: prof.range?.filter(d => d.val != "N/A").map(unpackRange),
@@ -159,7 +167,7 @@ export function unpackMechWeapon(
     type: EntryType.MECH_WEAPON,
     system: {
       cascading: undefined,
-      deployables: data.deployables?.map(d => unpackDeployable(d, context)),
+      deployables: parentDeployables,
       destroyed: undefined,
       integrated: data.integrated,
       license: data.license_id || data.license,

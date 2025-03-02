@@ -9,9 +9,9 @@ import { ActionField, repairActivationType, unpackAction } from "../bits/action"
 import { BonusField, unpackBonus } from "../bits/bonus";
 import { CounterField, unpackCounter } from "../bits/counter";
 import { SynergyField, unpackSynergy } from "../bits/synergy";
-import { TagField, unpackTag } from "../bits/tag";
+import { TagField } from "../bits/tag";
 import { LIDField, LancerDataModel, UnpackContext } from "../shared";
-import { migrateManufacturer, template_licensed, template_universal_item } from "./shared";
+import { addDeployableTags, migrateManufacturer, template_licensed, template_universal_item } from "./shared";
 
 const fields = foundry.data.fields;
 
@@ -125,6 +125,7 @@ export function unpackFrame(
   let cs = data.core_system;
   const frameImg = frameToPath(data.name);
   let csActivation = repairActivationType(cs.activation ?? ActivationType.Quick);
+  const { deployables, tags } = addDeployableTags(cs.deployables, cs.tags, context);
   return {
     name: data.name,
     type: EntryType.FRAME,
@@ -139,7 +140,7 @@ export function unpackFrame(
         active_synergies: cs.active_synergies?.map(unpackSynergy),
         counters: cs.counters?.map(unpackCounter),
         deactivation: cs.deactivation,
-        deployables: cs.deployables?.map(d => unpackDeployable(d, context)),
+        deployables,
         description: cs.description,
         integrated: cs.integrated,
         name: cs.name,
@@ -148,7 +149,7 @@ export function unpackFrame(
         passive_effect: cs.passive_effect,
         passive_name: cs.passive_name,
         passive_synergies: cs.passive_synergies?.map(unpackSynergy),
-        tags: cs.tags?.map(unpackTag),
+        tags,
         use: restrict_enum(FrameEffectUse, FrameEffectUse.Unknown, cs.use),
       },
       description: data.description,
