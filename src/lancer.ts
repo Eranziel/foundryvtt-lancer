@@ -9,7 +9,6 @@
 
 // Import SCSS into our build
 import "./lancer.scss";
-import "./styles/lancer-app-v2.scss";
 
 // Import TypeScript modules
 import { LancerActor } from "./module/actor/lancer-actor";

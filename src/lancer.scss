@@ -146,6 +146,7 @@ $document-types: join($item-types, $actor-types);
   );
 }
 
+@import "styles/lancer-app-v2.scss";
 @import "styles/settings/lancer-initiative-config";
 @import "styles/combat/lancer-combat-tracker";
 
@@ -163,8 +164,9 @@ code {
 .window-app .window-content,
 #chat-controls div.roll-type-select select,
 #chat-form textarea,
-button {
-  background: #ededed; /* Set default backgrounds to a futuristic gundam light grey */
+button,
+.sheet.journal-entry .journal-entry-content {
+  background: #e1e1e1; /* Set default backgrounds to a futuristic gundam light grey */
   font-family: var(--main-font-family);
 }
 
