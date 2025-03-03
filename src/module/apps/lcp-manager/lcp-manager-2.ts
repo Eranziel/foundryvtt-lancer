@@ -1,26 +1,29 @@
 import { LANCER } from "../../config";
 import { IContentPackManifest } from "../../util/unpacking/packed-types";
-import { getOfficialData, LCPData, mergeOfficialDataAndLcpIndex } from "../../util/lcps";
+import type ApplicationV2 from "@league-of-foundry-developers/foundry-vtt-types/src/foundry/client-esm/applications/api/application.mjs";
+import { DeepPartial } from "@league-of-foundry-developers/foundry-vtt-types/src/types/utils.mjs";
+const { ApplicationV2: AppV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
 const lp = LANCER.log_prefix;
 
 let LCPManager: any;
 
-type LCPManagerData = {
-  lcpData: LCPData[];
-};
-
-async function attachLCPManager(target: HTMLElement, initialData: Promise<LCPManagerData | {}>) {
+async function mountLCPManager(target: HTMLElement) {
   if (!LCPManager) {
     LCPManager = (await import("./LCPManager.svelte")).default;
   }
   return new LCPManager({
     target,
-    props: await initialData,
+    props: {},
   });
 }
 
-export function addLCPManager2(app: Application, html: any) {
+/**
+ * Insert a button into the compendium sidebar for opening the LCP Manager.
+ * @param app Application to insert the button into. This should be the compendium sidebar!
+ * @param html The rendered HTML of the target application.
+ */
+export function addLCPManagerButton(app: Application, html: any) {
   if (app.options.id == "compendium") {
     const buttons = $(html).find(".header-actions");
     if (!buttons) {
@@ -70,35 +73,39 @@ export class LCPIndex {
   }
 }
 
-class LCPManager2 extends Application {
-  officialData: LCPData[];
-  lcpIndex: LCPIndex;
-
-  constructor(...args: any[]) {
-    super(...args);
-    this.lcpIndex = new LCPIndex(game.settings.get(game.system.id, LANCER.setting_lcps).index);
-    this.officialData = [];
+class LCPManager2 extends HandlebarsApplicationMixin(AppV2) {
+  constructor(options: Partial<ApplicationV2.Configuration> = {}) {
+    super(options);
   }
 
-  static get defaultOptions() {
-    return foundry.utils.mergeObject(super.defaultOptions, {
-      template: `systems/${game.system.id}/templates/lcp/lcp-manager-2.hbs`,
+  static DEFAULT_OPTIONS = {
+    id: "lcp-manager",
+    window: {
       title: "LANCER Compendium Manager",
-      id: "lcp-manager",
-      classes: ["lancer", "lcp-manager"],
+      icon: "cci cci-content-manager i--sm",
+      resizable: false,
+    },
+    classes: ["lancer", "lcp-manager"],
+    position: {
       width: 1200,
       height: 800,
-    });
-  }
+    },
+  };
 
-  async getData(): Promise<{}> {
+  static PARTS = {
+    lcpManager: {
+      template: `systems/lancer/templates/lcp/lcp-manager-2.hbs`,
+    },
+  };
+
+  async _prepareContext(_options: any): Promise<{}> {
     return {};
   }
 
-  activateListeners(html: JQuery<HTMLElement>) {
-    super.activateListeners(html);
-    const mount = html.closest(".lcp-manager-mount");
+  _onFirstRender(context: {}, options: DeepPartial<ApplicationV2.RenderOptions>): void {
+    super._onRender(context, options);
+    const mount = $(this.element).find(".svelte-app-mount");
     if (!mount || !mount.length) return;
-    attachLCPManager(mount[0], this.getData());
+    mountLCPManager(mount[0]);
   }
 }

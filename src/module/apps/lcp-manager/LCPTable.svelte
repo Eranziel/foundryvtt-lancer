@@ -144,7 +144,7 @@
     <div class="row header">
       <div>
         <input
-          class="header content-checkbox"
+          class="content-checkbox"
           name="select-all"
           type="checkbox"
           {disabled}
@@ -212,7 +212,7 @@
 
   <button
     type="button"
-    class="lcp-bulk-import"
+    class="lancer-button lcp-bulk-import"
     title="Import/Update Selected"
     tabindex="-1"
     style="margin: 5px 10px"
@@ -225,7 +225,7 @@
 
   <button
     type="button"
-    class="lcp-bulk-import"
+    class="lancer-button lcp-bulk-import"
     title="Clear Compendium Data"
     tabindex="-1"
     style="margin: 5px 10px"
@@ -255,12 +255,13 @@
       display: grid;
       position: relative;
       grid-template-columns: 2.5em 2fr 2fr 2.5em 1fr 3em 1fr;
+      cursor: pointer;
 
       &:not(.header):nth-of-type(odd) {
         background-color: var(--darken-2);
       }
       &:not(.header):hover {
-        background-color: var(--darken-1);
+        background-color: var(--lighten-1);
       }
     }
 

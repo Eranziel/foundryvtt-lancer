@@ -26,11 +26,11 @@
 </script>
 
 <!-- Show LCP name, art, and contents -->
-<div class="lcp-details card clipped" style="{$$restProps.style} grid-column: 1/3;">
+<div class="lcp-details card clipped">
   <div class="lancer-header lancer-primary major"><span class={`transition ${fadeDirection}`}>{title}</span></div>
   <!-- New LCP Manifest -->
   {#if oldContentSummary}
-    <div transition:fade>
+    <div class="lcp-details__content" transition:fade>
       {#if oldContentSummary.website}
         <a href={oldContentSummary.website} class={`medium transition ${fadeDirection}`} style="margin: 5px;"
           >by {oldContentSummary.author}</a
@@ -38,60 +38,58 @@
       {:else}
         <div class={`medium transition ${fadeDirection}`} style="margin: 10px;">by {oldContentSummary.author}</div>
       {/if}
-      <div class="flexrow" style="margin: 5px;">
-        <div class="lcp-description minor desc-text">
-          <div class={`transition ${fadeDirection}`}>
-            {#if oldContentSummary.image_url}
-              <img
-                class={`manifest-image transition ${fadeDirection}`}
-                src={oldContentSummary.image_url}
-                title={oldContentSummary.name}
-                alt={oldContentSummary.name}
-              />
+      <div class="lcp-description minor desc-text">
+        <div class={`transition ${fadeDirection}`}>
+          {#if oldContentSummary.image_url}
+            <img
+              class={`manifest-image transition ${fadeDirection}`}
+              src={oldContentSummary.image_url}
+              title={oldContentSummary.name}
+              alt={oldContentSummary.name}
+            />
+          {/if}
+          <span>Contents:</span>
+          <ul>
+            {#if oldContentSummary.skills}
+              <li><span class="lcp-manifest-badge">{oldContentSummary.skills}</span> pilot skills</li>
             {/if}
-            {#if oldContentSummary.description}
-              {@html oldContentSummary.description}
+            {#if oldContentSummary.talents}
+              <li><span class="lcp-manifest-badge">{oldContentSummary.talents}</span> talents</li>
             {/if}
-            <p>Contents:</p>
-            <ul>
-              {#if oldContentSummary.skills}
-                <li><span class="lcp-manifest-badge">{oldContentSummary.skills}</span> pilot skills</li>
-              {/if}
-              {#if oldContentSummary.talents}
-                <li><span class="lcp-manifest-badge">{oldContentSummary.talents}</span> talents</li>
-              {/if}
-              {#if oldContentSummary.bonds}
-                <li><span class="lcp-manifest-badge">{oldContentSummary.bonds}</span> bonds</li>
-              {/if}
-              {#if oldContentSummary.reserves}
-                <li><span class="lcp-manifest-badge">{oldContentSummary.reserves}</span> reserves</li>
-              {/if}
-              {#if oldContentSummary.gear}
-                <li><span class="lcp-manifest-badge">{oldContentSummary.gear}</span> pilot gear</li>
-              {/if}
-              {#if oldContentSummary.frames}
-                <li><span class="lcp-manifest-badge">{oldContentSummary.frames}</span> frames</li>
-              {/if}
-              {#if oldContentSummary.systems}
-                <li><span class="lcp-manifest-badge">{oldContentSummary.systems}</span> mech systems</li>
-              {/if}
-              {#if oldContentSummary.weapons}
-                <li><span class="lcp-manifest-badge">{oldContentSummary.weapons}</span> mech weapons</li>
-              {/if}
-              {#if oldContentSummary.mods}
-                <li><span class="lcp-manifest-badge">{oldContentSummary.mods}</span> weapon mods</li>
-              {/if}
-              {#if oldContentSummary.npc_classes}
-                <li><span class="lcp-manifest-badge">{oldContentSummary.npc_classes}</span> NPC classes</li>
-              {/if}
-              {#if oldContentSummary.npc_templates}
-                <li><span class="lcp-manifest-badge">{oldContentSummary.npc_templates}</span> NPC templates</li>
-              {/if}
-              {#if oldContentSummary.npc_features}
-                <li><span class="lcp-manifest-badge">{oldContentSummary.npc_features}</span> NPC features</li>
-              {/if}
-            </ul>
-          </div>
+            {#if oldContentSummary.bonds}
+              <li><span class="lcp-manifest-badge">{oldContentSummary.bonds}</span> bonds</li>
+            {/if}
+            {#if oldContentSummary.reserves}
+              <li><span class="lcp-manifest-badge">{oldContentSummary.reserves}</span> reserves</li>
+            {/if}
+            {#if oldContentSummary.gear}
+              <li><span class="lcp-manifest-badge">{oldContentSummary.gear}</span> pilot gear</li>
+            {/if}
+            {#if oldContentSummary.frames}
+              <li><span class="lcp-manifest-badge">{oldContentSummary.frames}</span> frames</li>
+            {/if}
+            {#if oldContentSummary.systems}
+              <li><span class="lcp-manifest-badge">{oldContentSummary.systems}</span> mech systems</li>
+            {/if}
+            {#if oldContentSummary.weapons}
+              <li><span class="lcp-manifest-badge">{oldContentSummary.weapons}</span> mech weapons</li>
+            {/if}
+            {#if oldContentSummary.mods}
+              <li><span class="lcp-manifest-badge">{oldContentSummary.mods}</span> weapon mods</li>
+            {/if}
+            {#if oldContentSummary.npc_classes}
+              <li><span class="lcp-manifest-badge">{oldContentSummary.npc_classes}</span> NPC classes</li>
+            {/if}
+            {#if oldContentSummary.npc_templates}
+              <li><span class="lcp-manifest-badge">{oldContentSummary.npc_templates}</span> NPC templates</li>
+            {/if}
+            {#if oldContentSummary.npc_features}
+              <li><span class="lcp-manifest-badge">{oldContentSummary.npc_features}</span> NPC features</li>
+            {/if}
+          </ul>
+          {#if oldContentSummary.description}
+            {@html oldContentSummary.description}
+          {/if}
         </div>
       </div>
       {#if !showImportButton && !oldContentSummary.aggregate}
@@ -116,6 +114,20 @@
   .lcp-details.card {
     margin-left: 0;
     margin-right: 0;
+    max-height: calc(100% - 5.5em);
+  }
+  .lcp-details__content {
+    display: inline-grid;
+    grid-template-rows: auto 1fr auto;
+    max-height: calc(100% - 3em);
+    overflow-y: hidden;
+    .lcp-description {
+      overflow-y: scroll;
+
+      & ul {
+        margin-top: 0.25em;
+      }
+    }
   }
 
   .transition {

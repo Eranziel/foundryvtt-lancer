@@ -31,7 +31,7 @@ import { WeaponRangeTemplate } from "./module/pixi/weapon-range-template";
 
 // Import helpers
 import { addLCPManager, core_update, updateCore } from "./module/apps/lcp-manager";
-import { addLCPManager2 } from "./module/apps/lcp-manager/lcp-manager-2";
+import { addLCPManagerButton } from "./module/apps/lcp-manager/lcp-manager-2";
 import { attachTagTooltips } from "./module/helpers/tags";
 import { preloadTemplates } from "./module/preload-templates";
 import { getAutomationOptions, registerSettings } from "./module/settings";
@@ -419,7 +419,7 @@ Hooks.on("updateCombat", (_combat: Combat, changes: object) => {
 
 // Create sidebar button to import LCP
 Hooks.on("renderSidebarTab", async (app: Application, html: HTMLElement) => {
-  addLCPManager2(app, html);
+  addLCPManagerButton(app, html);
 });
 
 // TODO: keep or remove?

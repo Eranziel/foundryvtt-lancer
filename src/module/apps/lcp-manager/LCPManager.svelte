@@ -161,7 +161,7 @@
       <Spinner><span class="monospace">Loading data, please wait…</span></Spinner>
     </div>
   {:else}
-    <div class="flexrow" style="flex: 1 1;">
+    <div class="flexrow lcp-manager__main-content" style="flex: 1 1;">
       <LCPTable
         {lcpData}
         bind:disabled={busy}
@@ -172,19 +172,8 @@
         on:clearCompendiums={clearCompendiums}
       />
       <div class="lcp-manager__detail-column">
-        <LcpSelector
-          style="grid-area: lcp-selector"
-          bind:disabled={busy}
-          bind:deselect={deselectFiles}
-          on:lcpLoaded={lcpLoaded}
-        />
-        <LcpDetails
-          bind:disabled={busy}
-          {contentSummary}
-          {showImportButton}
-          style="grid-area: lcp-details"
-          on:importLcp={event => importLcp()}
-        />
+        <LcpSelector bind:disabled={busy} bind:deselect={deselectFiles} on:lcpLoaded={lcpLoaded} />
+        <LcpDetails bind:disabled={busy} {contentSummary} {showImportButton} on:importLcp={() => importLcp()} />
       </div>
     </div>
     <div class="lcp-manager__progress-area">
@@ -209,9 +198,16 @@
     height: 100%;
     display: flex;
     flex-direction: column;
+
+    .lcp-manager__main-content {
+      align-items: normal;
+      max-height: calc(100% - 50px);
+    }
+
     .lcp-manager__detail-column {
       padding-left: 10px;
       padding-right: 10px;
+      max-height: 100%;
     }
 
     // Add a little connector between the hovered table row and the detail column
@@ -220,7 +216,7 @@
       display: block;
       position: absolute;
       left: 100%;
-      background-color: var(--darken-1);
+      background-color: var(--lighten-1);
       min-width: 10px;
       max-width: 10px;
       height: calc(100% + 20px);

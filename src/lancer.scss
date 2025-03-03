@@ -79,6 +79,14 @@ $document-types: join($item-types, $actor-types);
   --darken-4: rgba(var(--darken-color), 0.4);
   --darken-5: rgba(var(--darken-color), 0.5);
 
+  /* Darkens tone by a small increment. For some themes should probably lighten instead, somehow? */
+  --lighten-color: 255, 255, 255;
+  --lighten-1: rgba(var(--lighten-color), 0.1);
+  --lighten-2: rgba(var(--lighten-color), 0.2);
+  --lighten-3: rgba(var(--lighten-color), 0.3);
+  --lighten-4: rgba(var(--lighten-color), 0.4);
+  --lighten-5: rgba(var(--lighten-color), 0.5);
+
   /* box-shadow values for hover glow and buttons */
   --hover-bright: inset 0 0 0 10em rgba(255, 255, 255, 0.15);
   --button-shadow: 1px 1px 1px 0.6px var(--darken-5);

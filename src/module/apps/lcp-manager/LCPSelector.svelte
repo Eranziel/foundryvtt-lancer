@@ -89,6 +89,16 @@
     height: 2.5rem;
     margin: 0.25rem;
     flex: 4 1;
+    &:hover .file-custom {
+      border-color: var(--lighten-5);
+      transition: background-color 0.5s, border-color 0.5s;
+    }
+    &:hover .file-custom__button {
+      background-color: var(--primary-color);
+      filter: brightness(1.1);
+      box-shadow: 0 0 4px var(--color-warm-2);
+      transition: background-color 0.5s, border-color 0.5s;
+    }
   }
   .file input {
     width: 100%;
@@ -115,7 +125,7 @@
     z-index: 5;
     height: 2.5rem;
     padding: 0.5rem 1rem;
-    line-height: 1.5;
+    line-height: 1.6;
     color: var(--dark-text);
     background-color: var(--darken-1);
     border: 0.075rem solid var(--darken-4);
