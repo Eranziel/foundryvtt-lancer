@@ -13,8 +13,10 @@
   import { LCPIndex } from "./lcp-manager";
   const lp = LANCER.log_prefix;
 
+  // injectedContentSummary is only here to facilitate tours
+  export let injectedContentSummary: ContentSummary | null = null;
+  export let loading: boolean = true;
   let lcpData: LCPData[] = [];
-  let loading: boolean = true;
   let contentPack: IContentPack | null = null;
   let fileContentSummary: ContentSummary | null = null;
   let hoveredContentSummary: ContentSummary | null = null;
@@ -29,7 +31,7 @@
   let deselectFiles: () => void;
 
   $: busy = importing || importingMany || clearing;
-  $: contentSummary = hoveredContentSummary ?? fileContentSummary ?? aggregateContentSummary;
+  $: contentSummary = injectedContentSummary ?? hoveredContentSummary ?? fileContentSummary ?? aggregateContentSummary;
   $: showImportButton = hoveredContentSummary !== null && !contentSummary?.aggregate;
   $: coreVersion = lcpData.find(lcp => lcp.id === "core")?.currentVersion;
 

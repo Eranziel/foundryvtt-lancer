@@ -11,6 +11,7 @@ import { LancerActor } from "../actor/lancer-actor";
 import { LCPManager } from "../apps/lcp-manager/lcp-manager";
 import { LancerCombat } from "../combat/lancer-combat";
 import { EntryType } from "../enums";
+import { ContentSummary } from "../util/lcps";
 
 /**
  * LANCER Extensions to the foundry Tour class. Adds sidebarTab and click as
@@ -59,24 +60,45 @@ export class LancerLcpTour extends LancerTour {
   protected async _preStep() {
     await super._preStep();
     if (!this.manager) this.manager = new LCPManager();
-    if (this.currentStep?.id === "lcpImport") {
+    if (this.currentStep?.inApp) {
+      if (!this.manager.rendered) {
+        await this.manager.render(true);
+        await this.manager.renderPromise;
+        // Wait for it to load the official packs from the server
+        while (this.manager.component.loading) {
+          await new Promise(resolve => setTimeout(resolve, 100));
+        }
+      }
+    }
+    if (this.currentStep?.id === "lcpTable") {
       // This is a fake lcp that contains no items
-      const lcp_tribute = window.atob(
-        "UEsDBBQAAAAIAANod1iaTB1/iQAAAMEAAAARABwAbGNwX21hbmlmZXN0Lmpzb25VVAkAA6UY/2Wl" +
-          "GP9ldXgLAAEE6AMAAAToAwAANc27DsIwDAXQPV9hZUZRxcgIYmNgYEehdYlRXnLcUgnx76RALE/3" +
-          "WNcvBXV0tAH1DvRxsSF7hNPhrDc/spO4xCvuk5fS4gFLz5SFUlzt4qhA3ZgExCHcGa1gEfB9Borf" +
-          "7JnYDwba6WOqbEGYbpOgacUkGK6ZcaRlLR5nkUYzcvn/25rOdFq91QdQSwECHgMUAAAACAADaHdY" +
-          "mkwdf4kAAADBAAAAEQAYAAAAAAABAAAApIEAAAAAbGNwX21hbmlmZXN0Lmpzb25VVAUAA6UY/2V1" +
-          "eAsAAQToAwAABOgDAABQSwUGAAAAAAEAAQBXAAAA1AAAAAAA"
-      );
-      await this.manager._onLcpParsed(lcp_tribute);
+      const lcp_tribute: ContentSummary = {
+        item_prefix: "",
+        author: "No Man",
+        name: "Demo LCP",
+        version: "1.0.0",
+        bonds: 1,
+        gear: 1,
+        mods: 1,
+        npc_classes: 1,
+        npc_features: 1,
+        npc_templates: 1,
+        reserves: 1,
+        skills: 1,
+        systems: 1,
+        talents: 1,
+        frames: 1,
+        weapons: 1,
+      };
+      this.manager.injectContentPack(lcp_tribute);
       // Delay to avoid race condition
       await new Promise(resolve => setTimeout(resolve, 30));
     }
-    if (this.currentStep?.inApp) {
-      // @ts-expect-error Bypass protected
-      await this.manager._render(true);
-    }
+  }
+
+  protected async _tearDown(complete: boolean) {
+    this.manager?.injectContentPack(null);
+    super._tearDown(complete);
   }
 }
 

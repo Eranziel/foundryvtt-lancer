@@ -1,20 +1,22 @@
 import { LANCER } from "../../config";
+import { ContentSummary } from "../../util/lcps";
 import { IContentPackManifest } from "../../util/unpacking/packed-types";
 import type ApplicationV2 from "@league-of-foundry-developers/foundry-vtt-types/src/foundry/client-esm/applications/api/application.mjs";
 import { DeepPartial } from "@league-of-foundry-developers/foundry-vtt-types/src/types/utils.mjs";
+
 const { ApplicationV2: AppV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
 const lp = LANCER.log_prefix;
 
 let LCPManagerComponent: any;
 
-async function mountLCPManager(target: HTMLElement) {
+async function mountLCPManager(target: HTMLElement, props: any) {
   if (!LCPManagerComponent) {
     LCPManagerComponent = (await import("./LCPManager.svelte")).default;
   }
   return new LCPManagerComponent({
     target,
-    props: {},
+    props,
   });
 }
 
@@ -73,6 +75,9 @@ export class LCPIndex {
 }
 
 export class LCPManager extends HandlebarsApplicationMixin(AppV2) {
+  component: any = null;
+  renderPromise: Promise<void> | null = null;
+
   constructor(options: Partial<ApplicationV2.Configuration> = {}) {
     super(options);
   }
@@ -105,6 +110,19 @@ export class LCPManager extends HandlebarsApplicationMixin(AppV2) {
     super._onRender(context, options);
     const mount = $(this.element).find(".svelte-app-mount");
     if (!mount || !mount.length) return;
-    mountLCPManager(mount[0]);
+    this.renderPromise = mountLCPManager(mount[0], context);
+    this.renderPromise?.then((c: any) => (this.component = c));
+  }
+
+  override async render(options: any): Promise<this> {
+    await super.render(options);
+    if (this.renderPromise) {
+      await this.renderPromise;
+    }
+    return this;
+  }
+
+  injectContentPack(content: ContentSummary | null) {
+    this.component.$set({ injectedContentSummary: content });
   }
 }

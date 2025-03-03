@@ -140,7 +140,7 @@
 <div class="lcp-table flexcol" style={$$restProps.style}>
   <div class="lancer-header clipped-top lancer-primary major">Available and Installed Content</div>
   <!-- LCP table. Official content is listed first, manually installed content at the end. -->
-  <div id="massif-data">
+  <div id="lcp-table">
     <div class="row header">
       <div>
         <input
@@ -225,7 +225,7 @@
 
   <button
     type="button"
-    class="lancer-button lcp-bulk-import"
+    class="lancer-button lcp-clear-all"
     title="Clear Compendium Data"
     tabindex="-1"
     style="margin: 5px 10px"
@@ -248,7 +248,7 @@
     width: auto;
   }
 
-  #massif-data {
+  #lcp-table {
     display: grid;
 
     .row {
@@ -290,7 +290,8 @@
       margin: 5px 10px;
     }
   }
-  .lcp-bulk-import {
+  .lcp-bulk-import,
+  .lcp-clear-all {
     max-height: 3em;
   }
 </style>
