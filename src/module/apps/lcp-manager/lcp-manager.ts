@@ -6,13 +6,13 @@ const { ApplicationV2: AppV2, HandlebarsApplicationMixin } = foundry.application
 
 const lp = LANCER.log_prefix;
 
-let LCPManager: any;
+let LCPManagerComponent: any;
 
 async function mountLCPManager(target: HTMLElement) {
-  if (!LCPManager) {
-    LCPManager = (await import("./LCPManager.svelte")).default;
+  if (!LCPManagerComponent) {
+    LCPManagerComponent = (await import("./LCPManager.svelte")).default;
   }
-  return new LCPManager({
+  return new LCPManagerComponent({
     target,
     props: {},
   });
@@ -39,8 +39,7 @@ export function addLCPManagerButton(app: Application, html: any) {
     button.innerHTML = "<i class='cci cci-content-manager i--s'></i> LANCER Compendium Manager";
     buttons.append(button);
     button.addEventListener("click", () => {
-      console.log("clicky click");
-      new LCPManager2().render(true);
+      new LCPManager().render(true);
     });
   }
 }
@@ -73,7 +72,7 @@ export class LCPIndex {
   }
 }
 
-class LCPManager2 extends HandlebarsApplicationMixin(AppV2) {
+export class LCPManager extends HandlebarsApplicationMixin(AppV2) {
   constructor(options: Partial<ApplicationV2.Configuration> = {}) {
     super(options);
   }

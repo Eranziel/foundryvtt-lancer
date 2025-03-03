@@ -1,13 +1,15 @@
 // @ts-nocheck
 // We do not care about this file being super rigorous
 import { LancerActor } from "./actor/lancer-actor";
-import { core_update, LCPManager, updateCore } from "./apps/lcp-manager";
-import { clearCompendiumData } from "./comp-builder";
+import { LCPManager } from "./apps/lcp-manager/lcp-manager";
+import { clearCompendiumData, importCP } from "./comp-builder";
 import { LANCER } from "./config";
 import { EntryType } from "./enums";
 import { LancerItem } from "./item/lancer-item";
 import { LancerTokenDocument } from "./token";
 import { get_pack, get_pack_id } from "./util/doc";
+import { getBaseContentPack } from "./util/lcps";
+import { version as coreUpdate } from "@massif/lancer-data/package.json";
 
 /**
  * DataModels should internally handle any migrations across versions.
@@ -55,14 +57,16 @@ export async function migrateWorld() {
     await migrateCompendiumStructure();
   }
   // Update World Compendium Packs, since updates comes with a more up to date version of lancerdata usually
-  await updateCore(core_update);
+  const coreData = await getBaseContentPack();
+  await importCP(coreData.cp);
+  await game.settings.set(game.system.id, LANCER.setting_core_data, coreData.availableVersion);
 
   // For some reason the commitDataModelMigrations call clears the progress bar, so we delay showing it.
   setTimeout(() => SceneNavigation.displayProgressBar({ label: migrationProgressBarLabel(), pct: 0 }), 1000);
   // Clean out old data fields so they don't cause issues
   await commitDataModelMigrations();
 
-  if (game.settings.get(game.system.id, LANCER.setting_core_data) !== core_update) {
+  if (game.settings.get(game.system.id, LANCER.setting_core_data) !== coreUpdate) {
     // Compendium migration failed.
     new Dialog({
       title: `Compendium Migration Failed`,

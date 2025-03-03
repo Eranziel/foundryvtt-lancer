@@ -10,7 +10,7 @@
   import LCPTable from "./LCPTable.svelte";
   import { IContentPack, IContentPackManifest } from "../../util/unpacking/packed-types";
   import { clearCompendiumData, importCP } from "../../comp-builder";
-  import { LCPIndex } from "./lcp-manager-2";
+  import { LCPIndex } from "./lcp-manager";
   const lp = LANCER.log_prefix;
 
   let lcpData: LCPData[] = [];

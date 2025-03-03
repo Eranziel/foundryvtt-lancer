@@ -8,7 +8,7 @@ declare global {
 }
 
 import { LancerActor } from "../actor/lancer-actor";
-import { LCPManager } from "../apps/lcp-manager";
+import { LCPManager } from "../apps/lcp-manager/lcp-manager";
 import { LancerCombat } from "../combat/lancer-combat";
 import { EntryType } from "../enums";
 

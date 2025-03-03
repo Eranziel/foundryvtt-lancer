@@ -31,8 +31,8 @@ import { LancerLicenseSheet } from "./module/item/license-sheet";
 import { WeaponRangeTemplate } from "./module/pixi/weapon-range-template";
 
 // Import helpers
-import { addLCPManager, core_update, updateCore } from "./module/apps/lcp-manager";
-import { addLCPManagerButton } from "./module/apps/lcp-manager/lcp-manager-2";
+import { LCPManager } from "./module/apps/lcp-manager/lcp-manager";
+import { addLCPManagerButton } from "./module/apps/lcp-manager/lcp-manager";
 import { attachTagTooltips } from "./module/helpers/tags";
 import { preloadTemplates } from "./module/preload-templates";
 import { getAutomationOptions, registerSettings } from "./module/settings";
