@@ -1,0 +1,43 @@
+/* ===== RULES FOR NON-LANCER APPLICATIONS ===== */
+.application .window-content {
+  font-family: var(--main-font-family);
+}
+
+.theme-light .application:not(.lancer) {
+  // Light mode and non-lancer
+  /* Set default backgrounds to a futuristic gundam light grey instead of parchment */
+  background: #ededed;
+}
+
+/* ===== RULES FOR LANCER APPLICATIONS ===== */
+.application.lancer {
+  .window-content {
+    width: 100%;
+    height: 100%;
+    background-color: var(--background-color);
+    color: var(--dark-text);
+
+    & .svelte-app-mount {
+      height: 100%;
+      width: 100%;
+    }
+  }
+}
+
+/* ===== RULES FOR ALL APPLICATIONS ===== */
+.application .window-content {
+  button,
+  a.button {
+    &:hover {
+      background-color: var(--primary-color);
+      border-color: var(--lighten-5);
+    }
+  }
+
+  input[type="checkbox"]:checked,
+  input[type="radio"]:checked {
+    --checkbox-checked-color: var(--secondary-color);
+    --checkbox-disabled-color: var(--dark-gray-color);
+    --checkbox-background-color: var(--dark-gray-color);
+  }
+}
