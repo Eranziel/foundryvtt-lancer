@@ -591,31 +591,27 @@ Hooks.on("hotbarDrop", (_bar: any, data: any, slot: number) => {
 });
 
 /**
- * Prompts users to install core data
- * Designed for use the first time you launch a new world
+ * For use on first run of a new world. Open the LCP manager so user can install core data.
  */
 async function promptInstallCoreData() {
-  let version = core_update;
-  let text = `
+  // Open the LCP manager
+  let app = new LCPManager();
+  await app.render(true);
+  // Render a dialog on top to explain
+  let content = `
   <h2 style="text-align: center">WELCOME GAME MASTER</h2>
   <p style="text-align: center;margin-bottom: 1em">THIS IS YOUR <span class="horus--very--subtle">FIRST</span> TIME LAUNCHING</p>
-  <p style="text-align: center;margin-bottom: 1em">WOULD YOU LIKE TO INSTALL <span class="horus--very--subtle">CORE</span> LANCER DATA <span class="horus--very--subtle">v${version}?</span></p>`;
+  <p style="text-align: center;margin-bottom: 1em">Use the LANCER Compendium Manager window to install the <span class="horus--very--subtle">LANCER DATA</span> you wish to use.</p>`;
   new Dialog(
     {
       title: `Install Core Data`,
-      content: text,
+      content,
       buttons: {
-        yes: {
-          label: "Yes",
-          callback: async () => {
-            await updateCore(version);
-          },
-        },
-        close: {
-          label: "No",
+        ok: {
+          label: "OK",
         },
       },
-      default: "No",
+      default: "OK",
     },
     {
       width: 700,
@@ -665,15 +661,13 @@ function setupSheets() {
  * Check whether the world needs any migration.
  * @return True if migration is required
  */
-async function versionCheck(): Promise<"yes" | "no" | "too_old"> {
+async function versionCheck(): Promise<"first_run" | "yes" | "no" | "too_old"> {
   // Determine whether a system migration is required and feasible
   const currentVersion = game.settings.get(game.system.id, LANCER.setting_migration_version);
 
   // If it's 0 then it's a fresh install
   if (currentVersion === "0" || !currentVersion) {
-    game.settings.set(game.system.id, LANCER.setting_migration_version, game.system.version);
-    await promptInstallCoreData();
-    return "no";
+    return "first_run";
   }
 
   // Check if its before new rolling migration system was integrated
@@ -691,8 +685,10 @@ async function versionCheck(): Promise<"yes" | "no" | "too_old"> {
 async function doMigration() {
   // Determine whether a system migration  is needed
   let needsMigrate = await versionCheck();
-
-  if (needsMigrate == "too_old") {
+  if (needsMigrate == "first_run") {
+    game.settings.set(game.system.id, LANCER.setting_migration_version, game.system.version);
+    await promptInstallCoreData();
+  } else if (needsMigrate == "too_old") {
     // System version is too old for migration
     ui.notifications!.error(
       `Your LANCER system data is from too old a version (${game.settings.get(
