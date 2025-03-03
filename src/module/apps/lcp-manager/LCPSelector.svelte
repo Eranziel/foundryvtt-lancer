@@ -94,9 +94,10 @@
       transition: background-color 0.5s, border-color 0.5s;
     }
     &:hover .file-custom__button {
+      color: var(--light-text);
       background-color: var(--primary-color);
       filter: brightness(1.1);
-      box-shadow: 0 0 4px var(--color-warm-2);
+      box-shadow: inset 0 0 10em var(--lighten-1);
       transition: background-color 0.5s, border-color 0.5s;
     }
   }
