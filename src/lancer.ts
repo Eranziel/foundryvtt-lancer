@@ -678,10 +678,44 @@ async function versionCheck(): Promise<"first_run" | "yes" | "no" | "too_old"> {
   return foundry.utils.isNewerVersion(game.system.version, currentVersion) ? "yes" : "no";
 }
 
+async function promptLCPManagerTour() {
+  const showTour = await foundry.applications.api.DialogV2.confirm({
+    // @ts-expect-error This should expect a partial
+    window: { title: "Compendium Manager Tour?" },
+    content: "The LANCER Compendium Manager has had a major update. Would you like to get a tour?",
+    rejectClose: false,
+  });
+  if (!showTour) return;
+  const lcpTour: Tour | undefined = game.tours.get(`${game.system.id}.lcp`);
+  if (!lcpTour) {
+    console.error(`${lp} LCP manager tour not found.`);
+    return;
+  }
+  console.log(`${lp} Starting LCP manager tour`);
+  lcpTour.start();
+}
+
 /**
  * Performs our version validation and migration
  */
 async function doMigration() {
+  const oldVersion = game.settings.get(game.system.id, LANCER.setting_migration_version);
+  // Auxiliary - settings and tour migrations
+  if (foundry.utils.isNewerVersion("2.7.0", oldVersion)) {
+    console.log(`${lp} Game is migrating from ${oldVersion}. Should show LCP manager tour`);
+    // New LCP manager was introduced in version 2.7.0
+    // Reset LCP manager tour
+    const lcpTour: Tour | undefined = game.tours.get(`${game.system.id}.lcp`);
+    if (!lcpTour) {
+      console.error(`${lp} LCP manager tour not found.`);
+      return;
+    }
+    await lcpTour.reset();
+    // Ask to show LCP manager tour. Do not await, let it sit in the background
+    // while the rest of the migration work proceeds.
+    promptLCPManagerTour();
+  }
+
   // Determine whether a system migration  is needed
   let needsMigrate = await versionCheck();
   if (needsMigrate == "first_run") {
