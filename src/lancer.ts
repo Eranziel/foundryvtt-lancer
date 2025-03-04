@@ -746,27 +746,30 @@ async function showChangelog() {
   // Show welcome message if not hidden.
   if (!game.settings.get(game.system.id, LANCER.setting_welcome)) {
     let renderChangelog = (changelog: string) => {
-      new Dialog(
-        {
-          title: `Welcome to LANCER v${game.system.version}`,
-          content: WELCOME(changelog),
-          buttons: {
-            dont_show: {
-              label: "Do Not Show Again",
-              callback: async () => {
-                await game.settings.set(game.system.id, LANCER.setting_welcome, true);
-              },
-            },
-            close: {
-              label: "Close",
+      foundry.applications.api.DialogV2;
+      new foundry.applications.api.DialogV2({
+        window: { title: `Welcome to LANCER v${game.system.version}`, contentClasses: ["lancer-changelog"] },
+        content: WELCOME(changelog),
+        buttons: [
+          {
+            action: "dont_show",
+            label: "Do Not Show Again",
+            icon: "fas fa-xmark",
+            callback: async () => {
+              await game.settings.set(game.system.id, LANCER.setting_welcome, true);
             },
           },
-          default: "Close",
-        },
-        {
+          {
+            action: "close",
+            label: "Close",
+            default: true,
+          },
+        ],
+        position: {
           width: 700,
-        }
-      ).render(true);
+          top: 5,
+        },
+      }).render(true);
     };
 
     // Get an automatic changelog for our version
