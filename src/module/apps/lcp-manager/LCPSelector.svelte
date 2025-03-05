@@ -59,7 +59,7 @@
       name: "Selected LCPs",
       author: "Various",
       item_prefix: "",
-      version: "1.0.0",
+      version: "",
       description: "",
     };
     await Promise.all(
@@ -72,7 +72,7 @@
         const author = fd.cp.manifest.website
           ? `<a href="${fd.cp.manifest.website}">${fd.cp.manifest.author}</a>`
           : `<em>${fd.cp.manifest.author}</em>`;
-        aggregateManifest.description += `<b>${fd.cp.manifest.name}</b> by ${author}<br />`;
+        aggregateManifest.description += `<b>${fd.cp.manifest.name}</b> v${fd.cp.manifest.version} by ${author}<br />`;
       })
     );
     const contentPacks = filesData.map(fd => fd.cp!).filter(cp => Boolean(cp));

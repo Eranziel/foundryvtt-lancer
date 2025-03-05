@@ -37,8 +37,8 @@
 
   async function init() {
     loading = true;
-    const officialData = await getOfficialData();
     const index = new LCPIndex(game.settings.get(game.system.id, LANCER.setting_lcps).index);
+    const officialData = await getOfficialData(index);
     lcpData = mergeOfficialDataAndLcpIndex(officialData, index);
     loading = false;
   }
