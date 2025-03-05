@@ -212,19 +212,6 @@
       max-height: 100%;
     }
 
-    // Add a little connector between the hovered table row and the detail column
-    :global(.lcp-table .row.has-data:not(.header):hover)::after {
-      content: "";
-      display: block;
-      position: absolute;
-      left: 100%;
-      background-color: var(--lighten-1);
-      min-width: 10px;
-      max-width: 10px;
-      height: calc(100% + 20px);
-      clip-path: polygon(0 0, 100% 0, 100% 100%, 0 calc(100% - 20px));
-    }
-
     .lcp-manager__progress-area {
       width: 100%;
       height: 50px;

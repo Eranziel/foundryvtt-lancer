@@ -114,6 +114,7 @@
   .lcp-details.card {
     margin-left: 0;
     margin-right: 0;
+    margin-bottom: 0;
     max-height: calc(100% - 5.5em);
   }
   .lcp-details__content {
