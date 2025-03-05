@@ -1,3 +1,14 @@
+# 2.7.0 (2025-03-04)
+
+## Features
+
+- #654 - Compendium Manager Revamp. The LANCER Compendium Manager has been completely overhauled, including built-in importing of official data, multi-file select, and a little eye candy. Check out the tour!
+- Cut down on the amount of pop-up spam during/after world migration. Move acknowledgements and legal info into the system info journal.
+
+## Bug Fixes
+
+- #431 - Reserves are now imported from LCPs.
+
 # 2.6.2 (2025-03-01)
 
 ## Bug Fixes
