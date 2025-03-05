@@ -1,6 +1,6 @@
 <script lang="ts">
   import { createEventDispatcher, onMount } from "svelte";
-  import { ContentSummary, generateLcpSummary, LCPData } from "../../util/lcps";
+  import { ContentSummary, generateLcpSummary, generateMultiLcpSummary, LCPData } from "../../util/lcps";
 
   const dispatch = createEventDispatcher();
 
@@ -45,6 +45,8 @@
   const aggregateManifest = {
     author: "Massif Press",
     name: "Selected Official Sources",
+    version: "1.0.0",
+    item_prefix: "",
     description: "",
     website: "https://massif-press.itch.io/",
   };
@@ -56,41 +58,10 @@
       summary.aggregate = true;
       return summary;
     }
-    const totalContent: ContentSummary = selected.reduce(
-      (acc, lcp) => {
-        if (!lcp.cp?.data) return acc;
-        acc.bonds += lcp.cp.data.bonds?.length ?? 0;
-        acc.skills += lcp.cp.data.skills?.length ?? 0;
-        acc.talents += lcp.cp.data.talents?.length ?? 0;
-        acc.reserves += lcp.cp.data.reserves?.length ?? 0;
-        acc.gear += lcp.cp.data.pilotGear?.length ?? 0;
-        acc.frames += lcp.cp.data.frames?.length ?? 0;
-        acc.systems += lcp.cp.data.systems?.length ?? 0;
-        acc.weapons += lcp.cp.data.weapons?.length ?? 0;
-        acc.mods += lcp.cp.data.mods?.length ?? 0;
-        acc.npc_classes += lcp.cp.data.npcClasses?.length ?? 0;
-        acc.npc_templates += lcp.cp.data.npcTemplates?.length ?? 0;
-        acc.npc_features += lcp.cp.data.npcFeatures?.length ?? 0;
-        return acc;
-      },
-      {
-        aggregate: true,
-        ...aggregateManifest,
-        bonds: 0,
-        skills: 0,
-        talents: 0,
-        reserves: 0,
-        gear: 0,
-        frames: 0,
-        systems: 0,
-        weapons: 0,
-        mods: 0,
-        npc_classes: 0,
-        npc_templates: 0,
-        npc_features: 0,
-      } as ContentSummary
+    return generateMultiLcpSummary(
+      aggregateManifest,
+      selected.filter(p => Boolean(p.cp)).map(p => p.cp!)
     );
-    return totalContent;
   }
 
   let aggregateSummaryTimeout: NodeJS.Timeout | null = null;

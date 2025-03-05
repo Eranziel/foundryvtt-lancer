@@ -17,7 +17,7 @@
   export let injectedContentSummary: ContentSummary | null = null;
   export let loading: boolean = true;
   let lcpData: LCPData[] = [];
-  let contentPack: IContentPack | null = null;
+  let contentPacks: IContentPack[] = [];
   let fileContentSummary: ContentSummary | null = null;
   let hoveredContentSummary: ContentSummary | null = null;
   let aggregateContentSummary: ContentSummary | null = null;
@@ -44,14 +44,14 @@
   }
   init();
 
-  function lcpLoaded(event: CustomEvent<{ cp: IContentPack; contentSummary: ContentSummary }>) {
+  function lcpLoaded(event: CustomEvent<{ contentPacks: IContentPack[]; contentSummary: ContentSummary }>) {
     if (!event.detail) {
-      contentPack = null;
+      contentPacks = [];
       fileContentSummary = null;
       return;
     }
     fileContentSummary = event.detail.contentSummary;
-    contentPack = event.detail.cp;
+    contentPacks = event.detail.contentPacks;
     deselectTable();
   }
 
@@ -61,7 +61,7 @@
 
   function updateAggregateSummary(event: CustomEvent<ContentSummary>) {
     aggregateContentSummary = event.detail;
-    contentPack = null;
+    contentPacks = [];
     fileContentSummary = null;
     deselectFiles();
   }
@@ -97,7 +97,6 @@
   }
 
   async function importLcp(cp: IContentPack | null = null) {
-    if (!cp) cp = contentPack;
     if (!cp) {
       ui.notifications.error(`You must select an LCP file before importing.`);
       return;
@@ -128,7 +127,8 @@
     updateLcpIndex(manifest);
   }
 
-  async function importManyLcps(lcps: IContentPack[]) {
+  async function importManyLcps(lcps: IContentPack[] | null = null) {
+    if (!lcps) lcps = contentPacks;
     if (!_canImportLcp()) return;
     importingMany = true;
     secondBarWidth = 0;
@@ -175,7 +175,7 @@
       />
       <div class="lcp-manager__detail-column">
         <LcpSelector bind:disabled={busy} bind:deselect={deselectFiles} on:lcpLoaded={lcpLoaded} />
-        <LcpDetails bind:disabled={busy} {contentSummary} {showImportButton} on:importLcp={() => importLcp()} />
+        <LcpDetails bind:disabled={busy} {contentSummary} {showImportButton} on:importLcp={() => importManyLcps()} />
       </div>
     </div>
     <div class="lcp-manager__progress-area">

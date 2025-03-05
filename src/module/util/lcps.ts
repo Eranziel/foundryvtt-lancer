@@ -135,6 +135,42 @@ export function generateLcpSummary(cp: any): ContentSummary {
   };
 }
 
+export function generateMultiLcpSummary(manifest: IContentPackManifest, cps: IContentPack[]): ContentSummary {
+  return cps.reduce(
+    (acc, lcp) => {
+      if (!lcp.data) return acc;
+      acc.bonds += lcp.data.bonds?.length ?? 0;
+      acc.skills += lcp.data.skills?.length ?? 0;
+      acc.talents += lcp.data.talents?.length ?? 0;
+      acc.reserves += lcp.data.reserves?.length ?? 0;
+      acc.gear += lcp.data.pilotGear?.length ?? 0;
+      acc.frames += lcp.data.frames?.length ?? 0;
+      acc.systems += lcp.data.systems?.length ?? 0;
+      acc.weapons += lcp.data.weapons?.length ?? 0;
+      acc.mods += lcp.data.mods?.length ?? 0;
+      acc.npc_classes += lcp.data.npcClasses?.length ?? 0;
+      acc.npc_templates += lcp.data.npcTemplates?.length ?? 0;
+      acc.npc_features += lcp.data.npcFeatures?.length ?? 0;
+      return acc;
+    },
+    {
+      ...manifest,
+      bonds: 0,
+      skills: 0,
+      talents: 0,
+      reserves: 0,
+      gear: 0,
+      frames: 0,
+      systems: 0,
+      weapons: 0,
+      mods: 0,
+      npc_classes: 0,
+      npc_templates: 0,
+      npc_features: 0,
+    } as ContentSummary
+  );
+}
+
 // Get the version from the npm package
 function getPackageVersion(manifest: IContentPackManifest) {
   return manifest.version;
