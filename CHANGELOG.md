@@ -1,3 +1,29 @@
+# 2.6.2 (2025-03-01)
+
+## Bug Fixes
+
+- #806 - Automatically add flat bonus to attack HUD for "ranged_attack" and "tech_attack" bonus from items.
+- #809 - Add Deployable/Drone/Mine tags to items which have the matching kind of deployable, to match Comp/Con's similar functionality.
+- #822 - Fix "Scan (Journal)" macro for v12.
+- #821 - Add "bolster" and "flying" to all core icon sets for future integration with Lancer Ruler Integration.
+- Fix data model errors logged when importing the Shadow of the Wolf LCP.
+
+# 2.6.1 (2025-02-26)
+
+## Bug Fixes
+
+- #823 - Fix a bug causing Emperors to have "NaN" max hp.
+
+# 2.6.0 (2025-02-16)
+
+## Features
+
+- #650 - v12 Support! This release brings support for Foundry v12 and drops support for Foundry v11. Huge thanks to @BoltsJ for doing the heavy lifting!
+
+## Bug Fixes
+
+- Fix a bug during import causing pilots to be set as the deployer of their mech's deployables.
+
 # 2.5.0 (2025-02-08)
 
 This will be the final release for Foundry v11, barring any critical bug fixes.

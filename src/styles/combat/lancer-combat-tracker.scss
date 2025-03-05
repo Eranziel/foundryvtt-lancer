@@ -1,76 +1,65 @@
-li.combatant {
-  border-radius: 5px;
-  &.player {
-    border-left: 3px solid var(--lancer-initiative-player-color);
-    border-right: 3px solid var(--lancer-initiative-player-color);
+:root {
+  --lancer-initiative-icon-size: 1rem;
+  --lancer-initiative-done-color: #000000;
+}
+
+@mixin combatant($disposition) {
+  &.#{$disposition} {
+    border-left: 3px solid var(--lancer-initiative-#{$disposition}-color);
+    border-right: 3px solid var(--lancer-initiative-#{$disposition}-color);
     &.active::after {
-      border-color: var(--lancer-initiative-player-color);
+      border-color: var(--lancer-initiative-#{$disposition}-color);
+    }
+    .token-initiative a {
+      color: var(--lancer-initiative-#{$disposition}-color);
     }
   }
-  &.friendly {
-    border-left: 3px solid var(--lancer-initiative-friendly-color);
-    border-right: 3px solid var(--lancer-initiative-friendly-color);
-    &.active::after {
-      border-color: var(--lancer-initiative-friendly-color);
-    }
-  }
-  &.neutral {
-    border-left: 3px solid var(--lancer-initiative-neutral-color);
-    border-right: 3px solid var(--lancer-initiative-neutral-color);
-    &.active::after {
-      border-color: var(--lancer-initiative-neutral-color);
-    }
-  }
-  &.enemy {
-    border-left: 3px solid var(--lancer-initiative-enemy-color);
-    border-right: 3px solid var(--lancer-initiative-enemy-color);
-    &.active::after {
-      border-color: var(--lancer-initiative-enemy-color);
-    }
-  }
-  &.secret {
-    border-left: 3px solid var(--lancer-initiative-secret-color);
-    border-right: 3px solid var(--lancer-initiative-secret-color);
-    &.active::after {
-      border-color: var(--lancer-initiative-secret-color);
-    }
+  @at-root :root {
+    --lancer-intitiative-#{$disposition}-color: #000000;
   }
 }
 
-[data-tab="combat"] #combat-tracker {
-  .combatant .token-initiative {
-    padding-left: 0.5em;
-    margin-right: 0.25rem;
-    align-items: center;
-    display: flex;
-    position: relative;
-    flex: 0 0 auto;
-  }
-  .combatant .token-initiative i,
-  .combatant .token-initiative a {
-    font-size: var(--lancer-initiative-icon-size);
-  }
-  .combatant.active .token-initiative a.done {
-    color: var(--lancer-initiative-done-color);
-  }
-  .combatant.player .token-initiative a {
-    color: var(--lancer-initiative-player-color);
-  }
-  .combatant.friendly .token-initiative a {
-    color: var(--lancer-initiative-friendly-color);
-  }
-  .combatant.neutral .token-initiative a {
-    color: var(--lancer-initiative-neutral-color);
-  }
-  .combatant.enemy .token-initiative a {
-    color: var(--lancer-initiative-enemy-color);
-  }
-  .combatant.secret .token-initiative a {
-    color: var(--lancer-initiative-secret-color);
-  }
-  li.combatant.turn-done {
-    color: inherit;
-    text-decoration: inherit;
+[data-tab="combat"] {
+  li.combatant {
+    border-radius: 5px;
+    @each $disposition in player friendly neutral enemy {
+      @include combatant($disposition);
+    }
+    .token-initiative {
+      padding-left: 0.5em;
+      margin-right: 0.25rem;
+      align-items: center;
+      display: flex;
+      position: relative;
+      flex: 0 0 auto;
+      a {
+        font-size: var(--lancer-initiative-icon-size);
+        &.done {
+          color: var(--lancer-initiative-done-color);
+        }
+      }
+    }
+    span.activations {
+      flex: 0 0 20px;
+      width: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      i {
+        color: var(--color-text-dark-5);
+        font-size: 20px;
+        position: relative;
+        left: 50%;
+      }
+      span {
+        flex: 0 0 20px;
+        text-align: center;
+        font-size: 14px;
+        position: relative;
+        left: -50%;
+        opacity: 0.8;
+      }
+    }
   }
 }
 

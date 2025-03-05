@@ -3,20 +3,20 @@ import { LancerActor } from "../actor/lancer-actor";
 /**
  *
  * @param compendiumActor The document you want to import
- * @param forPilot Who the import is for
+ * @param owner Who the import is for
  */
-export async function requestImport(compendiumActor: LancerActor, forPilot: LancerActor) {
-  if (game.user?.isGM) {
+export async function requestImport(compendiumActor: LancerActor, owner: LancerActor) {
+  if (game.user?.can("ACTOR_CREATE")) {
     // Do it ourselves
-    return fulfillImportActor(compendiumActor, forPilot);
+    return fulfillImportActor(compendiumActor, owner);
   }
 
   let content = `<button class="chat-button self-destruct"
       data-action="importActor"
       data-import-id="${compendiumActor.uuid}"
-      data-target-id="${forPilot.uuid}"
+      data-target-id="${owner.uuid}"
     >
-      IMPORT ${compendiumActor.name} FOR ${forPilot.name}?
+      IMPORT ${compendiumActor.name} FOR ${owner.name}?
     </button>`;
 
   ChatMessage.create({
@@ -40,19 +40,12 @@ export async function fulfillImportActor(compDeployable: string | LancerActor, f
   forActor = await LancerActor.fromUuid(forActor);
   if (!compDeployable || !forActor) throw new Error("Invalid actor(s) provided for import!");
 
-  // Redirect mech to pilot
-  if (forActor.is_mech() && forActor.system.pilot?.status == "resolved") {
-    forActor = forActor.system.pilot.value;
-  }
-
-  // If pilot, get callsign
-  return LancerActor.create({
-    ...compDeployable.toObject(),
-    system: { owner: forActor.uuid },
-    name: deployableName(compDeployable.name!, forActor),
-    folder: forActor.folder?.id,
-    ownership: foundry.utils.duplicate(forActor.ownership),
-  });
+  const actorData = compDeployable.toObject() as any;
+  actorData.system.owner = forActor.uuid;
+  actorData.name = deployableName(actorData.name!, forActor);
+  actorData.folder = forActor.folder?.id;
+  actorData.ownership = foundry.utils.duplicate(forActor.ownership);
+  return LancerActor.create(actorData);
 }
 
 // Returns a name for a deployable that includes its owners name or callsign as appropriate
@@ -61,6 +54,8 @@ export function deployableName(baseName: string, owner: LancerActor | null): str
   let ownerName = owner.name;
   if (owner.is_pilot()) {
     ownerName = owner.system.callsign || owner.name;
+  } else if (owner.is_mech() && owner.system.pilot?.status == "resolved") {
+    ownerName = owner.system.pilot.value.system.callsign || owner.system.pilot.value.name;
   }
 
   return `${baseName} [${ownerName}]`;

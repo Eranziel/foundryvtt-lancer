@@ -12,41 +12,23 @@ const ASCII = `
 ┃╰━╯┃╭━╮┃┃╱┃┃┃╰━╯┃╰━━┫┃┃╰╮ 
 ╰━━━┻╯╱╰┻╯╱╰━┻━━━┻━━━┻╯╰━╯`;
 
-export function WELCOME(changelog: string): string {
-  return `<div style="margin: 10px 5px">
-  <div style="text-align: center; margin-top: .5em" class="flex-center">
+export function WELCOME(): string {
+  return `
+  <div style="text-align: center;">
     <a href="https://massifpress.com/legal">
-      <img style="max-width: 350px; border: none" src="https://massifpress.com/_next/image?url=%2Fimages%2Flegal%2Fpowered_by_Lancer-01.svg&w=640&q=75" alt="Powered by Lancer">
-    </a>
-  </div>
-  <h2>Welcome to Lancer on Foundry!</h2>
-  <p>If you haven't already, check out the project wiki for 
-  <a href="https://github.com/Eranziel/foundryvtt-lancer/wiki/FAQ">FAQ</a>
-  and a list of <a href="https://github.com/Eranziel/foundryvtt-lancer/wiki/Resources">recommended modules</a>, as well
-  as other information about how to use the system.</p>
-  
-  <span>Special thanks to <a class="center" href="https://www.retrogrademinis.com/">Retrograde Minis</a> for our default token artwork.</span>
-
-  <div style="text-align: center; margin-top: .5em" class="flex-center">
-    <a href="https://www.retrogrademinis.com/">
-      <img style="max-width: 350px; border: none" src="https://retrograde-minis.nyc3.digitaloceanspaces.com/text/retrograde-logo.png" alt="Retrograde Minis">
+      <img style="max-width: 90%; border: none" src="https://massifpress.com/_next/image?url=%2Fimages%2Flegal%2Fpowered_by_Lancer-01.svg&w=640&q=75" alt="Powered by Lancer">
     </a>
   </div>
 
-  <p>You can report issues on GitHub here: 
-  <a href="https://github.com/Eranziel/foundryvtt-lancer/issues">https://github.com/Eranziel/foundryvtt-lancer/issues</a></p>
-  <br/>
-  <h2>Legal</h2>
-  <p>"Lancer for FoundryVTT" is not an official <i>Lancer</i> product; it is a third party work, and is not affiliated with Massif Press. "Lancer for FoundryVTT" is published via the <i>Lancer</i> Third Party License.</p>
-  <p><i>Lancer</i> is copyright Massif Press.</p>
-  <br/>
-  <p>
-    <h1>Change Log:</h1>
-    ${changelog}
-  </p>
+  <p><a href="https://github.com/Eranziel/foundryvtt-lancer/blob/master/CHANGELOG.md">CHANGELOG</a></p>
   
-  <p><a href="https://github.com/Eranziel/foundryvtt-lancer/blob/master/CHANGELOG.md">Click here for the full changelog.</a></p>
-  </div>
+  <p>Check out the project wiki for 
+  <a href="https://github.com/Eranziel/foundryvtt-lancer/wiki/FAQ">FAQ</a>, 
+  <a href="https://github.com/Eranziel/foundryvtt-lancer/wiki/Resources">recommended modules</a>,
+  and other information about how to use the system.</p>
+  
+  <p>@UUID[Compendium.lancer.lancer_info.JournalEntry.JDfVPzoWPOLyhCCa.JournalEntryPage.LVsmG9EfKH9VpVJX]{Legal & Acknowlegements}</p>
+  <p>@UUID[Compendium.lancer.lancer_info.JournalEntry.JDfVPzoWPOLyhCCa.JournalEntryPage.gotpldNfOwLxauXi]{Migrating from Earlier Versions}</p>
   `;
 }
 
@@ -57,7 +39,7 @@ export const LANCER = {
   setting_core_data: "coreDataVersion" as const,
   setting_lcps: "installedLCPs" as const,
   setting_stock_icons: "keepStockIcons" as const,
-  setting_welcome: "hideWelcome" as const,
+  // setting_welcome: "hideWelcome" as const, // Deprecated as of v2.7.0
   setting_floating_damage_numbers: "floatingNumbers" as const,
   setting_ui_theme: "uiTheme" as const,
   setting_compcon_login: "compconLogin" as const,

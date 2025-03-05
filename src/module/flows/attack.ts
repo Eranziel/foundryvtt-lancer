@@ -210,7 +210,9 @@ export async function initAttackData(
       }
       let profile = state.item.system.active_profile;
       state.data.attack_type = profile.type === WeaponType.Melee ? AttackType.Melee : AttackType.Ranged;
-
+      if (state.data.attack_type === AttackType.Ranged) {
+        state.data.flat_bonus = state.actor.system.bonuses.flat.ranged_attack || 0;
+      }
       state.data.grit = state.actor.system.grit;
       // Add a +1 flat bonus for Death's Heads. This data isn't in lancer-data, so has to be hard-coded.
       if (state.actor.system.loadout.frame?.value?.system.lid == "mf_deaths_head") {

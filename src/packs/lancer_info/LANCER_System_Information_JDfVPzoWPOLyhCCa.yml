@@ -13,35 +13,31 @@ pages:
       format: 1
       content: >-
         <div class="desc-text"><p><span class="horus--subtle"
-        style="white-space:pre">      WELCOME, LANCER.
-        </span></p>
-        <p><span class="horus--subtle" style="white-space:pre">
-        PLEASE STAND BY WHILE WE MAKE SOME CHANGES.</span></p>
-        <p><span class="horus--subtle"
+        style="white-space:pre">      WELCOME, LANCER. </span></p> <p><span
+        class="horus--subtle" style="white-space:pre"> PLEASE STAND BY WHILE WE
+        MAKE SOME CHANGES.</span></p> <p><span class="horus--subtle"
         style="white-space:pre">               (this won't hurt a bit)
         </span></p></div>
 
         <p></p>
 
-        <p>If this journal popped up automatically, migration of Actors,
-        Items, Scenes, and Tokens is ongoing in the background.</p>
+        <p>If this journal popped up automatically, migration of Actors, Items,
+        Scenes, and Tokens is ongoing in the background.</p>
 
         <p></p>
 
-        <p><strong>DO
-        NOT LOG OFF OR CLOSE THE GAME WHILE MIGRATIONS ARE IN
+        <p><strong>DO NOT LOG OFF OR CLOSE THE GAME WHILE MIGRATIONS ARE IN
         PROGRESS!</strong></p>
 
         <p></p>
 
-        <p>Please be patient and wait until you see
-        the notification "<em>LANCER System Migration to version X.Y.Z
-        completed</em>".</p><p>
+        <p>Please be patient and wait until you see the notification "<em>LANCER
+        System Migration to version X.Y.Z completed</em>".</p><p>
 
         </p><p>
 
-        </p><p>For more information on what has
-        changed recently, read the other pages in this journal and <a
+        </p><p>For more information on what has changed recently, read the other
+        pages in this journal and <a
         href="https://github.com/Eranziel/foundryvtt-lancer/blob/master/CHANGELOG.md">check
         the changelog</a>.</p>
 
@@ -52,28 +48,23 @@ pages:
         migration process and not finishing properly. Here are some common
         issues:</p>
 
-        <ul>
-        <li><b>Unlinked tokens inside of scenes inside of compendiums.</b> If
-        you have a compendium of old scenes from v10 or earlier, you should:
-        <ul><li>import them in your v10 world</li>
-        <li>remove them from the compendium</li>
-        <li>migrate to Lancer 2.X/Foundry v11</li>
-        <li>move them back to the compendium</li>
-        </ul></li>
-        <li><b>Items of invalid types.</b> As detailed in the next page of this
-        journal, the Tag, Manufacturer, Sitrep, Environment, Faction, and Quirk
-        item types have been deprecated in Lancer 2.0. If you had items of
-        these types in your world, they will show up in Settings tab -> Support
-        & Issues -> Document Issues.
-        <ul><li>If you wish to get rid of these items, you can do so by copying
-        the following code into a new script macro and running it, then
-        refreshing the page.
-        <code>game.items.invalidDocumentIds.map(id => game.items.getInvalid(id).delete())</code></li>
-        </ul></li>
-        <li><b>Some modules can interfere with the migration process.</b> If
-        none of the above apply to you, disable all modules and let the
-        migration finish, then re-enable your desired modules.</li>
-        </ul>
+        <ul> <li><b>Unlinked tokens inside of scenes inside of compendiums.</b>
+        If you have a compendium of old scenes from v10 or earlier, you should:
+        <ul><li>import them in your v10 world</li> <li>remove them from the
+        compendium</li> <li>migrate to Lancer 2.X/Foundry v11</li> <li>move them
+        back to the compendium</li> </ul></li> <li><b>Items of invalid
+        types.</b> As detailed in the next page of this journal, the Tag,
+        Manufacturer, Sitrep, Environment, Faction, and Quirk item types have
+        been deprecated in Lancer 2.0. If you had items of these types in your
+        world, they will show up in Settings tab -&gt; Support &amp; Issues
+        -&gt; Document Issues. <ul><li>If you wish to get rid of these items,
+        you can do so by copying the following code into a new script macro and
+        running it, then refreshing the page.
+        <code>game.items.invalidDocumentIds.map(id =&gt;
+        game.items.getInvalid(id).delete())</code></li> </ul></li> <li><b>Some
+        modules can interfere with the migration process.</b> If none of the
+        above apply to you, disable all modules and let the migration finish,
+        then re-enable your desired modules.</li> </ul>
     video:
       controls: true
       volume: 0.5
@@ -86,12 +77,14 @@ pages:
     _stats:
       systemId: lancer
       systemVersion: 2.0.0-rc1
-      coreVersion: "11.315"
+      coreVersion: '12.331'
       createdTime: 1717039148554
       modifiedTime: 1717039451373
       lastModifiedBy: s7zimNuhog9aoiot
-    _key: "!journal.pages!JDfVPzoWPOLyhCCa.gotpldNfOwLxauXi"
-  - sort: 100000
+      compendiumSource: null
+      duplicateSource: null
+    _key: '!journal.pages!JDfVPzoWPOLyhCCa.gotpldNfOwLxauXi'
+  - sort: -100000
     name: Welcome to Lancer 2.0!
     type: text
     _id: 3VVd9FeG9bFeRzkv
@@ -104,63 +97,48 @@ pages:
       content: >-
         <h2>Migration from 1.X - what you need to know</h2>
 
-        <p>The Lancer system
-        has undergone a fairly significant change since the 1.x versions,
-        including simplifications of most of of the data model, as well as the
-        removal of our machine-minds. More importantly, Foundry has evolved
-        significantly as a platform, allowing us to do a lot of nice cleanup in
-        how we store and work with data. As such, we once again need to migrate!
-        Improvements in how Foundry tracks and validates data should make this a
-        fairly painless operation.</p>
+        <p>The Lancer system has undergone a fairly significant change since the
+        1.x versions, including simplifications of most of of the data model, as
+        well as the removal of our machine-minds. More importantly, Foundry has
+        evolved significantly as a platform, allowing us to do a lot of nice
+        cleanup in how we store and work with data. As such, we once again need
+        to migrate! Improvements in how Foundry tracks and validates data should
+        make this a fairly painless operation.</p>
 
-        <p>Unfortunately, your Lancer compendiums
-        will be cleared to prevent issues from old data, so you will need to
-        re-import your LCPs. Some things are also not fully migratable, so you
-        may need to do a bit of reconnecting:</p>
+        <p>Unfortunately, your Lancer compendiums will be cleared to prevent
+        issues from old data, so you will need to re-import your LCPs. Some
+        things are also not fully migratable, so you may need to do a bit of
+        reconnecting:</p>
 
-        <ul>
-        <li>Existing mechs may not
-        be set as active mechs for their pilots, and will not get HASE bonuses
-        etc... You can set a pilot's active mech in the "MECH//ACTIVE" tab on
-        their sheet.</li>
-        <li>Deployables will likely lose the link to their
-        deployers, and will need to be reconnected.</li><li>Deployable tokens in
-        existing scenes may not be the correct size
-        post-migration.</li>
-        </ul>
+        <ul> <li>Existing mechs may not be set as active mechs for their pilots,
+        and will not get HASE bonuses etc... You can set a pilot's active mech
+        in the "MECH//ACTIVE" tab on their sheet.</li> <li>Deployables will
+        likely lose the link to their deployers, and will need to be
+        reconnected.</li><li>Deployable tokens in existing scenes may not be the
+        correct size post-migration.</li> </ul>
 
-        <h2>What Happened to All the
-        Compendiums?</h2>
+        <h2>What Happened to All the Compendiums?</h2>
 
-        <p>We have consolidated the Lancer compendiums, making
-        use of the new feature of folders within compendiums. They are now
-        grouped by which type of actor will use the items in the
-        compendium.</p>
+        <p>We have consolidated the Lancer compendiums, making use of the new
+        feature of folders within compendiums. They are now grouped by which
+        type of actor will use the items in the compendium.</p>
 
-        <p>Also, after lengthy debate, we have trimmed some of
-        the fat in our item types. The following item types are now
-        deprecated:</p>
+        <p>Also, after lengthy debate, we have trimmed some of the fat in our
+        item types. The following item types are now deprecated:</p>
 
-        <ul>
-        <li><code>tag</code>s - which are now tracked via the
-        world settings for efficiency and
-        consistency.</li>
-        <li><code>manufacturer</code>s - which never really
-        warranted an "item", and are now just a string on licensed
-        items.</li>
-        <li><code>sitreps</code>s - which were barely supported to
-        begin with, and didn't make sense to keep as an
-        item.</li>
-        <li><code>environments</code>s - which may see an eventual
-        return, were not supported or implemented to our
-        liking.</li>
-        <li><code>factions</code>s - which may see an eventual
-        return as a journal entry type when those are
-        supported</li>
-        <li><code>quirks</code>s - which seemed to fit better as
-        just a text box.</li>
-        </ul>
-      markdown: ""
+        <ul> <li><code>tag</code>s - which are now tracked via the world
+        settings for efficiency and consistency.</li>
+        <li><code>manufacturer</code>s - which never really warranted an "item",
+        and are now just a string on licensed items.</li>
+        <li><code>sitreps</code>s - which were barely supported to begin with,
+        and didn't make sense to keep as an item.</li>
+        <li><code>environments</code>s - which may see an eventual return, were
+        not supported or implemented to our liking.</li>
+        <li><code>factions</code>s - which may see an eventual return as a
+        journal entry type when those are supported</li>
+        <li><code>quirks</code>s - which seemed to fit better as just a text
+        box.</li> </ul>
+      markdown: ''
     video:
       controls: true
       volume: 0.5
@@ -173,11 +151,57 @@ pages:
     _stats:
       systemId: lancer
       systemVersion: 2.0.0-rc1
-      coreVersion: "11.315"
+      coreVersion: '12.331'
       createdTime: 1717031277945
-      modifiedTime: 1717039472920
-      lastModifiedBy: s7zimNuhog9aoiot
-    _key: "!journal.pages!JDfVPzoWPOLyhCCa.3VVd9FeG9bFeRzkv"
+      modifiedTime: 1741130088072
+      lastModifiedBy: noXx6fCk7156FG8X
+      compendiumSource: null
+      duplicateSource: null
+    _key: '!journal.pages!JDfVPzoWPOLyhCCa.3VVd9FeG9bFeRzkv'
+  - sort: -200000
+    name: Acknowledgements & Legal
+    type: text
+    _id: LVsmG9EfKH9VpVJX
+    system: {}
+    title:
+      show: true
+      level: 1
+    image: {}
+    text:
+      format: 1
+      content: >-
+        <h2>Acknowledgements</h2><p><span>Special thanks to <a class="center"
+        href="https://www.retrogrademinis.com/">Retrograde Minis</a> for our
+        default token artwork.</span></p><div
+        style="text-align:center;margin-top:.5em" class="flex-center"><a
+        href="https://www.retrogrademinis.com/"><img
+        src="https://retrograde-minis.nyc3.digitaloceanspaces.com/text/retrograde-logo.png"
+        alt="Retrograde Minis" /></a></div><p></p><h2>Legal</h2><p>"Lancer for
+        FoundryVTT" is not an official <em>Lancer</em> product; it is a third
+        party work, and is not affiliated with Massif Press. "Lancer for
+        FoundryVTT" is published via the <em>Lancer</em> Third Party
+        License.</p><p><em>Lancer</em> is copyright Massif Press.</p><div
+        style="text-align:center"><a href="https://massifpress.com/legal"><img
+        src="https://massifpress.com/_next/image?url=%2Fimages%2Flegal%2Fpowered_by_Lancer-01.svg&amp;w=640&amp;q=75"
+        alt="Powered by Lancer" /></a></div>
+    video:
+      controls: true
+      volume: 0.5
+    src: null
+    ownership:
+      default: -1
+      noXx6fCk7156FG8X: 3
+    flags: {}
+    _stats:
+      compendiumSource: null
+      duplicateSource: null
+      coreVersion: '12.331'
+      systemId: lancer
+      systemVersion: 2.5.0
+      createdTime: 1741130110357
+      modifiedTime: 1741140148749
+      lastModifiedBy: noXx6fCk7156FG8X
+    _key: '!journal.pages!JDfVPzoWPOLyhCCa.LVsmG9EfKH9VpVJX'
 folder: null
 sort: 0
 ownership:
@@ -187,8 +211,10 @@ flags: {}
 _stats:
   systemId: lancer
   systemVersion: 2.0.0-rc1
-  coreVersion: "11.315"
+  coreVersion: '12.331'
   createdTime: 1717031272559
   modifiedTime: 1717039520390
   lastModifiedBy: s7zimNuhog9aoiot
-_key: "!journal!JDfVPzoWPOLyhCCa"
+  compendiumSource: null
+  duplicateSource: null
+_key: '!journal!JDfVPzoWPOLyhCCa'

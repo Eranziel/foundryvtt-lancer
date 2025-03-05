@@ -110,7 +110,7 @@ const lp = LANCER.log_prefix;
 /* Initialize system                    */
 /* ------------------------------------ */
 addEnrichers();
-Hooks.once("init", function () {
+Hooks.once("init", () => {
   console.log(`Initializing LANCER RPG System ${LANCER.ASCII}`);
 
   CONFIG.ActiveEffect.legacyTransferral = false;
@@ -327,8 +327,6 @@ Hooks.once("ready", async function () {
   console.log(`${lp} Foundry ready, doing final checks.`);
 
   await doMigration();
-
-  await showChangelog();
 
   applyGlobalDragListeners();
 
@@ -559,6 +557,7 @@ Hooks.on("renderChatMessage", async (cm: ChatMessage, html: JQuery, data: any) =
       | JQuery.MouseEnterEvent<HTMLElement, undefined, HTMLElement, HTMLElement>
       | JQuery.MouseLeaveEvent<HTMLElement, undefined, HTMLElement, HTMLElement>
   ) => {
+    if (!canvas.ready) return;
     const targetId = $(ev.target).closest("[data-uuid]").data("uuid");
     if (!targetId) return;
     const token = (await fromUuid(targetId)) as LancerToken | null;
@@ -732,8 +731,8 @@ async function doMigration() {
     );
     return;
   } else if (needsMigrate == "yes" && game.user!.isGM) {
-    // Un-hide the welcome message
-    await game.settings.set(game.system.id, LANCER.setting_welcome, false);
+    // Print the update message to chat
+    printUpdateMessage();
     ui.notifications!.info(
       `Migrating to LANCER version ${game.system.version}. Please be patient and wait until migration completes.`,
       { permanent: true }
@@ -747,6 +746,8 @@ async function doMigration() {
       { permanent: true }
     );
   } else if (needsMigrate == "no" && game.user!.isGM) {
+    // Print the update message to chat
+    printUpdateMessage();
     // Update the stored version number for next migration
     await game.settings.set(game.system.id, LANCER.setting_migration_version, game.system.version);
   }
@@ -772,61 +773,16 @@ async function configureAmplify() {
   }
 }
 
-async function showChangelog() {
-  // Show welcome message if not hidden.
-  if (!game.settings.get(game.system.id, LANCER.setting_welcome)) {
-    let renderChangelog = (changelog: string) => {
-      new Dialog(
-        {
-          title: `Welcome to LANCER v${game.system.version}`,
-          content: WELCOME(changelog),
-          buttons: {
-            dont_show: {
-              label: "Do Not Show Again",
-              callback: async () => {
-                await game.settings.set(game.system.id, LANCER.setting_welcome, true);
-              },
-            },
-            close: {
-              label: "Close",
-            },
-          },
-          default: "Close",
-        },
-        {
-          width: 700,
-        }
-      ).render(true);
-    };
-
-    // Get an automatic changelog for our version
-    let req = $.get(
-      `https://raw.githubusercontent.com/Eranziel/foundryvtt-lancer/v${game.system.version}/CHANGELOG.md`
-    );
-    req.done(async (data, _status) => {
-      // Regex magic to only grab the first 25 lines
-      let r = /(?:[^\n]*\n){25}/;
-      let trimmedChangelog = data.match(r)[0];
-
-      // Grab the position of the last H1 and trim to that to ensure we split along version lines
-      // But also set a min so we're keeping at least one version
-      let lastH1Pos = trimmedChangelog.lastIndexOf("\n# ");
-      if (lastH1Pos < 20) lastH1Pos = trimmedChangelog.length;
-
-      trimmedChangelog = trimmedChangelog.substring(0, lastH1Pos);
-
-      let marked = await import("marked");
-      let changelog = marked.parse(trimmedChangelog);
-
-      renderChangelog(changelog);
-    });
-
-    req.fail((_data, _status) => {
-      let errorText = `<h2>Error retrieving changelog</h2>`;
-
-      renderChangelog(errorText);
-    });
-  }
+/**
+ * Print a chat message to share the changelog link and legalese journal.
+ */
+async function printUpdateMessage() {
+  // Wait until sidebar is ready to render messages
+  while (!ui.sidebar.rendered) await new Promise(resolve => setTimeout(resolve, 100));
+  await ChatMessage.create({
+    content: WELCOME(),
+    speaker: { alias: `LANCER System v${game.system.version}` },
+  });
 }
 
 function addSettingsButtons(_app: Application, html: HTMLElement) {

@@ -29,6 +29,7 @@ import {
 } from "../util/unpacking/packed-types";
 import { LancerActor, LancerMECH, LancerPILOT } from "./lancer-actor";
 import { frameToPath } from "./retrograde-map";
+const lp = LANCER.log_prefix;
 
 // Imports packed pilot data, from either a vault id or gist id
 export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearFirst = false) {
@@ -37,7 +38,7 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
     ui.notifications?.warn("You must build the Core data in the Lancer Compendium Manager before importing.");
     return;
   }
-  console.log("Importing Pilot", pilot, data);
+  console.log(`${lp} Importing Pilot`, pilot, data);
   if (!pilot.is_pilot() || !data) return;
   if (clearFirst) {
     await pilot.deleteEmbeddedDocuments("Item", Array.from(pilot.items.keys()));
@@ -53,7 +54,7 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
   });
 
   try {
-    let unit_folder = pilot.folder;
+    let unitFolder = pilot.folder;
     let permission = foundry.utils.duplicate(pilot.ownership);
 
     // Check whether players are allowed to create Actors
@@ -81,9 +82,9 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
     let bond: LancerBOND | null = null;
     if (data.loadout) {
       // Make a helper to get (a unique copy of) a given lid item, importing if necessary
-      let pilot_item_pool = [...pilot.items.contents];
+      let pilotItemPool = [...pilot.items.contents];
       const getPilotItemByLid = async (lid: string, type: EntryType) => {
-        let fi = pilot_item_pool.findSplice(i => (i as any).system.lid == lid);
+        let fi = pilotItemPool.findSplice(i => (i as any).system.lid == lid);
         if (fi) {
           return fi;
         } else {
@@ -224,7 +225,7 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
       await pilot.updateEmbeddedDocuments("Item", itemUpdates);
 
       // Delete all old items of certain types when done
-      let toDelete = pilot_item_pool.filter(x =>
+      let toDelete = pilotItemPool.filter(x =>
         [EntryType.TALENT, EntryType.SKILL, EntryType.CORE_BONUS].includes(x.type! as EntryType)
       );
       await pilot._safeDeleteDescendant("Item", toDelete);
@@ -291,31 +292,41 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
     });
 
     // Iterate over mechs
-    let active_mech_uuid = "";
-    for (let cloud_mech of data.mechs) {
+    let activeMechUuid = "";
+    for (let cloudMech of data.mechs) {
       // Find the existing mech, or create one as necessary
       let mech = game.actors!.find(
-        (m: LancerActor) => m.is_mech() && m.system.lid == cloud_mech.id
+        (m: LancerActor) => m.is_mech() && m.system.lid == cloudMech.id
       ) as unknown as LancerMECH | null;
       if (!mech) {
-        if (!game.user?.hasPermission("ACTOR_CREATE")) {
+        if (!game.user?.can("ACTOR_CREATE")) {
           ui.notifications?.warn(
-            `Could not import mech '${cloud_mech.name}' as you lack the permission to create new actors. Please ask your GM for assistance (either they import for you, or give you permissions)`
+            `Could not import mech '${cloudMech.name}' as you lack the permission to create new actors. Please ask your GM for assistance (either they import for you, or give you permissions)`
           );
           continue;
         }
 
         mech = (await LancerActor.create({
-          name: cloud_mech.name,
+          name: cloudMech.name,
           type: EntryType.MECH,
-          folder: pilot.folder?.id,
+          folder: unitFolder?.id,
+          ownership: permission,
+          system: {
+            pilot: pilot.uuid,
+          },
         })) as unknown as LancerMECH;
+      }
+      if (!mech.canUserModify(game.user!, "update")) {
+        ui.notifications?.warn(
+          `Could not import mech '${cloudMech.name}' as you lack the permission to update the actor. Please ask your GM for assistance.`
+        );
+        continue;
       }
 
       // Make a helper to get (a unique copy of) a given lid item, importing if necessary
-      let mech_item_pool = [...mech.items.contents];
+      let mechItemPool = [...mech.items.contents];
       const getMechItemByLid = async (lid: string, type: EntryType) => {
-        let fi = mech_item_pool.findSplice(i => (i as any).system.lid == lid);
+        let fi = mechItemPool.findSplice(i => (i as any).system.lid == lid);
         if (fi) {
           return fi;
         } else {
@@ -326,10 +337,10 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
       };
 
       // Do our preliminary loadout buildup
-      let loadout = cloud_mech.loadouts[cloud_mech.active_loadout_index];
+      let loadout = cloudMech.loadouts[cloudMech.active_loadout_index];
 
       // Populate our frame
-      let frame = (await getMechItemByLid(cloud_mech.frame, EntryType.FRAME)) as LancerFRAME | null;
+      let frame = (await getMechItemByLid(cloudMech.frame, EntryType.FRAME)) as LancerFRAME | null;
 
       // Populate our systems
       let flatSystems = [...loadout.integratedSystems, ...loadout.systems];
@@ -409,38 +420,38 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
 
       // Do base actor update, collecting weapons as we go
       await mech.update({
-        name: cloud_mech.name,
-        folder: unit_folder ? unit_folder.id : null,
-        img: replaceDefaultResource(mech.img, cloud_mech.portrait, frame ? frameToPath(frame.name) : null),
+        name: cloudMech.name,
+        folder: unitFolder ? unitFolder.id : null,
+        img: replaceDefaultResource(mech.img, cloudMech.portrait, frame ? frameToPath(frame.name) : null),
         permission,
         prototypeToken: {
-          name: pilot.system.callsign || cloud_mech.name,
+          name: pilot.system.callsign || cloudMech.name,
           disposition: CONST.TOKEN_DISPOSITIONS.FRIENDLY,
           "texture.src": replaceDefaultResource(
             mech.prototypeToken?.texture?.src,
-            cloud_mech.cloud_portrait,
+            cloudMech.cloud_portrait,
             frame ? frameToPath(frame.name) : null
           ),
         },
         system: {
           // Universal stuff
-          lid: cloud_mech.id,
-          "hp.value": cloud_mech.current_hp,
-          "overshield.value": cloud_mech.overshield,
-          burn: cloud_mech.burn,
-          activations: cloud_mech.activations,
+          lid: cloudMech.id,
+          "hp.value": cloudMech.current_hp,
+          "overshield.value": cloudMech.overshield,
+          burn: cloudMech.burn,
+          activations: cloudMech.activations,
           // custom_counters: cloud_mech. - CC Doesn't have these except on pilots
-          "heat.value": cloud_mech.current_heat,
-          "stress.value": cloud_mech.current_stress,
-          "structure.value": cloud_mech.current_structure,
+          "heat.value": cloudMech.current_heat,
+          "stress.value": cloudMech.current_stress,
+          "structure.value": cloudMech.current_structure,
 
           // Mech stuff
-          overcharge: cloud_mech.current_overcharge,
-          "repairs.value": cloud_mech.current_repairs,
-          core_active: cloud_mech.core_active,
-          core_energy: cloud_mech.current_core_energy,
+          overcharge: cloudMech.current_overcharge,
+          "repairs.value": cloudMech.current_repairs,
+          core_active: cloudMech.core_active,
+          core_energy: cloudMech.current_core_energy,
           // meltdown_timer: - CC doesn't help with this
-          notes: cloud_mech.notes,
+          notes: cloudMech.notes,
           pilot: pilot.uuid,
           // Maybe handle ejected state? Who cares?
           loadout: {
@@ -454,7 +465,7 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
       // If the pilot does not have an active mech, set the first one as active.
       // Otherwise, this will set the active mech to match Comp/Con.
       if (!data.state?.active_mech_id || mech.system.lid == data.state?.active_mech_id) {
-        active_mech_uuid = mech.uuid;
+        activeMechUuid = mech.uuid;
       }
 
       // Synchronize our weapon states
@@ -513,7 +524,7 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
 
     // Fix active mech
     await pilot.update({
-      "system.active_mech": active_mech_uuid,
+      "system.active_mech": activeMechUuid,
     });
     pilot.effectHelper.propagateEffects(true);
 

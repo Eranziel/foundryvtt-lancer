@@ -24,6 +24,23 @@
   }
 }
 
+.application .window-content.lancer-changelog {
+  overflow-y: scroll;
+
+  .dialog-content.standard-form {
+    gap: 0;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--main-font-family);
+    margin-top: 0.5em;
+    margin-bottom: 0;
+  }
+}
+
 /* ===== RULES FOR ALL APPLICATIONS ===== */
 .application .window-content {
   button,

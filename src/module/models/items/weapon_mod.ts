@@ -2,7 +2,6 @@ import type { DeepPartial } from "@league-of-foundry-developers/foundry-vtt-type
 import { EntryType, makeWeaponSizeChecklist, makeWeaponTypeChecklist } from "../../enums";
 import { SourceData } from "../../source-template";
 import { PackedWeaponModData } from "../../util/unpacking/packed-types";
-import { unpackDeployable } from "../actors/deployable";
 import { unpackAction } from "../bits/action";
 import { unpackBonus } from "../bits/bonus";
 import { unpackCounter } from "../bits/counter";
@@ -12,6 +11,7 @@ import { unpackSynergy } from "../bits/synergy";
 import { TagField, unpackTag } from "../bits/tag";
 import { LancerDataModel, UnpackContext, WeaponSizeChecklistField, WeaponTypeChecklistField } from "../shared";
 import {
+  addDeployableTags,
   migrateManufacturer,
   template_bascdt,
   template_destructible,
@@ -61,6 +61,7 @@ export function unpackWeaponMod(
   type: EntryType.WEAPON_MOD;
   system: DeepPartial<SourceData.WeaponMod>;
 } {
+  const { deployables, tags } = addDeployableTags(data.deployables, data.tags, context);
   return {
     name: data.name,
     type: EntryType.WEAPON_MOD,
@@ -70,7 +71,7 @@ export function unpackWeaponMod(
       bonuses: data.bonuses?.map(unpackBonus),
       cascading: undefined,
       counters: data.counters?.map(unpackCounter),
-      deployables: data.deployables?.map(d => unpackDeployable(d, context)),
+      deployables,
       description: data.description,
       destroyed: undefined,
       effect: data.effect,
@@ -80,7 +81,7 @@ export function unpackWeaponMod(
       manufacturer: data.source,
       sp: data.sp,
       synergies: data.synergies?.map(unpackSynergy),
-      tags: data.tags?.map(unpackTag),
+      tags,
       uses: { value: 0, max: 0 },
       added_damage: data.added_damage?.map(unpackDamage),
       added_range: data.added_range?.map(unpackRange),

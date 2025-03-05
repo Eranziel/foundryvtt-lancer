@@ -85,6 +85,11 @@ export const defaultStatuses = [
     img: `systems/lancer/assets/icons/white/status_shutdown.svg`,
   },
   {
+    id: "bolster",
+    name: "lancer.statusIconsNames.bolster",
+    img: "icons/svg/upgrade.svg",
+  },
+  {
     id: "npc_tier_1",
     name: "lancer.statusIconsNames.npc_tier_1",
     img: `systems/lancer/assets/icons/white/npc_tier_1.svg`,
@@ -98,6 +103,11 @@ export const defaultStatuses = [
     id: "npc_tier_3",
     name: "lancer.statusIconsNames.npc_tier_3",
     img: `systems/lancer/assets/icons/white/npc_tier_3.svg`,
+  },
+  {
+    id: "flying",
+    name: "lancer.statusIconsNames.flying",
+    img: "icons/svg/wing.svg",
   },
   {
     id: "cover_hard",
@@ -137,6 +147,11 @@ export const defaultStatuses = [
 ];
 
 export const cancerConditionsStatus = [
+  {
+    id: "bolster",
+    name: "lancer.statusIconsNames.bolster",
+    img: "icons/svg/upgrade.svg",
+  },
   {
     id: "burn",
     name: "lancer.statusIconsNames.burn",
@@ -402,6 +417,11 @@ export const hayleyConditionsStatus = [
     id: "stunned",
     name: "lancer.statusIconsNames.stunned",
     img: "systems/lancer/assets/icons/alt-status/hayleycondstat/stunned.webp",
+  },
+  {
+    id: "flying",
+    name: "lancer.statusIconsNames.flying",
+    img: "systems/lancer/assets/icons/alt-status/hayleyutil/flying.webp",
   },
   {
     id: "resistance_burn",
@@ -696,11 +716,6 @@ export const hayleyUtility = [
     id: "burn",
     name: "lancer.statusIconsNames.burn",
     img: "systems/lancer/assets/icons/alt-status/hayleyutil/burn.webp",
-  },
-  {
-    id: "flying",
-    name: "lancer.statusIconsNames.flying",
-    img: "systems/lancer/assets/icons/alt-status/hayleyutil/flying.webp",
   },
   {
     id: "overshield",

@@ -416,9 +416,7 @@ export class LancerItem extends Item {
     // Convert bonuses
     effects.push(
       ...bonus_groups
-        .flatMap(bg =>
-          bg.bonuses.map(b => convertBonus(this.uuid, bg.group ? `${this.name} - ${bg.group}` : this.name!, b))
-        )
+        .flatMap(bg => bg.bonuses.map(b => convertBonus(this, bg.group ? `${this.name} - ${bg.group}` : this.name!, b)))
         .filter(b => b)
     );
 

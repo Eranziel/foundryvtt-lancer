@@ -143,7 +143,6 @@
   }
 
   function gritSign() {
-    console.log(typeof base.grit);
     if (base.grit > 0) return "+";
     return "";
   }
