@@ -255,7 +255,7 @@ export async function parseContentPack(binString: ArrayBuffer | string): Promise
   const skills = generateIDs(await getZipData<PackedSkillData>(zip, "skills.json"), "sk");
   const talents = generateIDs(await getZipData<PackedTalentData>(zip, "talents.json"), "t");
   const bonds = generateIDs(await getZipData<PackedBondData>(zip, "bonds.json"), "bond");
-  const reserves = generateIDs(await getZipData<PackedReserveData>(zip, "reserve.json"), "reserve");
+  const reserves = generateIDs(await getZipData<PackedReserveData>(zip, "reserves.json"), "reserve");
   const tags = generateIDs(await getZipData<PackedTagTemplateData>(zip, "tags.json"), "tg");
   const statuses = generateIDs(
     (await getZipData<PackedStatusData>(zip, "statuses.json")).map(status => ({
