@@ -144,15 +144,6 @@ export const registerSettings = function () {
     default: {},
   });
 
-  game.settings.register(game.system.id, LANCER.setting_welcome, {
-    name: "Hide Welcome Message",
-    hint: "Hide the welcome message for the latest update to the Lancer system.",
-    scope: "client",
-    config: true,
-    type: Boolean,
-    default: false,
-  });
-
   game.settings.register(game.system.id, LANCER.setting_dsn_setup, {
     scope: "world",
     config: false,

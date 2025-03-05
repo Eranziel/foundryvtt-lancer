@@ -9,6 +9,8 @@ import { LancerItem } from "./item/lancer-item";
 import { LancerTokenDocument } from "./token";
 import { get_pack, get_pack_id } from "./util/doc";
 
+const { log_prefix: lp } = LANCER;
+
 /**
  * DataModels should internally handle any migrations across versions.
  * However, it can be helpful for efficiency to occasionally "write all" to world objects that are
@@ -44,13 +46,24 @@ function migrationProgress(count: number) {
 export async function migrateWorld() {
   const curr_version = game.settings.get(game.system.id, LANCER.setting_migration_version);
 
-  const journals = await game.packs.get("lancer.lancer_info")?.getDocuments({ name: "LANCER System Information" });
-  if (journals.length) {
-    await journals[0].sheet?.render(true);
-  }
-
   // Migrate from the pre-2.0 compendium structure the combined compendiums
   if (foundry.utils.isNewerVersion("2.0.0", curr_version)) {
+    console.log(`${lp} World is coming from 1.X. Show the migration journal and clear compendiums.`);
+    // Show the migration journal if the world is coming from 1.X.
+    const journals = await game.packs.get("lancer.lancer_info")?.getDocuments({ name: "LANCER System Information" });
+    if (journals.length) {
+      const systemInfo = journals[0] as JournalEntry;
+      const migrationPage = systemInfo.pages.find(p => p.name.startsWith("Migrating"));
+      await systemInfo.sheet?.render(true);
+      const showPage = async () => {
+        while (!systemInfo.sheet?.rendered) {
+          await new Promise(r => setTimeout(r, 100));
+        }
+        // await new Promise(r => setTimeout(r, 3000));
+        systemInfo.sheet?.goToPage(migrationPage._id);
+      };
+      showPage();
+    }
     await clearCompendiumData({ v1: true });
     await migrateCompendiumStructure();
   }
