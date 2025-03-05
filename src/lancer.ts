@@ -30,7 +30,8 @@ import { LancerLicenseSheet } from "./module/item/license-sheet";
 import { WeaponRangeTemplate } from "./module/pixi/weapon-range-template";
 
 // Import helpers
-import { addLCPManager, core_update, updateCore } from "./module/apps/lcp-manager";
+import { LCPManager } from "./module/apps/lcp-manager/lcp-manager";
+import { addLCPManagerButton } from "./module/apps/lcp-manager/lcp-manager";
 import { attachTagTooltips } from "./module/helpers/tags";
 import { preloadTemplates } from "./module/preload-templates";
 import { getAutomationOptions, registerSettings } from "./module/settings";
@@ -416,7 +417,7 @@ Hooks.on("updateCombat", (_combat: Combat, changes: object) => {
 
 // Create sidebar button to import LCP
 Hooks.on("renderSidebarTab", async (app: Application, html: HTMLElement) => {
-  addLCPManager(app, html);
+  addLCPManagerButton(app, html);
 });
 
 // TODO: keep or remove?
@@ -588,31 +589,27 @@ Hooks.on("hotbarDrop", (_bar: any, data: any, slot: number) => {
 });
 
 /**
- * Prompts users to install core data
- * Designed for use the first time you launch a new world
+ * For use on first run of a new world. Open the LCP manager so user can install core data.
  */
 async function promptInstallCoreData() {
-  let version = core_update;
-  let text = `
+  // Open the LCP manager
+  let app = new LCPManager();
+  await app.render(true);
+  // Render a dialog on top to explain
+  let content = `
   <h2 style="text-align: center">WELCOME GAME MASTER</h2>
   <p style="text-align: center;margin-bottom: 1em">THIS IS YOUR <span class="horus--very--subtle">FIRST</span> TIME LAUNCHING</p>
-  <p style="text-align: center;margin-bottom: 1em">WOULD YOU LIKE TO INSTALL <span class="horus--very--subtle">CORE</span> LANCER DATA <span class="horus--very--subtle">v${version}?</span></p>`;
+  <p style="text-align: center;margin-bottom: 1em">Use the LANCER Compendium Manager window to install the <span class="horus--very--subtle">LANCER DATA</span> you wish to use.</p>`;
   new Dialog(
     {
       title: `Install Core Data`,
-      content: text,
+      content,
       buttons: {
-        yes: {
-          label: "Yes",
-          callback: async () => {
-            await updateCore(version);
-          },
-        },
-        close: {
-          label: "No",
+        ok: {
+          label: "OK",
         },
       },
-      default: "No",
+      default: "OK",
     },
     {
       width: 700,
@@ -662,15 +659,13 @@ function setupSheets() {
  * Check whether the world needs any migration.
  * @return True if migration is required
  */
-async function versionCheck(): Promise<"yes" | "no" | "too_old"> {
+async function versionCheck(): Promise<"first_run" | "yes" | "no" | "too_old"> {
   // Determine whether a system migration is required and feasible
   const currentVersion = game.settings.get(game.system.id, LANCER.setting_migration_version);
 
   // If it's 0 then it's a fresh install
   if (currentVersion === "0" || !currentVersion) {
-    game.settings.set(game.system.id, LANCER.setting_migration_version, game.system.version);
-    await promptInstallCoreData();
-    return "no";
+    return "first_run";
   }
 
   // Check if its before new rolling migration system was integrated
@@ -682,14 +677,50 @@ async function versionCheck(): Promise<"yes" | "no" | "too_old"> {
   return foundry.utils.isNewerVersion(game.system.version, currentVersion) ? "yes" : "no";
 }
 
+async function promptLCPManagerTour() {
+  const showTour = await foundry.applications.api.DialogV2.confirm({
+    // @ts-expect-error This should expect a partial
+    window: { title: "Compendium Manager Tour?" },
+    content: "The LANCER Compendium Manager has had a major update. Would you like to get a tour?",
+    rejectClose: false,
+  });
+  if (!showTour) return;
+  const lcpTour: Tour | undefined = game.tours.get(`${game.system.id}.lcp`);
+  if (!lcpTour) {
+    console.error(`${lp} LCP manager tour not found.`);
+    return;
+  }
+  console.log(`${lp} Starting LCP manager tour`);
+  lcpTour.start();
+}
+
 /**
  * Performs our version validation and migration
  */
 async function doMigration() {
+  const oldVersion = game.settings.get(game.system.id, LANCER.setting_migration_version);
+  // Auxiliary - settings and tour migrations
+  if (foundry.utils.isNewerVersion("2.7.0", oldVersion)) {
+    console.log(`${lp} Game is migrating from ${oldVersion}. Should show LCP manager tour`);
+    // New LCP manager was introduced in version 2.7.0
+    // Reset LCP manager tour
+    const lcpTour: Tour | undefined = game.tours.get(`${game.system.id}.lcp`);
+    if (!lcpTour) {
+      console.error(`${lp} LCP manager tour not found.`);
+      return;
+    }
+    await lcpTour.reset();
+    // Ask to show LCP manager tour. Do not await, let it sit in the background
+    // while the rest of the migration work proceeds.
+    promptLCPManagerTour();
+  }
+
   // Determine whether a system migration  is needed
   let needsMigrate = await versionCheck();
-
-  if (needsMigrate == "too_old") {
+  if (needsMigrate == "first_run") {
+    game.settings.set(game.system.id, LANCER.setting_migration_version, game.system.version);
+    await promptInstallCoreData();
+  } else if (needsMigrate == "too_old") {
     // System version is too old for migration
     ui.notifications!.error(
       `Your LANCER system data is from too old a version (${game.settings.get(

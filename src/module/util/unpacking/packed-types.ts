@@ -160,9 +160,10 @@ export interface PackedAmmoData {
 }
 
 export interface PackedReserveData {
-  type?: string;
-  name?: string;
-  label?: string;
+  id: string;
+  type: string;
+  name: string;
+  label: string;
   description?: string;
   resource_name?: string; // Seems vestigial, unused by lancer-data
   resource_note?: string; // Seems vestigial, unused by lancer-data
@@ -170,7 +171,6 @@ export interface PackedReserveData {
   used: boolean;
   consumable: boolean;
   synergies?: PackedSynergyData[];
-  id: string;
   deployables?: PackedDeployableData[];
   counters?: PackedCounterData[];
   integrated?: string[];

@@ -1,9 +1,9 @@
-<form autocomplete="off" class="prototype">
+<form autocomplete="off" class="prototype lancer-content-manager">
   <div class="flexcol">
     {{! Update core data }}
     {{#if coreUpdate}}
       <div class="card clipped flexcol">
-        <div class="lancer-header lancer-primary major">LANCER Core Data</div>
+        <div class="lancer-header lancer-primary major">Official LANCER Content</div>
         <div class="form fields flexrow" style="align-items: center">
           <span style="margin: 5px 10px">
             {{#if coreVersion}}
@@ -35,6 +35,16 @@
               Rebuild Core Data
             </button>
           {{/if}}
+        </div>
+        {{! Official LCPs }}
+        <div class="massif-content-table">
+          {{#each officialData as |pack|}}
+            <input class="massif-content-checkbox" name="{{pack.id}}" checked type="checkbox" />
+            <span class="massif-content-label" style="margin: 5px 10px">{{pack.name}}</span>
+            <span class="massif-content-curr-version" style="margin: 5px 10px">{{pack.version}}</span>
+            <span class="massif-content-icon" style="margin: 5px 10px"><i class="fas fa-arrow-right"></i></span>
+            <span class="massif-content-avail-version" style="margin: 5px 10px">{{pack.version}}</span>
+          {{/each}}
         </div>
       </div>
     {{/if}}

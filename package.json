@@ -50,7 +50,15 @@
     "yargs": "^15.4.1"
   },
   "dependencies": {
-    "@massif/lancer-data": "^3.1.5",
+    "@massif/dustgrave-data": "^1.4.0",
+    "@massif/ktb-data": "^1.2.4",
+    "@massif/lancer-data": "^3.1.7",
+    "@massif/long-rim-data": "^1.2.2",
+    "@massif/osr-data": "^1.2.0",
+    "@massif/ows-data": "^1.0.1",
+    "@massif/sotw-data": "^1.0.2",
+    "@massif/ssmr-data": "^1.7.0",
+    "@massif/wallflower-data": "^2.1.0",
     "@types/marked": "^1.2.1",
     "aws-amplify": "^5.3.21",
     "fp-ts": "^2.11.2",
