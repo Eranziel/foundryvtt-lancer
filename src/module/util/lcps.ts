@@ -465,11 +465,11 @@ export async function getOfficialData(lcpIndex?: LCPIndex): Promise<LCPData[]> {
 export function mergeOfficialDataAndLcpIndex(officialData: LCPData[], lcpIndex: LCPIndex): LCPData[] {
   const indexData: LCPData[] = lcpIndex.index
     // Filter out any LCPs that are in the index and in the official data
-    .filter(lcp => !officialData.find(odLcp => lcp.name === odLcp.title && lcp.author && odLcp.author))
+    .filter(lcp => !officialData.find(odLcp => lcp.name === odLcp.title && lcp.author === odLcp.author))
     .map(lcp => ({
       ...lcp,
       title: lcp.name,
-      id: lcp.item_prefix || lcp.name.replace(/\s/g, "-").toLowerCase(),
+      id: lcp.name.replace(/\s/g, "-").toLowerCase(),
       availableVersion: "",
       currentVersion: lcp.version,
     }));
