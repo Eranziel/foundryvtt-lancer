@@ -1,3 +1,12 @@
+# 2.7.1 (2025-03-05)
+
+## Bug Fixes
+
+- Fix a bug causing reserves from manually selected LCP files to not be imported.
+- Fix a bug causing the system update chat message to be duplicated every time the game page loads.
+- Give the "Clear Compendiums" button distinct styling and a confirmation prompt.
+- Update the "Lancer Help" and first launch dialogs to DialogV2.
+
 # 2.7.0 (2025-03-04)
 
 ## Features
