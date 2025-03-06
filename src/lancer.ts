@@ -807,20 +807,21 @@ function addSettingsButtons(_app: Application, html: HTMLElement) {
   faqButton.on("click", async () => {
     let helpContent = await renderTemplate(`systems/${game.system.id}/templates/window/lancerHelp.hbs`, {});
 
-    new Dialog(
-      {
+    new foundry.applications.api.DialogV2({
+      window: {
         title: `LANCER Help`,
-        content: helpContent,
-        buttons: {
-          close: {
-            label: "Close",
-          },
-        },
-        default: "Close",
+        icon: "fas fa-robot",
       },
-      {
+      content: helpContent,
+      position: {
         width: 600,
-      }
-    ).render(true);
+      },
+      buttons: [
+        {
+          action: "close",
+          label: "Close",
+        },
+      ],
+    }).render(true);
   });
 }
