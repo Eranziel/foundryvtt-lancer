@@ -38,7 +38,7 @@ export function unpackPilotWeapon(
   type: EntryType.PILOT_WEAPON;
   system: DeepPartial<SourceData.PilotWeapon>;
 } {
-  const { deployables, tags } = addDeployableTags(data.deployables, undefined, context);
+  const { deployables, tags } = addDeployableTags(data.deployables, data.tags, context);
   return {
     name: data.name,
     type: EntryType.PILOT_WEAPON,
