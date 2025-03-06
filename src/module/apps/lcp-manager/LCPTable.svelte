@@ -279,5 +279,14 @@
       max-height: 3em;
       margin: 0.5em 0;
     }
+
+    .lcp-clear-all {
+      background-color: var(--background-color);
+      border: 1px solid var(--lighten-5);
+      &:hover {
+        background-color: var(--color-level-error-bg);
+        border: 1px solid var(--color-level-error-border);
+      }
+    }
   }
 </style>
