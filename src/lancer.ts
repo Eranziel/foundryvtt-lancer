@@ -746,8 +746,6 @@ async function doMigration() {
       { permanent: true }
     );
   } else if (needsMigrate == "no" && game.user!.isGM) {
-    // Print the update message to chat
-    printUpdateMessage();
     // Update the stored version number for next migration
     await game.settings.set(game.system.id, LANCER.setting_migration_version, game.system.version);
   }
