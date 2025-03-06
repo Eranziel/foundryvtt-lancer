@@ -29,7 +29,7 @@ export function unpackPilotArmor(
   type: EntryType.PILOT_ARMOR;
   system: DeepPartial<SourceData.PilotArmor>;
 } {
-  const { deployables, tags } = addDeployableTags(data.deployables, undefined, context);
+  const { deployables, tags } = addDeployableTags(data.deployables, data.tags, context);
   return {
     name: data.name,
     type: EntryType.PILOT_ARMOR,
