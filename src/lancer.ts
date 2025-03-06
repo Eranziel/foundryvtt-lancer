@@ -600,21 +600,19 @@ async function promptInstallCoreData() {
   <h2 style="text-align: center">WELCOME GAME MASTER</h2>
   <p style="text-align: center;margin-bottom: 1em">THIS IS YOUR <span class="horus--very--subtle">FIRST</span> TIME LAUNCHING</p>
   <p style="text-align: center;margin-bottom: 1em">Use the LANCER Compendium Manager window to install the <span class="horus--very--subtle">LANCER DATA</span> you wish to use.</p>`;
-  new Dialog(
-    {
-      title: `Install Core Data`,
-      content,
-      buttons: {
-        ok: {
-          label: "OK",
-        },
-      },
-      default: "OK",
-    },
-    {
+  new foundry.applications.api.DialogV2({
+    window: { title: `Install Core Data`, icon: "cci cci-content-manager i--sm" },
+    position: {
       width: 700,
-    }
-  ).render(true);
+    },
+    content,
+    buttons: [
+      {
+        action: "close",
+        label: "Close",
+      },
+    ],
+  }).render(true);
 }
 
 function setupSheets() {
@@ -700,7 +698,7 @@ async function promptLCPManagerTour() {
 async function doMigration() {
   const oldVersion = game.settings.get(game.system.id, LANCER.setting_migration_version);
   // Auxiliary - settings and tour migrations
-  if (foundry.utils.isNewerVersion("2.7.0", oldVersion)) {
+  if (oldVersion && foundry.utils.isNewerVersion("2.7.0", oldVersion)) {
     console.log(`${lp} Game is migrating from ${oldVersion}. Should show LCP manager tour`);
     // New LCP manager was introduced in version 2.7.0
     // Reset LCP manager tour
