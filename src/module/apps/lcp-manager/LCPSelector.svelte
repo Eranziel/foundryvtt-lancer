@@ -54,6 +54,18 @@
     while (filesData.some(fd => !fd.loaded)) {
       await new Promise(resolve => setTimeout(resolve, 100));
     }
+    // If there's only one pack, parse it and dispatch the loaded event
+    if (filesData.length === 1) {
+      const fd = filesData[0];
+      if (!fd.data) {
+        ui.notifications.error(`Failed to load LCP ${fd.name}`);
+        return;
+      }
+      fd.cp = await parseContentPack(fd.data);
+      dispatch("lcpLoaded", { contentPacks: [fd.cp], contentSummary: generateLcpSummary(fd.cp) });
+      return;
+    }
+
     // Parse the content packs
     const aggregateManifest: IContentPackManifest = {
       name: "Selected LCPs",
