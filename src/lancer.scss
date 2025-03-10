@@ -753,6 +753,36 @@ $theme-types: "primary" "secondary" "dark-gray" "light-gray" "tooltip"    // Gen
   width: 3ch;
 }
 
+.lancer-license {
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+}
+
+.edit-license-wrapper {
+  border: 1px solid var(--secondary-color);
+  border-radius: 5px;
+  margin: 0.5em;
+
+  .rank-wrapper {
+    align-items: center;
+    justify-content: center;
+    flex-wrap: unset;
+
+    & span {
+      margin-right: 0.5em;
+      font-size: 1.2em;
+      flex-grow: unset;
+    }
+
+    & input {
+      max-width: 2em;
+    }
+  }
+}
+
 .labeled-input {
   flex-grow: unset;
 }
@@ -2357,27 +2387,6 @@ a.activation-chip > i.mdi {
 .sheet-weapon-mod > .flexcol > * {
   flex-grow: unset;
   margin-bottom: 0.25em;
-}
-
-.rank-wrapper {
-  align-items: center;
-  justify-content: center;
-  border-color: var(--secondary-highlight);
-  border-width: 0px 1px 1px;
-  border-style: solid;
-  position: relative;
-  top: -1px;
-  padding: 2px;
-}
-
-.rank-wrapper span {
-  margin-right: 0.5em;
-  font-size: 1.2em;
-  flex-grow: unset;
-}
-
-.rank-wrapper input {
-  max-width: 2em;
 }
 
 .uses-editor > span {

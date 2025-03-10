@@ -10,12 +10,13 @@ import {
   std_enum_select,
   std_num_input,
 } from "./commons";
-import { LancerItem } from "../item/lancer-item";
+import { LancerItem, LancerLICENSE } from "../item/lancer-item";
 import { ActionData } from "../models/bits/action";
 import { BonusData } from "../models/bits/bonus";
 import { SynergyData } from "../models/bits/synergy";
-import { ActivationType, ReserveType, WeaponSize, WeaponType } from "../enums";
+import { ActivationType, EntryType, ReserveType, WeaponSize, WeaponType } from "../enums";
 import { RangeData } from "../models/bits/range";
+import { ref_params } from "./refs";
 
 export function item_edit_arrayed_actions(path: string, title: string, options: HelperOptions): string {
   let doc = helper_root_doc(options);
@@ -280,32 +281,35 @@ export function item_edit_arrayed_integrated(path: string, title: string, option
 
 /**
  * Renders a license to be used in any editable item.
- * Rank is editable, license itself is editable via drag & drop.
+ * Rank is editable, (TODO: license itself is editable via drag & drop).
  * TODO: Should probably abstract out license data to not be locked to the root
  * @param options    Standard helper from the template
  * @returns         HTML for license in string format
  */
 export function item_edit_license(options: HelperOptions): string {
-  let license: string | null = options.data.root?.system?.license || null;
+  let license: LancerLICENSE | null = options.data.root?.license || null;
   let licenseInfo: string;
-  if (!license) licenseInfo = "No license";
-  else {
-    licenseInfo = license; // TODO - use a sync lookup to make this look nice
-    /*
-      licenseInfo = `<div class="set ${EntryType.LICENSE} ref lancer-header lancer-license medium clipped-top" ${ref_params(license)}>
+  let rankInfo: string;
+  if (!license) {
+    licenseInfo = `<div class="lancer-license medium">
+      <span class="major modifier-name">No License</span>
+    </div>`;
+    rankInfo = ``;
+  } else {
+    licenseInfo = `<div class="${EntryType.LICENSE} ref lancer-license medium" ${ref_params(license)}>
       <i class="cci cci-license i--m i--dark"> </i>
       <span class="major modifier-name">${license.name}</span>
     </div>`;
-    */
+    rankInfo = `<div class="flexrow rank-wrapper">
+    <span>Rank</span>
+    <input name="system.license_level" value="${options.data.root.data.system.license_level}" type="number" data-dtype="Number" />
+</div>`;
   }
 
   return `      
-    <div class="flexcol edit-license-wrapper">
+    <div class="flexrow edit-license-wrapper">
         ${licenseInfo}
-        <div class="flexrow rank-wrapper">
-            <span>Rank</span>
-            <input name="system.license_level" value="${options.data.root.data.system.license_level}" type="number" data-dtype="Number" />
-        </div>
+        ${rankInfo}
     </div>`;
 }
 

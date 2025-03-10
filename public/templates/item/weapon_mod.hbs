@@ -2,7 +2,7 @@
   {{! Sheet Header }}
   <header class="sheet-header card clipped-bot">
     <div class="flexrow">
-      <div class="header-fields">
+      <div class="header-fields flexcol grow">
         <h1 class="charname">
           <input
             class="header-field"
@@ -12,6 +12,7 @@
             placeholder="{{localize 'lancer.placeholder.name'}}"
           />
         </h1>
+        {{{item-edit-license}}}
       </div>
       {{{ref-portrait-img item.img "img" item}}}
     </div>
@@ -35,7 +36,6 @@
       {{{item-edit-arrayed-tags "system.tags" "TAGS"}}}
     </div>
     <div class="flexcol" style="flex-basis: 33%;">
-      {{{item-edit-license}}}
       {{{item-edit-sp "system.sp"}}}
       {{#if (is-limited item)}}
         {{{limited-uses-indicator item "item"}}}
