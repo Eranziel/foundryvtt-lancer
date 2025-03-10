@@ -375,6 +375,12 @@ export function pilotArmorSlot(armor_path: string, options: HelperOptions): stri
   let eva_val = bonuses.find(b => b.lid == "pilot_evasion")?.val ?? "0";
   let hp_val = bonuses.find(b => b.lid == "pilot_hp")?.val ?? "0";
 
+  const description = armor.system.description
+    ? `<div class="effect-text" style=" padding: 5px">
+    ${armor.system.description}
+  </div>`
+    : "";
+
   return `<div class="set ref drop-settable card clipped-top pilot-armor-compact item lancer-border-primary" 
                 ${ref_params(armor, armor_path)} 
                 data-accept-types="${EntryType.PILOT_ARMOR}"
@@ -408,9 +414,7 @@ export function pilotArmorSlot(armor_path: string, options: HelperOptions): stri
                 <span class="minor">${speed_val}</span>
               </div>
             </div>
-            <div class="effect-text" style=" padding: 5px">
-              ${armor.system.description}
-            </div>
+            ${description}
             ${compactTagListHBS(armor_path + ".system.tags", options)}
           </div>`;
 }
