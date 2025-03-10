@@ -14,9 +14,9 @@ import {
 import { handleContextMenus } from "../helpers/item";
 import { applyCollapseListeners, CollapseHandler, initializeCollapses } from "../helpers/collapse";
 import { ActionEditDialog } from "../apps/action-editor";
-import { find_license_for, get_pack_id } from "../util/doc";
+import { findLicenseFor, get_pack_id } from "../util/doc";
 import { lookupOwnedDeployables } from "../util/lid";
-import { EffectType, EntryType, StatusConditionType } from "../enums";
+import { EntryType, StatusConditionType } from "../enums";
 import { LancerDEPLOYABLE } from "../actor/lancer-actor";
 import { BonusEditDialog } from "../apps/bonus-editor";
 import { OrgType } from "../enums";
@@ -178,9 +178,9 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet<Documen
     // Additionally we would like to find a matching license. Re-use ctx, try both a world and global reg, actor as well if it exists
     data.license = null;
     if (this.actor?.is_pilot() || this.actor?.is_mech()) {
-      data.license = await find_license_for(this.item, this.actor!);
+      data.license = await findLicenseFor(this.item, this.actor!);
     } else {
-      data.license = await find_license_for(this.item);
+      data.license = await findLicenseFor(this.item);
     }
 
     if (this.item.is_organization()) {

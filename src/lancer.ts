@@ -188,7 +188,7 @@ Hooks.once("init", () => {
   };
 
   // Configure indexes
-  CONFIG.Item.compendiumIndexFields = ["system.lid", "system.license"];
+  CONFIG.Item.compendiumIndexFields = ["system.lid", "system.license", "system.key"]; // key is for licenses
   CONFIG.Actor.compendiumIndexFields = ["system.lid"];
 
   // Register custom system settings
