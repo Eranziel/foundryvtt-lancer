@@ -765,6 +765,12 @@ $theme-types: "primary" "secondary" "dark-gray" "light-gray" "tooltip"    // Gen
   border: 1px solid var(--secondary-color);
   border-radius: 5px;
   margin: 0.5em;
+  padding: 0 0.25em;
+  width: min-content;
+  max-width: min-content;
+  flex-wrap: unset;
+  align-self: center;
+  gap: 1em;
 
   .rank-wrapper {
     align-items: center;
