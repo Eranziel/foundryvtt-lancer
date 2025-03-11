@@ -153,12 +153,12 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
     console.log(`${lp} Selected file changed`, jsonFile);
     const fr = new FileReader();
     fr.addEventListener("load", ev => {
-      this._onPilotJsonParsed(ev.target?.result as string, this.actor);
+      this._onPilotJsonParsed(ev.target?.result as string);
     });
     fr.readAsText(jsonFile);
   }
 
-  async _onPilotJsonParsed(fileData: string | null, actor: LancerActor) {
+  async _onPilotJsonParsed(fileData: string | null) {
     if (!fileData) return;
     const pilotData = JSON.parse(fileData) as PackedPilotData;
     console.log(`${lp} Pilot Data of selected JSON:`, pilotData);
