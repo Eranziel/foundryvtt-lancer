@@ -15,7 +15,7 @@ import { LancerActiveEffect } from "../effects/lancer-active-effect";
 import { frameToPath } from "./retrograde-map";
 import { EffectHelper } from "../effects/effector";
 import { insinuate } from "../util/doc";
-import { lookupLID } from "../util/lid";
+import { fromLid } from "../helpers/from-lid";
 import { LoadoutHelper } from "./loadout-util";
 import { StrussHelper } from "./struss-util";
 import { StructureFlow } from "../flows/structure";
@@ -891,7 +891,7 @@ export class LancerActor extends Actor {
 
     // And add all new features
     let baseFeatures = (await Promise.all(
-      Array.from(newClass.system.base_features).map(lid => lookupLID(lid, EntryType.NPC_FEATURE))
+      Array.from(newClass.system.base_features).map(lid => fromLid(lid))
     )) as LancerItem[];
     await insinuate(
       baseFeatures.filter(x => x),

@@ -19,7 +19,7 @@ import {
 import { PowerData } from "../models/bits/power";
 import { SourceData } from "../source-template";
 import { get_pack_id, insinuate } from "../util/doc";
-import { lookupLID } from "../util/lid";
+import { fromLid } from "../helpers/from-lid";
 import {
   PackedEquipmentData,
   PackedMechWeaponSaveData,
@@ -88,7 +88,7 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
         if (fi) {
           return fi;
         } else {
-          let fromCompendium = (await lookupLID(lid, type)) as LancerItem | null;
+          let fromCompendium = (await fromLid(lid)) as LancerItem | null;
           if (!fromCompendium) return;
           return (await insinuate([fromCompendium], pilot!))[0];
         }
@@ -330,7 +330,7 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
         if (fi) {
           return fi;
         } else {
-          let fromCompendium = (await lookupLID(lid, type)) as LancerItem | null;
+          let fromCompendium = (await fromLid(lid)) as LancerItem | null;
           if (!fromCompendium) return;
           return (await insinuate([fromCompendium], mech!))[0];
         }

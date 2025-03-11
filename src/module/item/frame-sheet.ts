@@ -1,6 +1,6 @@
 import { EntryType } from "../enums";
+import { fromLidMany } from "../helpers/from-lid";
 import { LancerItemSheetData } from "../interfaces";
-import { lookupDeployables } from "../util/lid";
 import { LancerItemSheet } from "./item-sheet";
 
 /**
@@ -56,7 +56,7 @@ export class LancerFrameSheet extends LancerItemSheet<EntryType.FRAME> {
 
   async getData(): Promise<LancerItemSheetData<EntryType.FRAME>> {
     let data = await super.getData();
-    (data as any).coreDeployables = await lookupDeployables(data.system.core_system.deployables);
+    (data as any).coreDeployables = await fromLidMany(data.system.core_system.deployables);
     return data;
   }
 }

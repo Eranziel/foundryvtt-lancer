@@ -32,8 +32,8 @@ import type {
   LancerWEAPON_MOD,
 } from "../item/lancer-item";
 import { SystemTemplates } from "../system-template";
-import { FetcherCache } from "./async";
-import { lookupDeployables, lookupLID, lookupOwnedDeployables } from "./lid";
+import { fromLid, fromLidMany } from "../helpers/from-lid";
+import { lookupOwnedDeployables } from "./lid";
 import { requestImport } from "./requests";
 
 const PACK_SCOPE = "world";
@@ -237,7 +237,7 @@ export async function insinuate(items: Array<LancerItem>, to: LancerActor): Prom
         integrated = item.system.integrated;
       }
       for (let i of integrated) {
-        let found = await lookupLID(i);
+        let found = await fromLid(i);
         if (found) {
           newItems.push(found.toObject());
         }
@@ -282,7 +282,7 @@ export async function importDeployablesFor(item: LancerItem, owner: LancerActor)
   if (!requiredLIDs.length) return;
 
   // Now find them
-  let imports = await lookupDeployables(requiredLIDs);
+  let imports = await fromLidMany(requiredLIDs);
 
   // And try to bring them in
   for (let i of imports) {
