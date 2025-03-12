@@ -908,7 +908,7 @@ export function npcClassRefView(npc_class: LancerNPC_CLASS | null, item_path?: s
     <div class="card clipped ref set click-open" ${ref_params(npc_class)}>
       <div class="compact-class medium flexrow">
         <span class="img-bar" style="background-image: url(${frame_img})"></span>
-        <div class="major modifier-name i--light">${npc_class.name} // ${npc_class.system.role.toUpperCase()}</div>
+        <div class="major modifier-name i--light">${npc_class.name} // ${npc_class.system.role?.toUpperCase()}</div>
         <div class="ref-controls">
           <a class="lancer-context-menu" data-path="${item_path}"">
             <i class="fas fa-ellipsis-v i--light"></i>
