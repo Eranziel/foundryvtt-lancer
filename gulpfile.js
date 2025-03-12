@@ -252,6 +252,7 @@ async function packageBuild() {
  */
 function updateManifest(cb) {
   const packageJson = fs.readJSONSync("package.json");
+  const packageLockJson = fs.readJSONSync("package-lock.json");
   const config = getConfig(),
     manifest = getManifest(),
     rawURL = config.rawURL,
@@ -302,6 +303,7 @@ function updateManifest(cb) {
     console.log(`Updating version number to '${targetVersion}'`);
 
     packageJson.version = targetVersion;
+    packageLockJson.version = targetVersion;
     manifest.file.version = targetVersion;
 
     /* Update URLs */
@@ -313,6 +315,7 @@ function updateManifest(cb) {
     const prettyProjectJson = stringify(manifest.file, { maxLength: 35 });
 
     fs.writeJSONSync("package.json", packageJson, { spaces: 2 });
+    fs.writeJSONSync("package-lock.json", packageLockJson, { spaces: 2 });
     fs.writeFileSync(path.join(manifest.root, manifest.name), prettyProjectJson, "utf8");
 
     return cb();
