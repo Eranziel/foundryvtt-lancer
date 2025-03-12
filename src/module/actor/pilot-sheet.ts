@@ -115,7 +115,7 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
       }
 
       // JSON Import
-      html.find("#pilot-json-import").on("change", ev => this._onPilotJsonUpload(ev));
+      html.find<HTMLInputElement>("input#pilot-json-import").on("change", ev => this._onPilotJsonUpload(ev));
 
       // editing rawID clears vaultID
       // (other way happens automatically because we prioritise vaultID in commit)
@@ -146,21 +146,19 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
     }
   }
 
-  _onPilotJsonUpload(ev: JQuery.ChangeEvent<HTMLElement, undefined, HTMLElement, HTMLElement>) {
-    let files = (ev.target as HTMLInputElement).files;
-    let jsonFile: File | null = null;
-    if (files) jsonFile = files[0];
+  _onPilotJsonUpload(ev: JQuery.ChangeEvent<HTMLInputElement, undefined, HTMLInputElement, HTMLInputElement>) {
+    const jsonFile = ev.target.files?.[0];
     if (!jsonFile) return;
 
     console.log(`${lp} Selected file changed`, jsonFile);
     const fr = new FileReader();
-    fr.readAsBinaryString(jsonFile);
-    fr.addEventListener("load", (ev: ProgressEvent) => {
-      this._onPilotJsonParsed((ev.target as FileReader).result as string, this.actor);
+    fr.addEventListener("load", ev => {
+      this._onPilotJsonParsed(ev.target?.result as string);
     });
+    fr.readAsText(jsonFile);
   }
 
-  async _onPilotJsonParsed(fileData: string | null, actor: LancerActor) {
+  async _onPilotJsonParsed(fileData: string | null) {
     if (!fileData) return;
     const pilotData = JSON.parse(fileData) as PackedPilotData;
     console.log(`${lp} Pilot Data of selected JSON:`, pilotData);
