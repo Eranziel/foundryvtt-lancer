@@ -1,3 +1,14 @@
+# 2.7.2 (2025-03-11)
+
+## Bug Fixes
+
+- #818 - Fix pilot import from Comp/Con JSON when using Cyrillic (and other non-ASCII) characters.
+- #837 - Show pilot armor descriptions, and pilot armor and weapon tags.
+- #839 - Fix rendering NPC sheets with no class role, and fix saving NPC Class roles.
+- Fix error messages when building premade NPCs during LCP import.
+- Fix showing an LCP file's description, image, etc... when only one is selected in the Compendium Manager.
+- Improve license display on item sheets.
+
 # 2.7.1 (2025-03-05)
 
 ## Bug Fixes
