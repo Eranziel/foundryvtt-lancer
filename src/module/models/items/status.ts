@@ -21,6 +21,17 @@ export class StatusModel extends LancerDataModel<DataSchema, Item> {
     if (data.type) data.type = data.type.toLowerCase(); // Fix "Condition" / "Status"
     return super.migrateData(data);
   }
+
+  async _preCreate(...[data, options, user]: Parameters<LancerDataModel<DataSchema, Item>["_preCreate"]>) {
+    const allowed = await super._preCreate(data as any, options, user);
+    if (allowed === false) return false;
+    // Apply the corresponding status instead of creating the item if it's being created as embedded
+    if (this.parent.parent) {
+      // @ts-expect-error
+      this.parent.parent.toggleStatusEffect(this.lid, { active: true });
+      return false;
+    }
+  }
 }
 
 // Converts an lcp bonus into our expected format
