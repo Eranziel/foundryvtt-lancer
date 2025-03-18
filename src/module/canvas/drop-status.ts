@@ -11,6 +11,8 @@ export function dropStatusToCanvas(
   const tokens: Set<Token> = canvas.tokens!.quadtree!.getObjects(rect, {
     collisionTest: o => o.t.hitArea!.contains(data.x - o.t.x, data.y - o.t.y),
   }) as any;
-  if (tokens.size !== 1) return;
+  if (tokens.size !== 1 || !tokens.first()?.actor?.isOwner) return;
   LancerItem.fromDropData(data as any).then(i => tokens.first()?.actor?.createEmbeddedDocuments("Item", [i! as any]));
+  // If we get here, we've succeeded and don't want other handlers to run
+  return false;
 }
