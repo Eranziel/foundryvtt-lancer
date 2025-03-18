@@ -27,11 +27,10 @@ import { LancerPilotSheet } from "./module/actor/pilot-sheet";
 import { LancerFrameSheet } from "./module/item/frame-sheet";
 import { LancerItemSheet } from "./module/item/item-sheet";
 import { LancerLicenseSheet } from "./module/item/license-sheet";
-import { WeaponRangeTemplate } from "./module/pixi/weapon-range-template";
+import { WeaponRangeTemplate } from "./module/canvas/weapon-range-template";
 
 // Import helpers
-import { LCPManager } from "./module/apps/lcp-manager/lcp-manager";
-import { addLCPManagerButton } from "./module/apps/lcp-manager/lcp-manager";
+import { LCPManager, addLCPManagerButton } from "./module/apps/lcp-manager/lcp-manager";
 import { attachTagTooltips } from "./module/helpers/tags";
 import { preloadTemplates } from "./module/preload-templates";
 import { getAutomationOptions, registerSettings } from "./module/settings";
@@ -79,6 +78,7 @@ import { LancerToken, LancerTokenDocument, extendTokenConfig } from "./module/to
 import { lookupOwnedDeployables } from "./module/util/lid";
 import { fulfillImportActor } from "./module/util/requests";
 
+import { dropStatusToCanvas } from "./module/canvas/drop-status";
 import { beginCascadeFlow } from "./module/flows/cascade";
 import { applyDamage, rollDamageCallback, undoDamage } from "./module/flows/damage";
 import { Flow } from "./module/flows/flow";
@@ -413,7 +413,9 @@ Hooks.on("updateCombat", (_combat: Combat, changes: object) => {
     ui.combatCarousel?.render();
   }
 });
-//
+
+// Handle dropping statuses on tokens
+Hooks.on("dropCanvasData", dropStatusToCanvas);
 
 // Create sidebar button to import LCP
 Hooks.on("renderSidebarTab", async (app: Application, html: HTMLElement) => {

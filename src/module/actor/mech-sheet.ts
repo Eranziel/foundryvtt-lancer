@@ -56,8 +56,13 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
     if (item.type == "Actor" && item.document.is_pilot()) {
       // For setting pilot
       return true;
-    } else if (item.type == "Item") {
-      return item.document.is_mech_system() || item.document.is_mech_weapon() || item.document.is_frame();
+    } else if (item.type === "Item") {
+      return (
+        item.document.is_mech_system() ||
+        item.document.is_mech_weapon() ||
+        item.document.is_frame() ||
+        item.document.is_status()
+      );
     } else {
       return false;
     }
