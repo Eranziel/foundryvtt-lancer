@@ -17,7 +17,7 @@
 
   import type { LancerItem } from "../../item/lancer-item";
   import { NpcFeatureType, RangeType } from "../../enums";
-  import { WeaponRangeTemplate } from "../../pixi/weapon-range-template";
+  import { WeaponRangeTemplate } from "../../canvas/weapon-range-template";
   import { targetsFromTemplate } from "../../flows/_template";
   import type { LancerActor } from "../../actor/lancer-actor";
   import HudCheckbox from "../components/HudCheckbox.svelte";
