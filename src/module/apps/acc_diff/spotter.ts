@@ -31,18 +31,7 @@ function adjacentSpotter(actor: LancerActor): boolean {
       const house_guard: boolean =
         o.t.actor.system.pilot?.value?.itemTypes.talent.some(t => t.system.lid === "t_house_guard") ?? false;
       const range = (house_guard ? 2 : 1) + 0.1;
-      if (canvas.grid!.isGridless) {
-        const distance =
-          canvas.grid!.measurePath([o.t.center, token.center], {}).distance -
-          (o.t.document.width! + token.document.width!) / 2 +
-          1;
-        return distance < range;
-      } else {
-        const distances = o.t
-          .getOccupiedSpaces()
-          .flatMap(s => token.getOccupiedSpaces().map(t => canvas.grid!.measurePath([s, t], {}).distance));
-        return distances.some(distance => distance < range);
-      }
+      return o.t.document.computeRange(token.document) <= range;
     },
   }) as any;
   return spotters.size >= 1;
