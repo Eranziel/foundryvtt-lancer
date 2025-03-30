@@ -2,7 +2,7 @@ import { LANCER } from "./config";
 const lp = LANCER.log_prefix;
 import { LCPIndex } from "./apps/lcp-manager/lcp-manager";
 import { get_pack, get_pack_id } from "./util/doc";
-import type { LancerActor } from "./actor/lancer-actor";
+import type { LancerActor, LancerNPC } from "./actor/lancer-actor";
 import { LancerItem } from "./item/lancer-item";
 import { EntryType } from "./enums";
 import {
@@ -212,10 +212,17 @@ export async function importCP(
     await createOrUpdateDocs(CONFIG.Actor.documentClass, context.createdDeployables, EntryType.DEPLOYABLE);
 
     // NPC actor generation needs to wait until here so that the features are properly populated in the compendium
-    let npcActors = await createOrUpdateDocs(CONFIG.Actor.documentClass, allNpcs, EntryType.NPC);
-    let npcPromises = [];
+    const npcActors: LancerNPC[] = await createOrUpdateDocs(CONFIG.Actor.documentClass, allNpcs, EntryType.NPC);
+    const npcPromises = [];
     // Create each NPC and add its class item
     for (let npc of npcActors) {
+      // Remove existing class
+      const existingClass = npc.items.find(i => i.type === EntryType.NPC_CLASS);
+      if (existingClass) {
+        await npc.removeClassFeatures(existingClass);
+        await npc.deleteEmbeddedDocuments("Item", [existingClass.id!]);
+      }
+      // Find the class and add it to the NPC
       let classLid = allNpcClasses.find(n => n.name === npc.name)?.system.lid;
       if (!classLid) continue;
       let thisClass = (await fromLid(classLid, { source: "compendium" })) as LancerItem;

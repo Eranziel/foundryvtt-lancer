@@ -48,6 +48,8 @@ export function generateNpcDataFromClass(npc_class: {
     name: npc_class.name,
     type: EntryType.NPC,
     img: npc_class.img ?? undefined,
-    system: {},
+    system: {
+      notes: `Updated via LCP import at ${new Date().toISOString()}`,
+    },
   };
 }
