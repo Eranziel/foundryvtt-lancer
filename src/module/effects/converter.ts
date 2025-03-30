@@ -579,7 +579,7 @@ export function convertBonus(item: LancerItem, name: string, bonus: BonusData) {
       break;
     case "tech_attack":
       target_type = EntryType.MECH;
-      changes.push({ mode, value, priority, key: "system.bonuses.flat.tech_attack" });
+      changes.push({ mode, value, priority, key: "system.tech_attack" });
       break;
     case "grapple":
       target_type = EntryType.MECH;
