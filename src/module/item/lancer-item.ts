@@ -1,7 +1,7 @@
 import { LANCER, TypeIcon } from "../config";
 import { SystemData, SystemDataType, SystemTemplates } from "../system-template";
 import { SourceDataType } from "../source-template";
-import { DamageType, EntryType, NpcFeatureType, RangeType, WeaponType } from "../enums";
+import { DamageType, EntryType, EntryTypeLidPrefix, NpcFeatureType, RangeType, WeaponType } from "../enums";
 import { ActionData } from "../models/bits/action";
 import { RangeData, Range } from "../models/bits/range";
 import { Tag } from "../models/bits/tag";
@@ -23,10 +23,11 @@ import { fixupPowerUses } from "../models/bits/power";
 import { BondPowerFlow } from "../flows/bond";
 import { ActivationFlow } from "../flows/activation";
 import { CoreActiveFlow } from "../flows/frame";
-import { SimpleTextFlow } from "../flows/text";
 import { StatRollFlow } from "../flows/stat";
 import { SystemFlow } from "../flows/system";
 import { DamageRollFlow } from "../flows/damage";
+import { randomString } from "../util/lid";
+import { generateItemID } from "../util/lcps";
 
 const lp = LANCER.log_prefix;
 
@@ -451,9 +452,13 @@ export class LancerItem extends Item {
     }
 
     console.log(`${lp} Initializing new ${this.type}`);
+    const name = this.name ?? `New ${this.type}`;
     this.updateSource({
       img: img,
-      name: this.name ?? `New ${this.type}`,
+      name,
+      system: {
+        lid: `${generateItemID(EntryTypeLidPrefix(this.type as EntryType), name)}-${randomString(8)}`,
+      },
     });
   }
 

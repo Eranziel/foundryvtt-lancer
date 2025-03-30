@@ -89,6 +89,55 @@ export enum EntryType {
   BOND = "bond",
 }
 
+export function EntryTypeLidPrefix(type: EntryType): string {
+  switch (type) {
+    case EntryType.CORE_BONUS:
+      return "cb_";
+    case EntryType.DEPLOYABLE:
+      return "dep_";
+    case EntryType.FRAME:
+      return "mf_";
+    case EntryType.MECH:
+      return "mech_";
+    case EntryType.LICENSE:
+      return "lic_";
+    case EntryType.NPC:
+      return "npc_";
+    case EntryType.NPC_CLASS:
+      return "npcc_";
+    case EntryType.NPC_TEMPLATE:
+      return "npct_";
+    case EntryType.NPC_FEATURE:
+      return "npcf_";
+    case EntryType.WEAPON_MOD:
+      return "wm_";
+    case EntryType.MECH_SYSTEM:
+      return "ms_";
+    case EntryType.MECH_WEAPON:
+      return "mw_";
+    case EntryType.ORGANIZATION:
+      return "org_";
+    case EntryType.PILOT_ARMOR:
+    case EntryType.PILOT_GEAR:
+    case EntryType.PILOT_WEAPON:
+      return "pg_";
+    case EntryType.PILOT:
+      return "pilot_";
+    case EntryType.RESERVE:
+      return "reserve_";
+    case EntryType.SKILL:
+      return "sk_";
+    case EntryType.STATUS:
+      return "";
+    case EntryType.TALENT:
+      return "t_";
+    case EntryType.BOND:
+      return "bond_";
+    default:
+      return "";
+  }
+}
+
 // Holds enums that are as of yet seen nowhere else
 export enum MountType {
   Main = "Main",

@@ -227,7 +227,6 @@ export async function importCP(
       if (!classLid) continue;
       let thisClass = (await fromLid(classLid, { source: "compendium" })) as LancerItem;
       if (thisClass) {
-        console.log(`Adding ${npc.name} class to NPC: `, npc);
         await npc.quickOwn(thisClass);
         npcPromises.push(...npc.npcClassSwapPromises);
       }

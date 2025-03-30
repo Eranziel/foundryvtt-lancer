@@ -23,6 +23,7 @@ import {
   PackedSitrepData,
   PackedEnvironmentData,
 } from "./unpacking/packed-types";
+import { EntryType, EntryTypeLidPrefix } from "../enums";
 
 export const CORE_BREW_ID = "core";
 
@@ -219,23 +220,23 @@ async function getZipData<T>(zip: JSZip, filename: string): Promise<T[]> {
   return readResult || [];
 }
 
+export function generateItemID(type: string, name: string, manifest?: IContentPackManifest): string {
+  const sanitizedName = name
+    .replace(/[ \/-]/g, "_")
+    .replace(/[^A-Za-z0-9_]/g, "")
+    .toLowerCase();
+  if (manifest?.item_prefix) {
+    return `${manifest.item_prefix}__${type}_${sanitizedName}`;
+  }
+  return `${type}__${sanitizedName}`;
+}
+
 export async function parseContentPack(binString: ArrayBuffer | string): Promise<IContentPack> {
   const zip = await JSZip.loadAsync(binString);
 
   const manifest = await readZipJSON<IContentPackManifest>(zip, "lcp_manifest.json");
   if (!manifest) throw new Error("Content pack has no manifest");
   if (!isValidManifest(manifest)) throw new Error("Content manifest is invalid");
-
-  const generateItemID = (type: string, name: string): string => {
-    const sanitizedName = name
-      .replace(/[ \/-]/g, "_")
-      .replace(/[^A-Za-z0-9_]/g, "")
-      .toLowerCase();
-    if (manifest.item_prefix) {
-      return `${manifest.item_prefix}__${type}_${sanitizedName}`;
-    }
-    return `${type}__${sanitizedName}`;
-  };
 
   function generateIDs<T extends { id: string; name: string }>(data: T[], dataPrefix?: string): T[] {
     if (dataPrefix) {
@@ -246,28 +247,64 @@ export async function parseContentPack(binString: ArrayBuffer | string): Promise
     return data;
   }
 
-  const coreBonuses = generateIDs(await getZipData<PackedCoreBonusData>(zip, "core_bonuses.json"), "cb");
-  const frames = generateIDs(await getZipData<PackedFrameData>(zip, "frames.json"), "mf");
-  const weapons = generateIDs(await getZipData<PackedMechWeaponData>(zip, "weapons.json"), "mw");
-  const systems = generateIDs(await getZipData<PackedMechSystemData>(zip, "systems.json"), "ms");
-  const mods = generateIDs(await getZipData<PackedWeaponModData>(zip, "mods.json"), "wm");
-  const pilotGear = generateIDs(await getZipData<PackedPilotEquipmentData>(zip, "pilot_gear.json"), "pg");
-  const skills = generateIDs(await getZipData<PackedSkillData>(zip, "skills.json"), "sk");
-  const talents = generateIDs(await getZipData<PackedTalentData>(zip, "talents.json"), "t");
-  const bonds = generateIDs(await getZipData<PackedBondData>(zip, "bonds.json"), "bond");
-  const reserves = generateIDs(await getZipData<PackedReserveData>(zip, "reserves.json"), "reserve");
-  const tags = generateIDs(await getZipData<PackedTagTemplateData>(zip, "tags.json"), "tg");
+  const coreBonuses = generateIDs(
+    await getZipData<PackedCoreBonusData>(zip, "core_bonuses.json"),
+    EntryTypeLidPrefix(EntryType.CORE_BONUS)
+  );
+  const frames = generateIDs(
+    await getZipData<PackedFrameData>(zip, "frames.json"),
+    EntryTypeLidPrefix(EntryType.FRAME)
+  );
+  const weapons = generateIDs(
+    await getZipData<PackedMechWeaponData>(zip, "weapons.json"),
+    EntryTypeLidPrefix(EntryType.MECH_WEAPON)
+  );
+  const systems = generateIDs(
+    await getZipData<PackedMechSystemData>(zip, "systems.json"),
+    EntryTypeLidPrefix(EntryType.MECH_SYSTEM)
+  );
+  const mods = generateIDs(
+    await getZipData<PackedWeaponModData>(zip, "mods.json"),
+    EntryTypeLidPrefix(EntryType.WEAPON_MOD)
+  );
+  const pilotGear = generateIDs(
+    await getZipData<PackedPilotEquipmentData>(zip, "pilot_gear.json"),
+    EntryTypeLidPrefix(EntryType.PILOT_GEAR)
+  );
+  const skills = generateIDs(
+    await getZipData<PackedSkillData>(zip, "skills.json"),
+    EntryTypeLidPrefix(EntryType.SKILL)
+  );
+  const talents = generateIDs(
+    await getZipData<PackedTalentData>(zip, "talents.json"),
+    EntryTypeLidPrefix(EntryType.TALENT)
+  );
+  const bonds = generateIDs(await getZipData<PackedBondData>(zip, "bonds.json"), EntryTypeLidPrefix(EntryType.BOND));
+  const reserves = generateIDs(
+    await getZipData<PackedReserveData>(zip, "reserves.json"),
+    EntryTypeLidPrefix(EntryType.RESERVE)
+  );
+  const tags = generateIDs(await getZipData<PackedTagTemplateData>(zip, "tags.json"), "tg_");
   const statuses = generateIDs(
     (await getZipData<PackedStatusData>(zip, "statuses.json")).map(status => ({
       id: status.name.toLowerCase(),
       ...status,
     })),
-    ""
+    EntryTypeLidPrefix(EntryType.STATUS)
   );
 
-  const npcClasses = (await readZipJSON<PackedNpcClassData[]>(zip, "npc_classes.json")) || [];
-  const npcFeatures = (await readZipJSON<AnyPackedNpcFeatureData[]>(zip, "npc_features.json")) || [];
-  const npcTemplates = (await readZipJSON<PackedNpcTemplateData[]>(zip, "npc_templates.json")) || [];
+  const npcClasses = generateIDs(
+    (await readZipJSON<PackedNpcClassData[]>(zip, "npc_classes.json")) || [],
+    EntryTypeLidPrefix(EntryType.NPC_CLASS)
+  );
+  const npcFeatures = generateIDs(
+    (await readZipJSON<AnyPackedNpcFeatureData[]>(zip, "npc_features.json")) || [],
+    EntryTypeLidPrefix(EntryType.NPC_FEATURE)
+  );
+  const npcTemplates = generateIDs(
+    (await readZipJSON<PackedNpcTemplateData[]>(zip, "npc_templates.json")) || [],
+    EntryTypeLidPrefix(EntryType.NPC_TEMPLATE)
+  );
 
   const id = await getPackID(manifest);
 
