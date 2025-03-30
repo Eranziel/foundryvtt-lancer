@@ -532,7 +532,7 @@ export class NpcStatBlockField extends fields.SchemaField<NpcStatBlockField.Fiel
         hp: new fields.NumberField({ integer: true, nullable, initial: nullable ? null : 10 }),
         evasion: new fields.NumberField({ integer: true, nullable, initial: nullable ? null : 5 }),
         edef: new fields.NumberField({ integer: true, nullable, initial: nullable ? null : 8 }),
-        heatcap: new fields.NumberField({ integer: true, nullable, initial: nullable ? null : 5 }),
+        heatcap: new fields.NumberField({ integer: true, nullable, initial: nullable ? null : 0 }),
         speed: new fields.NumberField({ integer: true, nullable, initial: nullable ? null : 3 }),
         sensor_range: new fields.NumberField({ integer: true, nullable, initial: nullable ? null : 10 }),
         save: new fields.NumberField({ integer: true, nullable, initial: nullable ? null : 10 }),
