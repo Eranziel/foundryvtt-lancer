@@ -4,6 +4,7 @@ import type { AccDiffHudData, AccDiffHudTarget } from "./index";
 import type { LancerActor, LancerMECH, LancerPILOT } from "../../actor/lancer-actor";
 import type { LancerToken } from "../../token";
 import { LancerTALENT } from "../../item/lancer-item";
+import type BaseGrid from "@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/grid/base.mjs";
 
 // this is an example of a case implemented without defining a full class
 function adjacentSpotter(actor: LancerActor): boolean {
@@ -12,25 +13,28 @@ function adjacentSpotter(actor: LancerActor): boolean {
     return false;
   }
 
-  // computation shamelessly stolen from sensor-sight
-
   let token: LancerToken = actor.getActiveTokens()[0];
 
-  const spaces = token.getOccupiedSpaces();
-  function adjacent(token: LancerToken) {
-    const otherSpaces = token.getOccupiedSpaces();
-    const rays = spaces.flatMap(s => otherSpaces.map(t => ({ ray: new Ray(s, t) })));
-    const min_d = Math.min(...canvas.grid!.grid!.measureDistances(rays, { gridSpaces: true }));
-    return min_d < 1.1;
-  }
+  // Rough bounding box with allowance for hg1
+  const aabb = new PIXI.Rectangle(
+    token.bounds.x - 2 * canvas.grid!.sizeX,
+    token.bounds.y - 2 * canvas.grid!.sizeY,
+    token.bounds.right + 4 * canvas.grid!.sizeX,
+    token.bounds.bottom + 4 * canvas.grid!.sizeY
+  );
 
-  // TODO: TYPECHECK: all of this seems to work
-  let adjacentPilots = (canvas!.tokens!.objects!.children as LancerToken[])
-    .filter((t: LancerToken) => t.actor?.is_mech() && adjacent(t) && t.id != token.id)
-    .map((t: LancerToken) => (t.actor! as LancerMECH).system.pilot?.value)
-    .filter(x => x) as LancerPILOT[];
-
-  return adjacentPilots.some(p => p?.itemTypes.talent.find(t => (t as LancerTALENT).system.lid == "t_spotter"));
+  const spotters: Set<LancerToken> = canvas.tokens!.quadtree!.getObjects(aabb, {
+    // @ts-expect-error Quadtree not set specific enough in types
+    collisionTest: (o: QuadtreeObject<LancerToken>) => {
+      if (!o.t.actor?.is_mech() || o.t === token) return false;
+      if (!o.t.actor.system.pilot?.value?.itemTypes.talent.some(t => t.system.lid === "t_spotter")) return false;
+      const house_guard: boolean =
+        o.t.actor.system.pilot?.value?.itemTypes.talent.some(t => t.system.lid === "t_house_guard") ?? false;
+      const range = (house_guard ? 2 : 1) + 0.1;
+      return o.t.document.computeRange(token.document) <= range;
+    },
+  }) as any;
+  return spotters.size >= 1;
 }
 
 function spotter(): AccDiffHudPluginData {

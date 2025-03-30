@@ -99,6 +99,28 @@ export class LancerTokenDocument extends TokenDocument {
       }
     }
   }
+
+  /**
+   * Calculate the range between this and other, accounting for occupied spaces
+   * and size
+   * @param other   Target to check against
+   * @returns The range in grid units.
+   */
+  computeRange(other: LancerTokenDocument): number {
+    const grid = this.parent?.grid ?? canvas.grid;
+    if (!grid || !canvas.ready) throw new Error("Canvas not ready");
+    if (!this.object || !other.object) throw new Error("Tokens not drawn to canvas");
+
+    if (grid.isGridless) {
+      const c2c = grid.measurePath([this.object.center, other.object.center], {}).distance;
+      return c2c - (this.width! + other.width!) / 2 + 1;
+    } else {
+      const distances = this.object
+        .getOccupiedSpaces()
+        .flatMap(s => other.object!.getOccupiedSpaces().map(t => grid.measurePath([s, t], {}).spaces));
+      return Math.min(...distances);
+    }
+  }
 }
 
 /**
