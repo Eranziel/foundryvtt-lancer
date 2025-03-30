@@ -429,8 +429,9 @@ export class LancerItem extends Item {
     // We do that ourselves using effectManager, so to prevent fighting we disable this here
   }
 
-  protected async _preCreate(...[data, options, user]: Parameters<Item["_preCreate"]>): Promise<void> {
-    await super._preCreate(data, options, user);
+  protected async _preCreate(...[data, options, user]: Parameters<Item["_preCreate"]>): Promise<boolean | void> {
+    const allowed = await super._preCreate(data, options, user);
+    if (allowed === false) return false;
 
     // Select default image
     let icon_lookup: string = this.type;

@@ -556,8 +556,9 @@ export class LancerActor extends Actor {
    * This is overridden to pre-populate with slightly more sensible data,
    * such as nicer icons and default names, token dispositions, etc
    */
-  protected async _preCreate(...[data, options, user]: Parameters<Actor["_preCreate"]>): Promise<void> {
-    await super._preCreate(data, options, user);
+  protected async _preCreate(...[data, options, user]: Parameters<Actor["_preCreate"]>): Promise<boolean | void> {
+    const allowed = await super._preCreate(data, options, user);
+    if (allowed === false) return false;
 
     let img = data?.img || TypeIcon(this.type);
 
@@ -584,8 +585,9 @@ export class LancerActor extends Actor {
   /** @override
    * When an update is queued, trigger scrolling text on attached tokens
    */
-  protected async _preUpdate(...[data, options, user]: Parameters<Actor["_preUpdate"]>): Promise<void> {
-    super._preUpdate(data, options, user);
+  protected async _preUpdate(...[data, options, user]: Parameters<Actor["_preUpdate"]>): Promise<boolean | void> {
+    const allowed = await super._preUpdate(data, options, user);
+    if (allowed === false) return false;
     this.statChangeScrollingText(data);
   }
 

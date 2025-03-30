@@ -210,13 +210,13 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
   // Pilots can handle most stuff
   canRootDrop(item: ResolvedDropData): boolean {
     // Accept mechs, so as to change their pilot
-    if (item.type == "Actor" && item.document.is_mech()) {
+    if (item.type === "Actor" && item.document.is_mech()) {
       return true;
     }
 
     // Accept pilot items
     if (
-      item.type == "Item" &&
+      item.type === "Item" &&
       (item.document.is_core_bonus() ||
         item.document.is_pilot_weapon() ||
         item.document.is_pilot_armor() ||
@@ -226,7 +226,8 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
         item.document.is_talent() ||
         item.document.is_organization() ||
         item.document.is_reserve() ||
-        item.document.is_bond())
+        item.document.is_bond() ||
+        item.document.is_status())
     ) {
       return true;
     }

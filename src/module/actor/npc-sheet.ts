@@ -99,8 +99,11 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
   canRootDrop(item: ResolvedDropData): boolean {
     // Reject any non npc item
     return (
-      item.type == "Item" &&
-      (item.document.is_npc_class() || item.document.is_npc_feature() || item.document.is_npc_template())
+      item.type === "Item" &&
+      (item.document.is_npc_class() ||
+        item.document.is_npc_feature() ||
+        item.document.is_npc_template() ||
+        item.document.is_status())
     );
   }
 
