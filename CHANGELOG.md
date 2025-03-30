@@ -1,3 +1,17 @@
+# 2.8.0 (2025-03-30)
+
+## Features
+
+- #763 - Dragging a Status/Condition item onto an actor sheet or token will add the corresponding status to the token. You can also drag them from chat messages, like the structure/stress results!
+- #793 - Attack HUD Spotter integration now detects and uses the range increase from House Guard 1.
+- Existing Premade NPCs (in the compendium) are now updated when the corresponding LCP is re-imported.
+
+## Bug Fixes
+
+- #846 - Fix issues around manually creating & populating NPC classes, templates, and features. (Hopefully.)
+- #848 - Change default NPC heatcap to 0 so that NPCs without a heatcap (squads, monstrosity, etc...) get created with heatcap 0 instead of 5.
+- #849 - Change the "tech_attack" bonus type to directly add to the tech attack stat, instead of adding to a semi-hidden bonus field that only shows up in the attack HUD.
+
 # 2.7.2 (2025-03-11)
 
 ## Bug Fixes
