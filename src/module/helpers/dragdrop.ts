@@ -193,6 +193,7 @@ export enum DroppableFlowType {
   BASIC = "lancer-flow-button",
   STAT = "roll-stat",
   ATTACK = "roll-attack",
+  DAMAGE = "roll-damage",
   TECH_ATTACK = "roll-tech",
   CHAT = "chat-flow-button",
   SKILL = "skill-flow",

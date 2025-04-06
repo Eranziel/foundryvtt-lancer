@@ -129,6 +129,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<Acto
       .add(".roll-stat")
       .add(".roll-attack")
       .add(".roll-tech")
+      .add(".roll-damage")
       .add(".chat-flow-button")
       .add(".skill-flow")
       .add(".bond-power-flow")
@@ -172,7 +173,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<Acto
         flowType: DroppableFlowType.STAT,
         args: { statPath },
       };
-    } else if (dragElement.hasClass("roll-attack")) {
+    } else if (dragElement.hasClass("roll-attack") || dragElement.hasClass("roll-damage")) {
       const weaponElement = $(e.currentTarget).closest("[data-uuid]")[0] as HTMLElement;
       const weaponId = weaponElement.dataset.uuid;
       if (!weaponId) throw Error("No weapon ID found!");
@@ -180,7 +181,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<Acto
       data = {
         lancerType: weapon.type as EntryType,
         uuid: weaponId,
-        flowType: DroppableFlowType.ATTACK,
+        flowType: dragElement.hasClass("roll-attack") ? DroppableFlowType.ATTACK : DroppableFlowType.DAMAGE,
         args: {},
       };
     } else if (dragElement.hasClass("roll-tech")) {

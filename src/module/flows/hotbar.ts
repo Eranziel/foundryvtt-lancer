@@ -126,6 +126,11 @@ export function onHotbarDrop(_bar: any, data: any, slot: number) {
           title = `Tech Attack - ${actor.name}`;
           flowInvocation = `actor.beginBasicTechAttackFlow(${data.flowArgs?.title ?? ""});`;
           break;
+        case BasicFlowType.Damage:
+          img = `systems/${game.system.id}/assets/icons/macro-icons/weapon.svg`;
+          title = `Damage - ${actor.name}`;
+          flowInvocation = `actor.beginDamageFlow(${data.flowArgs?.title ?? ""});`;
+          break;
       }
       if (flowInvocation) {
         command = `${getActor}${flowInvocation}`;
@@ -195,6 +200,24 @@ export function onHotbarDrop(_bar: any, data: any, slot: number) {
       img = _chooseItemImage(item);
       title = `${item.name}${item.actor?.name ? ` - ${item.actor.name}` : ""}`;
       command = `${getItem}item.beginTechAttackFlow();`;
+      break;
+    case DroppableFlowType.DAMAGE:
+      if (!(actorOrItem instanceof LancerItem)) {
+        ui.notifications!.error("Damage flow drop on hotbar was not from an item");
+        throw new Error("Damage flow drop on hotbar was not from an item");
+      }
+      if (
+        data.lancerType !== EntryType.MECH_WEAPON &&
+        data.lancerType !== EntryType.PILOT_WEAPON &&
+        data.lancerType !== EntryType.NPC_FEATURE
+      ) {
+        ui.notifications!.error("Damage flow drop on hotbar was not from a weapon");
+        throw new Error("Damage flow drop on hotbar was not from a weapon");
+      }
+      item = actorOrItem;
+      img = _chooseItemImage(item);
+      title = `${item.name} Damage${item.actor?.name ? ` - ${item.actor.name}` : ""}`;
+      command = `${getItem}item.beginDamageFlow();`;
       break;
     case DroppableFlowType.CHAT:
       if (!(actorOrItem instanceof LancerItem)) {
