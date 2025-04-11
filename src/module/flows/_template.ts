@@ -103,10 +103,9 @@ export function targetsFromTemplate(templateId: string): void {
         return !skip && test_token(t);
       },
     })
-    .toObject()
     .map(t => t.id);
-  game.user!.updateTokenTargets(targets);
-  game.user!.broadcastActivity({ targets });
+  // @ts-expect-error v13 types
+  canvas.tokens!.setTargets(targets);
 }
 
 /// Math Zone
