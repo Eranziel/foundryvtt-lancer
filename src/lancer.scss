@@ -1,4 +1,4 @@
-/* TODO: Maybe multiple stylesheets is a good idea? Check out ITCSS and segment them by their layer */
+/* TODO: Rewrite to split into multiple modules and utilize sass mixins where possible */
 
 @use "styles/lancer-app-v2";
 @use "styles/settings/lancer-initiative-config";
@@ -159,7 +159,7 @@ code {
 .window-app .window-content,
 #chat-controls div.roll-type-select select,
 #chat-form textarea,
-button,
+/* button, <- TODO This is too broad and breaks v13 styles */
 .sheet.journal-entry .journal-entry-content {
   background: #e1e1e1; /* Set default backgrounds to a futuristic gundam light grey */
   font-family: var(--main-font-family);
@@ -746,6 +746,7 @@ $theme-types: "primary" "secondary" "dark-gray" "light-gray" "tooltip"    // Gen
 }
 
 .license-desc > input[type="number"] {
+  appearance: textfield;
   -moz-appearance: textfield; /* Firefox */
   width: 3ch;
 }
@@ -1843,6 +1844,7 @@ code.horus:hover {
 }
 
 input[type="number"] {
+  appearance: textfield;
   -moz-appearance: textfield;
 }
 
@@ -1857,6 +1859,7 @@ input.core-power-toggle {
   width: 30px;
   height: 30px;
   -webkit-appearance: none;
+  appearance: textfield;
   outline: 0;
   background-repeat: no-repeat;
   background-position: center center;
