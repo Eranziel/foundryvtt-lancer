@@ -93,7 +93,7 @@
         // These states use a free icon, it says pro because that's the only version provided
         // Don't change the weight unless you have a pro license or the new value is free as well
         // xmark (free for solid weight)
-        font-family: "Font Awesome 6 Pro";
+        font-family: var(--font-awesome);
         // fa-solid (free)
         font-weight: 900;
         line-height: 20px;

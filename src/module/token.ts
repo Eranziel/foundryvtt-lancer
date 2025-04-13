@@ -223,28 +223,29 @@ export class LancerToken extends Token {
   }
 }
 
-export function extendTokenConfig(...[app, html, _data]: Parameters<Hooks.RenderApplication<TokenConfig>>) {
+// @ts-expect-error v13 types
+export function extendTokenConfig(app: foundry.applications.sheets.TokenConfig, html: HTMLElement) {
   const { token_size } = game.settings.get(game.system.id, LANCER.setting_automation);
   if (!token_size) return;
-  const manual = (<LancerTokenDocument>app.object).getFlag(game.system.id, "manual_token_size") ?? false;
-  html.find("[name=width]").closest(".form-group").before(`
-    <div class="form-group slim">
-      <label>${game.i18n.localize("lancer.tokenConfig.manual_token_size.label")}</label>
-      <div class="form-fields">
-        <input type="checkbox"
-          name="flags.${game.system.id}.manual_token_size"
-          ${manual ? "checked" : ""}
-        >
-      </div>
-      <p class="hint">${game.i18n.localize("lancer.tokenConfig.manual_token_size.hint")}</p>
-    </div>`);
-  const toggle_inputs = (ev: JQuery.ChangeEvent<HTMLElement, undefined, HTMLElement, HTMLInputElement>) => {
-    const checked = ev.target.checked;
-    html.find("[name=width]").prop("disabled", !checked);
-    html.find("[name=height]").prop("disabled", !checked);
-  };
-  html.find(`[name='flags.${game.system.id}.manual_token_size']`).on("change" as any, toggle_inputs);
-  html.find("[name=width]").prop("disabled", !manual);
-  html.find("[name=height]").prop("disabled", !manual);
-  app.setPosition();
+  const manual = (<LancerTokenDocument>app.token).getFlag(game.system.id, "manual_token_size") ?? false;
+
+  const lock = foundry.applications.fields.createCheckboxInput({
+    name: `flags.${game.system.id}.manual_token_size`,
+    dataset: { tooltip: "lancer.tokenConfig.manual_token_size.hint" },
+    // @ts-expect-error v13 types
+    classes: `lock icon ${game.system.id}`,
+    value: manual,
+  });
+
+  const width = html.querySelector<HTMLInputElement>("input[name=width]");
+  const height = html.querySelector<HTMLInputElement>("[name=height]");
+  if (!width || !height) return;
+  width.closest(".form-group")?.querySelector("label")?.before(lock);
+
+  lock.addEventListener("change", ev => {
+    width.disabled = !(ev.currentTarget as HTMLInputElement).checked;
+    height.disabled = !(ev.currentTarget as HTMLInputElement).checked;
+  });
+  width.disabled = !manual;
+  height.disabled = !manual;
 }
