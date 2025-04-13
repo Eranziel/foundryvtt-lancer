@@ -3,6 +3,7 @@
 @use "styles/lancer-app-v2";
 @use "styles/settings/lancer-initiative-config";
 @use "styles/combat/lancer-combat-tracker";
+@use "styles/token/token-config";
 
 /* Item/document types, useful for shorthand */
 $item-types: core_bonus environment faction frame manufacturer npc_class npc_template npc_feature weapon_mod mech_system
