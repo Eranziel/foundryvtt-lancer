@@ -73,6 +73,14 @@ function altOrientation(token: LancerToken): boolean {
  * @extends {TokenDocument}
  */
 export class LancerTokenDocument extends TokenDocument {
+  _initializeSource(
+    ...[data, options]: Parameters<TokenDocument["_initializeSource"]>
+  ): ReturnType<TokenDocument["_initializeSource"]> {
+    // @ts-expect-error v13 types
+    if (this.parent?.grid.isGridless) data.shape ??= CONST.TOKEN_SHAPES.ELLIPSE_1;
+    return super._initializeSource(data as any, options);
+  }
+
   async _preCreate(...[data, options, user]: Parameters<TokenDocument["_preCreate"]>) {
     if (
       game.settings.get(game.system.id, LANCER.setting_automation).token_size &&
@@ -151,17 +159,6 @@ export class LancerToken extends Token {
       at: { x: -1, y: -1 },
       spaces: [],
     };
-  }
-
-  /** @override */
-  getShape() {
-    // @ts-expect-error v12
-    const size: { width: number; height: number } = this.getSize();
-    if (canvas.grid!.isGridless && size.width === size.height) {
-      return new PIXI.Circle(size.width / 2, size.height / 2, size.width / 2);
-    }
-    // @ts-expect-error v12
-    return super.getShape() as PIXI.Polygon | PIXI.Rectangle;
   }
 
   /**
