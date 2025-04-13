@@ -1,0 +1,30 @@
+.application.token-config {
+  input.lancer.lock[type="checkbox"] {
+    appearance: none;
+    width: 1rem;
+    &:not(:checked) {
+      &::before {
+        content: "";
+      }
+      &::after {
+        font-size: 1rem;
+        font-family: var(--font-awesome);
+        font-weight: 800;
+        color: var(--color-text-primary);
+        content: "\f023";
+      }
+    }
+    &:checked {
+      &::before {
+        content: "";
+      }
+      &::after {
+        font-size: 1rem;
+        font-family: var(--font-awesome);
+        font-weight: 800;
+        color: var(--color-text-primary);
+        content: "\f3c1";
+      }
+    }
+  }
+}
