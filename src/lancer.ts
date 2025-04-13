@@ -15,9 +15,8 @@ import { LancerActor } from "./module/actor/lancer-actor";
 import { LANCER, WELCOME } from "./module/config";
 import { LancerItem } from "./module/item/lancer-item";
 import { migrateLancerConditions } from "./module/status-icons";
-import { populatePilotCache } from "./module/util/compcon";
 
-import { LancerActionManager } from "./module/action/action-manager";
+import { LancerActionManager } from "./module/apps/action/action-manager";
 
 // Import applications
 import { LancerDeployableSheet } from "./module/actor/deployable-sheet";
@@ -57,7 +56,6 @@ import { registerHandlebarsHelpers } from "./module/helpers";
 import { disableLancerInitiative, handleCombatUpdate } from "./module/helpers/automation/combat";
 import { gridDist } from "./module/helpers/automation/targeting";
 import { applyCollapseListeners, initializeCollapses } from "./module/helpers/collapse";
-import CompconLoginForm from "./module/helpers/compcon-login-form";
 import { applyGlobalDragListeners } from "./module/helpers/dragdrop";
 // import { handleActorExport, validForExport } from "./module/helpers/io";
 import { extendCombatTrackerConfig } from "./module/apps/lancer-initiative-config-form";
@@ -205,10 +203,6 @@ Hooks.once("init", () => {
   registerSettings();
   // Apply theme colors
   applyTheme(game.settings.get(game.system.id, LANCER.setting_ui_theme) as "gms" | "msmc" | "horus");
-
-  // no need to block on amplify - logging into comp/con and populating the cache
-  // it can happen in the background
-  configureAmplify();
 
   // Register flow steps
   const { flows, flowSteps } = registerFlows();
@@ -811,26 +805,6 @@ async function doMigration() {
   }
 }
 
-async function configureAmplify() {
-  // Pull in the parts of AWS Amplify we need
-  const aws = (await import("./aws-exports")).default as {
-    aws_cognito_identity_pool_id: string;
-  };
-  const { Auth } = await import("@aws-amplify/auth");
-  const { Storage } = await import("@aws-amplify/storage");
-
-  Auth.configure(aws);
-  Storage.configure(aws);
-
-  // if we have a login already, this is where we populate the pilot cache
-  try {
-    return populatePilotCache();
-  } catch {
-    // the error is just that we don't have a login
-    // noop
-  }
-}
-
 /**
  * Print a chat message to share the changelog link and legalese journal.
  */
@@ -851,18 +825,8 @@ function addSettingsButtons(_app: foundry.applications.sidebar.tabs.Settings, ht
             <i class="fas fa-robot"></i>LANCER Help
         </button>`);
 
-  const loginButton = $(`<button id="compcon-login" data-action="compconLogin">
-            <i class="mdi mdi-cloud-sync-outline "></i>COMP/CON Login
-          </button>`);
-
   $(html).find("#settings-game").after(lancerHeader);
-  $(html).find("#settings-lancer").append(loginButton);
   $(html).find("#settings-lancer").append(faqButton);
-
-  loginButton.on("click", async () => {
-    const app = new CompconLoginForm({});
-    return app.render(true);
-  });
 
   faqButton.on("click", async () => {
     let helpContent = await foundry.applications.handlebars.renderTemplate(
