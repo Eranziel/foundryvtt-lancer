@@ -33,7 +33,7 @@ import { WeaponRangeTemplate } from "./module/canvas/weapon-range-template";
 import { LCPManager, addLCPManagerButton } from "./module/apps/lcp-manager/lcp-manager";
 import { attachTagTooltips } from "./module/helpers/tags";
 import { preloadTemplates } from "./module/preload-templates";
-import { getAutomationOptions, registerSettings } from "./module/settings";
+import { registerSettings } from "./module/settings";
 import { applyTheme } from "./module/themes";
 import * as migrations from "./module/world_migration";
 
@@ -235,15 +235,6 @@ Hooks.once("init", () => {
     importActor: fulfillImportActor,
     targetsFromTemplate,
     migrations: migrations,
-    getAutomationOptions: () => {
-      ui.notifications.warn(
-        "The getAutomationOptions helper is deprecated and will be removed i" +
-          'n Foundry v13. Use game.settings.get("lancer", "automationOptions' +
-          '") directly instead.',
-        { permanent: true }
-      );
-      return getAutomationOptions();
-    },
     fromLid: fromLid,
     fromLidMany: fromLidMany,
     fromLidSync: fromLidSync,
