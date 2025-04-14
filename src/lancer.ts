@@ -270,12 +270,6 @@ Hooks.once("init", () => {
   Hooks.on("renderHeadsUpDisplay", slidingHUD.attach);
 
   // Combat tracker HUD modules integration
-  if (game.modules.get("combat-carousel")?.active) {
-    (async () => {
-      const { handleRenderCombatCarousel } = await import("./module/integrations/combat-carousel");
-      Hooks.on("renderCombatCarousel", handleRenderCombatCarousel);
-    })();
-  }
   if (game.modules!.get("combat-tracker-dock")?.active) {
     (async () => {
       game.lancer.combatTrackerDock = await import("./module/integrations/combat-tracker-dock");
