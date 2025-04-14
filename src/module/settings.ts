@@ -177,15 +177,6 @@ export const registerSettings = function () {
 };
 
 // > GENERAL AUTOMATION
-/**
- * Retrieve the automation settings for the system. If automation is turned
- * off, all keys will be `false`.
- * @deprecated Get the setting directly instead.
- */
-export function getAutomationOptions(): AutomationOptions {
-  return game.settings.get(game.system.id, LANCER.setting_automation) ?? new AutomationOptions();
-}
-
 interface AutomationOptionsSchema extends DataSchema {
   /**
    * Master switch for automation
