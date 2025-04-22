@@ -1,3 +1,13 @@
+# 2.8.1 (2025-04-22)
+
+## Bug Fixes
+
+- Scan (Journal) macro - Fix a bug with ownership of journals, so the generated journals can once again be viewed by all players. Make sure you drag a fresh copy of the macro from the compendium.
+
+## Misc
+
+- Automatically disable the Lancer Initiative module, alongside an informative popup. The module is for adding Lancer-style initiative to other game systems; it is fully integrated with the Lancer system so enabling the module on top can cause issues.
+
 # 2.8.0 (2025-03-30)
 
 ## Features
