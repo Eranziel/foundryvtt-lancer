@@ -54,7 +54,7 @@ import { LancerActiveEffect } from "./module/effects/lancer-active-effect";
 import { EntryType } from "./module/enums";
 import { targetsFromTemplate } from "./module/flows/_template";
 import { registerHandlebarsHelpers } from "./module/helpers";
-import { handleCombatUpdate } from "./module/helpers/automation/combat";
+import { disableLancerInitiative, handleCombatUpdate } from "./module/helpers/automation/combat";
 import { gridDist } from "./module/helpers/automation/targeting";
 import { applyCollapseListeners, initializeCollapses } from "./module/helpers/collapse";
 import CompconLoginForm from "./module/helpers/compcon-login-form";
@@ -361,6 +361,8 @@ Hooks.once("ready", () => {
 
   // Migrate settings from Lancer Condition Icons and disable the module
   migrateLancerConditions();
+  // Disable Lancer Initiative if it's active
+  disableLancerInitiative();
 });
 
 // Attach socket listeners

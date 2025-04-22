@@ -82,3 +82,33 @@ function refreshReactions(combat: LancerCombat | null) {
     });
   }
 }
+
+export function disableLancerInitiative() {
+  if (!game.user?.isGM || !game.modules.get("lancer-initiative")?.active) return;
+
+  // Disable the module
+  console.log(`${lp} Disabling Lancer Initiative module`);
+  const mods = game.settings.get("core", "moduleConfiguration");
+  mods["lancer-initiative"] = false;
+  game.settings.set("core", "moduleConfiguration", mods);
+
+  // Show a dialog to let the user know what happened
+  const text = `
+  <p>The <b>Lancer Initiative</b> module is intended for use in non-Lancer systems to use Lancer-style
+  initiative. Since all of its functionality is already included in the system, enabling the module
+  can cause issues. <b>The module has been disabled.</b></p>
+  <p>The page must now be refreshed for the module change to take effect.</p>`;
+  new Dialog(
+    {
+      title: `Lancer Initiative Module is not Needed`,
+      content: text,
+      buttons: {
+        ok: { label: "Refresh", callback: () => window.location.reload() },
+      },
+      default: "No",
+    },
+    {
+      width: 350,
+    }
+  ).render(true);
+}
