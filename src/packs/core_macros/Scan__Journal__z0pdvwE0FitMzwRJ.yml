@@ -398,7 +398,7 @@ command: >-
       scanEntry.createEmbeddedDocuments("JournalEntryPage", [scanPage]);
     }
 
-    scanEntry.update({ permission: { default: permissionLevel } });
+    scanEntry.update({ ownership: { default: permissionLevel } });
     scanEntry.sheet.render(true);
   });
 folder: yxTxiLixDsbyThYC
@@ -414,8 +414,8 @@ _stats:
   systemVersion: 2.1.5
   coreVersion: '12.331'
   createdTime: null
-  modifiedTime: 1740552081051
-  lastModifiedBy: Ol18KgPyh9PbrR3Z
+  modifiedTime: 1745327628567
+  lastModifiedBy: lggoQjn2WKsNR41x
   compendiumSource: null
   duplicateSource: null
 _key: '!macros!z0pdvwE0FitMzwRJ'
