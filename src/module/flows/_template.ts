@@ -1,4 +1,5 @@
 // Import TypeScript modules
+import type BaseGrid from "@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/grid/base.mjs";
 import type { Point } from "@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/types.mjs";
 import type { LancerToken } from "../token";
 
@@ -86,7 +87,8 @@ export function targetsFromTemplate(templateId: string): void {
       ({ x, y }) => canvas.grid!.getOffset({ x: x + sizeX / 2, y: y + sizeY / 2 })
     );
     test_token = (token: LancerToken) => {
-      const token_offsets = token.getOccupiedSpaces().map(p => canvas.grid!.getOffset(p));
+      // @ts-expect-error v13
+      const token_offsets: BaseGrid.Offset[] = token.document.getOccupiedSpaceOffsets();
       return token_offsets.some(o => template_offsets.some(e => o.i === e.i && o.j === e.j));
     };
   }
@@ -103,10 +105,9 @@ export function targetsFromTemplate(templateId: string): void {
         return !skip && test_token(t);
       },
     })
-    .toObject()
     .map(t => t.id);
-  game.user!.updateTokenTargets(targets);
-  game.user!.broadcastActivity({ targets });
+  // @ts-expect-error v13 types
+  canvas.tokens!.setTargets(targets);
 }
 
 /// Math Zone
