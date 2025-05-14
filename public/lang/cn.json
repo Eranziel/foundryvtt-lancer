@@ -1,0 +1,432 @@
+{
+  "TYPES": {
+    "Actor": {
+      "deployable": "可展开物",
+      "mech": "机甲",
+      "npc": "NPC",
+      "pilot": "驾驶员"
+    },
+    "Item": {
+      "bond": "羁绊",
+      "core_bonus": "核心奖励",
+      "frame": "骨架",
+      "license": "牌照",
+      "mech_system": "机甲系统",
+      "mech_weapon": "机甲武器",
+      "npc_class": "NPC职业",
+      "npc_feature": "NPC特性",
+      "npc_template": "NPC模板",
+      "organization": "组织",
+      "pilot_armor": "驾驶员护甲",
+      "pilot_gear": "驾驶员装备",
+      "pilot_weapon": "驾驶员武器",
+      "reserve": "储备",
+      "skill": "技能",
+      "status": "状况/状态",
+      "talent": "天赋",
+      "weapon_mod": "武器模组"
+    }
+  },
+  "lancer": {
+    "Actor": {
+      "FIELDS": {
+        "activations": { "label": "Activations" }
+      }
+    },
+    "placeholder": {
+      "name": "名称"
+    },
+    "common-sheet": {
+      "tabs": {
+        "effects": "<激活中效果>"
+      }
+    },
+    "deployable-sheet": {
+      "tabs": {
+        "status": "<状态>",
+        "config": "<设定>"
+      },
+      "deployer": {
+        "label": "部署者"
+      },
+      "stats": {
+        "label": "基础属性"
+      }
+    },
+    "mech-sheet": {
+      "tabs": {
+        "stats": "<机甲属性>",
+        "loadout": "<机甲装备>",
+        "talents": "<驾驶员天赋>"
+      },
+      "core": {
+        "label": "核心能量"
+      },
+      "actions": {
+        "label": "动作"
+      },
+      "macros": {
+        "label": "宏"
+      },
+      "system": {
+        "label": "装备",
+        "sp-used": "SP 已使用"
+      }
+    },
+    "npc-sheet": {
+      "header": {
+        "class": "职业："
+      },
+      "class": {
+        "label": "职业",
+        "none": "未选择职业"
+      },
+      "templates": {
+        "label": "模板"
+      },
+      "features": {
+        "label": "特性"
+      },
+      "effects": {
+        "label": "激活效果"
+      }
+    },
+    "pilot-sheet": {
+      "header": {
+        "ll": "牌照等级：",
+        "cs": "代号：",
+        "name": "名称：",
+        "bg": "背景："
+      },
+      "tabs": {
+        "cloud": "<RM-4://同步页>",
+        "dossier": "<驾驶员档案>",
+        "narrative": "<驾驶员数据>",
+        "tactical": "<驾驶员战术>",
+        "loadout": "<装备>",
+        "mech": "<激活机甲>"
+      },
+      "cloud-header": {
+        "label": "RM-4://(OMNINET上行链路ID)",
+        "vaultID": "自你的Comp/Con账户中加载 (如果已登录该账户)",
+        "raw-placeholder": "或手动输入角色代码"
+      },
+      "cloud-download": {
+        "label": "下载",
+        "lastSync": "上次同步时间: {timestamp}"
+      },
+      "cloud-upload": {
+        "label": "上传",
+        "wip": "功能制作中"
+      },
+      "json-import": {
+        "label": "导入"
+      },
+      "dossier": {
+        "cs": "代号",
+        "name": "名称"
+      },
+      "narrative": {
+        "bond": "羁绊-{bondName}",
+        "burdens": "负担",
+        "clocks": "计数器"
+      },
+      "tactical": {
+        "armor": "装甲",
+        "weapons": "武器",
+        "gear": "装备",
+        "reserves": "储备",
+        "licenses": "牌照",
+        "cores": "核心奖励"
+      },
+      "abilities": {
+        "skills": "技能触发",
+        "talents": "天赋"
+      }
+    },
+    "chat-card": {
+      "title": {
+        "attack": "// 攻击 //",
+        "damage": "// 伤害 //",
+        "reliable": "// 可靠 //",
+        "crit-damage": "// 会心一击伤害 //",
+        "self-heat": "// 自热 //",
+        "defense-hit": "// 攻击 VS {defense} //",
+        "effect": "// 效果 //",
+        "on-attack": "//攻击时//",
+        "on-hit": "//命中时//",
+        "on-crit": "//会心一击时//",
+        "charge-roll": "// 充能骰 //",
+        "recharged": "// 已充能 //",
+        "structure": "//结构伤害//",
+        "overheating": "//过热//",
+        "cascade": "//层流//",
+        "check": "// 检定 :: {check} //",
+        "system": "// 系统 :: {title} //",
+        "mod": "// 模组 :: {title} //",
+        "trait": "// 特征 :: {title} //",
+        "tech": "// 科技 :: {title} //",
+        "reaction": "// 反应 :: {title} //"
+      },
+      "label": {
+        "trigger": "触发",
+        "effect": "效果"
+      },
+      "attack": {
+        "crit": "会心一击！",
+        "hit": "命中",
+        "miss": "失手",
+        "roll-all-damage": "投掷伤害"
+      },
+      "exclamation": {
+        "overkill": "杀绝！"
+      },
+      "overcharge": {
+        "charged": "{target} + :: 成功充能",
+        "uncharged": "{target} + :: 未充能"
+      },
+      "remaining": "{total} / {max} 剩余"
+    },
+    "floatingDamageNumbers": {
+      "name": "伤害飘字",
+      "hint": "在修改状态（包括应用伤害）时显示伤害飘字。此设置对每个客户端独立生效。"
+    },
+    "uiTheme": {
+      "name": "UI主题",
+      "hint": "用户界面的配色方案，与 Comp/Con 的主题对应。",
+      "gms": "GMS Red (default)",
+      "gmsDark": "GMS Dark",
+      "msmc": "MSMC Solarized",
+      "horus": "HORUS Terminal",
+      "ha": "Harrison Armory Ras Shamra",
+      "ssc": "SSC Constellar Congress",
+      "ipsn": "IPS-N Carina",
+      "gal": "FORECAST/GALSIM"
+    },
+    "statusIconsConfig": {
+      "menu-name": "状态图标",
+      "menu-label": "状态图标设置",
+      "menu-hint": "设置显示在指示物HUD上的状态图标",
+      "defaultConditionsStatus": "默认状况/状态",
+      "defaultConditionsStatus-desc": "使用默认的状况/状态图标",
+      "cancerConditionsStatus": "Cancermantis 状况/状态",
+      "cancerConditionsStatus-desc": "使用Cancermantis提供的状况/状态图标",
+      "cancerNPCTemplates": "Cancermantis  NPC模板",
+      "cancerNPCTemplates-desc": "使用Cancermantis提供的NPC模板图标",
+      "hayleyConditionsStatus": "Hayley 状况/状态",
+      "hayleyConditionsStatus-desc": "使用Hayley提供的状况/状态图标",
+      "hayleyPC": "Hayley风格PC系统",
+      "hayleyPC-desc": "为PC的系统效果使用Hayley风格的图标",
+      "hayleyNPC": "Hayley风格NPC系统",
+      "hayleyNPC-desc": "为NPC的系统效果使用Hayley风格的图标",
+      "hayleyUtility": "Hayley风格通用指示器",
+      "hayleyUtility-desc": "为通用指示器使用Hayley风格的图标",
+      "tommyConditionsStatus": "Tommy 状况/状态",
+      "tommyConditionsStatus-desc": "使用Tommy提供的状况/状态图标"
+    },
+    "statusIconsNames": {
+      "abjure": "誓绝",
+      "aceso": "阿刻索稳定器",
+      "blind": "盲目",
+      "bolster": "强化",
+      "burn": "燃烧",
+      "camus_razor": "加缪之锋",
+      "chain": "束缚术",
+      "chains_of_prometheus": "普罗米修斯之链",
+      "clamp_bomb": "Clamp Bomb",
+      "commander": "指挥官",
+      "cover_hard": "硬性掩护",
+      "cover_soft": "软性掩护",
+      "dangerzone": "Danger Zone",
+      "destroyed": "Destroyed",
+      "dimensional_shackles": "Dimensional Shackles",
+      "dispersal_shield_1": "Dispersal Shield 1",
+      "dispersal_shield_2": "Dispersal Shield 2",
+      "dispersal_shield_3": "Dispersal Shield 3",
+      "dominions_breadth": "Dominion's Breadth",
+      "downandout": "Down and Out",
+      "duat_gate": "Duat Gate",
+      "echo_edge": "Echo Edge",
+      "elite": "Elite",
+      "engaged": "Engaged",
+      "excommunicate": "Excommunicate",
+      "exotic": "Exotic",
+      "exposed": "暴露",
+      "fade_cloak": "Fade Cloak",
+      "flaw_minus": "FLAW_minus",
+      "flaw_plus": "FLAW_plus",
+      "flying": "飞行",
+      "focus_down": "Focus Down",
+      "follower_count": "Follower Count",
+      "grappled": "受擒",
+      "gravity": "Gravity",
+      "grind_maniple": "Grind Maniple",
+      "grunt": "Grunt",
+      "haste": "Haste",
+      "hidden": "Hidden",
+      "hiddeninvis": "Hidden and Invisible",
+      "hunter_lock": "Hunter Lock",
+      "hyperdense_armor": "Hyperdense Armor",
+      "illusionary_subroutines": "Illusionary Subroutines",
+      "immobilized": "固定",
+      "impaired": "受损",
+      "imperial_eye": "Imperial Eye",
+      "intangible": "Intangible",
+      "investiture": "Investiture",
+      "invisible": "Invisible",
+      "jammed": "Jammed",
+      "kraul_grapple": "Kraul Grapple",
+      "latch_drone": "Latch Drone",
+      "lockon": "锁定",
+      "marked": "Marked",
+      "mercenary": "Mercenary",
+      "metahook": "Metahook",
+      "molten_puncture": "Molten Puncture",
+      "npc_tier_1": "层级1",
+      "npc_tier_2": "层级2",
+      "npc_tier_3": "层级3",
+      "overshield": "护盾",
+      "pain_transference": "Pain Transference",
+      "petrify": "Petrify",
+      "pirate": "海盗",
+      "prone": "Prone",
+      "reactor_meltdown": "炉心熔解",
+      "resistance_burn": "燃烧抵抗",
+      "resistance_energy": "能量抵抗",
+      "resistance_explosive": "爆炸抵抗",
+      "resistance_heat": "热度抵抗",
+      "resistance_kinetic": "动能抵抗",
+      "retort_loop": "Retort Loop",
+      "rpv": "RPV",
+      "sanctuary": "Sanctuary",
+      "shahnameh": "Shahnameh",
+      "ship": "Ship",
+      "shredded": "Shredded",
+      "shutdown": "关机",
+      "slow": "缓慢",
+      "spacer": "Spacer",
+      "spike": "Spike",
+      "stasis": "Stasis",
+      "stunned": "Stunned",
+      "supercharger": "Supercharger",
+      "sympathetic_shield": "Sympathetic_shield",
+      "tachyon_shield": "Tachyon Shield",
+      "tear_down": "Tear Down",
+      "terrify": "Terrify",
+      "tiercust": "Custom Tier",
+      "tracking_bug": "Tracking Bug",
+      "trueblack": "Trueblack Aegis",
+      "ultra": "Ultra",
+      "unravel": "Unravel",
+      "vehicle": "Vehicle",
+      "veteran": "Veteran",
+      "viral_logic": "Viral Logic",
+      "walk_of_kings": "Walk of Kings",
+      "warp_sensors": "Warp Sensors"
+    },
+    "automation": {
+      "menu-name": "自动化",
+      "menu-label": "系统自动化设定",
+      "menu-hint": "设置启用哪些系统自动化选项，或将其全部关闭。",
+      "master-switch": "启用",
+      "master-switch-desc": "关闭此选项以手动处理所有操作。",
+      "attacks": "攻击骰解析",
+      "attacks-desc": "系统是否自动计算攻击命中以及是否处理其他与攻击相关的自动化。",
+      "damage": "伤害应用",
+      "damage-desc": "系统是否对目标自动施加伤害。",
+      "structure": "自动处理结构/压力",
+      "structure-desc": "当机甲HP到达0或热度超过上限时，自动提醒进行结构/压力检定。",
+      "overcharge_heat": "应用超限热度",
+      "overcharge_heat-desc": "自动应用超限热度。",
+      "attack_self_heat": "攻击附带的自身热度",
+      "attack_self_heat-desc": "当武器带有“杀绝”或“热度（自身）”标签时，自动应用热度。",
+      "remove_templates": "自动清除测量模板",
+      "remove_templates-desc": "在回合结束时，自动清除来自攻击的测量模板。",
+      "limited_loading": "管理受限和装填",
+      "limited_loading-desc": "在物品被使用后，自动计算并追踪它们的受限次数/装填状况。",
+      "npc_recharge": "NPC充能",
+      "npc_recharge-desc": "自动在NPC回合开始时为他们投掷充能骰.",
+      "token_size": "指示物大小管理",
+      "token_size-desc": "自动强制指示物的大小与卡上的大小属性匹配。"
+    },
+    "actionTracker": {
+      "menu-name": "Action Tracker",
+      "menu-label": "Action Tracker Settings",
+      "menu-hint": "Configure options related to action tracker HUD and automations.",
+      "showHotbar": "Show Hotbar",
+      "showHotbar-desc": "Toggles the display of the floating hotbar during combat.",
+      "allowPlayers": "Allow Players",
+      "allowPlayers-desc": "Allows players to modify their own actions.",
+      "printMessages": "Print Messages",
+      "printMessages-desc": "Prints chat messages for start and end of a token's turn."
+    },
+    "initiative": {
+      "sorttracker": "Sort the tracker",
+      "sorttracker-desc": "Moves the unit currently taking their turn to the top of the tracker and moves units that have taken their turn to the end of the tracker.",
+      "appearancesettingslabel": "Appearance Settings",
+      "appearancesettingsbutton": "Appearance",
+      "appearancesettings-desc": "Configure the colors and icon used in the tracker"
+    },
+    "squaregriddiagonals": {
+      "name": "Square Grid Diagonal Movement",
+      "hint": "How distances will be calculated when moving diagonally on a square grid.",
+      "111": "1-1-1: Diagonal moves cost 1 (default)",
+      "121": "1-2-1: Diagonal moves alternate cost from 1 to 2",
+      "222": "2-2-2: Manhattan distance. Diagonals cost 2",
+      "euc": "Euclidean: Euclidian distance rounded"
+    },
+    "effect": {
+      "categories": {
+        "passive": "Passive",
+        "passthrough": "Passthrough",
+        "disabled": "Disabled",
+        "inherited": "Inherited"
+      }
+    },
+    "compendium": {
+      "core_macros": "LANCER宏",
+      "lancer_info": "LANCER信息",
+      "deployable": "部署物",
+      "mech-items": "机甲汇编",
+      "npc-actors": "预设NPC",
+      "npc-items": "NPC汇编",
+      "pilot-items": "驾驶员汇编",
+      "player-actors": "预设玩家卡",
+      "status-items": "状况/状态"
+    },
+    "tokenConfig": {
+      "manual_token_size": {
+        "label": "Manual Token Sizing",
+        "hint": "Bypass system automation for determining token size"
+      }
+    }
+  },
+  "LANCERINITIATIVE": {
+    "IconSettingsMenu": "图标设置",
+    "Icon": "激活图标",
+    "IconDesc": "用于定义激活图标的 CSS 类",
+    "DeactivateIcon": "未激活图标",
+    "DeactivateIconDesc": "用于定义未激活图标的 CSS 类。",
+    "IconSize": "图标大小",
+    "IconPreview": "图标预览",
+    "PCColor": "图标颜色",
+    "PCColorDesc": "默认: #44abe0",
+    "FriendlyColor": "友方颜色",
+    "FriendlyColorDesc": "默认: #44abe0",
+    "NeutralColor": "中立颜色",
+    "NeutralColorDesc": "默认: #146464",
+    "EnemyColor": "敌方颜色",
+    "EnemyColorDesc": "默认: #d98f30",
+    "DoneColor": "未激活颜色",
+    "DoneColorDesc": "默认: #aaaaaa",
+    "ActivatedLast": "Activated Units Last",
+    "ActivatedLastDesc": "Moves units that have taken their turn to the end of the tracker.",
+    "SortTracker": "Sort the Tracker",
+    "SortTrackerDesc": "Moves the unit currently taking their turn to the top of the tracker and moves units that have taken their turn to the end of the tracker.",
+    "EnableInitiative": "Enable Initiative Rolling",
+    "EnableInitiativeDesc": "Adds a button to owned combatants for rolling initiative",
+    "AddActivation": "Add Activation",
+    "RemoveActivation": "Remove Activation",
+    "UndoActivation": "Undo Activation"
+  }
+}

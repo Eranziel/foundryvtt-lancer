@@ -163,6 +163,11 @@
       "lang": "en",
       "name": "English",
       "path": "lang/en.json"
+    },
+    {
+      "lang": "cn",
+      "name": "Chinese",
+      "path": "lang/cn.json"
     }
   ],
   "socket": true,
