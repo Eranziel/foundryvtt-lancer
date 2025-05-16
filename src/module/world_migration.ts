@@ -23,9 +23,18 @@ const { log_prefix: lp } = LANCER;
  */
 export async function commitDataModelMigrations() {
   // Commit all world documents. Don't bother with packs.
-  await Item.updateDocuments(game.items._source, { diff: false, recursive: false, noHook: true });
-  await Actor.updateDocuments(game.actors._source, { diff: false, recursive: false, noHook: true });
-  await Scene.updateDocuments(game.scenes._source, { diff: false, recursive: false, noHook: true }); // Will innately handle unlinked tokens
+  await Item.updateDocuments(
+    game.items.map(i => i.toObject()),
+    { diff: false, recursive: false, noHook: true }
+  );
+  await Actor.updateDocuments(
+    game.actors.map(a => a.toObject()),
+    { diff: false, recursive: false, noHook: true }
+  );
+  await Scene.updateDocuments(
+    game.scenes.map(s => s.toObject()),
+    { diff: false, recursive: false, noHook: true }
+  ); // Will innately handle unlinked tokens
   ui.notifications?.info("All world Actors, Items, and Scenes migrated and data models cleaned.");
 }
 
@@ -92,7 +101,7 @@ Please refresh the page to try again.</p>`,
           label: "Refresh",
           callback: () => {
             ui.notifications.info("Page reloading in 3 seconds...");
-            setTimeout(() => window.location.reload(false), 3000);
+            setTimeout(() => foundry.utils.debouncedReload(), 3000);
           },
         },
         cancel: {
