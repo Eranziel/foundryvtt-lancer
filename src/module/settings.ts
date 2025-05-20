@@ -154,7 +154,7 @@ export const registerSettings = function () {
   CONFIG.LancerInitiative = {
     templatePath: `systems/${game.system.id}/templates/combat/combat-tracker.hbs`,
   };
-  game.settings.register(game.system.id, "combat-tracker-appearance", {
+  game.settings.register(game.system.id, LANCER.setting_combat_appearance, {
     scope: "client",
     config: false,
     type: CombatTrackerAppearance,
@@ -162,7 +162,7 @@ export const registerSettings = function () {
     onChange: setAppearance,
     default: new CombatTrackerAppearance(),
   });
-  game.settings.register(game.system.id, "combat-tracker-sort", {
+  game.settings.register(game.system.id, LANCER.setting_combat_sort, {
     scope: "world",
     config: false,
     type: Boolean,
