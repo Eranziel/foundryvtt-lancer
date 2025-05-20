@@ -22,28 +22,27 @@ async function mountLCPManager(target: HTMLElement, props: any) {
 
 /**
  * Insert a button into the compendium sidebar for opening the LCP Manager.
- * @param app Application to insert the button into. This should be the compendium sidebar!
+ * @param _app Application to insert the button into. This should be the compendium sidebar!
  * @param html The rendered HTML of the target application.
  */
-export function addLCPManagerButton(app: Application, html: any) {
-  if (app.options.id == "compendium") {
-    const buttons = $(html).find(".header-actions");
-    if (!buttons) {
-      ui.notifications!.error("Unable to add LCP Manager button - Compendium Tab buttons not found!", {
-        permanent: true,
-      });
-      console.log(`${lp} Unable to add LCP Manager button - Compendium Tab buttons not found!`, buttons);
-      return;
-    }
-    let button = document.createElement("button");
-    button.setAttribute("id", "lcp-manager-button");
-    button.setAttribute("style", "flex-basis: 100%;margin-top: 5px;");
-    button.innerHTML = "<i class='cci cci-content-manager i--s'></i> LANCER Compendium Manager";
-    buttons.append(button);
-    button.addEventListener("click", () => {
-      new LCPManager().render(true);
+export function addLCPManagerButton(_app: foundry.applications.api.ApplicationV2, html: HTMLElement) {
+  if (!game.user?.isGM) return;
+  const buttons = html.querySelector<HTMLDivElement>(".header-actions");
+  if (!buttons) {
+    ui.notifications!.error("Unable to add LCP Manager button - Compendium Tab buttons not found!", {
+      permanent: true,
     });
+    console.log(`${lp} Unable to add LCP Manager button - Compendium Tab buttons not found!`, buttons);
+    return;
   }
+  let button = document.createElement("button");
+  button.setAttribute("id", "lcp-manager-button");
+  button.setAttribute("style", "flex-basis: 100%;margin-top: 5px;");
+  button.innerHTML = "<i class='cci cci-content-manager i--s'></i> LANCER Compendium Manager";
+  buttons.append(button);
+  button.addEventListener("click", () => {
+    new LCPManager().render(true);
+  });
 }
 
 // TODO: deprecate and remove LCPIndex

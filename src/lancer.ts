@@ -24,10 +24,10 @@ import { LancerDeployableSheet } from "./module/actor/deployable-sheet";
 import { LancerMechSheet } from "./module/actor/mech-sheet";
 import { LancerNPCSheet } from "./module/actor/npc-sheet";
 import { LancerPilotSheet } from "./module/actor/pilot-sheet";
+import { WeaponRangeTemplate } from "./module/canvas/weapon-range-template";
 import { LancerFrameSheet } from "./module/item/frame-sheet";
 import { LancerItemSheet } from "./module/item/item-sheet";
 import { LancerLicenseSheet } from "./module/item/license-sheet";
-import { WeaponRangeTemplate } from "./module/canvas/weapon-range-template";
 
 // Import helpers
 import { LCPManager, addLCPManagerButton } from "./module/apps/lcp-manager/lcp-manager";
@@ -60,7 +60,7 @@ import { applyCollapseListeners, initializeCollapses } from "./module/helpers/co
 import CompconLoginForm from "./module/helpers/compcon-login-form";
 import { applyGlobalDragListeners } from "./module/helpers/dragdrop";
 // import { handleActorExport, validForExport } from "./module/helpers/io";
-import { extendCombatTrackerConfig, onCloseCombatTrackerConfig } from "./module/apps/lancer-initiative-config-form";
+import { extendCombatTrackerConfig } from "./module/apps/lancer-initiative-config-form";
 import { handleRefClickOpen } from "./module/helpers/refs";
 import { DeployableModel } from "./module/models/actors/deployable";
 import { MechModel } from "./module/models/actors/mech";
@@ -90,6 +90,7 @@ import { fromLid, fromLidMany, fromLidSync } from "./module/helpers/from-lid";
 import { addEnrichers } from "./module/helpers/text-enrichers";
 import { LancerNPCClassSheet } from "./module/item/npc-class-sheet";
 import { LancerNPCFeatureSheet } from "./module/item/npc-feature-sheet";
+import { LancerCombatantModel } from "./module/models/combatant/base";
 import { BondModel } from "./module/models/items/bond";
 import { LicenseModel } from "./module/models/items/license";
 import { NpcClassModel } from "./module/models/items/npc_class";
@@ -140,6 +141,9 @@ Hooks.once("init", () => {
   CONFIG.Actor.dataModels[EntryType.PILOT] = PilotModel;
   CONFIG.Actor.dataModels[EntryType.NPC] = NpcModel;
   CONFIG.Actor.dataModels[EntryType.DEPLOYABLE] = DeployableModel;
+
+  // @ts-expect-error Types missing type data for combatant
+  CONFIG.Combatant.dataModels["base"] = LancerCombatantModel;
 
   // Set up trackable resources for the various actor types
   const base = {
@@ -408,9 +412,7 @@ Hooks.on("updateCombat", (_combat: Combat, changes: object) => {
 Hooks.on("dropCanvasData", dropStatusToCanvas);
 
 // Create sidebar button to import LCP
-Hooks.on("renderSidebarTab", async (app: Application, html: HTMLElement) => {
-  addLCPManagerButton(app, html);
-});
+Hooks.on("renderCompendiumDirectory", addLCPManagerButton);
 
 // TODO: keep or remove?
 // This seems broken
@@ -453,7 +455,6 @@ Hooks.on("renderSettings", async (app: Application, html: HTMLElement) => {
   addSettingsButtons(app, html);
 });
 Hooks.on("renderCombatTrackerConfig", extendCombatTrackerConfig);
-Hooks.on("closeCombatTrackerConfig", onCloseCombatTrackerConfig);
 
 // Disable token vision and fog exploration by default in scene config
 Hooks.on("preCreateScene", (scene: any) => {
