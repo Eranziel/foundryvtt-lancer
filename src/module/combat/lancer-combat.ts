@@ -32,8 +32,7 @@ export class LancerCombat extends Combat {
     const updates = this.combatants.map(c => {
       return {
         _id: c.id,
-        [`flags.${game.system.id}.activations.value`]:
-          skipDefeated && c.isDefeated ? 0 : (<LancerCombatant>c).activations.max ?? 0,
+        "system.activations.value": skipDefeated && c.isDefeated ? 0 : (<LancerCombatant>c).activations.max ?? 0,
       };
     });
     return <Promise<LancerCombatant[]>>this.updateEmbeddedDocuments("Combatant", updates);
@@ -150,25 +149,8 @@ export class LancerCombat extends Combat {
 }
 
 export class LancerCombatant extends Combatant {
-  /**
-   * This just fixes a bug in foundry 0.8.x that prevents Combatants with no
-   * associated token or actor from being modified, even by the GM
-   */
-  override testUserPermission(...[user, permission, options]: Parameters<Combatant["testUserPermission"]>): boolean {
-    return this.actor?.testUserPermission(user, permission, options) ?? user.isGM;
-  }
-
   override prepareBaseData(): void {
     super.prepareBaseData();
-    if (this.flags?.[game.system.id]?.activations?.max === undefined && canvas?.ready) {
-      const activations = foundry.utils.getProperty(this.actor?.getRollData() ?? {}, "activations") ?? 1;
-      this.updateSource({
-        [`flags.${game.system.id}.activations`]: {
-          max: activations,
-          value: (this.parent?.round ?? 0) > 0 ? activations : 0,
-        },
-      });
-    }
     this.initiative ??= 0;
   }
 
@@ -177,7 +159,7 @@ export class LancerCombatant extends Combatant {
    */
   get activations(): Activations {
     // @ts-expect-error FlagConfig not working
-    return this.getFlag(game.system.id, "activations") ?? {};
+    return this.system.activations;
   }
 
   /**
@@ -187,11 +169,8 @@ export class LancerCombatant extends Combatant {
    */
   get disposition(): number {
     const disposition =
-      // @ts-expect-error FlagConfig not working
-      <number>this.getFlag(game.system.id, "disposition") ??
-      this.token?.disposition ??
-      this.actor?.prototypeToken.disposition ??
-      -2;
+      // @ts-expect-error V13 Combatant typedata
+      <number>this.system.disposition ?? this.token?.disposition ?? this.actor?.prototypeToken.disposition ?? -2;
     if (disposition === CONST.TOKEN_DISPOSITIONS.FRIENDLY && this.hasPlayerOwner) return 2;
     return disposition;
   }
@@ -203,7 +182,8 @@ export class LancerCombatant extends Combatant {
   async addActivations(num: number): Promise<this | undefined> {
     if (num === 0) return this;
     return this.update({
-      [`flags.${game.system.id}.activations`]: {
+      // @ts-expect-error V13 combatant typedata
+      "system.activations": {
         max: Math.max((this.activations.max ?? 1) + num, 1),
         value: Math.max((this.activations.value ?? 0) + num, 0),
       },
@@ -217,7 +197,8 @@ export class LancerCombatant extends Combatant {
   async modifyCurrentActivations(num: number): Promise<this | undefined> {
     if (num === 0) return this;
     return this.update({
-      [`flags.${game.system.id}.activations`]: {
+      // @ts-expect-error V13 combatant typedata
+      "system.activations": {
         value: Math.clamp((this.activations?.value ?? 0) + num, 0, this.activations?.max ?? 1),
       },
     });
