@@ -41,13 +41,15 @@ export async function commitDataModelMigrations() {
 const migrationProgressBarLabel = () => `Migration to v${game.system.version} in progress...`;
 let toMigrate = 1;
 let migrated = 0;
+let migrationNotification: Notification | null = null;
 /**
  * Update the progress bar for the migration
  */
 function migrationProgress(count: number) {
   migrated += count;
-  const percent = Math.floor((migrated / toMigrate) * 100);
-  SceneNavigation.displayProgressBar({ label: migrationProgressBarLabel(), pct: percent });
+  const percent = migrated / toMigrate;
+  // @ts-expect-error v13 types
+  migrationNotification.update({ pct: percent });
 }
 
 /**
@@ -58,6 +60,7 @@ function migrationProgress(count: number) {
 export async function migrateWorld() {
   const curr_version = game.settings.get(game.system.id, LANCER.setting_migration_version);
 
+  migrationNotification = ui.notifications!.info(migrationProgressBarLabel(), { progress: true });
   // Migrate from the pre-2.0 compendium structure the combined compendiums
   if (foundry.utils.isNewerVersion("2.0.0", curr_version)) {
     console.log(`${lp} World is coming from 1.X. Show the migration journal and clear compendiums.`);
