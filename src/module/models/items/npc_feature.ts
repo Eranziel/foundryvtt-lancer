@@ -97,10 +97,10 @@ export class NpcFeatureModel extends LancerDataModel<DataSchema, Item> {
 
   static migrateData(data: any) {
     // Fix stats
-    if (typeof data.bonus == "object" && !Array.isArray(data.bonus)) {
+    if (data.bonus && typeof data.bonus == "object" && !Array.isArray(data.bonus)) {
       data.bonus = convertNpcStats(data.bonus)[0];
     }
-    if (typeof data.override == "object" && !Array.isArray(data.override)) {
+    if (data.override && typeof data.override == "object" && !Array.isArray(data.override)) {
       data.override = convertNpcStats(data.override)[0];
     }
     // Non-tech features should not have tech_attack
