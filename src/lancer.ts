@@ -461,7 +461,9 @@ Hooks.on("preCreateScene", (scene: any) => {
   scene.updateSource({ tokenVision: false, "fog.exploration": false });
 });
 
-Hooks.on("renderChatMessage", async (cm: ChatMessage, html: JQuery, data: any) => {
+Hooks.on("renderChatMessageHTML", async (cm: ChatMessage, el: HTMLElement, data: any) => {
+  // TODO: get rid of JQuery?
+  const html = $(el);
   // Reapply listeners.
   initializeCollapses(html);
   applyCollapseListeners(html);
@@ -609,16 +611,22 @@ async function promptInstallCoreData() {
 }
 
 function setupSheets() {
-  Actors.unregisterSheet("core", ActorSheet);
-  Actors.registerSheet("lancer", LancerPilotSheet, { types: [EntryType.PILOT], makeDefault: true });
-  Actors.registerSheet("lancer", LancerMechSheet, { types: [EntryType.MECH], makeDefault: true });
-  Actors.registerSheet("lancer", LancerNPCSheet, { types: [EntryType.NPC], makeDefault: true });
-  Actors.registerSheet("lancer", LancerDeployableSheet, {
+  // @ts-expect-error v13 types
+  const actors = foundry.documents.collections.Actors;
+  // @ts-expect-error v13 types
+  actors.unregisterSheet("core", foundry.appv1.sheets.ActorSheet);
+  actors.registerSheet("lancer", LancerPilotSheet, { types: [EntryType.PILOT], makeDefault: true });
+  actors.registerSheet("lancer", LancerMechSheet, { types: [EntryType.MECH], makeDefault: true });
+  actors.registerSheet("lancer", LancerNPCSheet, { types: [EntryType.NPC], makeDefault: true });
+  actors.registerSheet("lancer", LancerDeployableSheet, {
     types: [EntryType.DEPLOYABLE],
     makeDefault: true,
   });
-  Items.unregisterSheet("core", ItemSheet);
-  Items.registerSheet("lancer", LancerItemSheet, {
+  // @ts-expect-error v13 types
+  const items = foundry.documents.collections.Items;
+  // @ts-expect-error v13 types
+  items.unregisterSheet("core", foundry.appv1.sheets.ItemSheet);
+  items.registerSheet("lancer", LancerItemSheet, {
     types: [
       EntryType.SKILL,
       EntryType.TALENT,
@@ -637,13 +645,13 @@ function setupSheets() {
     ],
     makeDefault: true,
   });
-  Items.registerSheet("lancer", LancerFrameSheet, { types: [EntryType.FRAME], makeDefault: true });
-  Items.registerSheet("lancer", LancerLicenseSheet, { types: [EntryType.LICENSE], makeDefault: true });
-  Items.registerSheet("lancer", LancerNPCClassSheet, {
+  items.registerSheet("lancer", LancerFrameSheet, { types: [EntryType.FRAME], makeDefault: true });
+  items.registerSheet("lancer", LancerLicenseSheet, { types: [EntryType.LICENSE], makeDefault: true });
+  items.registerSheet("lancer", LancerNPCClassSheet, {
     types: [EntryType.NPC_CLASS, EntryType.NPC_TEMPLATE],
     makeDefault: true,
   });
-  Items.registerSheet("lancer", LancerNPCFeatureSheet, { types: [EntryType.NPC_FEATURE], makeDefault: true });
+  items.registerSheet("lancer", LancerNPCFeatureSheet, { types: [EntryType.NPC_FEATURE], makeDefault: true });
 }
 
 /**
