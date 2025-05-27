@@ -423,6 +423,7 @@ export function npcClassInnateEffect(class_: LancerNPC_CLASS) {
 
 // Converts the system.bonus of an npc feature into an array
 export function npcFeatureBonusEffects(feature: LancerNPC_FEATURE) {
+  if (!feature.system.bonus) return null; // No bonuses to convert
   let changes = [];
   for (let key of npc_keys) {
     let value = feature.system.bonus[key];
@@ -446,6 +447,7 @@ export function npcFeatureBonusEffects(feature: LancerNPC_FEATURE) {
 
 // Converts the system.override of an npc feature into an array
 export function npcFeatureOverrideEffects(feature: LancerNPC_FEATURE) {
+  if (!feature.system.override) return null; // No overrides to convert
   let changes = [];
   for (let key of npc_keys) {
     let value = feature.system.override[key];
