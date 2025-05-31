@@ -657,10 +657,12 @@ export interface PackedPilotWeaponData extends AllPilotStuffPackedData {
 }
 export interface PackedPilotGearData extends AllPilotStuffPackedData {
   type: "Gear";
+  effect: string;
 }
 
 export interface PackedPilotArmorData extends AllPilotStuffPackedData {
   type: "Armor";
+  effect: string;
 }
 
 export interface PackedTalentData {

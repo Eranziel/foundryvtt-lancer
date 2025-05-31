@@ -14,6 +14,7 @@ export class PilotArmorModel extends LancerDataModel<DataSchema, Item> {
   static defineSchema() {
     return {
       description: new fields.StringField({ nullable: true }),
+      effect: new fields.StringField(),
       ...template_universal_item(),
       ...template_uses(),
       ...template_bascdt(),
@@ -40,6 +41,7 @@ export function unpackPilotArmor(
       counters: undefined,
       deployables: deployables ?? [],
       description: data.description,
+      effect: data.effect,
       lid: data.id,
       tags: tags ?? [],
     },

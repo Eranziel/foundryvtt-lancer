@@ -392,9 +392,11 @@ export namespace SourceData {
   }
   export interface PilotArmor extends SourceTemplates.item_universal, SourceTemplates.bascdt, SourceTemplates.uses {
     description: string;
+    effect: string;
   }
   export interface PilotGear extends SourceTemplates.item_universal, SourceTemplates.bascdt, SourceTemplates.uses {
     description: string;
+    effect: string;
   }
   export interface PilotWeapon extends SourceTemplates.item_universal, SourceTemplates.bascdt, SourceTemplates.uses {
     description: string;

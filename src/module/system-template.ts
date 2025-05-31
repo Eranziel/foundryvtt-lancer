@@ -477,9 +477,11 @@ export namespace SystemData {
 
   export interface PilotArmor extends SystemTemplates.item_universal, SystemTemplates.bascdt, SystemTemplates.uses {
     description: string;
+    effect: string;
   }
   export interface PilotGear extends SystemTemplates.item_universal, SystemTemplates.bascdt, SystemTemplates.uses {
     description: string;
+    effect: string;
   }
   export interface PilotWeapon extends SystemTemplates.item_universal, SystemTemplates.bascdt, SystemTemplates.uses {
     description: string;
