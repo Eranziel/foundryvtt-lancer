@@ -456,7 +456,7 @@ export async function rollAttacks(
             total: String(attack_roll.total).padStart(2, "0"),
             usedLockOn: !!targetingData.usedLockOn,
             hit: await checkForHit(state.data?.is_smart ?? false, attack_roll, actor),
-            crit: (attack_roll.total || 0) >= 20,
+            crit: state.data?.attack_type !== AttackType.Tech && (attack_roll.total || 0) >= 20,
           },
         };
       })
