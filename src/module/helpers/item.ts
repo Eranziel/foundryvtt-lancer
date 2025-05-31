@@ -446,6 +446,10 @@ export function pilotWeaponRefview(weapon_path: string, options: HelperOptions):
     limitedUsesIndicator(weapon, weapon_path);
   }
 
+  let effect = weapon.system.effect
+    ? `<div style="padding: 0 0.5em 0 0.5em">${effectBox("Effect", weapon.system.effect)}</div>`
+    : "";
+
   return `<div class="set ${
     EntryType.PILOT_WEAPON
   } ref drop-settable card clipped-top pilot-weapon-compact item lancer-border-weapon"
@@ -473,13 +477,12 @@ export function pilotWeaponRefview(weapon_path: string, options: HelperOptions):
         ${damageArrayView(weapon.system.damage, { ...options, rollable: true })}
         
         ${inc_if(`<hr class="vsep"><div class="uses-wrapper">`, loading || limited)}
-        <!-- Loading toggle, if we are loading-->
         ${loading}
-        <!-- Limited toggle if we are limited-->
         ${limited}
         ${inc_if(`</div>`, loading || limited)}
       </div>
 
+      ${effect}
       ${compactTagListHBS(weapon_path + ".system.tags", options)}
     </div>
   </div>`;
