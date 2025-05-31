@@ -10,7 +10,7 @@
 
 ## Bug Fixes
 
-- #832 - Display pilot armor, weapon, and gear actions on pilot sheet.
+- #832, #833 - Display pilot armor, weapon, and gear actions on pilot sheet.
 - #858 - New scenes once again have fog exploration disabled by default.
 - #860 - Tech attacks no longer indicate "crit" in chat results, per CRB.
 - #861, #862 - Improved token status handling. Fixed an issue which could prevent the Resistance statuses from populating (important because they have automation attached), and changed the priority so that world items are most important, then Status Icon Configuration setting, and finally compendium items (to backfill any missing core/LCP conditions/statuses).
