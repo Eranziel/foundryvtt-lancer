@@ -120,6 +120,7 @@ function structTableDescriptions(roll: number, remStruct: number): string {
         case 2:
           return "Roll a HULL check. On a success, your mech is @Compendium[world.status-items.Stunned] until the end of your next turn. On a failure, your mech is destroyed.";
         case 1:
+        case 0:
           return "Your mech is destroyed.";
         default:
           return "Your mech is @Compendium[world.status-items.Stunned] until the end of your next turn.";
@@ -165,6 +166,15 @@ export async function rollStructureTable(state: FlowState<LancerFlowState.Primar
 
   let result = roll.total;
   if (result === undefined) return false;
+
+  // If the result indicates the mech should be destroyed, set the remaining structure to 0.
+  // Also subtract the hp which was added in the preStructureRollChecks step.
+  if (result === 0 || (result === 1 && remStruct <= 1)) {
+    await actor.update({
+      "system.hp.value": actor.system.hp.value - actor.system.hp.max,
+      "system.structure.value": 0,
+    });
+  }
 
   state.data = {
     type: "structure",
@@ -250,7 +260,7 @@ export async function checkStructureMultipleOnes(
     state.data.title = structTableTitles[0];
     state.data.desc = structTableDescriptions(roll.total ?? 1, 1);
     // Subtract the hp which was added in the preStructureRollChecks step.
-    await actor.update({ "system.hp.value": actor.system.hp.value - actor.system.hp.max });
+    await actor.update({ "system.hp.value": actor.system.hp.value - actor.system.hp.max, "system.structure.value": 0 });
   }
 
   return true;
