@@ -245,7 +245,7 @@
         </h3>
         <HudCheckbox label="Inaccurate (-1)" bind:value={weapon.inaccurate} />
         <HudCheckbox label="Impaired (-1)" value={!!weapon.impaired} disabled />
-        {#if kind == "attack"}
+        {#if isAttack() && !isTech()}
           <div class="grid-enforcement">
             {#if targets.length == 0}
               <div transition:slide|local>

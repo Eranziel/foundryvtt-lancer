@@ -30,10 +30,6 @@ export class TechAttackFlow extends Flow<LancerFlowState.TechAttackRollData> {
     "setAttackTargets",
     "showAttackHUD",
     "rollAttacks",
-    // TODO: heat, and special tech attacks which do normal damage
-    // "rollDamages"
-    // TODO: pick invade option for each hit
-    // "pickInvades",
     "applySelfHeat",
     "updateItemAfterAction",
     "printTechAttackCard",
