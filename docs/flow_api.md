@@ -67,8 +67,10 @@ The list of flows provided by the Lancer system are:
 - `BasicAttackFlow` - make a basic attack using the attack HUD. This is for things such as a ram, grapple, or improvised attack, i.e. an attack with no weapon.
 - `WeaponAttackFlow` - make an attack with a weapon using the attack HUD. This could be a pilot weapon, mech weapon, or NPC feature.
 - `BondPowerFlow` - use a pilot bond power.
+- `BurnFlow` - roll a hull check to end burn, and apply damage on failure. Used at end of turn in combat.
 - `CascadeFlow` - roll a cascade check as a consequence from a structure or overheat check.
 - `CoreActiveFlow` - use a mech's core system. This is an extension of `ActivationFlow`, adding consumption of the mech's core power.
+- `DamageRollFlow` - make a damage roll. This can use a pilot weapon, mech weapon, NPC feature, or no item.
 - `FullRepairFlow` - perform a full repair, resetting all of a mech or pilot's stats.
 - `NPCRechargeFlow` - check whether an NPC's features with the recharge X+ tag have recharged.
 - `OverchargeFlow` - overcharge a mech, applying heat and advancing the overcharge track.
@@ -80,4 +82,5 @@ The list of flows provided by the Lancer system are:
 - `SystemFlow` - generically "use" a mech system or weapon mod. This is generally for systems which do not have attached action data.
 - `TalentFlow` - use a specific rank of a pilot talent.
 - `TechAttackFlow` - make a tech attack using the attack HUD, either generic (e.g. Invade) or from a mech system or NPC feature.
+- `SimpleHTMLFlow` - the second simplest flow, for printing a card in chat containing arbitrary pre-rendered HTML.
 - `SimpleTextFlow` - the simplest flow, for printing a card in chat with title, description, and optionally a list of tags.
