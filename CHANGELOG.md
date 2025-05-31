@@ -1,3 +1,25 @@
+# 2.9.0 (2025-05-31)
+
+## Features
+
+- #829 - Basic and Invade tech attacks now include a "Roll Damage" button for 2 heat.
+- #831 - Pilot sheets now display reserve actions.
+- #834 - Pilot sheets now display the "Effect" data for weapons.
+- #843 - Pilot sheets now display the "Effect" data for armor and gear.
+- If a token has the "Cover - Hard" or "Cover - Soft" status when targeted with an attack, the attack HUD will automatically select the corresponding cover state to use in the roll.
+
+## Bug Fixes
+
+- #832 - Display pilot armor, weapon, and gear actions on pilot sheet.
+- #858 - New scenes once again have fog exploration disabled by default.
+- #860 - Tech attacks no longer indicate "crit" in chat results, per CRB.
+- #861, #862 - Improved token status handling. Fixed an issue which could prevent the Resistance statuses from populating (important because they have automation attached), and changed the priority so that world items are most important, then Status Icon Configuration setting, and finally compendium items (to backfill any missing core/LCP conditions/statuses).
+- #864 - When a structure roll results in a "Crushing Hit", set the mech/NPC's structure to 0. This will allow automation modules/macros to work more seamlessly with the system's structure automation.
+
+## Misc
+
+- #865 - Add new Flows to `docs/flow_api.md`.
+
 # 2.8.1 (2025-04-22)
 
 ## Bug Fixes
