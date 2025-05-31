@@ -375,14 +375,12 @@ export function pilotArmorSlot(armor_path: string, options: HelperOptions): stri
   let eva_val = bonuses.find(b => b.lid == "pilot_evasion")?.val ?? "0";
   let hp_val = bonuses.find(b => b.lid == "pilot_hp")?.val ?? "0";
 
-  const description = armor.system.description
-    ? `<div class="effect-text" style=" padding: 5px">
-    ${armor.system.description}
-  </div>`
-    : "";
-  let effect = armor.system.effect
-    ? `<div style="padding: 0 0.5em 0 0.5em">${effectBox("Effect", armor.system.effect)}</div>`
-    : "";
+  const description = armor.system.description || "";
+  let effect = armor.system.effect ? effectBox("Effect", armor.system.effect) : "";
+  let actions = "";
+  if (armor.system.actions.length) {
+    actions = buildActionArrayHTML(armor, "system.actions");
+  }
 
   return `<div class="set ref drop-settable card clipped-top pilot-armor-compact item lancer-border-primary" 
                 ${ref_params(armor, armor_path)} 
@@ -417,9 +415,12 @@ export function pilotArmorSlot(armor_path: string, options: HelperOptions): stri
                 <span class="minor">${speed_val}</span>
               </div>
             </div>
-            ${description}
-            ${effect}
-            ${compactTagListHBS(armor_path + ".system.tags", options)}
+            <div class="pilot-gear-body flexcol">
+              ${description}
+              ${effect}
+              ${actions}
+              ${compactTagListHBS(armor_path + ".system.tags", options)}
+            </div>
           </div>`;
 }
 
@@ -450,9 +451,12 @@ export function pilotWeaponRefview(weapon_path: string, options: HelperOptions):
     limitedUsesIndicator(weapon, weapon_path);
   }
 
-  let effect = weapon.system.effect
-    ? `<div style="padding: 0 0.5em 0 0.5em">${effectBox("Effect", weapon.system.effect)}</div>`
-    : "";
+  let effect = weapon.system.effect ? effectBox("Effect", weapon.system.effect) : "";
+
+  let actions = "";
+  if (weapon.system.actions.length) {
+    actions = buildActionArrayHTML(weapon, "system.actions");
+  }
 
   return `<div class="set ${
     EntryType.PILOT_WEAPON
@@ -467,7 +471,7 @@ export function pilotWeaponRefview(weapon_path: string, options: HelperOptions):
                 <i class="fas fa-ellipsis-v"></i>
               </a>
     </div>
-    <div class="flexcol">
+    <div class="pilot-gear-body flexcol">
       <div class="flexrow">
         <a
           class="flexrow roll-attack lancer-button"
@@ -487,6 +491,7 @@ export function pilotWeaponRefview(weapon_path: string, options: HelperOptions):
       </div>
 
       ${effect}
+      ${actions}
       ${compactTagListHBS(weapon_path + ".system.tags", options)}
     </div>
   </div>`;
@@ -512,9 +517,11 @@ export function pilotGearRefview(gear_path: string, options: HelperOptions): str
   if (gear.getLimitedBase()) {
     uses = limitedUsesIndicator(gear, gear_path);
   }
-  let effect = gear.system.effect
-    ? `<div style="padding: 0 0.5em 0 0.5em">${effectBox("Effect", gear.system.effect)}</div>`
-    : "";
+  let effect = gear.system.effect ? effectBox("Effect", gear.system.effect) : "";
+  let actions = "";
+  if (gear.system.actions.length) {
+    actions = buildActionArrayHTML(gear, "system.actions");
+  }
 
   return `<div class="set ${EntryType.PILOT_GEAR} ref drop-settable card clipped-top item lancer-border-system"
     ${ref_params(gear, gear_path)} 
@@ -528,7 +535,7 @@ export function pilotGearRefview(gear_path: string, options: HelperOptions): str
         <i class="fas fa-ellipsis-v"></i>
       </a>
     </div>
-    <div class="flexcol">
+    <div class="pilot-gear-body flexcol">
       <div class="flexrow">
         <div class="effect-text" style=" padding: 5px">
           ${gear.system.description || ""}
@@ -536,6 +543,7 @@ export function pilotGearRefview(gear_path: string, options: HelperOptions): str
         ${uses}
       </div>
       ${effect}
+      ${actions}
       ${compactTagListHBS(gear_path + ".system.tags", options)}
     </div>
   </div>`;
