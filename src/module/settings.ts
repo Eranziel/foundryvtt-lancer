@@ -104,8 +104,7 @@ export const registerSettings = function () {
     config: false,
     type: StatusIconConfigOptions,
     onChange: async () => {
-      await LancerActiveEffect.initConfig();
-      await LancerActiveEffect.populateFromItems();
+      await LancerActiveEffect.updateIcons();
     },
     default: new StatusIconConfigOptions(),
   });

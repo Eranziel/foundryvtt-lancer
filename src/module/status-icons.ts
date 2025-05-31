@@ -3,6 +3,44 @@ import { StatusIconConfigOptions } from "./settings";
 
 const lp = LANCER.log_prefix;
 
+export const baselineStatuses = [
+  {
+    id: "resistance_burn",
+    name: "lancer.statusIconsNames.resistance_burn",
+    img: `systems/lancer/assets/icons/white/resistance_burn.svg`,
+  },
+  {
+    id: "resistance_energy",
+    name: "lancer.statusIconsNames.resistance_energy",
+    img: `systems/lancer/assets/icons/white/resistance_energy.svg`,
+  },
+  {
+    id: "resistance_explosive",
+    name: "lancer.statusIconsNames.resistance_explosive",
+    img: `systems/lancer/assets/icons/white/resistance_explosive.svg`,
+  },
+  {
+    id: "resistance_heat",
+    name: "lancer.statusIconsNames.resistance_heat",
+    img: `systems/lancer/assets/icons/white/resistance_heat.svg`,
+  },
+  {
+    id: "resistance_kinetic",
+    name: "lancer.statusIconsNames.resistance_kinetic",
+    img: `systems/lancer/assets/icons/white/resistance_kinetic.svg`,
+  },
+  {
+    id: "cover_hard",
+    name: "lancer.statusIconsNames.cover_hard",
+    img: `systems/lancer/assets/icons/white/cover_hard.svg`,
+  },
+  {
+    id: "cover_soft",
+    name: "lancer.statusIconsNames.cover_soft",
+    img: `systems/lancer/assets/icons/white/cover_soft.svg`,
+  },
+];
+
 export const defaultStatuses = [
   {
     id: "immobilized",
@@ -109,41 +147,6 @@ export const defaultStatuses = [
     name: "lancer.statusIconsNames.flying",
     img: "icons/svg/wing.svg",
   },
-  {
-    id: "cover_hard",
-    name: "lancer.statusIconsNames.cover_hard",
-    img: `systems/lancer/assets/icons/white/cover_hard.svg`,
-  },
-  {
-    id: "cover_soft",
-    name: "lancer.statusIconsNames.cover_soft",
-    img: `systems/lancer/assets/icons/white/cover_soft.svg`,
-  },
-  {
-    id: "resistance_burn",
-    name: "lancer.statusIconsNames.resistance_burn",
-    img: `systems/lancer/assets/icons/white/resistance_burn.svg`,
-  },
-  {
-    id: "resistance_energy",
-    name: "lancer.statusIconsNames.resistance_energy",
-    img: `systems/lancer/assets/icons/white/resistance_energy.svg`,
-  },
-  {
-    id: "resistance_explosive",
-    name: "lancer.statusIconsNames.resistance_explosive",
-    img: `systems/lancer/assets/icons/white/resistance_explosive.svg`,
-  },
-  {
-    id: "resistance_heat",
-    name: "lancer.statusIconsNames.resistance_heat",
-    img: `systems/lancer/assets/icons/white/resistance_heat.svg`,
-  },
-  {
-    id: "resistance_kinetic",
-    name: "lancer.statusIconsNames.resistance_kinetic",
-    img: `systems/lancer/assets/icons/white/resistance_kinetic.svg`,
-  },
 ];
 
 export const cancerConditionsStatus = [
@@ -236,41 +239,6 @@ export const cancerConditionsStatus = [
     id: "stunned",
     name: "lancer.statusIconsNames.stunned",
     img: "systems/lancer/assets/icons/alt-status/cancercondstat/stunned.svg",
-  },
-  {
-    id: "cover_hard",
-    name: "lancer.statusIconsNames.cover_hard",
-    img: `systems/lancer/assets/icons/white/cover_hard.svg`,
-  },
-  {
-    id: "cover_soft",
-    name: "lancer.statusIconsNames.cover_soft",
-    img: `systems/lancer/assets/icons/white/cover_soft.svg`,
-  },
-  {
-    id: "resistance_burn",
-    name: "lancer.statusIconsNames.resistance_burn",
-    img: `systems/lancer/assets/icons/white/resistance_burn.svg`,
-  },
-  {
-    id: "resistance_energy",
-    name: "lancer.statusIconsNames.resistance_energy",
-    img: `systems/lancer/assets/icons/white/resistance_energy.svg`,
-  },
-  {
-    id: "resistance_explosive",
-    name: "lancer.statusIconsNames.resistance_explosive",
-    img: `systems/lancer/assets/icons/white/resistance_explosive.svg`,
-  },
-  {
-    id: "resistance_heat",
-    name: "lancer.statusIconsNames.resistance_heat",
-    img: `systems/lancer/assets/icons/white/resistance_heat.svg`,
-  },
-  {
-    id: "resistance_kinetic",
-    name: "lancer.statusIconsNames.resistance_kinetic",
-    img: `systems/lancer/assets/icons/white/resistance_kinetic.svg`,
   },
 ];
 
@@ -422,31 +390,6 @@ export const hayleyConditionsStatus = [
     id: "flying",
     name: "lancer.statusIconsNames.flying",
     img: "systems/lancer/assets/icons/alt-status/hayleyutil/flying.webp",
-  },
-  {
-    id: "resistance_burn",
-    name: "lancer.statusIconsNames.resistance_burn",
-    img: `systems/lancer/assets/icons/white/resistance_burn.svg`,
-  },
-  {
-    id: "resistance_energy",
-    name: "lancer.statusIconsNames.resistance_energy",
-    img: `systems/lancer/assets/icons/white/resistance_energy.svg`,
-  },
-  {
-    id: "resistance_explosive",
-    name: "lancer.statusIconsNames.resistance_explosive",
-    img: `systems/lancer/assets/icons/white/resistance_explosive.svg`,
-  },
-  {
-    id: "resistance_heat",
-    name: "lancer.statusIconsNames.resistance_heat",
-    img: `systems/lancer/assets/icons/white/resistance_heat.svg`,
-  },
-  {
-    id: "resistance_kinetic",
-    name: "lancer.statusIconsNames.resistance_kinetic",
-    img: `systems/lancer/assets/icons/white/resistance_kinetic.svg`,
   },
 ];
 
@@ -854,41 +797,6 @@ export const tommyConditionsStatus = [
     id: "tiercust",
     name: "lancer.statusIconsNames.tiercust",
     img: "systems/lancer/assets/icons/alt-status/tommystat/Tier Custom.webp",
-  },
-  {
-    id: "cover_hard",
-    name: "lancer.statusIconsNames.cover_hard",
-    img: `systems/lancer/assets/icons/white/cover_hard.svg`,
-  },
-  {
-    id: "cover_soft",
-    name: "lancer.statusIconsNames.cover_soft",
-    img: `systems/lancer/assets/icons/white/cover_soft.svg`,
-  },
-  {
-    id: "resistance_burn",
-    name: "lancer.statusIconsNames.resistance_burn",
-    img: `systems/lancer/assets/icons/white/resistance_burn.svg`,
-  },
-  {
-    id: "resistance_energy",
-    name: "lancer.statusIconsNames.resistance_energy",
-    img: `systems/lancer/assets/icons/white/resistance_energy.svg`,
-  },
-  {
-    id: "resistance_explosive",
-    name: "lancer.statusIconsNames.resistance_explosive",
-    img: `systems/lancer/assets/icons/white/resistance_explosive.svg`,
-  },
-  {
-    id: "resistance_heat",
-    name: "lancer.statusIconsNames.resistance_heat",
-    img: `systems/lancer/assets/icons/white/resistance_heat.svg`,
-  },
-  {
-    id: "resistance_kinetic",
-    name: "lancer.statusIconsNames.resistance_kinetic",
-    img: `systems/lancer/assets/icons/white/resistance_kinetic.svg`,
   },
 ];
 

@@ -5,6 +5,7 @@ import { DeployableType, EntryType } from "../enums";
 import { LancerItem, LancerSTATUS } from "../item/lancer-item";
 import { StatusIconConfigOptions } from "../settings";
 import {
+  baselineStatuses,
   cancerConditionsStatus,
   cancerNPCTemplates,
   defaultStatuses,
@@ -15,6 +16,8 @@ import {
   tommyConditionsStatus,
 } from "../status-icons";
 import { get_pack_id } from "../util/doc";
+
+const lp = LANCER.log_prefix;
 
 // Chassis = mech or standard npc
 export type LancerEffectTarget =
@@ -123,6 +126,16 @@ export class LancerActiveEffect extends ActiveEffect {
     return [passives, inherited, disabled, passthrough];
   }
 
+  // Fully update the status icons in CONFIG.statusEffects.
+  // This is not used on page load, since the two methods need to be run in different hooks.
+  // Any time after that, though, both should be run together and in this order.
+  static async updateIcons() {
+    await this.initConfig();
+    await this.populateFromCompendiumItems();
+    await this.populateFromWorldItems();
+    Hooks.callAll("lancer.statusesReady");
+  }
+
   // Populate config with our static/compendium statuses instead of the builtin ones
   static async initConfig() {
     const statusIconConfig = game.settings.get(game.system.id, LANCER.setting_status_icons);
@@ -134,23 +147,21 @@ export class LancerActiveEffect extends ActiveEffect {
 
     /**
      * Helper function to populate the status config with the selected status icon set. For each icon in swapWith:
-     * - If the status is already in statuses, replace the icon with the one in swapWith
-     * - If the status is not in statuses, add it to statuses
+     * - If the status is already in statuses, leave it as-is
+     * - If the status is not in statuses yet, add it
      * @param statuses The set of statuses being worked on, to be put back into CONFIG.statusEffects afterward
-     * @param swapWith The set of icons to swap in
+     * @param newStatuses The set of icons to swap in
      * @returns The statuses set with the icons swapped, and any missing statuses added.
      */
-    function _swapIcons(
+    function _backfillIcons(
       // @ts-expect-error v10 types
       statuses: StatusEffect[],
-      swapWith: { id: string; name: string; img: string }[]
+      newStatuses: { id: string; name: string; img: string }[]
       // @ts-expect-error v10 types
     ): StatusEffect[] {
-      for (let icon of swapWith) {
+      for (let icon of newStatuses) {
         let status = statuses.find(s => s.id === icon.id);
-        if (status) {
-          status.img = icon.img;
-        } else {
+        if (!status) {
           statuses.push({
             id: icon.id,
             name: icon.name,
@@ -165,31 +176,34 @@ export class LancerActiveEffect extends ActiveEffect {
     let configStatuses: StatusEffect[] = [];
     // Pull the default statuses from the compendium if it exists
     if (statusIconConfig.defaultConditionsStatus) {
-      configStatuses = _swapIcons(configStatuses, defaultStatuses);
+      configStatuses = _backfillIcons(configStatuses, defaultStatuses);
     }
     if (statusIconConfig.cancerConditionsStatus) {
-      configStatuses = _swapIcons(configStatuses, cancerConditionsStatus);
+      configStatuses = _backfillIcons(configStatuses, cancerConditionsStatus);
     }
     if (statusIconConfig.hayleyConditionsStatus) {
-      configStatuses = _swapIcons(configStatuses, hayleyConditionsStatus);
+      configStatuses = _backfillIcons(configStatuses, hayleyConditionsStatus);
     }
     if (statusIconConfig.tommyConditionsStatus) {
-      configStatuses = _swapIcons(configStatuses, tommyConditionsStatus);
+      configStatuses = _backfillIcons(configStatuses, tommyConditionsStatus);
     }
+    // Always add baseline statuses to the end of the conditions/statuses group
+    configStatuses = _backfillIcons(configStatuses, baselineStatuses);
+
     // Icons for other things which aren't mechanical condition/status
     if (statusIconConfig.cancerNPCTemplates) {
-      configStatuses = _swapIcons(configStatuses, cancerNPCTemplates);
+      configStatuses = _backfillIcons(configStatuses, cancerNPCTemplates);
     }
     if (statusIconConfig.hayleyPC) {
-      configStatuses = _swapIcons(configStatuses, hayleyPC);
+      configStatuses = _backfillIcons(configStatuses, hayleyPC);
     }
     if (statusIconConfig.hayleyNPC) {
-      configStatuses = _swapIcons(configStatuses, hayleyNPC);
+      configStatuses = _backfillIcons(configStatuses, hayleyNPC);
     }
     if (statusIconConfig.hayleyUtility) {
-      configStatuses = _swapIcons(configStatuses, hayleyUtility);
+      configStatuses = _backfillIcons(configStatuses, hayleyUtility);
     }
-    console.log(`Lancer | ${configStatuses.length} status icons configured`);
+    console.log(`${lp} ${configStatuses.length} status icons configured from settings`);
     CONFIG.statusEffects = configStatuses;
     // Use downandout to mark units as defeated
     CONFIG.specialStatusEffects.DEFEATED = "downandout";
@@ -205,19 +219,36 @@ export class LancerActiveEffect extends ActiveEffect {
   /**
    * Load statuses from the compendia and world items and backfill into CONFIG.statusEffects.
    */
-  static async populateFromItems() {
+  static async populateFromWorldItems() {
+    const originalLength = CONFIG.statusEffects.length;
+    const worldStatuses: LancerSTATUS[] = game.items?.filter(i => i.type === EntryType.STATUS) as LancerSTATUS[];
+    this._populateFromItems(worldStatuses, true);
+    console.log(
+      `${lp} ${CONFIG.statusEffects.length - originalLength} status icons loaded from world items, total: ${
+        CONFIG.statusEffects.length
+      }`
+    );
+  }
+
+  static async populateFromCompendiumItems() {
+    const originalLength = CONFIG.statusEffects.length;
     const pack = game.packs.get(get_pack_id(EntryType.STATUS));
     const packStatuses: LancerSTATUS[] = ((await pack?.getDocuments({ type: EntryType.STATUS })) ||
       []) as unknown as LancerSTATUS[];
-    const worldStatuses: LancerSTATUS[] = game.items?.filter(i => i.type === EntryType.STATUS) as LancerSTATUS[];
-    // World statuses first so they take priority
-    const allStatuses = worldStatuses.concat(packStatuses);
+    this._populateFromItems(packStatuses, false);
+    console.log(
+      `${lp} ${CONFIG.statusEffects.length - originalLength} status icons loaded from compendiums, total: ${
+        CONFIG.statusEffects.length
+      }`
+    );
+  }
 
-    if (!allStatuses.length) {
+  static async _populateFromItems(items: LancerItem[] = [], overwrite = false) {
+    if (!items.length) {
       return;
     }
     // Update the status icons with data from the items. Add any statuses which are missing, and populate descriptions.
-    for (const status of allStatuses) {
+    for (const status of items) {
       if (!status.is_status() || !status.system.lid || !status.img) continue;
       const existingStatus = CONFIG.statusEffects.find(s => s.id === status.system.lid);
       if (!existingStatus) {
@@ -229,15 +260,16 @@ export class LancerActiveEffect extends ActiveEffect {
           description: status.system.effects,
         });
       } else {
-        existingStatus.icon = existingStatus.icon || status.img;
-        existingStatus.name = existingStatus.name || status.name;
+        // @ts-expect-error v12 property renamed
+        existingStatus.img = existingStatus.img || existingStatus.icon;
+        // @ts-expect-error v12 property renamed
+        existingStatus.img = overwrite ? status.img || existingStatus.img : existingStatus.img || status.img;
+        existingStatus.name = overwrite ? status.name || existingStatus.name : existingStatus.name || status.name;
         if (status.system.effects) {
           existingStatus.description = status.system.effects;
         }
       }
     }
-
-    Hooks.callAll("lancer.statusesReady");
   }
 }
 

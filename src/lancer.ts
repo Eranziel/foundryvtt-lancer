@@ -261,6 +261,7 @@ Hooks.once("init", () => {
   CONFIG.ui.combat = LancerCombatTracker;
 
   // Set up default system status icons
+  // LancerActiveEffect.updateIcons() is called later, in the ready hook.
   LancerActiveEffect.initConfig();
 
   // Register the system tours
@@ -333,18 +334,21 @@ Hooks.once("ready", async function () {
   game.action_manager = new LancerActionManager();
   game.action_manager!.init();
 
-  // Set up status icons from compendium and world items
-  await LancerActiveEffect.populateFromItems();
+  // Fully populate token statuses, using a combination of the setting and items
+  await LancerActiveEffect.updateIcons();
 
   Hooks.on("updateCompendium", async collection => {
     if (collection?.metadata?.id == get_pack_id(EntryType.STATUS)) {
-      await LancerActiveEffect.populateFromItems();
+      await LancerActiveEffect.updateIcons();
     }
   });
-  Hooks.on("itemCreated", async (item: LancerItem) => {
+  const _updateIcons = async (item: LancerItem) => {
     if (!item.is_status()) return;
-    await LancerActiveEffect.populateFromItems();
-  });
+    await LancerActiveEffect.updateIcons();
+  };
+  Hooks.on("itemCreated", _updateIcons);
+  Hooks.on("deleteItem", _updateIcons);
+  Hooks.on("updateItem", _updateIcons);
 });
 
 Hooks.once("ready", () => {
