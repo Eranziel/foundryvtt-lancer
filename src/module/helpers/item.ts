@@ -599,6 +599,8 @@ export function reserveRefView(reserve_path: string, options: HelperOptions): st
     uses = reserveUsesIndicator(`${reserve_path}.system.used`, options);
   }
 
+  let actions = reserve.system.actions.length > 0 ? buildActionArrayHTML(reserve, `system.actions`) : "";
+
   return `<div class="set ${EntryType.RESERVE} ref drop-settable card clipped-top item lancer-border-trait"
                 ${ref_params(reserve, reserve_path)} >
     <div class="lancer-header lancer-trait">
@@ -614,6 +616,7 @@ export function reserveRefView(reserve_path: string, options: HelperOptions): st
         <div class="effect-text" style=" padding: 5px">
           ${reserve.system.description}
         </div>
+        ${actions}
         ${uses}
       </div>
     </div>
