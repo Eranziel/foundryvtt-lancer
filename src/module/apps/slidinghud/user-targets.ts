@@ -1,5 +1,4 @@
 import { readable } from "svelte/store";
-import type { LancerToken } from "../../token";
 
 export const userTargets = readable([] as Token[], update => {
   function updateData() {

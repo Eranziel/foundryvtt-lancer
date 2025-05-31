@@ -199,11 +199,17 @@ export class AccDiffHudTarget {
   }
 
   static fromParams(t: Token): AccDiffHudTarget {
+    let cover = Cover.None;
+    if (t.actor?.statuses.has("cover_hard")) {
+      cover = Cover.Hard;
+    } else if (t.actor?.statuses.has("cover_soft")) {
+      cover = Cover.Soft;
+    }
     let ret = {
       target_id: t.id,
       accuracy: 0,
       difficulty: 0,
-      cover: Cover.None,
+      cover,
       consumeLockOn: true,
       plugins: {} as { [k: string]: any },
     };
@@ -388,11 +394,17 @@ export class AccDiffHudData {
       weapon,
       base,
       targets: (targets || []).map(t => {
+        let cover = Cover.None;
+        if (t.actor?.statuses.has("cover_hard")) {
+          cover = Cover.Hard;
+        } else if (t.actor?.statuses.has("cover_soft")) {
+          cover = Cover.Soft;
+        }
         let ret = {
           target_id: t.id,
           accuracy: 0,
           difficulty: 0,
-          cover: Cover.None,
+          cover,
           consumeLockOn: true,
           plugins: {} as { [k: string]: any },
         };
