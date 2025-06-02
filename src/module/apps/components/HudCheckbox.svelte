@@ -1,5 +1,6 @@
 <script lang="ts">
   import { createEventDispatcher } from "svelte";
+  import { slide } from "svelte/transition";
 
   const dispatch = createEventDispatcher();
 
@@ -7,12 +8,18 @@
   export let label = "";
   export let icon = "";
   export let tooltip: string | null = null;
+  export let checked = null;
   export let value = false;
   export let partial = false;
   export let disabled = false;
+  export let visible = true;
+
+  if (checked !== null) {
+    value = checked; // Initialize value with checked state
+  }
 </script>
 
-<label class="container" {style} data-tooltip={tooltip}>
+<label transition:slide|local class="container" class:invisible={!visible} {style} data-tooltip={tooltip}>
   <input
     type="checkbox"
     bind:checked={value}

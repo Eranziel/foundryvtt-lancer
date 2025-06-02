@@ -1,12 +1,10 @@
 <script lang="ts">
-  import { slide } from "svelte/transition";
   import type { AccDiffHudPluginData } from "./plugin";
+  import HudCheckbox from "../components/HudCheckbox.svelte";
+
   export let data: AccDiffHudPluginData;
 </script>
 
 {#if data.uiElement == "checkbox" && data.visible}
-  <label class="container" transition:slide|local>
-    <input type="checkbox" bind:checked={data.uiState} disabled={data.disabled} />
-    {data.humanLabel}
-  </label>
+  <HudCheckbox label={data.humanLabel} bind:value={data.uiState} disabled={data.disabled} />
 {/if}

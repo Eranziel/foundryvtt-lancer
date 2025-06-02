@@ -16,7 +16,7 @@
   import tippy from "tippy.js";
 
   import Plugin from "./Plugin.svelte";
-  import ConsumeLockOn from "./ConsumeLockOn.svelte";
+  import HudCheckbox from "../components/HudCheckbox.svelte";
 
   export let target: AccDiffHudBase | AccDiffHudTarget;
   export let onlyTarget: boolean = false;
@@ -27,6 +27,12 @@
 
   export let id = `accdiff-total-display-${counter++}`;
   let lockonId = isTarget(target) ? `accdiff-total-display-consume-lockon-${lockonCounter++}` : "";
+
+  function toggleLockOn() {
+    if (isTarget(target) && target.lockOnAvailable) {
+      target.consumeLockOn = !target.consumeLockOn;
+    }
+  }
 
   let pluginClasses = Object.values(target.plugins)
     .filter(plugin => {
@@ -64,6 +70,7 @@
     />
     <label
       for={lockonId}
+      class="lockon-label"
       class:checked={target.usingLockOn}
       class:disabled={!target.lockOnAvailable}
       title="Consume Lock On (+1)"
@@ -73,8 +80,16 @@
         class:i--click={target.lockOnAvailable}
         class:i--sm={!target.usingLockOn}
         class:i--l={target.usingLockOn}
+        on:click={toggleLockOn}
+        on:keypress={toggleLockOn}
       />
-      <ConsumeLockOn bind:lockOn={target} visible={false} id={lockonId} />
+      <HudCheckbox
+        label="Consume Lock On (+1)"
+        checked={!!target.usingLockOn}
+        bind:value={target.consumeLockOn}
+        disabled={!target.lockOnAvailable}
+        visible={false}
+      />
     </label>
   </div>
   {#if !onlyTarget}
@@ -109,7 +124,7 @@
   </div>
 </div>
 
-<style>
+<style lang="scss">
   i {
     border: none;
   }
@@ -159,17 +174,17 @@
 
   @keyframes lockon {
     70% {
-      text-shadow: 0 0 8px lightgreen;
+      text-shadow: 0 0 5px #017934;
     }
     80% {
-      text-shadow: 0 0 8px green;
+      text-shadow: 0 0 5px color-mix(in srgb, #017934, white 35%);
     }
     90% {
-      text-shadow: 0 0 8px lightgreen;
+      text-shadow: 0 0 5px #017934;
     }
   }
   .cci-condition-lock-on {
-    text-shadow: 0 0 12px white;
+    text-shadow: 0 0 3px white;
     transition: font-size 200ms;
   }
   .cci-condition-lock-on.i--l {

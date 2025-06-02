@@ -9,7 +9,6 @@
 
   import Plugin from "./Plugin.svelte";
   import Cover from "./Cover.svelte";
-  import ConsumeLockOn from "./ConsumeLockOn.svelte";
   import Total from "./TotalAccuracy.svelte";
   import PlusMinusInput from "./PlusMinusInput.svelte";
   import MiniProfile from "../components/MiniProfile.svelte";
@@ -227,10 +226,12 @@
               <Plugin data={weapon.plugins[key]} />
             {/each}
             {#if targets.length == 1}
-              <label class="container" for="base-consume-lockon">
-                <ConsumeLockOn bind:lockOn={targets[0]} id="base-consume-lockon" />
-                Consume Lock On (+1)
-              </label>
+              <HudCheckbox
+                label="Consume Lock On (+1)"
+                checked={!!targets[0].usingLockOn}
+                bind:value={targets[0].consumeLockOn}
+                disabled={!targets[0].lockOnAvailable}
+              />
               {#each Object.keys(targets[0].plugins) as key}
                 <Plugin data={targets[0].plugins[key]} />
               {/each}
@@ -416,6 +417,10 @@
     user-select: none;
     align-items: center;
     cursor: pointer;
+  }
+
+  #accdiff :global(.container.invisible) {
+    display: none;
   }
 
   #accdiff :global(.container:has(input[disabled])) {
