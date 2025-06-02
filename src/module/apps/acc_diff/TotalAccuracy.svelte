@@ -1,6 +1,7 @@
 <script context="module">
   import { blur, crossfade } from "svelte/transition";
   let lockonCounter = 0;
+  let stunnedCounter = 0;
   let counter = 0;
 
   // @ts-expect-error the only issue is that crossfade can take a fn for duration and blur can't
@@ -27,6 +28,7 @@
 
   export let id = `accdiff-total-display-${counter++}`;
   let lockonId = isTarget(target) ? `accdiff-total-display-consume-lockon-${lockonCounter++}` : "";
+  let stunnedId = isTarget(target) ? `accdiff-total-display-stunned-${stunnedCounter++}` : "";
 
   function toggleLockOn() {
     if (isTarget(target) && target.lockOnAvailable) {
@@ -51,6 +53,7 @@
         interactive: true,
         allowHTML: true,
         trigger: "click mouseenter",
+        placement: "right",
       });
     }
   });
@@ -60,14 +63,19 @@
   <div
     in:send={{ key: `${id}-img`, delay: 100, duration: 200 }}
     out:recv={{ key: `${id}-img`, duration: 200 }}
-    class="accdiff-grid {pluginClasses}"
+    class="accdiff-grid lancer-hit-thumb accdiff-target-has-dropdown {pluginClasses}"
   >
     <img
-      class="lancer-hit-thumb accdiff-target-has-dropdown"
+      class:accdiff-target-prone={target.prone}
       alt={target.target.name ?? undefined}
       src={target.target.actor?.img}
       bind:this={imgElement}
     />
+    {#if target.stunned}
+      <label transition:blur for={stunnedId} class="stunned-label" title="Stunned">
+        <i class="cci cci-condition-stunned i--sm" />
+      </label>
+    {/if}
     <label
       for={lockonId}
       class="lockon-label"
@@ -164,12 +172,23 @@
     margin-right: 0px;
     margin-left: 4px;
     margin-bottom: 4px;
+    & img {
+      border: none;
+      transition: all 200ms ease-in-out;
+    }
   }
 
   label {
     position: absolute;
-    right: -4px;
-    top: -4px;
+
+    &.lockon-label {
+      right: -4px;
+      top: -4px;
+    }
+    &.stunned-label {
+      left: -4px;
+      top: -4px;
+    }
   }
 
   @keyframes lockon {
@@ -191,8 +210,16 @@
     animation: lockon 800ms linear 1s infinite alternate;
   }
 
+  .cci-condition-stunned {
+    text-shadow: 0 0 3px var(--primary-color);
+  }
+
   .accdiff-target-dropdown {
     display: none;
+  }
+
+  .accdiff-target-prone {
+    transform: rotate(90deg);
   }
 
   @keyframes blur {

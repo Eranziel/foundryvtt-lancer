@@ -14,6 +14,9 @@ export function getTargets(): LancerActor[] {
 export async function checkForHit(tech: boolean, roll: Roll, target: LancerActor): Promise<boolean> {
   let sysData = (target as any).system as SystemTemplates.actor_universal;
   let def: number = tech ? sysData.edef || 8 : sysData.evasion || 5;
+  if (!tech && sysData.statuses.stunned) {
+    def = 5; // Stunned sets evasion to 5
+  }
 
   return (roll.total ?? 0) >= def;
 }

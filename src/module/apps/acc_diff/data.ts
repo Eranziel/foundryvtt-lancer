@@ -148,6 +148,8 @@ export class AccDiffHudTarget {
   difficulty: number;
   cover: Cover;
   consumeLockOn: boolean;
+  prone: boolean;
+  stunned: boolean;
   plugins: { [k: string]: any };
   #weapon!: AccDiffHudWeapon; // never use this class before calling hydrate
   #base!: AccDiffHudBase; // never use this class before calling hydrate
@@ -161,6 +163,8 @@ export class AccDiffHudTarget {
       difficulty: t.number,
       cover: coverSchema,
       consumeLockOn: t.boolean,
+      prone: t.boolean,
+      stunned: t.boolean,
       plugins: t.type(this.pluginSchema),
     };
   }
@@ -184,6 +188,8 @@ export class AccDiffHudTarget {
     this.difficulty = obj.difficulty;
     this.cover = obj.cover;
     this.consumeLockOn = obj.consumeLockOn;
+    this.prone = obj.prone;
+    this.stunned = obj.stunned;
     this.plugins = obj.plugins;
   }
 
@@ -194,6 +200,8 @@ export class AccDiffHudTarget {
       difficulty: this.difficulty,
       cover: this.cover,
       consumeLockOn: this.consumeLockOn,
+      prone: this.prone,
+      stunned: this.stunned,
       plugins: this.plugins,
     };
   }
@@ -211,6 +219,8 @@ export class AccDiffHudTarget {
       difficulty: 0,
       cover,
       consumeLockOn: true,
+      prone: t.actor?.system.statuses.prone || false,
+      stunned: t.actor?.system.statuses.stunned || false,
       plugins: {} as { [k: string]: any },
     };
     for (let plugin of AccDiffHudData.targetedPlugins) {
@@ -240,8 +250,9 @@ export class AccDiffHudTarget {
     // the only thing we actually use base for is the untyped bonuses
     let raw = base + this.#base.accuracy - this.#base.difficulty;
     let lockon = this.usingLockOn ? 1 : 0;
+    let prone = this.prone ? 1 : 0;
 
-    return raw + lockon;
+    return raw + lockon + prone;
   }
 }
 
@@ -299,7 +310,17 @@ export class AccDiffHudData {
       oldTargets[data.target.id] = data;
     }
 
-    this.targets = ts.map(t => oldTargets[t.id] ?? AccDiffHudTarget.fromParams(t));
+    this.targets = ts.map(t => {
+      const oldTarget = oldTargets[t.id];
+      const newTarget = AccDiffHudTarget.fromParams(t);
+      if (oldTargets[t.id]) {
+        newTarget.accuracy = oldTarget.accuracy;
+        newTarget.difficulty = oldTarget.difficulty;
+        newTarget.consumeLockOn = oldTarget.consumeLockOn;
+        newTarget.plugins = oldTarget.plugins;
+      }
+      return newTarget;
+    });
 
     for (let target of this.targets) {
       target.hydrate(this);
@@ -406,6 +427,8 @@ export class AccDiffHudData {
           difficulty: 0,
           cover,
           consumeLockOn: true,
+          prone: t.actor?.system.statuses.prone || false,
+          stunned: t.actor?.system.statuses.stunned || false,
           plugins: {} as { [k: string]: any },
         };
         for (let plugin of this.targetedPlugins) {

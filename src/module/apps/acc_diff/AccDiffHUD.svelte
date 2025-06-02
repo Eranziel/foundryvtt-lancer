@@ -232,6 +232,8 @@
                 bind:value={targets[0].consumeLockOn}
                 disabled={!targets[0].lockOnAvailable}
               />
+              <HudCheckbox label="Prone (+1)" bind:value={targets[0].prone} disabled />
+              <HudCheckbox label="Stunned (*)" bind:value={targets[0].stunned} disabled />
               {#each Object.keys(targets[0].plugins) as key}
                 <Plugin data={targets[0].plugins[key]} />
               {/each}
