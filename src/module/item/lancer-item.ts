@@ -1,4 +1,4 @@
-import { LANCER, TypeIcon } from "../config";
+import { LANCER } from "../config";
 import { SystemData, SystemDataType, SystemTemplates } from "../system-template";
 import { SourceDataType } from "../source-template";
 import { DamageType, EntryType, EntryTypeLidPrefix, NpcFeatureType, RangeType, WeaponType } from "../enums";
@@ -120,6 +120,19 @@ export class LancerItem extends Item {
     | SystemData.Status
     | SystemData.Talent
     | SystemData.Bond;
+
+  static DEFAULT_ICON = "systems/lancer/assets/icons/generic_item.svg";
+  static override getDefaultArtwork(
+    itemData: Parameters<typeof Item.getDefaultArtwork>[0]
+  ): ReturnType<typeof Item.getDefaultArtwork> {
+    const model: typeof foundry.abstract.DataModel<any, any> | undefined =
+      CONFIG.Item.dataModels[itemData?.type ?? "base"];
+    // @ts-expect-error This is fine
+    if (model?.getDefaultArtwork instanceof Function) return model.getDefaultArtwork(itemData);
+    // @ts-expect-error This is fine
+    const img: string = model?.DEFAULT_ICON ?? this.DEFAULT_ICON;
+    return { img };
+  }
 
   /**
    * Returns all ranges for the item that match the provided range types
@@ -434,30 +447,21 @@ export class LancerItem extends Item {
     const allowed = await super._preCreate(data, options, user);
     if (allowed === false) return false;
 
-    // Select default image
-    let icon_lookup: string = this.type;
-    if (this.is_npc_feature()) {
-      icon_lookup += this.type;
-    }
-    let img = TypeIcon(icon_lookup);
+    // Only apply these defaults for fresh documents
+    if (data?._stats?.createdTime) return;
 
     // If base item has data, then we are probably importing. Skip 90% of our import procedures
     // @ts-expect-error Should be fixed with v10 types
     if (data.system?.lid) {
       console.log(`${lp} New ${this.type} has data provided from an import, skipping default init.`);
-      if (!data?.img || data.img == "icons/svg/item-bag.svg") {
-        this.updateSource({ img });
-      }
       return;
     }
 
     console.log(`${lp} Initializing new ${this.type}`);
-    const name = this.name ?? `New ${this.type}`;
+    console.log(this.name);
     this.updateSource({
-      img: img,
-      name,
       system: {
-        lid: `${generateItemID(EntryTypeLidPrefix(this.type as EntryType), name)}-${randomString(8)}`,
+        lid: `${generateItemID(EntryTypeLidPrefix(this.type as EntryType), this.name)}-${randomString(8)}`,
       },
     });
   }

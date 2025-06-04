@@ -13,6 +13,7 @@ import { migrateManufacturer, template_bascdt, template_universal_item } from ".
 const fields = foundry.data.fields;
 
 export class CoreBonusModel extends LancerDataModel<DataSchema, Item> {
+  static DEFAULT_ICON = "systems/lancer/assets/icons/core_bonus.svg";
   static defineSchema() {
     return {
       description: new fields.StringField({ nullable: true }),

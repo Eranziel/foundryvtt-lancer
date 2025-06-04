@@ -19,6 +19,31 @@ import { template_destructible, template_universal_item, template_uses } from ".
 const fields = foundry.data.fields;
 
 export class NpcFeatureModel extends LancerDataModel<DataSchema, Item> {
+  static DEFAULT_ICON = "systems/lancer/assets/icons/npc_feature.svg";
+  static getDefaultArtwork(
+    itemData?: Parameters<typeof Item.getDefaultArtwork>[0]
+  ): ReturnType<typeof Item.getDefaultArtwork> {
+    let img = this.DEFAULT_ICON;
+    switch (itemData?.system?.type) {
+      case NpcFeatureType.Reaction:
+        img = "systems/lancer/assets/icons/reaction.svg";
+        break;
+      case NpcFeatureType.System:
+        img = "systems/lancer/assets/icons/system.svg";
+        break;
+      case NpcFeatureType.Tech:
+        img = "systems/lancer/assets/icons/tech_full.svg";
+        break;
+      case NpcFeatureType.Trait:
+        img = "systems/lancer/assets/icons/trait.svg";
+        break;
+      case NpcFeatureType.Weapon:
+        img = "systems/lancer/assets/icons/weapon.svg";
+        break;
+    }
+    return { img };
+  }
+
   static defineSchema() {
     return {
       effect: new fields.HTMLField(),

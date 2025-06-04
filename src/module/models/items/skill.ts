@@ -8,6 +8,7 @@ import { template_universal_item } from "./shared";
 const fields = foundry.data.fields;
 
 export class SkillModel extends LancerDataModel<DataSchema, Item> {
+  static DEFAULT_ICON = "systems/lancer/assets/icons/skill.svg";
   static defineSchema() {
     return {
       description: new fields.HTMLField(),

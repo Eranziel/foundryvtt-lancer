@@ -3,7 +3,7 @@ const lp = LANCER.log_prefix;
 import { LancerActorSheet } from "./lancer-actor-sheet";
 import type { HelperOptions } from "handlebars";
 import { buildCounterHeader, buildCounterHTML } from "../helpers/item";
-import { ref_params, resolve_ref_element, simple_ref_slot } from "../helpers/refs";
+import { ref_params, resolve_ref_element } from "../helpers/refs";
 import { inc_if, resolveDotpath } from "../helpers/commons";
 import { LancerActor, LancerMECH, LancerPILOT } from "./lancer-actor";
 import { fetchPilotViaCache, fetchPilotViaShareCode, pilotCache } from "../util/compcon";
