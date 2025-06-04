@@ -14,13 +14,14 @@
   import MiniProfile from "../components/MiniProfile.svelte";
   import { fade } from "../slidinghud";
 
-  import type { LancerItem } from "../../item/lancer-item";
+  import type { LancerItem, LancerMECH_WEAPON, LancerNPC_FEATURE, LancerPILOT_WEAPON } from "../../item/lancer-item";
   import { NpcFeatureType, RangeType } from "../../enums";
   import { WeaponRangeTemplate } from "../../canvas/weapon-range-template";
   import { targetsFromTemplate } from "../../flows/_template";
   import type { LancerActor } from "../../actor/lancer-actor";
   import HudCheckbox from "../components/HudCheckbox.svelte";
   import { LancerToken } from "../../token";
+  import { SystemTemplates } from "../../system-template";
 
   export let weapon: AccDiffHudWeapon;
   export let base: AccDiffHudBase;
@@ -41,6 +42,23 @@
 
   const dispatch = createEventDispatcher();
   let submitted = false;
+
+  // Initialize engaged
+  if (kind === "attack" && lancerItem) {
+    let ranges: RangeType[] = [];
+    if (
+      lancerItem.is_pilot_weapon() ||
+      (lancerItem.is_npc_feature() && lancerItem.system.type === NpcFeatureType.Weapon)
+    ) {
+      ranges = (lancerItem.system as SystemTemplates.NPC.WeaponData).range.map(r => r.type);
+    } else if (lancerItem.is_mech_weapon()) {
+      ranges = (lancerItem.system.active_profile?.range || []).map(r => r.type);
+    }
+    // If the weapon has any range type other than Threat or Thrown, it is affected by engaged.
+    if (ranges.some(r => ![RangeType.Threat, RangeType.Thrown].includes(r))) {
+      weapon.engaged = !!weapon.engagedStatus;
+    }
+  }
 
   function focus(el: HTMLElement) {
     el.focus();

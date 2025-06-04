@@ -24,6 +24,7 @@ export class AccDiffHudWeapon {
   accurate: boolean;
   inaccurate: boolean;
   seeking: boolean;
+  engaged: boolean;
   #data!: AccDiffHudData; // never use this class before calling hydrate
   plugins: { [k: string]: AccDiffHudPluginData };
 
@@ -34,6 +35,7 @@ export class AccDiffHudWeapon {
       accurate: t.boolean,
       inaccurate: t.boolean,
       seeking: t.boolean,
+      engaged: t.boolean,
       plugins: t.type(this.pluginSchema),
     };
   }
@@ -49,6 +51,7 @@ export class AccDiffHudWeapon {
     this.accurate = obj.accurate;
     this.inaccurate = obj.inaccurate;
     this.seeking = obj.seeking;
+    this.engaged = obj.engaged;
     this.plugins = obj.plugins;
   }
 
@@ -57,6 +60,7 @@ export class AccDiffHudWeapon {
       accurate: this.accurate,
       inaccurate: this.inaccurate,
       seeking: this.seeking,
+      engaged: this.engaged,
       plugins: this.plugins,
     };
   }
@@ -66,8 +70,19 @@ export class AccDiffHudWeapon {
     return !!this.#data?.lancerActor?.system?.statuses.impaired;
   }
 
+  get engagedStatus(): ActiveEffect | null {
+    // @ts-expect-error
+    return !!this.#data?.lancerActor?.system?.statuses.engaged;
+  }
+
   total(cover: number) {
-    return (this.accurate ? 1 : 0) - (this.inaccurate ? 1 : 0) - (this.seeking ? 0 : cover) - (this.impaired ? 1 : 0);
+    return (
+      (this.accurate ? 1 : 0) -
+      (this.inaccurate ? 1 : 0) -
+      (this.seeking ? 0 : cover) -
+      (this.impaired ? 1 : 0) -
+      (this.engaged ? 1 : 0)
+    );
   }
 
   hydrate(d: AccDiffHudData) {
@@ -377,6 +392,7 @@ export class AccDiffHudData {
       accurate: false,
       inaccurate: false,
       seeking: false,
+      engaged: false,
       plugins: {} as { [k: string]: any },
     };
 
