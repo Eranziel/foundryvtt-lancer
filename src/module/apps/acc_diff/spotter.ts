@@ -43,6 +43,7 @@ function spotter(): AccDiffHudPluginData {
     target: null as AccDiffHudTarget | null,
     uiElement: "checkbox" as "checkbox",
     slug: "spotter",
+    category: "acc" as "acc",
     humanLabel: "Spotter (*)",
     get uiState() {
       return !!(this.actor && this.target?.usingLockOn && adjacentSpotter(this.actor));
@@ -73,6 +74,7 @@ function spotter(): AccDiffHudPluginData {
 
 const Spotter: AccDiffHudPlugin<AccDiffHudPluginData> = {
   slug: "spotter",
+  category: "acc",
   codec: stateless(
     "Spotter",
     (t: unknown): t is AccDiffHudPluginData => typeof t == "object" && (t as any)?.slug == "spotter",

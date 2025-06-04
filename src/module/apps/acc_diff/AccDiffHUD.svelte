@@ -1,7 +1,7 @@
 <svelte:options accessors={true} />
 
 <script lang="ts">
-  import type { AccDiffHudWeapon, AccDiffHudBase, AccDiffHudTarget } from "./index";
+  import { AccDiffHudWeapon, AccDiffHudBase, AccDiffHudTarget, AccDiffHudPluginData } from "./index";
 
   import { slide } from "svelte/transition";
   import { flip } from "svelte/animate";
@@ -10,7 +10,6 @@
   import Plugin from "./Plugin.svelte";
   import Cover from "./Cover.svelte";
   import Total from "./TotalAccuracy.svelte";
-  import PlusMinusInput from "./PlusMinusInput.svelte";
   import MiniProfile from "../components/MiniProfile.svelte";
   import { fade } from "../slidinghud";
 
@@ -21,6 +20,7 @@
   import type { LancerActor } from "../../actor/lancer-actor";
   import HudCheckbox from "../components/HudCheckbox.svelte";
   import { LancerToken } from "../../token";
+  import AccDiffInput from "./AccDiffInput.svelte";
   import { SystemTemplates } from "../../system-template";
 
   export let weapon: AccDiffHudWeapon;
@@ -39,6 +39,14 @@
   $: targets = (weapon, base, targets);
   $: profile = lancerItem ? findProfile() : null;
   $: ranges = lancerItem ? findRanges() : null;
+  $: flatTotal = kind === "attack" ? base.grit + base.flatBonus : 0;
+
+  $: accWeaponPlugins = Object.values(weapon.plugins).filter(plugin => plugin.category === "acc");
+  $: diffWeaponPlugins = Object.values(weapon.plugins).filter(plugin => plugin.category === "diff");
+  $: accTargetPlugins =
+    targets.length === 1 ? Object.values(targets[0].plugins).filter(plugin => plugin.category === "acc") : [];
+  $: diffTargetPlugins =
+    targets.length === 1 ? Object.values(targets[0].plugins).filter(plugin => plugin.category === "diff") : [];
 
   const dispatch = createEventDispatcher();
   let submitted = false;
@@ -159,8 +167,8 @@
     return "Grit";
   }
 
-  function gritSign() {
-    if (base.grit > 0) return "+";
+  function flatSign(val: number) {
+    if (val > 0) return "+";
     return "";
   }
 
@@ -218,7 +226,35 @@
     <MiniProfile {profile} />
   {/if}
   <div id="{kind}-accdiff-dialog" style="padding:4px">
+    <!-- Flat attack bonus -->
+    {#if isAttack()}
+      <label class="flexrow accdiff-weight lancer-border-primary" for="accdiff-flat-bonus"> Flat Modifier </label>
+      <div
+        id="accdiff-flat-bonus"
+        class="accdiff-grid"
+        style="padding-bottom: 4px; border-bottom: 1px solid var(--primary-color);"
+      >
+        <div class="accdiff-other-grid lancer-border-primary">
+          <span><b>{gritLabel()}:</b> {flatSign(base.grit)}{base.grit}</span>
+        </div>
+        <div class="accdiff-other-grid accdiff-flat-mod" style="position: relative;">
+          <!-- <PlusMinusInput bind:value={base.flatBonus} id="accdiff-flat-mod" /> -->
+          <input class="accdiff-flat-mod__input" type="number" bind:value={base.flatBonus} />
+          <button class="accdiff-flat-mod__plus" type="button" on:click={() => (base.flatBonus = base.flatBonus + 1)}
+            ><i class="fas fa-plus" /></button
+          >
+          <button class="accdiff-flat-mod__minus" type="button" on:click={() => (base.flatBonus = base.flatBonus - 1)}
+            ><i class="fas fa-minus" /></button
+          >
+        </div>
+        <div class="accdiff-other-grid lancer-border-primary">
+          <span><b>Total:</b> {flatSign(flatTotal)}{flatTotal}</span>
+        </div>
+      </div>
+    {/if}
+
     <div class="accdiff-grid">
+      <!-- Accuracy column -->
       <div
         class="lancer-border-primary"
         style="width:100%;padding:4px;border-right-width: 1px;border-right-style: dashed;min-width:180px"
@@ -230,35 +266,13 @@
         <HudCheckbox label="Accurate (+1)" bind:value={weapon.accurate} />
         {#if kind == "attack"}
           <HudCheckbox label="Seeking (*)" bind:value={weapon.seeking} />
-        {/if}
-        {#if kind == "attack" && (Object.values(weapon.plugins).length > 0 || targets.length == 1)}
-          <div transition:slide>
-            <h3
-              class="lancer-border-primary"
-              style="border-top-width: 1px;border-top-style: dashed; padding-right: 4px; padding-top: 16px; margin-top: 16px;"
-            >
-              <i class="cci cci-reticule i--m" style="vertical-align:middle;border:none" />
-              &nbsp;Misc
-            </h3>
-            {#each Object.keys(weapon.plugins) as key}
-              <Plugin data={weapon.plugins[key]} />
-            {/each}
-            {#if targets.length == 1}
-              <HudCheckbox
-                label="Consume Lock On (+1)"
-                checked={!!targets[0].usingLockOn}
-                bind:value={targets[0].consumeLockOn}
-                disabled={!targets[0].lockOnAvailable}
-              />
-              <HudCheckbox label="Prone (+1)" bind:value={targets[0].prone} disabled />
-              <HudCheckbox label="Stunned (*)" bind:value={targets[0].stunned} disabled />
-              {#each Object.keys(targets[0].plugins) as key}
-                <Plugin data={targets[0].plugins[key]} />
-              {/each}
-            {/if}
-          </div>
+          {#each accWeaponPlugins as plugin}
+            <Plugin data={plugin} />
+          {/each}
         {/if}
       </div>
+
+      <!-- Difficulty column -->
       <div style="width:100%;padding:4px;min-width:180px">
         <h3 class="lancer-border-primary">
           <i class="cci cci-difficulty i--m" style="vertical-align:middle;border:none" />
@@ -266,50 +280,70 @@
         </h3>
         <HudCheckbox label="Inaccurate (-1)" bind:value={weapon.inaccurate} />
         <HudCheckbox label="Impaired (-1)" value={!!weapon.impaired} disabled />
-        {#if isAttack() && !isTech()}
-          <div class="grid-enforcement">
-            {#if targets.length == 0}
-              <div transition:slide|local>
-                <Cover bind:cover={base.cover} class="accdiff-base-cover flexcol" disabled={weapon.seeking} />
-              </div>
-            {:else if targets.length == 1}
-              <div
-                transition:slide|local
-                on:mouseenter={ev => targetHoverIn(ev, targets[0].target)}
-                on:mouseleave={ev => targetHoverOut(ev, targets[0].target)}
-              >
-                <Cover bind:cover={targets[0].cover} class="accdiff-base-cover flexcol" disabled={weapon.seeking} />
-              </div>
-            {/if}
-          </div>
+        {#if kind == "attack" && !isTech()}
+          <HudCheckbox label="Engaged (-1)" bind:value={weapon.engaged} />
+          {#each diffWeaponPlugins as plugin}
+            <Plugin data={plugin} />
+          {/each}
         {/if}
       </div>
     </div>
-    <label class="flexrow accdiff-footer accdiff-weight lancer-border-primary" for="accdiff-other-sources">
-      Other Sources
-    </label>
-    <div id="accdiff-other-sources" class="accdiff-grid">
-      <div class="accdiff-other-grid lancer-border-primary" style="border-right-width: 1px;border-right-style: dashed;">
-        <PlusMinusInput bind:value={base.accuracy} id="accdiff-other-acc" />
-      </div>
-      <div class="accdiff-other-grid">
-        <PlusMinusInput bind:value={base.difficulty} id="accdiff-other-diff" />
-      </div>
-    </div>
-    {#if isAttack()}
-      <label class="flexrow accdiff-footer accdiff-weight lancer-border-primary" for="accdiff-flat-bonus">
-        Flat Modifier
-      </label>
-      <div id="accdiff-flat-bonus" class="accdiff-grid">
-        <div class="accdiff-other-grid lancer-border-primary">
-          <span><b>{gritLabel()}:</b> {gritSign()}{base.grit}</span>
+
+    {#if kind == "attack" && (Object.values(weapon.plugins).length > 0 || targets.length == 1)}
+      <div transition:slide class="accdiff-grid" style="width:100%; border-top: 1px solid var(--primary-color);">
+        <!-- Target-related Accuracy -->
+        <div
+          class="lancer-border-primary"
+          style="width:100%;padding:4px;border-right-width: 1px;border-right-style: dashed;min-width:180px"
+        >
+          {#if targets.length == 1}
+            <HudCheckbox style="grid-area: prone;" label="Prone (+1)" bind:value={targets[0].prone} disabled />
+            <HudCheckbox label="Stunned (EVA=5)" bind:value={targets[0].stunned} disabled />
+            <HudCheckbox
+              style="grid-area: lock-on;"
+              label="Lock On (+1)"
+              checked={!!targets[0].usingLockOn}
+              bind:value={targets[0].consumeLockOn}
+              disabled={!targets[0].lockOnAvailable}
+            />
+            {#each accTargetPlugins as plugin}
+              <Plugin data={plugin} />
+            {/each}
+          {/if}
         </div>
-        <div class="accdiff-other-grid">
-          <PlusMinusInput bind:value={base.flatBonus} id="accdiff-flat-mod" />
+
+        <!-- Target-related Difficulty -->
+        <div style="width:100%;padding:4px;min-width:180px">
+          {#each diffTargetPlugins as plugin}
+            <Plugin data={plugin} />
+          {/each}
+          <!-- Cover -->
+          {#if !isTech()}
+            <div class="grid-enforcement">
+              {#if targets.length == 0}
+                <div transition:slide|local>
+                  <Cover bind:cover={base.cover} class="accdiff-base-cover flexcol" disabled={weapon.seeking} />
+                </div>
+              {:else if targets.length == 1}
+                <div
+                  transition:slide|local
+                  on:mouseenter={ev => targetHoverIn(ev, targets[0].target)}
+                  on:mouseleave={ev => targetHoverOut(ev, targets[0].target)}
+                >
+                  <Cover bind:cover={targets[0].cover} class="accdiff-base-cover flexcol" disabled={weapon.seeking} />
+                </div>
+              {/if}
+            </div>
+          {/if}
         </div>
       </div>
     {/if}
+
+    <!-- Total accuracy / Targets -->
     <div class="flex-col accdiff-footer lancer-border-primary">
+      <div class="accdiff-grid lancer-border-primary" style="justify-content: space-evenly; padding-bottom: 4px;">
+        <AccDiffInput bind:value={base.accuracy} id="accdiff-manual-adjust" />
+      </div>
       {#if ranges && ranges.length > 0}
         <span class="accdiff-weight flex-center flexrow">Targeting</span>
         <div class="accdiff-ranges flexrow">
@@ -402,7 +436,12 @@
     </div>
   </div>
   <div class="dialog-buttons flexrow">
-    <button class="dialog-button submit default" data-button="submit" type="submit" use:focus>
+    <button
+      class="lancer-button lancer-secondary dialog-button submit default"
+      data-button="submit"
+      type="submit"
+      use:focus
+    >
       <i class="fas fa-check" />
       Roll
     </button>
@@ -430,9 +469,6 @@
   #accdiff :global(.container) {
     display: flex;
     position: relative;
-    // padding-left: 30px;
-    margin-top: 12px;
-    margin-bottom: 4px;
     font-size: 0.9em;
     user-select: none;
     align-items: center;
@@ -448,6 +484,47 @@
     opacity: 0.5;
   }
 
+  .accdiff-flat-mod {
+    // text-align: center;
+    width: 100%;
+    height: 1.8em;
+    border: 1px solid var(--color-border-light-tertiary);
+    border-radius: 3px;
+    background: rgba(0, 0, 0, 0.05);
+    padding: 0;
+    display: flex;
+    flex-direction: row;
+
+    & .accdiff-flat-mod__input {
+      flex-grow: 2;
+      height: 1.35em;
+      border: none;
+      background: transparent;
+      text-align: center;
+      padding: 0;
+      margin: 0;
+      color: var(--color-text-dark-primary);
+    }
+  }
+
+  .accdiff-flat-mod__plus,
+  .accdiff-flat-mod__minus {
+    // position: absolute;
+    width: 1.75em;
+    height: 1.35em;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 0.15em;
+    margin-bottom: 0.1em;
+
+    & i {
+      margin: 0;
+    }
+  }
+
   .accdiff-other-grid {
     width: 100%;
     padding-left: 5px;
@@ -460,16 +537,14 @@
     font-weight: bold;
   }
   .accdiff-footer {
-    padding-top: 8px;
+    padding-top: 4px;
     padding-bottom: 4px;
-    margin-top: 12px;
     border-top-width: 1px;
     border-top-style: solid;
   }
 
   .accdiff-grid :global(.accdiff-base-cover) {
-    margin-top: 12px;
-    margin-bottom: 4px;
+    margin-top: 0.5em;
     font-size: 0.85em;
     padding-left: 10px;
     cursor: pointer;

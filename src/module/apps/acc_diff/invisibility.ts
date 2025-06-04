@@ -65,6 +65,8 @@ export default class Invisibility implements AccDiffHudCheckboxPluginData {
   slug: string = "invisibility";
   static slug: string = "invisibility";
   humanLabel: string = "Invisible (*)";
+  category: "acc" | "diff" = "diff";
+  static category: "acc" | "diff" = "diff";
 
   // our uiState is whether we're treating the current target as invisible
   get uiState() {

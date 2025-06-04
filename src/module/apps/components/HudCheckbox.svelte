@@ -40,7 +40,7 @@
       user-select: none;
       align-items: center;
       cursor: pointer;
-      margin: 0.25em 0;
+      margin: 0 0 0.25em 0;
 
       i:has(+ span) {
         margin-right: 0.2em;
