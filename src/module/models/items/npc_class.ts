@@ -10,6 +10,7 @@ import { template_universal_item } from "./shared";
 const fields = foundry.data.fields;
 
 export class NpcClassModel extends LancerDataModel<DataSchema, Item> {
+  static DEFAULT_ICON = "systems/lancer/assets/icons/npc_class.svg";
   static defineSchema() {
     return {
       role: new fields.StringField(),

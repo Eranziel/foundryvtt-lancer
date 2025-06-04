@@ -28,6 +28,7 @@ const npc_schema = {
 
 type NpcSchema = typeof npc_schema;
 export class NpcModel extends LancerDataModel<DataSchema, Actor> {
+  static DEFAULT_ICON = "systems/lancer/assets/icons/npc_class.svg";
   static defineSchema(): NpcSchema {
     return npc_schema;
   }

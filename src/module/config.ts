@@ -1,6 +1,6 @@
 // Namespace configuration Values
 
-import type { LancerActorType } from "./actor/lancer-actor";
+import { ACTOR_TYPES, type LancerActorType } from "./actor/lancer-actor";
 import { EntryType, NpcFeatureType } from "./enums";
 import type { LancerItemType } from "./item/lancer-item";
 
@@ -117,42 +117,13 @@ export function friendly_entrytype_name(type: LancerItemType | LancerActorType, 
   }
 }
 
-// Icons for each document
-export const GENERIC_ITEM_ICON = "systems/lancer/assets/icons/generic_item.svg";
-const DOCUMENT_ICONS = {
-  [EntryType.CORE_BONUS]: `systems/lancer/assets/icons/core_bonus.svg`,
-  [EntryType.DEPLOYABLE]: `systems/lancer/assets/icons/deployable.svg`,
-  [EntryType.FRAME]: `systems/lancer/assets/icons/mech.svg`,
-  [EntryType.LICENSE]: `systems/lancer/assets/icons/license.svg`,
-  [EntryType.MECH]: `systems/lancer/assets/icons/mech.svg`,
-  [EntryType.MECH_SYSTEM]: `systems/lancer/assets/icons/mech_system.svg`,
-  [EntryType.MECH_WEAPON]: `systems/lancer/assets/icons/mech_weapon.svg`,
-  [EntryType.NPC]: `systems/lancer/assets/icons/npc_class.svg`,
-  [EntryType.NPC_CLASS]: `systems/lancer/assets/icons/npc_class.svg`,
-  [EntryType.NPC_FEATURE]: `systems/lancer/assets/icons/npc_feature.svg`,
-  [EntryType.NPC_FEATURE + NpcFeatureType.Trait]: `systems/lancer/assets/icons/trait.svg`,
-  [EntryType.NPC_FEATURE + NpcFeatureType.Reaction]: `systems/lancer/assets/icons/reaction.svg`,
-  [EntryType.NPC_FEATURE + NpcFeatureType.System]: `systems/lancer/assets/icons/system.svg`,
-  [EntryType.NPC_FEATURE + NpcFeatureType.Weapon]: `systems/lancer/assets/icons/weapon.svg`,
-  [EntryType.NPC_FEATURE + NpcFeatureType.Tech]: `systems/lancer/assets/icons/tech_full.svg`,
-  [EntryType.NPC_TEMPLATE]: `systems/lancer/assets/icons/npc_template.svg`,
-  [EntryType.ORGANIZATION]: `systems/lancer/assets/icons/encounter.svg`,
-  [EntryType.PILOT]: `systems/lancer/assets/icons/pilot.svg`,
-  [EntryType.PILOT_ARMOR]: `systems/lancer/assets/icons/role_tank.svg`,
-  [EntryType.PILOT_GEAR]: `systems/lancer/assets/icons/generic_item.svg`,
-  [EntryType.PILOT_WEAPON]: `systems/lancer/assets/icons/role_artillery.svg`,
-  [EntryType.RESERVE]: `systems/lancer/assets/icons/reserve_tac.svg`,
-  [EntryType.SKILL]: `systems/lancer/assets/icons/skill.svg`,
-  [EntryType.STATUS]: `systems/lancer/assets/icons/reticule.svg`,
-  [EntryType.TALENT]: `systems/lancer/assets/icons/talent.svg`,
-  [EntryType.WEAPON_MOD]: `systems/lancer/assets/icons/weapon_mod.svg`,
-  generic: GENERIC_ITEM_ICON,
-};
-
 // TODO: const MACRO_ICONS
 
-export function TypeIcon(type: string, macro?: boolean): string {
-  return DOCUMENT_ICONS[type] ?? DOCUMENT_ICONS["generic"];
+export function TypeIcon(type: EntryType, macro?: boolean): string {
+  const docType = ACTOR_TYPES.includes(type as any) ? "Actor" : "Item";
+  // @ts-expect-error `type` is fine here
+  const img = getDocumentClass(docType).getDefaultArtwork({ type }).img;
+  return img;
 }
 
 // A substitution method that replaces the first argument IFF it is an img that we don't think should be preserved, and if the trimmed replacement string is truthy

@@ -91,6 +91,7 @@ const frame_schema = {
 };
 
 export class FrameModel extends LancerDataModel<DataSchema, Item> {
+  static DEFAULT_ICON = "systems/lancer/assets/icons/mech.svg";
   static defineSchema() {
     return frame_schema;
   }

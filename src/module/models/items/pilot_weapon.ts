@@ -13,6 +13,7 @@ import { addDeployableTags, template_bascdt, template_universal_item, template_u
 const fields = foundry.data.fields;
 
 export class PilotWeaponModel extends LancerDataModel<DataSchema, Item> {
+  static DEFAULT_ICON = "systems/lancer/assets/icons/role_artillery.svg";
   static defineSchema() {
     return {
       description: new fields.StringField({ nullable: true }),

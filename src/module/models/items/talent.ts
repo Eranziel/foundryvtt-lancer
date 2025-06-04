@@ -13,6 +13,7 @@ import { template_universal_item } from "./shared";
 const fields = foundry.data.fields;
 
 export class TalentModel extends LancerDataModel<DataSchema, Item> {
+  static DEFAULT_ICON = "systems/lancer/assets/icons/talent.svg";
   static defineSchema() {
     return {
       curr_rank: new fields.NumberField({ nullable: false, initial: 1, min: 1, max: 3 }),
