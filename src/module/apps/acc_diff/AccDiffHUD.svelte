@@ -401,22 +401,26 @@
                     </div>
                     <div class="flexrow">
                       <button
-                        class="i--m no-grow accdiff-button lancer-dark-gray"
+                        class="i--m no-grow accdiff-button"
                         type="button"
                         on:click={() => (data.accuracy = data.accuracy + 1)}
                       >
                         <i class="cci cci-accuracy i--m" style="border:none" />
                       </button>
                       <input style="display: none" type="number" bind:value={data.accuracy} min="0" />
-                      <Cover
-                        bind:cover={data.cover}
-                        disabled={weapon.seeking}
-                        class="accdiff-targeted-cover flexrow flex-center"
-                        labelClass="i--s"
-                      />
+                      {#if !isTech()}
+                        <Cover
+                          bind:cover={data.cover}
+                          disabled={weapon.seeking}
+                          class="accdiff-targeted-cover flexrow flex-center"
+                          labelClass="i--s"
+                        />
+                      {:else}
+                        <div />
+                      {/if}
                       <input style="display: none" type="number" bind:value={data.difficulty} min="0" />
                       <button
-                        class="i--m no-grow accdiff-button lancer-dark-gray"
+                        class="i--m no-grow accdiff-button"
                         type="button"
                         on:click={() => (data.difficulty = data.difficulty + 1)}
                       >
