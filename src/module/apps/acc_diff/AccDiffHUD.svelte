@@ -226,16 +226,12 @@
   {#if profile}
     <MiniProfile {profile} />
   {/if}
-  <div id="{kind}-accdiff-dialog" style="padding:4px">
+  <div id="{kind}-accdiff-dialog" style="padding:0.3em">
     <!-- Flat attack bonus -->
     {#if isAttack()}
       <label class="flexrow accdiff-weight lancer-border-primary" for="accdiff-flat-bonus"> Flat Modifier </label>
-      <div
-        id="accdiff-flat-bonus"
-        class="accdiff-grid"
-        style="padding-bottom: 4px; border-bottom: 1px solid var(--primary-color);"
-      >
-        <div class="accdiff-other-grid lancer-border-primary">
+      <div class="accdiff-grid accdiff-flat-bonus">
+        <div class="accdiff-other-grid">
           <span><b>{gritLabel()}:</b> {flatSign(base.grit)}{base.grit}</span>
         </div>
         <div class="accdiff-other-grid accdiff-flat-mod" style="position: relative;">
@@ -248,7 +244,7 @@
             ><i class="fas fa-minus" /></button
           >
         </div>
-        <div class="accdiff-other-grid lancer-border-primary">
+        <div class="accdiff-other-grid">
           <span><b>Total:</b> {flatSign(flatTotal)}{flatTotal}</span>
         </div>
       </div>
@@ -258,12 +254,12 @@
       <!-- Accuracy column -->
       <div
         class="lancer-border-primary"
-        style="width:100%;padding:4px;border-right-width: 1px;border-right-style: dashed;min-width:180px"
+        style="width:100%;padding:0.3em;border-right-width: 1px;border-right-style: dashed;min-width:180px"
       >
-        <h3 class="lancer-border-primary">
+        <h4 class="lancer-border-primary">
           <i class="cci cci-accuracy i--m" style="vertical-align:middle;border:none" />
-          Accuracy
-        </h3>
+          <strong>Accuracy</strong>
+        </h4>
         <HudCheckbox label="Accurate (+1)" bind:value={weapon.accurate} />
         {#if kind == "attack"}
           <HudCheckbox label="Seeking (*)" bind:value={weapon.seeking} />
@@ -274,11 +270,11 @@
       </div>
 
       <!-- Difficulty column -->
-      <div style="width:100%;padding:4px;min-width:180px">
-        <h3 class="lancer-border-primary">
+      <div style="width:100%;padding:0.3em;min-width:180px">
+        <h4 class="lancer-border-primary">
           <i class="cci cci-difficulty i--m" style="vertical-align:middle;border:none" />
-          Difficulty
-        </h3>
+          <strong>Difficulty</strong>
+        </h4>
         <HudCheckbox label="Inaccurate (-1)" bind:value={weapon.inaccurate} />
         <HudCheckbox label="Impaired (-1)" value={!!weapon.impaired} disabled />
         {#if kind == "attack" && !isTech()}
@@ -295,7 +291,7 @@
         <!-- Target-related Accuracy -->
         <div
           class="lancer-border-primary"
-          style="width:100%;padding:4px;border-right-width: 1px;border-right-style: dashed;min-width:180px"
+          style="width:100%;padding:0.3em;border-right-width: 1px;border-right-style: dashed;min-width:180px"
         >
           {#if targets.length == 1}
             <HudCheckbox style="grid-area: prone;" label="Prone (+1)" bind:value={targets[0].prone} disabled />
@@ -314,7 +310,7 @@
         </div>
 
         <!-- Target-related Difficulty -->
-        <div style="width:100%;padding:4px;min-width:180px">
+        <div style="width:100%;padding:0.3em;min-width:180px">
           {#each diffTargetPlugins as plugin}
             <Plugin data={plugin} />
           {/each}
@@ -342,7 +338,7 @@
 
     <!-- Total accuracy / Targets -->
     <div class="flex-col accdiff-footer lancer-border-primary">
-      <div class="accdiff-grid lancer-border-primary" style="justify-content: space-evenly; padding-bottom: 4px;">
+      <div class="accdiff-grid lancer-border-primary" style="justify-content: space-evenly; padding-bottom: 0.3em;">
         <AccDiffInput bind:value={base.accuracy} id="accdiff-manual-adjust" />
       </div>
       {#if ranges && ranges.length > 0}
@@ -462,27 +458,14 @@
 </form>
 
 <style lang="scss">
-  :global(.accdiff-grid) {
+  #accdiff :global(.accdiff-grid) {
     display: flex;
     justify-content: space-between;
   }
 
-  #accdiff :global(.container) {
-    display: flex;
-    position: relative;
-    font-size: 0.9em;
-    user-select: none;
-    align-items: center;
-    cursor: pointer;
-  }
-
-  #accdiff :global(.container.invisible) {
-    display: none;
-  }
-
-  #accdiff :global(.container:has(input[disabled])) {
-    cursor: unset;
-    opacity: 0.5;
+  .accdiff-flat-bonus {
+    padding-bottom: 0.3em;
+    border-bottom: 1px solid var(--primary-color);
   }
 
   .accdiff-flat-mod {
@@ -528,26 +511,36 @@
 
   .accdiff-other-grid {
     width: 100%;
-    padding-left: 5px;
     display: flex;
     justify-content: center;
     align-items: center;
+
+    & + .accdiff-other-grid {
+      margin-left: 0.5em;
+    }
   }
   :global(.accdiff-weight) {
     justify-content: center;
     font-weight: bold;
   }
   .accdiff-footer {
-    padding-top: 4px;
-    padding-bottom: 4px;
+    padding-top: 0.3em;
+    padding-bottom: 0.3em;
     border-top-width: 1px;
     border-top-style: solid;
+  }
+
+  .accdiff-grid {
+    h4 {
+      border-bottom: 1px solid var(--primary-color);
+      margin-bottom: 0.3em;
+    }
   }
 
   .accdiff-grid :global(.accdiff-base-cover) {
     margin-top: 0.5em;
     font-size: 0.85em;
-    padding-left: 10px;
+    padding-left: 0.7em;
     cursor: pointer;
   }
   .accdiff-grid :global(.accdiff-base-cover i) {
@@ -613,7 +606,7 @@
   .accdiff-target-row {
     display: grid;
     grid-template-columns: auto auto auto;
-    grid-row-gap: 12px;
+    grid-row-gap: 1em;
     max-height: 320px;
     overflow-y: scroll;
   }
@@ -624,7 +617,7 @@
 
     .target-name {
       justify-content: center;
-      padding: 0px 0.2em;
+      padding: 0em 0.2em;
     }
 
     .accdiff-target-body {
@@ -634,7 +627,7 @@
 
   .accdiff-total {
     flex-wrap: nowrap;
-    padding: 4px 10px 4px 10px;
+    padding: 0.3em 0.7em 0.3em 0.7em;
   }
 
   .total-label {

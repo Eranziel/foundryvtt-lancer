@@ -40,11 +40,18 @@
       user-select: none;
       align-items: center;
       cursor: pointer;
-      margin: 0 0 0.25em 0;
 
       i:has(+ span) {
         margin-right: 0.2em;
       }
+    }
+
+    & .container:has(+ .container) {
+      margin: 0 0 0.25em 0;
+    }
+
+    & .container.invisible {
+      display: none;
     }
 
     & .container:has(input[disabled]) {

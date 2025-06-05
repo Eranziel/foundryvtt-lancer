@@ -385,7 +385,10 @@ $theme-types: "primary" "secondary" "dark-gray" "light-gray" "tooltip"    // Gen
   background-color: color-mix(in srgb, var(--weapon-color), #fff 85%);
   font-size: 15px;
   word-break: normal;
-  margin-bottom: 0.2em;
+
+  .message-content & {
+    margin-bottom: 0.2em;
+  }
 
   .lancer-tech + & {
     border-color: var(--tech-color);
