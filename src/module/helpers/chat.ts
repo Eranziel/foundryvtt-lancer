@@ -67,13 +67,14 @@ export function attackTarget(hit: LancerFlowState.HitResultWithRoll, options: He
     : `<span class="card clipped lancer-hit-chip miss">${game.i18n.format("lancer.chat-card.attack.miss")}</span>`;
   const img = hit.target.actor?.img;
   const uuid = hit.target.document.uuid;
+  const icon = hit.crit ? "fas fa-explosion i--s" : hit.hit ? "fas fa-crosshairs i--s" : "mdi mdi-call-missed i--sm";
   return `
     <div class="lancer-hit-target" data-uuid=${uuid}>
       <img class="lancer-hit-thumb" src="${img}" />
       <span class="lancer-hit-text-name" data-tooltip="${hit.target.name}"><b>${hit.target.name}</b></span>
       ${hitChip}
       <div class="lancer-hit-roll">
-        ${lancerDiceRoll(hit.roll, hit.tt as string, "cci cci-reticule i--sm")}
+        ${lancerDiceRoll(hit.roll, hit.tt as string, icon)}
       </div>
     </div>`;
 }

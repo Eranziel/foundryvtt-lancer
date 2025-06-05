@@ -489,6 +489,10 @@ $theme-types: "primary" "secondary" "dark-gray" "light-gray" "tooltip"    // Gen
 
   .lancer-hit-roll {
     grid-area: roll;
+    & i.fas {
+      margin-left: 0.1em;
+      margin-right: 0.1em;
+    }
   }
 
   &:has(+ .lancer-hit-target) {
