@@ -8,6 +8,8 @@
   export let stat: "structure" | "stress";
   export let lancerActor: LancerActor | null;
 
+  let rollerName = lancerActor ? ` -- ${lancerActor.token?.name || lancerActor.name}` : "";
+
   const dispatch = createEventDispatcher();
 
   function focus(el: HTMLElement) {
@@ -38,7 +40,7 @@
 >
   <div class="lancer-header lancer-primary medium">
     <i class="cci cci-{icon} i--m i--light" />
-    <span>{title}</span>
+    <span>{title}{rollerName}</span>
   </div>
   {#if lancerActor && (lancerActor.is_mech() || lancerActor.is_npc())}
     <div class="message-body">

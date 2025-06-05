@@ -51,8 +51,10 @@
   const dispatch = createEventDispatcher();
   let submitted = false;
 
+  let rollerName = lancerActor ? ` -- ${lancerActor.token?.name || lancerActor.name}` : "";
+
   // Initialize engaged
-  if (kind === "attack" && lancerItem) {
+  if (kind === "attack" && lancerItem && !isTech()) {
     let ranges: RangeType[] = [];
     if (
       lancerItem.is_pilot_weapon() ||
@@ -76,7 +78,6 @@
     // Ignore target hovering after the form has been submitted, to avoid flickering when
     // the UI slides down.
     if (submitted) return;
-    // @ts-expect-error Infinite recursion?
     const thtModule = game.modules.get("terrain-height-tools");
     if (!thtModule?.active || foundry.utils.isNewerVersion("0.3.3", thtModule.version)) {
       // @ts-expect-error not supposed to use a private method
@@ -219,7 +220,7 @@
       {:else if kind == "hase"}
         <i class="fas fa-dice-d20 i--m i--light" />
       {/if}
-      <span>{title}</span>
+      <span>{title}{rollerName}</span>
     </div>
   {/if}
   {#if profile}

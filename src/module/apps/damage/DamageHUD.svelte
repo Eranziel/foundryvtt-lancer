@@ -42,6 +42,8 @@
       ? "target-crit"
       : "target-miss";
 
+  let rollerName = lancerActor ? ` -- ${lancerActor.token?.name || lancerActor.name}` : "";
+
   let partialAP = false;
   let partialParacausal = false;
   let partialHalfDamage = false;
@@ -193,7 +195,7 @@
   {#if title != ""}
     <div class="lancer-header lancer-weapon medium">
       <i class="cci cci-large-beam i--m i--light" />
-      <span>{title}</span>
+      <span>{title}{rollerName}</span>
     </div>
   {/if}
   {#if profile}

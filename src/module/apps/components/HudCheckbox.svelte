@@ -8,7 +8,7 @@
   export let label = "";
   export let icon = "";
   export let tooltip: string | null = null;
-  export let checked = null;
+  export let checked: boolean | null = null;
   export let value = false;
   export let partial = false;
   export let disabled = false;
