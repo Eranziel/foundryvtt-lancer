@@ -36,6 +36,9 @@ export interface LancerUITheme {
   hitColor: string;
   missColor: string;
   errorColor: string;
+  // Accuracy / difficulty colors
+  accuracyColor: string;
+  difficultyColor: string;
   // Darken - for card backgrounds, etc...
   darkenColor: string;
 }
@@ -76,10 +79,13 @@ export const themeGMS: LancerUITheme = {
   freeColor: "#00695c",
   moveColor: "#cc0a0a",
   // Hit type colors
-  critColor: "#b36c3e",
-  hitColor: "#1a4015",
+  critColor: "#9c5e35",
+  hitColor: "#337494",
   missColor: "#3c3c3c",
   errorColor: "#b4800e",
+  // Accuracy / difficulty colors
+  accuracyColor: "#0d689c",
+  difficultyColor: "#9c0d0d",
   // Darken - for card backgrounds, etc...
   darkenColor: "0, 0, 0",
 };

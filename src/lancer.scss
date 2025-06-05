@@ -61,10 +61,14 @@ $document-types: join($item-types, $actor-types);
   --move-color: #cc0a0a;
 
   /* Hit type color vars */
-  --crit-color: #b36c3e;
-  --hit-color: #1a4015;
+  --crit-color: #9c5e35;
+  --hit-color: #337494;
   --miss-color: #3c3c3c;
   --error-color: #b4800e;
+
+  /* Accurate / difficult color vars */
+  --accurate-color: #0d689c;
+  --difficult-color: #9c0d0d;
 
   /* Darkens tone by a small increment. For some themes should probably lighten instead, somehow? */
   --darken-color: 0, 0, 0;
