@@ -4,6 +4,7 @@ Unless otherwise stated below, all of the icons distributed with the system (loc
 
 Some of the system icons in [`public/assets/icons`](./) (and their corresponding white versions in [`public/assets/icons/white`](./white/)) are derived from MDI Icons, acquired under the Apache 2.0 license.
 
+- [`bond.svg`](./bond.svg) - derived from [MDI Icon `vector-link`](https://pictogrammers.com/library/mdi/icon/vector-link/)
 - [`cover_hard.svg`](./cover_hard.svg) - directly from [MDI Icon `shield`](https://pictogrammers.com/library/mdi/icon/shield/), edited for consistent size with the other SVGs.
 - [`cover_soft.svg`](./cover_soft.svg) - directly from [MDI Icon `shield-half-full`](https://pictogrammers.com/library/mdi/icon/shield-half-full/), edited for consistent size with the other SVGs.
 - [`shield_outline.svg`](./shield_outline.svg) - directly from [MDI Icon `shield-outline`](https://pictogrammers.com/library/mdi/icon/shield-outline/), edited for consistent size with the other SVGs.
