@@ -9,8 +9,8 @@
 <label for={id} class="flexcol">
   <strong>Manual Adjust</strong>
   <strong class="accdiff-value">
+    <span>{Math.abs(value)}</span>
     <i class="i--sm cci" class:cci-accuracy={value >= 0} class:cci-difficulty={value < 0} />
-    {Math.abs(value)}
   </strong>
 </label>
 <input {id} class="difficulty lancer-invisible-input dec-set" style="display: none" type="number" bind:value />

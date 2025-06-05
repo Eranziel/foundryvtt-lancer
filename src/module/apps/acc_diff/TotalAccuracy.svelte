@@ -154,13 +154,13 @@
     filter: drop-shadow(1px 1px 0px);
   }
   .accurate > .card.total {
-    background-color: #017934;
+    background-color: var(--accurate-color);
   }
   .total-container.accurate {
     filter: drop-shadow(1px 1px 0px #013904);
   }
   .inaccurate > .card.total {
-    background-color: #9c0d0d;
+    background-color: var(--difficult-color);
   }
   .total-container.inaccurate {
     filter: drop-shadow(1px 1px 0px #5c0d0d);
