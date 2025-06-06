@@ -251,6 +251,8 @@ Hooks.once("init", () => {
   CONFIG.Token.documentClass = LancerTokenDocument;
   CONFIG.Token.objectClass = LancerToken;
   CONFIG.Combat.documentClass = LancerCombat;
+  // @ts-expect-error v13 types
+  CONFIG.Combat.fallbackTurnMarker = "systems/lancer/assets/turn-markers/mech-hud.svg";
   CONFIG.Combatant.documentClass = LancerCombatant;
   // @ts-expect-error This is literally a subclass so idk why it's busted
   CONFIG.ui.combat = LancerCombatTracker;
