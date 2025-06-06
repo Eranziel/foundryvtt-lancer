@@ -250,16 +250,25 @@
       </div>
     {/if}
 
-    <div class="accdiff-grid">
-      <!-- Accuracy column -->
-      <div
-        class="lancer-border-primary"
-        style="width:100%;padding:0.3em;border-right-width: 1px;border-right-style: dashed;min-width:180px"
-      >
+    <div class="accdiff-grid accdiff-grid__section">
+      <!-- Column Headers -->
+      <div class="accdiff-grid__column">
         <h4 class="lancer-border-primary">
           <i class="cci cci-accuracy i--m" style="vertical-align:middle;border:none" />
           <strong>Accuracy</strong>
         </h4>
+      </div>
+      <div class="accdiff-grid__column">
+        <h4 class="lancer-border-primary">
+          <i class="cci cci-difficulty i--m" style="vertical-align:middle;border:none" />
+          <strong>Difficulty</strong>
+        </h4>
+      </div>
+    </div>
+
+    <div class="accdiff-grid accdiff-grid__section">
+      <!-- Accuracy column -->
+      <div class="accdiff-grid__column">
         <HudCheckbox label="Accurate (+1)" bind:value={weapon.accurate} />
         {#if kind == "attack"}
           <HudCheckbox label="Seeking (*)" bind:value={weapon.seeking} />
@@ -270,11 +279,7 @@
       </div>
 
       <!-- Difficulty column -->
-      <div style="width:100%;padding:0.3em;min-width:180px">
-        <h4 class="lancer-border-primary">
-          <i class="cci cci-difficulty i--m" style="vertical-align:middle;border:none" />
-          <strong>Difficulty</strong>
-        </h4>
+      <div class="accdiff-grid__column">
         <HudCheckbox label="Inaccurate (-1)" bind:value={weapon.inaccurate} />
         <HudCheckbox label="Impaired (-1)" value={!!weapon.impaired} disabled />
         {#if kind == "attack" && !isTech()}
@@ -287,12 +292,9 @@
     </div>
 
     {#if kind == "attack" && (Object.values(weapon.plugins).length > 0 || targets.length == 1)}
-      <div transition:slide class="accdiff-grid" style="width:100%; border-top: 1px solid var(--primary-color);">
+      <div transition:slide class="accdiff-grid accdiff-grid__section" style="width:100%;">
         <!-- Target-related Accuracy -->
-        <div
-          class="lancer-border-primary"
-          style="width:100%;padding:0.3em;border-right-width: 1px;border-right-style: dashed;min-width:180px"
-        >
+        <div class="accdiff-grid__column">
           {#if targets.length == 1}
             <HudCheckbox style="grid-area: prone;" label="Prone (+1)" bind:value={targets[0].prone} disabled />
             <HudCheckbox label="Stunned (EVA=5)" bind:value={targets[0].stunned} disabled />
@@ -310,7 +312,7 @@
         </div>
 
         <!-- Target-related Difficulty -->
-        <div style="width:100%;padding:0.3em;min-width:180px">
+        <div class="accdiff-grid__column">
           {#each diffTargetPlugins as plugin}
             <Plugin data={plugin} />
           {/each}
@@ -337,22 +339,26 @@
     {/if}
 
     <!-- Total accuracy / Targets -->
-    <div class="flex-col accdiff-footer lancer-border-primary">
-      <div class="accdiff-grid lancer-border-primary" style="justify-content: space-evenly; padding-bottom: 0.3em;">
+    <div class="flexcol accdiff-grid">
+      <div class="flexrow accdiff-grid__section" style="justify-content: space-evenly;">
         <AccDiffInput bind:value={base.accuracy} id="accdiff-manual-adjust" />
       </div>
       {#if ranges && ranges.length > 0}
-        <span class="accdiff-weight flex-center flexrow">Targeting</span>
-        <div class="accdiff-ranges flexrow">
-          {#each ranges as range}
-            <button class="range-button" type="button" on:click={() => deployTemplate(range)}>
-              <i class="cci cci-{range.type.toLowerCase()} i--m i--light" />
-              {ranges.length && ranges.length < 3 ? range.type.toUpperCase() : ""}
-              {range.val}
-            </button>
-          {/each}
+        <div class="accdiff-grid__section">
+          <span class="accdiff-weight flex-center flexrow">Targeting</span>
+          <div class="accdiff-ranges flexrow">
+            {#each ranges as range}
+              <button class="range-button" type="button" on:click={() => deployTemplate(range)}>
+                <i class="cci cci-{range.type.toLowerCase()} i--m i--light" />
+                {ranges.length && ranges.length < 3 ? range.type.toUpperCase() : ""}
+                {range.val}
+              </button>
+            {/each}
+          </div>
         </div>
       {/if}
+    </div>
+    <div class="flexcol accdiff-footer lancer-border-primary">
       <div class="accdiff-total">
         {#if targets.length < 2}
           {#key targets.length}
@@ -536,15 +542,34 @@
 
   .accdiff-grid {
     h4 {
-      border-bottom: 1px solid var(--primary-color);
-      margin-bottom: 0.3em;
+      border: none;
+      margin-bottom: 0;
+    }
+
+    &__section {
+      padding: 0.3em 0;
+      border-top: 1px solid var(--primary-color);
+    }
+
+    &__column {
+      width: 100%;
+      min-width: 160px;
+      padding-left: 1em;
+
+      &:has(.container) {
+        // Indent checkbox containers slightly more
+        padding-left: 1.3em;
+      }
+
+      &:has(+ .accdiff-grid__column) {
+        border-right: 1px dashed var(--primary-color);
+      }
     }
   }
 
   .accdiff-grid :global(.accdiff-base-cover) {
     margin-top: 0.5em;
     font-size: 0.85em;
-    padding-left: 0.7em;
     cursor: pointer;
   }
   .accdiff-grid :global(.accdiff-base-cover i) {
@@ -662,16 +687,6 @@
       display: inline-flex;
       justify-content: center;
       margin: 0;
-      border: none;
-      background-color: var(--dark-gray-color);
-      &:hover i,
-      &:active i {
-        text-shadow: 0px 0px 8px var(--color-shadow-primary);
-      }
-      &:active {
-        transform: translateX(2px) translateY(2px);
-        box-shadow: -1px -1px 1px var(--primary-color);
-      }
     }
   }
 

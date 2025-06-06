@@ -3,10 +3,15 @@
   export let id: string;
 </script>
 
-<button class="lancer-button dec-set" type="button" on:click={() => (value = value + 1)}>
+<button
+  class="lancer-button dec-set"
+  type="button"
+  data-tooltip="Add global accuracy"
+  on:click={() => (value = value + 1)}
+>
   <i class="cci cci-accuracy i--sm" />
 </button>
-<label for={id} class="flexcol">
+<label for={id} class="flexcol" data-tooltip="Global Accuracy/Difficulty Adjustment">
   <strong>Manual Adjust</strong>
   <strong class="accdiff-value">
     <span>{Math.abs(value)}</span>
@@ -14,7 +19,12 @@
   </strong>
 </label>
 <input {id} class="difficulty lancer-invisible-input dec-set" style="display: none" type="number" bind:value />
-<button class="lancer-button dec-set" type="button" on:click={() => (value = value - 1)}>
+<button
+  class="lancer-button dec-set"
+  type="button"
+  data-tooltip="Add global difficulty"
+  on:click={() => (value = value - 1)}
+>
   <i class="cci cci-difficulty i--sm" />
 </button>
 

@@ -55,7 +55,6 @@
 
   label {
     display: inline-block;
-    padding-left: 5px;
     position: relative;
     .flexrow & {
       padding: 0px;
@@ -69,7 +68,7 @@
   :not(.disabled) label:hover::after {
     content: "";
     position: absolute;
-    right: 98%;
+    right: 100%;
     top: calc(50% - 4px);
     background-color: var(--primary-color);
     width: 8px;
