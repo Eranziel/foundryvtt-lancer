@@ -1568,6 +1568,14 @@ input[type="text"].lancer-input {
   border-radius: 5px;
   margin: 5px;
   background: var(--darken-1);
+
+  & > p {
+    margin: 0;
+
+    &:has(+ p) {
+      margin-bottom: 0.5em;
+    }
+  }
 }
 
 .effect-box {
@@ -1599,6 +1607,10 @@ input[type="text"].lancer-input {
 .effect-text {
   text-align: left;
   padding: 0.5em;
+  width: 100%;
+  & > p {
+    margin: 0;
+  }
 }
 
 /* Start of HORUS glitchy styles used in lancer-data */
