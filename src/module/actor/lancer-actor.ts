@@ -1,4 +1,4 @@
-import { LANCER, replaceDefaultResource, TypeIcon } from "../config";
+import { LANCER, replaceDefaultResource } from "../config";
 import { DamageType, EntryType } from "../enums";
 import { AppliedDamage } from "./damage-calc";
 import { SystemData, SystemDataType, SystemTemplates } from "../system-template";
@@ -95,6 +95,17 @@ export class LancerActor extends Actor {
   // Promises for NPC class/template swap. That work is initiated by a sync method,
   // so we need a way to track when the work is finished.
   npcClassSwapPromises: Promise<any>[] = [];
+
+  static DEFAULT_ICON = "icons/svg/mystery-man-black.svg";
+  static override getDefaultArtwork(actorData: Parameters<typeof Actor.getDefaultArtwork>[0]) {
+    const model: typeof foundry.abstract.DataModel<any, any> | undefined =
+      CONFIG.Actor.dataModels[actorData?.type ?? "base"];
+    // @ts-expect-error This is fine
+    if (model?.getDefaultArtwork instanceof Function) return model.getDefaultArtwork(itemData);
+    // @ts-expect-error This is fine
+    const img: string = model?.DEFAULT_ICON ?? this.DEFAULT_ICON;
+    return { img, texture: { src: img } };
+  }
 
   // These cannot be instantiated the normal way (e.x. via constructor)
   _configure(options: unknown) {
@@ -560,7 +571,8 @@ export class LancerActor extends Actor {
     const allowed = await super._preCreate(data, options, user);
     if (allowed === false) return false;
 
-    let img = data?.img || TypeIcon(this.type);
+    // Only apply these defaults for fresh documents
+    if (data?._stats?.createdTime) return;
 
     let disposition: typeof CONST["TOKEN_DISPOSITIONS"][keyof typeof CONST["TOKEN_DISPOSITIONS"]] =
       {
@@ -573,11 +585,11 @@ export class LancerActor extends Actor {
 
     // Put in the basics
     this.updateSource({
-      img,
       // Link the token to the Actor for pilots and mechs, but not for NPCs or deployables
       prototypeToken: {
         actorLink: [EntryType.PILOT, EntryType.MECH].includes(this.type as EntryType),
         disposition: disposition,
+        lockRotation: true,
       },
     });
   }

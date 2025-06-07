@@ -38,6 +38,7 @@ const mech_schema = {
 
 type MechSchema = typeof mech_schema;
 export class MechModel extends LancerDataModel<DataSchema, Actor> {
+  static DEFAULT_ICON = "systems/lancer/assets/icons/mech.svg";
   static defineSchema(): MechSchema {
     return mech_schema;
   }

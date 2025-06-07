@@ -10,6 +10,7 @@ import { template_universal_item } from "./shared";
 const fields = foundry.data.fields;
 
 export class BondModel extends LancerDataModel<DataSchema, Item> {
+  static DEFAULT_ICON = "systems/lancer/assets/icons/bond.svg";
   static defineSchema() {
     return {
       major_ideals: new fields.ArrayField(new fields.StringField()),

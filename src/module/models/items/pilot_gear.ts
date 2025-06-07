@@ -11,6 +11,7 @@ import { template_universal_item, template_bascdt, template_uses, addDeployableT
 const fields = foundry.data.fields;
 
 export class PilotGearModel extends LancerDataModel<DataSchema, Item> {
+  static DEFAULT_ICON = "systems/lancer/assets/icons/generic_item.svg";
   static defineSchema() {
     return {
       description: new fields.StringField({ nullable: true }),

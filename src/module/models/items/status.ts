@@ -9,6 +9,7 @@ import { template_universal_item } from "./shared";
 const fields = foundry.data.fields;
 
 export class StatusModel extends LancerDataModel<DataSchema, Item> {
+  static DEFAULT_ICON = "systems/lancer/assets/icons/reticule.svg";
   static defineSchema() {
     return {
       effects: new fields.HTMLField(),

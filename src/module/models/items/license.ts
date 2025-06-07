@@ -7,6 +7,7 @@ import { template_universal_item } from "./shared";
 const fields = foundry.data.fields;
 
 export class LicenseModel extends LancerDataModel<DataSchema, Item> {
+  static DEFAULT_ICON = "systems/lancer/assets/icons/license.svg";
   static defineSchema() {
     return {
       key: new fields.StringField(),

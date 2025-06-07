@@ -14,6 +14,7 @@ import { template_bascdt, template_universal_item } from "./shared";
 const fields = foundry.data.fields;
 
 export class ReserveModel extends LancerDataModel<DataSchema, Item> {
+  static DEFAULT_ICON = "systems/lancer/assets/icons/reserve_tac.svg";
   static defineSchema() {
     return {
       consumable: new fields.BooleanField(),
