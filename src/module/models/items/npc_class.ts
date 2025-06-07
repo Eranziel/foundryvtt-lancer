@@ -4,7 +4,7 @@ import { EntryType } from "../../enums";
 import { SourceData } from "../../source-template";
 import { convertNpcStats, regRefToLid } from "../../util/migrations";
 import { PackedNpcClassData } from "../../util/unpacking/packed-types";
-import { ControlledLengthArrayField, LIDField, LancerDataModel, NpcStatBlockField, UnpackContext } from "../shared";
+import { LIDField, LancerDataModel, NpcStatBlockField, UnpackContext } from "../shared";
 import { template_universal_item } from "./shared";
 
 const fields = foundry.data.fields;
@@ -18,7 +18,11 @@ export class NpcClassModel extends LancerDataModel<DataSchema, Item> {
       tactics: new fields.HTMLField(),
       base_features: new fields.SetField(new LIDField()),
       optional_features: new fields.SetField(new LIDField()),
-      base_stats: new ControlledLengthArrayField(new NpcStatBlockField({ nullable: false }), { length: 3 }),
+      base_stats: new fields.ArrayField(new NpcStatBlockField({ nullable: false }), {
+        min: 3,
+        max: 3,
+        initial: [{}, {}, {}],
+      }),
       ...template_universal_item(),
     };
   }

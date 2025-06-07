@@ -555,9 +555,11 @@ declare namespace ControlledLengthArrayField {
     overflow?: boolean | undefined;
   }
 }
-
-// Handles an additional "length" option, and mandates that it remain at that length
-// If "overflow" option = truthy, then just forces there to be AT LEAST length
+/**
+ * Handles an additional "length" option, and mandates that it remain at that length
+ * If "overflow" option = truthy, then just forces there to be AT LEAST length
+ * @deprecated Use min and max on ArrayField instead
+ */
 export class ControlledLengthArrayField<
   ElementField extends fields.DataField.Any,
   AssignmentElementField = fields.ArrayField.AssignmentElementType<ElementField>,
@@ -578,7 +580,7 @@ export class ControlledLengthArrayField<
   /** @override */
   _cast(value: any) {
     value = super._cast(value);
-    if (!Array.isArray(value)) return value; // Give up early
+    if (!Array.isArray(value)) return value ?? []; // Give up early
     // Extend or contract as appropriate
     while (value.length < this.options.length) {
       const new_elt = typeof this.element.initial == "function" ? this.element.initial() : this.element.initial;
