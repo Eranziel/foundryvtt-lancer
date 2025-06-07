@@ -7,28 +7,28 @@
   "steps": [
     {
       "id": "combatTab",
-      "selector": ".tabs>a[data-tab='combat']",
+      "selector": "nav#sidebar-tabs menu li:has(button[data-tab='combat'])",
       "title": "lancer.tour.combat.combatTab.title",
       "content": "lancer.tour.combat.combatTab.content",
       "sidebarTab": "combat"
     },
     {
       "id": "turnOrder",
-      "selector": "#combat #combat-tracker",
+      "selector": "#combat .combat-tracker",
       "title": "lancer.tour.combat.turnOrder.title",
       "content": "lancer.tour.combat.turnOrder.content",
       "sidebarTab": "combat"
     },
     {
       "id": "activateButton",
-      "selector": "#combat #combat-tracker li.enemy .lancer-combat-control",
+      "selector": "#combat .combat-tracker li.enemy [data-action='activateCombatantTurn']",
       "title": "lancer.tour.combat.activateButton.title",
       "content": "lancer.tour.combat.activateButton.content",
       "sidebarTab": "combat"
     },
     {
       "id": "endTurn",
-      "selector": "#combat #combat-tracker li .lancer-combat-control.done",
+      "selector": "#combat .combat-tracker li [data-action='deactivateCombatantTurn']",
       "title": "lancer.tour.combat.endTurn.title",
       "content": "lancer.tour.combat.endTurn.content",
       "sidebarTab": "combat",
@@ -36,21 +36,21 @@
     },
     {
       "id": "combatControls",
-      "selector": "#combat #combat-controls",
+      "selector": "#combat .combat-controls",
       "title": "lancer.tour.combat.combatControls.title",
       "content": "lancer.tour.combat.combatControls.content",
       "sidebarTab": "combat"
     },
     {
       "id": "resetActivations",
-      "selector": "#combat header .encounter-controls [data-control='resetAll']",
+      "selector": "#combat header .encounter-controls .encounter-context-menu",
       "title": "lancer.tour.combat.resetActivations.title",
       "content": "lancer.tour.combat.resetActivations.content",
       "sidebarTab": "combat"
     },
     {
       "id": "combatSettings",
-      "selector": "#combat header .encounter-controls a[data-control='trackerSettings']",
+      "selector": "#combat header .encounters [data-action='trackerSettings']",
       "title": "lancer.tour.combat.combatSettings.title",
       "content": "lancer.tour.combat.combatSettings.content",
       "sidebarTab": "combat"
@@ -75,7 +75,7 @@
       },
       "endTurn": {
         "title": "Ending Turns",
-        "content": "Turns can be ended by clicking the Activate Button again for the current combatant, or by simply starting the turn of a different combatant."
+        "content": "Turns can be ended by clicking the Deactivate Button for the current combatant, or by simply starting the turn of a different combatant."
       },
       "combatControls": {
         "title": "Combat Controls",
