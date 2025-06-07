@@ -1677,12 +1677,14 @@ function _handleContextMenus(
       if (
         (p?.startsWith("system.base_features") || p?.startsWith("system.optional_features")) &&
         !p?.includes("system.tags")
-      )
+      ) {
         return true;
+      }
       // Other cases - weapons in mounts, others?
       // We support this if the path ends with a .value, and the ref has a truthy value
-      if (!p?.endsWith(".value")) return false;
-      return !!dd(html)?.terminus;
+      // if (!p?.endsWith(".value")) return false;
+      // return !!dd(html)?.terminus;
+      return false;
     },
   };
 
