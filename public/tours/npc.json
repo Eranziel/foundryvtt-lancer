@@ -14,26 +14,26 @@
     },
     {
       "id": "addClass",
-      "selector": "#LancerNPCSheet-Actor- .window-content .sheet-body>div.flexcol>div.card.clipped.flexrow>div:nth-child(1)",
+      "selector": ".tour-npc .window-content .sheet-body>div.flexcol>div.card.clipped.flexrow>div:nth-child(1)",
       "title": "lancer.tour.npc.addClass.title",
       "content": "lancer.tour.npc.addClass.content",
       "sidebarTab": "compendium"
     },
     {
       "id": "baseFeatures",
-      "selector": "#LancerNPCClassSheet-Actor--Item-0000000000000000 div:has([data-path='system.base_features'])",
+      "selector": ".tour-class div:has([data-path='system.base_features'])",
       "title": "lancer.tour.npc.baseFeatures.title",
       "content": "lancer.tour.npc.baseFeatures.content"
     },
     {
       "id": "optionalFeatures",
-      "selector": "#LancerNPCClassSheet-Actor--Item-0000000000000000 div:has([data-path='system.optional_features'])",
+      "selector": ".tour-class div:has([data-path='system.optional_features'])",
       "title": "lancer.tour.npc.optionalFeatures.title",
       "content": "lancer.tour.npc.optionalFeatures.content"
     },
     {
       "id": "npcTemplates",
-      "selector": "#LancerNPCSheet-Actor- .window-content .sheet-body>div.flexcol>div.card.clipped.flexrow>div:nth-child(2)",
+      "selector": ".tour-npc .window-content .sheet-body>div.flexcol>div.card.clipped.flexrow>div:nth-child(2)",
       "title": "lancer.tour.npc.npcTemplates.title",
       "content": "lancer.tour.npc.npcTemplates.content"
     }
