@@ -25,7 +25,8 @@ export async function checkItemDestroyed(
     state.item.is_pilot_weapon() ||
     state.item.is_pilot_gear() ||
     state.item.is_pilot_armor() ||
-    state.item.is_talent()
+    state.item.is_talent() ||
+    state.item.is_reserve()
   ) {
     return true; // These items can't be destroyed
   }
@@ -69,6 +70,7 @@ export async function checkItemLimited(
     !state.item.is_pilot_weapon() &&
     !state.item.is_pilot_gear() &&
     !state.item.is_pilot_armor() &&
+    !state.item.is_reserve() &&
     !state.item.is_npc_feature()
   ) {
     return false;
@@ -86,6 +88,13 @@ export async function checkItemLimited(
     let iType = friendly_entrytype_name(state.item.type as EntryType);
     ui.notifications!.warn(`${iType} ${state.item.name} has no remaining uses!`);
     return false;
+  }
+  if (state.item.is_reserve() && state.item.system.consumable) {
+    const result = !state.item.system.used; // Reserve items have their own way of tracking limited uses
+    if (!result) {
+      ui.notifications!.warn(`Reserve ${state.item.name} has already been used!`);
+    }
+    return result;
   }
   return true;
 }
@@ -157,13 +166,16 @@ export async function updateItemAfterAction(
   if (!state.data) throw new TypeError(`Flow state missing!`);
   const { limited_loading, attacks } = game.settings.get(game.system.id, LANCER.setting_automation);
   if (state.item && limited_loading && attacks) {
-    let item_changes: DeepPartial<SourceData.MechWeapon | SourceData.NpcFeature | SourceData.PilotWeapon> = {};
-    if (state.item.isLoading()) item_changes.loaded = false;
-    if (state.item.isLimited()) item_changes.uses = { value: Math.max(state.item.system.uses.value - 1, 0) };
+    let itemChanges: DeepPartial<SourceData.MechWeapon | SourceData.NpcFeature | SourceData.PilotWeapon> = {};
+    if (state.item.isLoading()) itemChanges.loaded = false;
+    if (state.item.isLimited()) itemChanges.uses = { value: Math.max(state.item.system.uses.value - 1, 0) };
     if (state.item.is_npc_feature() && state.item.isRecharge())
-      (item_changes as DeepPartial<SourceData.NpcFeature>).charged = false;
-    if (Object.keys(item_changes).length === 0) return true;
-    await state.item.update({ system: item_changes });
+      (itemChanges as DeepPartial<SourceData.NpcFeature>).charged = false;
+    if (state.item.is_reserve() && state.item.system.consumable) {
+      (itemChanges as DeepPartial<SourceData.Reserve>).used = true;
+    }
+    if (Object.keys(itemChanges).length === 0) return true;
+    await state.item.update({ system: itemChanges });
   }
   return true;
 }
