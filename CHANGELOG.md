@@ -1,3 +1,22 @@
+# 2.10.0 (2025-06-08)
+
+## Features
+
+- Attack HUD improvements! The attack HUD now:
+  - Displays the attacker's name in the title.
+  - Automatically adds accuracy when target is Prone.
+  - Automatically adds difficulty for ranged attacks when attacker is Engaged. Can be overridden to allow for effects that ignore Engaged.
+  - Various styling improvements. Buttons are consistent colours, new colours for accurate/difficult total cards, separators to help identify different sections.
+- Attack roll cards now display miss/hit/crit icons inline with the roll to help identify results.
+- Add an Active Effect to the Stunned status so that it sets the recipient's evasion to 5.
+- #857 - Bond items have a new default image, and fixed a bug with NPC feature default images.
+
+## Bug Fixes
+
+- #871 - Fix a display issue for text inside `<p>` tags for NPC features, mech systems, etc...
+- #872 - Remove the "Unlink" context menu option for weapons & systems, as it serves no real purpose and can cause errors for modules.
+- #873 - Fix reserve action buttons. They will now correctly check whether consumable reserves have already been used, print the action to chat, and then mark consumable reserves as used.
+
 # 2.9.0 (2025-05-31)
 
 ## Features
