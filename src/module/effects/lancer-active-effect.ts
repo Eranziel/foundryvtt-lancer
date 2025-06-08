@@ -258,6 +258,7 @@ export class LancerActiveEffect extends ActiveEffect {
           // @ts-expect-error v12 property renamed
           img: status.img,
           description: status.system.effects,
+          changes: [...status.effects][0].changes || [],
         });
       } else {
         // @ts-expect-error v12 property renamed
@@ -265,8 +266,23 @@ export class LancerActiveEffect extends ActiveEffect {
         // @ts-expect-error v12 property renamed
         existingStatus.img = overwrite ? status.img || existingStatus.img : existingStatus.img || status.img;
         existingStatus.name = overwrite ? status.name || existingStatus.name : existingStatus.name || status.name;
-        if (status.system.effects) {
+        if (overwrite && status.system.effects) {
           existingStatus.description = status.system.effects;
+        }
+        // If overwrite is on, replace the effect's changes with those from the item.
+        if (overwrite && [...status.effects].length > 0) {
+          const changes = existingStatus.changes || [];
+          status.effects.forEach(e => {
+            if (e.changes && e.changes.length > 0) {
+              // @ts-expect-error ??
+              changes.push(...e.changes);
+            }
+          });
+          existingStatus.changes = changes;
+        }
+        // If not overwriting, insert the changes if the existing status doesn't have any changes.
+        else if (!existingStatus.changes && status.effects.size) {
+          existingStatus.changes = [...status.effects][0].changes || [];
         }
       }
     }
