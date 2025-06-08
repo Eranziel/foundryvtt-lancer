@@ -7,6 +7,7 @@ import { LANCER } from "./config";
 import { EntryType } from "./enums";
 import { LancerItem } from "./item/lancer-item";
 import { LancerTokenDocument } from "./token";
+import { generateStunnedEffect } from "./models/items/status";
 import { get_pack, get_pack_id } from "./util/doc";
 import { getBaseContentPack } from "./util/lcps";
 import { version as coreUpdate } from "@massif/lancer-data/package.json";
@@ -279,6 +280,18 @@ export async function migrateItem(item: LancerItem): Promise<object> {
       if (foundry.utils.isNewerVersion("2.1.1", currVersion)) {
         console.log(`Fixing license lid for ${item.system.key}`);
         updateData.system.lid = `lic_${item.system.key}`;
+      }
+    }
+
+    if (item.type === "status") {
+      // Ensure stunned status has the correct effect
+      if (item.system.lid === "stunned") {
+        const effect = item.effects.contents.find(e => e.changes.some(c => c.key === "system.evasion"));
+        if (!effect) {
+          console.log(`${lp} Adding evasion change to existing stunned status ${item.name}`);
+          const stunnedEffect = generateStunnedEffect({ name: item.name, description: item.system.effects || "" });
+          updateData.effects = [...(updateData.effects || []), stunnedEffect, ,];
+        }
       }
     }
 
