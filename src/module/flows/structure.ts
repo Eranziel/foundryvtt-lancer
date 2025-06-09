@@ -109,6 +109,17 @@ const structTableTitles = [
   "Glancing Blow",
 ];
 
+// Monstrosity structure table titles
+const monstrosityTableTitles = [
+  "Fatal Hit",
+  "Direct Hit",
+  "Dismemberment",
+  "Powerful Hit",
+  "Powerful Hit",
+  "Glancing Hit",
+  "Glancing Hit",
+];
+
 // Table of structure table descriptions
 function structTableDescriptions(roll: number, remStruct: number): string {
   switch (roll) {
@@ -134,6 +145,46 @@ function structTableDescriptions(roll: number, remStruct: number): string {
       return "Emergency systems kick in and stabilize your mech, but it’s @Compendium[world.status-items.Impaired] until the end of your next turn.";
   }
   return "";
+}
+
+// Monstrosity structure table descriptions
+function monstrosityTableDescriptions(roll: number, remStruct: number): string {
+  switch (roll) {
+    // Multiple 1s
+    case 0:
+      return "The Monstrosity is destroyed.";
+    case 1:
+      if (remStruct >= 3) {
+        return "The Monstrosity is smacked in the head and is @Compendium[world.status-items.Stunned] until the end of its next turn.";
+      } else if (remStruct === 2) {
+        return "The Monstrosity must succeed on a HULL save or be destroyed.";
+      } else {
+        return "The Monstrosity is destroyed.";
+      }
+    case 2:
+      return "The attack blows a limb or chunk off the Monstrosity; it takes 1d6 damage and becomes @Compendium[world.status-items.Slowed] for the rest of the scene.";
+    case 3:
+    case 4:
+      return "The Monstrosity is knocked @Compendium[world.status-items.Prone] by the force of the blow.";
+    case 5:
+    case 6:
+      return "The Monstrosity flinches in pain; it’s @Compendium[world.status-items.Impaired] until the end of its next turn.";
+  }
+  return "";
+}
+
+// Helper to check if an actor has the Monstrosity class
+function hasMonstrosityClass(actor: LancerActor): boolean {
+  return (
+    actor.is_npc() &&
+    actor.items.some(
+      i =>
+        i.type === "npc_class" &&
+        i.system &&
+        typeof i.system === "object" &&
+        (i.system as any).lid === "npcc_monstrosity"
+    )
+  );
 }
 
 /**
@@ -176,10 +227,13 @@ export async function rollStructureTable(state: FlowState<LancerFlowState.Primar
     });
   }
 
+  // Check if this is a Monstrosity
+  const isMonstrosity = hasMonstrosityClass(actor);
+
   state.data = {
     type: "structure",
-    title: structTableTitles[result],
-    desc: structTableDescriptions(result, remStruct),
+    title: isMonstrosity ? monstrosityTableTitles[result] : structTableTitles[result],
+    desc: isMonstrosity ? monstrosityTableDescriptions(result, remStruct) : structTableDescriptions(result, remStruct),
     remStruct: remStruct,
     val: actor.system.structure.value,
     max: actor.system.structure.max,
@@ -213,12 +267,15 @@ export async function noStructureRemaining(
     return true;
   }
 
+  // Check if this is a Monstrosity
+  const isMonstrosity = hasMonstrosityClass(actor);
+
   // You ded. Print the card and stop the flow.
   const printCard = (game.lancer.flowSteps as Map<string, Step<any, any> | Flow<any>>).get("printStructureCard");
   if (!printCard) throw new TypeError(`printStructureCard flow step missing!`);
   if (typeof printCard !== "function") throw new TypeError(`printStructureCard flow step is not a function.`);
-  state.data.title = structTableTitles[0];
-  state.data.desc = structTableDescriptions(0, 0);
+  state.data.title = isMonstrosity ? monstrosityTableTitles[0] : structTableTitles[0];
+  state.data.desc = isMonstrosity ? monstrosityTableDescriptions(0, 0) : structTableDescriptions(0, 0);
   state.data.result = undefined;
   // Subtract the hp which was added in the preStructureRollChecks step.
   await actor.update({ "system.hp.value": actor.system.hp.value - actor.system.hp.max });
@@ -254,13 +311,27 @@ export async function checkStructureMultipleOnes(
   }
   if (!roll) throw new TypeError(`Structure check hasn't been rolled yet!`);
 
+  // Check if this is a Monstrosity
+  const isMonstrosity = hasMonstrosityClass(actor);
+
   // Crushing hits
   let one_count = (roll.terms as foundry.dice.terms.Die[])[0].results.filter(v => v.result === 1).length;
   if (one_count > 1) {
-    state.data.title = structTableTitles[0];
-    state.data.desc = structTableDescriptions(roll.total ?? 1, 1);
-    // Subtract the hp which was added in the preStructureRollChecks step.
-    await actor.update({ "system.hp.value": actor.system.hp.value - actor.system.hp.max, "system.structure.value": 0 });
+    if (isMonstrosity) {
+      state.data.title = monstrosityTableTitles[0];
+      state.data.desc = monstrosityTableDescriptions(roll.total ?? 1, 1);
+      await actor.update({
+        "system.hp.value": actor.system.hp.value - actor.system.hp.max,
+        "system.structure.value": 0,
+      });
+    } else {
+      state.data.title = structTableTitles[0];
+      state.data.desc = structTableDescriptions(roll.total ?? 1, 1);
+      await actor.update({
+        "system.hp.value": actor.system.hp.value - actor.system.hp.max,
+        "system.structure.value": 0,
+      });
+    }
   }
 
   return true;
