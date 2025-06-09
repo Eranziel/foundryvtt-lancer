@@ -6,6 +6,13 @@
   "restricted": true,
   "steps": [
     {
+      "id": "importTheLCP",
+      "selector": "button#lcp-manager-button",
+      "title": "lancer.tour.npc.importTheLCP.title",
+      "content": "lancer.tour.npc.importTheLCP.content",
+      "sidebarTab": "compendium"
+    },
+    {
       "id": "compendiumItems",
       "selector": "#sidebar #compendium [data-pack='world.npc-items']",
       "title": "lancer.tour.npc.compendiumItems.title",
@@ -43,6 +50,10 @@
     "lancer.tour.npc": {
       "title": "Building NPCs",
       "description": "Build an NPC after NPC data has been imported.",
+      "importTheLCP": {
+        "title": "Import an NPC LCP",
+        "content": "Before you can build NPCs, you need to import an LCP with NPC data, such as from the <a href=\"https://massif-press.itch.io/corebook-pdf\">Core Book.</a> Open the Compendium Manager and import your NPC LCPs there."
+      },
       "compendiumItems": {
         "title": "NPC Items",
         "content": "Items for building NPCs are located in this compendium pack. This compendium will be empty until an lcp with npc data has been imported."
