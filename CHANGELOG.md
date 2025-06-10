@@ -1,3 +1,9 @@
+# 2.10.2 (2025-06-10)
+
+## Bug Fixes
+
+- Fix a bug causing status description text to not be copied from world/compendium items.
+
 # 2.10.1 (2025-06-09)
 
 ## Bug Fixes
