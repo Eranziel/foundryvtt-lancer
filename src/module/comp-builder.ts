@@ -286,7 +286,7 @@ export async function clearCompendiumData(options = { v1: false }) {
   ui.notifications!.info(`LANCER Compendiums cleared.`);
 }
 
-declare global {
+declare module "fvtt-types/configuration" {
   interface FlagConfig {
     Folder: {
       lancer: {

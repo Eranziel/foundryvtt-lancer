@@ -203,7 +203,7 @@ function handlePilotExport(actor: LegacyLancerActor) {
   // const frame = loadout.frame?.fallback_lid;
   // if (!frame) return; // Throw error in future?
 
-  const items: Collection<Item> = data.items;
+  const items: Collection<Item.Implementation> = data.items;
   const pilot = data.pilot;
   const mech = data.mech;
   const loadout = data.mech_loadout;

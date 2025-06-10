@@ -4,7 +4,7 @@ import type { LancerActor } from "../actor/lancer-actor";
 import { LANCER } from "../config";
 import { getActions, modAction, toggleAction } from "./action-tracker";
 
-declare global {
+declare module "fvtt-types/configuration" {
   interface FlagConfig {
     User: {
       lancer: {

@@ -213,7 +213,7 @@ interface Activations {
   value?: number;
 }
 
-declare global {
+declare module "fvtt-types/configuration" {
   interface FlagConfig {
     Combatant: {
       lancer: {

@@ -60,7 +60,7 @@ type LancerActorProperties =
   | LancerActorDataProperties<EntryType.NPC>
   | LancerActorDataProperties<EntryType.DEPLOYABLE>;
 
-declare global {
+declare module "fvtt-types/configuration" {
   interface SourceConfig {
     Actor: LancerActorSource;
   }

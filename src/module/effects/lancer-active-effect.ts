@@ -325,7 +325,7 @@ Hooks.on(
   }
 );
 
-declare global {
+declare module "fvtt-types/configuration" {
   interface DocumentClassConfig {
     ActiveEffect: typeof LancerActiveEffect;
   }

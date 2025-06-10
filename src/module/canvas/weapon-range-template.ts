@@ -269,7 +269,7 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
   }
 }
 
-declare global {
+declare module "fvtt-types/configuration" {
   interface FlagConfig {
     MeasuredTemplate: {
       lancer: {

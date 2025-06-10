@@ -12,7 +12,7 @@ export class LancerFrameSheet extends LancerItemSheet<EntryType.FRAME> {
    * @override
    * Extend and override the default options used by the generic Lancer item sheet
    */
-  static get defaultOptions(): DocumentSheetOptions<Item> {
+  static get defaultOptions(): DocumentSheetOptions<Item.Implementation> {
     return foundry.utils.mergeObject(super.defaultOptions, {
       width: 700,
       height: 750,

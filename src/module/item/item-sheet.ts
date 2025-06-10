@@ -28,8 +28,8 @@ const lp = LANCER.log_prefix;
  * Extend the basic ItemSheet with some very simple modifications
  * @extends {ItemSheet}
  */
-export class LancerItemSheet<T extends LancerItemType> extends ItemSheet<DocumentSheetOptions<Item>> {
-  constructor(document: LancerItem, options: Partial<DocumentSheetOptions<Item>>) {
+export class LancerItemSheet<T extends LancerItemType> extends ItemSheet<DocumentSheetOptions<Item.Implementation>> {
+  constructor(document: LancerItem, options: Partial<DocumentSheetOptions<Item.Implementation>>) {
     super(document, options);
     if (this.item.is_mech_weapon()) {
       // @ts-expect-error IDK if this even does anything
@@ -45,7 +45,7 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet<Documen
    * @override
    * Extend and override the default options used by the Item Sheet
    */
-  static get defaultOptions(): DocumentSheetOptions<Item> {
+  static get defaultOptions(): DocumentSheetOptions<Item.Implementation> {
     return foundry.utils.mergeObject(super.defaultOptions, {
       classes: ["lancer", "sheet", "item"],
       width: 700,

@@ -87,7 +87,7 @@ type LancerItemProperties =
   | LancerItemDataProperties<EntryType.BOND>
   | LancerItemDataProperties<EntryType.WEAPON_MOD>;
 
-declare global {
+declare module "fvtt-types/configuration" {
   interface SourceConfig {
     Item: LancerItemSource;
   }
