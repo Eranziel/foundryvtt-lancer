@@ -451,7 +451,6 @@ export class LancerItem extends Item {
     if (data?._stats?.createdTime) return;
 
     // If base item has data, then we are probably importing. Skip 90% of our import procedures
-    // @ts-expect-error Should be fixed with v10 types
     if (data.system?.lid) {
       console.log(`${lp} New ${this.type} has data provided from an import, skipping default init.`);
       return;

@@ -94,7 +94,6 @@ export const registerSettings = function () {
     label: "lancer.statusIconsConfig.menu-label",
     hint: "lancer.statusIconsConfig.menu-hint",
     icon: "cci cci-difficulty i--s",
-    // @ts-expect-error
     type: StatusIconConfig,
     restricted: true,
   });
@@ -114,7 +113,6 @@ export const registerSettings = function () {
     label: "lancer.automation.menu-label",
     hint: "lancer.automation.menu-hint",
     icon: "mdi mdi-state-machine",
-    // @ts-expect-error
     type: AutomationConfig,
     restricted: true,
   });
@@ -131,7 +129,6 @@ export const registerSettings = function () {
     label: "lancer.actionTracker.menu-label",
     hint: "lancer.actionTracker.menu-hint",
     icon: "mdi mdi-state-machine",
-    // @ts-expect-error
     type: ActionTrackerConfig,
     restricted: true,
   });
@@ -158,7 +155,6 @@ export const registerSettings = function () {
     scope: "client",
     config: false,
     type: CombatTrackerAppearance,
-    // @ts-expect-error
     onChange: setAppearance,
     default: new CombatTrackerAppearance(),
   });

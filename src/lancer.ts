@@ -167,24 +167,19 @@ Hooks.once("init", () => {
     ],
   };
   CONFIG.Actor.trackableAttributes = {
-    // @ts-expect-error
     base,
-    // @ts-expect-error
     ["deployable"]: {
       bar: [...base.bar],
       value: [...base.value, "cost", "instances"],
     },
-    // @ts-expect-error
     ["mech"]: {
       bar: [...base.bar, "structure", "stress", "repairs"],
       value: [...base.value, "action_tracker.move", "core_energy", "grit", "meltdown_timer", "overcharge"],
     },
-    // @ts-expect-error
     ["npc"]: {
       bar: [...base.bar, "structure", "stress"],
       value: [...base.value, "meltdown_timer", "tier"],
     },
-    // @ts-expect-error
     ["pilot"]: {
       bar: [...base.bar, "bond_state.stress", "bond_state.xp"],
       value: [...base.value, "grit", "level"],

@@ -121,7 +121,6 @@ export class LancerToken extends Token {
   }
 }
 
-// @ts-expect-error v13 types
 export function extendTokenConfig(app: foundry.applications.sheets.TokenConfig, html: HTMLElement) {
   const { token_size } = game.settings.get(game.system.id, LANCER.setting_automation);
   if (!token_size) return;
