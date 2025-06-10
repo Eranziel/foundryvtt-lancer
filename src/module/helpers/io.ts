@@ -36,14 +36,12 @@ export function handleActorExport(actor: LegacyLancerActor | LancerActor, downlo
   // @ts-expect-error Should be fixed with v10 types
   switch (actor.type) {
     case "pilot":
-      // @ts-expect-error I'm just going to assume all of this works but it probably doesn't
       dump = handlePilotExport(actor);
       break;
     case "mech":
       // dump = handlePilotExport(actor);
       break;
     case "npc":
-      // @ts-expect-error I'm just going to assume all of this works but it probably doesn't
       dump = handleNPCExport(actor);
       break;
   }

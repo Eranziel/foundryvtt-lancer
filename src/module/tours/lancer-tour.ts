@@ -40,18 +40,14 @@ export class LancerTour extends (foundry.nue.Tour as typeof Tour) {
   protected async _preStep() {
     await super._preStep();
     if (this.currentStep?.sidebarTab) {
-      // @ts-expect-error V13 types
       if (!ui.sidebar.expanded) {
         const { promise, resolve } = Promise.withResolvers<void>();
         ui.sidebar?.element
-          // @ts-expect-error V13 types
           .querySelector("#sidebar-content")
           .addEventListener("transitionend", resolve, { once: true });
-        // @ts-expect-error V13 types
         ui.sidebar?.changeTab(this.currentStep.sidebarTab, "primary");
         ui.sidebar?.expand();
         await promise;
-        // @ts-expect-error V13 types
       } else ui.sidebar?.changeTab(this.currentStep.sidebarTab, "primary");
     }
   }
@@ -133,7 +129,6 @@ export class LancerPilotTour extends LancerTour {
     if (this.currentStep?.id === "compconLogin") {
       // @ts-expect-error v13 types
       const settings: foundry.applications.api.ApplicationV2 = new foundry.applications.settings.SettingsConfig();
-      // @ts-expect-error v13 types
       await settings.render({ force: true });
       settings.changeTab("system", "categories");
     } else {
