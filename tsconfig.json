@@ -5,6 +5,7 @@
     "experimentalDecorators": true,
     "isolatedModules": false,
     "module": "esnext",
+    "moduleResolution": "Bundler",
     "sourceMap": true,
     "lib": [
       "DOM",
@@ -14,7 +15,6 @@
       "@league-of-foundry-developers/foundry-vtt-types",
       "svelte"
     ],
-    "moduleResolution": "node",
     "strictNullChecks": true,
     "esModuleInterop": true,
     "noEmit": true,
