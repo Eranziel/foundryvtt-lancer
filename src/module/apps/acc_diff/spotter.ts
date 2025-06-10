@@ -80,7 +80,7 @@ const Spotter: AccDiffHudPlugin<AccDiffHudPluginData> = {
     (t: unknown): t is AccDiffHudPluginData => typeof t == "object" && (t as any)?.slug == "spotter",
     spotter
   ),
-  perTarget(_t: Token) {
+  perTarget(_t: Token.Implementation) {
     return spotter();
   },
 };

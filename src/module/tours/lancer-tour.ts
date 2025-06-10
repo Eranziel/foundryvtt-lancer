@@ -1,4 +1,4 @@
-declare global {
+declare module "fvtt-types/configuration" {
   // Extend tourstep
   interface TourStep {
     click?: boolean;

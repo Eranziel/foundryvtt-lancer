@@ -138,7 +138,7 @@ export class LancerItem extends Item {
    * Returns all ranges for the item that match the provided range types
    */
   rangesFor(types: Set<RangeType> | RangeType[]): RangeData[] {
-    const i = null as unknown as Item; // TODO remove
+    const i = null as unknown as Item.Implementation; // TODO remove
 
     const filter = new Set(types);
     switch (this.type) {

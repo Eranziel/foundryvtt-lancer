@@ -18,7 +18,7 @@ import { template_destructible, template_universal_item, template_uses } from ".
 
 const fields = foundry.data.fields;
 
-export class NpcFeatureModel extends LancerDataModel<DataSchema, Item> {
+export class NpcFeatureModel extends LancerDataModel<DataSchema, Item.Implementation> {
   static DEFAULT_ICON = "systems/lancer/assets/icons/npc_feature.svg";
   static getDefaultArtwork(
     itemData?: Parameters<typeof Item.getDefaultArtwork>[0]

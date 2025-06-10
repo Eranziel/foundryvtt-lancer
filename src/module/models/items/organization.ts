@@ -7,7 +7,7 @@ import { template_universal_item } from "./shared";
 
 const fields = foundry.data.fields;
 
-export class OrganizationModel extends LancerDataModel<DataSchema, Item> {
+export class OrganizationModel extends LancerDataModel<DataSchema, Item.Implementation> {
   static DEFAULT_ICON = "systems/lancer/assets/icons/encounter.svg";
   static defineSchema() {
     return {

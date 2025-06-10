@@ -43,7 +43,10 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
    *                     Used to deterimine the character sheet to close as well
    *                     as a default ignore target for Cones and Lines.
    */
-  static fromRange({ type, val }: WeaponRangeTemplate["range"], creator?: Token): WeaponRangeTemplate | null {
+  static fromRange(
+    { type, val }: WeaponRangeTemplate["range"],
+    creator?: Token.Implementation
+  ): WeaponRangeTemplate | null {
     if (!canvas.ready) return null;
     const dist = val;
     if (isNaN(dist)) return null;
@@ -83,7 +86,7 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
           creator: creator?.id,
           ignore: {
             tokens: [RangeType.Blast, RangeType.Burst].includes(type) || !creator ? [] : [creator.id],
-            dispositions: <TokenDocument["disposition"][]>[],
+            dispositions: <TokenDocument.Implementation["disposition"][]>[],
           },
         },
       },
@@ -112,7 +115,7 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
    * @returns A Promise that resolves to the final MeasuredTemplateDocument or
    * rejects when creation is canceled or fails.
    */
-  placeTemplate(): Promise<MeasuredTemplateDocument> {
+  placeTemplate(): Promise<MeasuredTemplateDocument.Implementation> {
     if (!canvas.ready) {
       ui.notifications?.error("Cannot create WeaponRangeTemplate. Canvas is not ready");
       throw new Error("Cannot create WeaponRangeTemplate. Canvas is not ready");
@@ -125,8 +128,8 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
     return this.activatePreviewListeners(initialLayer);
   }
 
-  private activatePreviewListeners(initialLayer: CanvasLayer | null): Promise<MeasuredTemplateDocument> {
-    return new Promise<MeasuredTemplateDocument>((resolve, reject) => {
+  private activatePreviewListeners(initialLayer: CanvasLayer | null): Promise<MeasuredTemplateDocument.Implementation> {
+    return new Promise<MeasuredTemplateDocument.Implementation>((resolve, reject) => {
       const handlers: any = {};
       let moveTime = 0;
 
@@ -276,7 +279,7 @@ declare module "fvtt-types/configuration" {
         range: RangeData;
         creator?: string;
         burstToken?: string;
-        ignore: { tokens: string[]; dispositions: TokenDocument["disposition"][] };
+        ignore: { tokens: string[]; dispositions: TokenDocument.Implementation["disposition"][] };
         isAttack?: boolean;
       };
     };

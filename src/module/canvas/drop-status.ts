@@ -8,7 +8,7 @@ export function dropStatusToCanvas(
   const type: string | undefined = fromUuidSync(data.uuid)?.type;
   if (data.type !== "Item" || type !== "status") return;
   const rect = new PIXI.Rectangle(data.x, data.y, 0, 0);
-  const tokens: Set<Token> = canvas.tokens!.quadtree!.getObjects(rect, {
+  const tokens: Set<Token.Implementation> = canvas.tokens!.quadtree!.getObjects(rect, {
     collisionTest: o => o.t.hitArea!.contains(data.x - o.t.x, data.y - o.t.y),
   }) as any;
   if (tokens.size !== 1 || !tokens.first()?.actor?.isOwner) return;

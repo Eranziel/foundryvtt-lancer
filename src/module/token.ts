@@ -20,18 +20,22 @@ declare module "fvtt-types/configuration" {
 
 /**
  * Extend the base TokenDocument class to implement system-specific HP bar logic.
- * @extends {TokenDocument}
  */
 export class LancerTokenDocument extends TokenDocument {
   _initializeSource(
-    ...[data, options]: Parameters<TokenDocument["_initializeSource"]>
-  ): ReturnType<TokenDocument["_initializeSource"]> {
+    data: TokenDocument.CreateData | this,
+    options: foundry.abstract.DataModel.InitializeSourceOptions
+  ): TokenDocument.Source {
     // @ts-expect-error v13 types
     if (this.parent?.grid.isGridless) data.shape ??= CONST.TOKEN_SHAPES.ELLIPSE_1;
     return super._initializeSource(data as any, options);
   }
 
-  async _preCreate(...[data, options, user]: Parameters<TokenDocument["_preCreate"]>) {
+  protected override _preCreate(
+    data: TokenDocument.CreateData,
+    options: TokenDocument.Database.PreCreateOptions,
+    user: User.Implementation
+  ): Promise<boolean | void> {
     if (
       game.settings.get(game.system.id, LANCER.setting_automation).token_size &&
       // @ts-expect-error Figure out how to define flags
@@ -87,7 +91,6 @@ export class LancerTokenDocument extends TokenDocument {
 
 /**
  * Extend the base Token class to implement additional system-specific logic.
- * @extends {Token}
  */
 export class LancerToken extends Token {
   constructor(document: LancerTokenDocument) {

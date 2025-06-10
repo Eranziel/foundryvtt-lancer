@@ -22,7 +22,7 @@ import {
 
 const fields = foundry.data.fields;
 
-export class WeaponModModel extends LancerDataModel<DataSchema, Item> {
+export class WeaponModModel extends LancerDataModel<DataSchema, Item.Implementation> {
   static DEFAULT_ICON = "systems/lancer/assets/icons/weapon_mod.svg";
   static defineSchema() {
     return {

@@ -258,7 +258,7 @@ export class DamageHudTarget {
   }
 
   static fromParams(
-    t: Token,
+    t: Token.Implementation,
     data?: {
       quality?: HitQuality;
       ap?: boolean;
@@ -397,7 +397,7 @@ export class DamageHudData {
     }
   }
 
-  replaceTargets(ts: Token[]): DamageHudData {
+  replaceTargets(ts: Token.Implementation[]): DamageHudData {
     let oldTargets: { [key: string]: DamageHudTarget } = {};
     for (let data of this.targets) {
       oldTargets[data.target.id] = data;
