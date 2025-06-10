@@ -1,3 +1,9 @@
+# 2.10.3 (2025-06-10)
+
+## Bug Fixes
+
+- Fix another bug causing the stat change for Stunned to not be applied.
+
 # 2.10.2 (2025-06-10)
 
 ## Bug Fixes
