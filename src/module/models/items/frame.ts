@@ -1,4 +1,4 @@
-import type { DeepPartial } from "@league-of-foundry-developers/foundry-vtt-types/src/types/utils.mjs";
+import type { DeepPartial } from "fvtt-types/utils";
 import { frameToPath } from "../../actor/retrograde-map";
 import { ActivationType, EntryType, FrameEffectUse, MechType, MountType } from "../../enums";
 import { restrict_enum } from "../../helpers/commons";

@@ -1,6 +1,6 @@
 // Migration utility functions
 
-import type { DeepPartial } from "@league-of-foundry-developers/foundry-vtt-types/src/types/utils.mjs";
+import type { DeepPartial } from "fvtt-types/utils";
 import type { SourceData, SourceTemplates } from "../source-template";
 import type { PackedNpcClassStats } from "./unpacking/packed-types";
 

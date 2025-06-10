@@ -1,6 +1,6 @@
 import { template_heat, template_statuses, template_universal_actor } from "./shared";
 
-import type { DeepPartial } from "@league-of-foundry-developers/foundry-vtt-types/src/types/utils.mjs";
+import type { DeepPartial } from "fvtt-types/utils";
 import { ActivationType, DeployableType, EntryType } from "../../enums";
 import { restrict_enum } from "../../helpers/commons";
 import { SourceData } from "../../source-template";

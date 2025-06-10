@@ -1,4 +1,4 @@
-import type { DeepPartial } from "@league-of-foundry-developers/foundry-vtt-types/src/types/utils.mjs";
+import type { DeepPartial } from "fvtt-types/utils";
 import { LANCER, friendly_entrytype_name } from "../config";
 import { EntryType, NpcFeatureType } from "../enums";
 import { SourceData } from "../source-template";

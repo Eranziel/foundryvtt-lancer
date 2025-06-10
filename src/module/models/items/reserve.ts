@@ -1,4 +1,4 @@
-import type { DeepPartial } from "@league-of-foundry-developers/foundry-vtt-types/src/types/utils.mjs";
+import type { DeepPartial } from "fvtt-types/utils";
 import { EntryType, ReserveType } from "../../enums";
 import { restrict_enum } from "../../helpers/commons";
 import { SourceData } from "../../source-template";

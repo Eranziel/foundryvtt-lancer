@@ -1,10 +1,5 @@
-import type { AnyDocument } from "@league-of-foundry-developers/foundry-vtt-types/src/foundry/client/data/abstract/client-document.mjs";
-import type {
-  AnyObject,
-  DeepPartial,
-  EmptyObject,
-  SimpleMerge,
-} from "@league-of-foundry-developers/foundry-vtt-types/src/types/utils.mjs";
+import type { AnyDocument } from "fvtt-types/src/foundry/client/data/abstract/client-document.mjs";
+import type { AnyObject, DeepPartial, EmptyObject, SimpleMerge } from "fvtt-types/utils";
 import { LancerActor } from "../actor/lancer-actor";
 import { DamageType, EntryType, RangeType, SystemType, WeaponSize, WeaponType } from "../enums";
 import { formatDotpath } from "../helpers/commons";

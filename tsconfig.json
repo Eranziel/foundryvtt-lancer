@@ -12,7 +12,7 @@
       "ESNext"
     ],
     "types": [
-      "@league-of-foundry-developers/foundry-vtt-types",
+      "fvtt-types",
       "svelte"
     ],
     "strictNullChecks": true,

@@ -57,7 +57,7 @@ interface LancerInitiativeConfig<T extends string = string> {
   sort?: boolean;
 }
 
-declare module "@league-of-foundry-developers/foundry-vtt-types/configuration" {
+declare module "fvtt-types/configuration" {
   interface AssumeHookRan {
     ready: true;
   }
