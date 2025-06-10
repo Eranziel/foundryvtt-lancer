@@ -5,7 +5,7 @@ export const userTargets = readable([] as Token.Implementation[], update => {
     update(Array.from(game!.user!.targets));
   }
 
-  Hooks.on("targetToken", (user: User, _token: Token, _isNewTarget: boolean) => {
+  Hooks.on("targetToken", (user, _token, _isNewTarget) => {
     if (user.isSelf) {
       updateData();
     }
@@ -13,8 +13,8 @@ export const userTargets = readable([] as Token.Implementation[], update => {
   Hooks.on("createActiveEffect", updateData);
   Hooks.on("deleteActiveEffect", updateData);
   // updateToken triggers on things like token movement (spotter) and probably a lot of other things
-  Hooks.on<Hooks.UpdateDocument<typeof TokenDocument>>("updateToken", token => {
-    // If there's an anmiation, update when it finishes, otherwise just update
+  Hooks.on("updateToken", token => {
+    // If there's an animation, update when it finishes, otherwise just update
     CanvasAnimation.getAnimation(token.object?.animationName!)?.promise.then(() => updateData()) ?? updateData();
   });
 });

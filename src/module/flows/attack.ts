@@ -528,7 +528,7 @@ export async function printAttackCard(
 }
 
 // If user is GM, apply status changes to attacked tokens
-Hooks.on("createChatMessage", async (cm: ChatMessage, options: any, id: string) => {
+Hooks.on("createChatMessage", async (cm, options, id) => {
   // Consume lock-on if we are the primary GM
   if (!game.users?.activeGM?.isSelf) return;
   const atkData = cm.getFlag(game.system.id, "attackData");
