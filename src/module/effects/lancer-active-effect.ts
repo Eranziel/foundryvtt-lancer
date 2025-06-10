@@ -252,13 +252,21 @@ export class LancerActiveEffect extends ActiveEffect {
       if (!status.is_status() || !status.system.lid || !status.img) continue;
       const existingStatus = CONFIG.statusEffects.find(s => s.id === status.system.lid);
       if (!existingStatus) {
+        const effects = [...status.effects];
+        const changes =
+          effects.length > 0
+            ? effects.reduce((e, all) => {
+                // @ts-expect-error TS is dumb about reduce
+                return all.concat(e.changes || []);
+              }, [])
+            : [];
         CONFIG.statusEffects.push({
           id: status.system.lid,
           name: status.name,
           // @ts-expect-error v12 property renamed
           img: status.img,
           description: status.system.effects,
-          changes: [...status.effects][0].changes || [],
+          changes,
         });
       } else {
         // @ts-expect-error v12 property renamed
