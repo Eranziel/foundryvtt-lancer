@@ -545,7 +545,7 @@ export class CombatTrackerAppearance extends foundry.abstract.DataModel<CombatTr
 
 //
 // > GLOBALS
-declare global {
+declare module "fvtt-types/configuration" {
   interface DocumentClassConfig {
     Combat: typeof LancerCombat;
     Combatant: typeof LancerCombatant;
