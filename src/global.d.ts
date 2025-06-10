@@ -37,6 +37,7 @@ interface LancerInitiativeConfig<T extends string = string> {
    * omitted if LancerCombatTracker is not used.
    */
   templatePath?: string;
+
   /**
    * Whether to enable the initiative rolling buttons in the tracker. Only
    * needed if LancerCombatTracker or a subclass is used for the tracker and
@@ -44,6 +45,7 @@ interface LancerInitiativeConfig<T extends string = string> {
    * @defaultValue `false`
    */
   enable_initiative?: boolean;
+
   /**
    * Whether to sort the displayed combat tracker based on activation status.
    * If enabled, the active unit is displayed on the top and units that have
@@ -55,15 +57,9 @@ interface LancerInitiativeConfig<T extends string = string> {
   sort?: boolean;
 }
 
-declare global {
-  // Since we never use these before `init` tell league types that they are
-  // never undefined
-  interface LenientGlobalVariableTypes {
-    game: never;
-    canvas: never;
-  }
+declare module "@league-of-foundry-developers/foundry-vtt-types/configuration" {
   interface AssumeHookRan {
-    ready: never;
+    ready: true;
   }
 
   interface System {
@@ -82,30 +78,30 @@ declare global {
   // TODO: Centralize models to a single namespace
   interface DataModelConfig {
     Actor: {
-      deployable: DeployableModel;
-      mech: MechModel;
-      npc: NpcModel;
-      pilot: PilotModel;
+      deployable: typeof DeployableModel;
+      mech: typeof MechModel;
+      npc: typeof NpcModel;
+      pilot: typeof PilotModel;
     };
     Item: {
-      bond: BondModel;
-      core_bonus: CoreBonusModel;
-      frame: FrameModel;
-      license: LicenseModel;
-      mech_system: MechSystemModel;
-      mech_weapon: MechWeaponModel;
-      npc_class: NpcClassModel;
-      npc_feature: NpcFeatureModel;
-      npc_template: NpcTemplateModel;
-      organization: OrganizationModel;
-      pilot_armor: PilotArmorModel;
-      pilot_gear: PilotGearModel;
-      pilot_weapon: PilotWeaponModel;
-      reserve: ReserveModel;
-      skill: SkillModel;
-      status: StatusModel;
-      talent: TalentModel;
-      weapon_mod: WeaponModModel;
+      bond: typeof BondModel;
+      core_bonus: typeof CoreBonusModel;
+      frame: typeof FrameModel;
+      license: typeof LicenseModel;
+      mech_system: typeof MechSystemModel;
+      mech_weapon: typeof MechWeaponModel;
+      npc_class: typeof NpcClassModel;
+      npc_feature: typeof NpcFeatureModel;
+      npc_template: typeof NpcTemplateModel;
+      organization: typeof OrganizationModel;
+      pilot_armor: typeof PilotArmorModel;
+      pilot_gear: typeof PilotGearModel;
+      pilot_weapon: typeof PilotWeaponModel;
+      reserve: typeof ReserveModel;
+      skill: typeof SkillModel;
+      status: typeof StatusModel;
+      talent: typeof TalentModel;
+      weapon_mod: typeof WeaponModModel;
     };
   }
 
