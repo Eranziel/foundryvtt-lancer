@@ -3,15 +3,14 @@ import { EntryType, WeaponSize, WeaponType } from "../../enums";
 import { restrict_enum } from "../../helpers/commons";
 import { SourceData } from "../../source-template";
 import { PackedMechWeaponData } from "../../util/unpacking/packed-types";
-import { unpackDeployable } from "../actors/deployable";
 import { ActionField, unpackAction } from "../bits/action";
 import { BonusField, unpackBonus } from "../bits/bonus";
 import { CounterField, unpackCounter } from "../bits/counter";
 import { DamageField, unpackDamage } from "../bits/damage";
 import { RangeField, unpackRange } from "../bits/range";
 import { SynergyField, unpackSynergy } from "../bits/synergy";
-import { TagData, TagField, unpackTag } from "../bits/tag";
-import { ControlledLengthArrayField, LIDField, LancerDataModel, UnpackContext } from "../shared";
+import { TagData, TagField } from "../bits/tag";
+import { LIDField, LancerDataModel, UnpackContext } from "../shared";
 import {
   addDeployableTags,
   migrateManufacturer,
@@ -32,7 +31,8 @@ export class MechWeaponModel extends LancerDataModel<DataSchema, Item> {
       sp: new fields.NumberField({ nullable: false, initial: 0 }),
       // @ts-expect-error
       actions: new fields.ArrayField(new ActionField()),
-      profiles: new ControlledLengthArrayField(
+      profiles: new fields.ArrayField(
+        // TODO: Convert to EmbeddedDataField
         new fields.SchemaField({
           name: new fields.StringField({ initial: "Base Profile" }),
           type: new fields.StringField({ choices: Object.values(WeaponType), initial: WeaponType.Rifle }),
@@ -59,7 +59,22 @@ export class MechWeaponModel extends LancerDataModel<DataSchema, Item> {
           // @ts-expect-error
           counters: new fields.ArrayField(new CounterField()),
         }),
-        { length: 1, overflow: true }
+        {
+          min: 1,
+          initial: [
+            {
+              damage: [{ val: "1d6", type: "Kinetic" }],
+              range: [{ type: "Range", val: 5 }],
+              tags: [],
+              skirmishable: true,
+              barrageable: true,
+              actions: [],
+              bonuses: [],
+              synergies: [],
+              counters: [],
+            },
+          ],
+        }
       ),
       loaded: new fields.BooleanField(),
       selected_profile_index: new fields.NumberField({ nullable: false, initial: 0 }),

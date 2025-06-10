@@ -13,7 +13,7 @@ import {
 import { DamageData, DamageField, unpackDamage } from "../bits/damage";
 import { RangeField, unpackRange } from "../bits/range";
 import { TagField, unpackTag } from "../bits/tag";
-import { ControlledLengthArrayField, LancerDataModel, NpcStatBlockField, UnpackContext } from "../shared";
+import { LancerDataModel, NpcStatBlockField, UnpackContext } from "../shared";
 import { template_destructible, template_universal_item, template_uses } from "./shared";
 
 const fields = foundry.data.fields;
@@ -65,9 +65,15 @@ export class NpcFeatureModel extends LancerDataModel<DataSchema, Item> {
       // @ts-expect-error
       range: new fields.ArrayField(new RangeField()),
       on_hit: new fields.HTMLField(),
-      accuracy: new ControlledLengthArrayField(new fields.NumberField({ integer: true, initial: 0 }), { length: 3 }),
-      attack_bonus: new ControlledLengthArrayField(new fields.NumberField({ integer: true, initial: 0 }), {
-        length: 3,
+      accuracy: new fields.ArrayField(new fields.NumberField({ integer: true, initial: 0 }), {
+        min: 3,
+        max: 3,
+        initial: [0, 0, 0],
+      }),
+      attack_bonus: new fields.ArrayField(new fields.NumberField({ integer: true, initial: 0 }), {
+        min: 3,
+        max: 3,
+        initial: [0, 0, 0],
       }),
 
       // Trait - N/A
@@ -97,10 +103,10 @@ export class NpcFeatureModel extends LancerDataModel<DataSchema, Item> {
 
   static migrateData(data: any) {
     // Fix stats
-    if (typeof data.bonus == "object" && !Array.isArray(data.bonus)) {
+    if (data.bonus && typeof data.bonus == "object" && !Array.isArray(data.bonus)) {
       data.bonus = convertNpcStats(data.bonus)[0];
     }
-    if (typeof data.override == "object" && !Array.isArray(data.override)) {
+    if (data.override && typeof data.override == "object" && !Array.isArray(data.override)) {
       data.override = convertNpcStats(data.override)[0];
     }
     // Non-tech features should not have tech_attack

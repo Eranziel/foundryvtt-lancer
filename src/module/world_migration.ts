@@ -23,22 +23,33 @@ const { log_prefix: lp } = LANCER;
  */
 export async function commitDataModelMigrations() {
   // Commit all world documents. Don't bother with packs.
-  await Item.updateDocuments(game.items._source, { diff: false, recursive: false, noHook: true });
-  await Actor.updateDocuments(game.actors._source, { diff: false, recursive: false, noHook: true });
-  await Scene.updateDocuments(game.scenes._source, { diff: false, recursive: false, noHook: true }); // Will innately handle unlinked tokens
+  await Item.updateDocuments(
+    game.items.map(i => i.toObject()),
+    { diff: false, recursive: false, noHook: true }
+  );
+  await Actor.updateDocuments(
+    game.actors.map(a => a.toObject()),
+    { diff: false, recursive: false, noHook: true }
+  );
+  await Scene.updateDocuments(
+    game.scenes.map(s => s.toObject()),
+    { diff: false, recursive: false, noHook: true }
+  ); // Will innately handle unlinked tokens
   ui.notifications?.info("All world Actors, Items, and Scenes migrated and data models cleaned.");
 }
 
 const migrationProgressBarLabel = () => `Migration to v${game.system.version} in progress...`;
 let toMigrate = 1;
 let migrated = 0;
+let migrationNotification: Notification | null = null;
 /**
  * Update the progress bar for the migration
  */
 function migrationProgress(count: number) {
   migrated += count;
-  const percent = Math.floor((migrated / toMigrate) * 100);
-  SceneNavigation.displayProgressBar({ label: migrationProgressBarLabel(), pct: percent });
+  const percent = migrated / toMigrate;
+  // @ts-expect-error v13 types
+  migrationNotification.update({ pct: percent });
 }
 
 /**
@@ -49,6 +60,7 @@ function migrationProgress(count: number) {
 export async function migrateWorld() {
   const curr_version = game.settings.get(game.system.id, LANCER.setting_migration_version);
 
+  migrationNotification = ui.notifications!.info(migrationProgressBarLabel(), { progress: true });
   // Migrate from the pre-2.0 compendium structure the combined compendiums
   if (foundry.utils.isNewerVersion("2.0.0", curr_version)) {
     console.log(`${lp} World is coming from 1.X. Show the migration journal and clear compendiums.`);
@@ -92,7 +104,7 @@ Please refresh the page to try again.</p>`,
           label: "Refresh",
           callback: () => {
             ui.notifications.info("Page reloading in 3 seconds...");
-            setTimeout(() => window.location.reload(false), 3000);
+            setTimeout(() => foundry.utils.debouncedReload(), 3000);
           },
         },
         cancel: {
