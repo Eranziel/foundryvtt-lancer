@@ -1,8 +1,8 @@
 import { LANCER } from "../../config";
 import { ContentSummary } from "../../util/lcps";
 import { IContentPackManifest } from "../../util/unpacking/packed-types";
-import type ApplicationV2 from "@league-of-foundry-developers/foundry-vtt-types/src/foundry/client-esm/applications/api/application.mjs";
-import { DeepPartial } from "@league-of-foundry-developers/foundry-vtt-types/src/types/utils.mjs";
+import type ApplicationV2 from "fvtt-types/src/foundry/client-esm/applications/api/application.mjs";
+import { DeepPartial } from "fvtt-types/src/types/utils.mjs";
 
 const { ApplicationV2: AppV2, HandlebarsApplicationMixin } = foundry.applications.api;
 

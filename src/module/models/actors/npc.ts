@@ -7,7 +7,7 @@ import {
   template_universal_actor,
 } from "./shared";
 
-import type { DeepPartial } from "@league-of-foundry-developers/foundry-vtt-types/src/types/utils.mjs";
+import type { DeepPartial } from "fvtt-types/utils";
 import { SourceData } from "../../source-template";
 import { LancerDataModel } from "../shared";
 

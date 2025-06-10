@@ -1,5 +1,5 @@
-import type BaseGrid from "@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/grid/base.mjs";
-import type { Point } from "@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/types.mjs";
+import type BaseGrid from "fvtt-types/src/foundry/common/grid/base.mjs";
+import type { Point } from "fvtt-types/src/foundry/common/types.mjs";
 import { LANCER } from "./config";
 
 declare global {

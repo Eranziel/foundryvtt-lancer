@@ -33,7 +33,7 @@ import { rollEvalSync, tokenScrollText, TokenScrollTextOptions } from "../util/m
 import { BurnFlow } from "../flows/burn";
 import { createChatMessageStep } from "../flows/_render";
 import { DamageRollFlow } from "../flows/damage";
-import { type DatabaseDeleteOperation } from "@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/abstract/_types.mjs";
+import { type DatabaseDeleteOperation } from "fvtt-types/src/foundry/common/abstract/_types.mjs";
 
 const lp = LANCER.log_prefix;
 

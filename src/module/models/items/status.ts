@@ -1,11 +1,11 @@
-import type { DeepPartial } from "@league-of-foundry-developers/foundry-vtt-types/src/types/utils.mjs";
+import type { DeepPartial } from "fvtt-types/utils";
 import { EntryType } from "../../enums";
 import { restrict_choices } from "../../helpers/commons";
 import { SourceData } from "../../source-template";
 import { PackedStatusData } from "../../util/unpacking/packed-types";
 import { LancerDataModel, UnpackContext } from "../shared";
 import { template_universal_item } from "./shared";
-import { ActiveEffectData } from "@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/documents/_types.mjs";
+import { ActiveEffectData } from "fvtt-types/src/foundry/common/documents/_types.mjs";
 
 const fields = foundry.data.fields;
 

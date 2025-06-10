@@ -1,4 +1,4 @@
-import type { EffectChangeData } from "@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/documents/_types.mjs";
+import type { EffectChangeData } from "fvtt-types/src/foundry/common/documents/_types.mjs";
 import { LancerActor } from "../actor/lancer-actor";
 import { LANCER } from "../config";
 import { DeployableType, EntryType } from "../enums";
