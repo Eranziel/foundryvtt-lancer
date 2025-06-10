@@ -274,7 +274,7 @@ Hooks.once("init", () => {
   if (game.modules!.get("combat-tracker-dock")?.active) {
     (async () => {
       game.lancer.combatTrackerDock = await import("./module/integrations/combat-tracker-dock");
-      Hooks.on("renderCombatDock", (...[_app, html]: Parameters<Hooks.RenderApplication>) => {
+      Hooks.on("renderCombatDock", (_app, html) => {
         html.find(".buttons-container [data-action='roll-all']").hide();
         html.find(".buttons-container [data-action='roll-npc']").hide();
         // html.find(".buttons-container [data-action='previous-turn']").hide();
@@ -367,12 +367,12 @@ Hooks.once("ready", () => {
 Hooks.on("controlToken", () => {
   game.action_manager?.update();
 });
-Hooks.on("updateToken", (_scene: Scene, _token: Token, diff: any, _options: any, _idUser: any) => {
+Hooks.on("updateToken", (_scene, _token, diff, _options, _idUser) => {
   // If it's an X or Y change assume the token is just moving.
   if (diff.hasOwnProperty("y") || diff.hasOwnProperty("x")) return;
   game.action_manager?.update();
 });
-Hooks.on("updateActor", (...[_actor, changes]: Parameters<Hooks.UpdateDocument<typeof Actor>>): void => {
+Hooks.on("updateActor", (_actor, changes): void => {
   game.action_manager?.update();
   triggerStrussFlow(_actor, changes);
 });
@@ -382,13 +382,13 @@ Hooks.on("closeSettingsConfig", () => {
 Hooks.on("getSceneNavigationContext", async () => {
   game.action_manager && (await game.action_manager!.reset());
 });
-Hooks.on("createCombat", (_actor: Actor) => {
+Hooks.on("createCombat", _actor => {
   game.action_manager?.update();
 });
-Hooks.on("deleteCombat", (_actor: Actor) => {
+Hooks.on("deleteCombat", _actor => {
   game.action_manager?.update();
 });
-Hooks.on("updateCombat", (_combat: Combat, changes: object) => {
+Hooks.on("updateCombat", (_combat, changes) => {
   if (
     game.settings.get(game.system.id, LANCER.setting_automation).remove_templates &&
     "turn" in changes &&
@@ -448,17 +448,17 @@ Hooks.on("renderCompendiumDirectory", addLCPManagerButton);
 // });
 
 // For the settings tab
-Hooks.on("renderSettings", async (app: Application, html: HTMLElement) => {
+Hooks.on("renderSettings", async (app, html) => {
   addSettingsButtons(app, html);
 });
 Hooks.on("renderCombatTrackerConfig", extendCombatTrackerConfig);
 
 // Disable token vision and fog exploration by default in scene config
-Hooks.on("preCreateScene", (scene: any) => {
+Hooks.on("preCreateScene", scene => {
   scene.updateSource({ tokenVision: false, "fog.exploration": false });
 });
 
-Hooks.on("renderChatMessageHTML", async (cm: ChatMessage, el: HTMLElement, data: any) => {
+Hooks.on("renderChatMessageHTML", async (cm, el, data) => {
   // TODO: get rid of JQuery?
   const html = $(el);
   // Reapply listeners.
@@ -576,7 +576,7 @@ Hooks.on("renderChatMessageHTML", async (cm: ChatMessage, el: HTMLElement, data:
   handleRefClickOpen(html);
 });
 
-Hooks.on("hotbarDrop", (_bar: any, data: any, slot: number) => {
+Hooks.on("hotbarDrop", (_bar, data, slot) => {
   onHotbarDrop(_bar, data, slot);
 });
 
