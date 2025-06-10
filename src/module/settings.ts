@@ -173,7 +173,7 @@ export const registerSettings = function () {
 };
 
 // > GENERAL AUTOMATION
-interface AutomationOptionsSchema extends DataSchema {
+interface AutomationOptionsSchema extends foundry.data.fields.DataSchema {
   /**
    * Master switch for automation
    * @defaultValue `true`
@@ -289,7 +289,7 @@ export class AutomationOptions extends foundry.abstract.DataModel<AutomationOpti
 /**
  * Object for the various automation settings in the system
  */
-interface ActionTrackerOptionsSchema extends DataSchema {
+interface ActionTrackerOptionsSchema extends foundry.data.fields.DataSchema {
   /**
    * Whether the hotbar should be displayed.
    * @defaultValue `true`
@@ -334,7 +334,7 @@ export class ActionTrackerOptions extends foundry.abstract.DataModel<ActionTrack
 
 //
 // > STATUS ICON CONFIGURATION
-interface StatusIconConfigOptionsSchema extends DataSchema {
+interface StatusIconConfigOptionsSchema extends foundry.data.fields.DataSchema {
   /**
    * Enable the default icon set for conditions & status
    * @defaultValue `true`
@@ -447,7 +447,7 @@ export class StatusIconConfigOptions extends foundry.abstract.DataModel<StatusIc
 // > LANCER INITIATIVE CONFIG
 //
 
-interface CombatTrackerAppearanceSchema extends DataSchema {
+interface CombatTrackerAppearanceSchema extends foundry.data.fields.DataSchema {
   /**
    * Css class to specify the icon
    * @default `cci cci-activate`

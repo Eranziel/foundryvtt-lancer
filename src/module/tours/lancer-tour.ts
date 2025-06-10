@@ -20,8 +20,7 @@ import { ContentSummary } from "../util/lcps";
  * simulate a click on the element before proceeding to the next step if set to
  * true.
  */
-// @ts-expect-error v13 types
-export class LancerTour extends (foundry.nue.Tour as typeof Tour) {
+export class LancerTour extends foundry.nue.Tour {
   exit() {
     super.exit();
     this._tearDown(false);
@@ -132,10 +131,8 @@ export class LancerPilotTour extends LancerTour {
       await settings.render({ force: true });
       settings.changeTab("system", "categories");
     } else {
-      // @ts-expect-error Bypass protected
-      await this.actor?.sheet?._render(true);
-      // @ts-expect-error v11
-      this.actor?.sheet?.activateTab("cloud");
+      await this.actor?.sheet?.["_render"](true);
+      this.actor?.sheet?.["activateTab"]("cloud");
     }
     // Clear selector for non-gm players since by default they don't have the button
     if (this.currentStep?.id === "folders" && !game.user?.isGM) this.currentStep.selector = null!;
@@ -175,14 +172,12 @@ export class LancerNPCTour extends LancerTour {
       });
     }
     const npcSheet = this.npc.sheet;
-    // @ts-expect-error Bypass protected
-    await npcSheet._render(true);
+    await npcSheet?.["_render"](true);
     const el = npcSheet instanceof foundry.applications.api.ApplicationV2 ? npcSheet.element : npcSheet?.element[0];
     el?.classList.add("tour-npc");
     if (["baseFeatures", "optionalFeatures"].includes(this.currentStep?.id!)) {
-      // @ts-expect-error Bypass protected
       const classSheet = this.npc?.system?.class?.sheet;
-      await classSheet?._render(true);
+      await classSheet?.["_render"](true);
       const el =
         classSheet instanceof foundry.applications.api.ApplicationV2 ? classSheet.element : classSheet?.element[0];
       el?.classList.add("tour-class");

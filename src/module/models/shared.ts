@@ -1,4 +1,3 @@
-import type { AnyDocument } from "fvtt-types/src/foundry/client/data/abstract/client-document.mjs";
 import type { AnyObject, DeepPartial, EmptyObject, SimpleMerge } from "fvtt-types/utils";
 import { LancerActor } from "../actor/lancer-actor";
 import { DamageType, EntryType, RangeType, SystemType, WeaponSize, WeaponType } from "../enums";
@@ -7,10 +6,12 @@ import { LancerItem } from "../item/lancer-item";
 import { FullBoundedNum, SourceData } from "../source-template";
 import { SystemTemplates } from "../system-template";
 import { regRefToId, regRefToLid, regRefToUuid } from "../util/migrations";
+
 import fields = foundry.data.fields;
+type AnyDocument = foundry.abstract.Document.Any;
 
 export class LancerDataModel<
-  Schema extends DataSchema,
+  Schema extends foundry.data.fields.DataSchema,
   Parent extends AnyDocument,
   BaseData extends AnyObject = EmptyObject,
   DerivedData extends AnyObject = EmptyObject
@@ -143,7 +144,7 @@ export class LIDField extends fields.StringField {
 }
 
 declare namespace EmbeddedRefField {
-  interface Options extends StringFieldOptions {
+  interface Options extends StringField.Options {
     allowed_types?: EntryType[];
   }
 }
@@ -229,7 +230,7 @@ export class EmbeddedRefField extends fields.StringField<
 }
 
 declare namespace SyncUUIDRefField {
-  interface Options extends StringFieldOptions {
+  interface Options extends StringField.Options {
     allowed_types?: EntryType[];
   }
 }
@@ -329,7 +330,7 @@ export class SyncUUIDRefField extends fields.StringField<
 }
 
 declare namespace FakeBoundedNumberField {
-  interface Options extends NumberFieldOptions {}
+  interface Options extends NumberField.Options {}
   type DefaultOptions = SimpleMerge<
     fields.NumberField.DefaultOptions,
     {
@@ -382,7 +383,7 @@ declare namespace FullBoundedNumberField {
     max?: number;
     initialValue?: number;
   }
-  interface Fields extends DataSchema {
+  interface Fields extends foundry.data.fields.DataSchema {
     min: fields.NumberField<{}>;
     max: fields.NumberField<{}>;
     value: fields.NumberField<{}>;
@@ -496,7 +497,7 @@ export class SystemTypeChecklistField extends ChecklistField<typeof SystemType> 
 }
 
 declare namespace NpcStatBlockField {
-  interface Fields extends DataSchema {
+  interface Fields extends foundry.data.fields.DataSchema {
     activations: fields.NumberField<{}>;
     armor: fields.NumberField<{}>;
     hp: fields.NumberField<{}>;

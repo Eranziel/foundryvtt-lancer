@@ -58,12 +58,12 @@ interface LancerInitiativeConfig<T extends string = string> {
 }
 
 declare module "fvtt-types/configuration" {
-  interface AssumeHookRan {
-    ready: true;
+  interface SystemNameConfig {
+    name: "lancer";
   }
 
-  interface System {
-    id: "lancer";
+  interface AssumeHookRan {
+    ready: true;
   }
 
   interface ReadyGame {

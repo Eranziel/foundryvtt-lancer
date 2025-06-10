@@ -1,4 +1,3 @@
-import type { EffectChangeData } from "fvtt-types/src/foundry/common/documents/_types.mjs";
 import { LancerActor } from "../actor/lancer-actor";
 import { LANCER } from "../config";
 import { DeployableType, EntryType } from "../enums";
@@ -16,6 +15,8 @@ import {
   tommyConditionsStatus,
 } from "../status-icons";
 import { get_pack_id } from "../util/doc";
+
+type EffectChangeData = ActiveEffect.ChangeData;
 
 const lp = LANCER.log_prefix;
 
@@ -260,15 +261,12 @@ export class LancerActiveEffect extends ActiveEffect {
         CONFIG.statusEffects.push({
           id: status.system.lid,
           name: status.name,
-          // @ts-expect-error v12 property renamed
           img: status.img,
           description: status.system.effects,
           changes,
         });
       } else {
-        // @ts-expect-error v12 property renamed
         existingStatus.img = existingStatus.img || existingStatus.icon;
-        // @ts-expect-error v12 property renamed
         existingStatus.img = overwrite ? status.img || existingStatus.img : existingStatus.img || status.img;
         existingStatus.name = overwrite ? status.name || existingStatus.name : existingStatus.name || status.name;
         if (status.system.effects) {

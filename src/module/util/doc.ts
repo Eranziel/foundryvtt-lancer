@@ -187,9 +187,7 @@ export function get_pack_id(et: EntryType): string {
 
 // Retrieve a pack, or create it as necessary
 // async to handle the latter case
-export async function get_pack(
-  type: LancerItemType | LancerActorType
-): Promise<CompendiumCollection<CompendiumCollection.Metadata>> {
+export async function get_pack(type: LancerItemType | LancerActorType): Promise<CompendiumCollection.Any> {
   // Find existing world compendium
   const id = get_pack_id(type);
   let pack = game.packs.get(id);

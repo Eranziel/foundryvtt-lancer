@@ -1,7 +1,8 @@
 // Import TypeScript modules
-import type BaseGrid from "fvtt-types/src/foundry/common/grid/base.mjs";
-import type { Point } from "fvtt-types/src/foundry/common/types.mjs";
 import type { LancerToken } from "../token";
+
+import BaseGrid = foundry.grid.BaseGrid;
+import Point = Canvas.Point;
 
 /**
  * Sets user targets to tokens that are within the highlighted spaces of the

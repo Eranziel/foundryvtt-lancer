@@ -33,7 +33,6 @@ import { rollEvalSync, tokenScrollText, TokenScrollTextOptions } from "../util/m
 import { BurnFlow } from "../flows/burn";
 import { createChatMessageStep } from "../flows/_render";
 import { DamageRollFlow } from "../flows/damage";
-import { type DatabaseDeleteOperation } from "fvtt-types/src/foundry/common/abstract/_types.mjs";
 
 const lp = LANCER.log_prefix;
 
@@ -777,7 +776,7 @@ export class LancerActor extends Actor {
   async _safeDeleteDescendant(
     collection: "Item" | "ActiveEffect",
     effects: ActiveEffect.Implementation[] | LancerItem[],
-    options?: DatabaseDeleteOperation & {} & {}
+    options?: ActiveEffect.Database.DeleteOptions
   ): Promise<any> {
     if (!effects.length) return;
     let toDelete = [];
@@ -858,7 +857,6 @@ export class LancerActor extends Actor {
       new_size = Math.max(1, newFrame.system.base_stats[tier - 1].size);
     }
     if (!new_size) return;
-    // @ts-expect-error
     await this.prototypeToken.update({ height: new_size, width: new_size });
   }
 

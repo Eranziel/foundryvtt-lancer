@@ -69,6 +69,8 @@ import { slugify } from "../util/lid";
 import { TagEditForm } from "../apps/tag-editor";
 import { FullBoundedNum } from "../source-template";
 
+import ContextMenu = foundry.applications.ux.ContextMenu;
+
 /**
  * Handlebars helper for weapon size selector
  */
@@ -100,7 +102,7 @@ export function rangeEditor(path: string, options: HelperOptions): string {
   if (!range) return "";
 
   let icon_html = `<i class="cci ${range.icon} i--m i--dark"></i>`;
-  /* TODO: For a next iteration--would be really nifty to set it up to select images rather than text. 
+  /* TODO: For a next iteration--would be really nifty to set it up to select images rather than text.
     But that seems like a non-trivial task...
     <img class="med-icon" src="../systems/${game.system.id}/assets/icons/range.svg">
     <img class="med-icon" src="../systems/${game.system.id}/assets/icons/aoe_blast.svg">
@@ -359,8 +361,8 @@ export function pilotArmorSlot(armor_path: string, options: HelperOptions): stri
   // Generate commons
   if (!armor) {
     // Make an empty ref. Note that it still has path stuff if we are going to be dropping things here
-    return `<div class="${EntryType.PILOT_ARMOR} ref drop-settable card" 
-                        data-path="${armor_path}" 
+    return `<div class="${EntryType.PILOT_ARMOR} ref drop-settable card"
+                        data-path="${armor_path}"
                         data-accept-types="${EntryType.PILOT_ARMOR}">
           <img class="ref-icon" src="${TypeIcon(EntryType.PILOT_ARMOR)}"></img>
           <span class="major">Equip armor</span>
@@ -382,8 +384,8 @@ export function pilotArmorSlot(armor_path: string, options: HelperOptions): stri
     actions = buildActionArrayHTML(armor, "system.actions");
   }
 
-  return `<div class="set ref drop-settable card clipped-top pilot-armor-compact item lancer-border-primary" 
-                ${ref_params(armor, armor_path)} 
+  return `<div class="set ref drop-settable card clipped-top pilot-armor-compact item lancer-border-primary"
+                ${ref_params(armor, armor_path)}
                 data-accept-types="${EntryType.PILOT_ARMOR}"
                 >
             <div class="lancer-header lancer-primary">
@@ -432,8 +434,8 @@ export function pilotWeaponRefview(weapon_path: string, options: HelperOptions):
   // Generate commons
   if (!weapon) {
     // Make an empty ref. Note that it still has path stuff if we are going to be dropping things here
-    return `<div class="${EntryType.PILOT_WEAPON} ref drop-settable card flexrow" 
-                        data-path="${weapon_path}" 
+    return `<div class="${EntryType.PILOT_WEAPON} ref drop-settable card flexrow"
+                        data-path="${weapon_path}"
                         data-accept-types="${EntryType.PILOT_WEAPON}">
           <img class="ref-icon" src="${TypeIcon(EntryType.PILOT_WEAPON)}"></img>
           <span class="major">Equip weapon</span>
@@ -461,7 +463,7 @@ export function pilotWeaponRefview(weapon_path: string, options: HelperOptions):
   return `<div class="set ${
     EntryType.PILOT_WEAPON
   } ref drop-settable card clipped-top pilot-weapon-compact item lancer-border-weapon"
-    ${ref_params(weapon, weapon_path)} 
+    ${ref_params(weapon, weapon_path)}
     data-accept-types="${EntryType.PILOT_WEAPON}"
   >
     <div class="lancer-header lancer-weapon">
@@ -483,7 +485,7 @@ export function pilotWeaponRefview(weapon_path: string, options: HelperOptions):
         ${rangeArrayView(weapon.system.range, options)}
         <hr class="vsep">
         ${damageArrayView(weapon.system.damage, { ...options, rollable: true })}
-        
+
         ${inc_if(`<hr class="vsep"><div class="uses-wrapper">`, loading || limited)}
         ${loading}
         ${limited}
@@ -504,8 +506,8 @@ export function pilotGearRefview(gear_path: string, options: HelperOptions): str
 
   if (!gear) {
     // Make an empty ref. Note that it still has path stuff if we are going to be dropping things here
-    return `<div class="${EntryType.PILOT_GEAR} ref drop-settable card flexrow" 
-                        data-path="${gear_path}" 
+    return `<div class="${EntryType.PILOT_GEAR} ref drop-settable card flexrow"
+                        data-path="${gear_path}"
                         data-accept-types="${EntryType.PILOT_GEAR}">
           <img class="ref-icon" src="${TypeIcon(EntryType.PILOT_GEAR)}"></img>
           <span class="major">Equip gear</span>
@@ -524,7 +526,7 @@ export function pilotGearRefview(gear_path: string, options: HelperOptions): str
   }
 
   return `<div class="set ${EntryType.PILOT_GEAR} ref drop-settable card clipped-top item lancer-border-system"
-    ${ref_params(gear, gear_path)} 
+    ${ref_params(gear, gear_path)}
     data-accept-types="${EntryType.PILOT_GEAR}"
   >
     <div class="lancer-header lancer-system">
@@ -662,8 +664,8 @@ export function mechLoadoutWeaponSlot(
         : size
       : "any";
     return `
-      <div class="${EntryType.MECH_WEAPON} ref slot drop-settable card flexrow" 
-           data-path="${weapon_path}" 
+      <div class="${EntryType.MECH_WEAPON} ref slot drop-settable card flexrow"
+           data-path="${weapon_path}"
            data-accept-types="${EntryType.MECH_WEAPON}">
         <img class="ref-icon" src="${TypeIcon(EntryType.MECH_WEAPON)}"></img>
         <span class="major">Insert ${slotSize} weapon</span>
@@ -743,7 +745,7 @@ data-action="set" data-action-value="(int)${i}" data-path="${weapon_path}.system
         <a class="lancer-context-menu" data-path="${weapon_path}">
           <i class="fas fa-ellipsis-v"></i>
         </a>
-      </div> 
+      </div>
       <div class="lancer-body collapse" ${collapseParam(collapse, weapon, true)}>
         ${weapon.system.sp ? sp : ""}
         ${profiles}
@@ -763,7 +765,7 @@ data-action="set" data-action-value="(int)${i}" data-path="${weapon_path}.system
           ${limited}
           ${inc_if(`</div>`, loading || limited)}
         </div>
-        
+
         <div class="flexcol">
           ${effect}
           ${on_attack}
@@ -864,12 +866,12 @@ export function manufacturer_ref(source_path: string, options: HelperOptions): s
   // TODO? maybe do a little bit more here, aesthetically speaking
   if (cd) {
     let source = source_!;
-    return `<div class="set ${EntryType.MANUFACTURER} ref ref-card drop-settable" ${ref_params(cd.ref, source_path)}> 
+    return `<div class="set ${EntryType.MANUFACTURER} ref ref-card drop-settable" ${ref_params(cd.ref, source_path)}>
               <h3 class="mfr-name" style="color: ${source!.GetColor(false)};">
                 <i class="i--m cci ${source.Logo}"></i>
                 ${source!.LID}
               </h3>
-                
+
             </div>
         `;
   } else {
@@ -1043,7 +1045,7 @@ export function buildActionHTML(
         <div>
           ${chip}
           <div>
-            <div class="overline">${game.i18n.localize("lancer.chat-card.label.trigger")}</div> 
+            <div class="overline">${game.i18n.localize("lancer.chat-card.label.trigger")}</div>
             ${action.trigger || defaultPlaceholder}
             <div class="overline">${game.i18n.localize("lancer.chat-card.label.effect")} ${editDetails}</div>
             ${action.detail || defaultPlaceholder}
@@ -1508,7 +1510,7 @@ function _handleContextMenus(
   const dd = (html: JQuery) => (path(html) ? drilldownDocument(doc, path(html)!) : null);
 
   // Renders the sheet for the document referenced at data-path
-  let edit: ContextMenuEntry = {
+  let edit: ContextMenu.Entry<JQuery> = {
     name: view_only ? "View" : "Edit",
     icon: view_only ? `<i class="fas fa-eye"></i>` : `<i class="fas fa-edit"></i>`,
     callback: html => {
@@ -1529,7 +1531,7 @@ function _handleContextMenus(
 
   // Special case for NPC class/template features. They only track the uuid
   // of the feature documents, so we need to handle them differently.
-  let editRefItem: ContextMenuEntry = {
+  let editRefItem: ContextMenu.Entry<JQuery> = {
     name: view_only ? "View" : "Edit",
     icon: view_only ? `<i class="fas fa-eye"></i>` : `<i class="fas fa-edit"></i>`,
     callback: html => {
@@ -1557,7 +1559,7 @@ function _handleContextMenus(
   };
 
   // Renders the editor for the effect referenced at data-path
-  let editEffect: ContextMenuEntry = {
+  let editEffect: ContextMenu.Entry<JQuery> = {
     name: view_only ? "View" : "Edit",
     icon: view_only ? `<i class="fas fa-eye"></i>` : `<i class="fas fa-edit"></i>`,
     callback: html => {
@@ -1578,7 +1580,7 @@ function _handleContextMenus(
   };
 
   // Toggle destroyed status, for items that support it
-  let repairItem: ContextMenuEntry = {
+  let repairItem: ContextMenu.Entry<JQuery> = {
     name: "Mark Repaired",
     icon: `<i class="fas fa-fw fa-wrench"></i>`,
     callback: html => {
@@ -1610,7 +1612,7 @@ function _handleContextMenus(
   };
 
   // Toggle destroyed status, for items that support it
-  let destroyItem: ContextMenuEntry = {
+  let destroyItem: ContextMenu.Entry<JQuery> = {
     name: "Mark Destroyed",
     icon: `<i class="cci cci-eclipse"></i>`,
     callback: html => {
@@ -1642,7 +1644,7 @@ function _handleContextMenus(
   };
 
   // Fully delete a document
-  let deleteDocument: ContextMenuEntry = {
+  let deleteDocument: ContextMenu.Entry<JQuery> = {
     name: "Delete Document",
     icon: '<i class="fas fa-fw fa-trash"></i>',
     callback: async (html: JQuery) => {
@@ -1663,7 +1665,7 @@ function _handleContextMenus(
 
   // Sets a reference to null
   // Logic elsewhere will clean up the array item (if any) if said array item would be problematic left blank
-  let clearReference: ContextMenuEntry = {
+  let clearReference: ContextMenu.Entry<JQuery> = {
     name: "Unlink",
     icon: '<i class="fas fa-times"></i>',
     callback: async (html: JQuery) => {
@@ -1689,7 +1691,7 @@ function _handleContextMenus(
   };
 
   // Remove an array item (e.x. a counter, tag, or weapon profile)
-  let arrayRemove: ContextMenuEntry = {
+  let arrayRemove: ContextMenu.Entry<JQuery> = {
     name: "Remove",
     icon: '<i class="fas fa-fw fa-trash"></i>',
     callback: html => {
@@ -1718,7 +1720,7 @@ function _handleContextMenus(
   };
 
   // Summon counter editor dialogue
-  let editCounter: ContextMenuEntry = {
+  let editCounter: ContextMenu.Entry<JQuery> = {
     name: "Edit",
     icon: `<i class="fas fa-edit"></i>`,
     callback: html => {
@@ -1730,7 +1732,7 @@ function _handleContextMenus(
   };
 
   // Summon a tag editor dialog
-  let editTag: ContextMenuEntry = {
+  let editTag: ContextMenu.Entry<JQuery> = {
     name: "Edit",
     icon: '<i class="fas fa-edit"></i>',
     callback: html => {
@@ -1750,7 +1752,7 @@ function _handleContextMenus(
   };
 
   // If the "renameSubpath" appears in the dataset, allow simple-prompt to change the name
-  let rename: ContextMenuEntry = {
+  let rename: ContextMenu.Entry<JQuery> = {
     name: "Rename",
     icon: '<i class="fas fa-fw fa-edit"></i>',
     callback: async html => {

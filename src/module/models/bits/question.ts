@@ -1,4 +1,4 @@
-const fields: any = foundry.data.fields;
+import fields = foundry.data.fields;
 
 export interface BondQuestionData {
   question: string;

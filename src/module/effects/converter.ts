@@ -197,7 +197,6 @@ export function pilotInnateEffects(pilot: LancerActor): LancerActiveEffect[] {
           value: pilot.system.level.toString(),
         },
       ],
-      // @ts-expect-error v12 property renamed
       img: pilot.img,
       origin: pilot.uuid,
       flags: {
@@ -230,7 +229,6 @@ export function pilotInnateEffects(pilot: LancerActor): LancerActiveEffect[] {
           value: pilot.system.level.toString(),
         },
       ],
-      // @ts-expect-error
       img: pilot.img,
       origin: pilot.uuid,
       flags: {
@@ -267,7 +265,6 @@ export function npcInnateEffects(npc: LancerActor): LancerActiveEffect[] {
           value: npc.system.tier.toString(),
         },
       ],
-      // @ts-expect-error v12 property renamed
       img: npc.img,
       origin: npc.uuid,
       flags: {

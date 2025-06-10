@@ -5,11 +5,11 @@ import { SourceData } from "../../source-template";
 import { PackedStatusData } from "../../util/unpacking/packed-types";
 import { LancerDataModel, UnpackContext } from "../shared";
 import { template_universal_item } from "./shared";
-import { ActiveEffectData } from "fvtt-types/src/foundry/common/documents/_types.mjs";
 
-const fields = foundry.data.fields;
+import fields = foundry.data.fields;
+import ActiveEffectData = ActiveEffect.InitializedData;
 
-export class StatusModel extends LancerDataModel<DataSchema, Item.Implementation> {
+export class StatusModel extends LancerDataModel<foundry.data.fields.DataSchema, Item.Implementation> {
   static DEFAULT_ICON = "systems/lancer/assets/icons/reticule.svg";
   static defineSchema() {
     return {
@@ -25,7 +25,9 @@ export class StatusModel extends LancerDataModel<DataSchema, Item.Implementation
   }
 
   async _preCreate(
-    ...[data, options, user]: Parameters<LancerDataModel<DataSchema, Item.Implementation>["_preCreate"]>
+    ...[data, options, user]: Parameters<
+      LancerDataModel<foundry.data.fields.DataSchema, Item.Implementation>["_preCreate"]
+    >
   ) {
     const allowed = await super._preCreate(data as any, options, user);
     if (allowed === false) return false;

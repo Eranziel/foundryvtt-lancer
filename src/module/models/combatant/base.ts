@@ -1,7 +1,7 @@
 import fields = foundry.data.fields;
 
 namespace LancerCombatantModel {
-  export interface Schema extends DataSchema {
+  export interface Schema extends foundry.data.fields.DataSchema {
     activations: fields.SchemaField<{
       value: fields.NumberField<{ integer: true }>;
       max: fields.NumberField<{ integer: true }>;

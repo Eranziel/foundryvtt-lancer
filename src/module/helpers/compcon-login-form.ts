@@ -4,7 +4,7 @@ export default class CompconLoginForm extends FormApplication {
   constructor(object?: any, options = {}) {
     super(object, options);
   }
-  static get defaultOptions(): FormApplicationOptions {
+  static get defaultOptions(): FormApplication.Options {
     return {
       ...super.defaultOptions,
       template: `systems/${game.system.id}/templates/window/compcon_login.hbs`,

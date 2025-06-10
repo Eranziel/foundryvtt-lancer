@@ -24,12 +24,12 @@
   "license": "",
   "devDependencies": {
     "@foundryvtt/foundryvtt-cli": "^1.1.0",
-    "fvtt-types": "github:League-of-Foundry-Developers/foundry-vtt-types#main",
     "@sveltejs/vite-plugin-svelte": "^2.4.6",
     "@tsconfig/svelte": "^2.0.1",
     "archiver": "^3.1.1",
     "chalk": "^3.0.0",
     "fs-extra": "^9.1.0",
+    "fvtt-types": "github:League-of-Foundry-Developers/foundry-vtt-types#main",
     "gulp": "^5.0.0",
     "gulp-git": "^2.10.1",
     "husky": "^8.0.1",
