@@ -59,7 +59,7 @@ const deployable_schema = {
 };
 
 type DeployableSchema = typeof deployable_schema;
-export class DeployableModel extends LancerDataModel<DataSchema, Actor.Implementation> {
+export class DeployableModel extends LancerDataModel<foundry.data.fields.DataSchema, Actor.Implementation> {
   static DEFAULT_ICON = "systems/lancer/assets/icons/deployable.svg";
   static defineSchema(): DeployableSchema {
     return deployable_schema;

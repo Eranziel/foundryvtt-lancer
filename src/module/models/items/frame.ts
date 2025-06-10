@@ -90,7 +90,7 @@ const frame_schema = {
   ...template_licensed(),
 };
 
-export class FrameModel extends LancerDataModel<DataSchema, Item.Implementation> {
+export class FrameModel extends LancerDataModel<foundry.data.fields.DataSchema, Item.Implementation> {
   static DEFAULT_ICON = "systems/lancer/assets/icons/mech.svg";
   static defineSchema() {
     return frame_schema;

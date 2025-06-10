@@ -137,7 +137,7 @@ function handleNPCExport(actor: LegacyLancerActor) {
 
   const items = (data as any).items;
   const mech = data.mech;
-  const cla = items.find((item: any) => item.type === "npc_class");
+  const cla = items.find(item => item.type === "npc_class");
   const stats: object = {
     activations: (data as any).activations,
     armor: mech.armor,
@@ -211,8 +211,8 @@ function handlePilotExport(actor: LegacyLancerActor) {
     id: nanoid(),
     name: "Primary",
     armor: items
-      .filter((item: Item) => item.type === "pilot_armor")
-      .map((item: any) => {
+      .filter(item => item.type === "pilot_armor")
+      .map(item => {
         return {
           id: item.system.id,
           uses: item.system.uses ? item.system.uses : 0,
@@ -222,8 +222,8 @@ function handlePilotExport(actor: LegacyLancerActor) {
         };
       }),
     weapons: items
-      .filter((item: Item) => item.type === "pilot_weapon")
-      .map((item: any) => {
+      .filter(item => item.type === "pilot_weapon")
+      .map(item => {
         return {
           id: item.system.id,
           uses: item.system.uses ? item.system.uses : 0,
@@ -233,8 +233,8 @@ function handlePilotExport(actor: LegacyLancerActor) {
         };
       }),
     gear: items
-      .filter((item: Item) => item.type === "pilot_gear")
-      .map((item: any) => {
+      .filter(item => item.type === "pilot_gear")
+      .map(item => {
         return {
           id: item.system.id,
           uses: item.system.uses ? item.system.uses : 0,
@@ -250,8 +250,8 @@ function handlePilotExport(actor: LegacyLancerActor) {
     id: nanoid(),
     name: "Primary",
     systems: items
-      .filter((item: any) => item.type === "mech_system" && !item.integrated)
-      .map((item: any) => {
+      .filter(item => item.type === "mech_system" && !item.integrated)
+      .map(item => {
         return {
           id: item.system.id,
           uses: item.system.uses ? item.system.uses : 0,
@@ -261,8 +261,8 @@ function handlePilotExport(actor: LegacyLancerActor) {
         };
       }),
     integratedSystems: items
-      .filter((item: any) => item.type === "mech_system" && item.integrated)
-      .map((item: any) => {
+      .filter(item => item.type === "mech_system" && item.integrated)
+      .map(item => {
         return {
           id: item.system.id,
           uses: item.system.uses ? item.system.uses : 0,
@@ -271,10 +271,10 @@ function handlePilotExport(actor: LegacyLancerActor) {
           note: "",
         };
       }),
-    mounts: loadout.mounts.filter((mount: any) => mount.type !== "Integrated").map((mount: any) => mapMount(mount)),
+    mounts: loadout.mounts.filter(mount => mount.type !== "Integrated").map(mount => mapMount(mount)),
     integratedMounts: loadout.mounts
-      .filter((mount: any) => mount.type === "Integrated")
-      .map((mount: any) => {
+      .filter(mount => mount.type === "Integrated")
+      .map(mount => {
         return mapWeapon(mount.weapons[0]);
       }),
     improved_armament: { bonus_effects: [], extra: [], lock: false, mount_type: "Flex", slots: [] },
@@ -282,7 +282,7 @@ function handlePilotExport(actor: LegacyLancerActor) {
     superheavy_mounting: { bonus_effects: [], extra: [], lock: false, mount_type: "Superheavy", slots: [] },
   };
 
-  const frame = items.find((item: Item) => item.type === "frame");
+  const frame = items.find(item => item.type === "frame");
   const exportPilot: PackedPilotData = {
     id: nanoid(),
     name: pilot.name,
@@ -313,16 +313,16 @@ function handlePilotExport(actor: LegacyLancerActor) {
     licenses: [],
     sort_index: 0,
     skills: items
-      .filter((item: Item) => item.type === "skill")
-      .map((item: any) => {
+      .filter(item => item.type === "skill")
+      .map(item => {
         return { id: item.system.id, rank: item.system.rank };
       }),
     talents: items
-      .filter((item: Item) => item.type === "talent")
-      .map((item: any) => {
+      .filter(item => item.type === "talent")
+      .map(item => {
         return { id: item.system.id, rank: item.system.rank };
       }),
-    core_bonuses: items.filter((item: Item) => item.type === "core_bonus").map((item: any) => item.system.id),
+    core_bonuses: items.filter(item => item.type === "core_bonus").map(item => item.system.id),
     loadout: pilotLoadout,
     mechs: [
       {
@@ -359,7 +359,7 @@ function handlePilotExport(actor: LegacyLancerActor) {
         portrait: "",
         cloud_portrait: "",
         ejected: false,
-      } as PackedMechData,
+      } satisfies PackedMechData,
     ],
     counter_data: [],
     custom_counters: [],

@@ -2,11 +2,12 @@ import { LANCER } from "../config.js";
 import type { CombatTrackerAppearance } from "../settings.js";
 import type { LancerCombat, LancerCombatant } from "./lancer-combat.js";
 
+import ContextMenu = foundry.applications.ux.ContextMenu;
+
 /**
  * Overrides the display of the combat and turn order tab to add activation
  * buttons and either move or remove the initiative button
  */
-// @ts-expect-error V13 namespacing
 export class LancerCombatTracker extends foundry.applications.sidebar.tabs.CombatTracker {
   static DEFAULT_OPTIONS = {
     actions: {
@@ -15,7 +16,6 @@ export class LancerCombatTracker extends foundry.applications.sidebar.tabs.Comba
     },
   };
   static PARTS = foundry.utils.mergeObject(
-    // @ts-expect-error V13 namespacing
     foundry.applications.sidebar.tabs.CombatTracker.PARTS,
     { tracker: { template: "systems/lancer/templates/combat/tracker.hbs" } },
     { inplace: false }
@@ -114,25 +114,22 @@ export class LancerCombatTracker extends foundry.applications.sidebar.tabs.Comba
     await combatant.modifyCurrentActivations(1);
   }
 
-  protected _getEntryContextOptions(): ContextMenuEntry[] {
+  protected _getEntryContextOptions(): ContextMenu.Entry<HTMLLIElement>[] {
     const getCombatant = (li: HTMLLIElement) => this.viewed.combatants.get(li.dataset.combatantId!);
-    const m: ContextMenuEntry[] = [
+    const m: ContextMenu.Entry<HTMLLIElement>[] = [
       {
         name: "LANCERINITIATIVE.AddActivation",
         icon: '<i class="fas fa-plus"></i>',
-        // @ts-expect-error v13 jquery deprecation
         callback: (li: HTMLLIElement) => getCombatant(li)?.addActivations(1),
       },
       {
         name: "LANCERINITIATIVE.RemoveActivation",
         icon: '<i class="fas fa-minus"></i>',
-        // @ts-expect-error v13 jquery deprecation
         callback: (li: HTMLLIElement) => getCombatant(li)?.addActivations(-1),
       },
       {
         name: "LANCERINITIATIVE.UndoActivation",
         icon: '<i class="fas fa-undo"></i>',
-        // @ts-expect-error v13 jquery deprecation
         callback: (li: HTMLLIElement) =>
           this.viewed
             .deactivateCombatant(li.dataset.combatantId!)

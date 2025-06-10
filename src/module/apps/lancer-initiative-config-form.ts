@@ -74,7 +74,6 @@ export function extendCombatTrackerConfig(app: foundry.applications.api.Applicat
   button.addEventListener("click", ev => {
     ev.preventDefault();
     ev.stopPropagation();
-    // @ts-expect-error v12
     new LancerInitiativeConfigApp().render(true);
   });
   const group = foundry.applications.fields.createFormGroup({

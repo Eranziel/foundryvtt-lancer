@@ -9,6 +9,8 @@ import { LancerActor } from "../actor/lancer-actor";
 import { LancerItem } from "../item/lancer-item";
 import { slugify } from "../util/lid";
 
+import ContextMenu = foundry.applications.ux.ContextMenu;
+
 export const defaultPlaceholder = "// MISSING ENTRY //";
 
 // A shorthand for only including the first string if the second value is truthy
@@ -174,7 +176,7 @@ export class IconFactory {
     dark?: boolean; // Force icon black
     size?: "xs" | "s" | "sm" | "m" | "l" | "xl";
     /*
-    This arg a bit fancy. 
+    This arg a bit fancy.
     - Can be left unset, in which case you'll invoke r with a fairly conventional r("cci cci-heat"), for example.
     - Can be set with the icon grouping, e.x. "cci", in which case one would only have to supply r("cci-heat")
     - Can be set with icon grouping and glyph prefix, e.x. "cci,cci" in which case it will automatically prefix any params to arg with the prefix. So, can do r("heat")
@@ -720,7 +722,7 @@ function std_input(path: string, type: string, options: HelperOptions) {
   if (label) {
     return `
     <label class="flexrow no-wrap flex-center ${label_classes}">
-      <span class="no-grow" style="padding: 2px 5px;">${label}</span> 
+      <span class="no-grow" style="padding: 2px 5px;">${label}</span>
       ${input}
     </label>`;
   } else {
@@ -916,7 +918,7 @@ export function read_form(form_element: HTMLFormElement): Record<string, string 
  */
 export function createContextMenu(
   parent: JQuery<HTMLElement>,
-  options: ContextMenuEntry[],
+  options: ContextMenu.Entry<JQuery>[],
   onSelectAny?: () => void
 ): Element {
   let menu = $(`<div class="lancer-context-menu flexcol" />`);
@@ -937,7 +939,11 @@ export function createContextMenu(
  * @param event_types JQuery event types to trigger showing the context menu.
  * @param options Array of context menu items.
  */
-export function tippyContextMenu(targets: JQuery<HTMLElement>, event_types: string, options: ContextMenuEntry[]): void {
+export function tippyContextMenu(
+  targets: JQuery<HTMLElement>,
+  event_types: string,
+  options: ContextMenu.Entry<JQuery>[]
+): void {
   targets.each((_, _target) => {
     let target = $(_target);
 

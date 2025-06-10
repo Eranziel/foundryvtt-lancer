@@ -4,7 +4,8 @@ import type { AccDiffHudData, AccDiffHudTarget } from "./index";
 import type { LancerActor, LancerMECH, LancerPILOT } from "../../actor/lancer-actor";
 import type { LancerToken } from "../../token";
 import { LancerTALENT } from "../../item/lancer-item";
-import type BaseGrid from "fvtt-types/src/foundry/common/grid/base.mjs";
+
+import BaseGrid = foundry.base.BaseGrid;
 
 // this is an example of a case implemented without defining a full class
 function adjacentSpotter(actor: LancerActor): boolean {

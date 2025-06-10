@@ -22,7 +22,7 @@ import {
 
 const fields = foundry.data.fields;
 
-export class MechWeaponModel extends LancerDataModel<DataSchema, Item.Implementation> {
+export class MechWeaponModel extends LancerDataModel<foundry.data.fields.DataSchema, Item.Implementation> {
   static DEFAULT_ICON = "systems/lancer/assets/icons/mech_weapon.svg";
   static defineSchema() {
     return {

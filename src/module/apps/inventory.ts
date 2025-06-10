@@ -11,7 +11,7 @@ interface FilledCategory {
 
 export interface InventoryDialogData {
   content: string;
-  buttons: Record<string, DialogButton>;
+  buttons: Record<string, Dialog.Button>;
   categories: FilledCategory[];
 }
 
@@ -20,7 +20,7 @@ export interface InventoryDialogData {
  * @extends {Dialog}
  */
 export class InventoryDialog extends Dialog {
-  constructor(readonly actor: LancerActor, dialogData: DialogData, options: Partial<DialogOptions> = {}) {
+  constructor(readonly actor: LancerActor, dialogData: Dialog.Data, options: Partial<Dialog.Options> = {}) {
     super(dialogData, options);
     this.actor = actor;
   }
@@ -28,7 +28,7 @@ export class InventoryDialog extends Dialog {
   /* -------------------------------------------- */
 
   /** @override */
-  static get defaultOptions(): DialogOptions {
+  static get defaultOptions(): Dialog.Options {
     return foundry.utils.mergeObject(super.defaultOptions, {
       template: `systems/${game.system.id}/templates/window/inventory.hbs`,
       width: 600,

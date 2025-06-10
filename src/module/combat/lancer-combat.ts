@@ -12,7 +12,7 @@ export class LancerCombat extends Combat {
   }
 
   protected override async _preCreate(
-    ...[data, options, user]: Parameters<Combat.Implementation["_preCreate"]>
+    ...[data, options, user]: Parameters<Combat["_preCreate"]>
   ): Promise<boolean | void> {
     this.updateSource({ turn: null });
     return super._preCreate(data, options, user);
@@ -104,7 +104,7 @@ export class LancerCombat extends Combat {
   /**
    * Filter out next up turn notifications sound since the next up isn't deterministic
    */
-  override _playCombatSound(...[announcement]: Parameters<Combat.Implementation["_playCombatSound"]>) {
+  override _playCombatSound(...[announcement]: Parameters<Combat["_playCombatSound"]>) {
     if (announcement === "nextUp") return;
     return super._playCombatSound(announcement);
   }

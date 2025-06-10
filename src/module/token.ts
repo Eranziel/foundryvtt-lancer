@@ -1,6 +1,7 @@
-import type BaseGrid from "fvtt-types/src/foundry/common/grid/base.mjs";
-import type { Point } from "fvtt-types/src/foundry/common/types.mjs";
 import { LANCER } from "./config";
+
+import BaseGrid = foundry.grid.BaseGrid;
+import Point = Canvas.Point;
 
 declare module "fvtt-types/configuration" {
   interface DocumentClassConfig {
@@ -38,7 +39,6 @@ export class LancerTokenDocument extends TokenDocument {
   ): Promise<boolean | void> {
     if (
       game.settings.get(game.system.id, LANCER.setting_automation).token_size &&
-      // @ts-expect-error Figure out how to define flags
       !this.getFlag(game.system.id, "manual_token_size")
     ) {
       const new_size = Math.max(1, this.actor?.system.size ?? 1);
@@ -52,7 +52,6 @@ export class LancerTokenDocument extends TokenDocument {
 
     if (
       game.settings.get(game.system.id, LANCER.setting_automation).token_size &&
-      // @ts-expect-error Figure out how to define flags
       !this.getFlag(game.system.id, "manual_token_size")
     ) {
       let new_size = this.actor ? Math.max(1, this.actor.system.size) : undefined;

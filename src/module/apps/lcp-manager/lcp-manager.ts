@@ -1,10 +1,10 @@
 import { LANCER } from "../../config";
 import { ContentSummary } from "../../util/lcps";
 import { IContentPackManifest } from "../../util/unpacking/packed-types";
-import type ApplicationV2 from "fvtt-types/src/foundry/client-esm/applications/api/application.mjs";
-import { DeepPartial } from "fvtt-types/src/types/utils.mjs";
+import { DeepPartial } from "fvtt-types/utils";
 
-const { ApplicationV2: AppV2, HandlebarsApplicationMixin } = foundry.applications.api;
+import ApplicationV2 = foundry.applications.api.ApplicationV2;
+import HandlebarsApplicationMixin = foundry.applications.api.HandlebarsApplicationMixin;
 
 const lp = LANCER.log_prefix;
 
@@ -73,7 +73,7 @@ export class LCPIndex {
   }
 }
 
-export class LCPManager extends HandlebarsApplicationMixin(AppV2) {
+export class LCPManager extends HandlebarsApplicationMixin(ApplicationV2) {
   component: any = null;
   renderPromise: Promise<void> | null = null;
 
