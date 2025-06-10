@@ -1,3 +1,9 @@
+# 2.10.1 (2025-06-09)
+
+## Bug Fixes
+
+- Fix a bug causing world/compendium status items to not be included in the token status menu.
+
 # 2.10.0 (2025-06-08)
 
 ## Features
