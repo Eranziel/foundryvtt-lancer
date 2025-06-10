@@ -253,13 +253,10 @@ export class LancerActiveEffect extends ActiveEffect {
       const existingStatus = CONFIG.statusEffects.find(s => s.id === status.system.lid);
       if (!existingStatus) {
         const effects = [...status.effects];
-        const changes =
-          effects.length > 0
-            ? effects.reduce((e, all) => {
-                // @ts-expect-error TS is dumb about reduce
-                return all.concat(e.changes || []);
-              }, [])
-            : [];
+        const changes = effects.reduce((all, e) => {
+          // @ts-expect-error TS is dumb about reduce
+          return all.concat(e.changes || []);
+        }, []);
         CONFIG.statusEffects.push({
           id: status.system.lid,
           name: status.name,
@@ -291,13 +288,10 @@ export class LancerActiveEffect extends ActiveEffect {
         // If not overwriting, insert the changes if the existing status doesn't have any changes.
         else if (!existingStatus.changes && status.effects.size) {
           const effects = [...status.effects];
-          const changes =
-            effects.length > 0
-              ? effects.reduce((e, all) => {
-                  // @ts-expect-error TS is dumb about reduce
-                  return all.concat(e.changes || []);
-                }, [])
-              : [];
+          const changes = effects.reduce((all, e) => {
+            // @ts-expect-error TS is dumb about reduce
+            return all.concat(e.changes || []);
+          }, []);
           existingStatus.changes = changes;
         }
       }
