@@ -67,7 +67,7 @@ export async function migrateWorld() {
     // Show the migration journal if the world is coming from 1.X.
     const journals = await game.packs.get("lancer.lancer_info")?.getDocuments({ name: "LANCER System Information" });
     if (journals.length) {
-      const systemInfo = journals[0] as JournalEntry;
+      const systemInfo = journals[0]!;
       const migrationPage = systemInfo.pages.find(p => p.name.startsWith("Migrating"));
       await systemInfo.sheet?.render(true);
       const showPage = async () => {
@@ -115,7 +115,7 @@ Please refresh the page to try again.</p>`,
     }).render(true);
   }
 
-  function reduceScene(total: number, scene: Scene) {
+  function reduceScene(total: number, scene: Scene.Implementation) {
     return (
       total +
       scene.tokens.contents.reduce((t2, token) => {
@@ -219,7 +219,7 @@ export async function migrateCompendium(pack: Compendium) {
     }
   } else if (pack.documentName == "Scene") {
     try {
-      let documents = (await pack.getDocuments()) as Scene[];
+      let documents = (await pack.getDocuments()) as Scene.Implementation[];
       let updates = await Promise.all(documents.map(migrateScene));
       await Scene.updateDocuments(updates, { pack: pack.collection, diff: false, recursive: false, noHook: true });
     } catch (e) {
@@ -321,7 +321,7 @@ export async function migrateItem(item: LancerItem): Promise<object> {
  * Doesn't actually update the scene, in most cases, just its embedded documents
  * @param scene  The Scene data to update
  */
-export async function migrateScene(scene: Scene) {
+export async function migrateScene(scene: Scene.Implementation) {
   try {
     for (let token of scene.tokens.contents) {
       try {

@@ -15,7 +15,7 @@ export class LancerNPCClassSheet extends LancerItemSheet<EntryType.NPC_CLASS | E
    * @override
    * Extend and override the default options used by the generic Lancer item sheet
    */
-  static get defaultOptions(): DocumentSheetOptions<Item> {
+  static get defaultOptions(): DocumentSheetOptions<Item.Implementation> {
     return foundry.utils.mergeObject(super.defaultOptions, {
       width: 900,
       height: 750,

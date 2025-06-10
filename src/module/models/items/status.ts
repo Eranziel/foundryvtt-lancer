@@ -9,7 +9,7 @@ import { ActiveEffectData } from "fvtt-types/src/foundry/common/documents/_types
 
 const fields = foundry.data.fields;
 
-export class StatusModel extends LancerDataModel<DataSchema, Item> {
+export class StatusModel extends LancerDataModel<DataSchema, Item.Implementation> {
   static DEFAULT_ICON = "systems/lancer/assets/icons/reticule.svg";
   static defineSchema() {
     return {
@@ -24,7 +24,9 @@ export class StatusModel extends LancerDataModel<DataSchema, Item> {
     return super.migrateData(data);
   }
 
-  async _preCreate(...[data, options, user]: Parameters<LancerDataModel<DataSchema, Item>["_preCreate"]>) {
+  async _preCreate(
+    ...[data, options, user]: Parameters<LancerDataModel<DataSchema, Item.Implementation>["_preCreate"]>
+  ) {
     const allowed = await super._preCreate(data as any, options, user);
     if (allowed === false) return false;
     // Apply the corresponding status instead of creating the item if it's being created as embedded

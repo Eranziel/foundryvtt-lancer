@@ -10,7 +10,10 @@ namespace LancerCombatantModel {
   }
 }
 
-export class LancerCombatantModel extends foundry.abstract.TypeDataModel<LancerCombatantModel.Schema, Combatant> {
+export class LancerCombatantModel extends foundry.abstract.TypeDataModel<
+  LancerCombatantModel.Schema,
+  Combatant.Implementation
+> {
   static defineSchema(): LancerCombatantModel.Schema {
     return {
       activations: new fields.SchemaField({

@@ -384,8 +384,8 @@ export interface TerrainHeightToolsAPI {
    * @param  options Options that change how the calculation is done.
    */
   calculateLineOfSightRaysBetweenTokens(
-    token1: Token,
-    token2: Token,
+    token1: Token.Implementation,
+    token2: Token.Implementation,
     {
       token1RelativeHeight,
       token2RelativeHeight,
@@ -460,8 +460,8 @@ export interface TerrainHeightToolsAPI {
    * @param options Options that change how the calculation is done.
    */
   drawLineOfSightRaysBetweenTokens(
-    token1: Token,
-    token2: Token,
+    token1: Token.Implementation,
+    token2: Token.Implementation,
     options?: {
       /**
        * How far the ray starts vertically relative to token1. The height is

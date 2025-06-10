@@ -59,7 +59,7 @@ declare interface DamageHudPlugin<Data extends DamageHudPluginData> {
   // so every roll has perRoll + exactly one of perTarget and perUnknownTarget
   perRoll?(item?: LancerItem | LancerActor): Data;
   perUnknownTarget?(): Data;
-  perTarget?(item: Token): Data;
+  perTarget?(item: Token.Implementation): Data;
   // usually you want to implement either perRoll OR both of the other two
   // if you implement perRoll AND either or both of the other two, `rollModifier`
   // will be called twice on the same roll, so watch out for that

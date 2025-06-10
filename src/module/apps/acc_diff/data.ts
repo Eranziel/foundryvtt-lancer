@@ -221,7 +221,7 @@ export class AccDiffHudTarget {
     };
   }
 
-  static fromParams(t: Token): AccDiffHudTarget {
+  static fromParams(t: Token.Implementation): AccDiffHudTarget {
     let cover = Cover.None;
     if (t.actor?.statuses.has("cover_hard")) {
       cover = Cover.Hard;
@@ -319,7 +319,7 @@ export class AccDiffHudData {
     }
   }
 
-  replaceTargets(ts: Token[]): AccDiffHudData {
+  replaceTargets(ts: Token.Implementation[]): AccDiffHudData {
     let oldTargets: { [key: string]: AccDiffHudTarget } = {};
     for (let data of this.targets) {
       oldTargets[data.target.id] = data;
@@ -383,7 +383,7 @@ export class AccDiffHudData {
     runtimeData?: LancerItem | LancerActor,
     tags?: Tag[],
     title?: string,
-    targets?: Token[],
+    targets?: Token.Implementation[],
     grit?: number,
     flat?: number,
     starting?: [number, number] | number

@@ -361,7 +361,12 @@ const npc_keys: Array<ClassStatKey> = [
 ];
 
 // Make a bonus appropriate to the provided stat key
-function makeNpcBonus(stat: ClassStatKey, value: number, mode: ActiveEffect["changes"][0]["mode"], priority: number) {
+function makeNpcBonus(
+  stat: ClassStatKey,
+  value: number,
+  mode: ActiveEffect.Implementation["changes"][0]["mode"],
+  priority: number
+) {
   switch (stat) {
     case "hp":
       return {

@@ -1,6 +1,6 @@
 import { readable } from "svelte/store";
 
-export const userTargets = readable([] as Token[], update => {
+export const userTargets = readable([] as Token.Implementation[], update => {
   function updateData() {
     update(Array.from(game!.user!.targets));
   }

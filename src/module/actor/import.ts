@@ -62,7 +62,7 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
 
     // Check whether players are allowed to create Actors
     const canCreate = game.user?.can("ACTOR_CREATE");
-    const gmsOnline = game.users?.some((u: User) => u.isGM && u.active);
+    const gmsOnline = game.users?.some(u => u.isGM && u.active);
     if (!canCreate && !gmsOnline) {
       new foundry.applications.api.DialogV2({
         window: { title: `Cannot Create Actors`, icon: "fas fa-triangle-exclamation" },

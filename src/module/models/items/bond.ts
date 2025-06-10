@@ -9,7 +9,7 @@ import { template_universal_item } from "./shared";
 
 const fields = foundry.data.fields;
 
-export class BondModel extends LancerDataModel<DataSchema, Item> {
+export class BondModel extends LancerDataModel<DataSchema, Item.Implementation> {
   static DEFAULT_ICON = "systems/lancer/assets/icons/bond.svg";
   static defineSchema() {
     return {

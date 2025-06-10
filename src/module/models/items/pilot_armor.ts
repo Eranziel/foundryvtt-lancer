@@ -10,7 +10,7 @@ import { template_universal_item, template_bascdt, template_uses, addDeployableT
 
 const fields = foundry.data.fields;
 
-export class PilotArmorModel extends LancerDataModel<DataSchema, Item> {
+export class PilotArmorModel extends LancerDataModel<DataSchema, Item.Implementation> {
   static DEFAULT_ICON = "systems/lancer/assets/icons/role_tank.svg";
   static defineSchema() {
     return {

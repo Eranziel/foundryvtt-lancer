@@ -776,7 +776,7 @@ export class LancerActor extends Actor {
    */
   async _safeDeleteDescendant(
     collection: "Item" | "ActiveEffect",
-    effects: ActiveEffect[] | LancerItem[],
+    effects: ActiveEffect.Implementation[] | LancerItem[],
     options?: DatabaseDeleteOperation & {} & {}
   ): Promise<any> {
     if (!effects.length) return;
@@ -937,7 +937,7 @@ export class LancerActor extends Actor {
       throw new Error(message);
     }
     // @ts-expect-error Infinite recursion for some reason
-    if (x instanceof TokenDocument) x = x.actor!;
+    if (x instanceof TokenDocument.implementation) x = x.actor!;
     if (!(x instanceof LancerActor)) {
       let message = `${messagePrefix ? messagePrefix + " | " : ""}Document ${x} not an actor.`;
       ui.notifications?.error(message);
@@ -956,7 +956,7 @@ export class LancerActor extends Actor {
       throw new Error(message);
     }
     // @ts-expect-error Infinite recursion for some reason
-    if (x instanceof TokenDocument) x = x.actor!;
+    if (x instanceof TokenDocument.implementation) x = x.actor!;
     if (!(x instanceof LancerActor)) {
       let message = `${messagePrefix ? messagePrefix + " | " : ""}Document ${x} not an actor.`;
       ui.notifications?.error(message);
