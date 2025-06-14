@@ -17,6 +17,7 @@ type LegacyLancerActor = {
       cc_ver?: string;
     };
   };
+  items: Item.Implementation[];
 };
 
 /**
@@ -132,10 +133,10 @@ type FakePackedNPC = {
 //
 // HANDLERS
 function handleNPCExport(actor: LegacyLancerActor) {
-  const data = actor as any;
+  const data = actor;
   console.log(`Exporting NPC: ${data.name}`);
 
-  const items = (data as any).items;
+  const items = data.items;
   const mech = data.mech;
   const cla = items.find(item => item.type === "npc_class");
   const stats: object = {
@@ -161,7 +162,7 @@ function handleNPCExport(actor: LegacyLancerActor) {
 
   const exportNPC: FakePackedNPC = {
     id: nanoid(),
-    class: cla ? cla.id : "",
+    class: cla?.id ?? "",
     tier: data.tier_num,
     name: data.name,
     labels: [],
@@ -211,7 +212,7 @@ function handlePilotExport(actor: LegacyLancerActor) {
     id: nanoid(),
     name: "Primary",
     armor: items
-      .filter(item => item.type === "pilot_armor")
+      .filter((item): item is Item.OfType<"pilot_armor"> => item.type === "pilot_armor")
       .map(item => {
         return {
           id: item.system.id,
