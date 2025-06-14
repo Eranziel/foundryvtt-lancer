@@ -1,8 +1,7 @@
-import type * as t from "io-ts";
 import { LancerItem } from "../../item/lancer-item";
 import { LancerActor } from "../../actor/lancer-actor";
 
-import type { DamageHudData } from "./index";
+import type { DamageData } from "../../models/bits/damage";
 
 // Implementing a plugin means implementing
 // * a data object that can compute its view behaviour,
@@ -14,17 +13,17 @@ import type { DamageHudData } from "./index";
 
 // TODO: move CheckboxUI through RollModifier to a common file
 declare interface CheckboxUI {
-  uiElement: "checkbox" = "checkbox";
+  uiElement: "checkbox";
   slug: string;
   humanLabel: string;
   get uiState(): boolean;
-  set uiState(data: boolean): this;
+  set uiState(data: boolean);
   get disabled(): boolean;
   get visible(): boolean;
 }
 
 declare interface NoUI {
-  uiElement: "none" = "none";
+  uiElement: "none";
 }
 
 type UIBehaviour = CheckboxUI | NoUI;
@@ -38,7 +37,7 @@ declare interface Dehydrated {
   // the codec handles all serializable data,
   // but we might want to pick up data from the environment too
   // all perTarget codecs get the target as well
-  hydrate(data: DamageData, target?: DamageTarget);
+  hydrate(data: DamageData, target?: DamageTarget): void;
 }
 
 export type DamageHudPluginData = UIBehaviour & RollModifier & Dehydrated;
@@ -47,7 +46,7 @@ export type DamageHudNoUIPluginData = NoUI & RollModifier & Dehydrated;
 
 export type DamageHudPluginCodec<C extends DamageHudPluginData, O, I> = Codec<C, O, I>;
 
-declare interface DamageHudPlugin<Data extends DamageHudPluginData> {
+export interface DamageHudPlugin<Data extends DamageHudPluginData> {
   slug: string;
   // the codec lets us know how to persist whatever data you need for rerolls
   codec: DamageHudPluginCodec<Data, O, I>;

@@ -1,7 +1,5 @@
 import { LancerActorSheet } from "./lancer-actor-sheet";
-import { LancerActor } from "./lancer-actor";
-import { LancerItem } from "../item/lancer-item";
-import { ResolvedDropData } from "../helpers/dragdrop";
+import type { ResolvedDropData } from "../helpers/dragdrop";
 import { EntryType } from "../enums";
 
 /**

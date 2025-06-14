@@ -1,6 +1,6 @@
 import type { HelperOptions } from "handlebars";
-import { LancerCORE_BONUS, LancerSKILL, LancerTALENT } from "../item/lancer-item";
-import { collapseButton, collapseParam, CollapseRegistry } from "./collapse";
+import type { LancerCORE_BONUS, LancerSKILL, LancerTALENT } from "../item/lancer-item";
+import { collapseButton, collapseParam, type CollapseRegistry } from "./collapse";
 import { effectBox, resolveHelperDotpath } from "./commons";
 import { buildActionArrayHTML } from "./item";
 import { ref_params } from "./refs";

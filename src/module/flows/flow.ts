@@ -1,6 +1,6 @@
 import { LancerActor } from "../actor/lancer-actor";
 import { LancerItem } from "../item/lancer-item";
-import { UUIDRef } from "../source-template";
+import type { UUIDRef } from "../source-template";
 import { LANCER } from "../config";
 
 const lp = LANCER.log_prefix;

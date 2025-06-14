@@ -1,8 +1,8 @@
-import { DamageType, DamageTypeChecklist } from "../../enums";
+import { DamageType, type DamageTypeChecklist } from "../../enums";
 import { restrict_enum } from "../../helpers/commons";
-import { PackedDamageData } from "../../util/unpacking/packed-types";
+import type { PackedDamageData } from "../../util/unpacking/packed-types";
 
-const fields: any = foundry.data.fields;
+import fields = foundry.data.fields;
 
 // Clone of RegDamageData
 export interface DamageData {
@@ -126,16 +126,19 @@ export class Damage implements Readonly<DamageData> {
   }
 }
 
+const defineDamageFieldSchema = () => {
+  return {
+    type: new fields.StringField({ choices: Object.values(DamageType), initial: DamageType.Kinetic }),
+    val: new fields.StringField({ initial: "1d6", nullable: false, required: true, trim: true }),
+  };
+};
+
+type DamageFieldSchema = ReturnType<typeof defineDamageFieldSchema>;
+
 // Maps DamageData to a damage class
-export class DamageField extends fields.SchemaField {
-  constructor(options = {}) {
-    super(
-      {
-        type: new fields.StringField({ choices: Object.values(DamageType), initial: DamageType.Kinetic }),
-        val: new fields.StringField({ initial: "1d6", nullable: false, required: true, trim: true }),
-      },
-      options
-    );
+export class DamageField<Options extends fields.SchemaField.Options> extends fields.SchemaField<DamageFieldSchema, Options> {
+  constructor(options?: Options) {
+    super(defineDamageFieldSchema(), options);
   }
 
   /** @override */

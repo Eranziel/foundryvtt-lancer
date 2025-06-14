@@ -1,6 +1,5 @@
 import { ActivationType } from "../enums";
-import { handlePopoutTextEditor } from "../helpers/commons";
-import { ActionData } from "../models/bits/action";
+import type { ActionData } from "../models/bits/action";
 import { TargetedEditForm } from "./targeted-form-editor";
 /**
  * A helper Dialog subclass for editing an action

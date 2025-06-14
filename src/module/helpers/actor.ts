@@ -1,5 +1,5 @@
 import type { HelperOptions } from "handlebars";
-import { type ActionType } from "../action";
+import type { ActionType } from "../action";
 import { actionIcon } from "../action/action-tracker";
 import type { LancerActor, LancerMECH, LancerNPC, LancerPILOT } from "../actor/lancer-actor";
 import { LANCER } from "../config";
@@ -142,7 +142,7 @@ export function stat_rollable_card(title: string, icon: string, data_path: strin
 // Shows a compact readonly value
 export function compact_stat_view(icon: string, data_path: string, options: HelperOptions): string {
   let data_val = resolveHelperDotpath(options, data_path);
-  return `        
+  return `
     <div class="compact-stat">
         <i class="${icon} i--m i--dark"></i>
         <span class="lancer-stat minor">${data_val}</span>
@@ -159,7 +159,7 @@ export function compact_stat_edit(icon: string, data_path: string, max_path: str
     max_html = `<span class="lancer-stat minor" style="max-width: min-content;" > / </span>
     <span class="lancer-stat minor">${max_val}</span>`;
   }
-  return `        
+  return `
         <div class="compact-stat">
           <i class="${icon} i--m i--dark"></i>
           ${std_num_input(data_path, extendHelper(options, { classes: "lancer-stat minor" }))}

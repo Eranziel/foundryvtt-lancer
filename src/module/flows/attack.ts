@@ -1,15 +1,15 @@
 // Import TypeScript modules
 import { LancerActor } from "../actor/lancer-actor";
-import { AccDiffHudData, AccDiffHudDataSerialized, RollModifier } from "../apps/acc_diff";
+import { AccDiffHudData, type AccDiffHudDataSerialized, type RollModifier } from "../apps/acc_diff";
 import { openSlidingHud } from "../apps/slidinghud";
 import { LANCER } from "../config";
 import { AttackType, RangeType, WeaponType } from "../enums";
 import { checkForHit } from "../helpers/automation/targeting";
 import { LancerItem } from "../item/lancer-item";
-import { UUIDRef } from "../source-template";
-import { SystemTemplates } from "../system-template";
+import type { UUIDRef } from "../source-template";
+import type { SystemTemplates } from "../system-template";
 import { renderTemplateStep } from "./_render";
-import { Flow, FlowState, Step } from "./flow";
+import { Flow, type FlowState, type Step } from "./flow";
 import { LancerFlowState } from "./interfaces";
 
 const lp = LANCER.log_prefix;

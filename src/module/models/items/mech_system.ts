@@ -1,13 +1,13 @@
 import type { DeepPartial } from "fvtt-types/utils";
 import { EntryType } from "../../enums";
-import { SourceData } from "../../source-template";
-import { PackedMechSystemData } from "../../util/unpacking/packed-types";
+import type { SourceData } from "../../source-template";
+import type { PackedMechSystemData } from "../../util/unpacking/packed-types";
 import { unpackAction } from "../bits/action";
 import { AmmoField, unpackAmmo } from "../bits/ammo";
 import { unpackBonus } from "../bits/bonus";
 import { unpackCounter } from "../bits/counter";
 import { unpackSynergy } from "../bits/synergy";
-import { LancerDataModel, UnpackContext } from "../shared";
+import { LancerDataModel, type UnpackContext } from "../shared";
 import {
   addDeployableTags,
   migrateManufacturer,
@@ -18,7 +18,7 @@ import {
   template_uses,
 } from "./shared";
 
-const fields = foundry.data.fields;
+import fields = foundry.data.fields;
 
 export class MechSystemModel extends LancerDataModel<foundry.data.fields.DataSchema, Item.Implementation> {
   static DEFAULT_ICON = "systems/lancer/assets/icons/mech_system.svg";

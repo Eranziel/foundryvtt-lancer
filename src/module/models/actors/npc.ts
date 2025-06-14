@@ -8,7 +8,7 @@ import {
 } from "./shared";
 
 import type { DeepPartial } from "fvtt-types/utils";
-import { SourceData } from "../../source-template";
+import type { SourceData } from "../../source-template";
 import { LancerDataModel } from "../shared";
 
 const fields = foundry.data.fields;

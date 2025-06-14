@@ -2,7 +2,7 @@ import { LancerActor } from "../actor/lancer-actor";
 import { renderTemplateStep } from "./_render";
 import { LancerItem } from "../item/lancer-item";
 import { LancerFlowState } from "./interfaces";
-import { Flow, FlowState, Step } from "./flow";
+import { Flow, type FlowState, type Step } from "./flow";
 
 export function registerNPCSteps(flowSteps: Map<string, Step<any, any> | Flow<any>>) {
   flowSteps.set("findRechargeableSystems", findRechargeableSystems);

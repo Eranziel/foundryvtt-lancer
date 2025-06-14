@@ -1,11 +1,8 @@
 import { stateless } from "./serde";
 import type { AccDiffHudPlugin, AccDiffHudPluginData } from "./plugin";
 import type { AccDiffHudData, AccDiffHudTarget } from "./index";
-import type { LancerActor, LancerMECH, LancerPILOT } from "../../actor/lancer-actor";
+import type { LancerActor } from "../../actor/lancer-actor";
 import type { LancerToken } from "../../token";
-import { LancerTALENT } from "../../item/lancer-item";
-
-import BaseGrid = foundry.base.BaseGrid;
 
 // this is an example of a case implemented without defining a full class
 function adjacentSpotter(actor: LancerActor): boolean {

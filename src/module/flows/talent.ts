@@ -1,7 +1,7 @@
 // Import TypeScript modules
 import { LANCER } from "../config";
 import { LancerItem } from "../item/lancer-item";
-import { Flow, FlowState, Step } from "./flow";
+import { Flow, type FlowState, type Step } from "./flow";
 import { LancerFlowState } from "./interfaces";
 import { printGenericCard } from "./text";
 

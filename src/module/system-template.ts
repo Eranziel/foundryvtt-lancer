@@ -1,5 +1,5 @@
-import { LancerActor, LancerMECH, LancerPILOT } from "./actor/lancer-actor";
-import { InheritedEffectsState } from "./effects/effector";
+import { LancerActor, type LancerMECH, type LancerPILOT } from "./actor/lancer-actor";
+import type { InheritedEffectsState } from "./effects/effector";
 import {
   ActivationType,
   DeployableType,
@@ -11,13 +11,12 @@ import {
   OrgType,
   SystemType,
   WeaponSize,
-  WeaponSizeChecklist,
+  type WeaponSizeChecklist,
   WeaponType,
-  WeaponTypeChecklist,
+  type WeaponTypeChecklist,
 } from "./enums";
-import {
+import type {
   LancerBOND,
-  LancerCORE_BONUS,
   LancerFRAME,
   LancerMECH_SYSTEM,
   LancerMECH_WEAPON,
@@ -28,17 +27,17 @@ import {
   LancerPILOT_WEAPON,
   LancerWEAPON_MOD,
 } from "./item/lancer-item";
-import { ActionData } from "./models/bits/action";
-import { BonusData } from "./models/bits/bonus";
-import { CounterData } from "./models/bits/counter";
+import type { ActionData } from "./models/bits/action";
+import type { BonusData } from "./models/bits/bonus";
+import type { CounterData } from "./models/bits/counter";
 import { Damage } from "./models/bits/damage";
 import { Range } from "./models/bits/range";
-import { SynergyData } from "./models/bits/synergy";
-import { Tag, TagData } from "./models/bits/tag";
-import { PowerData } from "./models/bits/power";
-import { BondQuestionData } from "./models/bits/question";
-import { FullBoundedNum, LIDRef, SourceData, SourceTemplates, UUIDRef } from "./source-template";
-import { AmmoData } from "./models/bits/ammo";
+import type { SynergyData } from "./models/bits/synergy";
+import { Tag, type TagData } from "./models/bits/tag";
+import type { PowerData } from "./models/bits/power";
+import type { BondQuestionData } from "./models/bits/question";
+import type { FullBoundedNum, LIDRef, SourceData, SourceTemplates } from "./source-template";
+import type { AmmoData } from "./models/bits/ammo";
 
 export namespace SystemTemplates {
   // We mimic these types, such that if we later decide to modify how they are hydrated, our job is easier

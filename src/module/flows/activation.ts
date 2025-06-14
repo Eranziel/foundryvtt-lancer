@@ -6,10 +6,10 @@ import { buildChipHTML } from "../helpers/item";
 import { ActivationType, AttackType } from "../enums";
 import { renderTemplateStep } from "./_render";
 import { resolveDotpath } from "../helpers/commons";
-import { ActionData } from "../models/bits/action";
+import type { ActionData } from "../models/bits/action";
 import { LancerFlowState } from "./interfaces";
-import { Flow, FlowState, Step } from "./flow";
-import { UUIDRef } from "../source-template";
+import { Flow, type FlowState, type Step } from "./flow";
+import type { UUIDRef } from "../source-template";
 import { TechAttackFlow } from "./tech";
 
 const lp = LANCER.log_prefix;

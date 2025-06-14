@@ -1,13 +1,13 @@
 import {
-  DamageTypeChecklist,
+  type DamageTypeChecklist,
   makeWeaponSizeChecklist,
   makeWeaponTypeChecklist,
-  RangeTypeChecklist,
-  WeaponSizeChecklist,
-  WeaponTypeChecklist,
+  type RangeTypeChecklist,
+  type WeaponSizeChecklist,
+  type WeaponTypeChecklist,
 } from "../../enums";
 import { BONUS } from "../../util/unpacking/defaults";
-import { PackedBonusData } from "../../util/unpacking/packed-types";
+import type { PackedBonusData } from "../../util/unpacking/packed-types";
 import {
   DamageTypeChecklistField,
   RangeTypeChecklistField,

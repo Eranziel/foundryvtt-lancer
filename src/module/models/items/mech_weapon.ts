@@ -1,16 +1,16 @@
 import type { DeepPartial } from "fvtt-types/utils";
 import { EntryType, WeaponSize, WeaponType } from "../../enums";
 import { restrict_enum } from "../../helpers/commons";
-import { SourceData } from "../../source-template";
-import { PackedMechWeaponData } from "../../util/unpacking/packed-types";
+import type { SourceData } from "../../source-template";
+import type { PackedMechWeaponData } from "../../util/unpacking/packed-types";
 import { ActionField, unpackAction } from "../bits/action";
 import { BonusField, unpackBonus } from "../bits/bonus";
 import { CounterField, unpackCounter } from "../bits/counter";
 import { DamageField, unpackDamage } from "../bits/damage";
 import { RangeField, unpackRange } from "../bits/range";
 import { SynergyField, unpackSynergy } from "../bits/synergy";
-import { TagData, TagField } from "../bits/tag";
-import { LIDField, LancerDataModel, UnpackContext } from "../shared";
+import { type TagData, TagField } from "../bits/tag";
+import { LIDField, LancerDataModel, type UnpackContext } from "../shared";
 import {
   addDeployableTags,
   migrateManufacturer,

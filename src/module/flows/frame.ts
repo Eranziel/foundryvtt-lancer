@@ -3,7 +3,7 @@ import { LANCER } from "../config";
 import { LancerActor } from "../actor/lancer-actor";
 import { LancerFlowState } from "./interfaces";
 import { ActivationFlow } from "./activation";
-import { FlowState } from "./flow";
+import type { FlowState } from "./flow";
 import { LancerItem } from "../item/lancer-item";
 
 const lp = LANCER.log_prefix;

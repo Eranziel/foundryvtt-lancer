@@ -1,7 +1,7 @@
 import type { DeepPartial } from "fvtt-types/utils";
 import { EntryType, makeWeaponSizeChecklist, makeWeaponTypeChecklist } from "../../enums";
-import { SourceData } from "../../source-template";
-import { PackedWeaponModData } from "../../util/unpacking/packed-types";
+import type { SourceData } from "../../source-template";
+import type { PackedWeaponModData } from "../../util/unpacking/packed-types";
 import { unpackAction } from "../bits/action";
 import { unpackBonus } from "../bits/bonus";
 import { unpackCounter } from "../bits/counter";
@@ -9,7 +9,7 @@ import { DamageField, unpackDamage } from "../bits/damage";
 import { RangeField, unpackRange } from "../bits/range";
 import { unpackSynergy } from "../bits/synergy";
 import { TagField, unpackTag } from "../bits/tag";
-import { LancerDataModel, UnpackContext, WeaponSizeChecklistField, WeaponTypeChecklistField } from "../shared";
+import { LancerDataModel, type UnpackContext, WeaponSizeChecklistField, WeaponTypeChecklistField } from "../shared";
 import {
   addDeployableTags,
   migrateManufacturer,
@@ -20,29 +20,32 @@ import {
   template_uses,
 } from "./shared";
 
-const fields = foundry.data.fields;
+import fields = foundry.data.fields;
 
-export class WeaponModModel extends LancerDataModel<foundry.data.fields.DataSchema, Item.Implementation> {
+const defineWeaponModModel = () => {
+  return {
+    added_tags: new fields.ArrayField(new TagField()),
+    added_damage: new fields.ArrayField(new DamageField()),
+    added_range: new fields.ArrayField(new RangeField()),
+    effect: new fields.HTMLField(),
+    description: new fields.HTMLField(),
+    sp: new fields.NumberField({ nullable: false, initial: 0 }),
+    allowed_types: new WeaponTypeChecklistField(),
+    allowed_sizes: new WeaponSizeChecklistField(),
+    ...template_universal_item(),
+    ...template_bascdt(),
+    ...template_destructible(),
+    ...template_licensed(),
+    ...template_uses(),
+  };
+};
+
+type WeaponModModelSchema = ReturnType<typeof defineWeaponModModel>;
+
+export class WeaponModModel extends LancerDataModel<WeaponModModelSchema, Item.Implementation> {
   static DEFAULT_ICON = "systems/lancer/assets/icons/weapon_mod.svg";
   static defineSchema() {
-    return {
-      // @ts-expect-error
-      added_tags: new fields.ArrayField(new TagField()),
-      // @ts-expect-error
-      added_damage: new fields.ArrayField(new DamageField()),
-      // @ts-expect-error
-      added_range: new fields.ArrayField(new RangeField()),
-      effect: new fields.HTMLField(),
-      description: new fields.HTMLField(),
-      sp: new fields.NumberField({ nullable: false, initial: 0 }),
-      allowed_types: new WeaponTypeChecklistField(),
-      allowed_sizes: new WeaponSizeChecklistField(),
-      ...template_universal_item(),
-      ...template_bascdt(),
-      ...template_destructible(),
-      ...template_licensed(),
-      ...template_uses(),
-    };
+    return defineWeaponModModel();
   }
 
   static migrateData(data: any) {

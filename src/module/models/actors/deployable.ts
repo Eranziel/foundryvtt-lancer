@@ -3,18 +3,18 @@ import { template_heat, template_statuses, template_universal_actor } from "./sh
 import type { DeepPartial } from "fvtt-types/utils";
 import { ActivationType, DeployableType, EntryType } from "../../enums";
 import { restrict_enum } from "../../helpers/commons";
-import { SourceData } from "../../source-template";
+import type { SourceData } from "../../source-template";
 import { slugify } from "../../util/lid";
 import { fixCCFormula } from "../../util/misc";
-import { PackedDeployableData } from "../../util/unpacking/packed-types";
+import type { PackedDeployableData } from "../../util/unpacking/packed-types";
 import { ActionField, unpackAction } from "../bits/action";
 import { unpackBonus } from "../bits/bonus";
 import { CounterField, unpackCounter } from "../bits/counter";
 import { SynergyField, unpackSynergy } from "../bits/synergy";
 import { TagField, unpackTag } from "../bits/tag";
-import { LancerDataModel, SyncUUIDRefField, UnpackContext } from "../shared";
+import { LancerDataModel, SyncUUIDRefField, type UnpackContext } from "../shared";
 
-const fields = foundry.data.fields;
+import fields = foundry.data.fields;
 
 const deployable_schema = {
   // @ts-expect-error

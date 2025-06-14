@@ -1,17 +1,17 @@
-import { LancerActor, LancerNPC } from "../actor/lancer-actor";
+import { LancerActor, type LancerNPC } from "../actor/lancer-actor";
 import { EntryType } from "../enums";
 import {
-  LancerFRAME,
+  type LancerFRAME,
   LancerItem,
-  LancerMECH_WEAPON,
-  LancerNPC_CLASS,
-  LancerNPC_FEATURE,
-  LancerSTATUS,
+  type LancerMECH_WEAPON,
+  type LancerNPC_CLASS,
+  type LancerNPC_FEATURE,
+  type LancerSTATUS,
 } from "../item/lancer-item";
-import { BonusData } from "../models/bits/bonus";
-import { SystemData, SystemTemplates } from "../system-template";
+import type { BonusData } from "../models/bits/bonus";
+import type { SystemData, SystemTemplates } from "../system-template";
 import { rollEvalSync } from "../util/misc";
-import { AE_MODE_APPEND_JSON, LancerActiveEffect, LancerEffectTarget } from "./lancer-active-effect";
+import { AE_MODE_APPEND_JSON, LancerActiveEffect, type LancerEffectTarget } from "./lancer-active-effect";
 
 const FRAME_STAT_PRIORITY = 10; // Also handles npc classes
 const BONUS_STAT_PRIORITY = 20;

@@ -2,32 +2,32 @@ import { LANCER } from "../config";
 import { replaceDefaultResource } from "../config";
 import { EntryType, FittingSize, MountType } from "../enums";
 import {
-  LancerBOND,
-  LancerCORE_BONUS,
-  LancerFRAME,
-  LancerItem,
-  LancerLICENSE,
-  LancerMECH_SYSTEM,
-  LancerMECH_WEAPON,
-  LancerPILOT_ARMOR,
-  LancerPILOT_GEAR,
-  LancerPILOT_WEAPON,
-  LancerSKILL,
-  LancerTALENT,
-  LancerWEAPON_MOD,
+  type LancerBOND,
+  type LancerCORE_BONUS,
+  type LancerFRAME,
+  type LancerItem,
+  type LancerLICENSE,
+  type LancerMECH_SYSTEM,
+  type LancerMECH_WEAPON,
+  type LancerPILOT_ARMOR,
+  type LancerPILOT_GEAR,
+  type LancerPILOT_WEAPON,
+  type LancerSKILL,
+  type LancerTALENT,
+  type LancerWEAPON_MOD,
 } from "../item/lancer-item";
-import { PowerData } from "../models/bits/power";
-import { SourceData } from "../source-template";
+import type { PowerData } from "../models/bits/power";
+import type { SourceData } from "../source-template";
 import { get_pack_id, insinuate } from "../util/doc";
 import { fromLid } from "../helpers/from-lid";
-import {
+import type {
   PackedEquipmentData,
   PackedMechWeaponSaveData,
   PackedMountData,
   PackedPilotData,
   PackedPilotEquipmentState,
 } from "../util/unpacking/packed-types";
-import { LancerActor, LancerMECH, LancerPILOT } from "./lancer-actor";
+import { LancerActor, type LancerMECH, type LancerPILOT } from "./lancer-actor";
 import { frameToPath } from "./retrograde-map";
 const lp = LANCER.log_prefix;
 

@@ -7,7 +7,7 @@ import {
   NpcFeatureType,
   OrgType,
   RangeType,
-  SynergyLocation,
+  type SynergyLocation,
   SystemType,
   WeaponSize,
   WeaponType,

@@ -1,7 +1,7 @@
 import type { HelperOptions } from "handlebars";
 import { ActivationType, NpcFeatureType } from "../enums";
-import { LancerNPC_FEATURE } from "../item/lancer-item";
-import { SystemTemplates } from "../system-template";
+import type { LancerNPC_FEATURE } from "../item/lancer-item";
+import type { SystemTemplates } from "../system-template";
 import { slugify } from "../util/lid";
 import { effectBox, resolveHelperDotpath } from "./commons";
 import { actionTypeIcon, npcAccuracyView, npcAttackBonusView, damageArrayView, rangeArrayView } from "./item";

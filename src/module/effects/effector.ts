@@ -1,5 +1,5 @@
 import { LANCER } from "../config";
-import { LancerActor, LancerMECH } from "../actor/lancer-actor";
+import { LancerActor, type LancerMECH } from "../actor/lancer-actor";
 import { EntryType } from "../enums";
 import { ChangeWatchHelper } from "../util/misc";
 import { LancerActiveEffect } from "./lancer-active-effect";

@@ -1,8 +1,8 @@
 import type { DeepPartial } from "fvtt-types/utils";
 import { LANCER, friendly_entrytype_name } from "../config";
 import { EntryType, NpcFeatureType } from "../enums";
-import { SourceData } from "../source-template";
-import { Flow, FlowState, Step } from "./flow";
+import type { SourceData } from "../source-template";
+import { Flow, type FlowState, type Step } from "./flow";
 import { LancerFlowState } from "./interfaces";
 
 export function registerItemUtilSteps(flowSteps: Map<string, Step<any, any> | Flow<any>>) {

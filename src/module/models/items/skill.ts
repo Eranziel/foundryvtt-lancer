@@ -1,11 +1,11 @@
 import type { DeepPartial } from "fvtt-types/utils";
 import { EntryType } from "../../enums";
-import { SourceData } from "../../source-template";
-import { PackedSkillData } from "../../util/unpacking/packed-types";
-import { LancerDataModel, UnpackContext } from "../shared";
+import type { SourceData } from "../../source-template";
+import type { PackedSkillData } from "../../util/unpacking/packed-types";
+import { LancerDataModel, type UnpackContext } from "../shared";
 import { template_universal_item } from "./shared";
 
-const fields = foundry.data.fields;
+import fields = foundry.data.fields;
 
 export class SkillModel extends LancerDataModel<foundry.data.fields.DataSchema, Item.Implementation> {
   static DEFAULT_ICON = "systems/lancer/assets/icons/skill.svg";

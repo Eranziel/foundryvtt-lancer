@@ -1,8 +1,7 @@
 import { LancerActor } from "../actor/lancer-actor";
 import { LANCER } from "../config";
 import { DeployableType, EntryType } from "../enums";
-import { LancerItem, LancerSTATUS } from "../item/lancer-item";
-import { StatusIconConfigOptions } from "../settings";
+import { LancerItem, type LancerSTATUS } from "../item/lancer-item";
 import {
   baselineStatuses,
   cancerConditionsStatus,
@@ -30,7 +29,9 @@ export type LancerEffectTarget =
   | "only_deployable"
   | "mech_and_npc";
 
-export class LancerActiveEffect<SubType extends ActiveEffect.SubType> extends ActiveEffect<SubType> {
+export class LancerActiveEffect<
+  SubType extends ActiveEffect.SubType = ActiveEffect.SubType
+> extends ActiveEffect<SubType> {
   /**
    * Determine whether this Active Effect is suppressed or not.
    */

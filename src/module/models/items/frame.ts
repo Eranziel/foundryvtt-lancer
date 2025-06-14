@@ -2,18 +2,18 @@ import type { DeepPartial } from "fvtt-types/utils";
 import { frameToPath } from "../../actor/retrograde-map";
 import { ActivationType, EntryType, FrameEffectUse, MechType, MountType } from "../../enums";
 import { restrict_enum } from "../../helpers/commons";
-import { SourceData } from "../../source-template";
-import { PackedFrameData } from "../../util/unpacking/packed-types";
+import type { SourceData } from "../../source-template";
+import type { PackedFrameData } from "../../util/unpacking/packed-types";
 import { unpackDeployable } from "../actors/deployable";
 import { ActionField, repairActivationType, unpackAction } from "../bits/action";
 import { BonusField, unpackBonus } from "../bits/bonus";
 import { CounterField, unpackCounter } from "../bits/counter";
 import { SynergyField, unpackSynergy } from "../bits/synergy";
 import { TagField } from "../bits/tag";
-import { LIDField, LancerDataModel, UnpackContext } from "../shared";
+import { LIDField, LancerDataModel, type UnpackContext } from "../shared";
 import { addDeployableTags, migrateManufacturer, template_licensed, template_universal_item } from "./shared";
 
-const fields = foundry.data.fields;
+import fields = foundry.data.fields;
 
 const frame_schema = {
   description: new fields.HTMLField(),

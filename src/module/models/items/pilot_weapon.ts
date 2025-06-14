@@ -1,33 +1,37 @@
 import type { DeepPartial } from "fvtt-types/utils";
 import { EntryType } from "../../enums";
-import { SourceData } from "../../source-template";
-import { PackedPilotWeaponData } from "../../util/unpacking/packed-types";
+import type { SourceData } from "../../source-template";
+import type { PackedPilotWeaponData } from "../../util/unpacking/packed-types";
 import { unpackAction } from "../bits/action";
 import { unpackBonus } from "../bits/bonus";
 import { DamageField, unpackDamage } from "../bits/damage";
 import { RangeField, unpackRange } from "../bits/range";
 import { unpackSynergy } from "../bits/synergy";
-import { LancerDataModel, UnpackContext } from "../shared";
+import { LancerDataModel, type UnpackContext } from "../shared";
 import { addDeployableTags, template_bascdt, template_universal_item, template_uses } from "./shared";
 
-const fields = foundry.data.fields;
+import fields = foundry.data.fields;
 
-export class PilotWeaponModel extends LancerDataModel<foundry.data.fields.DataSchema, Item.Implementation> {
+const definePilotWeaponModelSchema = () => {
+  return {
+    description: new fields.StringField({ nullable: true }),
+    range: new fields.ArrayField(new RangeField()),
+    damage: new fields.ArrayField(new DamageField()),
+    effect: new fields.StringField(),
+    loaded: new fields.BooleanField(),
+
+    ...template_universal_item(),
+    ...template_uses(),
+    ...template_bascdt(),
+  };
+};
+
+type PilotWeaponModelSchema = ReturnType<typeof definePilotWeaponModelSchema>;
+
+export class PilotWeaponModel extends LancerDataModel<PilotWeaponModelSchema, Item.Implementation> {
   static DEFAULT_ICON = "systems/lancer/assets/icons/role_artillery.svg";
   static defineSchema() {
-    return {
-      description: new fields.StringField({ nullable: true }),
-      // @ts-expect-error
-      range: new fields.ArrayField(new RangeField()),
-      // @ts-expect-error
-      damage: new fields.ArrayField(new DamageField()),
-      effect: new fields.StringField(),
-      loaded: new fields.BooleanField(),
-
-      ...template_universal_item(),
-      ...template_uses(),
-      ...template_bascdt(),
-    };
+    return definePilotWeaponModelSchema();
   }
 }
 

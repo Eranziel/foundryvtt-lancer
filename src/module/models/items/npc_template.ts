@@ -1,9 +1,9 @@
 import type { DeepPartial } from "fvtt-types/utils";
 import { EntryType } from "../../enums";
-import { SourceData } from "../../source-template";
+import type { SourceData } from "../../source-template";
 import { regRefToLid } from "../../util/migrations";
-import { PackedNpcTemplateData } from "../../util/unpacking/packed-types";
-import { LancerDataModel, LIDField, UnpackContext } from "../shared";
+import type { PackedNpcTemplateData } from "../../util/unpacking/packed-types";
+import { LancerDataModel, LIDField, type UnpackContext } from "../shared";
 import { template_universal_item } from "./shared";
 
 const fields = foundry.data.fields;

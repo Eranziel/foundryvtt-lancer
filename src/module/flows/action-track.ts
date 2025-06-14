@@ -1,7 +1,7 @@
-import { ActionTrackingData } from "../action";
+import type { ActionTrackingData } from "../action";
 import { getActions } from "../action/action-tracker";
 import { LancerActor } from "../actor/lancer-actor";
-import { Flow, FlowState, Step } from "./flow";
+import { Flow, type FlowState, type Step } from "./flow";
 import { LancerFlowState } from "./interfaces";
 import { printGenericCard } from "./text";
 

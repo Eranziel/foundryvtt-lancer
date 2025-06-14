@@ -1,9 +1,9 @@
 import { LANCER } from "../config";
-import { SystemData, SystemDataType, SystemTemplates } from "../system-template";
-import { SourceDataType } from "../source-template";
+import type { SystemDataType, SystemTemplates } from "../system-template";
+import type { SourceDataType } from "../source-template";
 import { DamageType, EntryType, EntryTypeLidPrefix, NpcFeatureType, RangeType, WeaponType } from "../enums";
-import { ActionData } from "../models/bits/action";
-import { RangeData, Range } from "../models/bits/range";
+import type { ActionData } from "../models/bits/action";
+import { type RangeData, Range } from "../models/bits/range";
 import { Tag } from "../models/bits/tag";
 import { LancerActiveEffect } from "../effects/lancer-active-effect";
 import {
@@ -14,9 +14,9 @@ import {
   npcFeatureBonusEffects,
   npcFeatureOverrideEffects,
 } from "../effects/converter";
-import { BonusData } from "../models/bits/bonus";
-import { LancerMECH, LancerNPC, LancerPILOT } from "../actor/lancer-actor";
-import { Damage, DamageData } from "../models/bits/damage";
+import type { BonusData } from "../models/bits/bonus";
+import type { LancerMECH, LancerNPC, LancerPILOT } from "../actor/lancer-actor";
+import { Damage, type DamageData } from "../models/bits/damage";
 import { WeaponAttackFlow } from "../flows/attack";
 import { TechAttackFlow } from "../flows/tech";
 import { fixupPowerUses } from "../models/bits/power";

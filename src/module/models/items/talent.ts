@@ -1,13 +1,13 @@
 import type { DeepPartial } from "fvtt-types/utils";
 import { EntryType } from "../../enums";
-import { SourceData } from "../../source-template";
-import { PackedTalentData } from "../../util/unpacking/packed-types";
+import type { SourceData } from "../../source-template";
+import type { PackedTalentData } from "../../util/unpacking/packed-types";
 import { unpackDeployable } from "../actors/deployable";
 import { ActionField, unpackAction } from "../bits/action";
 import { BonusField, unpackBonus } from "../bits/bonus";
 import { CounterField, unpackCounter } from "../bits/counter";
 import { SynergyField, unpackSynergy } from "../bits/synergy";
-import { LIDField, LancerDataModel, UnpackContext } from "../shared";
+import { LIDField, LancerDataModel, type UnpackContext } from "../shared";
 import { template_universal_item } from "./shared";
 
 const fields = foundry.data.fields;

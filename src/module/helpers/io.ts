@@ -1,7 +1,7 @@
 // TODO: This needs a complete once-over as a lot of the stuff in here appears broken
 import { nanoid } from "nanoid";
 import type { LancerActor } from "../actor/lancer-actor";
-import {
+import type {
   PackedMechData,
   PackedMechLoadoutData,
   PackedPilotData,
