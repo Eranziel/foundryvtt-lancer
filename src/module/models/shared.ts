@@ -3,8 +3,8 @@ import { LancerActor } from "../actor/lancer-actor";
 import { DamageType, EntryType, RangeType, SystemType, WeaponSize, WeaponType } from "../enums";
 import { formatDotpath } from "../helpers/commons";
 import { LancerItem } from "../item/lancer-item";
-import { FullBoundedNum, SourceData } from "../source-template";
-import { SystemTemplates } from "../system-template";
+import type { FullBoundedNum, SourceData } from "../source-template";
+import type { SystemTemplates } from "../system-template";
 import { regRefToId, regRefToLid, regRefToUuid } from "../util/migrations";
 
 import fields = foundry.data.fields;
@@ -144,7 +144,7 @@ export class LIDField extends fields.StringField {
 }
 
 declare namespace EmbeddedRefField {
-  interface Options extends StringField.Options {
+  interface Options extends fields.StringField.Options {
     allowed_types?: EntryType[];
   }
 }
@@ -230,7 +230,7 @@ export class EmbeddedRefField extends fields.StringField<
 }
 
 declare namespace SyncUUIDRefField {
-  interface Options extends StringField.Options {
+  interface Options extends fields.StringField.Options {
     allowed_types?: EntryType[];
   }
 }
@@ -330,7 +330,7 @@ export class SyncUUIDRefField extends fields.StringField<
 }
 
 declare namespace FakeBoundedNumberField {
-  interface Options extends NumberField.Options {}
+  interface Options extends fields.NumberField.Options {}
   type DefaultOptions = SimpleMerge<
     fields.NumberField.DefaultOptions,
     {
@@ -562,9 +562,9 @@ export class ControlledLengthArrayField<
   InitializedElementType = fields.ArrayField.InitializedElementType<ElementField>
 > extends fields.ArrayField<
   ElementField,
+  ControlledLengthArrayField.Options<AssignmentElementField>,
   AssignmentElementField,
-  InitializedElementType,
-  ControlledLengthArrayField.Options<AssignmentElementField>
+  InitializedElementType
 > {
   // Constructor demands options
   constructor(element: ElementField, options: ControlledLengthArrayField.Options<AssignmentElementField>) {

@@ -5,10 +5,10 @@ import { resolveDotpath } from "../helpers/commons";
 import { renderTemplateStep } from "./_render";
 import { LancerFlowState } from "./interfaces";
 import { LancerItem } from "../item/lancer-item";
-import { AccDiffHudData, AccDiffHudDataSerialized } from "../apps/acc_diff";
+import { AccDiffHudData, type AccDiffHudDataSerialized } from "../apps/acc_diff";
 import { openSlidingHud } from "../apps/slidinghud";
-import { UUIDRef } from "../source-template";
-import { Flow, FlowState, Step } from "./flow";
+import type { UUIDRef } from "../source-template";
+import { Flow, type FlowState, type Step } from "./flow";
 
 const lp = LANCER.log_prefix;
 

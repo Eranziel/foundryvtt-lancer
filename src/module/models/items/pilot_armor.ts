@@ -1,11 +1,11 @@
 import type { DeepPartial } from "fvtt-types/utils";
 import { EntryType } from "../../enums";
-import { SourceData } from "../../source-template";
-import { PackedPilotArmorData } from "../../util/unpacking/packed-types";
+import type { SourceData } from "../../source-template";
+import type { PackedPilotArmorData } from "../../util/unpacking/packed-types";
 import { unpackAction } from "../bits/action";
 import { unpackBonus } from "../bits/bonus";
 import { unpackSynergy } from "../bits/synergy";
-import { LancerDataModel, UnpackContext } from "../shared";
+import { LancerDataModel, type UnpackContext } from "../shared";
 import { template_universal_item, template_bascdt, template_uses, addDeployableTags } from "./shared";
 
 const fields = foundry.data.fields;

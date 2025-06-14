@@ -17,7 +17,7 @@ import { ActionEditDialog } from "../apps/action-editor";
 import { findLicenseFor, get_pack_id } from "../util/doc";
 import { lookupOwnedDeployables } from "../util/lid";
 import { EntryType, StatusConditionType } from "../enums";
-import { LancerDEPLOYABLE } from "../actor/lancer-actor";
+import type { LancerDEPLOYABLE } from "../actor/lancer-actor";
 import { BonusEditDialog } from "../apps/bonus-editor";
 import { OrgType } from "../enums";
 import { handleTagEditButtons } from "../helpers/tags";

@@ -1,7 +1,7 @@
-import JSZip, { JSZipObject } from "jszip";
+import JSZip, { type JSZipObject } from "jszip";
 import { LANCER } from "../config";
 import { LCPIndex } from "../apps/lcp-manager/lcp-manager";
-import {
+import type {
   AnyPackedNpcFeatureData,
   IContentPack,
   IContentPackManifest,

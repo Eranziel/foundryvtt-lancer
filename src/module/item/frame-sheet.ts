@@ -1,6 +1,6 @@
 import { EntryType } from "../enums";
 import { fromLidMany } from "../helpers/from-lid";
-import { LancerItemSheetData } from "../interfaces";
+import type { LancerItemSheetData } from "../interfaces";
 import { LancerItemSheet } from "./item-sheet";
 
 /**

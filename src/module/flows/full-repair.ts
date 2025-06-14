@@ -4,8 +4,8 @@ import { LancerItem } from "../item/lancer-item";
 import type { LancerActor } from "../actor/lancer-actor";
 import { renderTemplateStep } from "./_render";
 import { LancerFlowState } from "./interfaces";
-import { Flow, FlowState, Step } from "./flow";
-import { UUIDRef } from "../source-template";
+import { Flow, type FlowState, type Step } from "./flow";
+import type { UUIDRef } from "../source-template";
 
 const lp = LANCER.log_prefix;
 

@@ -11,7 +11,7 @@ import { LancerActor } from "../actor/lancer-actor";
 import { LCPManager } from "../apps/lcp-manager/lcp-manager";
 import { LancerCombat } from "../combat/lancer-combat";
 import { EntryType } from "../enums";
-import { ContentSummary } from "../util/lcps";
+import type { ContentSummary } from "../util/lcps";
 
 /**
  * LANCER Extensions to the foundry Tour class. Adds sidebarTab and click as
@@ -43,7 +43,7 @@ export class LancerTour extends foundry.nue.Tour {
         const { promise, resolve } = Promise.withResolvers<void>();
         ui.sidebar?.element
           .querySelector("#sidebar-content")
-          .addEventListener("transitionend", resolve, { once: true });
+          ?.addEventListener("transitionend", () => resolve(), { once: true });
         ui.sidebar?.changeTab(this.currentStep.sidebarTab, "primary");
         ui.sidebar?.expand();
         await promise;

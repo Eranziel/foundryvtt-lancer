@@ -5,13 +5,13 @@ import type { HelperOptions } from "handlebars";
 import { buildCounterHeader, buildCounterHTML } from "../helpers/item";
 import { ref_params, resolve_ref_element } from "../helpers/refs";
 import { inc_if, resolveDotpath } from "../helpers/commons";
-import { LancerActor, LancerMECH, LancerPILOT } from "./lancer-actor";
+import { LancerActor, type LancerMECH, type LancerPILOT } from "./lancer-actor";
 import { fetchPilotViaCache, fetchPilotViaShareCode, pilotCache } from "../util/compcon";
-import { LancerFRAME, LancerItem, LancerItemType } from "../item/lancer-item";
+import type { LancerFRAME } from "../item/lancer-item";
 import { clicker_num_input } from "../helpers/actor";
-import { ResolvedDropData } from "../helpers/dragdrop";
+import type { ResolvedDropData } from "../helpers/dragdrop";
 import { EntryType } from "../enums";
-import { PackedPilotData } from "../util/unpacking/packed-types";
+import type { PackedPilotData } from "../util/unpacking/packed-types";
 import { importCC } from "./import";
 
 const shareCodeMatcher = /^[A-Z0-9\d]{6}$/g;

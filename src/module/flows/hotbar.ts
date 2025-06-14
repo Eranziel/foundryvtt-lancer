@@ -3,9 +3,9 @@ import { LancerActor } from "../actor/lancer-actor";
 import { LANCER } from "../config";
 import { EntryType, NpcFeatureType } from "../enums";
 import { resolveDotpath } from "../helpers/commons";
-import { DroppableFlowType, handleDragging } from "../helpers/dragdrop";
+import { DroppableFlowType } from "../helpers/dragdrop";
 import { LancerItem } from "../item/lancer-item";
-import { ActionData } from "../models/bits/action";
+import type { ActionData } from "../models/bits/action";
 import { LancerFlowState } from "./interfaces";
 
 const lp = LANCER.log_prefix;

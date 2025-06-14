@@ -1,7 +1,7 @@
 import type { DeepPartial } from "fvtt-types/utils";
 import { EntryType } from "../../enums";
-import { SourceData } from "../../source-template";
-import { LancerDataModel, UnpackContext } from "../shared";
+import type { SourceData } from "../../source-template";
+import { LancerDataModel, type UnpackContext } from "../shared";
 import { template_universal_item } from "./shared";
 
 const fields = foundry.data.fields;

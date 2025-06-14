@@ -1,4 +1,4 @@
-import { LancerActor, LancerDEPLOYABLE } from "../actor/lancer-actor";
+import { LancerActor, type LancerDEPLOYABLE } from "../actor/lancer-actor";
 
 // Lookup deployables that have the provided actor set as their owner, keyed by lid
 export function lookupOwnedDeployables(owner: LancerActor, filter?: string[]): Record<string, LancerDEPLOYABLE> {

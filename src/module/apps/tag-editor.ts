@@ -1,5 +1,5 @@
 import { LANCER } from "../config";
-import { TagData, TagTemplateData } from "../models/bits/tag";
+import type { TagData, TagTemplateData } from "../models/bits/tag";
 import { TargetedEditForm } from "./targeted-form-editor";
 
 /**

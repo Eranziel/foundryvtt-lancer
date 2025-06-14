@@ -1,9 +1,9 @@
 // Import TypeScript modules
 import { LancerActor } from "../actor/lancer-actor";
 import { LANCER } from "../config";
-import { UUIDRef } from "../source-template";
+import type { UUIDRef } from "../source-template";
 import { renderTemplateStep } from "./_render";
-import { Flow, FlowState, Step } from "./flow";
+import { Flow, type FlowState, type Step } from "./flow";
 import { LancerFlowState } from "./interfaces";
 
 const lp = LANCER.log_prefix;

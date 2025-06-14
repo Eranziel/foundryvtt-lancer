@@ -1,15 +1,15 @@
 import {
   DamageType,
-  DamageTypeChecklist,
+  type DamageTypeChecklist,
   RangeType,
-  RangeTypeChecklist,
+  type RangeTypeChecklist,
   WeaponSize,
-  WeaponSizeChecklist,
+  type WeaponSizeChecklist,
   WeaponType,
-  WeaponTypeChecklist,
+  type WeaponTypeChecklist,
 } from "../enums";
-import { IconFactory, resolveDotpath } from "../helpers/commons";
-import { BonusData } from "../models/bits/bonus";
+import { IconFactory } from "../helpers/commons";
+import type { BonusData } from "../models/bits/bonus";
 import { Damage } from "../models/bits/damage";
 import { Range } from "../models/bits/range";
 import { TargetedEditForm } from "./targeted-form-editor";

@@ -1,7 +1,7 @@
 import { LANCER } from "../../config";
-import { ContentSummary } from "../../util/lcps";
-import { IContentPackManifest } from "../../util/unpacking/packed-types";
-import { DeepPartial } from "fvtt-types/utils";
+import type { ContentSummary } from "../../util/lcps";
+import type { IContentPackManifest } from "../../util/unpacking/packed-types";
+import type { DeepPartial } from "fvtt-types/utils";
 
 import ApplicationV2 = foundry.applications.api.ApplicationV2;
 import HandlebarsApplicationMixin = foundry.applications.api.HandlebarsApplicationMixin;

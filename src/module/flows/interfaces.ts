@@ -1,9 +1,8 @@
-import { LancerActor } from "../actor/lancer-actor";
 import { AttackType, DamageType, NpcFeatureType, StabOptions1, StabOptions2, SystemType } from "../enums";
 import { AccDiffHudData } from "../apps/acc_diff";
-import { ActionData } from "../models/bits/action";
-import { DamageData } from "../models/bits/damage";
-import { Tag, TagData } from "../models/bits/tag";
+import type { ActionData } from "../models/bits/action";
+import type { DamageData } from "../models/bits/damage";
+import { Tag, type TagData } from "../models/bits/tag";
 import { LancerToken } from "../token";
 import { DamageHudData } from "../apps/damage";
 

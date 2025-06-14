@@ -1,7 +1,7 @@
 import { LancerActor } from "../actor/lancer-actor";
 import { LancerItem } from "../item/lancer-item";
-import { UUIDRef } from "../source-template";
-import { Flow, FlowState, Step } from "./flow";
+import type { UUIDRef } from "../source-template";
+import { Flow, type FlowState, type Step } from "./flow";
 import { DamageRollFlow } from "./damage";
 import { StatRollFlow } from "./stat";
 import { LancerFlowState } from "./interfaces";

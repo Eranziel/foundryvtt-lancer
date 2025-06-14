@@ -1,13 +1,14 @@
 import type { DeepPartial } from "fvtt-types/utils";
 import { EntryType } from "../../enums";
 import { restrict_choices } from "../../helpers/commons";
-import { SourceData } from "../../source-template";
-import { PackedStatusData } from "../../util/unpacking/packed-types";
-import { LancerDataModel, UnpackContext } from "../shared";
+import type { SourceData } from "../../source-template";
+import type { PackedStatusData } from "../../util/unpacking/packed-types";
+import { LancerDataModel, type UnpackContext } from "../shared";
 import { template_universal_item } from "./shared";
 
 import fields = foundry.data.fields;
-import ActiveEffectData = ActiveEffect.InitializedData;
+
+type ActiveEffectData = ActiveEffect.InitializedData;
 
 export class StatusModel extends LancerDataModel<foundry.data.fields.DataSchema, Item.Implementation> {
   static DEFAULT_ICON = "systems/lancer/assets/icons/reticule.svg";

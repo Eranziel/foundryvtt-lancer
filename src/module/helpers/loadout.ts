@@ -13,10 +13,10 @@ import {
 import { mechLoadoutWeaponSlot, buildDeployablesArrayHBS, buildDeployablesArray, buildActionArrayHTML } from "./item";
 import { limitedUsesIndicator, ref_params, simple_ref_slot } from "./refs";
 import { compactTagListHBS, compactTagList } from "./tags";
-import { LancerMECH, LancerPILOT } from "../actor/lancer-actor";
-import { SystemData } from "../system-template";
-import { LancerFRAME, LancerMECH_SYSTEM } from "../item/lancer-item";
-import { collapseButton, collapseParam, CollapseRegistry } from "./collapse";
+import type { LancerMECH, LancerPILOT } from "../actor/lancer-actor";
+import type { SystemData } from "../system-template";
+import type { LancerFRAME, LancerMECH_SYSTEM } from "../item/lancer-item";
+import { collapseButton, collapseParam, type CollapseRegistry } from "./collapse";
 import { lookupOwnedDeployables, slugify } from "../util/lid";
 
 // Render the HTML for a mech system card.
@@ -125,7 +125,7 @@ function weaponMount(mount_path: string, options: HelperOptions): string {
 
   // If bracing, override
   if (mount.bracing) {
-    return ` 
+    return `
     <div class="mount card" >
       <div class="lancer-header lancer-primary mount-type-ctx-root" data-path="${mount_path}">
         <span>${mount.type} Weapon Mount</span>
@@ -170,7 +170,7 @@ function weaponMount(mount_path: string, options: HelperOptions): string {
     }
   }
 
-  return ` 
+  return `
     <div class="mount card" >
       <div class="lancer-header lancer-primary mount-type-ctx-root" data-path="${mount_path}">
         <span>${mount.type} Weapon Mount</span>
@@ -193,7 +193,7 @@ function allWeaponMountView(loadout_path: string, options: HelperOptions) {
 
   return `
     <div class="lancer-header lancer-dark-gray loadout-category submajor">
-      <i class="mdi mdi-unfold-less-horizontal collapse-trigger collapse-icon" data-collapse-id="weapons"></i>   
+      <i class="mdi mdi-unfold-less-horizontal collapse-trigger collapse-icon" data-collapse-id="weapons"></i>
       <span>MOUNTED WEAPONS</span>
       <a class="gen-control fas fa-plus" data-action="append" data-path="${loadout_path}.weapon_mounts" data-action-value="(struct)wep_mount"></a>
       <a class="reset-all-weapon-mounts-button fas fa-redo" data-path="${loadout_path}.weapon_mounts"></a>
@@ -215,7 +215,7 @@ function allMechSystemsView(loadout_path: string, options: HelperOptions) {
 
   return `
     <div class="lancer-header lancer-dark-gray loadout-category submajor">
-      <i class="mdi mdi-unfold-less-horizontal collapse-trigger collapse-icon" data-collapse-id="systems"></i>    
+      <i class="mdi mdi-unfold-less-horizontal collapse-trigger collapse-icon" data-collapse-id="systems"></i>
       <span>MOUNTED SYSTEMS</span>
       <span style="flex-grow: 0">
         <i class="cci cci-system-point i--m"></i>
@@ -255,8 +255,8 @@ export function pilotSlot(data_path: string, options: HelperOptions): string {
   }
 
   return `<div class="pilot-summary">
-    <img class="ref set pilot click-open" 
-         ${ref_params(pilot, data_path)} 
+    <img class="ref set pilot click-open"
+         ${ref_params(pilot, data_path)}
          data-accept-types="${EntryType.PILOT}"
          style="height: 100%" src="${pilot.img || "systems/lancer/assets/icons/pilot.svg"}"/>
     <div class="lancer-header lancer-primary license-level">
@@ -319,9 +319,9 @@ function buildCoreSysHTML(frame_path: string, core_energy: number, options: Help
   return `<div class="core-wrapper ${mfrBorder} frame-coresys card clipped-top" style="padding: 0;">
     <div class="lancer-header ${mfrStyle} coresys-title">
       <span>${core.name}</span><span> // </span><span>CORE</span>
-      <i 
-        class="mdi mdi-unfold-less-horizontal collapse-trigger collapse-icon" 
-        data-collapse-id="${frame.id}_core" > 
+      <i
+        class="mdi mdi-unfold-less-horizontal collapse-trigger collapse-icon"
+        data-collapse-id="${frame.id}_core" >
       </i>
     </div>
     <div class="collapse" data-collapse-id="${frame.id}_core">

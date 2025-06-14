@@ -1,10 +1,10 @@
 import {
-  WeaponSizeChecklist,
-  WeaponTypeChecklist,
+  type WeaponSizeChecklist,
+  type WeaponTypeChecklist,
   makeWeaponSizeChecklist,
   makeWeaponTypeChecklist,
 } from "../../enums";
-import { PackedAmmoData } from "../../util/unpacking/packed-types";
+import type { PackedAmmoData } from "../../util/unpacking/packed-types";
 import { WeaponSizeChecklistField, WeaponTypeChecklistField } from "../shared";
 
 const fields: any = foundry.data.fields;

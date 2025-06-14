@@ -1,12 +1,12 @@
 import * as t from "io-ts";
 
-import { LancerActor, LancerNPC } from "../../actor/lancer-actor";
-import { DamageHudPlugin, DamageHudPluginCodec, DamageHudPluginData } from "./plugin";
+import { LancerActor, type LancerNPC } from "../../actor/lancer-actor";
+import type { DamageHudPlugin, DamageHudPluginCodec, DamageHudPluginData } from "./plugin";
 import { enclass, encode, decode } from "../acc_diff/serde";
 import { LancerItem } from "../../item/lancer-item";
 import { LancerToken } from "../../token";
 import { Tag } from "../../models/bits/tag";
-import { DamageData } from "../../models/bits/damage";
+import type { DamageData } from "../../models/bits/damage";
 import { DamageType, NpcFeatureType } from "../../enums";
 import { LancerFlowState } from "../../flows/interfaces";
 

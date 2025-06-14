@@ -2,7 +2,7 @@
  * Module class for moderation of actor action data.
  */
 
-import { ActionTrackingData, ActionType } from ".";
+import type { ActionTrackingData, ActionType } from ".";
 import { LancerActor } from "../actor/lancer-actor";
 
 /**

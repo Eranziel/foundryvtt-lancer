@@ -39,35 +39,35 @@ import {
   WeaponSize,
   WeaponType,
 } from "../enums";
-import { collapseButton, collapseParam, CollapseRegistry } from "./collapse";
+import { collapseButton, collapseParam, type CollapseRegistry } from "./collapse";
 import { promptText } from "../apps/simple-prompt";
 import { CounterEditForm } from "../apps/counter-editor";
 import { frameToPath } from "../actor/retrograde-map";
 import { Damage } from "../models/bits/damage";
 import { Range } from "../models/bits/range";
-import { BonusData } from "../models/bits/bonus";
+import type { BonusData } from "../models/bits/bonus";
 import {
-  LancerBOND,
-  LancerFRAME,
+  type LancerBOND,
+  type LancerFRAME,
   LancerItem,
-  LancerLICENSE,
-  LancerMECH_SYSTEM,
-  LancerMECH_WEAPON,
-  LancerNPC_CLASS,
-  LancerNPC_FEATURE,
-  LancerNPC_TEMPLATE,
-  LancerPILOT_ARMOR,
-  LancerPILOT_GEAR,
-  LancerPILOT_WEAPON,
-  LancerRESERVE,
-  LancerWEAPON_MOD,
+  type LancerLICENSE,
+  type LancerMECH_SYSTEM,
+  type LancerMECH_WEAPON,
+  type LancerNPC_CLASS,
+  type LancerNPC_FEATURE,
+  type LancerNPC_TEMPLATE,
+  type LancerPILOT_ARMOR,
+  type LancerPILOT_GEAR,
+  type LancerPILOT_WEAPON,
+  type LancerRESERVE,
+  type LancerWEAPON_MOD,
 } from "../item/lancer-item";
-import { ActionData } from "../models/bits/action";
-import { LancerActor, LancerDEPLOYABLE } from "../actor/lancer-actor";
-import { CounterData } from "../models/bits/counter";
+import type { ActionData } from "../models/bits/action";
+import { LancerActor, type LancerDEPLOYABLE } from "../actor/lancer-actor";
+import type { CounterData } from "../models/bits/counter";
 import { slugify } from "../util/lid";
 import { TagEditForm } from "../apps/tag-editor";
-import { FullBoundedNum } from "../source-template";
+import type { FullBoundedNum } from "../source-template";
 
 import ContextMenu = foundry.applications.ux.ContextMenu;
 

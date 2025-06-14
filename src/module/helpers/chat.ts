@@ -1,7 +1,7 @@
 import type { HelperOptions } from "handlebars";
 import { LancerFlowState } from "../flows/interfaces";
-import { DamageData } from "../models/bits/damage";
-import { RangeData } from "../models/bits/range";
+import type { DamageData } from "../models/bits/damage";
+import type { RangeData } from "../models/bits/range";
 import { lancerDiceRoll } from "./commons";
 
 export function miniProfile(

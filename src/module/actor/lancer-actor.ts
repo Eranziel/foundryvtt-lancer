@@ -1,15 +1,15 @@
 import { LANCER, replaceDefaultResource } from "../config";
 import { DamageType, EntryType } from "../enums";
 import { AppliedDamage } from "./damage-calc";
-import { SystemData, SystemDataType, SystemTemplates } from "../system-template";
-import { SourceDataType } from "../source-template";
+import type { SystemData, SystemDataType, SystemTemplates } from "../system-template";
+import type { SourceDataType } from "../source-template";
 import {
-  LancerBOND,
-  LancerFRAME,
+  type LancerBOND,
+  type LancerFRAME,
   LancerItem,
-  LancerNPC_CLASS,
-  LancerNPC_FEATURE,
-  LancerNPC_TEMPLATE,
+  type LancerNPC_CLASS,
+  type LancerNPC_FEATURE,
+  type LancerNPC_TEMPLATE,
 } from "../item/lancer-item";
 import { LancerActiveEffect } from "../effects/lancer-active-effect";
 import { frameToPath } from "./retrograde-map";
@@ -29,7 +29,7 @@ import { OverchargeFlow } from "../flows/overcharge";
 import { NPCRechargeFlow } from "../flows/npc";
 import * as lancer_data from "@massif/lancer-data";
 import { StabilizeFlow } from "../flows/stabilize";
-import { rollEvalSync, tokenScrollText, TokenScrollTextOptions } from "../util/misc";
+import { rollEvalSync, tokenScrollText, type TokenScrollTextOptions } from "../util/misc";
 import { BurnFlow } from "../flows/burn";
 import { createChatMessageStep } from "../flows/_render";
 import { DamageRollFlow } from "../flows/damage";
@@ -38,36 +38,13 @@ const lp = LANCER.log_prefix;
 
 const DEFAULT_OVERCHARGE_SEQUENCE = "+1,+1d3,+1d6,+1d6+4" as const;
 
-interface LancerActorDataSource<T extends EntryType> {
-  type: T;
-  data: SourceDataType<T>;
-}
-interface LancerActorDataProperties<T extends LancerActorType> {
-  type: T;
-  data: SystemDataType<T>;
-}
-
-type LancerActorSource =
-  | LancerActorDataSource<EntryType.PILOT>
-  | LancerActorDataSource<EntryType.MECH>
-  | LancerActorDataSource<EntryType.NPC>
-  | LancerActorDataSource<EntryType.DEPLOYABLE>;
-
-type LancerActorProperties =
-  | LancerActorDataProperties<EntryType.PILOT>
-  | LancerActorDataProperties<EntryType.MECH>
-  | LancerActorDataProperties<EntryType.NPC>
-  | LancerActorDataProperties<EntryType.DEPLOYABLE>;
-
 declare module "fvtt-types/configuration" {
-  interface SourceConfig {
-    Actor: LancerActorSource;
-  }
-  interface DataConfig {
-    Actor: LancerActorProperties;
-  }
   interface DocumentClassConfig {
-    Actor: typeof LancerActor;
+    Actor: typeof LancerActor<Actor.SubType>;
+  }
+
+  interface ConfiguredActor<SubType extends Actor.SubType> {
+    document: LancerActor<SubType>;
   }
 }
 
@@ -78,7 +55,7 @@ const deleteIdCacheCleanup = foundry.utils.debounce(() => deleteIdCache.clear(),
 /**
  * Extend the Actor class for Lancer Actors.
  */
-export class LancerActor extends Actor {
+export class LancerActor<SubType extends Actor.SubType = Actor.SubType> extends Actor<SubType> {
   // Helps us manage our ephemeral effects, as well as providing miscellaneous utility functions for effect management
   effectHelper!: EffectHelper; // = new EffectHelper(this);
 
@@ -87,9 +64,6 @@ export class LancerActor extends Actor {
 
   // Helps us handle structuring/overheating, as well as providing miscellaneous utility functions for struct/stress
   strussHelper!: StrussHelper; // = new StrussHelper(this);
-
-  // @ts-expect-error - Foundry initializes this.
-  system: SystemData.Pilot | SystemData.Mech | SystemData.Npc | SystemData.Deployable;
 
   // Promises for NPC class/template swap. That work is initiated by a sync method,
   // so we need a way to track when the work is finished.

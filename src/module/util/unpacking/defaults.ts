@@ -9,16 +9,16 @@ import {
   FittingSize,
 } from "../../enums";
 import { nanoid } from "nanoid";
-import { ActionData } from "../../models/bits/action";
-import { BonusData, generateBonus } from "../../models/bits/bonus";
-import { SourceData, SourceDataType, SourceTemplates } from "../../source-template";
-import { DamageData } from "../../models/bits/damage";
-import { RangeData } from "../../models/bits/range";
-import { CounterData } from "../../models/bits/counter";
-import { SystemTemplates } from "../../system-template";
-import { PowerData } from "../../models/bits/power";
-import { BondQuestionData } from "../../models/bits/question";
-import { TagData } from "../../models/bits/tag";
+import type { ActionData } from "../../models/bits/action";
+import type { BonusData } from "../../models/bits/bonus";
+import type { SourceData, SourceDataType } from "../../source-template";
+import type { DamageData } from "../../models/bits/damage";
+import type { RangeData } from "../../models/bits/range";
+import type { CounterData } from "../../models/bits/counter";
+import type { SystemTemplates } from "../../system-template";
+import type { PowerData } from "../../models/bits/power";
+import type { BondQuestionData } from "../../models/bits/question";
+import type { TagData } from "../../models/bits/tag";
 
 const DEFAULT_DESCRIPTION = "";
 

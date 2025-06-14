@@ -1,10 +1,8 @@
-import { LancerMECH } from "../../actor/lancer-actor";
-import { RangeType, RangeTypeChecklist } from "../../enums";
+import { RangeType, type RangeTypeChecklist } from "../../enums";
 import { restrict_enum } from "../../helpers/commons";
-import { LancerMECH_WEAPON, LancerWEAPON_MOD } from "../../item/lancer-item";
-import { PackedRangeData } from "../../util/unpacking/packed-types";
+import type { PackedRangeData } from "../../util/unpacking/packed-types";
 
-const fields: any = foundry.data.fields;
+import fields = foundry.data.fields;
 
 // Clone of RegRangeData
 export interface RangeData {
@@ -101,16 +99,22 @@ export class Range implements Required<RangeData> {
   }
 }
 
+const defineRangeFieldSchema = () => {
+  return {
+    type: new fields.StringField({ choices: Object.values(RangeType), initial: RangeType.Range }),
+    val: new fields.NumberField({ min: 0, integer: true, initial: 1, nullable: false }),
+  };
+};
+
+type RangeFieldSchema = ReturnType<typeof defineRangeFieldSchema>;
+
 // Maps RangeData to a Range class
-export class RangeField extends fields.SchemaField {
-  constructor(options = {}) {
-    super(
-      {
-        type: new fields.StringField({ choices: Object.values(RangeType), initial: RangeType.Range }),
-        val: new fields.NumberField({ min: 0, integer: true, initial: 1, nullable: false }),
-      },
-      options
-    );
+export class RangeField<Options extends fields.SchemaField.Options<RangeFieldSchema>> extends fields.SchemaField<
+  RangeFieldSchema,
+  Options
+> {
+  constructor(options?: Options) {
+    super(defineRangeFieldSchema(), options);
   }
 
   /** @override */

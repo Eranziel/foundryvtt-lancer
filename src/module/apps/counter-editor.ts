@@ -1,4 +1,4 @@
-import { CounterData } from "../models/bits/counter";
+import type { CounterData } from "../models/bits/counter";
 import { TargetedEditForm } from "./targeted-form-editor";
 
 /**

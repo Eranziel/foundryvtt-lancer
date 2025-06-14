@@ -1,10 +1,10 @@
 import { CounterField } from "../bits/counter";
 import { ActionField } from "../bits/action";
 import { SynergyField } from "../bits/synergy";
-import { FakeBoundedNumberField, LIDField, UnpackContext } from "../shared";
-import { TagData, TagField, unpackTag } from "../bits/tag";
+import { FakeBoundedNumberField, LIDField, type UnpackContext } from "../shared";
+import { type TagData, TagField, unpackTag } from "../bits/tag";
 import { BonusField } from "../bits/bonus";
-import { PackedDeployableData, PackedTagData } from "../../util/unpacking/packed-types";
+import type { PackedDeployableData, PackedTagData } from "../../util/unpacking/packed-types";
 import { unpackDeployable } from "../actors/deployable";
 import { DeployableType } from "../../enums";
 

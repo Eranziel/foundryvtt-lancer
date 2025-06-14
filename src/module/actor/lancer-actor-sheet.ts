@@ -8,7 +8,12 @@ import { LancerFlowState } from "../flows/interfaces";
 import { beginItemChatFlow } from "../flows/item";
 import { CollapseHandler, applyCollapseListeners, initializeCollapses } from "../helpers/collapse";
 import { handleGenControls, handlePopoutTextEditor } from "../helpers/commons";
-import { DroppableFlowType, LancerFlowDropData, ResolvedDropData, handleDocDropping } from "../helpers/dragdrop";
+import {
+  DroppableFlowType,
+  type LancerFlowDropData,
+  type ResolvedDropData,
+  handleDocDropping,
+} from "../helpers/dragdrop";
 // import { addExportButton } from "../helpers/io";
 import {
   handleContextMenus,
@@ -27,7 +32,7 @@ import {
 import { attachTagTooltips } from "../helpers/tags";
 import { LancerItem } from "../item/lancer-item";
 import { lookupOwnedDeployables } from "../util/lid";
-import { LancerActor, LancerActorType } from "./lancer-actor";
+import { LancerActor, type LancerActorType } from "./lancer-actor";
 const lp = LANCER.log_prefix;
 
 /**

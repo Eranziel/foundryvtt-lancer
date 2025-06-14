@@ -1,7 +1,7 @@
-import { FullBoundedNum } from "../../source-template";
-import { PackedBondPowerData } from "../../util/unpacking/packed-types";
+import type { FullBoundedNum } from "../../source-template";
+import type { PackedBondPowerData } from "../../util/unpacking/packed-types";
 
-const fields: any = foundry.data.fields;
+import fields = foundry.data.fields;
 
 export interface PowerData {
   name: string;

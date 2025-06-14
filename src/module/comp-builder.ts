@@ -5,18 +5,18 @@ import { get_pack, get_pack_id } from "./util/doc";
 import type { LancerActor, LancerNPC } from "./actor/lancer-actor";
 import { LancerItem } from "./item/lancer-item";
 import { EntryType } from "./enums";
-import {
+import type {
   IContentPack,
   PackedPilotArmorData,
   PackedPilotGearData,
   PackedPilotWeaponData,
 } from "./util/unpacking/packed-types";
-import { UnpackContext } from "./models/shared";
+import type { UnpackContext } from "./models/shared";
 import { unpackMechWeapon } from "./models/items/mech_weapon";
 import { unpackFrame } from "./models/items/frame";
 import { unpackMechSystem } from "./models/items/mech_system";
 import { unpackCoreBonus } from "./models/items/core_bonus";
-import { TagTemplateData, unpackTagTemplate } from "./models/bits/tag";
+import { type TagTemplateData, unpackTagTemplate } from "./models/bits/tag";
 import { unpackTalent } from "./models/items/talent";
 import { unpackBond } from "./models/items/bond";
 import { unpackPilotArmor } from "./models/items/pilot_armor";

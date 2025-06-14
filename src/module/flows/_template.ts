@@ -2,7 +2,8 @@
 import type { LancerToken } from "../token";
 
 import BaseGrid = foundry.grid.BaseGrid;
-import Point = Canvas.Point;
+
+type Point = Canvas.Point;
 
 /**
  * Sets user targets to tokens that are within the highlighted spaces of the

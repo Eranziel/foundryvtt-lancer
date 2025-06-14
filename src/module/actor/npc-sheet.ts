@@ -1,6 +1,6 @@
 import { LANCER } from "../config";
 import { LancerActorSheet } from "./lancer-actor-sheet";
-import { ResolvedDropData } from "../helpers/dragdrop";
+import type { ResolvedDropData } from "../helpers/dragdrop";
 import { EntryType } from "../enums";
 const lp = LANCER.log_prefix;
 

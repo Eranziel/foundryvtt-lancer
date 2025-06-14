@@ -4,11 +4,11 @@ import { DamageHudData, HitQuality } from "../apps/damage";
 import { openSlidingHud } from "../apps/slidinghud";
 import { DamageType } from "../enums";
 import { LancerItem } from "../item/lancer-item";
-import { Damage, DamageData } from "../models/bits/damage";
-import { UUIDRef } from "../source-template";
+import { Damage, type DamageData } from "../models/bits/damage";
+import type { UUIDRef } from "../source-template";
 import { LancerToken, LancerTokenDocument } from "../token";
 import { renderTemplateStep } from "./_render";
-import { Flow, FlowState, Step } from "./flow";
+import { Flow, type FlowState, type Step } from "./flow";
 import { LancerFlowState } from "./interfaces";
 
 export type DamageFlag = {

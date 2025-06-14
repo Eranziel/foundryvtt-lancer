@@ -1,7 +1,7 @@
 import type { DeepPartial } from "fvtt-types/utils";
 import { EntryType } from "../../enums";
-import { SourceData } from "../../source-template";
-import { PackedBondData } from "../../util/unpacking/packed-types";
+import type { SourceData } from "../../source-template";
+import type { PackedBondData } from "../../util/unpacking/packed-types";
 import { PowerField, unpackPower } from "../bits/power";
 import { BondQuestionField } from "../bits/question";
 import { LancerDataModel } from "../shared";
