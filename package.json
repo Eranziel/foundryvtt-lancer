@@ -25,7 +25,8 @@
   "devDependencies": {
     "@foundryvtt/foundryvtt-cli": "^1.1.0",
     "@sveltejs/vite-plugin-svelte": "^2.4.6",
-    "@tsconfig/svelte": "^2.0.1",
+    "@tsconfig/svelte": "^5.0.4",
+    "@types/node": "^24.0.1",
     "archiver": "^3.1.1",
     "chalk": "^3.0.0",
     "fs-extra": "^9.1.0",
@@ -33,6 +34,7 @@
     "gulp": "^5.0.0",
     "gulp-git": "^2.10.1",
     "husky": "^8.0.1",
+    "io-ts": "^2.2.22",
     "json-stringify-pretty-compact": "^2.0.0",
     "lint-staged": "^13.0.3",
     "nanoid": "^3.1.31",
@@ -44,7 +46,7 @@
     "svelte-language-server": "^0.14.8",
     "svelte-preprocess": "^5.0.4",
     "tslib": "^1.14.1",
-    "typescript": "^5.4.5",
+    "typescript": "^5.8.3",
     "vite": "^4.5.13",
     "vite-plugin-checker": "^0.6.2",
     "yargs": "^15.4.1"
@@ -62,7 +64,6 @@
     "@types/marked": "^1.2.1",
     "aws-amplify": "^5.3.21",
     "fp-ts": "^2.11.2",
-    "io-ts": "^2.2.16",
     "jszip": "^3.10.1",
     "marked": "^4.0.10",
     "tippy.js": "^6.3.1"
