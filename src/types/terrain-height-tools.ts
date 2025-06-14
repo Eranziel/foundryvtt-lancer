@@ -25,7 +25,7 @@ interface TerrainType {
  * LineSegments are considered equal regardless of 'direction'. I.E. p1 vs p2 order does not matter.
  */
 declare class LineSegment {
-  constructor(p1: Point | { x: number; y: number }, p2: Point | { x: number; y: number });
+  constructor(p1: Canvas.Point | { x: number; y: number }, p2: Canvas.Point | { x: number; y: number });
 
   /**
    * Creates a LineSegment from a pair of x,y coordinates.
@@ -128,9 +128,9 @@ declare class LineSegment {
 }
 
 declare class Polygon {
-  constructor(vertices?: ({ x: number; y: number } | Point)[]);
+  constructor(vertices?: ({ x: number; y: number } | Canvas.Point)[]);
 
-  get vertices(): readonly Point[];
+  get vertices(): readonly Canvas.Point[];
 
   get edges(): readonly LineSegment[];
 
@@ -141,7 +141,7 @@ declare class Polygon {
    * @param x The X coordinate of the point or a Point object to add.
    * @param y The Y coordinate of the point or undefined.
    */
-  pushVertex(x: number | Point | { x: number; y: number }, y?: number | undefined): void;
+  pushVertex(x: number | Canvas.Point | { x: number; y: number }, y?: number | undefined): void;
 
   /**
    * Determines whether this polygon contains another polygon.
@@ -184,7 +184,7 @@ declare class Polygon {
    * @param startEdge The edge to begin traversal from.
    * @param direction The direction of travel. 1 for forwards, -1 for backwards.
    */
-  *traverseEdges(startEdge: LineSegment, direction: 1 | -1): Generator<LineSegment, void, void>;
+  traverseEdges(startEdge: LineSegment, direction: 1 | -1): Generator<LineSegment, void, void>;
 
   /**
    * Finds the mid of point of all given vertices.
@@ -319,13 +319,13 @@ export interface TerrainHeightToolsAPI {
         },
     {
       overwrite,
-    }: {
+    }?: {
       /**
        * Whether or not to overwrite already-painted cells with the new
        * terrain data.
        */
       overwrite?: boolean;
-    } = {}
+    }
   ): Promise<boolean>;
 
   /**
@@ -404,6 +404,7 @@ export interface TerrainHeightToolsAPI {
       token2RelativeHeight: number | undefined;
     }
   ): {
+    // TODO: LukeAbby
     left: { p1: left[0]; p2: left[1] };
     centre: { p1: centre[0]; p2: centre[1] };
     right: { p1: right[0]; p2: right[1] };
@@ -446,7 +447,7 @@ export interface TerrainHeightToolsAPI {
       p1: Point3D;
       p2: Point3D;
     } & { drawForOthers?: boolean; showLabels?: boolean })[],
-    { drawForOthers = true } = {}
+    { drawForOthers }?: { drawForOthers?: boolean }
   ): void;
 
   /**
