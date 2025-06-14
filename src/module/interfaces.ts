@@ -1,10 +1,15 @@
-import { LancerItemType } from "./item/lancer-item";
-import { LancerActorType, LancerDEPLOYABLE, LancerMECH, LancerPILOT } from "./actor/lancer-actor";
+import { LancerItem, type LancerItemType, type LancerLICENSE } from "./item/lancer-item";
+import {
+  LancerActor,
+  type LancerActorType,
+  type LancerDEPLOYABLE,
+  type LancerMECH,
+  type LancerPILOT,
+} from "./actor/lancer-actor";
 import { LancerActiveEffect } from "./effects/lancer-active-effect";
-import { SystemDataTypesMap, SystemDataType } from "./system-template";
-import { Damage, DamageData } from "./models/bits/damage";
-import { Tag } from "./models/bits/tag";
-import { CollapseRegistry } from "./helpers/collapse";
+import type { SystemDataType } from "./system-template";
+import type { DamageData } from "./models/bits/damage";
+import type { CollapseRegistry } from "./helpers/collapse";
 
 // ------------------------------------------------------
 // |       SHEET DATA TYPES                             |
@@ -13,7 +18,7 @@ import { CollapseRegistry } from "./helpers/collapse";
 // These single generic type should cover all basic sheet use cases
 export interface LancerItemSheetData<T extends LancerItemType> extends ItemSheet.Data<ItemSheet.Options> {
   // The license, if it could be recovered
-  license: LANCERLicense | null;
+  license: LancerLICENSE | null;
   system: SystemDataType<T>;
   collapse: CollapseRegistry;
   deployables: Record<string, LancerDEPLOYABLE>;
