@@ -79,9 +79,9 @@ export async function findLicenseFor(item: LancerItem, inActor?: LancerActor): P
     // Check pilot inventory, in case they have a weird custom license
     if (pilot) {
       let found =
-        pilot.items.filter(i => i.is_license()).find(lic => (lic as LancerLICENSE).system.key === licenseKey) ||
+        pilot.items.filter(i => i.is_license()).find(lic => lic.system.key === licenseKey) ||
         // Fall back to matching the license name
-        pilot.items.filter(i => i.is_license()).find(lic => (lic as LancerLICENSE).name === licenseKey);
+        pilot.items.filter(i => i.is_license()).find(lic => lic.name === licenseKey);
       if (found) found as LancerLICENSE;
     }
   }
