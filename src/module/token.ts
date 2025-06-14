@@ -1,15 +1,17 @@
 import { LANCER } from "./config";
 
 import BaseGrid = foundry.grid.BaseGrid;
-import Point = Canvas.Point;
+type Point = Canvas.Point;
 
 declare module "fvtt-types/configuration" {
   interface DocumentClassConfig {
     Token: typeof LancerTokenDocument;
   }
+
   interface PlaceableObjectClassConfig {
     Token: typeof LancerToken;
   }
+
   interface FlagConfig {
     Token: {
       lancer: {

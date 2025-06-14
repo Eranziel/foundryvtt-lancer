@@ -3,7 +3,7 @@
  * the standard ordered list of turns. {@link LancerCombat#activateCombatant}
  * is added to the interface.
  */
-export class LancerCombat extends Combat {
+export class LancerCombat<SubType extends Combat.SubType = Combat.SubType> extends Combat<SubType> {
   protected override _sortCombatants(a: LancerCombatant, b: LancerCombatant): number {
     // Sort by Players then Neutrals then Hostiles
     const dc = b.disposition - a.disposition;
@@ -148,7 +148,7 @@ export class LancerCombat extends Combat {
   }
 }
 
-export class LancerCombatant extends Combatant {
+export class LancerCombatant<SubType extends Combatant.SubType = Combatant.SubType> extends Combatant<SubType> {
   override prepareBaseData(): void {
     super.prepareBaseData();
     this.initiative ??= 0;
