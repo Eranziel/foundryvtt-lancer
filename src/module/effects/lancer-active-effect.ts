@@ -30,7 +30,7 @@ export type LancerEffectTarget =
   | "only_deployable"
   | "mech_and_npc";
 
-export class LancerActiveEffect extends ActiveEffect {
+export class LancerActiveEffect<SubType extends ActiveEffect.SubType> extends ActiveEffect<SubType> {
   /**
    * Determine whether this Active Effect is suppressed or not.
    */
@@ -325,8 +325,13 @@ Hooks.on(
 
 declare module "fvtt-types/configuration" {
   interface DocumentClassConfig {
-    ActiveEffect: typeof LancerActiveEffect;
+    ActiveEffect: typeof LancerActiveEffect<ActiveEffect.SubType>;
   }
+
+  interface ConfiguredActiveEffect<SubType extends ActiveEffect.SubType> {
+    document: LancerActiveEffect<SubType>;
+  }
+
   interface FlagConfig {
     ActiveEffect: {
       lancer: {

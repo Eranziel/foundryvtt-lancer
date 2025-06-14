@@ -88,39 +88,16 @@ type LancerItemProperties =
   | LancerItemDataProperties<EntryType.WEAPON_MOD>;
 
 declare module "fvtt-types/configuration" {
-  interface SourceConfig {
-    Item: LancerItemSource;
-  }
-  interface DataConfig {
-    Item: LancerItemProperties;
-  }
   interface DocumentClassConfig {
-    Item: typeof LancerItem;
+    Item: typeof LancerItem<Item.SubType>;
+  }
+
+  interface ConfiguredItem<SubType extends Item.SubType> {
+    document: LancerItem<SubType>;
   }
 }
 
-export class LancerItem extends Item {
-  // @ts-expect-error - Foundry initializes this.
-  system:
-    | SystemData.CoreBonus
-    | SystemData.Frame
-    | SystemData.License
-    | SystemData.MechSystem
-    | SystemData.MechWeapon
-    | SystemData.WeaponMod
-    | SystemData.NpcClass
-    | SystemData.NpcFeature
-    | SystemData.NpcTemplate
-    | SystemData.Organization
-    | SystemData.PilotArmor
-    | SystemData.PilotGear
-    | SystemData.PilotWeapon
-    | SystemData.Reserve
-    | SystemData.Skill
-    | SystemData.Status
-    | SystemData.Talent
-    | SystemData.Bond;
-
+export class LancerItem<SubType extends Item.SubType = Item.SubType> extends Item<SubType> {
   static DEFAULT_ICON = "systems/lancer/assets/icons/generic_item.svg";
   static override getDefaultArtwork(
     itemData: Parameters<typeof Item.getDefaultArtwork>[0]
@@ -788,24 +765,24 @@ export class LancerItem extends Item {
   }
 }
 
-export type LancerCORE_BONUS = LancerItem & { system: SystemData.CoreBonus };
-export type LancerFRAME = LancerItem & { system: SystemData.Frame };
-export type LancerLICENSE = LancerItem & { system: SystemData.License };
-export type LancerMECH_SYSTEM = LancerItem & { system: SystemData.MechSystem };
-export type LancerMECH_WEAPON = LancerItem & { system: SystemData.MechWeapon };
-export type LancerNPC_CLASS = LancerItem & { system: SystemData.NpcClass };
-export type LancerNPC_FEATURE = LancerItem & { system: SystemData.NpcFeature };
-export type LancerNPC_TEMPLATE = LancerItem & { system: SystemData.NpcTemplate };
-export type LancerORGANIZATION = LancerItem & { system: SystemData.Organization };
-export type LancerPILOT_ARMOR = LancerItem & { system: SystemData.PilotArmor };
-export type LancerPILOT_GEAR = LancerItem & { system: SystemData.PilotGear };
-export type LancerPILOT_WEAPON = LancerItem & { system: SystemData.PilotWeapon };
-export type LancerRESERVE = LancerItem & { system: SystemData.Reserve };
-export type LancerSKILL = LancerItem & { system: SystemData.Skill };
-export type LancerSTATUS = LancerItem & { system: SystemData.Status };
-export type LancerTALENT = LancerItem & { system: SystemData.Talent };
-export type LancerBOND = LancerItem & { system: SystemData.Bond };
-export type LancerWEAPON_MOD = LancerItem & { system: SystemData.WeaponMod };
+export type LancerCORE_BONUS = LancerItem<EntryType.CORE_BONUS>;
+export type LancerFRAME = LancerItem<EntryType.FRAME>;
+export type LancerLICENSE = LancerItem<EntryType.LICENSE>;
+export type LancerMECH_SYSTEM = LancerItem<EntryType.MECH_SYSTEM>;
+export type LancerMECH_WEAPON = LancerItem<EntryType.MECH_WEAPON>;
+export type LancerNPC_CLASS = LancerItem<EntryType.NPC_CLASS>;
+export type LancerNPC_FEATURE = LancerItem<EntryType.NPC_FEATURE>;
+export type LancerNPC_TEMPLATE = LancerItem<EntryType.NPC_TEMPLATE>;
+export type LancerORGANIZATION = LancerItem<EntryType.ORGANIZATION>;
+export type LancerPILOT_ARMOR = LancerItem<EntryType.PILOT_ARMOR>;
+export type LancerPILOT_GEAR = LancerItem<EntryType.PILOT_GEAR>;
+export type LancerPILOT_WEAPON = LancerItem<EntryType.PILOT_WEAPON>;
+export type LancerRESERVE = LancerItem<EntryType.RESERVE>;
+export type LancerSKILL = LancerItem<EntryType.SKILL>;
+export type LancerSTATUS = LancerItem<EntryType.STATUS>;
+export type LancerTALENT = LancerItem<EntryType.TALENT>;
+export type LancerBOND = LancerItem<EntryType.BOND>;
+export type LancerWEAPON_MOD = LancerItem<EntryType.WEAPON_MOD>;
 
 // This seems like it could be removed eventually
 export type LancerItemType =
