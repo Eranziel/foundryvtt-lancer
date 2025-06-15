@@ -1,0 +1,323 @@
+/* ===== RULES FOR NON-LANCER APPLICATIONS ===== */
+.application .window-content {
+  font-family: var(--main-font-family);
+}
+
+.theme-light .application:not(.lancer) {
+  // Light mode and non-lancer
+  /* Set default backgrounds to a futuristic gundam light grey instead of parchment */
+  // TODO: should probably change an appv2 variable instead
+  background: #e1e1e1;
+}
+
+// ==============================================
+// TODO: assess and refactor rules below here
+// ==============================================
+
+/* Start of HORUS glitchy styles used in lancer-data */
+code {
+  padding: 0px 5px !important;
+  background-color: var(--darken-1);
+  border-radius: 5px;
+  padding: 4px 12px 4px 12px;
+  font-family: var(--monospace-font-family);
+
+  &.horus {
+    font-size: 1.1em;
+    background-color: var(--darken-5) !important;
+    box-shadow: none;
+    //color: var(--main-theme-text);
+    font-style: normal;
+    letter-spacing: 0.05em;
+    border-radius: 0;
+
+    &:hover {
+      background-color: black !important;
+      animation: distort 0.6s infinite;
+      text-transform: uppercase;
+      font-weight: bold;
+    }
+  }
+}
+
+@keyframes distort {
+  0% {
+    text-shadow: 2px 1px #ff00ff, -2px -3px #00ffff;
+    transform: translate(-1px, 1px) translate3D(-30px, 0px, 0) rotate(-0.1deg);
+    cursor: crosshair;
+  }
+  25% {
+    text-shadow: -2px -3px #ff00ff, 2px 1px #00ffff;
+    transform: translate(2px, 1px) translate3D(-30px, 0px, 0) rotate(-0.1deg);
+    cursor: cell;
+  }
+  50% {
+    text-shadow: 2px -1px #ff00ff, -4px 1px #00ffff;
+    transform: translate(-2px, 1px) translate3D(-30px, 0px, 0) rotate(-0.1deg);
+    cursor: col-resize;
+  }
+  75% {
+    text-shadow: -4px -1px #ff00ff, -2px -1px #00ffff;
+    transform: translate(3px, 1px) translate3D(-30px, 0px, 0) rotate(-0.1deg);
+    cursor: move;
+  }
+  100% {
+    text-shadow: -2px 0 #ff00ff, 2px -1px #00ffff;
+    transform: translate(-2px, 0) translate3D(-30px, 0px, 0) rotate(-0.1deg);
+    cursor: all-scroll;
+  }
+}
+
+.horus--subtle {
+  animation: distort-subtle 5s infinite;
+}
+
+@keyframes distort-subtle {
+  25% {
+    text-shadow: none;
+  }
+  26% {
+    text-shadow: 2px -1px #ff0000, -2px 3px #00ffff;
+  }
+  27% {
+    text-shadow: -2px -3px #ff0000, 2px 1px #00ffff;
+  }
+  28% {
+    text-shadow: 2px 1px #ff0000, -4px 1px #00ffff;
+  }
+  29% {
+    text-shadow: -4px 1px #ff0000, -2px -1px #00ffff;
+  }
+  30% {
+    text-shadow: none;
+  }
+  75% {
+    text-shadow: none;
+  }
+  76% {
+    text-shadow: -4px 1px #ff0000, -2px -1px #00ffff;
+  }
+  77% {
+    text-shadow: -2px -3px #ff0000, 2px 1px #00ffff;
+  }
+  78% {
+    text-shadow: 2px -1px #ff0000, -2px 3px #00ffff;
+  }
+  79% {
+    text-shadow: 2px 1px #ff0000, -4px 1px #00ffff;
+  }
+  80% {
+    text-shadow: none;
+  }
+}
+
+.horus--very--subtle {
+  animation: distort-very-subtle 5s infinite;
+}
+
+@keyframes distort-very-subtle {
+  25% {
+    text-shadow: none;
+  }
+  26% {
+    text-shadow: 1px -1px rgba(255, 0, 0, 0.5), -1px 2px rgba(0, 255, 255, 0.5);
+  }
+  27% {
+    text-shadow: -1px -2px rgba(255, 0, 0, 0.5), 1px 1px rgba(0, 255, 255, 0.5);
+  }
+  28% {
+    text-shadow: 1px 1px rgba(255, 0, 0, 0.5), -2px 1px rgba(0, 255, 255, 0.5);
+  }
+  29% {
+    text-shadow: -2px 1px rgba(255, 0, 0, 0.5), -1px -1px rgba(0, 255, 255, 0.5);
+  }
+  30% {
+    text-shadow: none;
+  }
+  75% {
+    text-shadow: none;
+  }
+  76% {
+    text-shadow: -2px 1px rgba(255, 0, 0, 0.5), -1px -1px rgba(0, 255, 255, 0.5);
+  }
+  77% {
+    text-shadow: -1px -2px rgba(255, 0, 0, 0.5), 1px 1px rgba(0, 255, 255, 0.5);
+  }
+  78% {
+    text-shadow: 1px -1px rgba(255, 0, 0, 0.5), -1px 2px rgba(0, 255, 255, 0.5);
+  }
+  79% {
+    text-shadow: 1px 1px rgba(255, 0, 0, 0.5), -2px 1px rgba(0, 255, 255, 0.5);
+  }
+  80% {
+    text-shadow: none;
+  }
+}
+/* End of HORUS glitchy styles used in lancer-data */
+
+.app header.window-header {
+  /* Set UI icons to white when located in headers and over the dark colour scheme */
+  color: white;
+}
+
+.window-app .window-content,
+#chat-controls div.roll-type-select select,
+#chat-form textarea,
+/* button, <- TODO This is too broad and breaks v13 styles */
+.sheet.journal-entry .journal-entry-content {
+  background: var(--background-color); /* Set default backgrounds to a futuristic gundam light grey */
+  font-family: var(--main-font-family);
+}
+
+.window-app.lancer .window-content {
+  background-color: var(--background-color);
+  color: var(--dark-text);
+  font-family: var(--main-font-family);
+}
+
+// TODO: should we set main font for the whole UI instead of just our stuff?
+/* Default font for sheets and chat messages. */
+.lancer.sheet .window-content,
+#chat-log .message,
+.chat-popout .message {
+  /* An exception for each icon font */
+  font-family: var(--main-font-family);
+}
+
+/* ---------- */
+
+#chat-log .message-content {
+  padding: 5px !important;
+
+  & .strikethrough {
+    text-decoration: line-through;
+    opacity: 0.5;
+  }
+}
+
+input[type="number"] {
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+// TODO: how much of this should stay as global overrides, and how much should
+// be moved to component styles?
+.lancer button,
+.lancer-button {
+  border: 1px solid var(--darken-3);
+  border-radius: 5px;
+  padding: 0.25em;
+  background: var(--light-gray-color);
+  color: var(--dark-text);
+  box-shadow: var(--button-shadow);
+
+  &:hover {
+    box-shadow: var(--button-shadow), var(--hover-bright);
+  }
+
+  &.noninteractive {
+    cursor: default;
+    text-shadow: none;
+    box-shadow: none;
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    text-shadow: none;
+    box-shadow: none;
+    filter: brightness(0.7);
+  }
+
+  // TODO: make all chat buttons tighter. Needs alignment
+  // work in other styles/chat cards.
+  .chat-message .lancer-damage-button-group & {
+    width: fit-content;
+    display: flex;
+
+    & i {
+      margin: 0;
+
+      & ~ i {
+        margin-left: -0.4em;
+      }
+    }
+  }
+
+  & i.damage--kinetic {
+    color: var(--light-text);
+  }
+}
+
+// needed to override a builtin that removes all shadows from the sidebar
+#sidebar a.chat-button:hover {
+  text-shadow: 0 0 8px var(--color-shadow-primary);
+}
+
+#sidebar a.chat-button {
+  animation: pulse 1200ms ease 1s 8 alternate;
+}
+
+@keyframes pulse {
+  0% {
+    text-shadow: none;
+  }
+  100% {
+    text-shadow: 0 0 8px var(--color-shadow-primary);
+  }
+}
+
+// TIPPY
+// TODO: Migrate from Tippy to Foundry's context menus and tooltips. Adjust styling if needed.
+.tippy-box[data-theme~="lancer-small"] {
+  font-size: 1.1em;
+  padding-left: 8px;
+  padding-right: 8px;
+  transform: skew(30deg);
+
+  .tippy-content {
+    transform: skew(330deg);
+  }
+}
+
+.lancer-context-menu {
+  display: inline-block;
+  min-width: 20px;
+}
+
+.locked .lancer-context-menu {
+  // Hide context menus on locked sheets
+  display: none;
+}
+
+.tippy-box[data-theme~="lancer-large"] {
+  background: var(--tooltip-background) !important;
+  background-color: var(--tooltip-background) !important;
+  color: var(--tooltip-text);
+  max-width: 50vw;
+  border: 1px var(--primary-color) solid;
+  border-radius: 4px;
+  font-size: 14px;
+  line-height: 22px;
+  width: auto;
+
+  .lancer-context-item {
+    padding: 0.25rem;
+    text-align: left;
+    cursor: pointer;
+    border-radius: 4px;
+
+    i {
+      margin-right: 5px;
+    }
+
+    &:hover {
+      background: var(--secondary-highlight);
+    }
+  }
+}
