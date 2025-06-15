@@ -1,0 +1,41 @@
+.lcp-importer {
+  display: grid;
+  grid-template: 1fr / 1fr 1fr;
+}
+
+.lcp-up {
+  margin: 10px;
+  align-self: center;
+}
+
+.lcp-core-update,
+.lcp-import,
+.lcp-clear-all {
+  margin: 10px;
+  width: auto;
+}
+
+.lcp-manifest-badge {
+  background: var(--primary-color);
+  color: var(--light-text);
+  padding: 0em 0.5em;
+  border-radius: 1em;
+}
+
+table.lcp-index {
+  margin: 10px;
+  width: auto;
+}
+
+th.lcp-index,
+td.lcp-index {
+  text-align: left;
+  padding: 0em 1em;
+  font-size: 16px;
+  height: 2em;
+}
+
+tr.lcp-index-header {
+  height: 2em;
+  background-color: var(--darken-1);
+}
