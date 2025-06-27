@@ -110,6 +110,7 @@ const structTableTitles = [
 ];
 
 // Monstrosity structure table titles
+// Ⓒ Massif Press. Used with permission
 const monstrosityTableTitles = [
   "lancer.tables.structureMonstrosity.title.fatal",
   "lancer.tables.structureMonstrosity.title.direct",
@@ -148,6 +149,7 @@ function structTableDescriptions(roll: number, remStruct: number): string {
 }
 
 // Monstrosity structure table descriptions
+// Ⓒ Massif Press. Used with permission
 function monstrosityTableDescriptions(roll: number, remStruct: number): string {
   switch (roll) {
     // Multiple 1s
