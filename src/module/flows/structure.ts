@@ -175,16 +175,7 @@ function monstrosityTableDescriptions(roll: number, remStruct: number): string {
 
 // Helper to check if an actor has the Monstrosity class
 function hasMonstrosityClass(actor: LancerActor): boolean {
-  return (
-    actor.is_npc() &&
-    actor.items.some(
-      i =>
-        i.type === "npc_class" &&
-        i.system &&
-        typeof i.system === "object" &&
-        (i.system as any).lid === "npcc_monstrosity"
-    )
-  );
+  return actor.is_npc() && actor.itemTypes.npc_feature.some(i => i.system.lid === "npcf_unique_physiology_monstrosity");
 }
 
 /**
