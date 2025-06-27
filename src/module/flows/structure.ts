@@ -110,6 +110,7 @@ const structTableTitles = [
 ];
 
 // Monstrosity structure table titles
+// Ⓒ Massif Press. Used with permission
 const monstrosityTableTitles = [
   "lancer.tables.structureMonstrosity.title.fatal",
   "lancer.tables.structureMonstrosity.title.direct",
@@ -148,6 +149,7 @@ function structTableDescriptions(roll: number, remStruct: number): string {
 }
 
 // Monstrosity structure table descriptions
+// Ⓒ Massif Press. Used with permission
 function monstrosityTableDescriptions(roll: number, remStruct: number): string {
   switch (roll) {
     // Multiple 1s
@@ -318,6 +320,8 @@ export async function checkStructureMultipleOnes(
       state.data.title = structTableTitles[0];
       state.data.desc = structTableDescriptions(roll.total ?? 1, 1);
     }
+    state.data.title = game.i18n.localize(state.data.title);
+    state.data.desc = game.i18n.localize(state.data.desc);
     await actor.update({
       "system.hp.value": actor.system.hp.value - actor.system.hp.max,
       "system.structure.value": 0,
