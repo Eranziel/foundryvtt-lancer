@@ -318,6 +318,8 @@ export async function checkStructureMultipleOnes(
       state.data.title = structTableTitles[0];
       state.data.desc = structTableDescriptions(roll.total ?? 1, 1);
     }
+    state.data.title = game.i18n.localize(state.data.title);
+    state.data.desc = game.i18n.localize(state.data.desc);
     await actor.update({
       "system.hp.value": actor.system.hp.value - actor.system.hp.max,
       "system.structure.value": 0,
