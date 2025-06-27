@@ -314,18 +314,14 @@ export async function checkStructureMultipleOnes(
     if (isMonstrosity) {
       state.data.title = monstrosityTableTitles[0];
       state.data.desc = monstrosityTableDescriptions(roll.total ?? 1, 1);
-      await actor.update({
-        "system.hp.value": actor.system.hp.value - actor.system.hp.max,
-        "system.structure.value": 0,
-      });
     } else {
       state.data.title = structTableTitles[0];
       state.data.desc = structTableDescriptions(roll.total ?? 1, 1);
-      await actor.update({
-        "system.hp.value": actor.system.hp.value - actor.system.hp.max,
-        "system.structure.value": 0,
-      });
     }
+    await actor.update({
+      "system.hp.value": actor.system.hp.value - actor.system.hp.max,
+      "system.structure.value": 0,
+    });
   }
 
   return true;
