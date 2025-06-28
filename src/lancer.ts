@@ -86,6 +86,7 @@ import { onHotbarDrop } from "./module/flows/hotbar";
 import { beginItemChatFlow } from "./module/flows/item";
 import { registerFlows } from "./module/flows/register-flows";
 import { beginSecondaryStructureFlow, triggerStrussFlow } from "./module/flows/structure";
+import { beginDismembermentDamageFlow } from "./module/flows/structure";
 import { fromLid, fromLidMany, fromLidSync } from "./module/helpers/from-lid";
 import { addEnrichers } from "./module/helpers/text-enrichers";
 import { LancerNPCClassSheet } from "./module/item/npc-class-sheet";
@@ -552,6 +553,11 @@ Hooks.on("renderChatMessage", async (cm: ChatMessage, html: JQuery, data: any) =
           if (!actorId) return ui.notifications?.error("No actor ID found on cascade prompt button.");
           beginCascadeFlow(actorId);
           break;
+        case "dismembermentDamage": {
+          const actor = LancerActor.fromUuidSync(actorId ?? "", "Invalid actor ID dismemberment damage button.");
+          beginDismembermentDamageFlow(actor);
+          break;
+        }
         default:
           return ui.notifications?.error("Invalid flow type on flow prompt button.");
       }
