@@ -34,7 +34,7 @@ import type {
 import { SystemTemplates } from "../system-template";
 import { fromLid, fromLidMany } from "../helpers/from-lid";
 import { lookupOwnedDeployables } from "./lid";
-import { requestImport } from "./requests";
+import { maybeImportActor } from "./requests";
 
 const PACK_SCOPE = "world";
 
