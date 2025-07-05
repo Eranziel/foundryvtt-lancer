@@ -102,7 +102,7 @@ import { StatusModel } from "./module/models/items/status";
 import { WeaponModModel } from "./module/models/items/weapon_mod";
 import { registerTours } from "./module/tours/register-tours";
 import { get_pack_id } from "./module/util/doc";
-import { tokenScrollText } from "./module/util/misc";
+import handleSocketMessage from "./module/socket";
 
 const lp = LANCER.log_prefix;
 
@@ -372,9 +372,7 @@ Hooks.once("ready", () => {
 // Attach socket listeners
 Hooks.once("ready", () => {
   game.socket!.on(`system.${game.system.id}`, msg => {
-    if (msg.action === "scrollText") {
-      tokenScrollText(msg.data);
-    }
+    handleSocketMessage(msg);
   });
 });
 

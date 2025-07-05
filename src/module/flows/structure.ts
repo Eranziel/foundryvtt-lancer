@@ -2,6 +2,7 @@
 import { LancerActor } from "../actor/lancer-actor";
 import { LANCER } from "../config";
 import { UUIDRef } from "../source-template";
+import { userOwnsActor } from "../util/misc";
 import { renderTemplateStep } from "./_render";
 import { Flow, FlowState, Step } from "./flow";
 import { LancerFlowState } from "./interfaces";
@@ -450,11 +451,7 @@ export function triggerStrussFlow(actor: LancerActor, changed: unknown) {
   // Check for overheating / structure
   if (
     game.settings.get(game.system.id, LANCER.setting_automation).structure &&
-    actor.isOwner &&
-    !(
-      game.users?.players.reduce((a, u) => a || (u.active && actor.testUserPermission(u, "OWNER")), false) &&
-      game.user?.isGM
-    ) &&
+    userOwnsActor(actor) &&
     (actor.is_mech() || actor.is_npc())
   ) {
     const data = changed as any; // DeepPartial<RegMechData | RegNpcData>;
