@@ -254,7 +254,6 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
         callsign: data.callsign,
         cloud_id: data.cloudID,
         history: data.history,
-        last_cloud_update: data.lastCloudUpdate,
         level: data.level,
         loadout: {
           armor: populatedArmor,
@@ -538,9 +537,10 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
       await mech.updateEmbeddedDocuments("Item", itemUpdates);
     }
 
-    // Fix active mech
+    // Update active mech and last imported timestamp
     await pilot.update({
       "system.active_mech": activeMechUuid,
+      "system.last_cloud_update": new Date().toISOString(),
     });
     pilot.effectHelper.propagateEffects(true);
 

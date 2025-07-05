@@ -12,7 +12,8 @@ const pilot_schema = {
   callsign: new fields.StringField(),
   cloud_id: new fields.StringField(),
   history: new fields.HTMLField(),
-  last_cloud_update: new fields.StringField(),
+  // We actually use this to show the last time the pilot was synced to Foundry.
+  last_cloud_update: new fields.StringField({ initial: "never" }),
   level: new fields.NumberField({ min: 0, max: 12, integer: true, initial: 0 }),
 
   loadout: new fields.SchemaField({
