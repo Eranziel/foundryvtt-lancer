@@ -412,15 +412,15 @@
           "glancing": "Glancing Hit"
         },
         "description": {
-          "fatal":  "The Monstrosity is destroyed.",
+          "fatal": "The Monstrosity is destroyed.",
           "direct": {
             "3plus": "The Monstrosity is smacked in the head and is @LancerID[stunned] until the end of its next turn.",
             "2": "The Monstrosity must succeed on a HULL save or be destroyed.",
             "1": "The Monstrosity is destroyed."
           },
-          "dismember":  "The attack blows a limb or chunk off the Monstrosity; it takes 1d6 damage and becomes @Compendium[world.status-items.Slowed] for the rest of the scene.",
-          "powerful":  "The Monstrosity is knocked @LancerID[prone] by the force of the blow.",
-          "glancing":  "The Monstrosity flinches in pain; it’s @LancerID[impaired] until the end of its next turn."
+          "dismember": "The attack blows a limb or chunk off the Monstrosity; it takes 1d6 damage and becomes @Compendium[world.status-items.Slowed] for the rest of the scene.",
+          "powerful": "The Monstrosity is knocked @LancerID[prone] by the force of the blow.",
+          "glancing": "The Monstrosity flinches in pain; it’s @LancerID[impaired] until the end of its next turn."
         }
       }
     },

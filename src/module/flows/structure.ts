@@ -176,16 +176,7 @@ function monstrosityTableDescriptions(roll: number, remStruct: number): string {
 
 // Helper to check if an actor has the Monstrosity class
 function hasMonstrosityClass(actor: LancerActor): boolean {
-  return (
-    actor.is_npc() &&
-    actor.items.some(
-      i =>
-        i.type === "npc_class" &&
-        i.system &&
-        typeof i.system === "object" &&
-        (i.system as any).lid === "npcc_monstrosity"
-    )
-  );
+  return actor.is_npc() && actor.items.some(i => i.is_npc_class() && i.system.lid === "npcc_monstrosity");
 }
 
 /**
@@ -245,9 +236,6 @@ export async function rollStructureTable(state: FlowState<LancerFlowState.Primar
       total: (roll.total ?? 0).toString(),
     },
   };
-
-  state.data.title = game.i18n.localize(state.data.title);
-  state.data.desc = game.i18n.localize(state.data.desc);
 
   return true;
 }
@@ -388,7 +376,7 @@ export async function structureInsertSecondaryRollButton(
 
   const result = state.data.result?.roll.total;
   if (!result) throw new TypeError(`Structure check hasn't been rolled yet!`);
-  if (result >= 2 && result <= 4) {
+  if (!hasMonstrosityClass(state.actor) && result >= 2 && result <= 4) {
     // TODO: we'll want helper functions to generate embeddable flow buttons
     state.data.embedButtons = state.data.embedButtons || [];
     state.data.embedButtons.push(`<a
@@ -435,6 +423,10 @@ async function printStructureCard(
   options?: { template?: string }
 ): Promise<boolean> {
   if (!state.data) throw new TypeError(`Structure roll flow data missing!`);
+
+  state.data.title = game.i18n.localize(state.data.title);
+  state.data.desc = game.i18n.localize(state.data.desc);
+
   const template = options?.template || `systems/${game.system.id}/templates/chat/structure-card.hbs`;
   await renderTemplateStep(state.actor, template, state.data);
   return true;
