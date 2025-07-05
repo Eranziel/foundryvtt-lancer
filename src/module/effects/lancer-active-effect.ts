@@ -252,13 +252,18 @@ export class LancerActiveEffect extends ActiveEffect {
       if (!status.is_status() || !status.system.lid || !status.img) continue;
       const existingStatus = CONFIG.statusEffects.find(s => s.id === status.system.lid);
       if (!existingStatus) {
+        const effects = [...status.effects];
+        const changes = effects.reduce((all, e) => {
+          // @ts-expect-error TS is dumb about reduce
+          return all.concat(e.changes || []);
+        }, []);
         CONFIG.statusEffects.push({
           id: status.system.lid,
           name: status.name,
           // @ts-expect-error v12 property renamed
           img: status.img,
           description: status.system.effects,
-          changes: [...status.effects][0].changes || [],
+          changes,
         });
       } else {
         // @ts-expect-error v12 property renamed
@@ -266,7 +271,7 @@ export class LancerActiveEffect extends ActiveEffect {
         // @ts-expect-error v12 property renamed
         existingStatus.img = overwrite ? status.img || existingStatus.img : existingStatus.img || status.img;
         existingStatus.name = overwrite ? status.name || existingStatus.name : existingStatus.name || status.name;
-        if (overwrite && status.system.effects) {
+        if (status.system.effects) {
           existingStatus.description = status.system.effects;
         }
         // If overwrite is on, replace the effect's changes with those from the item.
@@ -282,7 +287,12 @@ export class LancerActiveEffect extends ActiveEffect {
         }
         // If not overwriting, insert the changes if the existing status doesn't have any changes.
         else if (!existingStatus.changes && status.effects.size) {
-          existingStatus.changes = [...status.effects][0].changes || [];
+          const effects = [...status.effects];
+          const changes = effects.reduce((all, e) => {
+            // @ts-expect-error TS is dumb about reduce
+            return all.concat(e.changes || []);
+          }, []);
+          existingStatus.changes = changes;
         }
       }
     }
