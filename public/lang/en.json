@@ -402,7 +402,24 @@
           "glancing": "Emergency systems kick in and stabilize your mech, but it’s @LancerID[impaired] until the end of your next turn."
         }
       },
-      "overheat": {},
+      "overheat": {
+        "title": {
+          "irreversible": "Irreversible Meltdown",
+          "meltdown": "Meltdown",
+          "destabilized": "Destabilized Power Plant",
+          "shunt": "Emergency Shunt"
+        },
+        "description": {
+          "irreversible": "The reactor goes critical. your mech suffers a reactor meltdown at the end of your next turn.",
+          "meltdown": {
+            "3plus": "Your mech becomes @Compendium[world.status-items.Exposed]",
+            "2": "Roll an ENGINEERING check. On a success, your mech is @Compendium[world.status-items.Exposed]. On a failure, it suffers a reactor meltdown after 1d6 of your turns (rolled by the GM). A reactor meltdown can be prevented by retrying the ENGINEERING check as a free action.",
+            "1": "Your mech suffers a reactor meltdown at the end of your next turn."
+          },
+          "destabilized": "The power plant becomes unstable, beginning to eject jets of plasma. Your mech becomes @Compendium[world.status-items.Exposed].",
+          "shunt": "Your mech’s cooling systems manage to contain the increasing heat; however, your mech becomes @Compendium[world.status-items.Impaired] until the end of your next turn."
+        }
+      },
       "structureMonstrosity": {
         "title": {
           "fatal": "Fatal Hit",
