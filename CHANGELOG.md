@@ -2,7 +2,7 @@
 
 ## Features
 
-- Add built-in support for the Monstrosity structure table. Thanks, @tw-blob!
+- #476 - Add built-in support for the Monstrosity structure table. Thanks, @tw-blob!
 
 ## Bug Fixes
 
