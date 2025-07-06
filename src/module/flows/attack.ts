@@ -441,7 +441,6 @@ export async function rollAttacks(
         let actor = target.actor as LancerActor;
         // This is really async despit the warning
         let attack_roll = await new Roll(targetingData.roll).evaluate();
-        // @ts-expect-error DSN options aren't typed
         attack_roll.dice.forEach(d => (d.options.rollOrder = 1));
         const attack_tt = await attack_roll.getTooltip();
 

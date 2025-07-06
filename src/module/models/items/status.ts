@@ -34,7 +34,6 @@ export class StatusModel extends LancerDataModel<foundry.data.fields.DataSchema,
     if (allowed === false) return false;
     // Apply the corresponding status instead of creating the item if it's being created as embedded
     if (this.parent.parent) {
-      // @ts-expect-error
       this.parent.parent.toggleStatusEffect(this.lid, { active: true });
       return false;
     }

@@ -156,10 +156,8 @@ export class LancerActiveEffect<
      * @returns The statuses set with the icons swapped, and any missing statuses added.
      */
     function _backfillIcons(
-      // @ts-expect-error v10 types
       statuses: StatusEffect[],
       newStatuses: { id: string; name: string; img: string }[]
-      // @ts-expect-error v10 types
     ): StatusEffect[] {
       for (let icon of newStatuses) {
         let status = statuses.find(s => s.id === icon.id);
@@ -174,7 +172,6 @@ export class LancerActiveEffect<
       return statuses;
     }
 
-    // @ts-expect-error v10 types
     let configStatuses: StatusEffect[] = [];
     // Pull the default statuses from the compendium if it exists
     if (statusIconConfig.defaultConditionsStatus) {
@@ -210,9 +207,7 @@ export class LancerActiveEffect<
     // Use downandout to mark units as defeated
     CONFIG.specialStatusEffects.DEFEATED = "downandout";
     // Disable the vision mechanics Foundry applies to certain status names
-    // @ts-expect-error null to disable is valid
     CONFIG.specialStatusEffects.INVISIBLE = null;
-    // @ts-expect-error null to disable is valid
     CONFIG.specialStatusEffects.BLIND = null;
 
     Hooks.callAll("lancer.statusInitComplete");
@@ -256,7 +251,6 @@ export class LancerActiveEffect<
       if (!existingStatus) {
         const effects = [...status.effects];
         const changes = effects.reduce((all, e) => {
-          // @ts-expect-error TS is dumb about reduce
           return all.concat(e.changes || []);
         }, []);
         CONFIG.statusEffects.push({
@@ -278,7 +272,6 @@ export class LancerActiveEffect<
           const changes = existingStatus.changes || [];
           status.effects.forEach(e => {
             if (e.changes && e.changes.length > 0) {
-              // @ts-expect-error ??
               changes.push(...e.changes);
             }
           });
@@ -288,7 +281,6 @@ export class LancerActiveEffect<
         else if (!existingStatus.changes && status.effects.size) {
           const effects = [...status.effects];
           const changes = effects.reduce((all, e) => {
-            // @ts-expect-error TS is dumb about reduce
             return all.concat(e.changes || []);
           }, []);
           existingStatus.changes = changes;

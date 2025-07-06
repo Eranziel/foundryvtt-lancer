@@ -65,13 +65,11 @@ export class AccDiffHudWeapon {
     };
   }
 
-  get impaired(): ActiveEffect | null {
-    // @ts-expect-error
+  get impaired(): boolean {
     return !!this.#data?.lancerActor?.system?.statuses.impaired;
   }
 
-  get engagedStatus(): ActiveEffect | null {
-    // @ts-expect-error
+  get engagedStatus(): boolean {
     return !!this.#data?.lancerActor?.system?.statuses.engaged;
   }
 

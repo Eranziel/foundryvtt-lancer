@@ -123,7 +123,6 @@ export function friendly_entrytype_name(type: LancerItemType | LancerActorType, 
 
 export function TypeIcon(type: EntryType, macro?: boolean): string {
   const docType = ACTOR_TYPES.includes(type as any) ? "Actor" : "Item";
-  // @ts-expect-error `type` is fine here
   const img = getDocumentClass(docType).getDefaultArtwork({ type }).img;
   return img;
 }

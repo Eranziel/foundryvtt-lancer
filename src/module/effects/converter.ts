@@ -40,37 +40,37 @@ export function frameInnateEffect(frame: LancerFRAME) {
     value: frame.system.stats[key],
   }));
   // The weirder ones
-  changes!.push({
+  changes.push({
     key: "system.hp.max",
     mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
     priority: FRAME_STAT_PRIORITY,
     value: frame.system.stats.hp,
   });
-  changes!.push({
+  changes.push({
     key: "system.structure.max",
     mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
     priority: FRAME_STAT_PRIORITY,
     value: frame.system.stats.structure,
   });
-  changes!.push({
+  changes.push({
     key: "system.stress.max",
     mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
     priority: FRAME_STAT_PRIORITY,
     value: frame.system.stats.stress,
   });
-  changes!.push({
+  changes.push({
     key: "system.heat.max",
     mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
     priority: FRAME_STAT_PRIORITY,
     value: frame.system.stats.heatcap,
   });
-  changes!.push({
+  changes.push({
     key: "system.repairs.max",
     mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
     priority: FRAME_STAT_PRIORITY,
     value: frame.system.stats.repcap,
   });
-  changes!.push({
+  changes.push({
     key: "system.loadout.sp.max",
     mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
     priority: FRAME_STAT_PRIORITY,
@@ -79,7 +79,7 @@ export function frameInnateEffect(frame: LancerFRAME) {
 
   return {
     flags: { lancer: { ephemeral: true } },
-    name: frame.name!,
+    name: frame.name,
     img: frame.img,
     origin: frame.uuid,
     transfer: true,

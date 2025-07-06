@@ -158,7 +158,6 @@ export class LancerCombatant<SubType extends Combatant.SubType = Combatant.SubTy
    * The current activation data for the combatant.
    */
   get activations(): Activations {
-    // @ts-expect-error FlagConfig not working
     return this.system.activations;
   }
 
@@ -169,7 +168,6 @@ export class LancerCombatant<SubType extends Combatant.SubType = Combatant.SubTy
    */
   get disposition(): number {
     const disposition =
-      // @ts-expect-error V13 Combatant typedata
       <number>this.system.disposition ?? this.token?.disposition ?? this.actor?.prototypeToken.disposition ?? -2;
     if (disposition === CONST.TOKEN_DISPOSITIONS.FRIENDLY && this.hasPlayerOwner) return 2;
     return disposition;
@@ -182,7 +180,6 @@ export class LancerCombatant<SubType extends Combatant.SubType = Combatant.SubTy
   async addActivations(num: number): Promise<this | undefined> {
     if (num === 0) return this;
     return this.update({
-      // @ts-expect-error V13 combatant typedata
       "system.activations": {
         max: Math.max((this.activations.max ?? 1) + num, 1),
         value: Math.max((this.activations.value ?? 0) + num, 0),
@@ -197,7 +194,6 @@ export class LancerCombatant<SubType extends Combatant.SubType = Combatant.SubTy
   async modifyCurrentActivations(num: number): Promise<this | undefined> {
     if (num === 0) return this;
     return this.update({
-      // @ts-expect-error V13 combatant typedata
       "system.activations": {
         value: Math.clamp((this.activations?.value ?? 0) + num, 0, this.activations?.max ?? 1),
       },

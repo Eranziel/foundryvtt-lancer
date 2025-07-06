@@ -233,7 +233,6 @@ async function _rollDamage(
   }
 
   await damageRoll.evaluate();
-  // @ts-expect-error DSN options aren't typed
   damageRoll.dice.forEach(d => (d.options.rollOrder = 2));
   const tooltip = await damageRoll.getTooltip();
 
@@ -442,7 +441,6 @@ export async function rollCritDamage(state: FlowState<LancerFlowState.DamageRoll
           }
 
           const c_roll = await getCritRoll(result.roll);
-          // @ts-expect-error DSN options aren't typed
           c_roll.dice.forEach(d => (d.options.rollOrder = 2));
           const tt = await c_roll.getTooltip();
           return {
@@ -611,7 +609,6 @@ export async function getCritRoll(normal: Roll) {
     } else if (t instanceof foundry.dice.terms.OperatorTerm) {
       // As of v12, Roll.fromTerms throws an error if some terms are not evaluated already.
       // It's safe to mark OperatorTerms as evaluated, as they don't have any results.
-      // @ts-expect-error we must override this or Roll.fromTerms throws an error.
       t._evaluated = true;
       return t;
     } else {
@@ -663,7 +660,6 @@ export async function rollDamageCallback(event: JQuery.ClickEvent) {
   const hit_results: LancerFlowState.HitResult[] = [];
   for (const t of attackData.targets) {
     const target = (await fromUuid(t.uuid)) as LancerToken | null;
-    // @ts-expect-error v11 types
     if (!target || target.documentName !== "Token") {
       ui.notifications?.error("Invalid target for damage roll");
       continue;
@@ -672,7 +668,6 @@ export async function rollDamageCallback(event: JQuery.ClickEvent) {
     // Determine whether lock on was used
     let usedLockOn = false;
     if (t.setConditions) {
-      // @ts-expect-error v10 types
       usedLockOn = t.setConditions.lockOn === false ? true : false;
     }
 

@@ -22,7 +22,6 @@ function adjacentSpotter(actor: LancerActor): boolean {
   );
 
   const spotters: Set<LancerToken> = canvas.tokens!.quadtree!.getObjects(aabb, {
-    // @ts-expect-error Quadtree not set specific enough in types
     collisionTest: (o: QuadtreeObject<LancerToken>) => {
       if (!o.t.actor?.is_mech() || o.t === token) return false;
       if (!o.t.actor.system.pilot?.value?.itemTypes.talent.some(t => t.system.lid === "t_spotter")) return false;

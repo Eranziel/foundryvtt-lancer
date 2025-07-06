@@ -17,14 +17,10 @@ import { LancerDataModel, SyncUUIDRefField, type UnpackContext } from "../shared
 import fields = foundry.data.fields;
 
 const deployable_schema = {
-  // @ts-expect-error
   actions: new fields.ArrayField(new ActionField()),
   // bonuses: new fields.ArrayField(new BonusField()),
-  // @ts-expect-error
   counters: new fields.ArrayField(new CounterField()),
-  // @ts-expect-error
   synergies: new fields.ArrayField(new SynergyField()),
-  // @ts-expect-error
   tags: new fields.ArrayField(new TagField()),
   activation: new fields.StringField({ choices: Object.values(ActivationType), initial: ActivationType.Quick }),
   stats: new fields.SchemaField({

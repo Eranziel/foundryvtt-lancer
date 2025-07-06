@@ -22,7 +22,7 @@ import {
   WeaponTypeChecklistField,
 } from "../shared";
 
-const fields: any = foundry.data.fields;
+import fields = foundry.data.fields;
 
 export interface SynergyData {
   locations: SynergyLocation[];
@@ -34,20 +34,26 @@ export interface SynergyData {
   weapon_sizes: WeaponSizeChecklist | null;
 }
 
-export class SynergyField extends fields.SchemaField {
-  constructor(options = {}) {
-    super(
-      {
-        locations: new fields.ArrayField(new fields.StringField({ choices: AllSynergyLocations, initial: "any" })),
-        detail: new fields.StringField({ nullable: false }),
-        damage_types: new DamageTypeChecklistField(),
-        range_types: new RangeTypeChecklistField(),
-        weapon_types: new WeaponTypeChecklistField(),
-        weapon_sizes: new WeaponSizeChecklistField(),
-        system_types: new SystemTypeChecklistField(),
-      },
-      options
-    );
+const defineSynergyFieldSchema = () => {
+  return {
+    locations: new fields.ArrayField(new fields.StringField({ choices: AllSynergyLocations, initial: "any" })),
+    detail: new fields.StringField({ nullable: false }),
+    damage_types: new DamageTypeChecklistField(),
+    range_types: new RangeTypeChecklistField(),
+    weapon_types: new WeaponTypeChecklistField(),
+    weapon_sizes: new WeaponSizeChecklistField(),
+    system_types: new SystemTypeChecklistField(),
+  };
+};
+
+type SynergyFieldSchema = ReturnType<typeof defineSynergyFieldSchema>;
+
+export class SynergyField<Options extends fields.SchemaField.Options<SynergyFieldSchema>> extends fields.SchemaField<
+  SynergyFieldSchema,
+  Options
+> {
+  constructor(options?: Options) {
+    super(defineSynergyFieldSchema(), options);
   }
 
   migrateSource(sourceData: any, fieldData: any) {

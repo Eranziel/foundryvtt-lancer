@@ -104,9 +104,7 @@ export class LancerItem<SubType extends Item.SubType = Item.SubType> extends Ite
   ): ReturnType<typeof Item.getDefaultArtwork> {
     const model: typeof foundry.abstract.DataModel<any, any> | undefined =
       CONFIG.Item.dataModels[itemData?.type ?? "base"];
-    // @ts-expect-error This is fine
     if (model?.getDefaultArtwork instanceof Function) return model.getDefaultArtwork(itemData);
-    // @ts-expect-error This is fine
     const img: string = model?.DEFAULT_ICON ?? this.DEFAULT_ICON;
     return { img };
   }
@@ -120,17 +118,12 @@ export class LancerItem<SubType extends Item.SubType = Item.SubType> extends Ite
     const filter = new Set(types);
     switch (this.type) {
       case EntryType.MECH_WEAPON:
-        // @ts-expect-error Should be fixed with v10 types
         const p = this.system.selected_profile_index;
-        // @ts-expect-error Should be fixed with v10 types
         return this.system.profiles[p].range.filter(r => filter.has(r.type));
       case EntryType.PILOT_WEAPON:
-        // @ts-expect-error Should be fixed with v10 types
         return this.system.range.filter(r => filter.has(r.type));
       case EntryType.NPC_FEATURE:
-        // @ts-expect-error Should be fixed with v10 types
         if (this.system.type !== NpcFeatureType.Weapon) return [];
-        // @ts-expect-error Should be fixed with v10 types
         return this.system.range.filter(r => filter.has(r.type));
       default:
         return [];
@@ -194,11 +187,9 @@ export class LancerItem<SubType extends Item.SubType = Item.SubType> extends Ite
       case EntryType.PILOT_GEAR:
       case EntryType.PILOT_ARMOR:
       case EntryType.PILOT_WEAPON:
-        // @ts-expect-error
         this.system.equipped = false;
         break;
       default:
-        // @ts-expect-error
         this.system.equipped = true;
         break;
     }
@@ -213,7 +204,6 @@ export class LancerItem<SubType extends Item.SubType = Item.SubType> extends Ite
   prepareBaseData() {
     super.prepareBaseData();
     // Some modules create items with type "base", or potentially others we don't care about
-    //@ts-expect-error V12 typing in progress
     if (!ITEM_TYPES.includes(this.type)) return;
 
     // Collect all tags on mech weapons
@@ -337,7 +327,6 @@ export class LancerItem<SubType extends Item.SubType = Item.SubType> extends Ite
    * Want to preserve our arrays
    */
   async update(data: any, options = {}) {
-    // @ts-expect-error
     data = this.system.full_update_data(data);
     return super.update(data, options);
   }
@@ -682,7 +671,6 @@ export class LancerItem<SubType extends Item.SubType = Item.SubType> extends Ite
   async beginActivationFlow(path?: string) {
     if (!path) {
       // If no path is provided, default to the first action
-      // @ts-expect-error We know it doesn't exist on all types, that's why we're checking
       if (!this.system.actions || this.system.actions.length < 1) {
         ui.notifications!.error(`Item ${this.id} has no actions, how did you even get here?`);
         return;

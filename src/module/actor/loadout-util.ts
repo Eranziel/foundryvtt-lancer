@@ -179,7 +179,6 @@ export class LoadoutHelper {
     // Bundled updates are theoretically rare, but if they ever were to occur its better than just first-instinct-updating 30 times
     let killedIds: string[] = [];
     if (this.actor.is_pilot()) {
-      // @ts-expect-error
       let cleanupLoadout = foundry.utils.duplicate(this.actor.system._source.loadout) as SourceData.Pilot["loadout"];
       let currLoadout = this.actor.system.loadout;
       // Fairly simple
@@ -214,7 +213,6 @@ export class LoadoutHelper {
         await this.actor.update({ system: { loadout: cleanupLoadout } });
       }
     } else if (this.actor.is_mech()) {
-      // @ts-expect-error
       let cleanupLoadout = foundry.utils.duplicate(this.actor.system._source.loadout) as SourceData.Mech["loadout"];
       let currLoadout = this.actor.system.loadout;
       // Frame is simple

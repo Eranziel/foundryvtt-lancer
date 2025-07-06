@@ -71,18 +71,16 @@ export class LancerActor<SubType extends Actor.SubType = Actor.SubType> extends 
 
   static DEFAULT_ICON = "icons/svg/mystery-man-black.svg";
   static override getDefaultArtwork(actorData: Parameters<typeof Actor.getDefaultArtwork>[0]) {
-    const model: typeof foundry.abstract.DataModel<any, any> | undefined =
-      CONFIG.Actor.dataModels[actorData?.type ?? "base"];
-    // @ts-expect-error This is fine
+    const model = CONFIG.Actor.dataModels[actorData?.type ?? "base"] as unknown as
+      | typeof foundry.documents.BaseActor
+      | undefined;
     if (model?.getDefaultArtwork instanceof Function) return model.getDefaultArtwork(itemData);
-    // @ts-expect-error This is fine
     const img: string = model?.DEFAULT_ICON ?? this.DEFAULT_ICON;
     return { img, texture: { src: img } };
   }
 
   // These cannot be instantiated the normal way (e.x. via constructor)
-  _configure(options: unknown) {
-    // @ts-expect-error
+  _configure(options: foundry.abstract.Document.ConfigureOptions) {
     super._configure(options);
     this.effectHelper = new EffectHelper(this);
     this.loadoutHelper = new LoadoutHelper(this);
@@ -138,11 +136,8 @@ export class LancerActor<SubType extends Actor.SubType = Actor.SubType> extends 
      */
     if (!paracausal && !this.system.statuses.shredded) {
       const defenseFavor = true; // getAutomationOptions().defenderArmor
-      // TODO: figure out how to fix this typing
-      // @ts-expect-error
       const resistArmorDamage = armoredDamageTypes.filter(t => resistAll || this.system.resistances[t.toLowerCase()]);
       const normalArmorDamage = armoredDamageTypes.filter(t => !resistArmorDamage.includes(t));
-      // @ts-expect-error
       const resistApDamage = apDamageTypes.filter(t => resistAll || this.system.resistances[t.toLowerCase()]);
       let armor = ap ? 0 : this.system.armor;
       let leftoverArmor: number; // Temp 'storage' variable for tracking used armor
@@ -265,14 +260,12 @@ export class LancerActor<SubType extends Actor.SubType = Actor.SubType> extends 
    */
   prepareBaseData() {
     // Some modules create actors with type "base", or potentially others we don't care about
-    //@ts-expect-error V12 typing in progress
     if (!ACTOR_TYPES.includes(this.type)) {
       console.log("Actor is not a LancerActor:", this);
       return super.prepareBaseData();
     }
     // TODO: Move these to the datamodels themselves
     // 1. First, finalize our system tasks. Items should be (minimally) prepared by now, so we can resolve embedded items
-    // // @ts-expect-error
     // this.system.finalize_tasks();
 
     // 2. Initialize our universal derived stat fields
@@ -424,7 +417,6 @@ export class LancerActor<SubType extends Actor.SubType = Actor.SubType> extends 
   _markStatuses() {
     if (!this.statuses) return;
     for (const status of this.statuses.keys()) {
-      // @ts-expect-error
       this.system.statuses[status] = true;
       // Mark resistances based on statuses
       switch (status) {
@@ -511,7 +503,6 @@ export class LancerActor<SubType extends Actor.SubType = Actor.SubType> extends 
    * @override
    */
   async update(data: any, options: any = {}) {
-    // @ts-expect-error
     data = this.system.full_update_data(data);
     return super.update(data, options);
   }
@@ -908,7 +899,6 @@ export class LancerActor<SubType extends Actor.SubType = Actor.SubType> extends 
       ui.notifications?.error(message);
       throw new Error(message);
     }
-    // @ts-expect-error Infinite recursion for some reason
     if (x instanceof TokenDocument.implementation) x = x.actor!;
     if (!(x instanceof LancerActor)) {
       let message = `${messagePrefix ? messagePrefix + " | " : ""}Document ${x} not an actor.`;
@@ -927,7 +917,6 @@ export class LancerActor<SubType extends Actor.SubType = Actor.SubType> extends 
       ui.notifications?.error(message);
       throw new Error(message);
     }
-    // @ts-expect-error Infinite recursion for some reason
     if (x instanceof TokenDocument.implementation) x = x.actor!;
     if (!(x instanceof LancerActor)) {
       let message = `${messagePrefix ? messagePrefix + " | " : ""}Document ${x} not an actor.`;

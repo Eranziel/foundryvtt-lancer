@@ -43,9 +43,7 @@ const pilot_schema = {
     }),
     answers: new fields.ArrayField(new fields.StringField()),
     minor_ideal: new fields.StringField(),
-    // @ts-expect-error
     burdens: new fields.ArrayField(new CounterField()),
-    // @ts-expect-error
     clocks: new fields.ArrayField(new CounterField()),
   }),
 

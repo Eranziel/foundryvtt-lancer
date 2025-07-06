@@ -201,7 +201,6 @@ export async function get_pack(type: LancerItemType | LancerActorType): Promise<
       name: basename,
       type: entity_type,
       label: `lancer.compendium.${basename}`,
-      // @ts-expect-error Banner data not in types
       banner: `./systems/lancer/assets/banners/${basename}.svg`,
       system: "lancer",
       // sort: PackSort[basename],
@@ -243,7 +242,6 @@ export async function insinuate(items: Array<LancerItem>, to: LancerActor): Prom
   }
 
   // Await and recombine
-  // @ts-expect-error
   let actualNewItems: LancerItem[] = await to.createEmbeddedDocuments("Item", newItems);
 
   // Prompt for deployables if they don't yet exist

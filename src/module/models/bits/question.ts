@@ -5,15 +5,21 @@ export interface BondQuestionData {
   options: Array<string>;
 }
 
-export class BondQuestionField extends fields.SchemaField {
-  constructor(options = {}) {
-    super(
-      {
-        question: new fields.StringField({ nullable: false }),
-        options: new fields.ArrayField(new fields.StringField({ nullable: false })),
-      },
-      options
-    );
+const defineBondQuestionFieldSchema = () => {
+  return {
+    question: new fields.StringField({ nullable: false }),
+    options: new fields.ArrayField(new fields.StringField({ nullable: false })),
+  };
+};
+
+type BondQuestionFieldSchema = ReturnType<typeof defineBondQuestionFieldSchema>;
+
+export class BondQuestionField<Options extends fields.SchemaField<BondQuestionFieldSchema>> extends fields.SchemaField<
+  BondQuestionFieldSchema,
+  Options
+> {
+  constructor(options?: Options) {
+    super(defineBondQuestionFieldSchema(), options);
   }
 }
 

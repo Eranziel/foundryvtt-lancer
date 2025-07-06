@@ -107,6 +107,14 @@ import handleSocketMessage from "./module/socket";
 
 const lp = LANCER.log_prefix;
 
+declare module "fvtt-types/configuration" {
+  namespace Hooks {
+    interface ApplicationConfig {
+      CombatDock: Application.Any;
+    }
+  }
+}
+
 /* ------------------------------------ */
 /* Initialize system                    */
 /* ------------------------------------ */
@@ -142,7 +150,6 @@ Hooks.once("init", () => {
   CONFIG.Actor.dataModels[EntryType.NPC] = NpcModel;
   CONFIG.Actor.dataModels[EntryType.DEPLOYABLE] = DeployableModel;
 
-  // @ts-expect-error Types missing type data for combatant
   CONFIG.Combatant.dataModels["base"] = LancerCombatantModel;
 
   // Set up trackable resources for the various actor types
@@ -246,10 +253,8 @@ Hooks.once("init", () => {
   CONFIG.Token.documentClass = LancerTokenDocument;
   CONFIG.Token.objectClass = LancerToken;
   CONFIG.Combat.documentClass = LancerCombat;
-  // @ts-expect-error v13 types
   CONFIG.Combat.fallbackTurnMarker = "systems/lancer/assets/turn-markers/mech-hud.svg";
   CONFIG.Combatant.documentClass = LancerCombatant;
-  // @ts-expect-error This is literally a subclass so idk why it's busted
   CONFIG.ui.combat = LancerCombatTracker;
 
   // Set up default system status icons
@@ -294,9 +299,7 @@ Hooks.once("setup", () => {
   /////////////////////////////////
   // Change the default value of the grid based templates option
   // TODO Remove when we get https://github.com/foundryvtt/foundryvtt/issues/11477
-  if (game.settings.settings.get("core.gridTemplates"))
-    // @ts-expect-error This is hacky, but valid
-    game.settings.settings.get("core.gridTemplates")!.default = true;
+  if (game.settings.settings.get("core.gridTemplates")) game.settings.settings.get("core.gridTemplates").default = true;
 });
 
 /* ------------------------------------ */
@@ -367,7 +370,7 @@ Hooks.once("ready", () => {
 Hooks.on("controlToken", () => {
   game.action_manager?.update();
 });
-Hooks.on("updateToken", (_scene, _token, diff, _options, _idUser) => {
+Hooks.on("updateToken", (_token, diff) => {
   // If it's an X or Y change assume the token is just moving.
   if (diff.hasOwnProperty("y") || diff.hasOwnProperty("x")) return;
   game.action_manager?.update();
@@ -400,7 +403,6 @@ Hooks.on("updateCombat", (_combat, changes) => {
   }
   // This can be removed in v10
   if (foundry.utils.hasProperty(changes, "turn")) {
-    // @ts-expect-error Just blindy try
     ui.combatCarousel?.render();
   }
 });
@@ -423,7 +425,6 @@ Hooks.on("renderCompendiumDirectory", addLCPManagerButton);
 //     },
 //     callback: (li: any) => {
 //       const actor = game.actors?.get(li.data("documentId"));
-//       // @ts-expect-error Migrations?
 //       const dump = handleActorExport(actor, false);
 //       if (dump && actor?.is_pilot()) importCC(actor, dump as any, true);
 //     },
@@ -438,7 +439,6 @@ Hooks.on("renderCompendiumDirectory", addLCPManagerButton);
 //     },
 //     callback: (li: any) => {
 //       const actor = game.actors?.get(li.data("documentId"));
-//       // @ts-expect-error Migrations?
 //       handleActorExport(actor, true);
 //     },
 //   };
@@ -555,10 +555,8 @@ Hooks.on("renderChatMessageHTML", async (cm, el, data) => {
     const token = (await fromUuid(targetId)) as LancerToken | null;
     if (!token) return;
     if (ev.type === "mouseover") {
-      // @ts-expect-error we're not supposed to call the private method, oops
       token.object._onHoverIn(ev);
     } else if (ev.type === "mouseout") {
-      // @ts-expect-error we're not supposed to call the private method, oops
       token.object._onHoverOut(ev);
     }
   };
@@ -608,9 +606,7 @@ async function promptInstallCoreData() {
 }
 
 function setupSheets() {
-  // @ts-expect-error v13 types
   const actors = foundry.documents.collections.Actors;
-  // @ts-expect-error v13 types
   actors.unregisterSheet("core", foundry.appv1.sheets.ActorSheet);
   actors.registerSheet("lancer", LancerPilotSheet, { types: [EntryType.PILOT], makeDefault: true });
   actors.registerSheet("lancer", LancerMechSheet, { types: [EntryType.MECH], makeDefault: true });
@@ -619,9 +615,7 @@ function setupSheets() {
     types: [EntryType.DEPLOYABLE],
     makeDefault: true,
   });
-  // @ts-expect-error v13 types
   const items = foundry.documents.collections.Items;
-  // @ts-expect-error v13 types
   items.unregisterSheet("core", foundry.appv1.sheets.ItemSheet);
   items.registerSheet("lancer", LancerItemSheet, {
     types: [
@@ -675,7 +669,6 @@ async function versionCheck(): Promise<"first_run" | "yes" | "no" | "too_old"> {
 
 async function promptLCPManagerTour() {
   const showTour = await foundry.applications.api.DialogV2.confirm({
-    // @ts-expect-error This should expect a partial
     window: { title: "Compendium Manager Tour?" },
     content: "The LANCER Compendium Manager has had a major update. Would you like to get a tour?",
     rejectClose: false,
@@ -779,7 +772,7 @@ async function printUpdateMessage() {
   });
 }
 
-function addSettingsButtons(_app: Application, html: HTMLElement) {
+function addSettingsButtons(_app: foundry.applications.sidebar.tabs.Settings, html: HTMLElement) {
   const lancerHeader = $(`<h2>LANCER</h2>
             <div id="settings-lancer"></div>`);
 
@@ -801,7 +794,10 @@ function addSettingsButtons(_app: Application, html: HTMLElement) {
   });
 
   faqButton.on("click", async () => {
-    let helpContent = await renderTemplate(`systems/${game.system.id}/templates/window/lancerHelp.hbs`, {});
+    let helpContent = await foundry.applications.handlebars.renderTemplate(
+      `systems/${game.system.id}/templates/window/lancerHelp.hbs`,
+      {}
+    );
 
     new foundry.applications.api.DialogV2({
       window: {
