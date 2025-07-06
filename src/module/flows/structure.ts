@@ -453,7 +453,7 @@ export async function structureInsertSecondaryRollButton(
 
   const result = state.data.result?.roll.total;
   if (!result) throw new TypeError(`Structure check hasn't been rolled yet!`);
-  if (!hasMonstrosityClass(state.actor) && result >= 2 && result <= 4) {
+  if (!hasUniquePhysiology(state.actor) && result >= 2 && result <= 4) {
     // TODO: we'll want helper functions to generate embeddable flow buttons
     state.data.embedButtons = state.data.embedButtons || [];
     state.data.embedButtons.push(`<a
