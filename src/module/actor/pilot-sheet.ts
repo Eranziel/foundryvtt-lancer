@@ -6,7 +6,7 @@ import { buildCounterHeader, buildCounterHTML } from "../helpers/item";
 import { ref_params, resolve_ref_element } from "../helpers/refs";
 import { inc_if, resolveDotpath } from "../helpers/commons";
 import { LancerActor, LancerMECH, LancerPILOT } from "./lancer-actor";
-import { fetchPilotViaCache, fetchPilotViaShareCode, pilotCache } from "../util/compcon";
+import { fetchPilotViaShareCode } from "../util/compcon";
 import { LancerFRAME, LancerItem, LancerItemType } from "../item/lancer-item";
 import { clicker_num_input } from "../helpers/actor";
 import { ResolvedDropData } from "../helpers/dragdrop";
@@ -81,31 +81,8 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
               console.error(`Failed import with share code ${pilot.system.cloud_id}, error:`, error);
               return;
             }
-          } else if (pilot.system.cloud_id) {
-            // Vault ID from a logged-in Comp/Con account
-            ui.notifications!.info("Importing character from COMP/CON account...");
-            const cachedPilot = pilotCache().find(p => p.cloudID == pilot.system.cloud_id);
-            if (cachedPilot != undefined) {
-              try {
-                raw_pilot_data = await fetchPilotViaCache(cachedPilot);
-              } catch (error) {
-                ui.notifications!.error(
-                  "Failed to import from COMP/CON account. Try refreshing the page to reload pilot list."
-                );
-                console.error(`Failed to import vaultID ${pilot.system.cloud_id} via pilot list, error:`, error);
-                return;
-              }
-            } else {
-              ui.notifications!.error(
-                "Failed to import from COMP/CON account. Try refreshing the page to reload pilot list"
-              );
-              console.error(`Failed to find pilot in cache, vaultID: ${pilot.system.cloud_id}`);
-              return;
-            }
           } else {
-            ui.notifications!.error(
-              "Could not find character to import! No pilot selected via dropdown and no share code entered."
-            );
+            ui.notifications!.error("Could not find character to import! No share code entered.");
             return;
           }
           await importCC(this.actor as LancerPILOT, raw_pilot_data);
@@ -116,15 +93,6 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
 
       // JSON Import
       html.find<HTMLInputElement>("input#pilot-json-import").on("change", ev => this._onPilotJsonUpload(ev));
-
-      // editing rawID clears vaultID
-      // (other way happens automatically because we prioritise vaultID in commit)
-      let rawInput = html.find('input[name="rawID"]');
-      rawInput.on("input", async ev => {
-        if ((ev.target as any).value != "") {
-          (html.find('select[name="vaultID"]')[0] as any).value = "";
-        }
-      });
 
       // Mech swapping
       let mechActivators = html.find(".activate-mech");
@@ -191,18 +159,15 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
   async getData(): Promise<object> {
     const data: any = await super.getData(); // Not fully populated yet!
 
-    data.compConPilotList = pilotCache()
-      .sort((p1, p2) => {
-        if (p1.callsign < p2.callsign) return -1;
-        if (p1.callsign > p2.callsign) return 1;
-        if (p1.name < p2.name) return -1;
-        if (p1.name > p2.name) return 1;
-        return 0;
-      })
-      .reduce((acc, pilot) => {
-        acc[`${pilot.callsign} // ${pilot.name}`] = pilot.cloudID;
-        return acc;
-      }, {} as Record<string, string>);
+    const pilot = this.actor as LancerPILOT;
+    if (pilot.system.cloud_id && pilot.system.cloud_id.match(shareCodeMatcher)) {
+      // If this was a share code, show it in the input box so it can be edited
+      data.vaultID = "";
+      data.rawID = pilot.system.cloud_id;
+    } else {
+      data.rawID = "";
+      data.vaultID = "";
+    }
 
     return data;
   }
