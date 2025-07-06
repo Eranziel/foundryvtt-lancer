@@ -1,0 +1,105 @@
+/**
+  * Layout styles
+  *
+  * This file includes styles for flexbox layouts, grid layouts, and other layout-related styles.
+  */
+
+.major {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.flex-center {
+  align-items: center;
+  justify-content: center;
+}
+
+.flex-center > * {
+  flex-grow: unset;
+}
+
+/* For if you just want a single item left */
+.self-left {
+  align-self: flex-start;
+}
+
+/* Some flex helpers */
+@mixin wr-item($prefix, $percent, $margin) {
+  &.#{$prefix} > * {
+    flex: 1 0 calc(#{$percent} - #{$margin * 2});
+    margin: 3px;
+  }
+
+  &.#{$prefix} > .double {
+    flex: 1 0 calc(#{$percent * 2} - #{$margin * 2});
+  }
+
+  &.#{$prefix} > .triple {
+    flex: 1 0 calc(#{$percent * 3} - #{$margin * 2});
+  }
+
+  &.#{$prefix} > .quadruple {
+    flex: 1 0 calc(#{$percent * 4} - #{$margin * 2});
+  }
+
+  &.#{$prefix} > .quintuple {
+    flex: 1 0 calc(#{$percent * 5} - #{$margin * 2});
+  }
+
+  &.#{$prefix} > .hextuple {
+    flex: 1 0 calc(#{$percent * 6} - #{$margin * 2});
+  }
+}
+
+.wraprow {
+  display: flex;
+  flex-wrap: wrap;
+
+  @include wr-item("double", 50%, 3px);
+  @include wr-item("triple", 33.33%, 3px);
+  @include wr-item("quadruple", 25%, 3px);
+  @include wr-item("quintuple", 20%, 3px);
+  @include wr-item("hextuple", 16.66%, 3px);
+
+  /* 3/3. However, we generalize */
+  &.double > .full,
+  &.triple > .full,
+  &.quadruple > .full,
+  &.quintuple > .full,
+  &.hextuple > .full {
+    flex: 1 0 calc(100% - 6px);
+    margin: 3px;
+  }
+}
+
+.grow {
+  flex-grow: 1;
+}
+
+.no-grow {
+  flex-grow: 0 !important;
+}
+
+.no-wrap {
+  flex-wrap: nowrap !important;
+}
+
+/* this forces all its children to share the same space,
+    which is useful for svelte transitions */
+.grid-enforcement {
+  display: grid;
+}
+
+.grid-enforcement > * {
+  grid-column: 1/2;
+  grid-row: 1/2;
+}
+
+.overline {
+  font-size: 0.75rem !important;
+  font-weight: 500;
+  letter-spacing: 0.1em !important;
+  line-height: 1.2rem;
+  text-transform: uppercase;
+  font-family: Roboto, sans-serif !important;
+}

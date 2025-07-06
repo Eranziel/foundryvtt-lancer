@@ -1,0 +1,218 @@
+/* ===== RULES FOR LANCER APPLICATIONS ===== */
+.application.lancer {
+  .window-content {
+    width: 100%;
+    height: 100%;
+    background-color: var(--background-color);
+    color: var(--dark-text);
+
+    & .svelte-app-mount {
+      height: 100%;
+      width: 100%;
+    }
+  }
+}
+
+// TODO: these should live somewhere else,
+// and lancer-sheet probably doesn't get used?
+.lancer.sheet,
+.lancer-sheet {
+  .editor,
+  .editor-content {
+    height: -webkit-fill-available;
+    min-height: 30em;
+  }
+}
+
+/* ===== RULES FOR ALL APPLICATIONS ===== */
+.application .window-content {
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--main-font-family);
+    margin-top: 0.5em;
+    margin-bottom: 0;
+  }
+
+  button,
+  a.button {
+    &:hover {
+      background-color: var(--primary-color);
+      border-color: var(--lighten-5);
+    }
+  }
+
+  input[type="checkbox"]:checked,
+  input[type="radio"]:checked {
+    --checkbox-checked-color: var(--secondary-color);
+    --checkbox-disabled-color: var(--dark-gray-color);
+    --checkbox-background-color: var(--dark-gray-color);
+  }
+}
+
+.scroll-body {
+  overflow-y: auto;
+  margin-top: 8px;
+  height: calc(100% - 168px);
+}
+
+.monospace {
+  font-family: var(--monospace-font-family);
+}
+
+/* By default, edit*/
+.locked {
+  /* Only show edit button if not locked*/
+  .popout-text-edit-button {
+    display: none;
+  }
+}
+
+/* ===== Custom drag-drop handling ===== */
+
+/* Editable is a built-in class on application windows containing editable sheets.
+Here, this means we want to allow for drag stuff etc to show contextually if:
+- We are dragging the appropriate type 
+- The app is editable
+- the box is a context-drop of the appropriate corresponding type
+*/
+@each $e-type in $document-types {
+  .drop-target-#{$e-type} {
+    display: none;
+  }
+
+  .dragging-#{$e-type} .editable .drop-target-#{$e-type} {
+    display: revert !important;
+    height: 100%;
+    z-index: 100;
+  }
+}
+
+.lid-list {
+  position: relative;
+  min-height: 6em;
+}
+
+.line-drop-target {
+  @include glow;
+  align-content: center;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 0;
+  opacity: 95%;
+  z-index: -100;
+  transition: all 0.5s;
+}
+
+.slot:not(.set) {
+  align-items: center;
+}
+
+/* Glow effect courtesy of https://codepen.io/jackrugile/pen/ABeIi */
+@mixin glow {
+  animation: glow-anim 800ms ease-out infinite alternate;
+  background: #222922;
+  background: linear-gradient(#333933, #222922);
+  border-color: #393;
+  box-shadow: 0 0 5px rgba(0, 255, 0, 0.2), inset 0 0 5px rgba(0, 255, 0, 0.1), 0 2px 0 #000;
+  color: #efe;
+  outline: none;
+}
+
+@keyframes glow-anim {
+  0% {
+    border-color: #393;
+    box-shadow: 0 0 5px rgba(0, 255, 0, 0.2), inset 0 0 5px rgba(0, 255, 0, 0.1), 0 2px 0 #000;
+  }
+  100% {
+    border-color: #6f6;
+    box-shadow: 0 0 20px rgba(0, 255, 0, 0.6), inset 0 0 10px rgba(0, 255, 0, 0.4), 0 2px 0 #000;
+  }
+}
+
+/* ===== End Custom drag-drop handling ===== */
+
+/* ===== Action Tracker ===== */
+
+#action-manager {
+  flex-direction: column;
+  position: fixed;
+  z-index: 100;
+  background-color: #eaeaea;
+  border: 1px solid #5d5d5d;
+}
+#action-manager.hidden {
+  display: none !important; // Because apparently you need to do this.
+}
+#action-manager-drag {
+  cursor: move;
+  font-size: 1.5em;
+  padding: 12px 4px 0px 8px;
+}
+#action-manager-reset {
+  display: inline-flex;
+  padding: 2px;
+}
+#action-manager.noclick a {
+  cursor: unset !important;
+}
+
+.action-bar {
+  display: flex;
+  align-items: center;
+}
+.action-label {
+  display: inline-flex;
+  padding-left: 12px;
+  border-bottom: 1px solid black;
+  background-color: var(--primary-color);
+  color: var(--light-text);
+  font-style: italic;
+}
+
+a.action {
+  font-size: 36px;
+  margin: 4px;
+  border-radius: 20px;
+  height: 40px;
+  width: 40px;
+  background-color: #616161;
+
+  i {
+    display: inline-flex;
+    padding-top: 1px;
+  }
+
+  &:hover {
+    -moz-box-shadow: inset 0 0 100px 100px rgba(255, 255, 255, 0.3);
+    -webkit-box-shadow: inset 0 0 100px 100px rgba(255, 255, 255, 0.3);
+    box-shadow: inset 0 0 100px 100px rgba(255, 255, 255, 0.3);
+    text-shadow: none;
+  }
+}
+
+.white--text {
+  color: var(--light-text) !important;
+  caret-color: var(--light-text) !important;
+}
+
+.v-divide {
+  align-self: stretch;
+  border: solid;
+  border-width: 0 thin 0 0;
+  display: inline-flex;
+  height: inherit;
+  min-height: 100%;
+  max-height: 100%;
+  max-width: 0;
+  width: 0;
+  vertical-align: text-bottom;
+  margin: 0 8px;
+  padding: 4px;
+  color: #888888;
+}
+
+/* ===== End Action Tracker ===== */

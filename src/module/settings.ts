@@ -154,7 +154,7 @@ export const registerSettings = function () {
   CONFIG.LancerInitiative = {
     templatePath: `systems/${game.system.id}/templates/combat/combat-tracker.hbs`,
   };
-  game.settings.register(game.system.id, "combat-tracker-appearance", {
+  game.settings.register(game.system.id, LANCER.setting_combat_appearance, {
     scope: "client",
     config: false,
     type: CombatTrackerAppearance,
@@ -162,7 +162,7 @@ export const registerSettings = function () {
     onChange: setAppearance,
     default: new CombatTrackerAppearance(),
   });
-  game.settings.register(game.system.id, "combat-tracker-sort", {
+  game.settings.register(game.system.id, LANCER.setting_combat_sort, {
     scope: "world",
     config: false,
     type: Boolean,
@@ -177,15 +177,6 @@ export const registerSettings = function () {
 };
 
 // > GENERAL AUTOMATION
-/**
- * Retrieve the automation settings for the system. If automation is turned
- * off, all keys will be `false`.
- * @deprecated Get the setting directly instead.
- */
-export function getAutomationOptions(): AutomationOptions {
-  return game.settings.get(game.system.id, LANCER.setting_automation) ?? new AutomationOptions();
-}
-
 interface AutomationOptionsSchema extends DataSchema {
   /**
    * Master switch for automation

@@ -7,7 +7,7 @@
   "steps": [
     {
       "id": "compendiumTab",
-      "selector": ".tabs>a[data-tab='compendium']",
+      "selector": "nav#sidebar-tabs menu li:has(button[data-tab=compendium])",
       "title": "lancer.tour.lcp.compendiumTab.title",
       "content": "lancer.tour.lcp.compendiumTab.content",
       "sidebarTab": "compendium"

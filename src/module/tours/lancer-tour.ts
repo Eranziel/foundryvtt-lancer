@@ -20,7 +20,8 @@ import { ContentSummary } from "../util/lcps";
  * simulate a click on the element before proceeding to the next step if set to
  * true.
  */
-export class LancerTour extends Tour {
+// @ts-expect-error v13 types
+export class LancerTour extends (foundry.nue.Tour as typeof Tour) {
   exit() {
     super.exit();
     this._tearDown(false);
@@ -39,8 +40,19 @@ export class LancerTour extends Tour {
   protected async _preStep() {
     await super._preStep();
     if (this.currentStep?.sidebarTab) {
-      ui.sidebar?.expand();
-      ui.sidebar?.activateTab(this.currentStep.sidebarTab);
+      // @ts-expect-error V13 types
+      if (!ui.sidebar.expanded) {
+        const { promise, resolve } = Promise.withResolvers<void>();
+        ui.sidebar?.element
+          // @ts-expect-error V13 types
+          .querySelector("#sidebar-content")
+          .addEventListener("transitionend", resolve, { once: true });
+        // @ts-expect-error V13 types
+        ui.sidebar?.changeTab(this.currentStep.sidebarTab, "primary");
+        ui.sidebar?.expand();
+        await promise;
+        // @ts-expect-error V13 types
+      } else ui.sidebar?.changeTab(this.currentStep.sidebarTab, "primary");
     }
   }
 
@@ -108,23 +120,30 @@ export class LancerLcpTour extends LancerTour {
 export class LancerPilotTour extends LancerTour {
   actor?: LancerActor;
   protected async _preStep() {
-    // Clear selector for non-gm players since by default they don't have the button
-    if (this.currentStep?.id === "folders" && !game.user?.isGM) this.currentStep.selector = null!;
     await super._preStep();
     if (!this.actor) {
-      this.actor = await Actor.create(
-        {
-          name: "Test Pilot",
-          type: EntryType.PILOT,
-          system: { callsign: get_player_data()[0].name, hp: { value: 6 } },
-        },
-        { temporary: true }
-      );
+      this.actor = new LancerActor({
+        _id: "TOUR0PILOT000000",
+        name: "Test Pilot",
+        type: EntryType.PILOT,
+        system: { callsign: get_player_data()[0].name, hp: { value: 6 } },
+      });
     }
-    // @ts-expect-error Bypass protected
-    await this.actor?.sheet?._render(true);
-    // @ts-expect-error v11
-    this.actor?.sheet?.activateTab("cloud");
+
+    if (this.currentStep?.id === "compconLogin") {
+      // @ts-expect-error v13 types
+      const settings: foundry.applications.api.ApplicationV2 = new foundry.applications.settings.SettingsConfig();
+      // @ts-expect-error v13 types
+      await settings.render({ force: true });
+      settings.changeTab("system", "categories");
+    } else {
+      // @ts-expect-error Bypass protected
+      await this.actor?.sheet?._render(true);
+      // @ts-expect-error v11
+      this.actor?.sheet?.activateTab("cloud");
+    }
+    // Clear selector for non-gm players since by default they don't have the button
+    if (this.currentStep?.id === "folders" && !game.user?.isGM) this.currentStep.selector = null!;
   }
 
   protected async _tearDown() {
@@ -141,34 +160,37 @@ export class LancerNPCTour extends LancerTour {
   protected async _preStep() {
     await super._preStep();
     if (!this.npc) {
-      this.npc = await Actor.create(
-        {
-          name: "Test NPC",
-          type: EntryType.NPC,
-          items: [
-            {
-              _id: "0000000000000000",
-              name: "Test Class",
-              img: `systems/${game.system.id}/assets/icons/npc_class.svg`,
-              type: EntryType.NPC_CLASS,
-              system: { role: "TEST" },
-            } as any,
-            {
-              _id: "0000000000000001",
-              name: "Test Template",
-              img: `systems/${game.system.id}/assets/icons/npc_template.svg`,
-              type: EntryType.NPC_TEMPLATE,
-            },
-          ],
-        },
-        { temporary: true }
-      );
+      this.npc = new LancerActor({
+        _id: "TOUR000000000000",
+        name: "Test NPC",
+        type: EntryType.NPC,
+        items: [
+          {
+            _id: "0000000000000000",
+            name: "Test Class",
+            type: EntryType.NPC_CLASS,
+            system: { role: "TEST", flavor: "", tactics: "", base_features: [], optional_features: [] },
+          },
+          {
+            _id: "0000000000000001",
+            name: "Test Template",
+            type: EntryType.NPC_TEMPLATE,
+          },
+        ],
+      });
     }
+    const npcSheet = this.npc.sheet;
     // @ts-expect-error Bypass protected
-    await this.npc?.sheet?._render(true);
+    await npcSheet._render(true);
+    const el = npcSheet instanceof foundry.applications.api.ApplicationV2 ? npcSheet.element : npcSheet?.element[0];
+    el?.classList.add("tour-npc");
     if (["baseFeatures", "optionalFeatures"].includes(this.currentStep?.id!)) {
       // @ts-expect-error Bypass protected
-      await this.npc?.system?.class?.sheet?._render(true);
+      const classSheet = this.npc?.system?.class?.sheet;
+      await classSheet?._render(true);
+      const el =
+        classSheet instanceof foundry.applications.api.ApplicationV2 ? classSheet.element : classSheet?.element[0];
+      el?.classList.add("tour-class");
     }
   }
   protected async _postStep() {
@@ -264,21 +286,21 @@ export class LancerCombatTour extends LancerTour {
           name: "Assault (1)",
           img: `./systems/${game.system.id}/assets/retrograde-minis/Retrograde-Minis-Corpro-ASSAULT.png` as const,
           [`flags.${game.system.id}.tour` as const]: true,
-          [`flags.${game.system.id}.disposition` as const]: -1,
+          ["system.disposition"]: -1,
         },
         {
           name: "Ultra Berserker (1)",
           img: `./systems/${game.system.id}/assets/retrograde-minis/Retrograde-Minis-Corpro-BERSERKER.png` as const,
           initiative: 10, // Force sort order
           [`flags.${game.system.id}.tour` as const]: "ultra",
-          [`flags.${game.system.id}.activations.max` as const]: 2,
-          [`flags.${game.system.id}.disposition` as const]: -1,
+          ["system.activations.max"]: 2,
+          ["system.disposition"]: -1,
         },
         {
           name: "Support (1)",
           img: `./systems/${game.system.id}/assets/retrograde-minis/Retrograde-Minis-Corpro-SUPPORT.png` as const,
           [`flags.${game.system.id}.tour` as const]: true,
-          [`flags.${game.system.id}.disposition` as const]: -1,
+          ["system.disposition"]: -1,
         },
       ].map(foundry.utils.expandObject),
     });
@@ -295,7 +317,7 @@ function get_player_data() {
     name: p.name,
     img: `./systems/${game.system.id}/assets/retrograde-minis/Retrograde-Minis-${p.img}.png` as const,
     [`flags.${game.system.id}.tour` as const]: `player-${i + 1}` as const,
-    [`flags.${game.system.id}.disposition` as const]: 2,
+    ["system.disposition"]: 2,
   }));
 }
 // Data subitted from the lancer-vtt channel in Pilot NET

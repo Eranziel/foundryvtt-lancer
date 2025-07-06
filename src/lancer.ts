@@ -24,16 +24,16 @@ import { LancerDeployableSheet } from "./module/actor/deployable-sheet";
 import { LancerMechSheet } from "./module/actor/mech-sheet";
 import { LancerNPCSheet } from "./module/actor/npc-sheet";
 import { LancerPilotSheet } from "./module/actor/pilot-sheet";
+import { WeaponRangeTemplate } from "./module/canvas/weapon-range-template";
 import { LancerFrameSheet } from "./module/item/frame-sheet";
 import { LancerItemSheet } from "./module/item/item-sheet";
 import { LancerLicenseSheet } from "./module/item/license-sheet";
-import { WeaponRangeTemplate } from "./module/canvas/weapon-range-template";
 
 // Import helpers
 import { LCPManager, addLCPManagerButton } from "./module/apps/lcp-manager/lcp-manager";
 import { attachTagTooltips } from "./module/helpers/tags";
 import { preloadTemplates } from "./module/preload-templates";
-import { getAutomationOptions, registerSettings } from "./module/settings";
+import { registerSettings } from "./module/settings";
 import { applyTheme } from "./module/themes";
 import * as migrations from "./module/world_migration";
 
@@ -60,7 +60,7 @@ import { applyCollapseListeners, initializeCollapses } from "./module/helpers/co
 import CompconLoginForm from "./module/helpers/compcon-login-form";
 import { applyGlobalDragListeners } from "./module/helpers/dragdrop";
 // import { handleActorExport, validForExport } from "./module/helpers/io";
-import { extendCombatTrackerConfig, onCloseCombatTrackerConfig } from "./module/apps/lancer-initiative-config-form";
+import { extendCombatTrackerConfig } from "./module/apps/lancer-initiative-config-form";
 import { handleRefClickOpen } from "./module/helpers/refs";
 import { DeployableModel } from "./module/models/actors/deployable";
 import { MechModel } from "./module/models/actors/mech";
@@ -90,6 +90,7 @@ import { fromLid, fromLidMany, fromLidSync } from "./module/helpers/from-lid";
 import { addEnrichers } from "./module/helpers/text-enrichers";
 import { LancerNPCClassSheet } from "./module/item/npc-class-sheet";
 import { LancerNPCFeatureSheet } from "./module/item/npc-feature-sheet";
+import { LancerCombatantModel } from "./module/models/combatant/base";
 import { BondModel } from "./module/models/items/bond";
 import { LicenseModel } from "./module/models/items/license";
 import { NpcClassModel } from "./module/models/items/npc_class";
@@ -140,6 +141,9 @@ Hooks.once("init", () => {
   CONFIG.Actor.dataModels[EntryType.PILOT] = PilotModel;
   CONFIG.Actor.dataModels[EntryType.NPC] = NpcModel;
   CONFIG.Actor.dataModels[EntryType.DEPLOYABLE] = DeployableModel;
+
+  // @ts-expect-error Types missing type data for combatant
+  CONFIG.Combatant.dataModels["base"] = LancerCombatantModel;
 
   // Set up trackable resources for the various actor types
   const base = {
@@ -235,15 +239,6 @@ Hooks.once("init", () => {
     importActor: fulfillImportActor,
     targetsFromTemplate,
     migrations: migrations,
-    getAutomationOptions: () => {
-      ui.notifications.warn(
-        "The getAutomationOptions helper is deprecated and will be removed i" +
-          'n Foundry v13. Use game.settings.get("lancer", "automationOptions' +
-          '") directly instead.',
-        { permanent: true }
-      );
-      return getAutomationOptions();
-    },
     fromLid: fromLid,
     fromLidMany: fromLidMany,
     fromLidSync: fromLidSync,
@@ -256,6 +251,8 @@ Hooks.once("init", () => {
   CONFIG.Token.documentClass = LancerTokenDocument;
   CONFIG.Token.objectClass = LancerToken;
   CONFIG.Combat.documentClass = LancerCombat;
+  // @ts-expect-error v13 types
+  CONFIG.Combat.fallbackTurnMarker = "systems/lancer/assets/turn-markers/mech-hud.svg";
   CONFIG.Combatant.documentClass = LancerCombatant;
   // @ts-expect-error This is literally a subclass so idk why it's busted
   CONFIG.ui.combat = LancerCombatTracker;
@@ -279,12 +276,6 @@ Hooks.once("init", () => {
   Hooks.on("renderHeadsUpDisplay", slidingHUD.attach);
 
   // Combat tracker HUD modules integration
-  if (game.modules.get("combat-carousel")?.active) {
-    (async () => {
-      const { handleRenderCombatCarousel } = await import("./module/integrations/combat-carousel");
-      Hooks.on("renderCombatCarousel", handleRenderCombatCarousel);
-    })();
-  }
   if (game.modules!.get("combat-tracker-dock")?.active) {
     (async () => {
       game.lancer.combatTrackerDock = await import("./module/integrations/combat-tracker-dock");
@@ -299,6 +290,7 @@ Hooks.once("init", () => {
 
   // Extend TokenConfig for token size automation
   Hooks.on("renderTokenConfig", extendTokenConfig);
+  Hooks.on("renderPrototypeTokenConfig", extendTokenConfig);
 });
 
 Hooks.once("setup", () => {
@@ -422,9 +414,7 @@ Hooks.on("updateCombat", (_combat: Combat, changes: object) => {
 Hooks.on("dropCanvasData", dropStatusToCanvas);
 
 // Create sidebar button to import LCP
-Hooks.on("renderSidebarTab", async (app: Application, html: HTMLElement) => {
-  addLCPManagerButton(app, html);
-});
+Hooks.on("renderCompendiumDirectory", addLCPManagerButton);
 
 // TODO: keep or remove?
 // This seems broken
@@ -467,14 +457,15 @@ Hooks.on("renderSettings", async (app: Application, html: HTMLElement) => {
   addSettingsButtons(app, html);
 });
 Hooks.on("renderCombatTrackerConfig", extendCombatTrackerConfig);
-Hooks.on("closeCombatTrackerConfig", onCloseCombatTrackerConfig);
 
 // Disable token vision and fog exploration by default in scene config
 Hooks.on("preCreateScene", (scene: any) => {
   scene.updateSource({ tokenVision: false, "fog.exploration": false });
 });
 
-Hooks.on("renderChatMessage", async (cm: ChatMessage, html: JQuery, data: any) => {
+Hooks.on("renderChatMessageHTML", async (cm: ChatMessage, el: HTMLElement, data: any) => {
+  // TODO: get rid of JQuery?
+  const html = $(el);
   // Reapply listeners.
   initializeCollapses(html);
   applyCollapseListeners(html);
@@ -622,16 +613,22 @@ async function promptInstallCoreData() {
 }
 
 function setupSheets() {
-  Actors.unregisterSheet("core", ActorSheet);
-  Actors.registerSheet("lancer", LancerPilotSheet, { types: [EntryType.PILOT], makeDefault: true });
-  Actors.registerSheet("lancer", LancerMechSheet, { types: [EntryType.MECH], makeDefault: true });
-  Actors.registerSheet("lancer", LancerNPCSheet, { types: [EntryType.NPC], makeDefault: true });
-  Actors.registerSheet("lancer", LancerDeployableSheet, {
+  // @ts-expect-error v13 types
+  const actors = foundry.documents.collections.Actors;
+  // @ts-expect-error v13 types
+  actors.unregisterSheet("core", foundry.appv1.sheets.ActorSheet);
+  actors.registerSheet("lancer", LancerPilotSheet, { types: [EntryType.PILOT], makeDefault: true });
+  actors.registerSheet("lancer", LancerMechSheet, { types: [EntryType.MECH], makeDefault: true });
+  actors.registerSheet("lancer", LancerNPCSheet, { types: [EntryType.NPC], makeDefault: true });
+  actors.registerSheet("lancer", LancerDeployableSheet, {
     types: [EntryType.DEPLOYABLE],
     makeDefault: true,
   });
-  Items.unregisterSheet("core", ItemSheet);
-  Items.registerSheet("lancer", LancerItemSheet, {
+  // @ts-expect-error v13 types
+  const items = foundry.documents.collections.Items;
+  // @ts-expect-error v13 types
+  items.unregisterSheet("core", foundry.appv1.sheets.ItemSheet);
+  items.registerSheet("lancer", LancerItemSheet, {
     types: [
       EntryType.SKILL,
       EntryType.TALENT,
@@ -650,13 +647,13 @@ function setupSheets() {
     ],
     makeDefault: true,
   });
-  Items.registerSheet("lancer", LancerFrameSheet, { types: [EntryType.FRAME], makeDefault: true });
-  Items.registerSheet("lancer", LancerLicenseSheet, { types: [EntryType.LICENSE], makeDefault: true });
-  Items.registerSheet("lancer", LancerNPCClassSheet, {
+  items.registerSheet("lancer", LancerFrameSheet, { types: [EntryType.FRAME], makeDefault: true });
+  items.registerSheet("lancer", LancerLicenseSheet, { types: [EntryType.LICENSE], makeDefault: true });
+  items.registerSheet("lancer", LancerNPCClassSheet, {
     types: [EntryType.NPC_CLASS, EntryType.NPC_TEMPLATE],
     makeDefault: true,
   });
-  Items.registerSheet("lancer", LancerNPCFeatureSheet, { types: [EntryType.NPC_FEATURE], makeDefault: true });
+  items.registerSheet("lancer", LancerNPCFeatureSheet, { types: [EntryType.NPC_FEATURE], makeDefault: true });
 }
 
 /**

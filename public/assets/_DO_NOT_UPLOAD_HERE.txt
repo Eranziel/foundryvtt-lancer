@@ -1,3 +1,0 @@
-DO NOT UPLOAD/COPY YOUR OWN ASSETS TO THIS FOLDER!
-
-This folder (and everything inside systems/lancer) is completely deleted every time Foundry updates the system.

@@ -1,0 +1,2047 @@
+/* Default text and background color for sheets */
+.lancer.sheet .window-content {
+  color: var(--dark-text);
+  background: var(--background-color);
+}
+
+.lancer-sheet,
+.lancer.app {
+  &.editable {
+    height: 100%;
+  }
+
+  & input[type="text"],
+  & input[type="number"],
+  & input[type="password"],
+  & input[type="date"],
+  & input[type="time"],
+  & input[type="search"] {
+    color: var(--dark-text);
+  }
+
+  & select {
+    background-color: var(--tooltip-background);
+    color: var(--dark-text);
+    & option {
+      background-color: var(--tooltip-background);
+      color: var(--tooltip-text);
+    }
+  }
+
+  &.bond input.lancer-text-field {
+    margin-top: 0.1em;
+    margin-bottom: 0.1em;
+  }
+}
+
+.lancer.sheet select {
+  width: min-content;
+}
+
+.lancer.sheet .mount-header select {
+  color: var(--light-text);
+  outline: 0;
+  border: none;
+}
+
+.lancer.sheet .mount-header select option {
+  background-color: var(--primary-color, fuchsia);
+  color: var(--light-text);
+}
+
+/* ---------- */
+
+/* Components Layer */
+.lancer.sheet header:not(.window-header) {
+  align-items: center;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  background-color: var(--primary-color, fuchsia);
+  margin: 10px;
+  color: var(--light-text);
+
+  &.inactive-mech {
+    background-color: var(--secondary-color, fuchsia);
+    color: var(--secondary-text);
+  }
+}
+
+.lancer.sheet header .details {
+  display: flex;
+  /* flex-direction: column; */
+  font-size: 14px;
+  padding: 10px;
+  align-items: flex-start;
+}
+
+.header-icon {
+  display: flex;
+  float: left;
+}
+
+.pilot-callsign {
+  font-size: 34px;
+  font-weight: bold;
+}
+
+/* ---------- */
+
+.mini-weapon-profile {
+  align-items: center;
+  justify-content: space-evenly;
+  border: 1px solid var(--weapon-color);
+  border-bottom-left-radius: 5px;
+  border-bottom-right-radius: 5px;
+  background-color: color-mix(in srgb, var(--weapon-color), #fff 85%);
+  font-size: 15px;
+  word-break: normal;
+
+  .message-content & {
+    margin-bottom: 0.2em;
+  }
+
+  .lancer-tech + & {
+    border-color: var(--tech-color);
+    background-color: color-mix(in srgb, var(--tech-color), #fff 85%);
+  }
+
+  .mini-weapon-profile-separator {
+    color: var(--light-gray-color);
+    width: min-content;
+    max-width: min-content;
+  }
+
+  .mini-weapon-profile-accuracy,
+  .mini-weapon-profile-range,
+  .mini-weapon-profile-damage {
+    justify-content: center;
+
+    span {
+      max-width: min-content;
+      display: flex;
+      align-items: center;
+
+      & + span {
+        padding-left: 0.3em;
+      }
+    }
+  }
+}
+
+.lancer-hit {
+  display: inline-flex;
+  margin: 8px;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.card.lancer-hit-chip {
+  float: right;
+  width: 100%;
+  margin: 3px 0;
+  color: var(--light-text);
+  background-color: var(--miss-color);
+
+  &.hit {
+    background-color: var(--hit-color);
+  }
+
+  &.crit {
+    background-color: var(--crit-color);
+  }
+}
+
+.lancer-hit-thumb {
+  width: 50px;
+  min-width: 50px;
+  margin-right: 4px;
+  margin-top: 2px;
+  border: 2px solid var(--dark-gray-color);
+  border-radius: 5px;
+  border-right: none;
+  border-left: none;
+}
+
+.lancer-hit-text {
+  display: inline-grid;
+  text-align: start;
+  width: 80%;
+}
+
+.lancer-hit-text-name {
+  font-size: 1.1em;
+  overflow: hidden;
+  text-wrap: nowrap;
+  text-overflow: ellipsis;
+}
+
+.lancer-hit-target {
+  margin: 0.1em 0;
+  display: grid;
+  grid-template-areas:
+    "img name hit"
+    "img roll roll";
+  grid-template-columns: 55px 2fr 1fr;
+  align-items: center;
+
+  .lancer-hit-thumb {
+    grid-area: img;
+    margin: 0;
+  }
+
+  .lancer-hit-text-name {
+    grid-area: name;
+  }
+
+  .lancer-hit-chip {
+    grid-area: hit;
+  }
+
+  .lancer-hit-roll {
+    grid-area: roll;
+    & i.fas {
+      margin-left: 0.1em;
+      margin-right: 0.1em;
+    }
+  }
+
+  &:has(+ .lancer-hit-target) {
+    .lancer-hit-roll {
+      border-bottom: 1px dashed var(--dark-gray-color);
+    }
+  }
+}
+
+.lancer-damage-flow {
+  margin: 0 0.5em 0.25em 0.5em;
+  width: calc(100% - 1em);
+
+  i {
+    margin-right: 0.25em;
+  }
+}
+
+.lancer-damage-tag {
+  padding: 0.1em 0.5em;
+  background-color: var(--primary-color);
+  color: var(--light-text);
+  border-radius: 0.5em;
+  font-size: 0.8em;
+  display: flex;
+  align-content: center;
+  align-items: center;
+  text-wrap: nowrap;
+}
+.lancer-damage-targets {
+  margin: 0px 0.25em;
+
+  .lancer-damage-target {
+    margin: 0.3em 0;
+    display: grid;
+    grid-template-areas:
+      "img name button"
+      "img tags tags";
+    grid-template-columns: 55px auto min-content;
+    align-items: center;
+
+    .lancer-hit-thumb {
+      grid-area: img;
+      margin: 0;
+    }
+
+    .lancer-hit-text-name {
+      grid-area: name;
+      text-align: left;
+      height: 100%;
+      align-content: center;
+    }
+
+    .lancer-damage-totals {
+      grid-area: totals;
+    }
+
+    .lancer-damage-button-group {
+      grid-area: button;
+    }
+
+    .lancer-damage-rolls-tags {
+      grid-area: tags;
+      min-height: 1.3em;
+      padding: 0.1em;
+
+      .lancer-target-bonus-damage:not(:has(*)) {
+        display: none;
+
+        & ~ .lancer-damage-tags {
+          flex-grow: 1 !important;
+        }
+      }
+    }
+
+    .lancer-damage-tags {
+      display: flex;
+      flex-wrap: wrap;
+      justify-self: flex-end;
+      justify-content: flex-end;
+      align-items: center;
+      flex-grow: 0;
+    }
+
+    &:has(+ .lancer-damage-target) {
+      .lancer-damage-rolls-tags {
+        border-bottom: 1px dashed var(--dark-gray-color);
+      }
+    }
+
+    // Add a small margin below the last target if there's another
+    // header following
+    &:has(+ .lancer-mini-header) {
+      margin-bottom: 4px;
+    }
+  }
+}
+
+.card.lancer-charge-chip {
+  color: var(--light-text);
+  background-color: var(--dark-gray-color);
+}
+.card.lancer-charge-chip.charged {
+  color: var(--light-text);
+  background-color: var(--hit-color);
+}
+
+.vsep {
+  border: none;
+  border-left: 1px solid var(--secondary-color, black);
+  border-right: 1px solid var(--secondary-color, black);
+  min-width: 3px;
+  max-width: 3px;
+  margin-left: 6px;
+  margin-right: 6px;
+}
+
+.hsep {
+  border: none;
+  border-top: 1px solid var(--secondary-color, black);
+  max-height: 3px;
+  margin-top: 6px;
+  margin-bottom: 6px;
+  width: 95%;
+}
+
+.add-button {
+  width: 20px;
+  height: 20px;
+  background: #d7b6b9;
+  text-align: center;
+  border: solid var(--primary-color, fuchsia);
+  border-width: 1px;
+  border-radius: 4px;
+  font-weight: bold;
+  color: var(--primary-color, fuchsia);
+}
+
+.remove-button {
+  width: 20px;
+  height: 20px;
+  background: #bebebe;
+  border: solid #3e3e3e;
+  border-width: 1px;
+  border-radius: 4px;
+  text-align: center;
+  color: #8e8e8e;
+  padding-top: 2px;
+}
+
+.tags-container > div {
+  flex-grow: 0;
+}
+
+.tag-label {
+  flex-grow: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.simple-button {
+  color: var(--light-text);
+  background-color: var(--primary-color, fuchsia);
+  max-width: max-content;
+  min-width: max-content;
+  align-items: center;
+  border-radius: 5px;
+  padding: 0px 5px;
+  margin: 3px 5px;
+  border: 2px;
+  font-size: 12px;
+}
+
+.compact-tag {
+  color: var(--light-text);
+  background-color: var(--primary-color, fuchsia);
+  max-height: 20px;
+  align-items: center;
+  align-content: center;
+  border-radius: 5px;
+  padding: 0px 5px;
+  margin: 3px 5px;
+  font-size: 12px;
+}
+
+.compact-tag-row {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  flex: 1;
+  margin: 3px;
+  min-height: 1em;
+}
+
+.large-tag {
+  color: var(--dark-text, fuchsia);
+  align-items: center;
+  border: 1px solid var(--primary-color, fuchsia);
+  border-radius: 5px;
+  margin: 3px 5px;
+  font-size: 1.1em;
+
+  .tag-header {
+    color: var(--light-text, fuchsia);
+    background-color: var(--primary-color, fuchsia);
+    text-align: left;
+
+    .tag-controls {
+      max-width: fit-content;
+      align-content: center;
+
+      a {
+        padding-right: 0.3em;
+      }
+    }
+  }
+
+  .tag-description {
+    margin: 0.2em 0.5em;
+    text-align: left;
+    font-size: 0.9em;
+    max-height: 14.15em;
+    overflow-y: scroll;
+  }
+}
+
+.large-tag-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-rows: auto;
+  margin: 3px;
+  min-height: 1em;
+}
+
+.license-desc {
+  display: flex;
+}
+
+.license-desc > input::-webkit-outer-spin-button,
+.license-desc > input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.license-desc > input[type="number"] {
+  appearance: textfield;
+  -moz-appearance: textfield; /* Firefox */
+  width: 3ch;
+}
+
+.license-desc > input,
+.license-desc > span {
+  background: transparent;
+  border: none;
+  color: #828282;
+  width: 12ch;
+}
+
+.license-desc > span {
+  font-size: 13px;
+  margin-top: 2px;
+  width: 3ch;
+}
+
+.lancer-license {
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+}
+
+.edit-license-wrapper {
+  border: 1px solid var(--secondary-color);
+  border-radius: 5px;
+  margin: 0.5em;
+  padding: 0 0.25em;
+  width: min-content;
+  max-width: min-content;
+  flex-wrap: unset;
+  align-self: center;
+  gap: 1em;
+
+  .rank-wrapper {
+    align-items: center;
+    justify-content: center;
+    flex-wrap: unset;
+
+    & span {
+      margin-right: 0.5em;
+      font-size: 1.2em;
+      flex-grow: unset;
+    }
+
+    & input {
+      max-width: 2em;
+    }
+  }
+}
+
+.labeled-input {
+  flex-grow: unset;
+}
+
+.labeled-input > span {
+  text-align: center;
+  color: var(--light-text);
+  background-color: var(--primary-color, fuchsia);
+  max-height: 1.5em;
+}
+
+.lancer .lancer-invisible-input {
+  background: transparent;
+  border: none;
+  color: inherit;
+  text-align: center;
+}
+
+ul.items-list {
+  padding: 0;
+}
+
+.small-icon {
+  flex-grow: 0;
+  min-width: 1em;
+  max-height: 1em;
+}
+
+.med-icon {
+  flex-grow: 0;
+  max-width: 2.5em;
+  max-height: 2.5em;
+}
+
+.large-icon {
+  flex-grow: 0;
+  min-width: 5em;
+  max-height: 5em;
+}
+
+@mixin icon-size($pixels) {
+  font-size: $pixels;
+  min-width: $pixels;
+  max-width: $pixels;
+  min-height: $pixels;
+  max-height: $pixels;
+}
+
+@mixin vert-mid() {
+  vertical-align: middle;
+}
+
+.i--click {
+  cursor: pointer;
+}
+
+.i--xs {
+  @include icon-size(15px);
+  @include vert-mid();
+}
+
+.i--s {
+  @include icon-size(20px);
+  @include vert-mid();
+}
+
+.i--sm {
+  @include icon-size(25px);
+  @include vert-mid();
+}
+
+.i--m {
+  @include icon-size(30px);
+  @include vert-mid();
+}
+
+.i--l {
+  @include icon-size(40px);
+  @include vert-mid();
+}
+
+.i--xl {
+  @include icon-size(60px);
+  @include vert-mid();
+}
+
+.size-icon,
+.tier-icon {
+  @include icon-size(120px);
+  @include vert-mid();
+}
+
+.profile-img {
+  @include icon-size(100px);
+  object-fit: cover;
+}
+
+.faded {
+  opacity: 75%;
+}
+
+.i--dark {
+  color: var(--dark-text);
+}
+
+.i--light {
+  color: var(--light-text);
+}
+
+.damage--kinetic {
+  color: #616161;
+}
+
+.damage--energy {
+  color: #2195ca;
+}
+
+.damage--explosive {
+  color: #fca017;
+}
+
+.damage--burn {
+  color: #ce871e;
+}
+
+.damage--heat {
+  color: #e74210;
+}
+
+.damage--variable {
+  color: #d500f9;
+}
+
+.clipped {
+  clip-path: var(--double-dogear-path);
+  -webkit-clip-path: var(--double-dogear-path);
+}
+
+.clipped-top {
+  clip-path: var(--top-dogear-path);
+  -webkit-clip-path: var(--top-dogear-path);
+}
+
+.clipped-bot {
+  clip-path: var(--bottom-dogear-path);
+  -webkit-clip-path: var(--bottom-dogear-path);
+}
+
+.lancer-tabs {
+  clip-path: polygon(0 0, 100% 0, calc(100% - 20px) 100%, 0 100%);
+  -webkit-clip-path: polygon(0 0, 100% 0, calc(100% - 20px) 100%, 0 100%);
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+  background-color: var(--primary-color, fuchsia);
+  color: var(--light-text);
+  padding: 3px 10px;
+  min-height: max-content;
+  align-items: center;
+}
+
+.lancer-tab {
+  clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
+  -webkit-clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
+  padding: 10px;
+  transition: all 0.25s ease-in;
+
+  &:hover {
+    background-color: var(--darken-2);
+  }
+
+  &.active {
+    color: var(--light-text, fuchsia);
+    background-color: var(--primary-highlight, fuchsia);
+  }
+}
+
+.tier-control {
+  min-width: 100%;
+  background-color: #991e2a;
+  color: var(--light-text);
+}
+
+.tier-control option {
+  background-color: #991e2a;
+  color: var(--light-text);
+}
+
+/* Used on some item cards to add a border and consistent spacing.
+ * Should be used on an inner div of a card.
+ */
+.lancer-body {
+  min-height: 15px;
+  padding: 3px;
+  flex: 1 0;
+
+  text-align: left;
+  justify-content: flex-start;
+  display: flex;
+  flex-direction: column;
+
+  hyphens: auto;
+  word-break: break-word;
+
+  border-width: 2px;
+  border-style: solid;
+  border-top-style: none;
+
+  background-color: var(--darken-1);
+
+  .core-active-wrapper > &,
+  .core-passive-wrapper > & {
+    padding-top: 0;
+    margin-top: 0;
+  }
+
+  @each $theme-type in $theme-types {
+    .lancer-#{$theme-type} > &,
+    .lancer-#{$theme-type} ~ & {
+      border-color: var(--#{$theme-type}-color);
+    }
+  }
+
+  .mount > & {
+    min-height: 45px;
+  }
+}
+
+.pilot-gear-body {
+  padding: 0 0.5em 0 0.5em;
+}
+
+.compact-range,
+.compact-acc,
+.compact-damage {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  flex-wrap: nowrap;
+  white-space: nowrap;
+  margin: 5px 0;
+  max-width: min-content;
+  min-width: fit-content;
+
+  & > & {
+    margin: 0 5px;
+  }
+
+  &.lancer-button {
+    padding-left: 0;
+    padding-right: 0.5em;
+  }
+}
+
+/* Put on any ref or reffable location */
+/*.ref {
+
+}*/
+
+/* Put specifically on the rectangular card style of ref */
+.ref-card {
+  border: 2px solid black;
+  margin: 3px;
+  display: flex;
+  align-items: center;
+  text-align: center;
+  max-height: 40px;
+
+  & .span {
+    padding-left: 5px;
+  }
+}
+
+.set.ref.ref-card {
+  background-color: var(--ref-color);
+  color: black;
+}
+
+.click-open {
+  cursor: pointer;
+
+  &:hover {
+    text-shadow: 0 0 8px var(--color-shadow-primary);
+  }
+}
+
+.ref-icon {
+  width: 35px;
+  height: 35px;
+  margin: 0px;
+  flex-grow: 0;
+}
+
+.ref-card .ref-icon {
+  border-width: 0;
+  border-right-width: 2px;
+}
+
+/* Control box in the right side of a ref card. Delete button, etc */
+.ref-controls {
+  margin: 5px;
+  margin-left: auto;
+  max-width: 40px;
+}
+
+// TODO: quite sure these should be cleaned up
+/* Re-allow clicking in these damn things */
+.lancer input,
+.lancer .input,
+.lancer textarea {
+  -webkit-user-select: auto;
+  -moz-user-select: auto;
+  -ms-user-select: auto;
+  user-select: auto;
+
+  /* Also make them not insist on being so obnoxiously large */
+  min-width: 30px;
+
+  color: var(--dark-text);
+}
+
+// TODO: quite sure this should be cleaned up
+/* Some text area sizes */
+.lancer textarea {
+  min-height: 200px;
+}
+
+.pilot-stats {
+  clip-path: polygon(0 0, calc(100% - 30px) 0, 100% 100%, 0 100%);
+  -webkit-clip-path: polygon(0 0, calc(100% - 30px) 0, 100% 100%, 0 100%);
+  background-color: var(--pilot-stat-color);
+  padding-left: 5px;
+  padding-right: 5px;
+  align-items: flex-start;
+
+  .lancer-stat.minor {
+    color: var(--dark-text);
+  }
+}
+
+.compact-stat {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 0 5px;
+  i {
+    display: flex;
+  }
+}
+
+/** Fixes CSS priority on flexrows within cards */
+.card.flexrow {
+  flex-direction: row;
+}
+
+.compact-frame,
+.compact-class,
+.compact-template,
+.compact-deployer {
+  grid-area: 1/1/1/3;
+  align-items: center;
+  height: 8em;
+  max-height: 8em;
+  background-color: var(--primary-color);
+
+  .img-bar {
+    background-repeat: no-repeat;
+    background-size: 200px;
+    height: 100%;
+    min-width: 50%;
+  }
+}
+.compact-template {
+  height: 100%;
+}
+.compact-frame > .img-bar,
+.compact-class > .img-bar {
+  background-position: left 50% top 40%;
+}
+.compact-template > .img-bar {
+  background-position: left 50% top 60%;
+  background-size: 35%;
+}
+.compact-deployer > .img-bar {
+  background-position: left 50% top 10%;
+}
+
+.compact-frame:hover,
+.compact-class:hover,
+.compact-deployer:hover {
+  box-shadow: var(--hover-bright);
+}
+
+// TODO: refactor our header styles?
+/* Consolidate all of our card header stuff stuff */
+.lancer-header {
+  flex: 0 0 2em;
+
+  /* Generally uglier, inconsistent. Use when header needs other stuff in it, like with talents large icons etc */
+  &.stretch {
+    flex: 0 0 100%;
+  }
+
+  text-overflow: ellipsis;
+  font-weight: normal;
+  text-transform: uppercase;
+
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  align-items: center;
+  align-self: stretch;
+
+  /* For buttons/icons, we want them to not grow but also not just get squashed into nothing 
+  * If this unbalances things, add an equal # of balancers to the other side
+  */
+  a,
+  :not(a) i,
+  img {
+    flex: 0 0 auto;
+    padding-left: 5px;
+    padding-right: 5px;
+  }
+
+  div.balancer {
+    flex: 0 0 auto;
+    padding-left: 5px;
+    padding-right: 5px;
+  }
+
+  /* Spans are the main bodies of headers. We want them to grow! 
+  * Inputs too for those cases where the title is editable.
+  */
+  span,
+  input {
+    flex-grow: 1;
+    text-align: center;
+    font-size: inherit;
+    margin: 0 4px;
+  }
+
+  /* Sometimes want left align, using the "left" class */
+  span.left,
+  input.left {
+    text-align: left;
+    margin-left: 10px;
+  }
+
+  /* If we or our parent item is clipped, make sure we don't clip our contents */
+  .clipped > &,
+  .clipped-top > &,
+  &.clipped,
+  &.clipped-top {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  // Legacy styling for old chat messages
+  #chat-log .bonus-list & {
+    background-color: var(--bonus-list-color, fuchsia);
+  }
+
+  // Legacy styling for old chat messages
+  #chat-log .bonus & {
+    background-color: var(--bonus-color, fuchsia);
+  }
+
+  // Legacy styling for old chat messages
+  #chat-log .mech-system &,
+  #chat-log .npc-system &,
+  #chat-log &.mech-system,
+  #chat-log &.npc-system {
+    background-color: var(--system-color);
+    color: var(--light-text);
+  }
+
+  // Legacy styling for old chat messages
+  #chat-log .mech_weapon &,
+  #chat-log .pilot_weapon &,
+  #chat-log &.mech_weapon,
+  #chat-log &.pilot_weapon {
+    background-color: var(--weapon-color);
+    color: var(--light-text);
+  }
+
+  &.struct-stress {
+    // legacy coloring for old chat messages
+    #chat-log & {
+      background-color: var(--primary-color);
+    }
+    color: var(--light-text);
+    padding-top: 1px;
+    display: flex;
+    flex-direction: row;
+
+    span.spacer {
+      flex: 0 0;
+    }
+    a {
+      flex: 0 0;
+    }
+  }
+
+  .mech_weapon:hover &,
+  .weapon_mod:hover &,
+  .npc-weapon:hover &,
+  .pilot_weapon:hover &,
+  .mech-system:hover &,
+  .mech-system-compact:hover &,
+  .npc-trait:hover &,
+  .npc-system:hover &,
+  .npc-tech:hover &,
+  .npc-reaction:hover &,
+  .pilot_gear:hover &,
+  .pilot_armor:hover &,
+  .reserve:hover & {
+    box-shadow: var(--hover-bright);
+  }
+
+  &.error {
+    background-color: var(--error-color);
+  }
+
+  /* Destroyed gear */
+  &.destroyed {
+    background-color: var(--weapon-color);
+
+    span {
+      text-decoration: line-through;
+      color: #fb3535;
+    }
+
+    .cci {
+      color: #ff6a23;
+    }
+    .mdi {
+      color: #ff6a23;
+      margin-bottom: -2px;
+    }
+    .mdi-cog {
+      font-size: 28px;
+    }
+  }
+
+  /* General font sizing options */
+  &.major {
+    font-size: 18px;
+    font-weight: bolder;
+  }
+
+  &.submajor {
+    font-size: 15px;
+    font-weight: bold;
+  }
+
+  &.minor {
+    font-size: 12px;
+    font-weight: lighter;
+  }
+
+  & span.minor {
+    margin: 0 16px;
+  }
+
+  .activation-chip {
+    overflow: unset;
+    margin-left: 0.1em;
+    padding: 0 0.5em 0 0.5em;
+    align-self: center;
+  }
+}
+
+.lancer-mini-header {
+  align-items: center;
+  color: var(--light-text) !important;
+  background-color: var(--primary-color, fuchsia);
+  max-height: fit-content;
+}
+
+.hex {
+  cursor: pointer;
+  font-size: 1.6em;
+}
+.hex-filled {
+  color: rgb(173, 6, 22);
+}
+.hex-white {
+  color: var(--light-text);
+}
+
+.clipped.card.charged-box {
+  width: fit-content;
+  display: inline-flex;
+  flex-direction: row;
+  padding: 4px 8px;
+  justify-content: space-between;
+  align-items: center;
+  color: var(--light-text);
+  background-color: var(--primary-color, fuchsia);
+  flex-grow: unset;
+  min-width: 9em;
+  max-height: 3em;
+}
+
+.big-editor {
+  background-color: #dbdbdb;
+  min-height: 15em;
+  text-align: left;
+}
+
+.lancer-stat {
+  margin: 0em 0.2em;
+}
+
+.effect-stat,
+input[type="number"].lancer-stat {
+  align-self: center;
+  text-align: center;
+  max-width: 40px;
+  min-width: 25px;
+}
+
+.lancer-text-field,
+input[type="text"].lancer-input {
+  align-self: center;
+  text-align: left;
+  width: calc(100% - 20px);
+  margin: 5px;
+}
+
+.size-icon {
+  color: var(--primary-color, fuchsia);
+}
+.tier-icon {
+  color: var(--light-text);
+}
+
+.header-name {
+  align-self: center;
+  //height: -webkit-fill-available;
+}
+
+.header-field,
+.header-fields > * {
+  color: var(--light-text) !important;
+}
+
+.card {
+  background-color: var(--darken-1);
+  margin: 3px 10px;
+  text-align: center;
+  padding-bottom: 1px;
+  display: flex;
+  flex-direction: column;
+
+  &.nested {
+    margin: 0;
+  }
+}
+
+.card .editor-content {
+  text-align: left;
+}
+
+.collapse-icon {
+  margin: 4px;
+}
+.collapse-trigger {
+  cursor: pointer;
+}
+.collapse {
+  max-height: 1000em;
+  opacity: 1;
+  overflow: unset;
+  transition: max-height 0.5s, opacity 0.2s, padding 0.5s ease-in;
+}
+.collapse.collapsed {
+  max-height: 0;
+  min-height: 0;
+  padding: 0;
+  opacity: 0;
+  overflow: hidden;
+}
+
+.bond-xp-item {
+  text-align: left;
+  padding: 0.2em 1em;
+}
+
+.bond-ideal-select,
+.bond-question-select {
+  width: 100% !important;
+  flex-grow: 1;
+  text-wrap: wrap; // Firefox doesn't seem to have an equivalent, unfortunately
+}
+
+.bond-question-item {
+  padding: 0.5em 1em 0.5em 1em;
+
+  .bond-question-question {
+    width: 100%;
+    text-align: left;
+    font-weight: bold;
+  }
+}
+
+.desc-text {
+  text-align: left;
+  padding: 0.5em;
+  font-family: var(--monospace-font-family);
+
+  border: 1px solid #999;
+  border-radius: 5px;
+  margin: 5px;
+  background: var(--darken-1);
+
+  & > p {
+    margin: 0;
+
+    &:has(+ p) {
+      margin-bottom: 0.5em;
+    }
+  }
+}
+
+.effect-box {
+  text-align: left;
+  align-items: flex-start;
+  display: flex;
+  flex-direction: column;
+  border-width: 1px;
+  border-radius: 8px;
+  border-color: var(--secondary-color);
+  border-style: solid;
+  margin-top: 10px;
+}
+
+.effect-title {
+  text-transform: uppercase;
+  letter-spacing: 0.13em !important;
+  font-weight: 530;
+  position: relative;
+  top: -8px;
+  left: 8px;
+  background: var(--primary-color);
+  color: var(--light-text);
+  //border-radius: 5px;
+  padding-left: 5px;
+  padding-right: 12px;
+}
+
+.effect-text {
+  text-align: left;
+  padding: 0.5em;
+  width: 100%;
+  & > p {
+    margin: 0;
+  }
+}
+
+.roll-attack,
+.roll-damage,
+.roll-trigger,
+.system-macro,
+.gear-macro,
+.cb-macro,
+.item-macro,
+.core-passive-macro,
+.core-active-macro {
+  margin: 5px 10px;
+}
+
+.roll-attack,
+.roll-tech,
+.system-macro {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  flex-grow: 0;
+  margin: 3px 10px;
+  min-width: 3em;
+  height: 3em;
+  border: 1px solid var(--darken-2);
+  border-radius: 5px;
+  box-shadow: 1px 1px 1px 0.6px #000000b3;
+}
+
+.system-macro {
+  max-width: min-content;
+}
+
+.lancer-dice-roll {
+  padding-left: 3px;
+  padding-right: 3px;
+}
+
+.lancer-dice-formula,
+.lancer-dice-total {
+  margin: 5px;
+  align-items: center;
+  text-align: center;
+  background: var(--darken-1);
+  border: 1px solid #999;
+  border-radius: 3px;
+  box-shadow: 0 0 2px #fff inset;
+}
+
+.lancer-dice-total {
+  margin: 5px;
+  min-width: max-content;
+  padding: 0px 5px;
+}
+
+.arrow-input-container {
+  align-self: center;
+  max-width: fit-content;
+  flex-wrap: nowrap;
+  margin: auto;
+}
+
+.clicker-plus-button {
+  clip-path: polygon(75% 0%, 100% 50%, 75% 100%, 0% 100%, 20% 50%, 0% 0%);
+}
+
+.clicker-minus-button {
+  clip-path: polygon(100% 0%, 80% 50%, 100% 100%, 25% 100%, 0% 50%, 25% 0%);
+}
+
+/* Several of these styles require !important to override the standard button styling */
+.clicker-minus-button,
+.clicker-plus-button {
+  cursor: pointer;
+  width: 30px;
+  min-width: 30px;
+  height: 30px;
+  font-weight: bold;
+  background-color: var(--secondary-color) !important;
+  color: var(--secondary-text) !important;
+  /* The box shadow and border styling for buttons looks bad with the clip path */
+  box-shadow: none !important;
+  border: none !important;
+  /* Don't ask me why, but this aligns it vertically nicely */
+  line-height: 1px;
+
+  &:hover {
+    box-shadow: var(--hover-bright) !important;
+  }
+}
+
+input.core-power-toggle {
+  display: block;
+  width: 30px;
+  height: 30px;
+  -webkit-appearance: none;
+  appearance: textfield;
+  outline: 0;
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: contain;
+  font: normal normal normal 24px/1 "Material Design Icons";
+  -webkit-filter: none !important;
+  filter: none !important;
+}
+
+input.core-power-toggle:checked::before {
+  content: "\F0079";
+  color: green;
+}
+input.core-power-toggle:not(:checked)::before {
+  content: "\F007A";
+  color: grey;
+}
+
+.overcharge-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  align-items: center;
+
+  .lancer-flow-button {
+    justify-self: center;
+  }
+
+  .overcharge-text {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    line-height: 0.8em;
+  }
+}
+
+.overcharge-heat-wrapper {
+  justify-content: flex-end;
+
+  .overcharge-heat {
+    color: #fc3e0f;
+    flex-grow: unset;
+    width: 1.5em;
+  }
+}
+
+.skill-compact {
+  display: grid;
+  grid-template: 2em 1fr / 100px 1fr;
+  align-items: center;
+  margin-right: 25px;
+  a.flexrow.skill-flow {
+    margin-inline: 1.2em;
+  }
+}
+
+ul.talent-ranks {
+  padding: 0;
+}
+
+.talent-rank-compact {
+  display: grid;
+  grid-template: auto 1fr / auto auto 1fr;
+  grid-template-areas:
+    "rank chat title"
+    "desc desc desc";
+}
+
+.card.lancer-border-talent.talent-rank-sep-border {
+  border-width: 1px;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+}
+
+.action-detail,
+.deployable-detail,
+.core-active-detail,
+.core-passive-detail {
+  text-align: left;
+  margin-left: 0.5em;
+  margin-right: 0.5em;
+}
+
+.activation-chip,
+.activation-chip.lancer-button {
+  align-self: flex-end;
+  margin-top: 5px;
+  font-size: 12px;
+  height: 24px;
+  color: var(--light-text);
+  border-radius: 4px !important;
+  align-items: center;
+  // cursor: default;
+  display: inline-flex;
+  line-height: 20px;
+  max-width: 100%;
+  outline: none;
+  overflow: hidden;
+  padding: 0 12px 0px 5px;
+  text-decoration: none;
+  transition-duration: 0.28s;
+  transition-property: box-shadow, opacity;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  vertical-align: middle;
+  white-space: nowrap;
+  margin-bottom: 5px;
+  margin-right: 5px;
+}
+
+.action-wrapper,
+.deployable-wrapper,
+.core-active-wrapper,
+.core-passive-wrapper,
+.core-wrapper {
+  border-radius: 10px;
+  background-color: var(--darken-1);
+  margin-top: 6px;
+  margin-bottom: 4px;
+  padding: 4px;
+
+  .title-wrapper {
+    text-align: left;
+
+    .activation-chip {
+      max-width: fit-content;
+    }
+  }
+}
+
+.action-flow-container {
+  float: left;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+
+  .activation-chip,
+  .lancer-button {
+    height: 100%;
+    margin: 0;
+
+    span {
+      padding-right: 0.2em;
+    }
+  }
+
+  .vsep {
+    margin: 0.1em 0.7em;
+  }
+}
+
+.core-wrapper {
+  border-radius: 0px;
+  border-width: 2px;
+  border-style: solid;
+
+  .core-active-activate {
+    margin: 0 0.2em;
+    align-items: center;
+
+    .active-label {
+      flex-grow: 0;
+      min-width: fit-content;
+      margin-right: 0.5em;
+    }
+
+    .activation-chip {
+      width: 100%;
+      height: auto;
+      left: 0px;
+      right: 0px;
+      font-size: 1.1em;
+      justify-content: space-between;
+
+      .flexcol {
+        align-items: center;
+      }
+      b {
+        white-space: normal;
+        text-align: center;
+      }
+    }
+  }
+}
+
+.action-wrapper,
+.core-active-wrapper,
+.core-passive-wrapper {
+  display: flex;
+  flex-direction: column;
+}
+
+.deployable-wrapper {
+  display: grid;
+  grid-template-columns: 48px auto auto;
+  grid-template-rows: auto auto auto;
+  grid-template-areas:
+    "img title title"
+    "chip chip desc"
+    "action action action";
+
+  &.vertical {
+    grid-template-columns: 48px auto;
+    grid-template-rows: auto auto auto auto;
+    grid-template-areas:
+      "img title"
+      "chip chip"
+      "desc desc"
+      "action action";
+
+    .flexcol {
+      flex-grow: 1;
+    }
+
+    .deployable-activations {
+      margin-left: 0;
+    }
+
+    .activation-chip {
+      margin: 1px 2px;
+    }
+  }
+
+  img.deployable-thumbnail {
+    padding: 0.25em 0.5em;
+    grid-area: img;
+    border: none;
+    align-self: center;
+  }
+
+  .title-wrapper {
+    padding-left: 0.5em;
+  }
+
+  .deployable-activations {
+    grid-area: chip;
+    justify-content: flex-end;
+    display: flex;
+    flex-direction: row;
+    margin-left: 0.5em;
+
+    .activation-chip {
+      max-height: 20px;
+      display: flex;
+      justify-content: center;
+      margin-top: 0.1em;
+      margin-bottom: 0.1em;
+    }
+  }
+}
+
+.action-wrapper,
+.deployable-wrapper {
+  border-color: var(--secondary-color);
+  border-width: 1px;
+  border-style: solid;
+}
+
+.action-title,
+.deployable-title,
+.coresys-title,
+.core-active-title,
+.core-passive-title {
+  font-size: 16px;
+  margin-top: 3px;
+  margin: auto;
+}
+
+a.activation-chip > i.fas,
+a.activation-chip > i.cci,
+a.activation-chip > i.mdi {
+  margin-right: 6px;
+}
+
+.stat-card {
+  display: grid;
+  grid-template: 1fr 1fr / 1fr;
+}
+
+.stat-flow-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+}
+
+.stat-container,
+.stat-flow-container {
+  align-items: center;
+}
+
+.stat-flow-container > a {
+  margin: auto;
+}
+
+/* Frame descriptor, probably-but-not-necessarily in mech-loadout */
+.mech-frame {
+  .coresys-title {
+    width: 100%;
+    text-align: center;
+    font-weight: bold;
+    padding-top: 4px;
+    padding-bottom: 4px;
+  }
+
+  .frame-trait {
+    margin: 2px;
+    flex-grow: unset;
+  }
+
+  .frame-traits,
+  .core-wrapper {
+    width: 50%;
+    max-width: calc(50% - 6px);
+  }
+
+  .frame-active,
+  .frame-passive {
+    margin: 0 4px;
+  }
+}
+
+.loading-wrapper {
+  align-items: center;
+  margin-top: 0.75em;
+  max-width: fit-content;
+}
+
+.uses-wrapper {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  margin-right: 4px;
+  margin-top: 4px;
+}
+
+.uses-hex,
+.power-uses-hex,
+.counter-hex,
+.loaded-hex,
+.charged-hex {
+  cursor: pointer;
+  font-size: 2em;
+  color: var(--light-text);
+}
+
+.counter-hex[data-available="true"] {
+  color: var(--primary-color);
+  filter: brightness(1.25);
+}
+
+.sp-wrapper {
+  display: flex;
+  width: fit-content;
+  max-width: fit-content;
+  align-items: center;
+}
+
+.weapon-profile-wrapper {
+  padding: 8px 8px 0px 5px;
+  background-color: var(--primary-color);
+  clip-path: polygon(0 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
+}
+
+.weapon-profile {
+  color: var(--light-text);
+  background-color: var(--primary-color);
+  align-items: center;
+  min-height: 2em;
+  text-align: center;
+  padding: 0px 9px;
+  clip-path: polygon(9px 0, 100% 0, calc(100% - 8px) 100%, 0 100%);
+}
+
+.weapon-profile:hover {
+  box-shadow: var(--hover-bright);
+}
+
+.weapon-profile.selected-profile {
+  color: var(--primary-color);
+  background-color: var(--light-text);
+  /* font-weight: bold; */
+}
+
+.weapon-mod-addon {
+  background-color: var(--trait-color);
+  margin: 0px 3px 0.5em 3px;
+  color: var(--light-text);
+  align-items: center;
+  min-height: 2em;
+}
+
+.weapon-mod-addon > span {
+  margin-left: 0.5em;
+}
+
+.mech-weapon-wrapper {
+  margin-bottom: 4px;
+}
+
+// CSS for Item-level Editing
+
+.sheet-weapon-mod {
+  margin-right: 1em;
+}
+
+.sheet-weapon-mod > .flexcol > * {
+  flex-grow: unset;
+  margin-bottom: 0.25em;
+}
+
+.uses-editor > span {
+  padding: inherit;
+  text-align: center;
+  background-color: var(--darken-2);
+  margin-bottom: 4px;
+}
+
+.uses-editor {
+  background-color: var(--darken-2);
+  padding-bottom: 0.5em;
+  margin-bottom: auto;
+}
+
+.item-edit-arrayed .gen-control {
+  flex-grow: unset;
+  margin: 5px;
+}
+
+.gen-control.add-question {
+  float: left;
+  margin-left: 10px;
+  border: 1px solid var(--darken-5);
+  border-radius: 4px;
+  padding: 3px;
+}
+
+.bond-question {
+  .bond-question-row {
+    display: flex;
+    align-items: center;
+    margin-right: 1em;
+
+    a {
+      flex: 0 0 auto;
+      padding-left: 5px;
+      padding-right: 5px;
+    }
+  }
+
+  .bond-question-options {
+    margin-top: 0;
+    margin-bottom: 0.25em;
+
+    .bond-question-option-row {
+      display: flex;
+      align-items: center;
+      margin-right: 3em;
+
+      a {
+        flex: 0 0 auto;
+        padding-left: 5px;
+        padding-right: 5px;
+      }
+    }
+  }
+}
+
+.bond-ideal-row {
+  display: flex;
+  align-items: center;
+  margin-right: 1em;
+
+  .bond-ideal {
+    flex-grow: 1;
+  }
+
+  a {
+    flex: 0 0 auto;
+    padding-left: 5px;
+    padding-right: 5px;
+  }
+}
+
+.action-editor-wrapper {
+  float: right;
+  margin-right: 0.5em;
+  max-width: fit-content;
+}
+
+.action-editor {
+  .flexrow {
+    padding-bottom: 0.5em;
+  }
+}
+
+// Stabilize dialog
+// Begin "Button" radio buttons
+
+.stabilize-wrapper {
+  .button-label {
+    background-color: var(--secondary-color);
+    color: var(--secondary-text);
+    flex-basis: 45%;
+
+    i.checked-icon {
+      display: none;
+    }
+  }
+
+  .hidden {
+    display: none;
+  }
+
+  .radio-label:checked + .button-label {
+    background-color: var(--primary-color);
+    color: var(--light-text);
+
+    i.checked-icon {
+      display: inline;
+    }
+  }
+
+  .radio-label + .button-label:hover {
+    filter: brightness(120%);
+  }
+
+  .button-label {
+    display: grid;
+    grid-template-columns: 2em 2em auto;
+    padding: 1em;
+    margin: 0.5em;
+    cursor: pointer;
+    border-radius: 0.25em;
+    box-shadow: 0 3px 10px var(--darken-2);
+    user-select: none;
+    align-items: center;
+
+    i,
+    span {
+      text-align: center;
+    }
+  }
+
+  .center-text {
+    display: table;
+    text-align: center;
+  }
+}
+
+// Effects
+.active-effect {
+  border-radius: 5px;
+  border: black solid 1px;
+  display: grid;
+  grid-template-columns: 1fr 30px;
+  justify-items: start;
+  margin: 3px;
+  padding: 3px;
+}
+
+// Flows
+.lancer-flow-button-grid {
+  display: flex;
+  margin-bottom: 8px;
+  padding: 4px;
+}
+
+.lancer-flow-button-grid button,
+.bond-xp-button,
+.refresh-powers-button {
+  margin: 4px;
+  border-radius: 15px 0px;
+}
+
+.lancer-damage-button-group {
+  display: flex;
+  align-items: center;
+  max-width: min-content;
+  border-radius: 5px;
+  box-shadow: var(--button-shadow);
+
+  .lancer-damage-apply-select {
+    width: min-content;
+    border: 1px solid var(--darken-4);
+    border-radius: 5px;
+    padding: 0.25em;
+    background: var(--darken-1);
+    text-align: center;
+
+    & option {
+      background: var(--light-gray-color);
+      color: var(--dark-text);
+    }
+
+    &:has(+ .lancer-button) {
+      border-top-right-radius: 0px;
+      border-bottom-right-radius: 0px;
+      margin-right: 0px;
+      padding-right: 0px;
+      height: 29px;
+    }
+
+    & + .lancer-button {
+      border-top-left-radius: 0px;
+      border-bottom-left-radius: 0px;
+      margin-left: 0px;
+      padding-left: 0px;
+      margin-right: 0px;
+      height: 29px;
+      box-shadow: none;
+
+      &:hover {
+        box-shadow: var(--hover-bright);
+      }
+    }
+  }
+}
+
+.chat-message .lancer-damage-applied {
+  & i.cci {
+    margin-right: -0.2em;
+  }
+}
+
+.bond-xp-button {
+  margin-left: 1em;
+  margin-right: 1em;
+}
+
+// Actions
+.lancer-action-grid {
+  display: flex;
+}
+
+.lancer-action-button {
+  margin: 0 4px;
+
+  &.enabled {
+    cursor: pointer;
+  }
+
+  &.active {
+    color: var(--light-text);
+    font-weight: bold;
+  }
+}
+
+.track-message.lancer-action-grid {
+  flex-wrap: wrap;
+}
+.lancer-action-badge {
+  background-color: var(--light-gray-color);
+  margin: 3px;
+  width: fit-content;
+}
+
+.limited-card {
+  max-width: fit-content;
+  display: inline-flex;
+  flex-direction: row;
+  padding: 4px 8px;
+  margin: 3px;
+  justify-content: space-between;
+  align-items: center;
+  color: var(--light-text);
+  background-color: var(--dark-gray-color);
+
+  span {
+    min-width: fit-content;
+  }
+
+  &.non-interactive a,
+  &.non-interactive .uses-hex {
+    cursor: default;
+    text-shadow: none;
+    box-shadow: none;
+  }
+}
+
+.counter-name {
+  max-width: 90%;
+  width: fit-content !important;
+  color: var(--light-text) !important;
+}
