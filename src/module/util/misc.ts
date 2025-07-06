@@ -1,3 +1,4 @@
+import { LancerActor } from "../actor/lancer-actor";
 import { LANCER } from "../config";
 
 /**
@@ -88,6 +89,20 @@ export type TokenScrollTextOptions = {
     jitter?: number;
   };
 };
+
+/**
+ * Utility function to check if the user owns an actor. for a GM this will only return true if there is no currently
+ * connected player which has ownership of this actor. This is useful for determining if the GM should receive a prompt
+ * for some action on behalf of that actor (structure, burn check, etc...).
+ * @param actor The actor to check ownership of
+ * @returns True if the user owns the actor, false otherwise
+ */
+export function userOwnsActor(actor: LancerActor): boolean {
+  return (
+    actor.isOwner &&
+    !(game.users?.players.some(u => u.active && actor.testUserPermission(u, "OWNER")) && game.user?.isGM)
+  );
+}
 
 export async function tokenScrollText(
   { tokenId = "", content = "", style = {} }: TokenScrollTextOptions = {},

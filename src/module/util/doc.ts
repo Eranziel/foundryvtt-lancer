@@ -34,7 +34,7 @@ import type {
 import { SystemTemplates } from "../system-template";
 import { fromLid, fromLidMany } from "../helpers/from-lid";
 import { lookupOwnedDeployables } from "./lid";
-import { requestImport } from "./requests";
+import { maybeImportActor } from "./requests";
 
 const PACK_SCOPE = "world";
 
@@ -266,27 +266,20 @@ export async function insinuate(items: Array<LancerItem>, to: LancerActor): Prom
 export async function importDeployablesFor(item: LancerItem, owner: LancerActor) {
   let existing = lookupOwnedDeployables(owner);
   let existingLIDs = Object.keys(existing);
-  let deps: string[] = [];
-  deps.push(...((item as any).system.deployables ?? []));
+  let requiredLIDs: string[] = [];
+  requiredLIDs.push(...((item as any).system.deployables ?? []));
   if (item.is_frame()) {
-    deps.push(...item.system.core_system.deployables);
+    requiredLIDs.push(...item.system.core_system.deployables);
   }
-  let requiredLIDs = [];
-  for (let d of deps) {
-    if (!existingLIDs.includes(d)) {
-      // We need to keep it! It's new
-      requiredLIDs.push(d);
-    }
-  }
+  const missingLIDs = requiredLIDs.filter(req => !existingLIDs.includes(req));
 
-  if (!requiredLIDs.length) return;
+  if (!missingLIDs.length) return;
 
   // Now find them
-  let imports = await fromLidMany(requiredLIDs);
-
+  let imports = await fromLidMany(missingLIDs, { source: "compendium" });
   // And try to bring them in
   for (let i of imports) {
-    if (i instanceof LancerActor) await requestImport(i, owner);
+    if (i instanceof LancerActor) await maybeImportActor(i, owner);
   }
 }
 

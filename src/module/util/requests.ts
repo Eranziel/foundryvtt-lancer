@@ -5,7 +5,7 @@ import { LancerActor } from "../actor/lancer-actor";
  * @param compendiumActor The document you want to import
  * @param owner Who the import is for
  */
-export async function requestImport(compendiumActor: LancerActor, owner: LancerActor) {
+export async function maybeImportActor(compendiumActor: LancerActor, owner: LancerActor) {
   if (game.user?.can("ACTOR_CREATE")) {
     // Do it ourselves
     return fulfillImportActor(compendiumActor, owner);
@@ -31,13 +31,13 @@ export async function requestImport(compendiumActor: LancerActor, owner: LancerA
  * If for a mech, reroutes to the mechs pilot
  * If for an npc, just imports to same folder, nothing fancy
  *
- * @param compDeployable The actor (or actor UUID) to import
- * @param forActor The actor (or actor UUID) to associate the new deployable with
+ * @param compDeployableUuid The actor (or actor UUID) to import
+ * @param forActorUuid The actor (or actor UUID) to associate the new deployable with
  */
-export async function fulfillImportActor(compDeployable: string | LancerActor, forActor: string | LancerActor) {
-  if (!game.user?.hasPermission("ACTOR_CREATE")) throw new Error("You do not have permissions to import an actor!");
-  compDeployable = await LancerActor.fromUuid(compDeployable);
-  forActor = await LancerActor.fromUuid(forActor);
+export async function fulfillImportActor(compDeployableUuid: string | LancerActor, forActorUuid: string | LancerActor) {
+  if (!game.user?.can("ACTOR_CREATE")) throw new Error("You do not have permissions to import an actor!");
+  const compDeployable = await LancerActor.fromUuid(compDeployableUuid);
+  const forActor = await LancerActor.fromUuid(forActorUuid);
   if (!compDeployable || !forActor) throw new Error("Invalid actor(s) provided for import!");
 
   const actorData = compDeployable.toObject() as any;

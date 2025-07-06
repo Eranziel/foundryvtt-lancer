@@ -32,10 +32,13 @@ import { frameToPath } from "./retrograde-map";
 const lp = LANCER.log_prefix;
 
 // Imports packed pilot data, from either a vault id or gist id
-export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearFirst = false) {
+export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearFirst = true) {
   const coreVersion = game.settings.get(game.system.id, LANCER.setting_core_data);
   if (!coreVersion) {
-    ui.notifications?.warn("You must build the Core data in the Lancer Compendium Manager before importing.");
+    ui.notifications!.warn(
+      "You must import the Core Book Data in the Lancer Compendium Manager before importing a pilot.",
+      { permanent: true }
+    );
     return;
   }
   console.log(`${lp} Importing Pilot`, pilot, data);
@@ -58,22 +61,27 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
     let permission = foundry.utils.duplicate(pilot.ownership);
 
     // Check whether players are allowed to create Actors
-    let canCreate = !game.user?.can("ACTOR_CREATE");
-    let gmsOnline = game.users?.some((u: User) => u.isGM && u.active);
+    const canCreate = game.user?.can("ACTOR_CREATE");
+    const gmsOnline = game.users?.some((u: User) => u.isGM && u.active);
     if (!canCreate && !gmsOnline) {
-      new Dialog({
-        title: "Cannot Create Actors",
-        content: `<p>You are not permitted to create actors + No GM's are online, so sync will not produce any new mechs.</p>
-            <p>Your GM can allow Players/Trusted Players to create actors in Settings->Configure Permissions.</p>`,
-        buttons: {
-          ok: {
-            icon: '<i class="fas fa-check"></i>',
-            label: "OK",
+      new foundry.applications.api.DialogV2({
+        window: { title: `Cannot Create Actors`, icon: "fas fa-triangle-exclamation" },
+        content: `<p>You are not permitted to create actors and no GM's are online, so sync will not produce any new mechs or deployables.</p>
+        <p>Your GM can allow Players/Trusted Players to create actors in Settings->Configure Permissions.</p>`,
+        buttons: [
+          {
+            action: "close",
+            icon: "fas fa-check",
+            label: "Close",
+            default: true,
           },
-        },
-        default: "ok",
+        ],
       }).render(true);
     }
+
+    // Keep track of which actors and items could not be found/created
+    const missingActors: { name: string; lid: string }[] = [];
+    const missingItems: { actor: string; lid: string }[] = [];
 
     // Synchronize pilot
     let populatedGear: string[] = [];
@@ -83,13 +91,16 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
     if (data.loadout) {
       // Make a helper to get (a unique copy of) a given lid item, importing if necessary
       let pilotItemPool = [...pilot.items.contents];
-      const getPilotItemByLid = async (lid: string, type: EntryType) => {
-        let fi = pilotItemPool.findSplice(i => (i as any).system.lid == lid);
-        if (fi) {
-          return fi;
+      const getPilotItemByLid = async (lid: string) => {
+        const existingItem = pilotItemPool.findSplice(i => (i as any).system.lid == lid);
+        if (existingItem) {
+          return existingItem;
         } else {
           let fromCompendium = (await fromLid(lid)) as LancerItem | null;
-          if (!fromCompendium) return;
+          if (!fromCompendium) {
+            missingItems.push({ actor: pilot.name, lid });
+            return;
+          }
           return (await insinuate([fromCompendium], pilot!))[0];
         }
       };
@@ -98,7 +109,7 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
       // Do gear
       let flatGear = [...(data.loadout.gear ?? []), ...(data.loadout.extendedGear ?? [])].filter(g => g);
       for (let gear of flatGear as PackedPilotEquipmentState[]) {
-        let g = (await getPilotItemByLid(gear?.id, EntryType.PILOT_GEAR)) as LancerPILOT_GEAR | null;
+        let g = (await getPilotItemByLid(gear?.id)) as LancerPILOT_GEAR | null;
         if (g) {
           populatedGear.push(g.id!);
         }
@@ -107,7 +118,7 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
       // Do armor
       let flatArmor = (data.loadout.armor ?? []).filter(a => a);
       for (let armor of flatArmor as PackedPilotEquipmentState[]) {
-        let a = (await getPilotItemByLid(armor?.id, EntryType.PILOT_ARMOR)) as LancerPILOT_ARMOR | null;
+        let a = (await getPilotItemByLid(armor?.id)) as LancerPILOT_ARMOR | null;
         if (a) {
           populatedArmor.push(a.id!);
         }
@@ -116,7 +127,7 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
       // Do weapons
       let flatWeapons = [...(data.loadout.weapons ?? []), ...(data.loadout.extendedWeapons ?? [])].filter(w => w);
       for (let weapon of flatWeapons as PackedPilotEquipmentState[]) {
-        let w = (await getPilotItemByLid(weapon?.id, EntryType.PILOT_WEAPON)) as LancerPILOT_WEAPON | null;
+        let w = (await getPilotItemByLid(weapon?.id)) as LancerPILOT_WEAPON | null;
         if (w) {
           populatedWeapons.push(w.id!);
         }
@@ -124,7 +135,7 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
 
       // Do core bonuses
       for (let coreBonus of data.core_bonuses) {
-        (await getPilotItemByLid(coreBonus, EntryType.CORE_BONUS)) as LancerCORE_BONUS | null;
+        (await getPilotItemByLid(coreBonus)) as LancerCORE_BONUS | null;
       }
 
       // Do skills
@@ -139,7 +150,7 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
             },
           ]);
         } else {
-          let s = (await getPilotItemByLid(skill.id, EntryType.SKILL)) as LancerSKILL | null;
+          let s = (await getPilotItemByLid(skill.id)) as LancerSKILL | null;
           if (s) {
             itemUpdates.push({
               _id: s.id,
@@ -151,7 +162,7 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
 
       // Do talents
       for (let talent of data.talents) {
-        let t = (await getPilotItemByLid(talent.id, EntryType.TALENT)) as LancerTALENT | null;
+        let t = (await getPilotItemByLid(talent.id)) as LancerTALENT | null;
         if (t) {
           itemUpdates.push({
             _id: t.id,
@@ -161,7 +172,7 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
       }
 
       // Populate bond data
-      bond = (data.bondId ? await getPilotItemByLid(data.bondId, EntryType.BOND) : null) as LancerBOND | null;
+      bond = (data.bondId ? await getPilotItemByLid(data.bondId) : null) as LancerBOND | null;
       if (bond && data.bondPowers) {
         // Disable all powers, in case the pilot already had this bond
         bond.system.powers.forEach(p => {
@@ -212,7 +223,7 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
 
       // Do licenses
       for (let license of data.licenses) {
-        let t = (await getPilotItemByLid(`lic_${license.id}`, EntryType.LICENSE)) as LancerLICENSE | null;
+        let t = (await getPilotItemByLid(`lic_${license.id}`)) as LancerLICENSE | null;
         if (t) {
           itemUpdates.push({
             _id: t.id,
@@ -243,7 +254,6 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
         callsign: data.callsign,
         cloud_id: data.cloudID,
         history: data.history,
-        last_cloud_update: data.lastCloudUpdate,
         level: data.level,
         loadout: {
           armor: populatedArmor,
@@ -293,16 +303,18 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
 
     // Iterate over mechs
     let activeMechUuid = "";
-    for (let cloudMech of data.mechs) {
+    for (const cloudMech of data.mechs) {
       // Find the existing mech, or create one as necessary
       let mech = game.actors!.find(
         (m: LancerActor) => m.is_mech() && m.system.lid == cloudMech.id
       ) as unknown as LancerMECH | null;
       if (!mech) {
         if (!game.user?.can("ACTOR_CREATE")) {
-          ui.notifications?.warn(
-            `Could not import mech '${cloudMech.name}' as you lack the permission to create new actors. Please ask your GM for assistance (either they import for you, or give you permissions)`
+          ui.notifications!.warn(
+            `Could not import mech '${cloudMech.name}' as you lack the permission to create new actors. Please ask your GM for assistance (either they import for you, or give you permissions)`,
+            { permanent: true }
           );
+          missingActors.push({ name: cloudMech.name, lid: cloudMech.frame });
           continue;
         }
 
@@ -317,21 +329,26 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
         })) as unknown as LancerMECH;
       }
       if (!mech.canUserModify(game.user!, "update")) {
-        ui.notifications?.warn(
-          `Could not import mech '${cloudMech.name}' as you lack the permission to update the actor. Please ask your GM for assistance.`
+        ui.notifications!.warn(
+          `Could not import mech '${cloudMech.name}' as you lack the permission to update the actor. Please ask your GM for assistance.`,
+          { permanent: true }
         );
+        missingActors.push({ name: cloudMech.name, lid: cloudMech.frame });
         continue;
       }
 
       // Make a helper to get (a unique copy of) a given lid item, importing if necessary
       let mechItemPool = [...mech.items.contents];
-      const getMechItemByLid = async (lid: string, type: EntryType) => {
-        let fi = mechItemPool.findSplice(i => (i as any).system.lid == lid);
-        if (fi) {
-          return fi;
+      const getMechItemByLid = async (lid: string) => {
+        let foundItem = mechItemPool.findSplice(i => (i as any).system.lid == lid);
+        if (foundItem) {
+          return foundItem;
         } else {
           let fromCompendium = (await fromLid(lid)) as LancerItem | null;
-          if (!fromCompendium) return;
+          if (!fromCompendium) {
+            missingItems.push({ actor: mech.name, lid });
+            return;
+          }
           return (await insinuate([fromCompendium], mech!))[0];
         }
       };
@@ -340,14 +357,14 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
       let loadout = cloudMech.loadouts[cloudMech.active_loadout_index];
 
       // Populate our frame
-      let frame = (await getMechItemByLid(cloudMech.frame, EntryType.FRAME)) as LancerFRAME | null;
+      let frame = (await getMechItemByLid(cloudMech.frame)) as LancerFRAME | null;
 
       // Populate our systems
       let flatSystems = [...loadout.integratedSystems, ...loadout.systems];
       let populatedSystems: string[] = [];
       let assocSystemData = new Map<string, PackedEquipmentData>();
       for (let sys of flatSystems) {
-        let realSys = (await getMechItemByLid(sys.id, EntryType.MECH_SYSTEM)) as LancerMECH_SYSTEM | null;
+        let realSys = (await getMechItemByLid(sys.id)) as LancerMECH_SYSTEM | null;
         if (realSys) {
           populatedSystems.push(realSys.id!);
           assocSystemData.set(realSys.id!, sys);
@@ -381,12 +398,10 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
       for (let mount of flatMounts) {
         let populatedSlots: typeof populatedMounts[0]["slots"] = [];
         for (const slot of mount.slots) {
-          let weapon = slot.weapon
-            ? ((await getMechItemByLid(slot.weapon.id, EntryType.MECH_WEAPON)) as LancerMECH_WEAPON | null)
-            : null;
+          let weapon = slot.weapon ? ((await getMechItemByLid(slot.weapon.id)) as LancerMECH_WEAPON | null) : null;
           let mod =
             weapon && slot.weapon?.mod
-              ? ((await getMechItemByLid(slot.weapon.mod.id, EntryType.WEAPON_MOD)) as LancerWEAPON_MOD | null)
+              ? ((await getMechItemByLid(slot.weapon.mod.id)) as LancerWEAPON_MOD | null)
               : null;
           populatedSlots.push({
             mod: mod?.id ?? null,
@@ -396,11 +411,11 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
           // 2nd weapons are in extra, e.g. aux/aux and flex mounts
           for (const extraSlot of mount.extra) {
             let weapon = extraSlot.weapon
-              ? ((await getMechItemByLid(extraSlot.weapon.id, EntryType.MECH_WEAPON)) as LancerMECH_WEAPON | null)
+              ? ((await getMechItemByLid(extraSlot.weapon.id)) as LancerMECH_WEAPON | null)
               : null;
             let mod =
               weapon && extraSlot.weapon?.mod
-                ? ((await getMechItemByLid(extraSlot.weapon.mod.id, EntryType.WEAPON_MOD)) as LancerWEAPON_MOD | null)
+                ? ((await getMechItemByLid(extraSlot.weapon.mod.id)) as LancerWEAPON_MOD | null)
                 : null;
             populatedSlots.push({
               mod: mod?.id ?? null,
@@ -522,17 +537,54 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
       await mech.updateEmbeddedDocuments("Item", itemUpdates);
     }
 
-    // Fix active mech
+    // Update active mech and last imported timestamp
     await pilot.update({
       "system.active_mech": activeMechUuid,
+      "system.last_cloud_update": new Date().toISOString(),
     });
     pilot.effectHelper.propagateEffects(true);
 
     // Reset curr data and render all
     pilot.render();
-    ui.notifications!.info("Successfully loaded pilot new state.");
+    if (missingItems.length || missingActors.length) {
+      let message = `Partially loaded '${pilot.name}'s new state.`;
+      if (missingActors.length) {
+        message += ` ${missingActors.length} actors could not be created/updated.`;
+      }
+      if (missingItems.length) {
+        message += ` ${missingItems.length} items could not be found.`;
+      }
+      message += ` See dialog for details.`;
+      ui.notifications!.warn(message, { permanent: true });
+      console.warn(`${lp} Some actors and/or items were missed during pilot import:`, missingActors, missingItems);
+
+      let content = "";
+      if (missingActors.length) {
+        content += `<div><span>The following Actors could not be created or updated:</span>
+        <ul>${missingActors.map(i => `<li>${i.name} - ${i.lid}</li>`).join("")}</ul></div>`;
+      }
+      if (missingItems.length) {
+        content += `<div><span>The following Items were not found in the compendium and could not be imported:</span>
+        <ul>${missingItems.map(i => `<li>${i.actor} - ${i.lid}</li>`).join("")}</ul>
+        <span>Import all necessary LCPs first using the <b>Lancer Compendium Manager</b>.</span></div>`;
+      }
+      new foundry.applications.api.DialogV2({
+        window: { title: `Incomplete Pilot Import`, icon: "fas fa-triangle-exclamation" },
+        content,
+        buttons: [
+          {
+            action: "close",
+            icon: "fas fa-check",
+            label: "Close",
+            default: true,
+          },
+        ],
+      }).render(true);
+    } else {
+      ui.notifications!.info("Successfully loaded pilot new state.");
+    }
   } catch (e) {
     console.warn(e);
-    ui.notifications!.warn(`Failed to update pilot: ${e instanceof Error ? e.message : e}`);
+    ui.notifications!.warn(`Failed to update pilot: ${e instanceof Error ? e.message : e}`, { permanent: true });
   }
 }

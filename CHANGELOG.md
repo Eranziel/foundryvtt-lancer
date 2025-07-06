@@ -1,3 +1,32 @@
+# 2.11.0 (2025-07-05)
+
+## Features
+
+- #476 - Add built-in support for the Monstrosity structure table. Thanks, @tw-blob!
+
+## Bug Fixes
+
+- #863 - Fix a bug causing way too many deployables to be created during pilot import.
+- #882 - Ensure that players get their own burn check prompts, instead of the GM always receiving them.
+
+# 2.10.3 (2025-06-10)
+
+## Bug Fixes
+
+- Fix another bug causing the stat change for Stunned to not be applied.
+
+# 2.10.2 (2025-06-10)
+
+## Bug Fixes
+
+- Fix a bug causing status description text to not be copied from world/compendium items.
+
+# 2.10.1 (2025-06-09)
+
+## Bug Fixes
+
+- Fix a bug causing world/compendium status items to not be included in the token status menu.
+
 # 2.10.0 (2025-06-08)
 
 ## Features

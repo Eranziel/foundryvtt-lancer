@@ -95,13 +95,13 @@ export async function preOverheatRollChecks(state: FlowState<LancerFlowState.Ove
 
 // Table of overheat table titles
 const overheatTableTitles = [
-  "Irreversible Meltdown",
-  "Meltdown",
-  "Destabilized Power Plant",
-  "Destabilized Power Plant",
-  "Destabilized Power Plant",
-  "Emergency Shunt",
-  "Emergency Shunt",
+  "lancer.tables.overheat.title.irreversible",
+  "lancer.tables.overheat.title.meltdown",
+  "lancer.tables.overheat.title.destabilized",
+  "lancer.tables.overheat.title.destabilized",
+  "lancer.tables.overheat.title.destabilized",
+  "lancer.tables.overheat.title.shunt",
+  "lancer.tables.overheat.title.shunt",
 ];
 
 // Table of overheat table descriptions
@@ -109,23 +109,23 @@ function overheatTableDescriptions(roll: number, remStress: number): string {
   switch (roll) {
     // Used for multiple ones
     case 0:
-      return "The reactor goes critical. your mech suffers a reactor meltdown at the end of your next turn.";
+      return "lancer.tables.overheat.description.irreversible";
     case 1:
       switch (remStress) {
         case 2:
-          return "Roll an ENGINEERING check. On a success, your mech is @Compendium[world.status-items.Exposed]. On a failure, it suffers a reactor meltdown after 1d6 of your turns (rolled by the GM). A reactor meltdown can be prevented by retrying the ENGINEERING check as a free action..";
+          return "lancer.tables.overheat.description.meltdown.2";
         case 1:
-          return "Your mech suffers a reactor meltdown at the end of your next turn.";
+          return "lancer.tables.overheat.description.meltdown.1";
         default:
-          return "Your mech becomes @Compendium[world.status-items.Exposed]";
+          return "lancer.tables.overheat.description.meltdown.3plus";
       }
     case 2:
     case 3:
     case 4:
-      return "The power plant becomes unstable, beginning to eject jets of plasma. Your mech becomes @Compendium[world.status-items.Exposed].";
+      return "lancer.tables.overheat.description.destabilized";
     case 5:
     case 6:
-      return "Your mech’s cooling systems manage to contain the increasing heat; however, your mech becomes @Compendium[world.status-items.Impaired] until the end of your next turn.";
+      return "lancer.tables.overheat.description.shunt";
   }
   return "";
 }
@@ -303,6 +303,10 @@ async function printOverheatCard(
   options?: { template?: string }
 ): Promise<boolean> {
   if (!state.data) throw new TypeError(`Overheat roll flow data missing!`);
+
+  state.data.title = game.i18n.localize(state.data.title);
+  state.data.desc = game.i18n.localize(state.data.desc);
+
   const template = options?.template || `systems/${game.system.id}/templates/chat/overheat-card.hbs`;
   await renderTemplateStep(state.actor, template, state.data);
   return true;

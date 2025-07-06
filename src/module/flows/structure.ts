@@ -2,6 +2,7 @@
 import { LancerActor } from "../actor/lancer-actor";
 import { LANCER } from "../config";
 import { UUIDRef } from "../source-template";
+import { userOwnsActor } from "../util/misc";
 import { renderTemplateStep } from "./_render";
 import { Flow, FlowState, Step } from "./flow";
 import { LancerFlowState } from "./interfaces";
@@ -242,9 +243,6 @@ export async function rollStructureTable(state: FlowState<LancerFlowState.Primar
     },
   };
 
-  state.data.title = game.i18n.localize(state.data.title);
-  state.data.desc = game.i18n.localize(state.data.desc);
-
   return true;
 }
 
@@ -455,7 +453,7 @@ export async function structureInsertSecondaryRollButton(
 
   const result = state.data.result?.roll.total;
   if (!result) throw new TypeError(`Structure check hasn't been rolled yet!`);
-  if (result >= 2 && result <= 4) {
+  if (!hasMonstrosityClass(state.actor) && result >= 2 && result <= 4) {
     // TODO: we'll want helper functions to generate embeddable flow buttons
     state.data.embedButtons = state.data.embedButtons || [];
     state.data.embedButtons.push(`<a
@@ -502,6 +500,10 @@ async function printStructureCard(
   options?: { template?: string }
 ): Promise<boolean> {
   if (!state.data) throw new TypeError(`Structure roll flow data missing!`);
+
+  state.data.title = game.i18n.localize(state.data.title);
+  state.data.desc = game.i18n.localize(state.data.desc);
+
   const template = options?.template || `systems/${game.system.id}/templates/chat/structure-card.hbs`;
   await renderTemplateStep(state.actor, template, state.data);
   return true;
@@ -592,11 +594,7 @@ export function triggerStrussFlow(actor: LancerActor, changed: unknown) {
   // Check for overheating / structure
   if (
     game.settings.get(game.system.id, LANCER.setting_automation).structure &&
-    actor.isOwner &&
-    !(
-      game.users?.players.reduce((a, u) => a || (u.active && actor.testUserPermission(u, "OWNER")), false) &&
-      game.user?.isGM
-    ) &&
+    userOwnsActor(actor) &&
     (actor.is_mech() || actor.is_npc())
   ) {
     const data = changed as any; // DeepPartial<RegMechData | RegNpcData>;

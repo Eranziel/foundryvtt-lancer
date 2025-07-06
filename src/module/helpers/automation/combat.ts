@@ -3,6 +3,7 @@ import { LancerActor } from "../../actor/lancer-actor";
 import { LancerCombat } from "../../combat/lancer-combat";
 import { LANCER } from "../../config";
 import { ActionTrackFlow } from "../../flows/action-track";
+import { userOwnsActor } from "../../util/misc";
 
 const lp = LANCER.log_prefix;
 
@@ -58,7 +59,15 @@ function processEndTurn(actor: LancerActor) {
 
   // Handle Burn
   if (actor.system.burn > 0) {
-    actor.beginBurnFlow();
+    // Since this code only runs for the GM, check whether we should get the burn prompt or forward it to a player.
+    if (userOwnsActor(actor)) {
+      actor.beginBurnFlow();
+    } else {
+      game.socket?.emit(`system.${game.system.id}`, {
+        action: "burnCheck",
+        data: { actorUuid: actor.uuid },
+      });
+    }
   }
 
   // Print chat messages.
