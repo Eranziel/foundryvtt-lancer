@@ -5,11 +5,11 @@ import { EntryType, NpcFeatureType } from "./enums";
 import type { LancerItemType } from "./item/lancer-item";
 
 const ASCII = `
-╭╮╱╱╭━━━┳━╮╱╭┳━━━┳━━━┳━━━╮ 
-┃┃╱╱┃╭━╮┃┃╰╮┃┃╭━╮┃╭━━┫╭━╮┃ 
-┃┃╱╱┃┃╱┃┃╭╮╰╯┃┃╱╰┫╰━━┫╰━╯┃ 
-┃┃╱╭┫╰━╯┃┃╰╮┃┃┃╱╭┫╭━━┫╭╮╭╯ 
-┃╰━╯┃╭━╮┃┃╱┃┃┃╰━╯┃╰━━┫┃┃╰╮ 
+╭╮╱╱╭━━━┳━╮╱╭┳━━━┳━━━┳━━━╮
+┃┃╱╱┃╭━╮┃┃╰╮┃┃╭━╮┃╭━━┫╭━╮┃
+┃┃╱╱┃┃╱┃┃╭╮╰╯┃┃╱╰┫╰━━┫╰━╯┃
+┃┃╱╭┫╰━╯┃┃╰╮┃┃┃╱╭┫╭━━┫╭╮╭╯
+┃╰━╯┃╭━╮┃┃╱┃┃┃╰━╯┃╰━━┫┃┃╰╮
 ╰━━━┻╯╱╰┻╯╱╰━┻━━━┻━━━┻╯╰━╯`;
 
 export function WELCOME(): string {
@@ -21,12 +21,12 @@ export function WELCOME(): string {
   </div>
 
   <p><a href="https://github.com/Eranziel/foundryvtt-lancer/blob/master/CHANGELOG.md">CHANGELOG</a></p>
-  
-  <p>Check out the project wiki for 
-  <a href="https://github.com/Eranziel/foundryvtt-lancer/wiki/FAQ">FAQ</a>, 
+
+  <p>Check out the project wiki for
+  <a href="https://github.com/Eranziel/foundryvtt-lancer/wiki/FAQ">FAQ</a>,
   <a href="https://github.com/Eranziel/foundryvtt-lancer/wiki/Resources">recommended modules</a>,
   and other information about how to use the system.</p>
-  
+
   <p>@UUID[Compendium.lancer.lancer_info.JournalEntry.JDfVPzoWPOLyhCCa.JournalEntryPage.LVsmG9EfKH9VpVJX]{Legal & Acknowlegements}</p>
   <p>@UUID[Compendium.lancer.lancer_info.JournalEntry.JDfVPzoWPOLyhCCa.JournalEntryPage.gotpldNfOwLxauXi]{Migrating from Earlier Versions}</p>
   `;
@@ -122,7 +122,7 @@ export function friendly_entrytype_name(type: LancerItemType | LancerActorType, 
 // TODO: const MACRO_ICONS
 
 export function TypeIcon(type: EntryType, macro?: boolean): string {
-  const docType = ACTOR_TYPES.includes(type as any) ? "Actor" : "Item";
+  const docType = ACTOR_TYPES.includes(type) ? "Actor" : "Item";
   const img = getDocumentClass(docType).getDefaultArtwork({ type }).img;
   return img;
 }

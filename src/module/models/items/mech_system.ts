@@ -20,21 +20,27 @@ import {
 
 import fields = foundry.data.fields;
 
-export class MechSystemModel extends LancerDataModel<foundry.data.fields.DataSchema, Item.Implementation> {
+const defineMechSystemModelSchema = () => {
+  return {
+    effect: new fields.HTMLField(),
+    sp: new fields.NumberField({ nullable: false, initial: 0 }),
+    description: new fields.HTMLField(),
+    type: new fields.StringField(),
+    ammo: new fields.ArrayField(new AmmoField()),
+    ...template_universal_item(),
+    ...template_bascdt(),
+    ...template_destructible(),
+    ...template_licensed(),
+    ...template_uses(),
+  };
+};
+
+type MechSystemModelSchema = ReturnType<typeof defineMechSystemModelSchema>;
+
+export class MechSystemModel extends LancerDataModel<MechSystemModelSchema, Item.Implementation> {
   static DEFAULT_ICON = "systems/lancer/assets/icons/mech_system.svg";
   static defineSchema() {
-    return {
-      effect: new fields.HTMLField(),
-      sp: new fields.NumberField({ nullable: false, initial: 0 }),
-      description: new fields.HTMLField(),
-      type: new fields.StringField(),
-      ammo: new fields.ArrayField(new AmmoField()),
-      ...template_universal_item(),
-      ...template_bascdt(),
-      ...template_destructible(),
-      ...template_licensed(),
-      ...template_uses(),
-    };
+    return defineMechSystemModelSchema();
   }
 
   static migrateData(data: any) {

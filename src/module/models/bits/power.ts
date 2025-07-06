@@ -14,28 +14,34 @@ export interface PowerData {
   prerequisite: string | null;
 }
 
-export class PowerField extends fields.SchemaField {
-  constructor(options = {}) {
-    super(
+const definePowerFieldSchema = () => {
+  return {
+    name: new fields.StringField({ nullable: false }),
+    description: new fields.StringField({ nullable: false }),
+    unlocked: new fields.BooleanField(),
+    frequency: new fields.StringField({ required: false, nullable: true }),
+    uses: new fields.SchemaField(
       {
-        name: new fields.StringField({ nullable: false }),
-        description: new fields.StringField({ nullable: false }),
-        unlocked: new fields.BooleanField(),
-        frequency: new fields.StringField({ required: false, nullable: true }),
-        uses: new fields.SchemaField(
-          {
-            min: new fields.NumberField({ integer: true, initial: 0 }),
-            max: new fields.NumberField({ integer: true, initial: 0 }),
-            value: new fields.NumberField({ integer: true, initial: 0 }),
-          },
-          { required: false, nullable: true }
-        ),
-        veteran: new fields.BooleanField(),
-        master: new fields.BooleanField(),
-        prerequisite: new fields.StringField({ required: false, nullable: true }),
+        min: new fields.NumberField({ integer: true, initial: 0 }),
+        max: new fields.NumberField({ integer: true, initial: 0 }),
+        value: new fields.NumberField({ integer: true, initial: 0 }),
       },
-      options
-    );
+      { required: false, nullable: true }
+    ),
+    veteran: new fields.BooleanField(),
+    master: new fields.BooleanField(),
+    prerequisite: new fields.StringField({ required: false, nullable: true }),
+  };
+};
+
+type PowerFieldSchema = ReturnType<typeof definePowerFieldSchema>;
+
+export class PowerField<Options extends fields.SchemaField.Options<PowerFieldSchema>> extends fields.SchemaField<
+  PowerFieldSchema,
+  Options
+> {
+  constructor(options?: Options) {
+    super(definePowerFieldSchema(), options);
   }
 }
 

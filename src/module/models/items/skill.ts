@@ -7,15 +7,21 @@ import { template_universal_item } from "./shared";
 
 import fields = foundry.data.fields;
 
-export class SkillModel extends LancerDataModel<foundry.data.fields.DataSchema, Item.Implementation> {
+const defineSkillModelSchema = () => {
+  return {
+    description: new fields.HTMLField(),
+    detail: new fields.StringField(),
+    curr_rank: new fields.NumberField({ nullable: false, initial: 1, min: 1, max: 3 }),
+    ...template_universal_item(),
+  };
+};
+
+type SkillModelSchema = ReturnType<typeof defineSkillModelSchema>;
+
+export class SkillModel extends LancerDataModel<SkillModelSchema, Item.Implementation> {
   static DEFAULT_ICON = "systems/lancer/assets/icons/skill.svg";
   static defineSchema() {
-    return {
-      description: new fields.HTMLField(),
-      detail: new fields.StringField(),
-      curr_rank: new fields.NumberField({ nullable: false, initial: 1, min: 1, max: 3 }),
-      ...template_universal_item(),
-    };
+    return defineSkillModelSchema();
   }
 
   static migrateData(data: any) {

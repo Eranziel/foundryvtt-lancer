@@ -8,7 +8,7 @@ import type { PackedDeployableData, PackedTagData } from "../../util/unpacking/p
 import { unpackDeployable } from "../actors/deployable";
 import { DeployableType } from "../../enums";
 
-const fields: any = foundry.data.fields;
+import fields = foundry.data.fields;
 
 export function template_universal_item() {
   return {

@@ -6,17 +6,23 @@ import type { PackedNpcTemplateData } from "../../util/unpacking/packed-types";
 import { LancerDataModel, LIDField, type UnpackContext } from "../shared";
 import { template_universal_item } from "./shared";
 
-const fields = foundry.data.fields;
+import fields = foundry.data.fields;
 
-export class NpcTemplateModel extends LancerDataModel<foundry.data.fields.DataSchema, Item.Implementation> {
+const defineNpcTemplateModelSchema = () => {
+  return {
+    description: new fields.HTMLField(),
+    base_features: new fields.SetField(new LIDField()),
+    optional_features: new fields.SetField(new LIDField()),
+    ...template_universal_item(),
+  };
+};
+
+type NpcTemplateModelSchema = ReturnType<typeof defineNpcTemplateModelSchema>;
+
+export class NpcTemplateModel extends LancerDataModel<NpcTemplateModelSchema, Item.Implementation> {
   static DEFAULT_ICON = "systems/lancer/assets/icons/npc_template.svg";
   static defineSchema() {
-    return {
-      description: new fields.HTMLField(),
-      base_features: new fields.SetField(new LIDField()),
-      optional_features: new fields.SetField(new LIDField()),
-      ...template_universal_item(),
-    };
+    return defineNpcTemplateModelSchema();
   }
 
   static migrateData(data: any) {

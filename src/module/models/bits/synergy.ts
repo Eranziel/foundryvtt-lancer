@@ -23,6 +23,7 @@ import {
 } from "../shared";
 
 import fields = foundry.data.fields;
+import fields = foundry.data.fields;
 
 export interface SynergyData {
   locations: SynergyLocation[];

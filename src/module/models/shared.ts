@@ -377,38 +377,37 @@ export class FakeBoundedNumberField<
   }
 }
 
-declare namespace FullBoundedNumberField {
-  interface Options extends fields.SchemaField.Options<Fields> {
-    min?: number;
-    max?: number;
-    initialValue?: number;
-  }
-  interface Fields extends foundry.data.fields.DataSchema {
-    min: fields.NumberField<{}>;
-    max: fields.NumberField<{}>;
-    value: fields.NumberField<{}>;
-  }
+const defineFullBoundedNumberFieldSchema = <Options extends FullBoundedNumberFieldOptions<any> | undefined>(
+  options?: Options
+) => {
+  return {
+    min: new fields.NumberField({ integer: true, nullable: false, initial: options?.min ?? 0 }),
+    max: new fields.NumberField({
+      integer: true,
+      nullable: false,
+      initial: options?.max ?? FullBoundedNumberField.defaultMax,
+    }),
+    value: new fields.NumberField({ integer: true, nullable: false, initial: options?.initialValue ?? 0 }),
+  };
+};
+
+type FullBoundedNumberFieldSchema = ReturnType<typeof defineFullBoundedNumberFieldSchema>;
+
+interface FullBoundedNumberFieldOptions<Options extends FullBoundedNumberFieldSchema>
+  extends fields.SchemaField.Options<Options> {
+  min?: number;
+  max?: number;
+  initialValue?: number;
 }
-export class FullBoundedNumberField extends fields.SchemaField<
-  FullBoundedNumberField.Fields,
-  FullBoundedNumberField.Options
-> {
+
+export class FullBoundedNumberField<
+  Options extends FullBoundedNumberFieldOptions<FullBoundedNumberFieldSchema>
+> extends fields.SchemaField<FullBoundedNumberFieldSchema, Options> {
   static defaultValue: number = 10;
   static defaultMax: number = 10;
 
-  constructor(options: FullBoundedNumberField.Options = {}) {
-    super(
-      {
-        min: new fields.NumberField({ integer: true, nullable: false, initial: options?.min ?? 0 }),
-        max: new fields.NumberField({
-          integer: true,
-          nullable: false,
-          initial: options?.max ?? FullBoundedNumberField.defaultMax,
-        }),
-        value: new fields.NumberField({ integer: true, nullable: false, initial: options?.initialValue ?? 0 }),
-      },
-      options
-    );
+  constructor(options?: Options) {
+    super(defineFullBoundedNumberFieldSchema(options), options);
   }
 
   /** @override */
@@ -458,11 +457,11 @@ export class ChecklistField<List extends Record<string, string>> extends fields.
   ChecklistField.Options<List>
 > {
   constructor(target_enum: List, options: ChecklistField.Options<List> = {}) {
-    const scaffold: ChecklistField.Field<List> = {} as any;
-    for (let val of Object.values(target_enum)) {
+    const scaffold: Record<string, fields.BooleanField<{ initial: true }>> = {};
+    for (const val of Object.values(target_enum)) {
       scaffold[val] = new fields.BooleanField({ initial: true });
     }
-    super(scaffold, options);
+    super(scaffold as ChecklistField.Field<List>, options);
   }
 }
 

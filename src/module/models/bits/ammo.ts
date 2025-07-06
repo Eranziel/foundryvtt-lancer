@@ -7,32 +7,30 @@ import {
 import type { PackedAmmoData } from "../../util/unpacking/packed-types";
 import { WeaponSizeChecklistField, WeaponTypeChecklistField } from "../shared";
 
-const fields: any = foundry.data.fields;
+import fields = foundry.data.fields;
 
-export interface AmmoData {
-  name: string;
-  description: string;
-  cost: number | null;
-  allowed_types: WeaponTypeChecklist | null;
-  allowed_sizes: WeaponSizeChecklist | null;
-  restricted_types: WeaponTypeChecklist | null;
-  restricted_sizes: WeaponSizeChecklist | null;
-}
+const defineAmmoFieldSchema = () => {
+  return {
+    name: new fields.StringField({ nullable: false }),
+    description: new fields.StringField({ nullable: false }),
+    cost: new fields.NumberField({ nullable: true }),
+    allowed_types: new WeaponTypeChecklistField(),
+    allowed_sizes: new WeaponSizeChecklistField(),
+    restricted_types: new WeaponTypeChecklistField(),
+    restricted_sizes: new WeaponSizeChecklistField(),
+  };
+};
 
-export class AmmoField extends fields.SchemaField {
-  constructor(options = {}) {
-    super(
-      {
-        name: new fields.StringField({ nullable: false }),
-        description: new fields.StringField({ nullable: false }),
-        cost: new fields.NumberField({ nullable: true }),
-        allowed_types: new WeaponTypeChecklistField(),
-        allowed_sizes: new WeaponSizeChecklistField(),
-        restricted_types: new WeaponTypeChecklistField(),
-        restricted_sizes: new WeaponSizeChecklistField(),
-      },
-      options
-    );
+type AmmoFieldSchema = ReturnType<typeof defineAmmoFieldSchema>;
+
+export type AmmoData = fields.SchemaField.InitializedData<AmmoFieldSchema>;
+
+export class AmmoField<Options extends fields.SchemaField.Options<AmmoFieldSchema>> extends fields.SchemaField<
+  AmmoFieldSchema,
+  Options
+> {
+  constructor(options?: Options) {
+    super(defineAmmoFieldSchema(), options);
   }
 }
 

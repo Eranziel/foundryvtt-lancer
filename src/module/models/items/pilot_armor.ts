@@ -8,18 +8,24 @@ import { unpackSynergy } from "../bits/synergy";
 import { LancerDataModel, type UnpackContext } from "../shared";
 import { template_universal_item, template_bascdt, template_uses, addDeployableTags } from "./shared";
 
-const fields = foundry.data.fields;
+import fields = foundry.data.fields;
 
-export class PilotArmorModel extends LancerDataModel<foundry.data.fields.DataSchema, Item.Implementation> {
+const definePilotArmorModelSchema = () => {
+  return {
+    description: new fields.StringField({ nullable: true }),
+    effect: new fields.StringField(),
+    ...template_universal_item(),
+    ...template_uses(),
+    ...template_bascdt(),
+  };
+};
+
+type PilotArmorModelSchema = ReturnType<typeof definePilotArmorModelSchema>;
+
+export class PilotArmorModel extends LancerDataModel<PilotArmorModelSchema, Item.Implementation> {
   static DEFAULT_ICON = "systems/lancer/assets/icons/role_tank.svg";
   static defineSchema() {
-    return {
-      description: new fields.StringField({ nullable: true }),
-      effect: new fields.StringField(),
-      ...template_universal_item(),
-      ...template_uses(),
-      ...template_bascdt(),
-    };
+    return definePilotArmorModelSchema();
   }
 }
 

@@ -21,6 +21,7 @@ import {
 } from "./shared";
 
 import fields = foundry.data.fields;
+import fields = foundry.data.fields;
 
 const defineMechWeaponModelSchema = () => {
   return {

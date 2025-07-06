@@ -1,6 +1,7 @@
 import { RangeType, type RangeTypeChecklist } from "../../enums";
 import { restrict_enum } from "../../helpers/commons";
 import type { PackedRangeData } from "../../util/unpacking/packed-types";
+import type { SimpleMerge } from "fvtt-types/utils";
 
 import fields = foundry.data.fields;
 
@@ -111,7 +112,9 @@ type RangeFieldSchema = ReturnType<typeof defineRangeFieldSchema>;
 // Maps RangeData to a Range class
 export class RangeField<Options extends fields.SchemaField.Options<RangeFieldSchema>> extends fields.SchemaField<
   RangeFieldSchema,
-  Options
+  Options,
+  fields.SchemaField.Internal.AssignmentType<RangeFieldSchema, SimpleMerge<Options, fields.SchemaField.DefaultOptions>>,
+  Range
 > {
   constructor(options?: Options) {
     super(defineRangeFieldSchema(), options);

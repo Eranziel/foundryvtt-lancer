@@ -11,25 +11,31 @@ import { unpackSynergy } from "../bits/synergy";
 import { LancerDataModel, type UnpackContext } from "../shared";
 import { template_bascdt, template_universal_item } from "./shared";
 
-const fields = foundry.data.fields;
+import fields = foundry.data.fields;
 
-export class ReserveModel extends LancerDataModel<foundry.data.fields.DataSchema, Item.Implementation> {
+const defineReserveModelSchema = () => {
+  return {
+    consumable: new fields.BooleanField(),
+    label: new fields.StringField(),
+    // resource_name, resource_note, and resource_cost are in the lancer-data spec but not used currently
+    // resource_name: new fields.StringField(),
+    // resource_note: new fields.StringField(),
+    // resource_cost: new fields.StringField(),
+    // type: new fields.StringField({ choices: Object.values(ReserveType), initial: ReserveType.Tactical }),
+    type: new fields.StringField({ initial: ReserveType.Tactical }), // ^ Strictness here isn't really super useful
+    used: new fields.BooleanField(),
+    description: new fields.HTMLField(),
+    ...template_universal_item(),
+    ...template_bascdt(),
+  };
+};
+
+type ReserveModelSchema = ReturnType<typeof defineReserveModelSchema>;
+
+export class ReserveModel extends LancerDataModel<ReserveModelSchema, Item.Implementation> {
   static DEFAULT_ICON = "systems/lancer/assets/icons/reserve_tac.svg";
   static defineSchema() {
-    return {
-      consumable: new fields.BooleanField(),
-      label: new fields.StringField(),
-      // resource_name, resource_note, and resource_cost are in the lancer-data spec but not used currently
-      // resource_name: new fields.StringField(),
-      // resource_note: new fields.StringField(),
-      // resource_cost: new fields.StringField(),
-      // type: new fields.StringField({ choices: Object.values(ReserveType), initial: ReserveType.Tactical }),
-      type: new fields.StringField({ initial: ReserveType.Tactical }), // ^ Strictness here isn't really super useful
-      used: new fields.BooleanField(),
-      description: new fields.HTMLField(),
-      ...template_universal_item(),
-      ...template_bascdt(),
-    };
+    return defineReserveModelSchema();
   }
 }
 

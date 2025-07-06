@@ -10,19 +10,25 @@ import { unpackSynergy } from "../bits/synergy";
 import { LancerDataModel, type UnpackContext } from "../shared";
 import { migrateManufacturer, template_bascdt, template_universal_item } from "./shared";
 
-const fields = foundry.data.fields;
+import fields = foundry.data.fields;
 
-export class CoreBonusModel extends LancerDataModel<foundry.data.fields.DataSchema, Item.Implementation> {
+const defineCoreBonusModelSchema = () => {
+  return {
+    description: new fields.StringField({ nullable: true }),
+    effect: new fields.StringField(),
+    mounted_effect: new fields.StringField(),
+    manufacturer: new fields.StringField(),
+    ...template_universal_item(),
+    ...template_bascdt(),
+  };
+};
+
+type CoreBonusModelSchema = ReturnType<typeof defineCoreBonusModelSchema>;
+
+export class CoreBonusModel extends LancerDataModel<CoreBonusModelSchema, Item.Implementation> {
   static DEFAULT_ICON = "systems/lancer/assets/icons/core_bonus.svg";
   static defineSchema() {
-    return {
-      description: new fields.StringField({ nullable: true }),
-      effect: new fields.StringField(),
-      mounted_effect: new fields.StringField(),
-      manufacturer: new fields.StringField(),
-      ...template_universal_item(),
-      ...template_bascdt(),
-    };
+    return defineCoreBonusModelSchema();
   }
 
   static migrateData(data: any) {

@@ -8,18 +8,24 @@ import { unpackSynergy } from "../bits/synergy";
 import { LancerDataModel, type UnpackContext } from "../shared";
 import { template_universal_item, template_bascdt, template_uses, addDeployableTags } from "./shared";
 
-const fields = foundry.data.fields;
+import fields = foundry.data.fields;
 
-export class PilotGearModel extends LancerDataModel<foundry.data.fields.DataSchema, Item.Implementation> {
+const definePilotGearModelSchema = () => {
+  return {
+    description: new fields.StringField({ nullable: true }),
+    effect: new fields.StringField(),
+    ...template_universal_item(),
+    ...template_uses(),
+    ...template_bascdt(),
+  };
+};
+
+type PilotGearModelSchema = ReturnType<typeof definePilotGearModelSchema>;
+
+export class PilotGearModel extends LancerDataModel<PilotGearModelSchema, Item.Implementation> {
   static DEFAULT_ICON = "systems/lancer/assets/icons/generic_item.svg";
   static defineSchema() {
-    return {
-      description: new fields.StringField({ nullable: true }),
-      effect: new fields.StringField(),
-      ...template_universal_item(),
-      ...template_uses(),
-      ...template_bascdt(),
-    };
+    return definePilotGearModelSchema();
   }
 }
 

@@ -1,6 +1,7 @@
 import { LANCER } from "../../config";
 import type { PackedTagData, PackedTagTemplateData } from "../../util/unpacking/packed-types";
 import { LIDField } from "../shared";
+import type { SimpleMerge } from "fvtt-types/utils";
 
 import fields = foundry.data.fields;
 
@@ -197,7 +198,9 @@ type TagFieldSchema = ReturnType<typeof defineTagFieldSchema>;
 // Tag fields populate fuller metadata from the settings (or something? It's tbd), in spite of the field itself just being an lid value pair
 export class TagField<Options extends fields.SchemaField.Options<TagFieldSchema>> extends fields.SchemaField<
   TagFieldSchema,
-  Options
+  Options,
+  fields.SchemaField.Internal.AssignmentType<TagFieldSchema, SimpleMerge<Options, fields.SchemaField.DefaultOptions>>,
+  Tag
 > {
   constructor(options?: Options) {
     super(defineTagFieldSchema(), options);

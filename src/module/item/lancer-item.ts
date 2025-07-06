@@ -102,8 +102,9 @@ export class LancerItem<SubType extends Item.SubType = Item.SubType> extends Ite
   static override getDefaultArtwork(
     itemData: Parameters<typeof Item.getDefaultArtwork>[0]
   ): ReturnType<typeof Item.getDefaultArtwork> {
-    const model: typeof foundry.abstract.DataModel<any, any> | undefined =
-      CONFIG.Item.dataModels[itemData?.type ?? "base"];
+    const model = CONFIG.Item.dataModels[itemData?.type ?? "base"] as unknown as
+      | typeof foundry.documents.BaseItem
+      | undefined;
     if (model?.getDefaultArtwork instanceof Function) return model.getDefaultArtwork(itemData);
     const img: string = model?.DEFAULT_ICON ?? this.DEFAULT_ICON;
     return { img };
@@ -113,17 +114,22 @@ export class LancerItem<SubType extends Item.SubType = Item.SubType> extends Ite
    * Returns all ranges for the item that match the provided range types
    */
   rangesFor(types: Set<RangeType> | RangeType[]): RangeData[] {
-    const i = null as unknown as Item.Implementation; // TODO remove
+    const self = this as Item.Implementation;
 
     const filter = new Set(types);
-    switch (this.type) {
+    switch (self.type) {
       case EntryType.MECH_WEAPON:
+        // @ts-expect-error Should be fixed with v10 types
         const p = this.system.selected_profile_index;
+        // @ts-expect-error Should be fixed with v10 types
         return this.system.profiles[p].range.filter(r => filter.has(r.type));
       case EntryType.PILOT_WEAPON:
+        // @ts-expect-error Should be fixed with v10 types
         return this.system.range.filter(r => filter.has(r.type));
       case EntryType.NPC_FEATURE:
+        // @ts-expect-error Should be fixed with v10 types
         if (this.system.type !== NpcFeatureType.Weapon) return [];
+        // @ts-expect-error Should be fixed with v10 types
         return this.system.range.filter(r => filter.has(r.type));
       default:
         return [];

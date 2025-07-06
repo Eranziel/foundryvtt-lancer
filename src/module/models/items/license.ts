@@ -4,17 +4,23 @@ import type { SourceData } from "../../source-template";
 import { LancerDataModel, type UnpackContext } from "../shared";
 import { template_universal_item } from "./shared";
 
-const fields = foundry.data.fields;
+import fields = foundry.data.fields;
 
-export class LicenseModel extends LancerDataModel<foundry.data.fields.DataSchema, Item.Implementation> {
+const defineLicenseModelSchema = () => {
+  return {
+    key: new fields.StringField(),
+    manufacturer: new fields.StringField(),
+    curr_rank: new fields.NumberField({ nullable: false, initial: 1, min: 1, max: 3 }),
+    ...template_universal_item(),
+  };
+};
+
+type LicenseModelSchema = ReturnType<typeof defineLicenseModelSchema>;
+
+export class LicenseModel extends LancerDataModel<LicenseModelSchema, Item.Implementation> {
   static DEFAULT_ICON = "systems/lancer/assets/icons/license.svg";
   static defineSchema() {
-    return {
-      key: new fields.StringField(),
-      manufacturer: new fields.StringField(),
-      curr_rank: new fields.NumberField({ nullable: false, initial: 1, min: 1, max: 3 }),
-      ...template_universal_item(),
-    };
+    return defineLicenseModelSchema();
   }
 
   static migrateData(data: any) {
