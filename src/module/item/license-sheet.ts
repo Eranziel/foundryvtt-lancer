@@ -32,15 +32,12 @@ export class LancerLicenseSheet extends LancerItemSheet<EntryType.LICENSE> {
       let pack = game.packs.get(get_pack_id(et));
       if (pack) {
         let index = await pack.getIndex();
-        // @ts-expect-error
         let key = this.item.system.key;
         for (let [id, indexData] of index.entries()) {
-          // @ts-expect-error
           let itemLicense = indexData.system.license as string | undefined;
           if (itemLicense !== key) continue;
 
           let doc = (await pack.getDocument(id)) as unknown as LancerItem;
-          // @ts-expect-error
           let rank = doc.system.license_level as number;
           while (unlocks.length <= rank) {
             unlocks.push([]);
@@ -88,9 +85,7 @@ export class LancerLicenseSheet extends LancerItemSheet<EntryType.LICENSE> {
       if (doc.type == "Item") {
         doc.document.update({
           system: {
-            // @ts-expect-error
             license: this.item.system.key,
-            // @ts-expect-error
             manufacturer: this.item.system.manufacturer,
           },
         });

@@ -58,7 +58,6 @@ export class LancerInitiativeConfigApp extends HandlebarsApplicationMixin(Applic
   }
 
   static async #onReset() {
-    // @ts-expect-error v12
     this.render({ reset: true });
   }
 

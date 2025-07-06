@@ -155,7 +155,6 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet<ItemShe
    */
   async getData(): Promise<LancerItemSheetData<T>> {
     const data = super.getData() as LancerItemSheetData<T>; // Not fully populated yet!
-    // @ts-expect-error v10
     data.system = this.item.system; // Set our alias
     data.collapse = {};
 
@@ -168,7 +167,6 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet<ItemShe
       // Use compendium. This is probably overkill but, who well
       let deps =
         (await game.packs.get(get_pack_id(EntryType.DEPLOYABLE))?.getDocuments({ type: EntryType.DEPLOYABLE })) ?? [];
-      // @ts-expect-error
       for (let d of deps as LancerDEPLOYABLE) {
         data.deployables[d.system.lid] = d;
       }
@@ -190,7 +188,6 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet<ItemShe
     if (this.item.is_status()) {
       data.status_types = StatusConditionType;
       if (!data.system.lid) {
-        // @ts-expect-error getData needs an overhaul for the new types
         data.system.lid = `status-${data.document.id}`;
       }
     }

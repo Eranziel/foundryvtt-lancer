@@ -25,14 +25,10 @@ export class TalentModel extends LancerDataModel<foundry.data.fields.DataSchema,
           name: new fields.StringField(),
           description: new fields.HTMLField(),
           exclusive: new fields.BooleanField({ initial: false }),
-          // @ts-expect-error
           actions: new fields.ArrayField(new ActionField()),
-          // @ts-expect-error
           bonuses: new fields.ArrayField(new BonusField()),
-          // @ts-expect-error
           synergies: new fields.ArrayField(new SynergyField()),
           deployables: new fields.ArrayField(new LIDField()),
-          // @ts-expect-error
           counters: new fields.ArrayField(new CounterField()),
           integrated: new fields.ArrayField(new LIDField()),
         })

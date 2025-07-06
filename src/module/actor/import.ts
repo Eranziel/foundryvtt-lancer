@@ -296,7 +296,6 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
       },
       prototypeToken: {
         name: data.name,
-        // @ts-expect-error
         "texture.src": replaceDefaultResource(pilot.prototypeToken?.texture?.src, data.cloud_portrait, pilot.img),
       },
     });

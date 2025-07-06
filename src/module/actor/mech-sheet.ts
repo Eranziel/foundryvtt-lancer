@@ -86,7 +86,6 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
     } else if (is_new && drop.type == "Item" && drop.document.is_mech_weapon()) {
       // If frame, weapon, put it in first available slot. Who cares if it fits
       let currMounts: SourceData.Mech["loadout"]["weapon_mounts"] = foundry.utils.duplicate(
-        // @ts-expect-error
         this.actor.system._source.loadout.weapon_mounts
       );
       let set = false;
@@ -119,7 +118,6 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
 
     // If this isn't a new item and it's an NPC feature, we need to update the sorting
     if (this.isEditable && !is_new && drop.type === "Item" && drop.document.is_mech_system()) {
-      // @ts-expect-error v11 types
       this._onSortItem(event, drop.document.toObject());
     }
   }
@@ -276,9 +274,7 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
 
   async getData(): Promise<object> {
     let data = await super.getData();
-    // @ts-expect-error
     data.pilot = this.actor.system.pilot?.value;
-    // @ts-expect-error
     data.is_active = this.actor.system.pilot?.value?.system.active_mech?.value == this.actor;
     // data.pilot = await this.actor.system.pilot;
     return data;

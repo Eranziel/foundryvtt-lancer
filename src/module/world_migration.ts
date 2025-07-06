@@ -48,7 +48,6 @@ let migrationNotification: Notification | null = null;
 function migrationProgress(count: number) {
   migrated += count;
   const percent = migrated / toMigrate;
-  // @ts-expect-error v13 types
   migrationNotification.update({ pct: percent });
 }
 
@@ -251,7 +250,6 @@ export async function migrateActor(actor: LancerActor): Promise<object> {
     // Scaffold our update data
     const updateData = {
       _id: actor.id,
-      // @ts-expect-error
       system: actor.system.toObject(true), // To commit any datamodel migrations
     };
 
@@ -282,7 +280,6 @@ export async function migrateItem(item: LancerItem): Promise<object> {
   try {
     const updateData = {
       _id: item.id,
-      // @ts-expect-error
       system: item.system.toObject(true), // To commit any datamodel migrations
     };
 

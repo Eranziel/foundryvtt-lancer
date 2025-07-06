@@ -21,28 +21,23 @@ export class LancerCombatTracker extends foundry.applications.sidebar.tabs.Comba
     { inplace: false }
   );
 
-  viewed!: LancerCombat;
-
   async _prepareTrackerContext(ctx: any, opts: any) {
     const appearance = game.settings.get(game.system.id, LANCER.setting_combat_appearance);
     const disp: Record<number, string> = { [-2]: "", [-1]: "enemy", [0]: "neutral", [1]: "friendly", [2]: "player" };
     await super._prepareTrackerContext(ctx, opts);
     ctx.turns = ctx.turns?.map((t: any) => {
-      const combatant: LancerCombatant = this.viewed.getEmbeddedDocument("Combatant", t.id, {}) as any;
-      // @ts-expect-error v13 Combatant typedata
+      const combatant: LancerCombatant = this.viewed?.getEmbeddedDocument("Combatant", t.id, {}) as any;
       const buttons = Array.from(Array(combatant?.system.activations.value ?? 0), () => ({
         icon: appearance.icon,
         action: "activateCombatantTurn",
       }));
-      if (combatant === this.viewed.combatant)
+      if (combatant === this.viewed?.combatant)
         buttons.push({ icon: appearance.deactivate, action: "deactivateCombatantTurn" });
       return {
         ...t,
         css: `${t.css} ${disp[combatant.disposition]}`.trim(),
         buttons,
-        // @ts-expect-error v13 Combatant typedata
         activations: combatant?.system.activations.max,
-        // @ts-expect-error v13 Combatant typedata
         pending: combatant?.system.activations.value,
       };
     });
@@ -62,14 +57,14 @@ export class LancerCombatTracker extends foundry.applications.sidebar.tabs.Comba
     ev.stopPropagation();
     ev.preventDefault();
     const { combatantId } = target.closest<HTMLElement>("[data-combatant-id]")?.dataset ?? {};
-    this.viewed.activateCombatant(combatantId!);
+    this.viewed?.activateCombatant(combatantId!);
   }
 
   static async #deactivateCombatantTurn(this: LancerCombatTracker, ev: MouseEvent, target: HTMLElement) {
     ev.stopPropagation();
     ev.preventDefault();
     const { combatantId } = target.closest<HTMLElement>("[data-combatant-id]")?.dataset ?? {};
-    this.viewed.deactivateCombatant(combatantId!);
+    this.viewed?.deactivateCombatant(combatantId!);
   }
 
   /**
@@ -114,25 +109,25 @@ export class LancerCombatTracker extends foundry.applications.sidebar.tabs.Comba
     await combatant.modifyCurrentActivations(1);
   }
 
-  protected _getEntryContextOptions(): ContextMenu.Entry<HTMLLIElement>[] {
-    const getCombatant = (li: HTMLLIElement) => this.viewed.combatants.get(li.dataset.combatantId!);
-    const m: ContextMenu.Entry<HTMLLIElement>[] = [
+  protected _getEntryContextOptions(): ContextMenu.Entry<HTMLElement>[] {
+    const getCombatant = (li: HTMLElement) => this.viewed?.combatants.get(li.dataset.combatantId!);
+    const m: ContextMenu.Entry<HTMLElement>[] = [
       {
         name: "LANCERINITIATIVE.AddActivation",
         icon: '<i class="fas fa-plus"></i>',
-        callback: (li: HTMLLIElement) => getCombatant(li)?.addActivations(1),
+        callback: (li: HTMLElement) => getCombatant(li)?.addActivations(1),
       },
       {
         name: "LANCERINITIATIVE.RemoveActivation",
         icon: '<i class="fas fa-minus"></i>',
-        callback: (li: HTMLLIElement) => getCombatant(li)?.addActivations(-1),
+        callback: (li: HTMLElement) => getCombatant(li)?.addActivations(-1),
       },
       {
         name: "LANCERINITIATIVE.UndoActivation",
         icon: '<i class="fas fa-undo"></i>',
-        callback: (li: HTMLLIElement) =>
+        callback: (li: HTMLElement) =>
           this.viewed
-            .deactivateCombatant(li.dataset.combatantId!)
+            ?.deactivateCombatant(li.dataset.combatantId!)
             .then(() => getCombatant(li)?.modifyCurrentActivations(1)),
       },
     ];

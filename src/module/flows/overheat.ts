@@ -244,12 +244,10 @@ export async function checkOverheatMultipleOnes(state: FlowState<LancerFlowState
 
   let roll = state.data.result?.roll;
   if (!roll) throw new TypeError(`Overheat check hasn't been rolled yet!`);
-  // @ts-expect-error v10 types
   if (roll.terms[0].rolls?.length > 1) {
     // This was rolled multiple times - it should be an NPC with the legendary trait
     // Find the selected roll - the one which wasn't discarded - and check whether it has multiple ones.
     const chosenIndex = (roll.terms as foundry.dice.terms.Die[])[0].results.findIndex(r => !r.discarded);
-    // @ts-expect-error v10 types
     roll = (roll.terms as Die[])[0].rolls[chosenIndex] || roll;
   }
   if (!roll) throw new TypeError(`Overheat check hasn't been rolled yet!`);

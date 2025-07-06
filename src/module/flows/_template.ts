@@ -18,7 +18,6 @@ export function targetsFromTemplate(templateId: string): void {
   if (canvas.grid?.type === CONST.GRID_TYPES.GRIDLESS) {
     test_token = (token: LancerToken) => {
       const token_radius = token.document.width! / 2;
-      // @ts-expect-error v12 grid
       const range: number = canvas.grid!.measurePath([token.center, template]).distance;
 
       if (template.t === "circle") {
@@ -89,7 +88,6 @@ export function targetsFromTemplate(templateId: string): void {
       ({ x, y }) => canvas.grid!.getOffset({ x: x + sizeX / 2, y: y + sizeY / 2 })
     );
     test_token = (token: LancerToken) => {
-      // @ts-expect-error v13
       const token_offsets: BaseGrid.Offset[] = token.document.getOccupiedSpaceOffsets();
       return token_offsets.some(o => template_offsets.some(e => o.i === e.i && o.j === e.j));
     };
@@ -108,7 +106,6 @@ export function targetsFromTemplate(templateId: string): void {
       },
     })
     .map(t => t.id);
-  // @ts-expect-error v13 types
   canvas.tokens!.setTargets(targets);
 }
 

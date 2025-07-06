@@ -50,7 +50,6 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
     if (!canvas.ready) return null;
     const dist = val;
     if (isNaN(dist)) return null;
-    // @ts-expect-error v12
     const square: boolean = canvas.grid?.isSquare;
     const grid_distance = (canvas.scene?.dimensions as Partial<Canvas.Dimensions> | undefined)?.distance ?? 1;
 
@@ -95,7 +94,6 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
     const cls = getDocumentClass("MeasuredTemplate");
     const template = new cls(templateData as any, { parent: canvas.scene ?? undefined });
     const object = new this(template);
-    // @ts-expect-error Appv2 can't go here be we use appv1 for now
     object.actorSheet = creator?.actor?.sheet ?? undefined;
     return object;
   }
@@ -155,9 +153,8 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
         this.layer.preview?.removeChildren().forEach(c => c.destroy());
         canvas.stage?.off("mousemove", handlers.mm);
         canvas.stage?.off("mousedown", handlers.lc);
-        (<HTMLCanvasElement>canvas.app!.view).oncontextmenu = null;
-        (<HTMLCanvasElement>canvas.app!.view).onwheel = null;
-        // @ts-expect-error Activate should be there but w/e
+        canvas.app!.view.oncontextmenu = null;
+        canvas.app!.view.onwheel = null;
         initialLayer?.activate();
         if (do_reject) reject(new Error("Template creation cancelled"));
       };
@@ -213,9 +210,7 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
       // Activate listeners
       canvas.stage!.on("mousemove", handlers.mm);
       canvas.stage!.on("mousedown", handlers.lc);
-      //@ts-expect-error
       canvas.app!.view.oncontextmenu = handlers.rc;
-      //@ts-expect-error
       canvas.app!.view.onwheel = handlers.mw;
     });
   }
@@ -245,7 +240,6 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
         if (
           r === null ||
           r === undefined ||
-          // @ts-expect-error v12
           canvas.grid!.measurePath([{ x, y }, t.center]) < canvas.grid!.measurePath([{ x, y }, r.center])
         )
           return t;
@@ -253,7 +247,6 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
       }, null);
     if (token) {
       this.document.updateSource({
-        // @ts-expect-error v10
         distance: this.getBurstDistance(token.document.width),
         [`flags.${game.system.id}.burstToken`]: token.id,
       });

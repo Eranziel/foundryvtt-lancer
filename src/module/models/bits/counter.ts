@@ -1,31 +1,30 @@
 import type { PackedCounterData } from "../../util/unpacking/packed-types";
 import { LIDField } from "../shared";
 
-const fields: any = foundry.data.fields;
+import fields = foundry.data.fields;
 
-export interface CounterData {
-  lid: string;
-  name: string;
-  min: number;
-  max: number | null;
-  default_value: number;
-  value: number;
-}
+export type CounterData = fields.SchemaField.InitializedData<CounterFieldSchema>;
+
+const defineCounterFieldSchema = () => {
+  return {
+    lid: new LIDField(),
+    name: new fields.StringField(),
+    min: new fields.NumberField({ integer: true, nullable: false, initial: 0 }),
+    max: new fields.NumberField({ integer: true, nullable: true, initial: 6 }),
+    default_value: new fields.NumberField({ integer: true, nullable: false, initial: 0 }),
+    value: new fields.NumberField({ integer: true, nullable: false, initial: 0 }),
+  };
+};
+
+type CounterFieldSchema = ReturnType<typeof defineCounterFieldSchema>;
 
 // A single <type, value> pairing for damage. mimics RegCounterData
-export class CounterField extends fields.SchemaField {
-  constructor(options = {}) {
-    super(
-      {
-        lid: new LIDField(),
-        name: new fields.StringField(),
-        min: new fields.NumberField({ integer: true, nullable: false, initial: 0 }),
-        max: new fields.NumberField({ integer: true, nullable: true, initial: 6 }),
-        default_value: new fields.NumberField({ integer: true, nullable: false, initial: 0 }),
-        value: new fields.NumberField({ integer: true, nullable: false, initial: 0 }),
-      },
-      options
-    );
+export class CounterField<Options extends fields.SchemaField.Options<CounterFieldSchema>> extends fields.SchemaField<
+  CounterFieldSchema,
+  Options
+> {
+  constructor(options?: Options) {
+    super(defineCounterFieldSchema(), options);
   }
 
   static migrateData(value: any) {
@@ -41,17 +40,21 @@ export class CounterField extends fields.SchemaField {
   }
 
   /** @inheritdoc */
-  clean(value: CounterData, data: any, options: any) {
+  clean(value: fields.SchemaField.AssignmentData<CounterFieldSchema>, options: any) {
     // Attempt to move our .val back in bounds
-    value = super.clean(value, data, options);
-    value.value = CounterField.bound_val(value, value.value || 0);
-    value.default_value = CounterField.bound_val(value, value.default_value || 0);
-    return value;
+    const cleaned = super.clean(value, options);
+    if (cleaned == null) {
+      return cleaned;
+    }
+
+    cleaned.initialized = CounterField.bound_val(cleaned, cleaned.initialized || 0);
+    cleaned.default_value = CounterField.bound_val(cleaned, cleaned.default_value || 0);
+    return cleaned;
   }
 
   /** @override */
   _validateType(value: CounterData) {
-    if (value.max !== null && value.max < value.min) throw new Error("max must be > min");
+    if (value.max != null && value.min != null && value.max < value.min) throw new Error("max must be > min");
   }
 }
 

@@ -97,15 +97,12 @@ export class Damage implements Readonly<DamageData> {
             let added = false;
             for (let base_term of base_formula.terms) {
               // Combine like terms
-              //@ts-expect-error Appropriately narrow types are unavailable as of right now
               if (add_term.number && base_term.number && add_term.faces === base_term.faces) {
-                //@ts-expect-error Ditto
                 base_term.number += add_term.number;
                 added = true;
                 break;
               }
             }
-            //@ts-expect-error Ditto
             if (!added && !add_term.operator) {
               // Create a new roll by appending the formulae
               base_formula = new Roll(base_formula.formula + " + " + add_term.formula);
@@ -136,7 +133,10 @@ const defineDamageFieldSchema = () => {
 type DamageFieldSchema = ReturnType<typeof defineDamageFieldSchema>;
 
 // Maps DamageData to a damage class
-export class DamageField<Options extends fields.SchemaField.Options> extends fields.SchemaField<DamageFieldSchema, Options> {
+export class DamageField<Options extends fields.SchemaField.Options> extends fields.SchemaField<
+  DamageFieldSchema,
+  Options
+> {
   constructor(options?: Options) {
     super(defineDamageFieldSchema(), options);
   }

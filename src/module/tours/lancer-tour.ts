@@ -126,8 +126,7 @@ export class LancerPilotTour extends LancerTour {
     }
 
     if (this.currentStep?.id === "compconLogin") {
-      // @ts-expect-error v13 types
-      const settings: foundry.applications.api.ApplicationV2 = new foundry.applications.settings.SettingsConfig();
+      const settings = new foundry.applications.settings.SettingsConfig();
       await settings.render({ force: true });
       settings.changeTab("system", "categories");
     } else {
@@ -185,7 +184,6 @@ export class LancerNPCTour extends LancerTour {
   }
   protected async _postStep() {
     await super._postStep();
-    // @ts-expect-error
     if (this.currentStep?.id === "optionalFeatures") await this.npc?.system?.class?.sheet?.close({ submit: false });
   }
 

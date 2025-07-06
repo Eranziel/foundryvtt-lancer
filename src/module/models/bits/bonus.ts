@@ -17,7 +17,7 @@ import {
 import { Damage } from "./damage";
 import { Range } from "./range";
 
-const fields: any = foundry.data.fields;
+import fields = foundry.data.fields;
 
 // Make all fields required, force val to string, and use checklists
 export interface BonusData {
@@ -32,21 +32,27 @@ export interface BonusData {
   replace: boolean;
 }
 
-export class BonusField extends fields.SchemaField {
-  constructor(options = {}) {
-    super(
-      {
-        lid: new fields.StringField({ nullable: false }), // Don't really want an LID field here
-        val: new fields.StringField({ nullable: false }),
-        overwrite: new fields.BooleanField(),
-        replace: new fields.BooleanField(),
-        damage_types: new DamageTypeChecklistField(),
-        range_types: new RangeTypeChecklistField(),
-        weapon_types: new WeaponTypeChecklistField(),
-        weapon_sizes: new WeaponSizeChecklistField(),
-      },
-      options
-    );
+const defineBonusFieldSchema = () => {
+  return {
+    lid: new fields.StringField({ nullable: false }), // Don't really want an LID field here
+    val: new fields.StringField({ nullable: false }),
+    overwrite: new fields.BooleanField(),
+    replace: new fields.BooleanField(),
+    damage_types: new DamageTypeChecklistField(),
+    range_types: new RangeTypeChecklistField(),
+    weapon_types: new WeaponTypeChecklistField(),
+    weapon_sizes: new WeaponSizeChecklistField(),
+  };
+};
+
+type BonusFieldSchema = ReturnType<typeof defineBonusFieldSchema>;
+
+export class BonusField<Options extends fields.SchemaField.Options<BonusFieldSchema>> extends fields.SchemaField<
+  BonusFieldSchema,
+  Options
+> {
+  constructor(options?: Options) {
+    super(defineBonusFieldSchema(), options);
   }
 }
 

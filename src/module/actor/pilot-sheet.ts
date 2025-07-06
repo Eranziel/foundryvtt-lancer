@@ -299,7 +299,6 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
     //   drop.type === "Item" &&
     //   (drop.document.is_pilot_gear() || drop.document.is_pilot_weapon() || drop.document.is_reserve())
     // ) {
-    //   // @ts-expect-error v11 types
     //   this._onSortItem(event, drop.document.toObject());
     // }
   }

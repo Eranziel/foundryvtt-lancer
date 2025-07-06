@@ -28,7 +28,6 @@ export class MechSystemModel extends LancerDataModel<foundry.data.fields.DataSch
       sp: new fields.NumberField({ nullable: false, initial: 0 }),
       description: new fields.HTMLField(),
       type: new fields.StringField(),
-      // @ts-expect-error
       ammo: new fields.ArrayField(new AmmoField()),
       ...template_universal_item(),
       ...template_bascdt(),

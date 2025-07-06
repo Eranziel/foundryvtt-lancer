@@ -7,7 +7,7 @@ import { userOwnsActor } from "../../util/misc";
 
 const lp = LANCER.log_prefix;
 
-export async function handleCombatUpdate(...[combat, changed]: Hooks.HookParameters<"combatUpdate">) {
+export async function handleCombatUpdate(...[combat, changed]: Hooks.HookParameters<"updateCombat">) {
   if (game.user?.isGM) {
     if (!("turn" in changed) && changed.round !== 1) return;
     if (game.combats!.get(combat.id!)?.combatants.contents.length == 0) return;

@@ -9,18 +9,22 @@ import { template_universal_item } from "./shared";
 
 const fields = foundry.data.fields;
 
-export class BondModel extends LancerDataModel<foundry.data.fields.DataSchema, Item.Implementation> {
+const defineBondModelSchema = () => {
+  return {
+    major_ideals: new fields.ArrayField(new fields.StringField()),
+    minor_ideals: new fields.ArrayField(new fields.StringField()),
+    questions: new fields.ArrayField(new BondQuestionField()),
+    powers: new fields.ArrayField(new PowerField()),
+    ...template_universal_item(),
+  };
+};
+
+type BondModelSchema = ReturnType<typeof defineBondModelSchema>;
+
+export class BondModel extends LancerDataModel<BondModelSchema, Item.Implementation> {
   static DEFAULT_ICON = "systems/lancer/assets/icons/bond.svg";
   static defineSchema() {
-    return {
-      major_ideals: new fields.ArrayField(new fields.StringField()),
-      minor_ideals: new fields.ArrayField(new fields.StringField()),
-      // @ts-expect-error
-      questions: new fields.ArrayField(new BondQuestionField()),
-      // @ts-expect-error
-      powers: new fields.ArrayField(new PowerField()),
-      ...template_universal_item(),
-    };
+    return defineBondModelSchema();
   }
 }
 

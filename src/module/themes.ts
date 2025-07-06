@@ -274,7 +274,6 @@ export function applyTheme(theme: "gms" | "gmsDark" | "msmc" | "horus" | "ha" | 
     if (key === "primaryShadow") {
       document.documentElement.style.setProperty("--color-shadow-primary", selectedTheme[key]);
     } else {
-      // @ts-expect-error
       document.documentElement.style.setProperty(varName(key), selectedTheme[key]);
     }
   }

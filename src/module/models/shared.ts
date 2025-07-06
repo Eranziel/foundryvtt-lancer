@@ -460,7 +460,6 @@ export class ChecklistField<List extends Record<string, string>> extends fields.
   constructor(target_enum: List, options: ChecklistField.Options<List> = {}) {
     const scaffold: ChecklistField.Field<List> = {} as any;
     for (let val of Object.values(target_enum)) {
-      // @ts-expect-error
       scaffold[val] = new fields.BooleanField({ initial: true });
     }
     super(scaffold, options);

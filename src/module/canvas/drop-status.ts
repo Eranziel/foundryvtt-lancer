@@ -4,7 +4,6 @@ export function dropStatusToCanvas(
   canvas: Canvas,
   data: { type: string; uuid: string; x: number; y: number }
 ): void | false {
-  // @ts-expect-error
   const type: string | undefined = fromUuidSync(data.uuid)?.type;
   if (data.type !== "Item" || type !== "status") return;
   const rect = new PIXI.Rectangle(data.x, data.y, 0, 0);

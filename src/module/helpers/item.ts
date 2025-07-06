@@ -1563,7 +1563,6 @@ function _handleContextMenus(
     name: view_only ? "View" : "Edit",
     icon: view_only ? `<i class="fas fa-eye"></i>` : `<i class="fas fa-edit"></i>`,
     callback: html => {
-      // @ts-expect-error
       let effects = [...doc.allApplicableEffects()];
       let index = parseInt(html[0].dataset.activeEffectIndex ?? "-1");
       if (effects[index]) {

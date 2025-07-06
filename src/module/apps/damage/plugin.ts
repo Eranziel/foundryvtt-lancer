@@ -2,6 +2,7 @@ import { LancerItem } from "../../item/lancer-item";
 import { LancerActor } from "../../actor/lancer-actor";
 
 import type { DamageData } from "../../models/bits/damage";
+import type DamageTarget from "./DamageTarget.svelte";
 
 // Implementing a plugin means implementing
 // * a data object that can compute its view behaviour,

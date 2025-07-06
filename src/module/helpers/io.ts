@@ -34,7 +34,6 @@ export function handleActorExport(actor: LegacyLancerActor | LancerActor, downlo
   }
 
   let dump = null;
-  // @ts-expect-error Should be fixed with v10 types
   switch (actor.type) {
     case "pilot":
       dump = handlePilotExport(actor);
@@ -65,7 +64,6 @@ export function handleActorExport(actor: LegacyLancerActor | LancerActor, downlo
 }
 
 export function addExportButton(actor: LegacyLancerActor | LancerActor, html: JQuery) {
-  // @ts-expect-error I'm just going to assume all of this works but it probably doesn't
   const id = actor._id;
   if (!document.getElementById(id) && validForExport(actor)) {
     // if (!document.getElementById(id)) {
@@ -329,7 +327,6 @@ function handlePilotExport(actor: LegacyLancerActor) {
       {
         id: nanoid(),
         name: mech.name,
-        // @ts-expect-error
         frame: frame ? frame.system.id : undefined,
         active: true,
         current_structure: mech.structure.value,
@@ -414,6 +411,5 @@ function mapWeapon(weapon: any): FakePackedWeapon {
 }
 
 export function validForExport(actor: LegacyLancerActor | LancerActor) {
-  // @ts-expect-error I'm just going to assume all of this works but it probably doesn't
   return !actor.system?.cc_ver?.startsWith("MchMnd2");
 }

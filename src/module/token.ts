@@ -29,9 +29,8 @@ export class LancerTokenDocument extends TokenDocument {
     data: TokenDocument.CreateData | this,
     options: foundry.abstract.DataModel.InitializeSourceOptions
   ): TokenDocument.Source {
-    // @ts-expect-error v13 types
     if (this.parent?.grid.isGridless) data.shape ??= CONST.TOKEN_SHAPES.ELLIPSE_1;
-    return super._initializeSource(data as any, options);
+    return super._initializeSource(data, options);
   }
 
   protected override _preCreate(
@@ -78,9 +77,7 @@ export class LancerTokenDocument extends TokenDocument {
       const c2c = grid.measurePath([this.object.center, other.object.center], {}).distance;
       return c2c - (this.width! + other.width!) / 2 + 1;
     } else {
-      // @ts-expect-error v13
       const distances = (this.getOccupiedGridSpaceOffsets(data) as BaseGrid.Offset[]).flatMap(s =>
-        // @ts-expect-error v13
         (other.getOccupiedGridSpaceOffsets(otherData) as BaseGrid.Offset[]).map(
           t => grid.measurePath([s, t], {}).spaces
         )
@@ -117,7 +114,6 @@ export class LancerToken extends Token {
       "getOccupiedSpaces is deprecated in favor of the core getOccupiedGridSpaceOffsets",
       { since: 13, until: 14 }
     );
-    // @ts-expect-error v13
     return this.document.getOccupiedGridSpaceOffsets()?.map(o => canvas.grid?.getCenterPoint(o));
   }
 }
@@ -130,7 +126,6 @@ export function extendTokenConfig(app: foundry.applications.sheets.TokenConfig, 
   const lock = foundry.applications.fields.createCheckboxInput({
     name: `flags.${game.system.id}.manual_token_size`,
     dataset: { tooltip: "lancer.tokenConfig.manual_token_size.hint" },
-    // @ts-expect-error v13 types
     classes: `lock icon ${game.system.id}`,
     value: manual,
   });
