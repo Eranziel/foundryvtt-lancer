@@ -12,7 +12,8 @@
     "noEmit": true,
     "useDefineForClassFields": false,
     "verbatimModuleSyntax": true,
-    "skipLibCheck": true,
+    // TODO
+    "skipLibCheck": false,
     "resolveJsonModule": true
   },
   "include": ["src/**/*.d.ts", "src/**/*.ts", "src/**/*.js", "src/**/*.svelte"]

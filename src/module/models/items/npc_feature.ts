@@ -135,7 +135,7 @@ export function unpackNpcFeature(
 } {
   let base = {
     name: data.name,
-    type: EntryType.NPC_FEATURE as const,
+    type: EntryType.NPC_FEATURE,
     system: {
       lid: data.id,
       effect: data.effect,

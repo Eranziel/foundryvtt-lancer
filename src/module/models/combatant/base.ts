@@ -1,27 +1,23 @@
 import fields = foundry.data.fields;
 
-namespace LancerCombatantModel {
-  export interface Schema extends foundry.data.fields.DataSchema {
-    activations: fields.SchemaField<{
-      value: fields.NumberField<{ integer: true }>;
-      max: fields.NumberField<{ integer: true }>;
-    }>;
-    disposition: fields.NumberField;
-  }
-}
+export type LancerCombatantModelSchema = ReturnType<typeof defineLancerCombatantModelSchema>;
+
+const defineLancerCombatantModelSchema = () => {
+  return {
+    activations: new fields.SchemaField({
+      value: new fields.NumberField({ integer: true }),
+      max: new fields.NumberField({ integer: true }),
+    }),
+    disposition: new fields.NumberField(),
+  };
+};
 
 export class LancerCombatantModel extends foundry.abstract.TypeDataModel<
-  LancerCombatantModel.Schema,
+  LancerCombatantModelSchema,
   Combatant.Implementation
 > {
-  static defineSchema(): LancerCombatantModel.Schema {
-    return {
-      activations: new fields.SchemaField({
-        value: new fields.NumberField({ integer: true }),
-        max: new fields.NumberField({ integer: true }),
-      }),
-      disposition: new fields.NumberField(),
-    };
+  static defineSchema() {
+    return defineLancerCombatantModelSchema();
   }
 
   prepareBaseData(): void {

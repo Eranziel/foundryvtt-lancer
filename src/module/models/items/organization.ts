@@ -5,19 +5,25 @@ import type { PackedOrganizationData } from "../../util/unpacking/packed-types";
 import { LancerDataModel, type UnpackContext } from "../shared";
 import { template_universal_item } from "./shared";
 
-const fields = foundry.data.fields;
+import fields = foundry.data.fields;
 
-export class OrganizationModel extends LancerDataModel<foundry.data.fields.DataSchema, Item.Implementation> {
+const defineOrganizationModelSchema = () => {
+  return {
+    description: new fields.HTMLField(),
+    actions: new fields.StringField(),
+    efficiency: new fields.NumberField({ integer: true, initial: 0, minimum: 0, maximum: 6 }),
+    influence: new fields.NumberField({ integer: true, initial: 0, minimum: 0, maximum: 6 }),
+    purpose: new fields.StringField({ initial: OrgType.Military }),
+    ...template_universal_item(),
+  };
+};
+
+type OrganizationModelSchema = ReturnType<typeof defineOrganizationModelSchema>;
+
+export class OrganizationModel extends LancerDataModel<OrganizationModelSchema, Item.Implementation> {
   static DEFAULT_ICON = "systems/lancer/assets/icons/encounter.svg";
   static defineSchema() {
-    return {
-      description: new fields.HTMLField(),
-      actions: new fields.StringField(),
-      efficiency: new fields.NumberField({ integer: true, initial: 0, minimum: 0, maximum: 6 }),
-      influence: new fields.NumberField({ integer: true, initial: 0, minimum: 0, maximum: 6 }),
-      purpose: new fields.StringField({ initial: OrgType.Military }),
-      ...template_universal_item(),
-    };
+    return defineOrganizationModelSchema();
   }
 }
 

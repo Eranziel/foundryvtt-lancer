@@ -10,14 +10,20 @@ import fields = foundry.data.fields;
 
 type ActiveEffectData = ActiveEffect.InitializedData;
 
-export class StatusModel extends LancerDataModel<foundry.data.fields.DataSchema, Item.Implementation> {
+const defineStatusModelSchema = () => {
+  return {
+    effects: new fields.HTMLField(),
+    type: new fields.StringField({ choices: ["status", "condition", "effect"], initial: "effect" }),
+    ...template_universal_item(),
+  };
+};
+
+type StatusModelSchema = ReturnType<typeof defineStatusModelSchema>;
+
+export class StatusModel extends LancerDataModel<StatusModelSchema, Item.Implementation> {
   static DEFAULT_ICON = "systems/lancer/assets/icons/reticule.svg";
   static defineSchema() {
-    return {
-      effects: new fields.HTMLField(),
-      type: new fields.StringField({ choices: ["status", "condition", "effect"], initial: "effect" }),
-      ...template_universal_item(),
-    };
+    return defineStatusModelSchema();
   }
 
   static migrateData(data: any) {

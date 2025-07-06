@@ -74,7 +74,7 @@ export class LancerActor<SubType extends Actor.SubType = Actor.SubType> extends 
     const model = CONFIG.Actor.dataModels[actorData?.type ?? "base"] as unknown as
       | typeof foundry.documents.BaseActor
       | undefined;
-    if (model?.getDefaultArtwork instanceof Function) return model.getDefaultArtwork(itemData);
+    if (model?.getDefaultArtwork instanceof Function) return model.getDefaultArtwork(actorData);
     const img: string = model?.DEFAULT_ICON ?? this.DEFAULT_ICON;
     return { img, texture: { src: img } };
   }

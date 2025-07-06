@@ -54,7 +54,7 @@ const pilot_schema = {
 
 type PilotSchema = typeof pilot_schema;
 
-export class PilotModel extends LancerDataModel<foundry.data.fields.DataSchema, Actor.Implementation> {
+export class PilotModel extends LancerDataModel<PilotSchema, Actor.Implementation> {
   static DEFAULT_ICON = "systems/lancer/assets/icons/pilot.svg";
   static defineSchema(): PilotSchema {
     return pilot_schema;
