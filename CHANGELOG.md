@@ -1,3 +1,14 @@
+# 2.11.0 (2025-07-05)
+
+## Features
+
+- Add built-in support for the Monstrosity structure table. Thanks, @tw-blob!
+
+## Bug Fixes
+
+- #863 - Fix a bug causing way too many deployables to be created during pilot import.
+- #882 - Ensure that players get their own burn check prompts, instead of the GM always receiving them.
+
 # 2.10.3 (2025-06-10)
 
 ## Bug Fixes
