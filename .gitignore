@@ -17,3 +17,6 @@ foundry.js
 
 # MacOS filesystem metadata
 .DS_Store
+
+# NixOS
+shell.nix

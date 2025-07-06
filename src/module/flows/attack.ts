@@ -3,9 +3,10 @@ import { LancerActor } from "../actor/lancer-actor";
 import { AccDiffHudData, AccDiffHudDataSerialized, RollModifier } from "../apps/acc_diff";
 import { openSlidingHud } from "../apps/slidinghud";
 import { LANCER } from "../config";
-import { AttackType, RangeType, WeaponType } from "../enums";
+import { AttackType, DamageType, RangeType, WeaponType } from "../enums";
 import { checkForHit } from "../helpers/automation/targeting";
 import { LancerItem } from "../item/lancer-item";
+import { Damage } from "../models/bits/damage";
 import { UUIDRef } from "../source-template";
 import { SystemTemplates } from "../system-template";
 import { renderTemplateStep } from "./_render";
@@ -66,6 +67,7 @@ export function registerAttackSteps(flowSteps: Map<string, Step<any, any> | Flow
   flowSteps.set("setAttackTags", setAttackTags);
   flowSteps.set("setAttackEffects", setAttackEffects);
   flowSteps.set("setAttackTargets", setAttackTargets);
+  flowSteps.set("applyTalents", applyTalents);
   flowSteps.set("showAttackHUD", showAttackHUD);
   flowSteps.set("rollAttacks", rollAttacks);
   flowSteps.set("clearTargets", clearTargets);
@@ -122,6 +124,7 @@ export class WeaponAttackFlow extends Flow<LancerFlowState.WeaponRollData> {
     "setAttackTags",
     "setAttackEffects",
     "setAttackTargets",
+    "applyTalents",
     "showAttackHUD",
     "rollAttacks",
     "applySelfHeat",
@@ -399,6 +402,41 @@ export async function setAttackTargets(
   // TODO: AccDiffHudData does not facilitate setting targets after instantiation?
   // TODO: set metadata for origin and target spaces
   // state.data.target_spaces;
+  return true;
+}
+
+export async function applyTalents(
+  state: FlowState<
+    LancerFlowState.AttackRollData | LancerFlowState.WeaponRollData | LancerFlowState.TechAttackRollData
+  >,
+  options?: {}
+): Promise<boolean> {
+  if (!state.data) throw new TypeError(`Attack flow state missing!`);
+  // Basic attacks have no tags, just continue on.
+  if (!state.item) return true;
+
+  if (state.item.is_mech_weapon()) {
+    let profile = state.item.system.active_profile;
+    console.log("Profile before");
+    console.log(profile);
+
+    //I love nuclear cavallier flavor
+    //I see bonus damage and adding it there worked, I don't get what all_damage is for and if I should be putting it there too
+    profile.bonus_damage.push(
+      new Damage({
+        type: DamageType.Heat,
+        val: "2",
+      })
+    );
+
+    state.item.system.active_profile = profile;
+
+    console.log("Profile after");
+    console.log(state.item.system.active_profile);
+
+    return true;
+  }
+
   return true;
 }
 
