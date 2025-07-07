@@ -8,7 +8,7 @@ import { checkForHit } from "../helpers/automation/targeting";
 import { LancerItem } from "../item/lancer-item";
 import { Damage } from "../models/bits/damage";
 import { UUIDRef } from "../source-template";
-import { SystemTemplates } from "../system-template";
+import { SystemData, SystemTemplates } from "../system-template";
 import { renderTemplateStep } from "./_render";
 import { Flow, FlowState, Step } from "./flow";
 import { LancerFlowState } from "./interfaces";
@@ -414,28 +414,14 @@ export async function applyTalents(
   if (!state.data) throw new TypeError(`Attack flow state missing!`);
   // Basic attacks have no tags, just continue on.
   if (!state.item) return true;
+  //Make sure we have pilot
+  if (!state.actor.is_mech()) return true;
+  if (!state.actor.system.pilot === null) return true;
 
-  if (state.item.is_mech_weapon()) {
-    let profile = state.item.system.active_profile;
-    console.log("Profile before");
-    console.log(profile);
+  // @ts-expect-error null accounted for
+  let talents = state.actor.system.pilot.value.items.filter(i => i.is_talent());
 
-    //I love nuclear cavallier flavor
-    //I see bonus damage and adding it there worked, I don't get what all_damage is for and if I should be putting it there too
-    profile.bonus_damage.push(
-      new Damage({
-        type: DamageType.Heat,
-        val: "2",
-      })
-    );
-
-    state.item.system.active_profile = profile;
-
-    console.log("Profile after");
-    console.log(state.item.system.active_profile);
-
-    return true;
-  }
+  //HERE BE DRAGONS
 
   return true;
 }

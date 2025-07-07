@@ -1,0 +1,9 @@
+[
+    {
+        "talentName": "Duelist",
+        "rankName": "Partisan",
+        "description": "Gain +1 Accuracy on the first melee attack you make with a Main Melee weapon on your turn.",
+        "acc_bonus": 1,
+        "active": false
+    }
+]
