@@ -13,8 +13,6 @@
   import MiniProfile from "../components/MiniProfile.svelte";
   import { fade } from "../slidinghud";
 
-  import * as accJson from "./checkmark_talents.json";
-
   import type { LancerItem, LancerMECH_WEAPON, LancerNPC_FEATURE, LancerPILOT_WEAPON } from "../../item/lancer-item";
   import { NpcFeatureType, RangeType } from "../../enums";
   import { WeaponRangeTemplate } from "../../canvas/weapon-range-template";
@@ -54,27 +52,6 @@
   let submitted = false;
 
   let rollerName = lancerActor ? ` -- ${lancerActor.token?.name || lancerActor.name}` : "";
-
-  interface CheckmarkAccuracyTalents {
-    talentName: string;
-    rankName: string;
-    description: string;
-    acc_bonus: number;
-    active: boolean;
-  }
-  //This can't realistically change mid-fight, right?
-  let talents = lancerActor ? findTalents() : [];
-  console.log(talents);
-
-  $: for (const talent of talents) {
-    if (talent.active) {
-      if (talent.acc_bonus > 0) {
-        base.accuracy += talent.acc_bonus;
-      } else {
-        base.difficulty += Math.abs(talent.acc_bonus);
-      }
-    }
-  }
 
   // Initialize engaged
   if (kind === "attack" && lancerItem && !isTech()) {
@@ -204,20 +181,20 @@
     return lancerItem?.rangesFor([RangeType.Blast, RangeType.Burst, RangeType.Cone, RangeType.Line]) ?? [];
   }
 
-  function findTalents(): CheckmarkAccuracyTalents[] {
-    if (!lancerActor?.is_mech()) return [];
+  // function findTalents(): CheckmarkAccuracyTalents[] {
+  //   if (!lancerActor?.is_mech()) return [];
 
-    let pilotTalents = lancerActor?.system.pilot?.value?.items.filter(i => i.is_talent()).map(talent => talent.name);
-    console.log(pilotTalents);
+  //   let pilotTalents = lancerActor?.system.pilot?.value?.items.filter(i => i.is_talent()).map(talent => talent.name);
+  //   console.log(pilotTalents);
 
-    // @ts-expect-error not sure why but accJson is wrapped in .default
-    let accCheckmarkTalents: CheckmarkAccuracyTalents[] = accJson.default;
-    accCheckmarkTalents = accCheckmarkTalents.filter(accTalent => {
-      return pilotTalents?.includes(accTalent.talentName);
-    });
+  //   // @ts-expect-error not sure why but accJson is wrapped in .default
+  //   let accCheckmarkTalents: CheckmarkAccuracyTalents[] = accJson.default;
+  //   accCheckmarkTalents = accCheckmarkTalents.filter(accTalent => {
+  //     return pilotTalents?.includes(accTalent.talentName);
+  //   });
 
-    return accCheckmarkTalents;
-  }
+  //   return accCheckmarkTalents;
+  // }
 
   function deployTemplate(range: WeaponRangeTemplate["range"]) {
     const creator = lancerItem?.parent;
@@ -377,15 +354,14 @@
     {/if}
 
     <!-- Talent Checkboxes -->
-    <div transition:slide class="accdiff-grid accdiff-grid__section" style="width:100%;">
+    <!-- <div transition:slide class="accdiff-grid accdiff-grid__section" style="width:100%;">
       {#each talents as talent, idx}
-        <!-- <HudCheckbox label={`${talent.rankName} (${talent.acc_bonus.signedString()})`} bind:value={targets[0].prone} disabled /> -->
         <HudCheckbox
           label={`${talent.rankName} (${talent.acc_bonus.signedString()})`}
           bind:value={talents[idx].active}
         />
       {/each}
-    </div>
+    </div> -->
 
     <!-- Total accuracy / Targets -->
     <div class="flexcol accdiff-grid">

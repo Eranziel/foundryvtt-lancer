@@ -10,6 +10,8 @@ import Spotter from "./spotter";
 import { LancerToken } from "../../token";
 import { Tag } from "../../models/bits/tag";
 
+import * as accJson from "./checkmark_talents.json";
+
 export enum Cover {
   None = 0,
   Soft = 1,
@@ -90,6 +92,98 @@ export class AccDiffHudWeapon {
       this.plugins[key].hydrate(d);
     }
     this.#data = d;
+  }
+}
+
+class CheckmarkAccuracyTalents {
+  talentName: string;
+  rankName: string;
+  description: string;
+  acc_bonus: number;
+  active: boolean;
+
+  static get schema() {
+    return {
+      talentName: t.string,
+      rankName: t.string,
+      description: t.string,
+      acc_bonus: t.number,
+      active: t.boolean,
+    };
+  }
+
+  static get schemaCodec() {
+    return t.type(this.schema);
+  }
+  static get codec() {
+    return enclass(this.schemaCodec, CheckmarkAccuracyTalents);
+  }
+
+  constructor(obj: t.TypeOf<typeof CheckmarkAccuracyTalents.schemaCodec>) {
+    this.talentName = obj.talentName;
+    this.rankName = obj.rankName;
+    this.description = obj.description;
+    this.acc_bonus = obj.acc_bonus;
+    this.active = obj.active;
+  }
+
+  get raw() {
+    return {
+      talentName: this.talentName,
+      rankName: this.rankName,
+      description: this.description,
+      acc_bonus: this.acc_bonus,
+      active: this.active,
+    };
+  }
+}
+export class AccDiffHudTalents {
+  talents: CheckmarkAccuracyTalents[];
+
+  static get schema() {
+    return {
+      talents: t.array(CheckmarkAccuracyTalents.codec),
+    };
+  }
+
+  static get schemaCodec() {
+    return t.type(this.schema);
+  }
+  static get codec() {
+    return enclass(this.schemaCodec, AccDiffHudTalents);
+  }
+
+  constructor(obj: t.TypeOf<typeof AccDiffHudTalents.schemaCodec>) {
+    this.talents = obj.talents;
+  }
+
+  hydrate(d: AccDiffHudData) {
+    if (!d.lancerActor?.is_mech()) {
+      this.talents = [];
+      return;
+    }
+
+    let pilotTalents = d.lancerActor?.system.pilot?.value?.items.filter(i => i.is_talent()).map(talent => talent.name);
+    console.log(pilotTalents);
+
+    // @ts-expect-error not sure why but accJson is wrapped in .default
+    let accCheckmarkTalents: CheckmarkAccuracyTalents[] = accJson.default;
+    accCheckmarkTalents = accCheckmarkTalents.filter(accTalent => {
+      return pilotTalents?.includes(accTalent.talentName);
+    });
+
+    this.talents = accCheckmarkTalents;
+  }
+
+  get raw() {
+    return {
+      talents: this.talents,
+    };
+  }
+
+  get total() {
+    const total_acc = this.talents.reduce((partial, b) => partial + b.acc_bonus, 0);
+    return total_acc;
   }
 }
 
@@ -274,6 +368,7 @@ export class AccDiffHudTarget {
 export type AccDiffHudDataSerialized = t.OutputOf<typeof AccDiffHudData.schemaCodec>;
 export class AccDiffHudData {
   title: string;
+  talents: AccDiffHudTalents;
   weapon: AccDiffHudWeapon;
   base: AccDiffHudBase;
   targets: AccDiffHudTarget[];
@@ -283,6 +378,7 @@ export class AccDiffHudData {
   static get schema() {
     return {
       title: t.string,
+      talents: AccDiffHudTalents.codec,
       weapon: AccDiffHudWeapon.codec,
       base: AccDiffHudBase.codec,
       targets: t.array(AccDiffHudTarget.codec),
@@ -298,6 +394,7 @@ export class AccDiffHudData {
 
   constructor(obj: t.TypeOf<typeof AccDiffHudData.schemaCodec>) {
     this.title = obj.title;
+    this.talents = obj.talents;
     this.weapon = obj.weapon;
     this.base = obj.base;
     this.targets = obj.targets;
@@ -312,6 +409,7 @@ export class AccDiffHudData {
       this.lancerActor = runtimeData ?? undefined;
     }
 
+    this.talents.hydrate(this);
     this.weapon.hydrate(this);
     this.base.hydrate(this);
     for (let target of this.targets) {
@@ -386,7 +484,8 @@ export class AccDiffHudData {
     targets?: Token[],
     grit?: number,
     flat?: number,
-    starting?: [number, number] | number
+    starting?: [number, number] | number,
+    talents?: any
   ): AccDiffHudData {
     let weapon = {
       accurate: false,
@@ -428,6 +527,7 @@ export class AccDiffHudData {
 
     let obj: AccDiffHudDataSerialized = {
       title: title ? title : "Accuracy and Difficulty",
+      talents,
       weapon,
       base,
       targets: (targets || []).map(t => {

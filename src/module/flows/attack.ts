@@ -434,6 +434,8 @@ export async function showAttackHUD(
 ): Promise<boolean> {
   if (!state.data) throw new TypeError(`Attack flow state missing!`);
   try {
+    console.log(state.data.acc_diff);
+
     state.data.acc_diff = await openSlidingHud("attack", state.data.acc_diff!);
     state.data.grit = state.data.acc_diff.base.grit;
     state.data.flat_bonus = state.data.acc_diff.base.flatBonus;
