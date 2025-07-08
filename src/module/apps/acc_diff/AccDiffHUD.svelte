@@ -1,7 +1,7 @@
 <svelte:options accessors={true} />
 
 <script lang="ts">
-  import { AccDiffHudWeapon, AccDiffHudBase, AccDiffHudTarget, AccDiffHudPluginData } from "./index";
+  import { AccDiffHudWeapon, AccDiffHudBase, AccDiffHudTarget, AccDiffHudPluginData, AccDiffHudTalents } from "./index";
 
   import { slide } from "svelte/transition";
   import { flip } from "svelte/animate";
@@ -23,6 +23,9 @@
   import AccDiffInput from "./AccDiffInput.svelte";
   import { SystemTemplates } from "../../system-template";
 
+  export let talents: AccDiffHudTalents;
+  console.log("TALENTS:");
+  console.log(talents);
   export let weapon: AccDiffHudWeapon;
   export let base: AccDiffHudBase;
   export let targets: AccDiffHudTarget[];
@@ -34,9 +37,9 @@
 
   // tell svelte of externally computed dependency arrows
   // @ts-expect-error i.e., base depends on weapon
-  $: base = (weapon, base);
+  $: base = (talents, weapon, base);
   // @ts-expect-error i.e., targets depend on weapon and base
-  $: targets = (weapon, base, targets);
+  $: targets = (talents, weapon, base, targets);
   $: profile = lancerItem ? findProfile() : null;
   $: ranges = lancerItem ? findRanges() : null;
   $: flatTotal = kind === "attack" ? base.grit + base.flatBonus : 0;
@@ -354,14 +357,14 @@
     {/if}
 
     <!-- Talent Checkboxes -->
-    <!-- <div transition:slide class="accdiff-grid accdiff-grid__section" style="width:100%;">
-      {#each talents as talent, idx}
-        <HudCheckbox
-          label={`${talent.rankName} (${talent.acc_bonus.signedString()})`}
-          bind:value={talents[idx].active}
-        />
-      {/each}
-    </div> -->
+    <div transition:slide class="accdiff-grid accdiff-grid__section" style="width:100%;">
+      <!-- {#each applicable_talents.talents as talent, idx} -->
+      <HudCheckbox
+        label={`${talents.talents[0].rankName} (${talents.talents[0].acc_bonus.signedString()})`}
+        bind:value={talents.talents[0].active}
+      />
+      <!-- {/each} -->
+    </div>
 
     <!-- Total accuracy / Targets -->
     <div class="flexcol accdiff-grid">

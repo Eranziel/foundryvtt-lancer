@@ -118,7 +118,6 @@ class CheckmarkAccuracyTalents {
   static get codec() {
     return enclass(this.schemaCodec, CheckmarkAccuracyTalents);
   }
-
   constructor(obj: t.TypeOf<typeof CheckmarkAccuracyTalents.schemaCodec>) {
     this.talentName = obj.talentName;
     this.rankName = obj.rankName;
@@ -152,27 +151,29 @@ export class AccDiffHudTalents {
   static get codec() {
     return enclass(this.schemaCodec, AccDiffHudTalents);
   }
-
   constructor(obj: t.TypeOf<typeof AccDiffHudTalents.schemaCodec>) {
     this.talents = obj.talents;
   }
 
   hydrate(d: AccDiffHudData) {
-    if (!d.lancerActor?.is_mech()) {
-      this.talents = [];
-      return;
+    //Figure out applicable talents
+    let applicable_talents: CheckmarkAccuracyTalents[] = [];
+    if (d.lancerActor?.is_mech() && d.lancerActor?.system.pilot?.value?.is_pilot()) {
+      //THE lancer
+      const pilot = d.lancerActor.system.pilot.value;
+
+      let pilotTalents = pilot.items.filter(i => i.is_talent()).map(talent => talent.name);
+
+      // @ts-expect-error not sure why but accJson is wrapped in .default
+      let accCheckmarkTalents: CheckmarkAccuracyTalents[] = accJson.default;
+      accCheckmarkTalents = accCheckmarkTalents.filter(accTalent => {
+        return pilotTalents?.includes(accTalent.talentName);
+      });
+
+      applicable_talents = accCheckmarkTalents;
     }
 
-    let pilotTalents = d.lancerActor?.system.pilot?.value?.items.filter(i => i.is_talent()).map(talent => talent.name);
-    console.log(pilotTalents);
-
-    // @ts-expect-error not sure why but accJson is wrapped in .default
-    let accCheckmarkTalents: CheckmarkAccuracyTalents[] = accJson.default;
-    accCheckmarkTalents = accCheckmarkTalents.filter(accTalent => {
-      return pilotTalents?.includes(accTalent.talentName);
-    });
-
-    this.talents = accCheckmarkTalents;
+    this.talents = applicable_talents;
   }
 
   get raw() {
@@ -182,7 +183,12 @@ export class AccDiffHudTalents {
   }
 
   get total() {
-    const total_acc = this.talents.reduce((partial, b) => partial + b.acc_bonus, 0);
+    let total_acc = 0;
+    for (const talent of this.talents) {
+      if (talent.active) {
+        total_acc += talent.acc_bonus;
+      }
+    }
     return total_acc;
   }
 }
@@ -260,6 +266,7 @@ export class AccDiffHudTarget {
   prone: boolean;
   stunned: boolean;
   plugins: { [k: string]: any };
+  #talents!: AccDiffHudTalents; // never use this class before calling hydrate
   #weapon!: AccDiffHudWeapon; // never use this class before calling hydrate
   #base!: AccDiffHudBase; // never use this class before calling hydrate
 
@@ -339,6 +346,7 @@ export class AccDiffHudTarget {
   }
 
   hydrate(d: AccDiffHudData) {
+    this.#talents = d.talents;
     this.#weapon = d.weapon;
     this.#base = d.base;
     for (let key of Object.keys(this.plugins)) {
@@ -355,11 +363,16 @@ export class AccDiffHudTarget {
   }
 
   get total() {
-    let base = this.accuracy - this.difficulty + this.#weapon.total(this.cover);
+    console.log("CALLED");
+
+    let base = this.accuracy - this.difficulty + this.#weapon.total(this.cover) + this.#talents.total;
     // the only thing we actually use base for is the untyped bonuses
     let raw = base + this.#base.accuracy - this.#base.difficulty;
     let lockon = this.usingLockOn ? 1 : 0;
     let prone = this.prone ? 1 : 0;
+
+    console.log(raw + lockon + prone);
+    console.log(this.#talents.total);
 
     return raw + lockon + prone;
   }
@@ -444,6 +457,7 @@ export class AccDiffHudData {
   get raw() {
     return {
       title: this.title,
+      talents: this.talents,
       weapon: this.weapon,
       base: this.base,
       targets: this.targets,
@@ -484,8 +498,7 @@ export class AccDiffHudData {
     targets?: Token[],
     grit?: number,
     flat?: number,
-    starting?: [number, number] | number,
-    talents?: any
+    starting?: [number, number] | number
   ): AccDiffHudData {
     let weapon = {
       accurate: false,
@@ -524,6 +537,15 @@ export class AccDiffHudData {
       difficulty: starting[1],
       plugins: {} as { [k: string]: any },
     };
+
+    let talents = new AccDiffHudTalents(
+      decode(
+        {
+          talents: [],
+        },
+        AccDiffHudTalents.codec
+      )
+    );
 
     let obj: AccDiffHudDataSerialized = {
       title: title ? title : "Accuracy and Difficulty",

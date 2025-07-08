@@ -418,8 +418,7 @@ export async function applyTalents(
   if (!state.actor.is_mech()) return true;
   if (!state.actor.system.pilot === null) return true;
 
-  // @ts-expect-error null accounted for
-  let talents = state.actor.system.pilot.value.items.filter(i => i.is_talent());
+  let talents = state.actor.system.pilot!.value!.items.filter(i => i.is_talent());
 
   //HERE BE DRAGONS
 
@@ -434,8 +433,6 @@ export async function showAttackHUD(
 ): Promise<boolean> {
   if (!state.data) throw new TypeError(`Attack flow state missing!`);
   try {
-    console.log(state.data.acc_diff);
-
     state.data.acc_diff = await openSlidingHud("attack", state.data.acc_diff!);
     state.data.grit = state.data.acc_diff.base.grit;
     state.data.flat_bonus = state.data.acc_diff.base.flatBonus;
