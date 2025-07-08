@@ -148,7 +148,7 @@ function structTableDescriptions(roll: number, remStruct: number): string {
       return "lancer.tables.structure.description.trauma";
     case 5:
     case 6:
-      return "lancer.tables.structure.descriptions.glancing";
+      return "lancer.tables.structure.description.glancing";
   }
   return "";
 }
