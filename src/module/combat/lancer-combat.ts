@@ -32,7 +32,7 @@ export class LancerCombat extends Combat {
     const updates = this.combatants.map(c => {
       return {
         _id: c.id,
-        "system.activations.value": skipDefeated && c.isDefeated ? 0 : (<LancerCombatant>c).activations.max ?? 0,
+        "system.activations.value": skipDefeated && c.isDefeated ? 0 : ((<LancerCombatant>c).activations.max ?? 0),
       };
     });
     return <Promise<LancerCombatant[]>>this.updateEmbeddedDocuments("Combatant", updates);

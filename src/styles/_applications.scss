@@ -117,7 +117,10 @@ Here, this means we want to allow for drag stuff etc to show contextually if:
   background: #222922;
   background: linear-gradient(#333933, #222922);
   border-color: #393;
-  box-shadow: 0 0 5px rgba(0, 255, 0, 0.2), inset 0 0 5px rgba(0, 255, 0, 0.1), 0 2px 0 #000;
+  box-shadow:
+    0 0 5px rgba(0, 255, 0, 0.2),
+    inset 0 0 5px rgba(0, 255, 0, 0.1),
+    0 2px 0 #000;
   color: #efe;
   outline: none;
 }
@@ -125,11 +128,17 @@ Here, this means we want to allow for drag stuff etc to show contextually if:
 @keyframes glow-anim {
   0% {
     border-color: #393;
-    box-shadow: 0 0 5px rgba(0, 255, 0, 0.2), inset 0 0 5px rgba(0, 255, 0, 0.1), 0 2px 0 #000;
+    box-shadow:
+      0 0 5px rgba(0, 255, 0, 0.2),
+      inset 0 0 5px rgba(0, 255, 0, 0.1),
+      0 2px 0 #000;
   }
   100% {
     border-color: #6f6;
-    box-shadow: 0 0 20px rgba(0, 255, 0, 0.6), inset 0 0 10px rgba(0, 255, 0, 0.4), 0 2px 0 #000;
+    box-shadow:
+      0 0 20px rgba(0, 255, 0, 0.6),
+      inset 0 0 10px rgba(0, 255, 0, 0.4),
+      0 2px 0 #000;
   }
 }
 

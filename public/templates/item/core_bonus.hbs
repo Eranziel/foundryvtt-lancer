@@ -1,23 +1,29 @@
 <form class="{{cssClass}} lancer-sheet" autocomplete="off">
 
-  {{!-- Sheet Header --}}
+  {{! Sheet Header }}
   <header class="sheet-header card clipped-bot">
     <div class="flexcol grow">
-      <h1 class="charname"><input class="header-field" name="name" type="text" value="{{item.name}}" placeholder="{{localize "lancer.placeholder.name"}}"/></h1>
+      <h1 class="charname"><input
+          class="header-field"
+          name="name"
+          type="text"
+          value="{{item.name}}"
+          placeholder="{{localize 'lancer.placeholder.name'}}"
+        /></h1>
     </div>
-    {{{ ref-portrait-img item.img "img" item }}}
+    {{{ref-portrait-img item.img "img" item}}}
   </header>
 
-  {{!-- Sheet Body --}}
+  {{! Sheet Body }}
   <div class="flexcol">
-    {{{textarea-card "DESCRIPTION"    "system.description"}}}
-    {{{textarea-card "EFFECT"         "system.effect"}}}
+    {{{textarea-card "DESCRIPTION" "system.description"}}}
+    {{{textarea-card "EFFECT" "system.effect"}}}
     {{{textarea-card "MOUNTED EFFECT" "system.mountedEffect"}}}
-    {{{item-edit-arrayed-actions      "system.actions"      "ACTIONS"}}}
-    {{{item-edit-arrayed-bonuses      "system.bonuses"}}}
-    {{{item-edit-arrayed-synergies    "system.synergies"    "SYNERGIES"}}}
-    {{{item-edit-arrayed-deployables  "system.deployables"  "DEPLOYABLES"}}}
-    {{{counter-array system.counters      "system.counters"     true}}}
-    {{{item-edit-arrayed-integrated   "system.integrated"   "INTEGRATED ITEMS"}}}
+    {{{item-edit-arrayed-actions "system.actions" "ACTIONS"}}}
+    {{{item-edit-arrayed-bonuses "system.bonuses"}}}
+    {{{item-edit-arrayed-synergies "system.synergies" "SYNERGIES"}}}
+    {{{item-edit-arrayed-deployables "system.deployables" "DEPLOYABLES"}}}
+    {{{counter-array system.counters "system.counters" true}}}
+    {{{item-edit-arrayed-integrated "system.integrated" "INTEGRATED ITEMS"}}}
   </div>
 </form>

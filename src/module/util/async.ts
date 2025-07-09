@@ -3,7 +3,10 @@ export const PENDING = Symbol("PENDING_FETCH");
 // Simple caching mechanism for handling async fetchable values for a certain length of time
 export class FetcherCache<K, V> {
   // Default cache time is 30 seconds
-  constructor(private readonly fetch_func: (arg: K) => Promise<V>, private readonly timeout: number = 30_000) {}
+  constructor(
+    private readonly fetch_func: (arg: K) => Promise<V>,
+    private readonly timeout: number = 30_000
+  ) {}
 
   // The currently cached value
   protected cached_values: Map<K, Promise<V>> = new Map();

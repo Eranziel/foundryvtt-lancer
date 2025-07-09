@@ -6,7 +6,7 @@
   "steps": [
     {
       "id": "compconLogin",
-      "selector":"#settings-config [data-key='lancer.compconLogin']",
+      "selector": "#settings-config [data-key='lancer.compconLogin']",
       "title": "lancer.tour.pilot-import.compconLogin.title",
       "content": "lancer.tour.pilot-import.compconLogin.content",
       "sidebarTab": "settings"

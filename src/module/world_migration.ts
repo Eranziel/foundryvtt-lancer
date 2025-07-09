@@ -399,7 +399,7 @@ export async function migrateCompendiumStructure() {
     const pack = await get_pack(et);
     const folder: Folder | undefined = [EntryType.NPC, EntryType.STATUS].includes(et)
       ? undefined
-      : pack.folders.find(f => f.getFlag(game.system.id, "entrytype") === et) ??
+      : (pack.folders.find(f => f.getFlag(game.system.id, "entrytype") === et) ??
         (await Folder.create(
           {
             name: game.i18n.localize(`TYPES.${pack.metadata.type}.${et}`),
@@ -407,7 +407,7 @@ export async function migrateCompendiumStructure() {
             [`flags.${game.system.id}.entrytype`]: et,
           },
           { pack: get_pack_id(et) }
-        ));
+        )));
     const doc_data = documents.map(d => ({ ...d.toObject(), folder: folder?.id }));
     const doc_class = documents[0].documentName;
 

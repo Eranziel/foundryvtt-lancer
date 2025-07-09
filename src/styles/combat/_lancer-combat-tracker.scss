@@ -12,7 +12,9 @@
       &:hover {
         background: var(--button-hover-background-color);
         color: var(--button-hover-text-color);
-        transition: background-color 0.5s, border-color 0.5s;
+        transition:
+          background-color 0.5s,
+          border-color 0.5s;
       }
     }
     border-left: 3px solid var(--lancer-initiative-#{$disposition}-color);
