@@ -1,1 +1,3 @@
 src/aws-exports.ts
+src/packs/core_macros
+src/packs/lancer_info
