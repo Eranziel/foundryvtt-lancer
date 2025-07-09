@@ -26,7 +26,7 @@ export function effect_view(
  */
 export function effect_categories_view(
   actor: LancerActor,
-  effects: ReturnType<typeof LancerActiveEffect["prepareActiveEffectCategories"]>,
+  effects: ReturnType<(typeof LancerActiveEffect)["prepareActiveEffectCategories"]>,
   options: HelperOptions
 ) {
   let categories = [] as string[];

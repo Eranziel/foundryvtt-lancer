@@ -20,7 +20,11 @@ export interface InventoryDialogData {
  * @extends {Dialog}
  */
 export class InventoryDialog extends Dialog {
-  constructor(readonly actor: LancerActor, dialogData: DialogData, options: Partial<DialogOptions> = {}) {
+  constructor(
+    readonly actor: LancerActor,
+    dialogData: DialogData,
+    options: Partial<DialogOptions> = {}
+  ) {
     super(dialogData, options);
     this.actor = actor;
   }

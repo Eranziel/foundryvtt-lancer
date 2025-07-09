@@ -587,8 +587,8 @@ export function reserveRefView(reserve_path: string, options: HelperOptions): st
   let resType = resTypes.includes(reserve.system.type)
     ? reserve.system.type
     : resTypes.includes(reserve.system.label)
-    ? reserve.system.label
-    : reserve.system.type;
+      ? reserve.system.label
+      : reserve.system.type;
   switch (resType) {
     case "Bonus": // missing?
       icon = "cci cci-accuracy";

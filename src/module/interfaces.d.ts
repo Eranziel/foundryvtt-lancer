@@ -38,7 +38,7 @@ export interface LancerActorSheetData<T extends LancerActorType> extends ActorSh
   cleanedOwnerID: string;
   vaultID: string;
   rawID: string;
-  effect_categories: ReturnType<typeof LancerActiveEffect["prepareActiveEffectCategories"]>;
+  effect_categories: ReturnType<(typeof LancerActiveEffect)["prepareActiveEffectCategories"]>;
   system: SystemDataType<T>;
   itemTypes: LancerActor["itemTypes"];
   collapse: CollapseRegistry;

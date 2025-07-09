@@ -574,7 +574,7 @@ export class LancerActor extends Actor {
     // Only apply these defaults for fresh documents
     if (data?._stats?.createdTime) return;
 
-    let disposition: typeof CONST["TOKEN_DISPOSITIONS"][keyof typeof CONST["TOKEN_DISPOSITIONS"]] =
+    let disposition: (typeof CONST)["TOKEN_DISPOSITIONS"][keyof (typeof CONST)["TOKEN_DISPOSITIONS"]] =
       {
         [EntryType.NPC]: CONST.TOKEN_DISPOSITIONS.HOSTILE,
         [EntryType.PILOT]: CONST.TOKEN_DISPOSITIONS.FRIENDLY,

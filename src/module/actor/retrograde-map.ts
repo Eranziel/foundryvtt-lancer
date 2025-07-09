@@ -89,5 +89,5 @@ const frameImageMap: Record<string, string> = {
 };
 
 export function frameToPath(name: string | null | undefined): string | null {
-  return name ? frameImageMap[name.trim().toUpperCase()] : null ?? null;
+  return name ? frameImageMap[name.trim().toUpperCase()] : (null ?? null);
 }

@@ -18,7 +18,7 @@ export class LancerDataModel<
   Schema extends DataSchema,
   Parent extends AnyDocument,
   BaseData extends AnyObject = EmptyObject,
-  DerivedData extends AnyObject = EmptyObject
+  DerivedData extends AnyObject = EmptyObject,
 > extends foundry.abstract.TypeDataModel<Schema, Parent, BaseData, DerivedData> {
   /**
    * Create a full update payload, e.g. to preserve arrays
@@ -164,7 +164,10 @@ export class EmbeddedRefField extends fields.StringField<
   /**
    * @param {StringFieldOptions} options  Options which configure the behavior of the field
    */
-  constructor(readonly document_type: "Item" | "ActiveEffect", options: EmbeddedRefField.Options = {}) {
+  constructor(
+    readonly document_type: "Item" | "ActiveEffect",
+    options: EmbeddedRefField.Options = {}
+  ) {
     super(options);
     this.allowed_types = options.allowed_types ?? null;
   }
@@ -252,7 +255,10 @@ export class SyncUUIDRefField extends fields.StringField<
   /**
    * @param {StringFieldOptions} options  Options which configure the behavior of the field
    */
-  constructor(readonly document_type: "Actor" | "Item", options: SyncUUIDRefField.Options = {}) {
+  constructor(
+    readonly document_type: "Actor" | "Item",
+    options: SyncUUIDRefField.Options = {}
+  ) {
     super(options);
     this.allowed_types = options.allowed_types ?? null;
   }
@@ -352,7 +358,7 @@ declare namespace FakeBoundedNumberField {
 // Use this to represent a field that is effectively just a number, but should present as a min/max/value field in expanded `system` data
 // This is 10% so we can show them with bars, and 90% because usually the max is computed and we don't want to confuse anyone
 export class FakeBoundedNumberField<
-  Options extends FakeBoundedNumberField.Options = FakeBoundedNumberField.DefaultOptions
+  Options extends FakeBoundedNumberField.Options = FakeBoundedNumberField.DefaultOptions,
 > extends fields.NumberField<
   Options,
   fields.NumberField.AssignmentType<Options>,
@@ -563,7 +569,7 @@ declare namespace ControlledLengthArrayField {
 export class ControlledLengthArrayField<
   ElementField extends fields.DataField.Any,
   AssignmentElementField = fields.ArrayField.AssignmentElementType<ElementField>,
-  InitializedElementType = fields.ArrayField.InitializedElementType<ElementField>
+  InitializedElementType = fields.ArrayField.InitializedElementType<ElementField>,
 > extends fields.ArrayField<
   ElementField,
   AssignmentElementField,

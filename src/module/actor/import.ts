@@ -396,7 +396,7 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
       flatMounts.push(...loadout.mounts);
       let populatedMounts: SourceData.Mech["loadout"]["weapon_mounts"] = [];
       for (let mount of flatMounts) {
-        let populatedSlots: typeof populatedMounts[0]["slots"] = [];
+        let populatedSlots: (typeof populatedMounts)[0]["slots"] = [];
         for (const slot of mount.slots) {
           let weapon = slot.weapon ? ((await getMechItemByLid(slot.weapon.id)) as LancerMECH_WEAPON | null) : null;
           let mod =
