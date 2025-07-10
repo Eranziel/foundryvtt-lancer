@@ -357,14 +357,38 @@
     {/if}
 
     <!-- Talent Checkboxes -->
-    <div transition:slide class="accdiff-grid accdiff-grid__section" style="width:100%;">
-      <!-- {#each applicable_talents.talents as talent, idx} -->
-      <HudCheckbox
-        label={`${talents.talents[0].rankName} (${talents.talents[0].acc_bonus.signedString()})`}
-        bind:value={talents.talents[0].active}
-      />
-      <!-- {/each} -->
-    </div>
+    {#if talents.talents.length != 0}
+      <div class="accdiff-talent">
+        <label class="flexrow accdiff-weight lancer-border-primary">Talents</label>
+
+        <div transition:slide class="accdiff-grid accdiff-grid__section" style="width:100%;">
+          <div class="accdiff-grid__column">
+            {#each talents.talents as talent, idx}
+              <!-- Odd -->
+              {#if idx % 2 != 0}
+                <HudCheckbox
+                  label={`${talent.rankName} (${talent.acc_bonus.signedString()})`}
+                  bind:value={talent.active}
+                  tooltip={talent.description}
+                />
+              {/if}
+            {/each}
+          </div>
+          <div class="accdiff-grid__column">
+            {#each talents.talents as talent, idx}
+              <!-- Even -->
+              {#if idx % 2 == 0}
+                <HudCheckbox
+                  label={`${talent.rankName} (${talent.acc_bonus.signedString()})`}
+                  bind:value={talent.active}
+                  tooltip={talent.description}
+                />
+              {/if}
+            {/each}
+          </div>
+        </div>
+      </div>
+    {/if}
 
     <!-- Total accuracy / Targets -->
     <div class="flexcol accdiff-grid">
@@ -723,5 +747,9 @@
       margin-right: 1em;
       margin-left: 1em;
     }
+  }
+
+  .accdiff-talent {
+    border-top: 2px solid var(--primary-color);
   }
 </style>

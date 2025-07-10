@@ -11,6 +11,7 @@ import { LancerToken } from "../../token";
 import { Tag } from "../../models/bits/tag";
 
 import * as accJson from "./checkmark_talents.json";
+import Vanguard_1 from "./vanguard";
 
 export enum Cover {
   None = 0,
@@ -363,16 +364,11 @@ export class AccDiffHudTarget {
   }
 
   get total() {
-    console.log("CALLED");
-
     let base = this.accuracy - this.difficulty + this.#weapon.total(this.cover) + this.#talents.total;
     // the only thing we actually use base for is the untyped bonuses
     let raw = base + this.#base.accuracy - this.#base.difficulty;
     let lockon = this.usingLockOn ? 1 : 0;
     let prone = this.prone ? 1 : 0;
-
-    console.log(raw + lockon + prone);
-    console.log(this.#talents.total);
 
     return raw + lockon + prone;
   }
@@ -594,3 +590,4 @@ export class AccDiffHudData {
 // side effects for importing, yes, yes, I know
 AccDiffHudData.registerPlugin(Invisibility);
 AccDiffHudData.registerPlugin(Spotter);
+AccDiffHudData.registerPlugin(Vanguard_1);
