@@ -41,6 +41,9 @@
   export let lancerItem: LancerItem | null;
   export let lancerActor: LancerActor | null;
 
+  let total = targets[0].total;
+  $: total = targets[0].total;
+  console.log(total);
   export let kind: "hase" | "attack";
 
   // tell svelte of externally computed dependency arrows
@@ -58,6 +61,8 @@
     targets.length === 1 ? Object.values(targets[0].plugins).filter(plugin => plugin.category === "acc") : [];
   $: diffTargetPlugins =
     targets.length === 1 ? Object.values(targets[0].plugins).filter(plugin => plugin.category === "diff") : [];
+
+  $: console.log(targets);
 
   const dispatch = createEventDispatcher();
   let submitted = false;
