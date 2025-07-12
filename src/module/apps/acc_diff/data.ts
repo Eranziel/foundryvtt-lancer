@@ -182,16 +182,6 @@ export class AccDiffHudTalents {
       talents: this.talents,
     };
   }
-
-  get total() {
-    let total_acc = 0;
-    for (const talent of this.talents) {
-      if (talent.active) {
-        total_acc += talent.acc_bonus;
-      }
-    }
-    return total_acc;
-  }
 }
 
 export class AccDiffHudBase {
@@ -267,7 +257,6 @@ export class AccDiffHudTarget {
   prone: boolean;
   stunned: boolean;
   plugins: { [k: string]: any };
-  #talents!: AccDiffHudTalents; // never use this class before calling hydrate
   #weapon!: AccDiffHudWeapon; // never use this class before calling hydrate
   #base!: AccDiffHudBase; // never use this class before calling hydrate
 
@@ -347,7 +336,6 @@ export class AccDiffHudTarget {
   }
 
   hydrate(d: AccDiffHudData) {
-    this.#talents = d.talents;
     this.#weapon = d.weapon;
     this.#base = d.base;
     for (let key of Object.keys(this.plugins)) {
@@ -364,13 +352,18 @@ export class AccDiffHudTarget {
   }
 
   get total() {
-    let base = this.accuracy - this.difficulty + this.#weapon.total(this.cover) + this.#talents.total;
+    let base = this.accuracy - this.difficulty + this.#weapon.total(this.cover);
+    let pluginBonus: number = Object.values(this.plugins).reduce(
+      (a: number, b: AccDiffHudPluginData) => a + b.accBonus,
+      0
+    );
+    console.log("PLUGIN BONUS: " + pluginBonus);
     // the only thing we actually use base for is the untyped bonuses
     let raw = base + this.#base.accuracy - this.#base.difficulty;
     let lockon = this.usingLockOn ? 1 : 0;
     let prone = this.prone ? 1 : 0;
 
-    return raw + lockon + prone;
+    return raw + lockon + prone + pluginBonus;
   }
 }
 

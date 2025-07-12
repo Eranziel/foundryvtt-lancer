@@ -29,8 +29,9 @@ declare interface NoUI {
 type UIBehaviour = CheckboxUI | NoUI;
 
 declare interface RollModifier {
-  category: "acc" | "diff";
+  category: "acc" | "diff" | "talentWindow";
   modifyRoll(roll: string): string;
+  get accBonus(): number;
   get rollPrecedence(): number; // higher numbers happen earlier
 }
 
@@ -49,7 +50,7 @@ export type AccDiffHudPluginCodec<C extends AccDiffHudPluginData, O, I> = Codec<
 
 declare interface AccDiffHudPlugin<Data extends AccDiffHudPluginData> {
   slug: string;
-  category: "acc" | "diff";
+  category: "acc" | "diff" | "talentWindow";
   // the codec lets us know how to persist whatever data you need for rerolls
   codec: AccDiffHudPluginCodec<Data, O, I>;
   // these constructors handle creating the initial data for a plugin

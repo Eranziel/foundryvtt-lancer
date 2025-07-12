@@ -65,8 +65,8 @@ export default class Invisibility implements AccDiffHudCheckboxPluginData {
   slug: string = "invisibility";
   static slug: string = "invisibility";
   humanLabel: string = "Invisible (*)";
-  category: "acc" | "diff" = "diff";
-  static category: "acc" | "diff" = "diff";
+  category: "acc" | "diff" | "talentWindow" = "diff";
+  static category: "acc" | "diff" | "talentWindow" = "diff";
 
   // our uiState is whether we're treating the current target as invisible
   get uiState() {
@@ -102,6 +102,7 @@ export default class Invisibility implements AccDiffHudCheckboxPluginData {
       return roll;
     }
   }
+  readonly accBonus = 0; //This plugin doesn't affect accuracy
 
   readonly rollPrecedence = -9999; // after _everything_
 }

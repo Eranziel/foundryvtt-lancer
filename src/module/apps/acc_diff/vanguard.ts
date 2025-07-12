@@ -26,8 +26,8 @@ export default class Vanguard_1 implements AccDiffHudCheckboxPluginData {
   //Shared type requirements
   static slug: string = "Handshake Etiquette";
   slug: string = "Handshake Etiquette";
-  static category: "acc" | "diff" = "diff";
-  category: "acc" | "diff" = "diff";
+  static category: "acc" | "diff" | "talentWindow" = "acc";
+  category: "acc" | "diff" | "talentWindow" = "acc";
   humanLabel: string = "Handshake Etiquette (+1)";
 
   //AccDiffHudPlugin requirements
@@ -59,12 +59,12 @@ export default class Vanguard_1 implements AccDiffHudCheckboxPluginData {
   rollPrecedence = 0; // higher numbers happen earlier
 
   get uiState(): boolean {
-    console.log("getting state");
-
     return this.active;
   }
   set uiState(data: boolean) {
     this.active = data;
+
+    console.log("BEING SET, active = " + this.active);
   }
   // no behaviour here — this talent can always be seen and toggled
   readonly visible = true;
@@ -75,17 +75,27 @@ export default class Vanguard_1 implements AccDiffHudCheckboxPluginData {
   modifyRoll(roll: string): string {
     return roll;
   }
+  //Modify accuracy
+  get accBonus(): number {
+    return this.active ? 1 : 0;
+  }
 
   //Dehydrated requirements
   hydrate(data: AccDiffHudData, target?: AccDiffHudTarget) {
     this.talents = data.talents;
     this.target = target || null;
 
-    //Figure out whether we are in a Handshake Etiquette situation
-    this.active = this.handshake();
+    // //Figure out whether we are in a Handshake Etiquette situation
+    // this.active = this.handshake();
+  }
+
+  //perTarget because we have to know where the token is
+  static perTarget(item: Token): Vanguard_1 {
+    let ret = new Vanguard_1();
+    return ret;
   }
 
   handshake() {
-    return false;
+    return true;
   }
 }

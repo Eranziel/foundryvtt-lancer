@@ -1,7 +1,14 @@
 <svelte:options accessors={true} />
 
 <script lang="ts">
-  import { AccDiffHudWeapon, AccDiffHudBase, AccDiffHudTarget, AccDiffHudPluginData, AccDiffHudTalents } from "./index";
+  import {
+    AccDiffHudWeapon,
+    AccDiffHudBase,
+    AccDiffHudTarget,
+    AccDiffHudPluginData,
+    AccDiffHudTalents,
+    AccDiffHudData,
+  } from "./index";
 
   import { slide } from "svelte/transition";
   import { flip } from "svelte/animate";
@@ -22,6 +29,7 @@
   import { LancerToken } from "../../token";
   import AccDiffInput from "./AccDiffInput.svelte";
   import { SystemTemplates } from "../../system-template";
+  import Vanguard_1 from "./vanguard";
 
   export let talents: AccDiffHudTalents;
   console.log("TALENTS:");
@@ -37,9 +45,9 @@
 
   // tell svelte of externally computed dependency arrows
   // @ts-expect-error i.e., base depends on weapon
-  $: base = (talents, weapon, base);
+  $: base = (weapon, base);
   // @ts-expect-error i.e., targets depend on weapon and base
-  $: targets = (talents, weapon, base, targets);
+  $: targets = (targets[0].plugins["Handshake Etiquette"].uiState, weapon, base, targets);
   $: profile = lancerItem ? findProfile() : null;
   $: ranges = lancerItem ? findRanges() : null;
   $: flatTotal = kind === "attack" ? base.grit + base.flatBonus : 0;

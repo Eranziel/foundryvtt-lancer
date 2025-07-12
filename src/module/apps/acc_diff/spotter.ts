@@ -45,6 +45,7 @@ function spotter(): AccDiffHudPluginData {
     slug: "spotter",
     category: "acc" as "acc",
     humanLabel: "Spotter (*)",
+    accBonus: 0,
     get uiState() {
       return !!(this.actor && this.target?.usingLockOn && adjacentSpotter(this.actor));
     },
