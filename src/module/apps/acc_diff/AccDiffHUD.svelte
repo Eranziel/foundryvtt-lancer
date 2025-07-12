@@ -50,7 +50,7 @@
   // @ts-expect-error i.e., base depends on weapon
   $: base = (weapon, base);
   // @ts-expect-error i.e., targets depend on weapon and base
-  $: targets = (targets[0].plugins["Handshake Etiquette"].uiState, weapon, base, targets);
+  $: targets = (weapon, base, targets);
   $: profile = lancerItem ? findProfile() : null;
   $: ranges = lancerItem ? findRanges() : null;
   $: flatTotal = kind === "attack" ? base.grit + base.flatBonus : 0;
