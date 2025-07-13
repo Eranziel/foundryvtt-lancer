@@ -19,8 +19,8 @@ function adjacentSpotter(actor: LancerActor): boolean {
   const aabb = new PIXI.Rectangle(
     token.bounds.x - 2 * canvas.grid!.sizeX,
     token.bounds.y - 2 * canvas.grid!.sizeY,
-    token.bounds.right + 4 * canvas.grid!.sizeX,
-    token.bounds.bottom + 4 * canvas.grid!.sizeY
+    token.bounds.height + 4 * canvas.grid!.sizeX,
+    token.bounds.width + 4 * canvas.grid!.sizeY
   );
 
   const spotters: Set<LancerToken> = canvas.tokens!.quadtree!.getObjects(aabb, {
@@ -31,6 +31,7 @@ function adjacentSpotter(actor: LancerActor): boolean {
       const house_guard: boolean =
         o.t.actor.system.pilot?.value?.itemTypes.talent.some(t => t.system.lid === "t_house_guard") ?? false;
       const range = (house_guard ? 2 : 1) + 0.1;
+      console.log("SPOTTER DISTANCE: " + o.t.document.computeRange(token.document));
       return o.t.document.computeRange(token.document) <= range;
     },
   }) as any;

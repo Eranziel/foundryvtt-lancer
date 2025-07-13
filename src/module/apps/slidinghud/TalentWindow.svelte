@@ -4,6 +4,7 @@
   import { LancerActor } from "../../actor/lancer-actor";
   import HudCheckbox from "../components/HudCheckbox.svelte";
   import { CheckmarkAccuracyTalent } from "../acc_diff/data";
+  import Plugin from "../acc_diff/Plugin.svelte";
 
   export let targets: AccDiffHudTarget[];
   export let talents: AccDiffHudTalents;
@@ -33,11 +34,7 @@
         {#each talentUiData as talent, idx}
           <!-- Odd -->
           {#if idx + (1 % 2) != 0}
-            <HudCheckbox
-              label={`${talent.rankName} (${talent.acc_bonus.signedString()})`}
-              bind:value={availableTalentPlugins[idx].active}
-              tooltip={talent.description}
-            />
+            <Plugin data={availableTalentPlugins[idx]} tooltip={talent.description} />
           {/if}
         {/each}
       </div>
@@ -46,11 +43,7 @@
           {#each talentUiData as talent, idx}
             <!-- Even -->
             {#if idx + (1 % 2) == 0}
-              <HudCheckbox
-                label={`${talent.rankName} (${talent.acc_bonus.signedString()})`}
-                bind:value={availableTalentPlugins[idx].active}
-                tooltip={talent.description}
-              />
+              <Plugin data={availableTalentPlugins[idx]} tooltip={talent.description} />
             {/if}
           {/each}
         </div>
@@ -61,9 +54,9 @@
 
 <style lang="scss">
   #talent_window {
+    //This is about as far as it can go on minimum foundry window size
     max-width: 330px;
     z-index: 1;
-
     pointer-events: initial;
   }
 

@@ -12,6 +12,7 @@ import { Tag } from "../../models/bits/tag";
 
 import * as accJson from "./checkmark_talents.json";
 import Vanguard_1 from "./vanguard";
+import { FittingSize, WeaponType } from "../../enums";
 
 export enum Cover {
   None = 0,
@@ -76,6 +77,17 @@ export class AccDiffHudWeapon {
   get engagedStatus(): ActiveEffect | null {
     // @ts-expect-error
     return !!this.#data?.lancerActor?.system?.statuses.engaged;
+  }
+
+  get weaponType(): WeaponType {
+    // @ts-expect-error
+    return this.#data?.lancerItem?.system?.active_profile.type;
+  }
+
+  //Is there an integrated melee weapon?
+  get mount(): FittingSize {
+    // @ts-expect-error
+    return this.#data?.lancerItem?.system?.size;
   }
 
   total(cover: number) {

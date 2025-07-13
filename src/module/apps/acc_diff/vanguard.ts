@@ -16,6 +16,8 @@ import * as t from "io-ts";
 import { AccDiffHudData, AccDiffHudTalents, AccDiffHudTarget } from "./data";
 import { AccDiffHudCheckboxPluginData, AccDiffHudPluginCodec } from "./plugin";
 import { enclass } from "./serde";
+import { LancerToken } from "../../token";
+import { WeaponType } from "../../enums";
 
 export default class Vanguard_1 implements AccDiffHudCheckboxPluginData {
   //Plugin state
@@ -66,9 +68,9 @@ export default class Vanguard_1 implements AccDiffHudCheckboxPluginData {
 
     console.log("BEING SET, active = " + this.active);
   }
-  // no behaviour here — this talent can always be seen and toggled
+  //this talent is always visible but disabled unless conditions are satisfied
   readonly visible = true;
-  readonly disabled = false;
+  disabled = true;
 
   //RollModifier requirements
   //We do nothing to modify the roll
@@ -85,8 +87,9 @@ export default class Vanguard_1 implements AccDiffHudCheckboxPluginData {
     this.talents = data.talents;
     this.target = target || null;
 
-    // //Figure out whether we are in a Handshake Etiquette situation
-    // this.active = this.handshake();
+    //Figure out whether we are in a Handshake Etiquette situation
+    this.active = this.handshake(data, target);
+    this.disabled = !this.active;
   }
 
   //perTarget because we have to know where the token is
@@ -95,7 +98,38 @@ export default class Vanguard_1 implements AccDiffHudCheckboxPluginData {
     return ret;
   }
 
-  handshake() {
-    return true;
+  //The unique logic of the talent
+  handshake(data: AccDiffHudData, target?: AccDiffHudTarget) {
+    if (data.weapon.weaponType !== WeaponType.CQB) {
+      return false;
+    }
+
+    // only players can benefit from talent
+    if (!data.lancerActor!.is_mech()) {
+      return false;
+    }
+
+    let token: LancerToken = data.lancerActor!.getActiveTokens()[0];
+
+    // Rough bounding box in which the hexes/squares will be searched
+    const aabb = new PIXI.Rectangle(
+      token.bounds.x - 2 * canvas.grid!.sizeX,
+      token.bounds.y - 2 * canvas.grid!.sizeY,
+      token.bounds.height + 4 * canvas.grid!.sizeX,
+      token.bounds.width + 4 * canvas.grid!.sizeY
+    );
+
+    const inRangeTargets: Set<LancerToken> = canvas.tokens!.quadtree!.getObjects(aabb, {
+      // @ts-expect-error Quadtree not set specific enough in types
+      collisionTest: (o: QuadtreeObject<LancerToken>) => {
+        //Ignore non-target tokens
+        if (o.t !== target?.target) return false;
+
+        //Not sure if the 0.1 is necessary?
+        const range = 3 + 0.1;
+        return o.t.document.computeRange(token.document) <= range;
+      },
+    }) as any;
+    return inRangeTargets.size >= 1;
   }
 }
