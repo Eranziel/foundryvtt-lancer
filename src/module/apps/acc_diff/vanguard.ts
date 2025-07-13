@@ -24,10 +24,10 @@ export default class Vanguard_1 implements AccDiffHudCheckboxPluginData {
   active: boolean = false;
 
   //Shared type requirements
-  static slug: string = "Handshake Etiquette";
-  slug: string = "Handshake Etiquette";
-  static category: "acc" | "diff" | "talentWindow" = "acc";
-  category: "acc" | "diff" | "talentWindow" = "acc";
+  static slug: string = "handshake-etiquette";
+  slug: string = "handshake-etiquette";
+  static category: "acc" | "diff" | "talentWindow" = "talentWindow";
+  category: "acc" | "diff" | "talentWindow" = "talentWindow";
   humanLabel: string = "Handshake Etiquette (+1)";
 
   //AccDiffHudPlugin requirements

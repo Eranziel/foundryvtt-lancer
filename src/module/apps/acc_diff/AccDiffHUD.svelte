@@ -32,18 +32,12 @@
   import Vanguard_1 from "./vanguard";
 
   export let talents: AccDiffHudTalents;
-  console.log("TALENTS:");
-  console.log(talents);
   export let weapon: AccDiffHudWeapon;
   export let base: AccDiffHudBase;
   export let targets: AccDiffHudTarget[];
   export let title: string;
   export let lancerItem: LancerItem | null;
   export let lancerActor: LancerActor | null;
-
-  let total = targets[0].total;
-  $: total = targets[0].total;
-  console.log(total);
   export let kind: "hase" | "attack";
 
   // tell svelte of externally computed dependency arrows
@@ -61,8 +55,6 @@
     targets.length === 1 ? Object.values(targets[0].plugins).filter(plugin => plugin.category === "acc") : [];
   $: diffTargetPlugins =
     targets.length === 1 ? Object.values(targets[0].plugins).filter(plugin => plugin.category === "diff") : [];
-
-  $: console.log(targets);
 
   const dispatch = createEventDispatcher();
   let submitted = false;
@@ -197,14 +189,14 @@
     return lancerItem?.rangesFor([RangeType.Blast, RangeType.Burst, RangeType.Cone, RangeType.Line]) ?? [];
   }
 
-  // function findTalents(): CheckmarkAccuracyTalents[] {
+  // function findTalents(): CheckmarkAccuracyTalent[] {
   //   if (!lancerActor?.is_mech()) return [];
 
   //   let pilotTalents = lancerActor?.system.pilot?.value?.items.filter(i => i.is_talent()).map(talent => talent.name);
   //   console.log(pilotTalents);
 
   //   // @ts-expect-error not sure why but accJson is wrapped in .default
-  //   let accCheckmarkTalents: CheckmarkAccuracyTalents[] = accJson.default;
+  //   let accCheckmarkTalents: CheckmarkAccuracyTalent[] = accJson.default;
   //   accCheckmarkTalents = accCheckmarkTalents.filter(accTalent => {
   //     return pilotTalents?.includes(accTalent.talentName);
   //   });
@@ -365,40 +357,6 @@
               {/if}
             </div>
           {/if}
-        </div>
-      </div>
-    {/if}
-
-    <!-- Talent Checkboxes -->
-    {#if talents.talents.length != 0}
-      <div class="accdiff-talent">
-        <label class="flexrow accdiff-weight lancer-border-primary">Talents</label>
-
-        <div transition:slide class="accdiff-grid accdiff-grid__section" style="width:100%;">
-          <div class="accdiff-grid__column">
-            {#each talents.talents as talent, idx}
-              <!-- Odd -->
-              {#if idx % 2 != 0}
-                <HudCheckbox
-                  label={`${talent.rankName} (${talent.acc_bonus.signedString()})`}
-                  bind:value={talent.active}
-                  tooltip={talent.description}
-                />
-              {/if}
-            {/each}
-          </div>
-          <div class="accdiff-grid__column">
-            {#each talents.talents as talent, idx}
-              <!-- Even -->
-              {#if idx % 2 == 0}
-                <HudCheckbox
-                  label={`${talent.rankName} (${talent.acc_bonus.signedString()})`}
-                  bind:value={talent.active}
-                  tooltip={talent.description}
-                />
-              {/if}
-            {/each}
-          </div>
         </div>
       </div>
     {/if}

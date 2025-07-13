@@ -2,6 +2,7 @@
     {
         "talentName": "Duelist",
         "rankName": "Partisan",
+        "rankSlug": "partisan",
         "description": "Gain +1 Accuracy on the first melee attack you make with a Main Melee weapon on your turn.",
         "acc_bonus": 1,
         "active": false
@@ -9,6 +10,7 @@
     {
         "talentName": "Gunslinger",
         "rankName": "Opening Argument",
+        "rankSlug": "opening-argument",
         "description": "Gain +1 Accuracy on the first attack roll you make with an Auxiliary ranged weapon on your turn.",
         "acc_bonus": 1,
         "active": false
@@ -16,7 +18,16 @@
     {
         "talentName": "Crack Shot",
         "rankName": "Stable, Steady",
+        "rankSlug": "stable-steady",
         "description": "As a protocol, you may steady your aim. If you do, you become Immobilized until the start of your next turn but gain +1 Accuracy on all attacks you make with Rifles.",
+        "acc_bonus": 1,
+        "active": false
+    },
+    {
+        "talentName": "Vanguard",
+        "rankName": "Handshake Etiquette",
+        "rankSlug": "handshake-etiquette",
+        "description": "Gain +1 Accuracy when using CQB weapons to attack targets within Range 3.",
         "acc_bonus": 1,
         "active": false
     }

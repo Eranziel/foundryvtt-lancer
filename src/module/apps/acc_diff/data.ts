@@ -96,9 +96,10 @@ export class AccDiffHudWeapon {
   }
 }
 
-class CheckmarkAccuracyTalents {
+export class CheckmarkAccuracyTalent {
   talentName: string;
   rankName: string;
+  rankSlug: string;
   description: string;
   acc_bonus: number;
   active: boolean;
@@ -107,6 +108,7 @@ class CheckmarkAccuracyTalents {
     return {
       talentName: t.string,
       rankName: t.string,
+      rankSlug: t.string,
       description: t.string,
       acc_bonus: t.number,
       active: t.boolean,
@@ -117,11 +119,12 @@ class CheckmarkAccuracyTalents {
     return t.type(this.schema);
   }
   static get codec() {
-    return enclass(this.schemaCodec, CheckmarkAccuracyTalents);
+    return enclass(this.schemaCodec, CheckmarkAccuracyTalent);
   }
-  constructor(obj: t.TypeOf<typeof CheckmarkAccuracyTalents.schemaCodec>) {
+  constructor(obj: t.TypeOf<typeof CheckmarkAccuracyTalent.schemaCodec>) {
     this.talentName = obj.talentName;
     this.rankName = obj.rankName;
+    this.rankSlug = obj.rankSlug;
     this.description = obj.description;
     this.acc_bonus = obj.acc_bonus;
     this.active = obj.active;
@@ -131,6 +134,7 @@ class CheckmarkAccuracyTalents {
     return {
       talentName: this.talentName,
       rankName: this.rankName,
+      rankSlug: this.rankSlug,
       description: this.description,
       acc_bonus: this.acc_bonus,
       active: this.active,
@@ -138,11 +142,11 @@ class CheckmarkAccuracyTalents {
   }
 }
 export class AccDiffHudTalents {
-  talents: CheckmarkAccuracyTalents[];
+  talents: CheckmarkAccuracyTalent[];
 
   static get schema() {
     return {
-      talents: t.array(CheckmarkAccuracyTalents.codec),
+      talents: t.array(CheckmarkAccuracyTalent.codec),
     };
   }
 
@@ -158,7 +162,7 @@ export class AccDiffHudTalents {
 
   hydrate(d: AccDiffHudData) {
     //Figure out applicable talents
-    let applicable_talents: CheckmarkAccuracyTalents[] = [];
+    let applicable_talents: CheckmarkAccuracyTalent[] = [];
     if (d.lancerActor?.is_mech() && d.lancerActor?.system.pilot?.value?.is_pilot()) {
       //THE lancer
       const pilot = d.lancerActor.system.pilot.value;
@@ -166,7 +170,7 @@ export class AccDiffHudTalents {
       let pilotTalents = pilot.items.filter(i => i.is_talent()).map(talent => talent.name);
 
       // @ts-expect-error not sure why but accJson is wrapped in .default
-      let accCheckmarkTalents: CheckmarkAccuracyTalents[] = accJson.default;
+      let accCheckmarkTalents: CheckmarkAccuracyTalent[] = accJson.default;
       accCheckmarkTalents = accCheckmarkTalents.filter(accTalent => {
         return pilotTalents?.includes(accTalent.talentName);
       });
@@ -181,6 +185,13 @@ export class AccDiffHudTalents {
     return {
       talents: this.talents,
     };
+  }
+
+  findWithSlug(slug: string): CheckmarkAccuracyTalent | undefined {
+    let searchedTalent = this.talents.find(talent => {
+      return talent.rankSlug === slug;
+    });
+    return searchedTalent;
   }
 }
 
