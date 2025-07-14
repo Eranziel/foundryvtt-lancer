@@ -22,7 +22,6 @@
   import { LancerToken } from "../../token";
   import AccDiffInput from "./AccDiffInput.svelte";
   import { SystemTemplates } from "../../system-template";
-  import Vanguard_1 from "./vanguard";
 
   export let weapon: AccDiffHudWeapon;
   export let base: AccDiffHudBase;
@@ -180,21 +179,6 @@
   function findRanges() {
     return lancerItem?.rangesFor([RangeType.Blast, RangeType.Burst, RangeType.Cone, RangeType.Line]) ?? [];
   }
-
-  // function findTalents(): CheckmarkAccuracyTalent[] {
-  //   if (!lancerActor?.is_mech()) return [];
-
-  //   let pilotTalents = lancerActor?.system.pilot?.value?.items.filter(i => i.is_talent()).map(talent => talent.name);
-  //   console.log(pilotTalents);
-
-  //   // @ts-expect-error not sure why but accJson is wrapped in .default
-  //   let accCheckmarkTalents: CheckmarkAccuracyTalent[] = accJson.default;
-  //   accCheckmarkTalents = accCheckmarkTalents.filter(accTalent => {
-  //     return pilotTalents?.includes(accTalent.talentName);
-  //   });
-
-  //   return accCheckmarkTalents;
-  // }
 
   function deployTemplate(range: WeaponRangeTemplate["range"]) {
     const creator = lancerItem?.parent;
