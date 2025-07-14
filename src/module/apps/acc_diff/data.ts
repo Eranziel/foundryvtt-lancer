@@ -11,7 +11,6 @@ import Vanguard_1 from "./plugins/vanguard";
 import { LancerToken } from "../../token";
 import { Tag } from "../../models/bits/tag";
 
-import * as accJson from "./checkmark_talents.json";
 import { FittingSize, WeaponType } from "../../enums";
 
 export enum Cover {
@@ -105,105 +104,6 @@ export class AccDiffHudWeapon {
       this.plugins[key].hydrate(d);
     }
     this.#data = d;
-  }
-}
-
-export class CheckmarkAccuracyTalent {
-  talentName: string;
-  rankName: string;
-  rankSlug: string;
-  description: string;
-  acc_bonus: number;
-  active: boolean;
-
-  static get schema() {
-    return {
-      talentName: t.string,
-      rankName: t.string,
-      rankSlug: t.string,
-      description: t.string,
-      acc_bonus: t.number,
-      active: t.boolean,
-    };
-  }
-
-  static get schemaCodec() {
-    return t.type(this.schema);
-  }
-  static get codec() {
-    return enclass(this.schemaCodec, CheckmarkAccuracyTalent);
-  }
-  constructor(obj: t.TypeOf<typeof CheckmarkAccuracyTalent.schemaCodec>) {
-    this.talentName = obj.talentName;
-    this.rankName = obj.rankName;
-    this.rankSlug = obj.rankSlug;
-    this.description = obj.description;
-    this.acc_bonus = obj.acc_bonus;
-    this.active = obj.active;
-  }
-
-  get raw() {
-    return {
-      talentName: this.talentName,
-      rankName: this.rankName,
-      rankSlug: this.rankSlug,
-      description: this.description,
-      acc_bonus: this.acc_bonus,
-      active: this.active,
-    };
-  }
-}
-export class AccDiffHudTalents {
-  talents: CheckmarkAccuracyTalent[];
-
-  static get schema() {
-    return {
-      talents: t.array(CheckmarkAccuracyTalent.codec),
-    };
-  }
-
-  static get schemaCodec() {
-    return t.type(this.schema);
-  }
-  static get codec() {
-    return enclass(this.schemaCodec, AccDiffHudTalents);
-  }
-  constructor(obj: t.TypeOf<typeof AccDiffHudTalents.schemaCodec>) {
-    this.talents = obj.talents;
-  }
-
-  hydrate(d: AccDiffHudData) {
-    //Figure out applicable talents
-    let applicable_talents: CheckmarkAccuracyTalent[] = [];
-    if (d.lancerActor?.is_mech() && d.lancerActor?.system.pilot?.value?.is_pilot()) {
-      //THE lancer
-      const pilot = d.lancerActor.system.pilot.value;
-
-      let pilotTalents = pilot.items.filter(i => i.is_talent()).map(talent => talent.name);
-
-      // @ts-expect-error not sure why but accJson is wrapped in .default
-      let accCheckmarkTalents: CheckmarkAccuracyTalent[] = accJson.default;
-      accCheckmarkTalents = accCheckmarkTalents.filter(accTalent => {
-        return pilotTalents?.includes(accTalent.talentName);
-      });
-
-      applicable_talents = accCheckmarkTalents;
-    }
-
-    this.talents = applicable_talents;
-  }
-
-  get raw() {
-    return {
-      talents: this.talents,
-    };
-  }
-
-  findWithSlug(slug: string): CheckmarkAccuracyTalent | undefined {
-    let searchedTalent = this.talents.find(talent => {
-      return talent.rankSlug === slug;
-    });
-    return searchedTalent;
   }
 }
 
@@ -393,7 +293,6 @@ export class AccDiffHudTarget {
 export type AccDiffHudDataSerialized = t.OutputOf<typeof AccDiffHudData.schemaCodec>;
 export class AccDiffHudData {
   title: string;
-  talents: AccDiffHudTalents;
   weapon: AccDiffHudWeapon;
   base: AccDiffHudBase;
   targets: AccDiffHudTarget[];
@@ -403,7 +302,6 @@ export class AccDiffHudData {
   static get schema() {
     return {
       title: t.string,
-      talents: AccDiffHudTalents.codec,
       weapon: AccDiffHudWeapon.codec,
       base: AccDiffHudBase.codec,
       targets: t.array(AccDiffHudTarget.codec),
@@ -419,7 +317,6 @@ export class AccDiffHudData {
 
   constructor(obj: t.TypeOf<typeof AccDiffHudData.schemaCodec>) {
     this.title = obj.title;
-    this.talents = obj.talents;
     this.weapon = obj.weapon;
     this.base = obj.base;
     this.targets = obj.targets;
@@ -434,7 +331,6 @@ export class AccDiffHudData {
       this.lancerActor = runtimeData ?? undefined;
     }
 
-    this.talents.hydrate(this);
     this.weapon.hydrate(this);
     this.base.hydrate(this);
     for (let target of this.targets) {
@@ -469,7 +365,6 @@ export class AccDiffHudData {
   get raw() {
     return {
       title: this.title,
-      talents: this.talents,
       weapon: this.weapon,
       base: this.base,
       targets: this.targets,
@@ -550,18 +445,8 @@ export class AccDiffHudData {
       plugins: {} as { [k: string]: any },
     };
 
-    let talents = new AccDiffHudTalents(
-      decode(
-        {
-          talents: [],
-        },
-        AccDiffHudTalents.codec
-      )
-    );
-
     let obj: AccDiffHudDataSerialized = {
       title: title ? title : "Accuracy and Difficulty",
-      talents,
       weapon,
       base,
       targets: (targets || []).map(t => {

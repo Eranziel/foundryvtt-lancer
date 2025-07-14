@@ -18,14 +18,16 @@ import { AccDiffHudCheckboxPluginData, AccDiffHudPluginCodec } from "./plugin";
 import { enclass } from "../serde";
 import { LancerToken } from "../../../token";
 import { WeaponType } from "../../../enums";
+import { slugify } from "../../../util/lid";
 
 export default class Vanguard_1 implements AccDiffHudCheckboxPluginData {
   //Plugin state
   active: boolean = false;
 
   //Shared type requirements
-  static slug: string = "handshake-etiquette";
-  slug: string = "handshake-etiquette";
+  //slugify here to make sure the slug is same across this plugin and TalentWindow.svelte
+  static slug: string = slugify("Handshake Etiquette", "-");
+  slug: string = slugify("Handshake Etiquette", "-");
   static category: "acc" | "diff" | "talentWindow" = "talentWindow";
   category: "acc" | "diff" | "talentWindow" = "talentWindow";
   humanLabel: string = "Handshake Etiquette (+1)";

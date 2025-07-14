@@ -1,5 +1,5 @@
 export type { AccDiffHudDataSerialized } from "./data";
-export { Cover, AccDiffHudTalents, AccDiffHudWeapon, AccDiffHudBase, AccDiffHudTarget, AccDiffHudData } from "./data";
+export { Cover, AccDiffHudWeapon, AccDiffHudBase, AccDiffHudTarget, AccDiffHudData } from "./data";
 export type {
   CheckboxUI,
   NoUI,
