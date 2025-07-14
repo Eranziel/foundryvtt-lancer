@@ -1,5 +1,6 @@
 import { LancerActor } from "../actor/lancer-actor";
 import { LANCER } from "../config";
+import { slugify } from "./lid";
 
 /**
  * Watches for exact changes in its payload, detected by monitoring changes int its payload is stringified to JSON
@@ -131,4 +132,23 @@ export async function tokenScrollText(
   if (!(await game.settings.get(game.system.id, LANCER.setting_floating_damage_numbers))) return;
   // @ts-expect-error v11 types
   await canvas.interface.createScrollingText(token.center, content, style);
+}
+
+//Used to check actor may use talent
+//Perhaps should be LancerPILOT method
+export function isTalentAvailable(actor: LancerActor | undefined, talentSlug: string): boolean {
+  if (!actor?.is_mech() || !actor.system.pilot?.value?.is_pilot()) return false;
+
+  let talents = actor.system.pilot.value.items.filter(i => i.is_talent());
+
+  //Go through the slugs of all the available talent ranks
+  for (const talent of talents) {
+    let rank_num = talent.system.curr_rank;
+    for (let i = 0; i < rank_num; i++) {
+      const rank_name = talent.system.ranks[i].name;
+      if (slugify(rank_name, "-") === talentSlug) return true;
+    }
+  }
+
+  return false;
 }

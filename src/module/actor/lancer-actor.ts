@@ -34,6 +34,7 @@ import { BurnFlow } from "../flows/burn";
 import { createChatMessageStep } from "../flows/_render";
 import { DamageRollFlow } from "../flows/damage";
 import { type DatabaseDeleteOperation } from "@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/abstract/_types.mjs";
+import { slugify } from "../util/lid";
 
 const lp = LANCER.log_prefix;
 
@@ -1195,8 +1196,29 @@ export class LancerActor extends Actor {
   }
 }
 
+export class LancerPILOT extends LancerActor {
+  // @ts-expect-error - Foundry initializes this.
+  system: SystemData.Pilot;
+
+  //Used to check actor may use talent
+  isTalentAvailable(talentSlug: string): boolean {
+    let talents = this.items.filter(i => i.is_talent());
+
+    //Go through the slugs of all the available talent ranks
+    for (const talent of talents) {
+      let rank_num = talent.system.curr_rank;
+      for (let i = 0; i < rank_num; i++) {
+        const rank_name = talent.system.ranks[i].name;
+        if (slugify(rank_name, "-") === talentSlug) return true;
+      }
+    }
+
+    return false;
+  }
+}
+
 // Typeguards
-export type LancerPILOT = LancerActor & { system: SystemData.Pilot };
+// export type LancerPILOT = LancerActor & { system: SystemData.Pilot };
 export type LancerMECH = LancerActor & { system: SystemData.Mech };
 export type LancerNPC = LancerActor & { system: SystemData.Npc };
 export type LancerDEPLOYABLE = LancerActor & { system: SystemData.Deployable };

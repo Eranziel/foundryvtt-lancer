@@ -114,7 +114,7 @@
       />
     </div>
     <div class="talent-component grid-enforcement" transition:slide>
-      <TalentWindow targets={huds[key].data.targets} actor={huds[key].data.lancerActor} />
+      <TalentWindow targets={huds[key].data.targets} />
     </div>
   {/each}
 </div>

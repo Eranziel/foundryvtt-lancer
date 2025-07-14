@@ -19,6 +19,7 @@ import { enclass } from "../serde";
 import { LancerToken } from "../../../token";
 import { WeaponType } from "../../../enums";
 import { slugify } from "../../../util/lid";
+import { isTalentAvailable } from "../../../util/misc";
 
 export default class Vanguard_1 implements AccDiffHudCheckboxPluginData {
   //Plugin state
@@ -65,8 +66,9 @@ export default class Vanguard_1 implements AccDiffHudCheckboxPluginData {
 
     console.log("BEING SET, active = " + this.active);
   }
-  //this talent is always visible but disabled unless conditions are satisfied
-  readonly visible = true;
+  // this talent is only visible when the owner has talent
+  // only enabled if conditions are satisfied
+  visible = false;
   disabled = true;
 
   //RollModifier requirements
@@ -83,10 +85,12 @@ export default class Vanguard_1 implements AccDiffHudCheckboxPluginData {
   hydrate(data: AccDiffHudData, target?: AccDiffHudTarget) {
     //Figure out whether we are in a Handshake Etiquette situation
     this.active = this.handshake(data, target);
+    this.visible = this.active;
     this.disabled = !this.active;
   }
 
   //perTarget because we have to know where the token is
+  //Perhaps don't initialize at all if talent not applicable?
   static perTarget(item: Token): Vanguard_1 {
     let ret = new Vanguard_1();
     return ret;
@@ -94,13 +98,13 @@ export default class Vanguard_1 implements AccDiffHudCheckboxPluginData {
 
   //The unique logic of the talent
   handshake(data: AccDiffHudData, target?: AccDiffHudTarget) {
-    //Talent only applies to CQB
-    if (data.weapon.weaponType !== WeaponType.CQB) {
-      return false;
-    }
+    console.log(data);
 
-    // only players can benefit from talent
-    if (!data.lancerActor!.is_mech()) {
+    // Check if actor has talent
+    if (!isTalentAvailable(data.lancerActor, this.slug)) return false;
+
+    // Talent only applies to CQB
+    if (data.weapon.weaponType !== WeaponType.CQB) {
       return false;
     }
 
