@@ -104,10 +104,23 @@ export default class Vanguard_1 implements AccDiffHudCheckboxPluginData {
       return false;
     }
 
+    const range = 3;
     let areTargetsNearby = data
       .lancerActor!.getActiveTokens()[0]
-      .areTargetsInRange(3, (o: QuadtreeObject<LancerToken>) => {
-        return o.t === target?.target;
+      .areTargetsInRange(range, (o: QuadtreeObject<LancerToken>, distance: number) => {
+        //If not the target, invalid
+        if (o.t !== target?.target) {
+          return false;
+        }
+
+        console.log(distance);
+
+        //If not in range, invalid
+        if (distance > range) {
+          return false;
+        }
+
+        return true;
       });
     return areTargetsNearby;
   }

@@ -13,27 +13,23 @@ function adjacentSpotter(actor: LancerActor): boolean {
 
   let token: LancerToken = actor.getActiveTokens()[0];
 
-  // Rough bounding box with allowance for hg1
-  const aabb = new PIXI.Rectangle(
-    token.bounds.x - 2 * canvas.grid!.sizeX,
-    token.bounds.y - 2 * canvas.grid!.sizeY,
-    token.bounds.height + 4 * canvas.grid!.sizeX,
-    token.bounds.width + 4 * canvas.grid!.sizeY
-  );
-
-  const spotters: Set<LancerToken> = canvas.tokens!.quadtree!.getObjects(aabb, {
-    // @ts-expect-error Quadtree not set specific enough in types
-    collisionTest: (o: QuadtreeObject<LancerToken>) => {
+  let isSpotterNearby = actor
+    .getActiveTokens()[0]
+    //maxRange: 2 as opposed to 1 due to House Guard 1
+    .areTargetsInRange(2, (o: QuadtreeObject<LancerToken>, distance: number) => {
       if (!o.t.actor?.is_mech() || o.t === token) return false;
       if (!o.t.actor.system.pilot?.value?.itemTypes.talent.some(t => t.system.lid === "t_spotter")) return false;
+
       const house_guard: boolean =
         o.t.actor.system.pilot?.value?.itemTypes.talent.some(t => t.system.lid === "t_house_guard") ?? false;
       const range = (house_guard ? 2 : 1) + 0.1;
-      console.log("SPOTTER DISTANCE: " + o.t.document.computeRange(token.document));
-      return o.t.document.computeRange(token.document) <= range;
-    },
-  }) as any;
-  return spotters.size >= 1;
+
+      //If not in range, invalid
+      if (distance > range) return false;
+
+      return true;
+    });
+  return isSpotterNearby;
 }
 
 //Ought to rename to spotter_1
