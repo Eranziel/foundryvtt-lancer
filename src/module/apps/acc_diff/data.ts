@@ -285,13 +285,6 @@ export class AccDiffHudTarget {
     let lockon = this.usingLockOn ? 1 : 0;
     let prone = this.prone ? 1 : 0;
 
-    console.log("BASE BONUS: " + base);
-    console.log("PLUGIN BONUS: " + pluginBonus);
-    console.log(Object.values(this.plugins));
-    console.log("RAW BONUS: " + raw);
-    console.log("LOCKON BONUS: " + lockon);
-    console.log("PRONE BONUS: " + prone);
-
     return raw + lockon + prone + pluginBonus;
   }
 }

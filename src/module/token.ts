@@ -230,16 +230,15 @@ export class LancerToken extends Token {
     maxRange: number,
     callback: (o: QuadtreeObject<LancerToken>, distance: number) => boolean
   ): boolean {
+    maxRange -= 1;
     // Rough bounding box in which the hexes/squares will be searched
-    // Needs to be adjusted based on range, perhaps have a function
-
-    // From testing it seems that it goes to one hex further than necessary,
+    // From testing it seems that it goes to one hex further than necessary in the corners
     // perhaps narrow it for performance
     const aabb = new PIXI.Rectangle(
-      this.bounds.x - 2 * canvas.grid!.sizeX,
-      this.bounds.y - 2 * canvas.grid!.sizeY,
-      this.bounds.height + 4 * canvas.grid!.sizeX,
-      this.bounds.width + 4 * canvas.grid!.sizeY
+      this.bounds.x - maxRange * canvas.grid!.sizeX,
+      this.bounds.y - maxRange * canvas.grid!.sizeY,
+      this.bounds.height + maxRange * 2 * canvas.grid!.sizeX,
+      this.bounds.width + maxRange * 2 * canvas.grid!.sizeY
     );
 
     const inRangeTargets: Set<LancerToken> = canvas.tokens!.quadtree!.getObjects(aabb, {

@@ -98,31 +98,21 @@ export default class Vanguard_1 implements AccDiffHudCheckboxPluginData {
 
   //The unique logic of the talent
   handshake(data: AccDiffHudData, target?: AccDiffHudTarget) {
-    console.log(data);
-
     // Check if actor has talent
     if (!isTalentAvailable(data.lancerActor, this.slug)) return false;
 
     // Talent only applies to CQB
-    if (data.weapon.weaponType !== WeaponType.CQB) {
-      return false;
-    }
+    if (data.weapon.weaponType !== WeaponType.CQB) return false;
 
     const range = 3;
     let areTargetsNearby = data
       .lancerActor!.getActiveTokens()[0]
       .areTargetsInRange(range, (o: QuadtreeObject<LancerToken>, distance: number) => {
         //If not the target, invalid
-        if (o.t !== target?.target) {
-          return false;
-        }
-
-        console.log(distance);
+        if (o.t !== target?.target) return false;
 
         //If not in range, invalid
-        if (distance > range) {
-          return false;
-        }
+        if (distance > range) return false;
 
         return true;
       });
