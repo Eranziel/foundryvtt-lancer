@@ -280,11 +280,17 @@ export class AccDiffHudTarget {
       (a: number, b: AccDiffHudPluginData) => a + b.accBonus,
       0
     );
-    console.log("PLUGIN BONUS: " + pluginBonus);
     // the only thing we actually use base for is the untyped bonuses
     let raw = base + this.#base.accuracy - this.#base.difficulty;
     let lockon = this.usingLockOn ? 1 : 0;
     let prone = this.prone ? 1 : 0;
+
+    console.log("BASE BONUS: " + base);
+    console.log("PLUGIN BONUS: " + pluginBonus);
+    console.log(Object.values(this.plugins));
+    console.log("RAW BONUS: " + raw);
+    console.log("LOCKON BONUS: " + lockon);
+    console.log("PRONE BONUS: " + prone);
 
     return raw + lockon + prone + pluginBonus;
   }
