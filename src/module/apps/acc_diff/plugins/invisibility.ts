@@ -1,8 +1,8 @@
 import * as t from "io-ts";
-import { LancerActor } from "../../actor/lancer-actor";
+import { LancerActor } from "../../../actor/lancer-actor";
 import { AccDiffHudPlugin, AccDiffHudCheckboxPluginData, AccDiffHudPluginCodec } from "./plugin";
-import { AccDiffHudData, AccDiffHudTarget } from "./index";
-import { enclass } from "./serde";
+import { AccDiffHudData, AccDiffHudTarget } from "../index";
+import { enclass } from "../serde";
 
 // you don't need to explicitly type the serialized data,
 // but if you do then io-ts codecs can do strong checks at runtime
@@ -67,6 +67,7 @@ export default class Invisibility implements AccDiffHudCheckboxPluginData {
   humanLabel: string = "Invisible (*)";
   category: "acc" | "diff" | "talentWindow" = "diff";
   static category: "acc" | "diff" | "talentWindow" = "diff";
+  tooltip: string | null = null;
 
   // our uiState is whether we're treating the current target as invisible
   get uiState() {

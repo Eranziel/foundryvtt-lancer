@@ -1,17 +1,17 @@
 import * as t from "io-ts";
 
 import type { LancerActor } from "../../actor/lancer-actor";
-import type { AccDiffHudPlugin, AccDiffHudPluginData, AccDiffHudPluginCodec } from "./plugin";
+import type { AccDiffHudPlugin, AccDiffHudPluginData, AccDiffHudPluginCodec } from "./plugins/plugin";
 import { enclass, encode, decode } from "./serde";
 import { LancerItem } from "../../item/lancer-item";
 
-import Invisibility from "./invisibility";
-import Spotter from "./spotter";
+import Invisibility from "./plugins/invisibility";
+import Spotter from "./plugins/spotter";
+import Vanguard_1 from "./plugins/vanguard";
 import { LancerToken } from "../../token";
 import { Tag } from "../../models/bits/tag";
 
 import * as accJson from "./checkmark_talents.json";
-import Vanguard_1 from "./vanguard";
 import { FittingSize, WeaponType } from "../../enums";
 
 export enum Cover {

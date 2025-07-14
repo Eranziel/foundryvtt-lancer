@@ -1,8 +1,8 @@
 import type * as t from "io-ts";
-import { LancerItem } from "../../item/lancer-item";
-import { LancerActor } from "../../actor/lancer-actor";
+import { LancerItem } from "../../../item/lancer-item";
+import { LancerActor } from "../../../actor/lancer-actor";
 
-import type { AccDiffData } from "./index";
+import type { AccDiffData } from "../index";
 
 // Implementing a plugin means implementing
 // * a data object that can compute its view behaviour,
@@ -16,6 +16,7 @@ declare interface CheckboxUI {
   uiElement: "checkbox" = "checkbox";
   slug: string;
   humanLabel: string;
+  tooltip: string | null;
   get uiState(): boolean;
   set uiState(data: boolean): this;
   get disabled(): boolean;

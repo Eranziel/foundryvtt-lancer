@@ -13,16 +13,14 @@
 // get rollPrecedence(): number; // higher numbers happen earlier
 
 import * as t from "io-ts";
-import { AccDiffHudData, AccDiffHudTalents, AccDiffHudTarget } from "./data";
+import { AccDiffHudData, AccDiffHudTarget } from "../data";
 import { AccDiffHudCheckboxPluginData, AccDiffHudPluginCodec } from "./plugin";
-import { enclass } from "./serde";
-import { LancerToken } from "../../token";
-import { WeaponType } from "../../enums";
+import { enclass } from "../serde";
+import { LancerToken } from "../../../token";
+import { WeaponType } from "../../../enums";
 
 export default class Vanguard_1 implements AccDiffHudCheckboxPluginData {
   //Plugin state
-  target: AccDiffHudTarget | null = null;
-  talents: AccDiffHudTalents | null = null;
   active: boolean = false;
 
   //Shared type requirements
@@ -31,12 +29,11 @@ export default class Vanguard_1 implements AccDiffHudCheckboxPluginData {
   static category: "acc" | "diff" | "talentWindow" = "talentWindow";
   category: "acc" | "diff" | "talentWindow" = "talentWindow";
   humanLabel: string = "Handshake Etiquette (+1)";
+  tooltip: string = "Gain +1 Accuracy when using CQB weapons to attack targets within Range 3.";
 
   //AccDiffHudPlugin requirements
   static get schema() {
     return {
-      target: t.union([AccDiffHudTarget.codec, t.null]),
-      talents: t.union([AccDiffHudTalents.codec, t.null]),
       active: t.boolean,
     };
   }
@@ -49,8 +46,6 @@ export default class Vanguard_1 implements AccDiffHudCheckboxPluginData {
   }
   get raw() {
     return {
-      target: this.target,
-      talents: this.talents,
       active: this.active,
     };
   }
@@ -84,9 +79,6 @@ export default class Vanguard_1 implements AccDiffHudCheckboxPluginData {
 
   //Dehydrated requirements
   hydrate(data: AccDiffHudData, target?: AccDiffHudTarget) {
-    this.talents = data.talents;
-    this.target = target || null;
-
     //Figure out whether we are in a Handshake Etiquette situation
     this.active = this.handshake(data, target);
     this.disabled = !this.active;
@@ -112,6 +104,7 @@ export default class Vanguard_1 implements AccDiffHudCheckboxPluginData {
     let token: LancerToken = data.lancerActor!.getActiveTokens()[0];
 
     // Rough bounding box in which the hexes/squares will be searched
+    // Needs to be adjusted based on range, perhaps have a function
     const aabb = new PIXI.Rectangle(
       token.bounds.x - 2 * canvas.grid!.sizeX,
       token.bounds.y - 2 * canvas.grid!.sizeY,

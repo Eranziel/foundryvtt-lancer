@@ -1,10 +1,8 @@
-import { stateless } from "./serde";
+import { stateless } from "../serde";
 import type { AccDiffHudPlugin, AccDiffHudPluginData } from "./plugin";
-import type { AccDiffHudData, AccDiffHudTarget } from "./index";
-import type { LancerActor, LancerMECH, LancerPILOT } from "../../actor/lancer-actor";
-import type { LancerToken } from "../../token";
-import { LancerTALENT } from "../../item/lancer-item";
-import type BaseGrid from "@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/grid/base.mjs";
+import type { AccDiffHudData, AccDiffHudTarget } from "../index";
+import type { LancerActor } from "../../../actor/lancer-actor";
+import type { LancerToken } from "../../../token";
 
 // this is an example of a case implemented without defining a full class
 function adjacentSpotter(actor: LancerActor): boolean {
@@ -38,6 +36,7 @@ function adjacentSpotter(actor: LancerActor): boolean {
   return spotters.size >= 1;
 }
 
+//Ought to rename to spotter_1
 function spotter(): AccDiffHudPluginData {
   let sp = {
     actor: null as LancerActor | null,
@@ -47,6 +46,8 @@ function spotter(): AccDiffHudPluginData {
     category: "acc" as "acc",
     humanLabel: "Spotter (*)",
     accBonus: 0,
+    tooltip:
+      "When an allied character adjacent to the Spotter attacks a target and consumes Lock On, they may roll twice and choose either result.",
     get uiState() {
       return !!(this.actor && this.target?.usingLockOn && adjacentSpotter(this.actor));
     },
