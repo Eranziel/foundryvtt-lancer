@@ -94,6 +94,7 @@ export default class Vanguard_1 implements AccDiffHudCheckboxPluginData {
 
   //The unique logic of the talent
   handshake(data: AccDiffHudData, target?: AccDiffHudTarget) {
+    //Talent only applies to CQB
     if (data.weapon.weaponType !== WeaponType.CQB) {
       return false;
     }
@@ -103,28 +104,11 @@ export default class Vanguard_1 implements AccDiffHudCheckboxPluginData {
       return false;
     }
 
-    let token: LancerToken = data.lancerActor!.getActiveTokens()[0];
-
-    // Rough bounding box in which the hexes/squares will be searched
-    // Needs to be adjusted based on range, perhaps have a function
-    const aabb = new PIXI.Rectangle(
-      token.bounds.x - 2 * canvas.grid!.sizeX,
-      token.bounds.y - 2 * canvas.grid!.sizeY,
-      token.bounds.height + 4 * canvas.grid!.sizeX,
-      token.bounds.width + 4 * canvas.grid!.sizeY
-    );
-
-    const inRangeTargets: Set<LancerToken> = canvas.tokens!.quadtree!.getObjects(aabb, {
-      // @ts-expect-error Quadtree not set specific enough in types
-      collisionTest: (o: QuadtreeObject<LancerToken>) => {
-        //Ignore non-target tokens
-        if (o.t !== target?.target) return false;
-
-        //Not sure if the 0.1 is necessary?
-        const range = 3 + 0.1;
-        return o.t.document.computeRange(token.document) <= range;
-      },
-    }) as any;
-    return inRangeTargets.size >= 1;
+    let areTargetsNearby = data
+      .lancerActor!.getActiveTokens()[0]
+      .areTargetsInRange(3, (o: QuadtreeObject<LancerToken>) => {
+        return o.t === target?.target;
+      });
+    return areTargetsNearby;
   }
 }
