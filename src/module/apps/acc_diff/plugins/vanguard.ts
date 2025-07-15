@@ -69,7 +69,7 @@ export default class Vanguard_1 implements AccDiffHudCheckboxPluginData {
   // this talent is only visible when the owner has talent
   // only enabled if conditions are satisfied
   visible = false;
-  disabled = true;
+  disabled = false;
 
   //RollModifier requirements
   //We do nothing to modify the roll
@@ -83,10 +83,12 @@ export default class Vanguard_1 implements AccDiffHudCheckboxPluginData {
 
   //Dehydrated requirements
   hydrate(data: AccDiffHudData, target?: AccDiffHudTarget) {
+    // Check if actor has talent
+    if (!isTalentAvailable(data.lancerActor, this.slug)) return;
+
     //Figure out whether we are in a Handshake Etiquette situation
     this.active = this.handshake(data, target);
-    this.visible = this.active;
-    this.disabled = !this.active;
+    this.visible = true;
   }
 
   //perTarget because we have to know where the token is
@@ -98,9 +100,6 @@ export default class Vanguard_1 implements AccDiffHudCheckboxPluginData {
 
   //The unique logic of the talent
   handshake(data: AccDiffHudData, target?: AccDiffHudTarget) {
-    // Check if actor has talent
-    if (!isTalentAvailable(data.lancerActor, this.slug)) return false;
-
     // Talent only applies to CQB
     if (data.weapon.weaponType !== WeaponType.CQB) return false;
 
