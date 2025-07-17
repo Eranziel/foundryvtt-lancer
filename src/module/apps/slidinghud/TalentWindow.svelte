@@ -20,7 +20,7 @@
       <div class="talent-column">
         {#each visibleTalents as plugin, idx}
           <!-- Odd -->
-          {#if idx + (1 % 2) != 0}
+          {#if (idx + 1) % 2 != 0}
             <Plugin data={plugin} tooltip={plugin.tooltip} />
           {/if}
         {/each}
@@ -29,7 +29,7 @@
         <div class="talent-column">
           {#each visibleTalents as plugin, idx}
             <!-- Even -->
-            {#if idx + (1 % 2) == 0}
+            {#if (idx + 1) % 2 == 0}
               <Plugin data={plugin} tooltip={plugin.tooltip} />
             {/if}
           {/each}

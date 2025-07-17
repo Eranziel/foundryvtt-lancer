@@ -7,18 +7,19 @@ import { WeaponType } from "../../../enums";
 import { slugify } from "../../../util/lid";
 import { isTalentAvailable } from "../../../util/misc";
 
-export default class Vanguard_1 implements AccDiffHudCheckboxPluginData {
+export default class Brawler_1 implements AccDiffHudCheckboxPluginData {
   //Plugin state
   active: boolean = false;
 
   //Shared type requirements
   //slugify here to make sure the slug is same across this plugin and TalentWindow.svelte
-  static slug: string = slugify("Handshake Etiquette", "-");
-  slug: string = slugify("Handshake Etiquette", "-");
+  //Alternatively could use lid and rank_num
+  static slug: string = slugify("Hold and Lock", "-");
+  slug: string = slugify("Hold and Lock", "-");
   static category: "acc" | "diff" | "talentWindow" = "talentWindow";
   category: "acc" | "diff" | "talentWindow" = "talentWindow";
-  humanLabel: string = "Handshake Etiquette (+1)";
-  tooltip: string = "Gain +1 Accuracy when using CQB weapons to attack targets within Range 3.";
+  humanLabel: string = "Hold and Lock (+1)";
+  tooltip: string = "You gain +1 Accuracy on all melee attacks against targets YOU are Grappling.";
 
   //AccDiffHudPlugin requirements
   static get schema() {
@@ -30,8 +31,8 @@ export default class Vanguard_1 implements AccDiffHudCheckboxPluginData {
     return t.type(this.schema);
   }
   // the codec lets us know how to persist whatever data you need for rerolls
-  static get codec(): AccDiffHudPluginCodec<Vanguard_1, unknown, unknown> {
-    return enclass(this.schemaCodec, Vanguard_1);
+  static get codec(): AccDiffHudPluginCodec<Brawler_1, unknown, unknown> {
+    return enclass(this.schemaCodec, Brawler_1);
   }
   get raw() {
     return {
@@ -73,34 +74,27 @@ export default class Vanguard_1 implements AccDiffHudCheckboxPluginData {
     if (!isTalentAvailable(data.lancerActor, this.slug)) return;
 
     //Figure out whether we are in a Handshake Etiquette situation
-    this.active = this.handshake(data, target);
+    this.active = this.holdAndLock(data, target);
     this.visible = true;
   }
 
   //perTarget because we have to know where the token is
   //Perhaps don't initialize at all if talent not applicable?
-  static perTarget(item: Token): Vanguard_1 {
-    let ret = new Vanguard_1();
+  static perTarget(item: Token): Brawler_1 {
+    let ret = new Brawler_1();
     return ret;
   }
 
   //The unique logic of the talent
-  handshake(data: AccDiffHudData, target?: AccDiffHudTarget) {
-    // Talent only applies to CQB
-    if (data.weapon.weaponType !== WeaponType.CQB) return false;
+  holdAndLock(data: AccDiffHudData, target?: AccDiffHudTarget) {
+    // Talent only applies to grappled targets
+    // A brawler targeting somebody that isn't grappled by themselves still benefits.
+    // Not aware of how it can be avoided, short of detecting other tokens nearby and
+    // then not enabling the option by default. (or something elaborate)
+    if (!target?.target.actor?.system.statuses.grappled) return false;
 
-    const range = 3;
-    let areTargetsNearby = data
-      .lancerActor!.getActiveTokens()[0]
-      .areTargetsInRange(range, (o: QuadtreeObject<LancerToken>, distance: number) => {
-        //If not the target, invalid
-        if (o.t !== target?.target) return false;
+    if (data.weapon.weaponType !== WeaponType.Melee) return false;
 
-        //If not in range, invalid
-        if (distance > range) return false;
-
-        return true;
-      });
-    return areTargetsNearby;
+    return true;
   }
 }

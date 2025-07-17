@@ -12,6 +12,7 @@ import { LancerToken } from "../../token";
 import { Tag } from "../../models/bits/tag";
 
 import { FittingSize, WeaponType } from "../../enums";
+import Brawler_1 from "./plugins/brawler";
 
 export enum Cover {
   None = 0,
@@ -491,3 +492,4 @@ export class AccDiffHudData {
 AccDiffHudData.registerPlugin(Invisibility);
 AccDiffHudData.registerPlugin(Spotter);
 AccDiffHudData.registerPlugin(Vanguard_1);
+AccDiffHudData.registerPlugin(Brawler_1);
