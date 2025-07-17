@@ -6,6 +6,7 @@ import { LancerToken } from "../../../token";
 import { WeaponType } from "../../../enums";
 import { slugify } from "../../../util/lid";
 import { isTalentAvailable } from "../../../util/misc";
+import { LancerCombatant } from "../../../combat/lancer-combat";
 
 export default class Brawler_1 implements AccDiffHudCheckboxPluginData {
   //Plugin state
@@ -50,7 +51,6 @@ export default class Brawler_1 implements AccDiffHudCheckboxPluginData {
   }
   set uiState(data: boolean) {
     this.active = data;
-
     console.log("BEING SET, active = " + this.active);
   }
   // this talent is only visible when the owner has talent
@@ -81,6 +81,10 @@ export default class Brawler_1 implements AccDiffHudCheckboxPluginData {
   //perTarget because we have to know where the token is
   //Perhaps don't initialize at all if talent not applicable?
   static perTarget(item: Token): Brawler_1 {
+    console.log(item.combatant?.combat);
+    // console.log(item.combatant?.combat?.getFlag(game.system.id, "history"));
+    // console.log(foundry.utils.getProperty(item.actor?.getRollData() ?? {}, "history"));
+
     let ret = new Brawler_1();
     return ret;
   }

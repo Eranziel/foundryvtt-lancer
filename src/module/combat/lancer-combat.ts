@@ -1,3 +1,5 @@
+import { LancerCombatHistory } from "./lancer-combat-history";
+
 /**
  * Overrides and extends the Combat class to use an activation model instead of
  * the standard ordered list of turns. {@link LancerCombat#activateCombatant}
@@ -14,7 +16,7 @@ export class LancerCombat extends Combat {
   protected override async _preCreate(
     ...[data, options, user]: Parameters<Combat["_preCreate"]>
   ): Promise<boolean | void> {
-    this.updateSource({ turn: null });
+    this.updateSource({ turn: null, [`flags.${game.system.id}.history`]: new LancerCombatHistory() });
     return super._preCreate(data, options, user);
   }
 
@@ -41,7 +43,12 @@ export class LancerCombat extends Combat {
 
   override async startCombat(): Promise<this> {
     this._playCombatSound("startEncounter");
-    const updateData = { round: 1, turn: null };
+
+    //The methods seem to be stripped off in the process, so this is necessary to access them
+    let newHistory = new LancerCombatHistory(this.flags.lancer.history.rounds);
+    newHistory.newRound();
+
+    const updateData = { round: 1, turn: null, [`flags.${game.system.id}.history`]: newHistory };
     Hooks.callAll("combatStart", this, updateData);
     await this.resetActivations();
     await this.update(updateData);
@@ -50,7 +57,11 @@ export class LancerCombat extends Combat {
 
   override async nextRound(): Promise<this> {
     await this.resetActivations();
-    const updateData = { round: this.round + 1, turn: null };
+
+    let newHistory = new LancerCombatHistory(this.flags.lancer.history.rounds);
+    newHistory.newRound();
+
+    const updateData = { round: this.round + 1, turn: null, [`flags.${game.system.id}.history`]: newHistory };
     let advanceTime = Math.max(this.turns.length - (this.turn || 0), 0) * CONFIG.time.turnTime;
     advanceTime += CONFIG.time.roundTime;
     const updateOptions = { advanceTime, direction: 1 };
@@ -75,7 +86,11 @@ export class LancerCombat extends Combat {
     const round = Math.max(this.round - 1, 0);
     let advanceTime = 0;
     if (round > 0) advanceTime -= CONFIG.time.roundTime;
-    const updateData = { round, turn: null };
+
+    let newHistory = new LancerCombatHistory(this.flags.lancer.history.rounds);
+    newHistory.undoRound();
+
+    const updateData = { round, turn: null, [`flags.${game.system.id}.history`]: newHistory };
     const updateOptions = { advanceTime, direction: -1 };
     Hooks.callAll("combatRound", this, updateData, updateOptions);
     await this.update(updateData, updateOptions as any);
@@ -87,9 +102,13 @@ export class LancerCombat extends Combat {
    */
   override async previousTurn() {
     if (this.turn === null) return this;
-    const updateData = { turn: null };
-    const updateOptions = { advanceTime: -CONFIG.time.turnTime, direction: -1 };
     await this.combatant?.modifyCurrentActivations(1);
+
+    let newHistory = new LancerCombatHistory(this.flags.lancer.history.rounds);
+    newHistory.undoTurn(this.combatant);
+
+    const updateData = { turn: null, [`flags.${game.system.id}.history`]: newHistory };
+    const updateOptions = { advanceTime: -CONFIG.time.turnTime, direction: -1 };
     Hooks.callAll("combatTurn", this, updateData, updateOptions);
     await this.update(updateData, updateOptions as any);
     return this;
@@ -121,8 +140,12 @@ export class LancerCombat extends Combat {
     const combatant = <LancerCombatant | undefined>this.getEmbeddedDocument("Combatant", id, {});
     if (!combatant?.activations.value) return this;
     await combatant?.modifyCurrentActivations(-1);
+
+    let newHistory = new LancerCombatHistory(this.flags.lancer.history.rounds);
+    newHistory.newTurn(combatant);
+
     const turn = this.turns.findIndex(t => t.id === id);
-    const updateData = { turn };
+    const updateData = { turn, [`flags.${game.system.id}.history`]: newHistory };
     const updateOptions = { advanceTime: CONFIG.time.turnTime, direction: 1 };
     Hooks.callAll("combatTurn", this, updateData, updateOptions);
     return this.update(updateData, updateOptions as any);
@@ -239,6 +262,11 @@ declare global {
         activations: Activations;
         disposition?: number;
         tour: string;
+      };
+    };
+    Combat: {
+      lancer: {
+        history: LancerCombatHistory;
       };
     };
   }

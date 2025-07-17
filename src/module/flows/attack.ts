@@ -171,6 +171,8 @@ export async function initAttackData(
   >,
   options?: { title?: string; flat_bonus?: number; acc_diff?: AccDiffHudDataSerialized }
 ): Promise<boolean> {
+  console.log(state);
+
   if (!state.data) throw new TypeError(`Attack flow state missing!`);
   // If we only have an actor, it's a basic attack
   if (!state.item) {
