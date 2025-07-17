@@ -67,7 +67,6 @@ export function registerAttackSteps(flowSteps: Map<string, Step<any, any> | Flow
   flowSteps.set("setAttackTags", setAttackTags);
   flowSteps.set("setAttackEffects", setAttackEffects);
   flowSteps.set("setAttackTargets", setAttackTargets);
-  flowSteps.set("applyTalents", applyTalents);
   flowSteps.set("showAttackHUD", showAttackHUD);
   flowSteps.set("rollAttacks", rollAttacks);
   flowSteps.set("clearTargets", clearTargets);
@@ -124,7 +123,6 @@ export class WeaponAttackFlow extends Flow<LancerFlowState.WeaponRollData> {
     "setAttackTags",
     "setAttackEffects",
     "setAttackTargets",
-    "applyTalents",
     "showAttackHUD",
     "rollAttacks",
     "applySelfHeat",
@@ -402,26 +400,6 @@ export async function setAttackTargets(
   // TODO: AccDiffHudData does not facilitate setting targets after instantiation?
   // TODO: set metadata for origin and target spaces
   // state.data.target_spaces;
-  return true;
-}
-
-export async function applyTalents(
-  state: FlowState<
-    LancerFlowState.AttackRollData | LancerFlowState.WeaponRollData | LancerFlowState.TechAttackRollData
-  >,
-  options?: {}
-): Promise<boolean> {
-  if (!state.data) throw new TypeError(`Attack flow state missing!`);
-  // Basic attacks have no tags, just continue on.
-  if (!state.item) return true;
-  //Make sure we have pilot
-  if (!state.actor.is_mech()) return true;
-  if (!state.actor.system.pilot === null) return true;
-
-  let talents = state.actor.system.pilot!.value!.items.filter(i => i.is_talent());
-
-  //HERE BE DRAGONS
-
   return true;
 }
 
