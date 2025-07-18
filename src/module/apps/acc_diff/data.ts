@@ -2,7 +2,7 @@ import * as t from "io-ts";
 
 import type { LancerActor } from "../../actor/lancer-actor";
 import type { AccDiffHudPlugin, AccDiffHudPluginData, AccDiffHudPluginCodec } from "./plugins/plugin";
-import { enclass, encode, decode } from "./serde";
+import { enclass, encode, decode } from "../serde";
 import { LancerItem } from "../../item/lancer-item";
 
 import Invisibility from "./plugins/invisibility";

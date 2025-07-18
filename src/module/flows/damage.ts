@@ -366,6 +366,7 @@ export async function rollNormalDamage(state: FlowState<LancerFlowState.DamageRo
 
   // Evaluate normal damage. Even if every hit was a crit, we'll use this in
   // the next step for crits
+  console.log(state.data.damage);
   if (state.data.has_normal_hit || state.data.has_crit_hit) {
     for (const x of state.data.damage ?? []) {
       const result = await _rollDamage(x, false, state.data.overkill);

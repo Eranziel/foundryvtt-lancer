@@ -695,8 +695,4 @@
       margin-left: 1em;
     }
   }
-
-  .accdiff-talent {
-    border-top: 2px solid var(--primary-color);
-  }
 </style>

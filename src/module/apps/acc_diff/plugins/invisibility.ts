@@ -2,7 +2,7 @@ import * as t from "io-ts";
 import { LancerActor } from "../../../actor/lancer-actor";
 import { AccDiffHudPlugin, AccDiffHudCheckboxPluginData, AccDiffHudPluginCodec } from "./plugin";
 import { AccDiffHudData, AccDiffHudTarget } from "../index";
-import { enclass } from "../serde";
+import { enclass } from "../../serde";
 
 // you don't need to explicitly type the serialized data,
 // but if you do then io-ts codecs can do strong checks at runtime

@@ -1,14 +1,16 @@
 import * as t from "io-ts";
 
 import { LancerActor, LancerNPC } from "../../actor/lancer-actor";
-import { DamageHudPlugin, DamageHudPluginCodec, DamageHudPluginData } from "./plugin";
-import { enclass, encode, decode } from "../acc_diff/serde";
+import { DamageHudPlugin, DamageHudPluginCodec, DamageHudPluginData } from "./plugins/plugin";
+import { enclass, encode, decode } from "../serde";
 import { LancerItem } from "../../item/lancer-item";
 import { LancerToken } from "../../token";
 import { Tag } from "../../models/bits/tag";
 import { DamageData } from "../../models/bits/damage";
 import { DamageType, NpcFeatureType } from "../../enums";
 import { LancerFlowState } from "../../flows/interfaces";
+import Nuke_1 from "./plugins/NuclearCavalier";
+import Brutal_1 from "./plugins/Brutal";
 
 export enum HitQuality {
   Miss = 0,
@@ -561,3 +563,6 @@ export class DamageHudData {
     return DamageHudData.fromObject(obj, runtimeData);
   }
 }
+
+DamageHudData.registerPlugin(Nuke_1);
+DamageHudData.registerPlugin(Brutal_1);

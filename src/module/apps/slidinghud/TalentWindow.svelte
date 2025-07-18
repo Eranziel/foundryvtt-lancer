@@ -2,7 +2,6 @@
   import { AccDiffHudTarget } from "../acc_diff";
   import { LancerActor } from "../../actor/lancer-actor";
   import Plugin from "../acc_diff/Plugin.svelte";
-  import { slugify } from "../../util/lid";
 
   export let targets: AccDiffHudTarget[];
 

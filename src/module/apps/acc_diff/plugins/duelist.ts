@@ -1,7 +1,7 @@
 import * as t from "io-ts";
 import { AccDiffHudData, AccDiffHudTarget } from "../data";
 import { AccDiffHudCheckboxPluginData, AccDiffHudPluginCodec } from "./plugin";
-import { enclass } from "../serde";
+import { enclass } from "../../serde";
 import { FittingSize, WeaponType } from "../../../enums";
 import { slugify } from "../../../util/lid";
 import { getHistory, isTalentAvailable } from "../../../util/misc";
@@ -91,14 +91,14 @@ export default class Duelist_1 implements AccDiffHudCheckboxPluginData {
     const actionsThisTurn = getHistory()?.getCurrentTurn(data.lancerActor?.id)?.actions;
     console.log(actionsThisTurn);
     //I don't think you get a choice of whether to use the talent now or later
-    const duelistUsed = actionsThisTurn?.find(action => {
+    const partisanUsed = actionsThisTurn?.find(action => {
       if (action.weapon.weaponType !== WeaponType.Melee) return false;
       if (action.weapon.mount !== FittingSize.Main) return false;
 
       return true;
     });
-    console.log(duelistUsed);
-    if (duelistUsed !== undefined) return false;
+    console.log(partisanUsed);
+    if (partisanUsed !== undefined) return false;
 
     return true;
   }

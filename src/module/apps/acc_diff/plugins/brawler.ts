@@ -1,7 +1,7 @@
 import * as t from "io-ts";
 import { AccDiffHudData, AccDiffHudTarget } from "../data";
 import { AccDiffHudCheckboxPluginData, AccDiffHudPluginCodec } from "./plugin";
-import { enclass } from "../serde";
+import { enclass } from "../../serde";
 import { LancerToken } from "../../../token";
 import { WeaponType } from "../../../enums";
 import { slugify } from "../../../util/lid";

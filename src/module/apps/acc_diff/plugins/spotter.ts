@@ -1,4 +1,4 @@
-import { stateless } from "../serde";
+import { stateless } from "../../serde";
 import type { AccDiffHudPlugin, AccDiffHudPluginData } from "./plugin";
 import type { AccDiffHudData, AccDiffHudTarget } from "../index";
 import type { LancerActor } from "../../../actor/lancer-actor";

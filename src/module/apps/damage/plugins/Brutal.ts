@@ -1,24 +1,24 @@
 import * as t from "io-ts";
-import { AccDiffHudData, AccDiffHudTarget } from "../data";
-import { AccDiffHudCheckboxPluginData, AccDiffHudPluginCodec } from "./plugin";
+// import { enclass } from "../serde";
 import { enclass } from "../../serde";
-import { LancerToken } from "../../../token";
-import { WeaponType } from "../../../enums";
 import { slugify } from "../../../util/lid";
 import { isTalentAvailable } from "../../../util/misc";
+import { DamageHudData, DamageHudTarget } from "../../damage";
+import { DamageHudCheckboxPluginData, DamageHudPluginCodec } from "./plugin";
 
-export default class Vanguard_1 implements AccDiffHudCheckboxPluginData {
+export default class Brutal_1 implements DamageHudCheckboxPluginData {
   //Plugin state
   active: boolean = false;
 
   //Shared type requirements
   //slugify here to make sure the slug is same across this plugin and TalentWindow.svelte
-  static slug: string = slugify("Handshake Etiquette", "-");
-  slug: string = slugify("Handshake Etiquette", "-");
+  static slug: string = slugify("Predator", "-");
+  slug: string = slugify("Predator", "-");
   static category: "acc" | "diff" | "talentWindow" = "talentWindow";
   category: "acc" | "diff" | "talentWindow" = "talentWindow";
-  humanLabel: string = "Handshake Etiquette (+1)";
-  tooltip: string = "Gain +1 Accuracy when using CQB weapons to attack targets within Range 3.";
+  humanLabel: string = "Predator (*)";
+  tooltip: string =
+    "When you roll a 20 on a die for any attack (sometimes called a ‘natural 20’) and critical hit, you deal the maximum possible damage and bonus damage.";
 
   //AccDiffHudPlugin requirements
   static get schema() {
@@ -30,8 +30,8 @@ export default class Vanguard_1 implements AccDiffHudCheckboxPluginData {
     return t.type(this.schema);
   }
   // the codec lets us know how to persist whatever data you need for rerolls
-  static get codec(): AccDiffHudPluginCodec<Vanguard_1, unknown, unknown> {
-    return enclass(this.schemaCodec, Vanguard_1);
+  static get codec(): DamageHudPluginCodec<Brutal_1, unknown, unknown> {
+    return enclass(this.schemaCodec, Brutal_1);
   }
   get raw() {
     return {
@@ -60,6 +60,7 @@ export default class Vanguard_1 implements AccDiffHudCheckboxPluginData {
   //RollModifier requirements
   //We do nothing to modify the roll
   modifyRoll(roll: string): string {
+    console.warn(roll);
     return roll;
   }
   //Modify accuracy
@@ -68,39 +69,24 @@ export default class Vanguard_1 implements AccDiffHudCheckboxPluginData {
   }
 
   //Dehydrated requirements
-  hydrate(data: AccDiffHudData, target?: AccDiffHudTarget) {
+  hydrate(data: DamageHudData, target?: DamageHudTarget) {
     // Check if actor has talent
     if (!isTalentAvailable(data.lancerActor, this.slug)) return;
 
     //Figure out whether we are in a Handshake Etiquette situation
-    this.active = this.handshake(data, target);
+    this.active = this.predator(data, target);
     this.visible = true;
   }
 
   //perTarget because we have to know where the token is
   //Perhaps don't initialize at all if talent not applicable?
-  static perTarget(item: Token): Vanguard_1 {
-    let ret = new Vanguard_1();
+  static perTarget(item: Token): Brutal_1 {
+    let ret = new Brutal_1();
     return ret;
   }
 
   //The unique logic of the talent
-  handshake(data: AccDiffHudData, target?: AccDiffHudTarget) {
-    // Talent only applies to CQB
-    if (data.weapon.weaponType !== WeaponType.CQB) return false;
-
-    const range = 3;
-    let areTargetsNearby = data
-      .lancerActor!.getActiveTokens()[0]
-      .areTargetsInRange(range, (o: QuadtreeObject<LancerToken>, distance: number) => {
-        //If not the target, invalid
-        if (o.t !== target?.target) return false;
-
-        //If not in range, invalid
-        if (distance > range) return false;
-
-        return true;
-      });
-    return areTargetsNearby;
+  predator(data: DamageHudData, target?: DamageHudTarget) {
+    return true;
   }
 }
