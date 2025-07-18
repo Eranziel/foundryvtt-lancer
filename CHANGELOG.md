@@ -1,3 +1,9 @@
+# 2.11.1 (2025-07-17)
+
+## Bug Fixes
+
+- #884 - Fix a couple bugs with Monstrosity structure results. Fixed missing localizations, added dismemberment damage roll. (This is entirely my fault and not @tw-blob's, as I did not merge the latest version of their work for 2.11.0.)
+
 # 2.11.0 (2025-07-05)
 
 ## Features
