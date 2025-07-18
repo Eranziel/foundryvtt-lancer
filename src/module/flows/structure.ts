@@ -6,6 +6,8 @@ import { userOwnsActor } from "../util/misc";
 import { renderTemplateStep } from "./_render";
 import { Flow, FlowState, Step } from "./flow";
 import { LancerFlowState } from "./interfaces";
+import { DamageRollFlow } from "./damage";
+import { DamageType } from "../enums";
 
 const lp = LANCER.log_prefix;
 
@@ -14,6 +16,7 @@ export function registerStructureSteps(flowSteps: Map<string, Step<any, any> | F
   flowSteps.set("rollStructureTable", rollStructureTable);
   flowSteps.set("noStructureRemaining", noStructureRemaining);
   flowSteps.set("checkStructureMultipleOnes", checkStructureMultipleOnes);
+  flowSteps.set("structureInsertDismembermentButton", structureInsertDismembermentButton);
   flowSteps.set("structureInsertHullCheckButton", structureInsertHullCheckButton);
   flowSteps.set("structureInsertSecondaryRollButton", structureInsertSecondaryRollButton);
   flowSteps.set("structureInsertCascadeRollButton", structureInsertCascadeRollButton);
@@ -31,6 +34,7 @@ export class StructureFlow extends Flow<LancerFlowState.PrimaryStructureRollData
     "rollStructureTable",
     "noStructureRemaining",
     "checkStructureMultipleOnes",
+    "structureInsertDismembermentButton",
     "structureInsertHullCheckButton",
     "structureInsertSecondaryRollButton",
     "structureInsertCascadeRollButton",
@@ -111,6 +115,7 @@ const structTableTitles = [
 ];
 
 // Monstrosity structure table titles
+// Ⓒ Massif Press. Used with permission
 const monstrosityTableTitles = [
   "lancer.tables.structureMonstrosity.title.fatal",
   "lancer.tables.structureMonstrosity.title.direct",
@@ -143,12 +148,13 @@ function structTableDescriptions(roll: number, remStruct: number): string {
       return "lancer.tables.structure.description.trauma";
     case 5:
     case 6:
-      return "lancer.tables.structure.descriptions.glancing";
+      return "lancer.tables.structure.description.glancing";
   }
   return "";
 }
 
 // Monstrosity structure table descriptions
+// Ⓒ Massif Press. Used with permission
 function monstrosityTableDescriptions(roll: number, remStruct: number): string {
   switch (roll) {
     // Multiple 1s
@@ -174,9 +180,9 @@ function monstrosityTableDescriptions(roll: number, remStruct: number): string {
   return "";
 }
 
-// Helper to check if an actor has the Monstrosity class
-function hasMonstrosityClass(actor: LancerActor): boolean {
-  return actor.is_npc() && actor.items.some(i => i.is_npc_class() && i.system.lid === "npcc_monstrosity");
+// Helper to check if an actor is a Monstrosity by looking for the Unique Physiology trait
+function hasUniquePhysiology(actor: LancerActor): boolean {
+  return actor.is_npc() && actor.itemTypes.npc_feature.some(i => i.system.lid === "npcf_unique_physiology_monstrosity");
 }
 
 /**
@@ -220,7 +226,7 @@ export async function rollStructureTable(state: FlowState<LancerFlowState.Primar
   }
 
   // Check if this is a Monstrosity
-  const isMonstrosity = hasMonstrosityClass(actor);
+  const isMonstrosity = hasUniquePhysiology(actor);
 
   state.data = {
     type: "structure",
@@ -260,7 +266,7 @@ export async function noStructureRemaining(
   }
 
   // Check if this is a Monstrosity
-  const isMonstrosity = hasMonstrosityClass(actor);
+  const isMonstrosity = hasUniquePhysiology(actor);
 
   // You ded. Print the card and stop the flow.
   const printCard = (game.lancer.flowSteps as Map<string, Step<any, any> | Flow<any>>).get("printStructureCard");
@@ -304,7 +310,7 @@ export async function checkStructureMultipleOnes(
   if (!roll) throw new TypeError(`Structure check hasn't been rolled yet!`);
 
   // Check if this is a Monstrosity
-  const isMonstrosity = hasMonstrosityClass(actor);
+  const isMonstrosity = hasUniquePhysiology(actor);
 
   // Crushing hits
   let one_count = (roll.terms as foundry.dice.terms.Die[])[0].results.filter(v => v.result === 1).length;
@@ -312,21 +318,89 @@ export async function checkStructureMultipleOnes(
     if (isMonstrosity) {
       state.data.title = monstrosityTableTitles[0];
       state.data.desc = monstrosityTableDescriptions(roll.total ?? 1, 1);
-      await actor.update({
-        "system.hp.value": actor.system.hp.value - actor.system.hp.max,
-        "system.structure.value": 0,
-      });
     } else {
       state.data.title = structTableTitles[0];
       state.data.desc = structTableDescriptions(roll.total ?? 1, 1);
-      await actor.update({
-        "system.hp.value": actor.system.hp.value - actor.system.hp.max,
-        "system.structure.value": 0,
-      });
     }
+    state.data.title = game.i18n.localize(state.data.title);
+    state.data.desc = game.i18n.localize(state.data.desc);
+    await actor.update({
+      "system.hp.value": actor.system.hp.value - actor.system.hp.max,
+      "system.structure.value": 0,
+    });
   }
 
   return true;
+}
+
+/**
+ * Check whether a Monstrosity Dismemberment roll is needed, and construct the button if so.
+ * @param state
+ * @returns
+ */
+export async function structureInsertDismembermentButton(
+  state: FlowState<LancerFlowState.PrimaryStructureRollData>
+): Promise<boolean> {
+  if (!state.data) throw new TypeError(`Structure roll flow data missing!`);
+
+  let actor = state.actor;
+  if (!actor.is_mech() && !actor.is_npc()) {
+    ui.notifications!.warn("Only npcs and mechs can roll structure.");
+    return false;
+  }
+
+  // Only for Monstrosity NPCs
+  if (!hasUniquePhysiology(actor)) return true;
+
+  // Only if the result is Dismemberment
+  const result = state.data.result?.roll.total;
+  if (result !== 2) return true;
+
+  state.data.embedButtons = state.data.embedButtons || [];
+  state.data.embedButtons.push(`<a
+    class="flow-button lancer-button"
+    data-flow-type="dismembermentDamage"
+    data-actor-id="${actor.uuid}"
+  >
+    <i class="compcon-icon kinetic i--sm"></i> ROLL DAMAGE
+  </a>`);
+  return true;
+}
+
+/**
+ * Begin the Monstrosity Dismemberment damage flow for a given actor.
+ * This is called from the structure flow chat button and triggers a damage roll.
+ * @param actor LancerActor instance (should be a Monstrosity NPC)
+ */
+export async function beginDismembermentDamageFlow(actor: LancerActor) {
+  if (!actor) {
+    ui.notifications?.error("No actor found for dismemberment damage button.");
+    return;
+  }
+
+  const tokens = actor.getActiveTokens();
+  const damageData = [{ type: DamageType.Kinetic, val: "1d6" }];
+  const hit_results = [
+    {
+      target: tokens[0],
+      total: "0",
+      usedLockOn: false,
+      hit: true,
+      crit: false,
+    },
+  ];
+
+  const flow = new DamageRollFlow(actor, {
+    title: game.i18n.localize("lancer.tables.structureMonstrosity.title.dismember"),
+    damage: damageData,
+    configurable: false,
+    add_burn: false,
+    tags: [],
+    hit_results,
+    has_normal_hit: true,
+    has_crit_hit: false,
+  });
+  await flow.begin();
 }
 
 /**
@@ -374,9 +448,12 @@ export async function structureInsertSecondaryRollButton(
     return false;
   }
 
+  // Do not show the secondary roll button for Monstrosity/Unique Physiology
+  if (hasUniquePhysiology(actor)) return true;
+
   const result = state.data.result?.roll.total;
   if (!result) throw new TypeError(`Structure check hasn't been rolled yet!`);
-  if (!hasMonstrosityClass(state.actor) && result >= 2 && result <= 4) {
+  if (!hasUniquePhysiology(state.actor) && result >= 2 && result <= 4) {
     // TODO: we'll want helper functions to generate embeddable flow buttons
     state.data.embedButtons = state.data.embedButtons || [];
     state.data.embedButtons.push(`<a

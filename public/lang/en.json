@@ -435,7 +435,7 @@
             "2": "The Monstrosity must succeed on a HULL save or be destroyed.",
             "1": "The Monstrosity is destroyed."
           },
-          "dismember": "The attack blows a limb or chunk off the Monstrosity; it takes 1d6 damage and becomes @Compendium[world.status-items.Slowed] for the rest of the scene.",
+          "dismember": "The attack blows a limb or chunk off the Monstrosity; it takes 1d6 KINETIC damage and becomes @LancerID[slow] for the rest of the scene.",
           "powerful": "The Monstrosity is knocked @LancerID[prone] by the force of the blow.",
           "glancing": "The Monstrosity flinches in pain; it’s @LancerID[impaired] until the end of its next turn."
         }
