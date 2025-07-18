@@ -2,25 +2,22 @@ import * as t from "io-ts";
 import { AccDiffHudData, AccDiffHudTarget } from "../data";
 import { AccDiffHudCheckboxPluginData, AccDiffHudPluginCodec } from "./plugin";
 import { enclass } from "../serde";
-import { LancerToken } from "../../../token";
-import { WeaponType } from "../../../enums";
+import { FittingSize, WeaponType } from "../../../enums";
 import { slugify } from "../../../util/lid";
-import { isTalentAvailable } from "../../../util/misc";
-import { LancerCombatant } from "../../../combat/lancer-combat";
+import { getHistory, isTalentAvailable } from "../../../util/misc";
 
-export default class Brawler_1 implements AccDiffHudCheckboxPluginData {
+export default class Duelist_1 implements AccDiffHudCheckboxPluginData {
   //Plugin state
   active: boolean = false;
 
   //Shared type requirements
   //slugify here to make sure the slug is same across this plugin and TalentWindow.svelte
-  //Alternatively could use lid and rank_num
-  static slug: string = slugify("Hold and Lock", "-");
-  slug: string = slugify("Hold and Lock", "-");
+  static slug: string = slugify("Partisan", "-");
+  slug: string = slugify("Partisan", "-");
   static category: "acc" | "diff" | "talentWindow" = "talentWindow";
   category: "acc" | "diff" | "talentWindow" = "talentWindow";
-  humanLabel: string = "Hold and Lock (+1)";
-  tooltip: string = "You gain +1 Accuracy on all melee attacks against targets YOU are Grappling.";
+  humanLabel: string = "Partisan (+1)";
+  tooltip: string = "Gain +1 Accuracy on the first melee attack you make with a Main Melee weapon on your turn.";
 
   //AccDiffHudPlugin requirements
   static get schema() {
@@ -32,8 +29,8 @@ export default class Brawler_1 implements AccDiffHudCheckboxPluginData {
     return t.type(this.schema);
   }
   // the codec lets us know how to persist whatever data you need for rerolls
-  static get codec(): AccDiffHudPluginCodec<Brawler_1, unknown, unknown> {
-    return enclass(this.schemaCodec, Brawler_1);
+  static get codec(): AccDiffHudPluginCodec<Duelist_1, unknown, unknown> {
+    return enclass(this.schemaCodec, Duelist_1);
   }
   get raw() {
     return {
@@ -51,6 +48,7 @@ export default class Brawler_1 implements AccDiffHudCheckboxPluginData {
   }
   set uiState(data: boolean) {
     this.active = data;
+
     console.log("BEING SET, active = " + this.active);
   }
   // this talent is only visible when the owner has talent
@@ -74,26 +72,33 @@ export default class Brawler_1 implements AccDiffHudCheckboxPluginData {
     if (!isTalentAvailable(data.lancerActor, this.slug)) return;
 
     //Figure out whether we are in a Handshake Etiquette situation
-    this.active = this.holdAndLock(data, target);
+    this.active = this.partisan(data, target);
     this.visible = true;
   }
 
   //perTarget because we have to know where the token is
   //Perhaps don't initialize at all if talent not applicable?
-  static perTarget(item: Token): Brawler_1 {
-    let ret = new Brawler_1();
+  static perTarget(item: Token): Duelist_1 {
+    let ret = new Duelist_1();
     return ret;
   }
 
   //The unique logic of the talent
-  holdAndLock(data: AccDiffHudData, target?: AccDiffHudTarget) {
-    // Talent only applies to grappled targets
-    // A brawler targeting somebody that isn't grappled by themselves still benefits.
-    // Not aware of how it can be avoided, short of detecting other tokens nearby and
-    // then not enabling the option by default. (or something elaborate)
-    if (!target?.target.actor?.system.statuses.grappled) return false;
-
+  partisan(data: AccDiffHudData, target?: AccDiffHudTarget) {
     if (data.weapon.weaponType !== WeaponType.Melee) return false;
+    if (data.weapon.mount !== FittingSize.Main) return false;
+
+    const actionsThisTurn = getHistory()?.getCurrentTurn(data.lancerActor?.id)?.actions;
+    console.log(actionsThisTurn);
+    //I don't think you get a choice of whether to use the talent now or later
+    const duelistUsed = actionsThisTurn?.find(action => {
+      if (action.weapon.weaponType !== WeaponType.Melee) return false;
+      if (action.weapon.mount !== FittingSize.Main) return false;
+
+      return true;
+    });
+    console.log(duelistUsed);
+    if (duelistUsed !== undefined) return false;
 
     return true;
   }

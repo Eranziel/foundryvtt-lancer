@@ -61,6 +61,14 @@ export class LancerCombatHistory {
   constructor(rounds?: HistoryRound[]) {
     this.rounds = rounds ? rounds : [];
   }
+  get currentRound(): HistoryRound {
+    return this.rounds[this.rounds.length - 1];
+  }
+  getCurrentTurn(actorId: string | null | undefined): HistoryTurn | undefined {
+    return this.currentRound.turns.find((turn: HistoryTurn) => {
+      return turn.combatant.actorId === actorId;
+    });
+  }
 
   newRound() {
     this.rounds.push({ turns: [] });
@@ -72,7 +80,7 @@ export class LancerCombatHistory {
   newTurn(combatant: LancerCombatant | undefined) {
     if (combatant === undefined) return;
 
-    this.rounds[this.rounds.length - 1].turns.push({
+    this.currentRound.turns.push({
       combatant,
       actions: [],
     });
@@ -80,11 +88,9 @@ export class LancerCombatHistory {
   undoTurn(combatant: LancerCombatant | undefined) {
     if (combatant === undefined) return;
 
-    this.rounds[this.rounds.length - 1].turns = this.rounds[this.rounds.length - 1].turns.filter(
-      (turn: HistoryTurn) => {
-        return turn.combatant.actorId !== combatant.actorId;
-      }
-    );
+    this.currentRound.turns = this.currentRound.turns.filter((turn: HistoryTurn) => {
+      return turn.combatant.actorId !== combatant.actorId;
+    });
   }
 
   dataToAction(
@@ -127,8 +133,6 @@ export class LancerCombatHistory {
     };
   }
   newAction(data: LancerFlowState.AttackRollData | LancerFlowState.WeaponRollData) {
-    console.log(data);
-
     if (data.acc_diff === undefined) {
       console.error("MISSING ACC DIFF!!!!");
       return;
@@ -139,7 +143,7 @@ export class LancerCombatHistory {
 
     if (typeof actorId !== "string") return;
 
-    for (let turn of this.rounds[this.rounds.length - 1].turns) {
+    for (let turn of this.currentRound.turns) {
       console.log(`Actor ID: ${actorId}, Combatant Actor ID: ${turn.combatant.actorId}`);
       if (turn.combatant.actorId !== actorId) continue;
 

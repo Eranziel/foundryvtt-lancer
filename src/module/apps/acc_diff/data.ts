@@ -13,6 +13,7 @@ import { Tag } from "../../models/bits/tag";
 
 import { FittingSize, WeaponType } from "../../enums";
 import Brawler_1 from "./plugins/brawler";
+import Duelist_1 from "./plugins/duelist";
 
 export enum Cover {
   None = 0,
@@ -493,3 +494,4 @@ AccDiffHudData.registerPlugin(Invisibility);
 AccDiffHudData.registerPlugin(Spotter);
 AccDiffHudData.registerPlugin(Vanguard_1);
 AccDiffHudData.registerPlugin(Brawler_1);
+AccDiffHudData.registerPlugin(Duelist_1);

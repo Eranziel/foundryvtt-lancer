@@ -9,6 +9,7 @@ import { LancerItem } from "../item/lancer-item";
 import { Damage } from "../models/bits/damage";
 import { UUIDRef } from "../source-template";
 import { SystemData, SystemTemplates } from "../system-template";
+import { getCombat, getHistory } from "../util/misc";
 import { renderTemplateStep } from "./_render";
 import { Flow, FlowState, Step } from "./flow";
 import { LancerFlowState } from "./interfaces";
@@ -533,11 +534,11 @@ export async function printAttackCard(
   //ETH1AmxXlxHv7AU7 - actor
   //Guiness has already been called to claim the longest one-liner award
   if (state.data.acc_diff !== undefined) {
-    canvas!.scene!.tokens.entries().next().value[1].combatant.combat?.receiveHistoryAction(state.data);
+    getCombat()?.receiveHistoryAction(state.data);
   }
   console.log(state);
 
-  console.log(canvas!.scene!.tokens.entries().next().value[1].combatant.combat?.flags.lancer.history);
+  console.log(getHistory());
   return true;
 }
 

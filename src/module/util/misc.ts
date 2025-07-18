@@ -1,4 +1,6 @@
 import { LancerActor } from "../actor/lancer-actor";
+import { LancerCombat } from "../combat/lancer-combat";
+import { LancerCombatHistory } from "../combat/lancer-combat-history";
 import { LANCER } from "../config";
 import { slugify } from "./lid";
 
@@ -151,4 +153,14 @@ export function isTalentAvailable(actor: LancerActor | undefined, talentSlug: st
   }
 
   return false;
+}
+
+//Guiness has already been called to claim the longest one-liner record
+export function getCombat(): LancerCombat | null {
+  return canvas!.scene!.tokens.entries().next().value[1].combatant.combat;
+}
+export function getHistory(): LancerCombatHistory | undefined {
+  const serializedHistory = getCombat()?.flags.lancer.history;
+
+  return serializedHistory ? new LancerCombatHistory(serializedHistory.rounds) : undefined;
 }
