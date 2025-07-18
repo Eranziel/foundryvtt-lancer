@@ -73,6 +73,7 @@ export namespace LancerFlowState {
 
   export type HitResult = {
     target: LancerToken;
+    base: string;
     total: string;
     usedLockOn: boolean;
     hit: boolean;

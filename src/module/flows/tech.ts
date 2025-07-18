@@ -203,6 +203,7 @@ export async function printTechAttackCard(
           id: hr.target.document.id,
           uuid: hr.target.document.uuid,
           setConditions: !!hr.usedLockOn ? { lockon: !hr.usedLockOn } : undefined,
+          base: hr.base,
           total: hr.total,
           hit: hr.hit,
           crit: hr.crit,

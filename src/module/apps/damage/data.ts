@@ -9,8 +9,8 @@ import { Tag } from "../../models/bits/tag";
 import { DamageData } from "../../models/bits/damage";
 import { DamageType, NpcFeatureType } from "../../enums";
 import { LancerFlowState } from "../../flows/interfaces";
-import Nuke_1 from "./plugins/NuclearCavalier";
-import Brutal_1 from "./plugins/Brutal";
+import Nuke_1 from "./plugins/nuclearCavalier";
+import Brutal_1 from "./plugins/brutal";
 
 export enum HitQuality {
   Miss = 0,
@@ -200,6 +200,7 @@ export class DamageHudBase {
 // so if you extend DamageBase it's trying to assign DamageBase to DamageTarget
 export class DamageHudTarget {
   target: LancerToken;
+  hitResult: DamageHudHitResult | undefined;
   quality: HitQuality;
   ap: boolean;
   paracausal: boolean;
@@ -214,6 +215,7 @@ export class DamageHudTarget {
   static get schema() {
     return {
       target_id: t.string,
+      hitResult: t.union([DamageHudHitResult.codec, t.undefined]),
       quality: t.number,
       ap: t.boolean,
       paracausal: t.boolean,
@@ -239,6 +241,7 @@ export class DamageHudTarget {
     const objBonusDamage = obj.bonusDamage.map(ensureDamageType);
 
     this.target = target.object! as LancerToken;
+    this.hitResult = obj.hitResult;
     this.quality = obj.quality;
     this.ap = obj.ap;
     this.paracausal = obj.paracausal;
@@ -250,6 +253,7 @@ export class DamageHudTarget {
   get raw() {
     return {
       target_id: this.target.id,
+      hitResult: this.hitResult,
       quality: this.quality,
       ap: this.ap,
       paracausal: this.paracausal,
@@ -262,6 +266,7 @@ export class DamageHudTarget {
   static fromParams(
     t: Token,
     data?: {
+      hitResult?: DamageHudHitResult;
       quality?: HitQuality;
       ap?: boolean;
       paracausal?: boolean;
@@ -271,6 +276,7 @@ export class DamageHudTarget {
   ): DamageHudTarget {
     let ret = {
       target_id: t.id,
+      hitResult: data?.hitResult,
       quality: data?.quality ?? HitQuality.Hit,
       ap: data?.ap || false,
       paracausal: data?.paracausal || false,
@@ -304,8 +310,9 @@ export class DamageHudTarget {
 // Simple class for storing the results of the attack roll which this damage roll is derived from.
 // Needs to match LancerFlowState.HitResult, other than target being a UUID string instead of a
 // hydrated token.
-class DamageHudHitResult {
+export class DamageHudHitResult {
   target: string; // token UUID
+  base: string;
   total: string;
   usedLockOn: boolean;
   hit: boolean;
@@ -314,6 +321,7 @@ class DamageHudHitResult {
   static get schema() {
     return {
       target: t.string,
+      base: t.string,
       total: t.string,
       usedLockOn: t.boolean,
       hit: t.boolean,
@@ -330,6 +338,7 @@ class DamageHudHitResult {
 
   constructor(obj: t.TypeOf<typeof DamageHudHitResult.schemaCodec>) {
     this.target = obj.target;
+    this.base = obj.base;
     this.total = obj.total;
     this.usedLockOn = obj.usedLockOn;
     this.hit = obj.hit;
@@ -339,6 +348,7 @@ class DamageHudHitResult {
   get raw() {
     return {
       target: this.target,
+      base: this.base,
       total: this.total,
       usedLockOn: this.usedLockOn,
       hit: this.hit,
@@ -406,7 +416,12 @@ export class DamageHudData {
     }
 
     this.targets = ts.map(
-      t => oldTargets[t.id] ?? DamageHudTarget.fromParams(t, { quality: this.getHitQuality(t as LancerToken) })
+      (t, idx) =>
+        oldTargets[t.id] ??
+        DamageHudTarget.fromParams(t, {
+          hitResult: this.hitResults[idx],
+          quality: this.getHitQuality(t as LancerToken),
+        })
     );
 
     for (let target of this.targets) {
@@ -532,9 +547,10 @@ export class DamageHudData {
       weapon,
       base,
       hitResults,
-      targets: (data?.targets || []).map(t => {
+      targets: (data?.targets || []).map((t, idx) => {
         let ret = {
           target_id: t.id,
+          hitResult: hitResults[idx],
           quality: DamageHudData.getHitQuality(t, hitResults),
           ap: base.ap,
           paracausal: base.paracausal,

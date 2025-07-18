@@ -57,7 +57,7 @@ async function initBurnCheckData(state: FlowState<LancerFlowState.BurnCheckData>
     return false;
   }
   const target = tokens[0];
-  state.data.hit_results = [{ target: target, total: "10", usedLockOn: false, hit: true, crit: false }];
+  state.data.hit_results = [{ target: target, base: "10", total: "10", usedLockOn: false, hit: true, crit: false }];
   state.data.damage_hud_data = DamageHudData.fromParams(state.actor, {
     tags: [],
     title: state.data.title,

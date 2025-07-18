@@ -1,6 +1,7 @@
 import { AppliedDamage } from "../actor/damage-calc";
 import { LancerActor } from "../actor/lancer-actor";
-import { DamageHudData, HitQuality } from "../apps/damage";
+import { RollModifier } from "../apps/damage/plugins/plugin";
+import { DamageHudData, DamageHudTarget, HitQuality } from "../apps/damage";
 import { openSlidingHud } from "../apps/slidinghud";
 import { DamageType } from "../enums";
 import { LancerItem } from "../item/lancer-item";
@@ -181,6 +182,7 @@ async function showDamageHUD(state: FlowState<LancerFlowState.DamageRollData>): 
       if (state.data.hit_results.some(hr => hr.target.id === t.target.id)) continue;
       state.data.hit_results.push({
         target: t.target,
+        base: "10",
         total: "10",
         hit: t.quality === HitQuality.Hit,
         crit: t.quality === HitQuality.Crit,
@@ -221,9 +223,20 @@ async function _rollDamage(
   damage: DamageData,
   bonus: boolean,
   overkill: boolean,
-  target?: LancerToken
+  target?: DamageHudTarget
 ): Promise<LancerFlowState.DamageResult | null> {
+  console.log("ROLLING DAMAGE");
+
   if (!damage.val || damage.val == "0") return null; // Skip undefined and zero damage
+
+  //Apply plugins if there are any
+  if (target !== undefined) {
+    damage.val = Object.values(target.plugins)
+      .sort((p: RollModifier, q: RollModifier) => q.rollPrecedence - p.rollPrecedence)
+      .reduce((roll: string, p: RollModifier) => p.modifyRoll(roll), damage.val);
+    console.log("New roll: " + damage.val);
+  }
+
   let damageRoll: Roll | undefined = new Roll(damage.val);
   // Add overkill if enabled.
   if (overkill) {
@@ -242,7 +255,7 @@ async function _rollDamage(
     tt: tooltip,
     d_type: damage.type,
     bonus,
-    target,
+    target: target?.target,
   };
 }
 
@@ -358,6 +371,8 @@ export async function rollNormalDamage(state: FlowState<LancerFlowState.DamageRo
   if (!state.data) throw new TypeError(`Damage flow state missing!`);
   if (!state.data.damage_hud_data) throw new TypeError(`Damage configuration missing!`);
 
+  console.log("ROLL NORMAL DAMAGE ADHAKSUDHKASHDJHAKSD");
+
   // Convenience flag for whether this is a multi-target attack.
   // We'll use this later alongside a check for whether a given bonus damage result
   // is single-target; if not, the bonus damage needs to be halved.
@@ -369,12 +384,14 @@ export async function rollNormalDamage(state: FlowState<LancerFlowState.DamageRo
   console.log(state.data.damage);
   if (state.data.has_normal_hit || state.data.has_crit_hit) {
     for (const x of state.data.damage ?? []) {
-      const result = await _rollDamage(x, false, state.data.overkill);
+      const hudTarget = state.data.damage_hud_data.targets.find(x => x.target === x.target);
+      const result = await _rollDamage(x, false, state.data.overkill, hudTarget);
       if (result) state.data.damage_results.push(result);
     }
 
     for (const x of allBonusDamage ?? []) {
-      const result = await _rollDamage(x, true, state.data.overkill, x.target);
+      const hudTarget = state.data.damage_hud_data.targets.find(x => x.target === x.target);
+      const result = await _rollDamage(x, true, state.data.overkill, hudTarget);
       if (result) {
         result.bonus = true;
         if (x.target) {
@@ -679,6 +696,7 @@ export async function rollDamageCallback(event: JQuery.ClickEvent) {
 
     hit_results.push({
       target: target,
+      base: t.base,
       total: t.total,
       usedLockOn,
       hit: t.hit,

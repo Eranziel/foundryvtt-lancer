@@ -6,19 +6,18 @@ import { isTalentAvailable } from "../../../util/misc";
 import { DamageHudData, DamageHudTarget } from "../../damage";
 import { DamageHudCheckboxPluginData, DamageHudPluginCodec } from "./plugin";
 
-export default class Brutal_1 implements DamageHudCheckboxPluginData {
+export default class Nuke_1 implements DamageHudCheckboxPluginData {
   //Plugin state
   active: boolean = false;
 
   //Shared type requirements
   //slugify here to make sure the slug is same across this plugin and TalentWindow.svelte
-  static slug: string = slugify("Predator", "-");
-  slug: string = slugify("Predator", "-");
+  static slug: string = slugify("Aggressive Heat Bleed", "-");
+  slug: string = slugify("Aggressive Heat Bleed", "-");
   static category: "acc" | "diff" | "talentWindow" = "talentWindow";
   category: "acc" | "diff" | "talentWindow" = "talentWindow";
-  humanLabel: string = "Predator (*)";
-  tooltip: string =
-    "When you roll a 20 on a die for any attack (sometimes called a ‘natural 20’) and critical hit, you deal the maximum possible damage and bonus damage.";
+  humanLabel: string = "Aggressive Heat Bleed (+2)";
+  tooltip: string = "The first attack roll you make on your turn while in the Danger Zone deals +2 Heat on a hit.";
 
   //AccDiffHudPlugin requirements
   static get schema() {
@@ -30,8 +29,8 @@ export default class Brutal_1 implements DamageHudCheckboxPluginData {
     return t.type(this.schema);
   }
   // the codec lets us know how to persist whatever data you need for rerolls
-  static get codec(): DamageHudPluginCodec<Brutal_1, unknown, unknown> {
-    return enclass(this.schemaCodec, Brutal_1);
+  static get codec(): DamageHudPluginCodec<Nuke_1, unknown, unknown> {
+    return enclass(this.schemaCodec, Nuke_1);
   }
   get raw() {
     return {
@@ -60,7 +59,6 @@ export default class Brutal_1 implements DamageHudCheckboxPluginData {
   //RollModifier requirements
   //We do nothing to modify the roll
   modifyRoll(roll: string): string {
-    console.warn(roll);
     return roll;
   }
   //Modify accuracy
@@ -74,19 +72,19 @@ export default class Brutal_1 implements DamageHudCheckboxPluginData {
     if (!isTalentAvailable(data.lancerActor, this.slug)) return;
 
     //Figure out whether we are in a Handshake Etiquette situation
-    this.active = this.predator(data, target);
+    this.active = this.heatbleed(data, target);
     this.visible = true;
   }
 
   //perTarget because we have to know where the token is
   //Perhaps don't initialize at all if talent not applicable?
-  static perTarget(item: Token): Brutal_1 {
-    let ret = new Brutal_1();
+  static perTarget(item: Token): Nuke_1 {
+    let ret = new Nuke_1();
     return ret;
   }
 
   //The unique logic of the talent
-  predator(data: DamageHudData, target?: DamageHudTarget) {
+  heatbleed(data: DamageHudData, target?: DamageHudTarget) {
     return true;
   }
 }

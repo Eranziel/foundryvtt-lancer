@@ -1,13 +1,21 @@
 <script lang="ts">
   import { AccDiffHudTarget } from "../acc_diff";
-  import { LancerActor } from "../../actor/lancer-actor";
   import Plugin from "../acc_diff/Plugin.svelte";
+  import { DamageHudTarget } from "../damage";
 
-  export let targets: AccDiffHudTarget[];
+  export let targets: AccDiffHudTarget[] | DamageHudTarget[] | undefined;
+  $: visibleTalents = determineTalents(targets);
 
-  $: talentTargetPlugins =
-    targets.length === 1 ? Object.values(targets[0].plugins).filter(plugin => plugin.category === "talentWindow") : [];
-  $: visibleTalents = talentTargetPlugins.filter(plugin => plugin.visible);
+  function determineTalents(targets: AccDiffHudTarget[] | DamageHudTarget[] | undefined) {
+    if (targets === undefined) return [];
+
+    //Assume talents on one target apply to all
+    //Alternatively, it could just not display the window at all
+    //Maybe eventually show talent window per target
+    const talentTargetPlugins = Object.values(targets[0].plugins).filter(plugin => plugin.category === "talentWindow");
+    const visibleTalents = talentTargetPlugins.filter(plugin => plugin.visible);
+    return visibleTalents;
+  }
 </script>
 
 {#if visibleTalents.length != 0}

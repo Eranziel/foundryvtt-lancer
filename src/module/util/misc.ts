@@ -145,9 +145,9 @@ export function isTalentAvailable(actor: LancerActor | undefined, talentSlug: st
 
   //Go through the slugs of all the available talent ranks
   for (const talent of talents) {
-    let rank_num = talent.system.curr_rank;
+    let rank_num = talent.system!.curr_rank;
     for (let i = 0; i < rank_num; i++) {
-      const rank_name = talent.system.ranks[i].name;
+      const rank_name = talent.system!.ranks[i].name;
       if (slugify(rank_name, "-") === talentSlug) return true;
     }
   }

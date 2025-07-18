@@ -89,7 +89,6 @@ export default class Duelist_1 implements AccDiffHudCheckboxPluginData {
     if (data.weapon.mount !== FittingSize.Main) return false;
 
     const actionsThisTurn = getHistory()?.getCurrentTurn(data.lancerActor?.id)?.actions;
-    console.log(actionsThisTurn);
     //I don't think you get a choice of whether to use the talent now or later
     const partisanUsed = actionsThisTurn?.find(action => {
       if (action.weapon.weaponType !== WeaponType.Melee) return false;
@@ -97,7 +96,6 @@ export default class Duelist_1 implements AccDiffHudCheckboxPluginData {
 
       return true;
     });
-    console.log(partisanUsed);
     if (partisanUsed !== undefined) return false;
 
     return true;

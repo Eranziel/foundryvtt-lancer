@@ -56,6 +56,7 @@ export type AttackFlag = {
   targets: {
     uuid: string;
     setConditions?: object; // keys are statusEffect ids, values are boolean to indicate whether to apply or remove
+    base: string;
     total: string;
     hit: boolean;
     crit: boolean;
@@ -450,6 +451,9 @@ export async function rollAttacks(
         attack_roll.dice.forEach(d => (d.options.rollOrder = 1));
         const attack_tt = await attack_roll.getTooltip();
 
+        //Pure d20 roll for Brutal_1
+        const raw_attack_result = attack_roll.dice[0].results[0].result;
+
         if (targetingData.usedLockOn && game.user!.isGM) {
           targetingData.target.actor?.effectHelper.removeActiveEffect("lockon");
         }
@@ -458,6 +462,7 @@ export async function rollAttacks(
           attack: { roll: attack_roll, tt: attack_tt },
           hit: {
             target,
+            base: String(raw_attack_result).padStart(2, "0"),
             total: String(attack_roll.total).padStart(2, "0"),
             usedLockOn: !!targetingData.usedLockOn,
             hit: await checkForHit(state.data?.is_smart ?? false, attack_roll, actor),
@@ -506,6 +511,7 @@ export async function printAttackCard(
           id: hr.target.document.id,
           uuid: hr.target.document.uuid,
           setConditions: !!hr.usedLockOn ? { lockon: !hr.usedLockOn } : undefined,
+          base: hr.base,
           total: hr.total,
           hit: hr.hit,
           crit: hr.crit,
@@ -536,8 +542,6 @@ export async function printAttackCard(
   if (state.data.acc_diff !== undefined) {
     getCombat()?.receiveHistoryAction(state.data);
   }
-  console.log(state);
-
   console.log(getHistory());
   return true;
 }
