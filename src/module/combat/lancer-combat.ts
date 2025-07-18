@@ -1,3 +1,4 @@
+import { LancerFlowState } from "../flows/interfaces";
 import { LancerCombatHistory } from "./lancer-combat-history";
 
 /**
@@ -149,6 +150,16 @@ export class LancerCombat extends Combat {
     const updateOptions = { advanceTime: CONFIG.time.turnTime, direction: 1 };
     Hooks.callAll("combatTurn", this, updateData, updateOptions);
     return this.update(updateData, updateOptions as any);
+  }
+
+  receiveHistoryAction(data: LancerFlowState.AttackRollData | LancerFlowState.WeaponRollData) {
+    let newHistory = new LancerCombatHistory(this.flags.lancer.history.rounds);
+    newHistory.newAction(data);
+
+    const updateData = { [`flags.${game.system.id}.history`]: newHistory };
+    const updateOptions = { advanceTime: CONFIG.time.turnTime, direction: 1 };
+    Hooks.callAll("combatTurn", this, updateData, updateOptions); //Not sure if necessary
+    this.update(updateData, updateOptions as any);
   }
 
   /**

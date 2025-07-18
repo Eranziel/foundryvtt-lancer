@@ -171,8 +171,6 @@ export async function initAttackData(
   >,
   options?: { title?: string; flat_bonus?: number; acc_diff?: AccDiffHudDataSerialized }
 ): Promise<boolean> {
-  console.log(state);
-
   if (!state.data) throw new TypeError(`Attack flow state missing!`);
   // If we only have an actor, it's a basic attack
   if (!state.item) {
@@ -188,6 +186,7 @@ export async function initAttackData(
       state.data.grit = isTech ? state.actor.system.sys : state.actor.system.tier;
     }
     // TODO: check bonuses for flat attack bonus
+
     state.data.acc_diff = options?.acc_diff
       ? AccDiffHudData.fromObject(options.acc_diff)
       : AccDiffHudData.fromParams(
@@ -224,6 +223,8 @@ export async function initAttackData(
           state.data.flat_bonus += 1;
         }
       }
+
+      // console.log(state.item);
 
       state.data.acc_diff = options?.acc_diff
         ? AccDiffHudData.fromObject(options.acc_diff)
@@ -527,6 +528,16 @@ export async function printAttackCard(
     profile: state.item?.currentProfile(),
   };
   await renderTemplateStep(state.actor, template, templateData, flags);
+
+  //oQ0zGSqisY5Nyl8P - token
+  //ETH1AmxXlxHv7AU7 - actor
+  //Guiness has already been called to claim the longest one-liner award
+  if (state.data.acc_diff !== undefined) {
+    canvas!.scene!.tokens.entries().next().value[1].combatant.combat?.receiveHistoryAction(state.data);
+  }
+  console.log(state);
+
+  console.log(canvas!.scene!.tokens.entries().next().value[1].combatant.combat?.flags.lancer.history);
   return true;
 }
 
