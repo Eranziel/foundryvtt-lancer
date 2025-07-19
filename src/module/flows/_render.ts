@@ -9,7 +9,6 @@ import type { LancerActor } from "../actor/lancer-actor";
 export async function renderTemplateStep(actor: LancerActor, template: string, templateData: any, flags?: any) {
   templateData._uuid = nanoid();
 
-  console.log(templateData);
   const html = await renderTemplate(template, templateData);
 
   // Schlorp up all the rolls into a mega-roll so DSN sees the stuff to throw
@@ -53,9 +52,7 @@ export async function createChatMessageStep(
     content: html,
     flags: flags ? { lancer: flags } : undefined,
   };
-  console.log(chat_data);
   if (!rolls) delete chat_data.rolls;
   const cm = await ChatMessage.implementation.create(chat_data);
-  console.log(cm);
   cm?.render();
 }

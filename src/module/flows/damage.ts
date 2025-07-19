@@ -223,15 +223,16 @@ async function _rollDamage(
   damage: DamageData,
   bonus: boolean,
   overkill: boolean,
-  target?: DamageHudTarget
+  plugins?: { [k: string]: any },
+  target?: LancerToken
 ): Promise<LancerFlowState.DamageResult | null> {
   console.log("ROLLING DAMAGE");
 
   if (!damage.val || damage.val == "0") return null; // Skip undefined and zero damage
 
   //Apply plugins if there are any
-  if (target !== undefined) {
-    damage.val = Object.values(target.plugins)
+  if (plugins !== undefined) {
+    damage.val = Object.values(plugins)
       .sort((p: RollModifier, q: RollModifier) => q.rollPrecedence - p.rollPrecedence)
       .reduce((roll: string, p: RollModifier) => p.modifyRoll(roll), damage.val);
     console.log("New roll: " + damage.val);
@@ -255,7 +256,7 @@ async function _rollDamage(
     tt: tooltip,
     d_type: damage.type,
     bonus,
-    target: target?.target,
+    target,
   };
 }
 
@@ -385,13 +386,13 @@ export async function rollNormalDamage(state: FlowState<LancerFlowState.DamageRo
   if (state.data.has_normal_hit || state.data.has_crit_hit) {
     for (const x of state.data.damage ?? []) {
       const hudTarget = state.data.damage_hud_data.targets.find(x => x.target === x.target);
-      const result = await _rollDamage(x, false, state.data.overkill, hudTarget);
+      const result = await _rollDamage(x, false, state.data.overkill, hudTarget?.plugins);
       if (result) state.data.damage_results.push(result);
     }
 
     for (const x of allBonusDamage ?? []) {
       const hudTarget = state.data.damage_hud_data.targets.find(x => x.target === x.target);
-      const result = await _rollDamage(x, true, state.data.overkill, hudTarget);
+      const result = await _rollDamage(x, true, state.data.overkill, hudTarget?.plugins, x.target);
       if (result) {
         result.bonus = true;
         if (x.target) {

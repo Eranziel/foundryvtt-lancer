@@ -34,7 +34,6 @@
   {{/if}}
   <div>
     {{#each damage_results as |damage key|}}
-    {{log damage.target}}
       {{#if (not damage.target)}}
         <div class="flexrow">
           {{#if damage.bonus}} <span class="lancer-damage-tag" style="flex-grow: 0" data-tooltip="This row is bonus damage">BONUS</span> {{/if}}
