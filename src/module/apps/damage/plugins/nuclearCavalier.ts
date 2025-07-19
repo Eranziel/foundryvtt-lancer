@@ -61,10 +61,6 @@ export default class Nuke_1 implements DamageHudCheckboxPluginData {
   modifyRoll(roll: string): string {
     return roll;
   }
-  //Modify accuracy
-  get accBonus(): number {
-    return this.active ? 1 : 0;
-  }
 
   //Dehydrated requirements
   hydrate(data: DamageHudData, target?: DamageHudTarget) {

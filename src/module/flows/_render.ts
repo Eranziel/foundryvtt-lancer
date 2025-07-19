@@ -52,7 +52,9 @@ export async function createChatMessageStep(
     content: html,
     flags: flags ? { lancer: flags } : undefined,
   };
+  console.log(chat_data);
   if (!rolls) delete chat_data.rolls;
   const cm = await ChatMessage.implementation.create(chat_data);
+  console.log(cm);
   cm?.render();
 }

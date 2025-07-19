@@ -7,7 +7,7 @@
   $: visibleTalents = determineTalents(targets);
 
   function determineTalents(targets: AccDiffHudTarget[] | DamageHudTarget[] | undefined) {
-    if (targets === undefined) return [];
+    if (targets === undefined || targets.length == 0) return [];
 
     //Assume talents on one target apply to all
     //Alternatively, it could just not display the window at all

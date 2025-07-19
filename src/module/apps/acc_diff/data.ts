@@ -14,6 +14,7 @@ import { Tag } from "../../models/bits/tag";
 import { FittingSize, WeaponType } from "../../enums";
 import Brawler_1 from "./plugins/brawler";
 import Duelist_1 from "./plugins/duelist";
+import { NonNullish } from "@league-of-foundry-developers/foundry-vtt-types/src/types/utils.mjs";
 
 export enum Cover {
   None = 0,
@@ -80,15 +81,27 @@ export class AccDiffHudWeapon {
     return !!this.#data?.lancerActor?.system?.statuses.engaged;
   }
 
-  get weaponType(): WeaponType {
-    // @ts-expect-error
-    return this.#data?.lancerItem?.system?.active_profile.type;
+  get weaponType(): WeaponType | null {
+    if (this.#data?.lancerActor?.is_mech()) {
+      // @ts-expect-error
+      return !!this.#data?.lancerItem?.system?.active_profile.type;
+    } else {
+      //If NPC, they're different in this regard for some reason
+      // @ts-expect-error
+      return !!this.#data?.lancerItem?.system?.weapon_type.split(" ")[1];
+    }
   }
 
   //Is there an integrated melee weapon?
-  get mount(): FittingSize {
-    // @ts-expect-error
-    return this.#data?.lancerItem?.system?.size;
+  get mount(): FittingSize | null {
+    if (this.#data?.lancerActor?.is_mech()) {
+      // @ts-expect-error
+      return !!this.#data?.lancerItem?.system?.size;
+    } else {
+      //If NPC, they're different in this regard for some reason
+      // @ts-expect-error
+      return !!this.#data?.lancerItem?.system?.weapon_type.split(" ")[0];
+    }
   }
 
   total(cover: number) {

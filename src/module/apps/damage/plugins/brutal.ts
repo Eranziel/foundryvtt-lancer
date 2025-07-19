@@ -60,7 +60,6 @@ export default class Brutal_1 implements DamageHudCheckboxPluginData {
   disabled = false;
 
   //RollModifier requirements
-  //We do nothing to modify the roll
   modifyRoll(roll: string): string {
     console.log("roll before: " + roll);
     if (!this.active) return roll;
@@ -77,10 +76,6 @@ export default class Brutal_1 implements DamageHudCheckboxPluginData {
         return (diceNum * diceVal + flatBonus).toString();
       })
       .join(" ");
-  }
-  //Modify accuracy
-  get accBonus(): number {
-    return this.active ? 1 : 0;
   }
 
   //Dehydrated requirements
