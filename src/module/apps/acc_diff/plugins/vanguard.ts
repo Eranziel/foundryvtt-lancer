@@ -1,80 +1,25 @@
-import * as t from "io-ts";
 import { AccDiffHudData, AccDiffHudTarget } from "../data";
 import { AccDiffHudCheckboxPluginData, AccDiffHudPluginCodec } from "./plugin";
 import { enclass } from "../../serde";
 import { LancerToken } from "../../../token";
 import { WeaponType } from "../../../enums";
 import { slugify } from "../../../util/lid";
-import { isTalentAvailable } from "../../../util/misc";
+import { SampleTalent } from "./sampleTalent";
 
-export default class Vanguard_1 implements AccDiffHudCheckboxPluginData {
-  //Plugin state
-  active: boolean = false;
-
+//A lot of common talent boilerplate is contained in SampleTalent
+export default class Vanguard_1 extends SampleTalent implements AccDiffHudCheckboxPluginData {
   //Shared type requirements
   //slugify here to make sure the slug is same across this plugin and TalentWindow.svelte
+  //Alternatively could use lid and rank_num
   static slug: string = slugify("Handshake Etiquette", "-");
   slug: string = slugify("Handshake Etiquette", "-");
-  static category: "acc" | "diff" | "talentWindow" = "talentWindow";
-  category: "acc" | "diff" | "talentWindow" = "talentWindow";
   humanLabel: string = "Handshake Etiquette (+1)";
   tooltip: string = "Gain +1 Accuracy when using CQB weapons to attack targets within Range 3.";
 
   //AccDiffHudPlugin requirements
-  static get schema() {
-    return {
-      active: t.boolean,
-    };
-  }
-  static get schemaCodec() {
-    return t.type(this.schema);
-  }
   // the codec lets us know how to persist whatever data you need for rerolls
   static get codec(): AccDiffHudPluginCodec<Vanguard_1, unknown, unknown> {
     return enclass(this.schemaCodec, Vanguard_1);
-  }
-  get raw() {
-    return {
-      active: this.active,
-    };
-  }
-
-  //CheckboxUI requirements
-  uiElement: "checkbox" = "checkbox";
-  //Doesn't matter as of time of writing I don't think
-  rollPrecedence = 0; // higher numbers happen earlier
-
-  get uiState(): boolean {
-    return this.active;
-  }
-  set uiState(data: boolean) {
-    this.active = data;
-
-    console.log("BEING SET, active = " + this.active);
-  }
-  // this talent is only visible when the owner has talent
-  // only enabled if conditions are satisfied
-  visible = false;
-  disabled = false;
-
-  //RollModifier requirements
-  //We do nothing to modify the roll
-  modifyRoll(roll: string): string {
-    return roll;
-  }
-  //Modify accuracy
-  get accBonus(): number {
-    return this.active ? 1 : 0;
-  }
-
-  //Dehydrated requirements
-  hydrate(data: AccDiffHudData, target?: AccDiffHudTarget) {
-    // Check if actor has talent
-    if (!isTalentAvailable(data.lancerActor, this.slug)) return;
-
-    //Figure out whether we are in a Handshake Etiquette situation
-    this.active = this.handshake(data, target);
-    this.visible = true;
   }
 
   //perTarget because we have to know where the token is
@@ -85,7 +30,8 @@ export default class Vanguard_1 implements AccDiffHudCheckboxPluginData {
   }
 
   //The unique logic of the talent
-  handshake(data: AccDiffHudData, target?: AccDiffHudTarget): boolean {
+  //Name defined from SampleTalent
+  talent(data: AccDiffHudData, target?: AccDiffHudTarget): boolean {
     // Talent only applies to CQB
     if (data.weapon.weaponType !== WeaponType.CQB) return false;
 
@@ -102,5 +48,11 @@ export default class Vanguard_1 implements AccDiffHudCheckboxPluginData {
         return true;
       });
     return areTargetsNearby;
+  }
+
+  //RollModifier Requirements
+  //Modify accuracy
+  get accBonus(): number {
+    return this.active ? 1 : 0;
   }
 }

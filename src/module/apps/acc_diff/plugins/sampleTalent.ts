@@ -2,6 +2,7 @@ import * as t from "io-ts";
 import { AccDiffHudData, AccDiffHudTarget } from "../data";
 import { isTalentAvailable } from "../../../util/misc";
 
+//See ./vanguard.ts and this file for an example of how to implement a new talent
 export class SampleTalent {
   //Plugin state
   active: boolean = false;
