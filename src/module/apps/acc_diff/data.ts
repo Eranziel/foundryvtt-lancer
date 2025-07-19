@@ -15,6 +15,7 @@ import { FittingSize, WeaponType } from "../../enums";
 import Brawler_1 from "./plugins/brawler";
 import Duelist_1 from "./plugins/duelist";
 import { NonNullish } from "@league-of-foundry-developers/foundry-vtt-types/src/types/utils.mjs";
+import Gunslinger_1 from "./plugins/gunslinger";
 
 export enum Cover {
   None = 0,
@@ -84,11 +85,11 @@ export class AccDiffHudWeapon {
   get weaponType(): WeaponType | null {
     if (this.#data?.lancerActor?.is_mech()) {
       // @ts-expect-error
-      return !!this.#data?.lancerItem?.system?.active_profile.type;
+      return this.#data?.lancerItem?.system?.active_profile.type;
     } else {
       //If NPC, they're different in this regard for some reason
       // @ts-expect-error
-      return !!this.#data?.lancerItem?.system?.weapon_type.split(" ")[1];
+      return this.#data?.lancerItem?.system?.weapon_type.split(" ")[1];
     }
   }
 
@@ -96,11 +97,11 @@ export class AccDiffHudWeapon {
   get mount(): FittingSize | null {
     if (this.#data?.lancerActor?.is_mech()) {
       // @ts-expect-error
-      return !!this.#data?.lancerItem?.system?.size;
+      return this.#data?.lancerItem?.system?.size;
     } else {
       //If NPC, they're different in this regard for some reason
       // @ts-expect-error
-      return !!this.#data?.lancerItem?.system?.weapon_type.split(" ")[0];
+      return this.#data?.lancerItem?.system?.weapon_type.split(" ")[0];
     }
   }
 
@@ -508,3 +509,4 @@ AccDiffHudData.registerPlugin(Spotter);
 AccDiffHudData.registerPlugin(Vanguard_1);
 AccDiffHudData.registerPlugin(Brawler_1);
 AccDiffHudData.registerPlugin(Duelist_1);
+AccDiffHudData.registerPlugin(Gunslinger_1);

@@ -2,7 +2,8 @@ import type * as t from "io-ts";
 import { LancerItem } from "../../../item/lancer-item";
 import { LancerActor } from "../../../actor/lancer-actor";
 
-import type { AccDiffData } from "../index";
+import type { AccDiffData, AccDiffHudData, AccDiffHudTarget } from "../index";
+import { isTalentAvailable } from "../../../util/misc";
 
 // Implementing a plugin means implementing
 // * a data object that can compute its view behaviour,
@@ -69,3 +70,66 @@ declare interface AccDiffHudPlugin<Data extends AccDiffHudPluginData> {
 }
 
 export type Data<T> = T extends AccDiffHudPlugin<infer D> ? D : never;
+
+class SampleTalent {
+  //Plugin state
+  active: boolean = false;
+
+  //AccDiffHudPlugin requirements
+  //There is most likely a way to do this in TS. If you know, tell me so I can do it right
+  //@ts-expect-error pinkie promise we will init it
+  slug: string;
+  static category: "acc" | "diff" | "talentWindow" = "talentWindow";
+  category: "acc" | "diff" | "talentWindow" = "talentWindow";
+
+  static get schema() {
+    return {
+      active: t.boolean,
+    };
+  }
+  static get schemaCodec() {
+    return t.type(this.schema);
+  }
+  get raw() {
+    return {
+      active: this.active,
+    };
+  }
+
+  //CheckboxUI requirements
+  uiElement: "checkbox" = "checkbox";
+  //Doesn't matter as of time of writing I don't think
+  rollPrecedence = 0; // higher numbers happen earlier
+
+  get uiState(): boolean {
+    return this.active;
+  }
+  set uiState(data: boolean) {
+    this.active = data;
+
+    console.log("BEING SET, active = " + this.active);
+  }
+  // this talent is only visible when the owner has talent
+  // only enabled if conditions are satisfied
+  visible = false;
+  disabled = false;
+
+  //RollModifier requirements
+  //We do nothing to modify the roll
+  modifyRoll(roll: string): string {
+    return roll;
+  }
+
+  //Dehydrated requirements
+  hydrate(data: AccDiffHudData, target?: AccDiffHudTarget) {
+    // Check if actor has talent
+    if (!isTalentAvailable(data.lancerActor, this.slug)) return;
+
+    //Figure out whether we are in a Handshake Etiquette situation
+    this.active = this.talent(data, target);
+    this.visible = true;
+  }
+
+  //@ts-expect-error pinkie promise we will init it
+  talent(data: AccDiffHudData, target?: AccDiffHudTarget): boolean;
+}

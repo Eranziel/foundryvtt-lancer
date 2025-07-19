@@ -77,9 +77,11 @@ export default class Brutal_1 implements DamageHudCheckboxPluginData {
       })
       .join(" ");
   }
-  //We don't mutate it here
-  mutateDamage(damage?: DamageData[], bonus_damage?: DamageData[]) {
-    return;
+  concatDamages(damages: { damage: DamageData[]; bonus_damage: DamageData[] }): {
+    damage: DamageData[];
+    bonus_damage: DamageData[];
+  } {
+    return damages;
   }
 
   //Dehydrated requirements

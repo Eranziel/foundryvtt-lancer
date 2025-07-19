@@ -31,7 +31,11 @@ type UIBehaviour = CheckboxUI | NoUI;
 
 declare interface RollModifier {
   modifyRoll(roll: string): string;
-  mutateDamage(damage?: DamageData[], bonus_damage?: DamageData[]);
+  //This has to be non-mutating to avoid recursion
+  concatDamages(damages: { damage: DamageData[]; bonus_damage: DamageData[] }): {
+    damage: DamageData[];
+    bonus_damage: DamageData[];
+  };
   get rollPrecedence(): number; // higher numbers happen earlier
 }
 
@@ -67,3 +71,75 @@ declare interface DamageHudPlugin<Data extends DamageHudPluginData> {
 }
 
 export type Data<T> = T extends DamageHudPlugin<infer D> ? D : never;
+
+export class SampleTalent {
+  //Plugin state
+  active: boolean = false;
+
+  //Shared type requirements
+  static category: "acc" | "diff" | "talentWindow" = "talentWindow";
+  category: "acc" | "diff" | "talentWindow" = "talentWindow";
+
+  //AccDiffHudPlugin requirements
+  static get schema() {
+    return {
+      active: t.boolean,
+    };
+  }
+  static get schemaCodec() {
+    return t.type(this.schema);
+  }
+  // the codec lets us know how to persist whatever data you need for rerolls
+  static get codec(): DamageHudPluginCodec<SampleTalent, unknown, unknown> {
+    return enclass(this.schemaCodec, SampleTalent);
+  }
+  get raw() {
+    return {
+      active: this.active,
+    };
+  }
+
+  //CheckboxUI requirements
+  uiElement: "checkbox" = "checkbox";
+  //Doesn't matter as of time of writing I don't think
+  rollPrecedence = 0; // higher numbers happen earlier
+
+  get uiState(): boolean {
+    return this.active;
+  }
+  set uiState(data: boolean) {
+    this.active = data;
+
+    console.log("BEING SET, active = " + this.active);
+  }
+  // this talent is only visible when the owner has talent
+  // only enabled if conditions are satisfied
+  visible = false;
+  disabled = false;
+
+  //RollModifier requirements
+  //We do nothing to modify the roll
+  modifyRoll(roll: string): string {
+    return roll;
+  }
+
+  //perTarget because we have to know where the token is
+  //Perhaps don't initialize at all if talent not applicable?
+  static perUnknownTarget(): SampleTalent {
+    let ret = new SampleTalent();
+    return ret;
+  }
+
+  //Dehydrated requirements
+  hydrate(data: DamageHudData, target?: DamageHudTarget) {
+    // Check if actor has talent
+    if (!isTalentAvailable(data.lancerActor, this.slug)) return;
+
+    //Figure out whether we are in a Handshake Etiquette situation
+    this.active = this.talent(data, target);
+    this.visible = true;
+  }
+
+  //The unique logic of the talent
+  talent(data: DamageHudData, target?: DamageHudTarget): boolean;
+}

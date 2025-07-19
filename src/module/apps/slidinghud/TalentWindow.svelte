@@ -1,9 +1,10 @@
 <script lang="ts">
-  import { AccDiffHudTarget } from "../acc_diff";
+  import { AccDiffHudBase, AccDiffHudTarget } from "../acc_diff";
   import Plugin from "../acc_diff/Plugin.svelte";
   import { DamageHudTarget } from "../damage";
 
   export let targets: AccDiffHudTarget[] | DamageHudTarget[] | undefined;
+  export let base: AccDiffHudBase;
   $: visibleTalents = determineTalents(targets);
 
   function determineTalents(targets: AccDiffHudTarget[] | DamageHudTarget[] | undefined) {
@@ -12,8 +13,10 @@
     //Assume talents on one target apply to all
     //Alternatively, it could just not display the window at all
     //Maybe eventually show talent window per target
-    const talentTargetPlugins = Object.values(targets[0].plugins).filter(plugin => plugin.category === "talentWindow");
-    const visibleTalents = talentTargetPlugins.filter(plugin => plugin.visible);
+    const totalPlugins = Object.values(targets[0].plugins).concat(Object.values(base.plugins));
+    const talentPlugins = totalPlugins.filter(plugin => plugin.category === "talentWindow");
+
+    const visibleTalents = talentPlugins.filter(plugin => plugin.visible);
     return visibleTalents;
   }
 </script>

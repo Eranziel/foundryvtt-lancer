@@ -186,10 +186,20 @@ export class DamageHudBase {
   }
 
   get total() {
-    const weaponTotal = this.#weapon?.total || { damage: [], bonusDamage: [] };
+    const newDamages = Object.values(this.plugins)
+      .map(plugin => plugin.concatDamages({ damage: this.damage, bonus_damage: this.bonusDamage }))
+      .reduce(
+        (sum, damages) => {
+          return {
+            damage: sum.damage.concat(damages.damage),
+            bonus_damage: sum.bonus_damage.concat(damages.bonus_damage),
+          };
+        },
+        { damage: [], bonus_damage: [] }
+      );
     return {
-      damage: weaponTotal.damage.concat(this.damage),
-      bonusDamage: weaponTotal.bonusDamage.concat(this.bonusDamage),
+      damage: newDamages.damage,
+      bonusDamage: newDamages.bonus_damage,
     };
   }
 }

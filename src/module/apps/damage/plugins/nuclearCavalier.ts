@@ -63,11 +63,20 @@ export default class Nuke_1 implements DamageHudCheckboxPluginData {
   modifyRoll(roll: string): string {
     return roll;
   }
-  mutateDamage(damage?: DamageData[], bonus_damage?: DamageData[]) {
-    if (!this.active) return;
+  concatDamages(damages: { damage: DamageData[]; bonus_damage: DamageData[] }): {
+    damage: DamageData[];
+    bonus_damage: DamageData[];
+  } {
+    if (!this.active) return damages;
 
-    damage?.push({ type: DamageType.Heat, val: "2" });
-    return;
+    let damageSlice = damages.damage.slice();
+    let bonusDamageSlice = damages.bonus_damage.slice();
+
+    damageSlice.push({ type: DamageType.Heat, val: "2" });
+    return {
+      damage: damageSlice,
+      bonus_damage: bonusDamageSlice,
+    };
   }
 
   //Dehydrated requirements
@@ -82,10 +91,14 @@ export default class Nuke_1 implements DamageHudCheckboxPluginData {
 
   //perTarget because we have to know where the token is
   //Perhaps don't initialize at all if talent not applicable?
-  static perTarget(item: Token): Nuke_1 {
+  static perUnknownTarget(): Nuke_1 {
     let ret = new Nuke_1();
     return ret;
   }
+  // static perTarget(item: Token): Nuke_1 {
+  //   let ret = Nuke_1.perUnknownTarget();
+  //   return ret;
+  // }
 
   //The unique logic of the talent
   heatbleed(data: DamageHudData, target?: DamageHudTarget): boolean {

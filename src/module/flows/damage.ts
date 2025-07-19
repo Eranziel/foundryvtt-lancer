@@ -152,6 +152,7 @@ async function showDamageHUD(state: FlowState<LancerFlowState.DamageRollData>): 
   if (!state.data) throw new TypeError(`Damage flow state missing!`);
   try {
     // Initialize damage HUD data from the flow state
+    console.log({ damage: state.data.damage, bonusDamage: state.data.bonus_damage });
     state.data.damage_hud_data = DamageHudData.fromParams(state.item ?? state.actor, {
       tags: state.data.tags,
       title: state.data.title,
@@ -316,9 +317,10 @@ export async function rollReliable(state: FlowState<LancerFlowState.DamageRollDa
   if (!state.data) throw new TypeError(`Damage flow state missing!`);
   if (!state.data.damage_hud_data) throw new TypeError(`Damage configuration missing!`);
 
-  const totalDamage = state.data.damage_hud_data.base.total;
-  state.data.damage = totalDamage.damage;
-  state.data.bonus_damage = totalDamage.bonusDamage ?? [];
+  const baseDamage = state.data.damage_hud_data.base.total;
+  const weaponDamage = state.data.damage_hud_data?.weapon?.total ?? { damage: [], bonusDamage: [] };
+  state.data.damage = baseDamage.damage.concat(weaponDamage.damage);
+  state.data.bonus_damage = baseDamage.bonusDamage.concat(weaponDamage.bonusDamage);
   state.data.reliable_val = state.data.damage_hud_data.weapon?.reliableValue ?? 0;
   const allBonusDamage = _collectBonusDamage(state);
 
@@ -327,14 +329,6 @@ export async function rollReliable(state: FlowState<LancerFlowState.DamageRollDa
     ui.notifications?.warn("No damage configured, skipping the roll.");
     return false;
   }
-
-  // This is the first time damage is defined, so we apply plugins here
-  // Perhaps this should be its own step
-  Object.values(state.data.damage_hud_data.targets[0].plugins);
-
-  Object.values(state.data.damage_hud_data.targets[0].plugins)
-    .sort((p: RollModifier, q: RollModifier) => q.rollPrecedence - p.rollPrecedence)
-    .forEach((p: RollModifier) => p.mutateDamage(state.data?.damage, state.data?.bonus_damage));
 
   // Include reliable data if the damage had a reliable configuration.
   // We need it even if there aren't any misses, since it's the floor for normal and crit damage.

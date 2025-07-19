@@ -12,8 +12,8 @@ import { LancerFlowState } from "../flows/interfaces";
 import { LancerCombatant } from "./lancer-combat";
 
 type HistoryWeapon = {
-  mount: FittingSize;
-  weaponType: WeaponType;
+  mount: FittingSize | null;
+  weaponType: WeaponType | null;
   accurate: boolean;
   inaccurate: boolean;
   seeking: boolean;
