@@ -85,7 +85,7 @@ export default class Vanguard_1 implements AccDiffHudCheckboxPluginData {
   }
 
   //The unique logic of the talent
-  handshake(data: AccDiffHudData, target?: AccDiffHudTarget) {
+  handshake(data: AccDiffHudData, target?: AccDiffHudTarget): boolean {
     // Talent only applies to CQB
     if (data.weapon.weaponType !== WeaponType.CQB) return false;
 

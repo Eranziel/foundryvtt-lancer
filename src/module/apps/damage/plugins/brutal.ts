@@ -7,6 +7,7 @@ import { DamageHudData, DamageHudTarget } from "..";
 import { DamageHudCheckboxPluginData, DamageHudPluginCodec } from "./plugin";
 import { dice } from "@league-of-foundry-developers/foundry-vtt-types/src/foundry/client-esm/applications/_module.mjs";
 import { DamageHudHitResult } from "../data";
+import { DamageData } from "../../../models/bits/damage";
 
 export default class Brutal_1 implements DamageHudCheckboxPluginData {
   //Plugin state
@@ -61,7 +62,6 @@ export default class Brutal_1 implements DamageHudCheckboxPluginData {
 
   //RollModifier requirements
   modifyRoll(roll: string): string {
-    console.log("roll before: " + roll);
     if (!this.active) return roll;
 
     return roll
@@ -76,6 +76,10 @@ export default class Brutal_1 implements DamageHudCheckboxPluginData {
         return (diceNum * diceVal + flatBonus).toString();
       })
       .join(" ");
+  }
+  //We don't mutate it here
+  mutateDamage(damage?: DamageData[], bonus_damage?: DamageData[]) {
+    return;
   }
 
   //Dehydrated requirements
@@ -96,7 +100,7 @@ export default class Brutal_1 implements DamageHudCheckboxPluginData {
   }
 
   //The unique logic of the talent
-  predator(data: DamageHudData, target?: DamageHudTarget) {
+  predator(data: DamageHudData, target?: DamageHudTarget): boolean {
     if (target?.hitResult?.base !== "20") return false;
 
     return true;

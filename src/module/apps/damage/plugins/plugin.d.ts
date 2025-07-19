@@ -31,6 +31,7 @@ type UIBehaviour = CheckboxUI | NoUI;
 
 declare interface RollModifier {
   modifyRoll(roll: string): string;
+  mutateDamage(damage?: DamageData[], bonus_damage?: DamageData[]);
   get rollPrecedence(): number; // higher numbers happen earlier
 }
 

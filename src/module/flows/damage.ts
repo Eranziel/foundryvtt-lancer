@@ -226,8 +226,6 @@ async function _rollDamage(
   plugins?: { [k: string]: any },
   target?: LancerToken
 ): Promise<LancerFlowState.DamageResult | null> {
-  console.log("ROLLING DAMAGE");
-
   if (!damage.val || damage.val == "0") return null; // Skip undefined and zero damage
 
   //Apply plugins if there are any
@@ -235,7 +233,6 @@ async function _rollDamage(
     damage.val = Object.values(plugins)
       .sort((p: RollModifier, q: RollModifier) => q.rollPrecedence - p.rollPrecedence)
       .reduce((roll: string, p: RollModifier) => p.modifyRoll(roll), damage.val);
-    console.log("New roll: " + damage.val);
   }
 
   let damageRoll: Roll | undefined = new Roll(damage.val);
@@ -331,6 +328,14 @@ export async function rollReliable(state: FlowState<LancerFlowState.DamageRollDa
     return false;
   }
 
+  // This is the first time damage is defined, so we apply plugins here
+  // Perhaps this should be its own step
+  Object.values(state.data.damage_hud_data.targets[0].plugins);
+
+  Object.values(state.data.damage_hud_data.targets[0].plugins)
+    .sort((p: RollModifier, q: RollModifier) => q.rollPrecedence - p.rollPrecedence)
+    .forEach((p: RollModifier) => p.mutateDamage(state.data?.damage, state.data?.bonus_damage));
+
   // Include reliable data if the damage had a reliable configuration.
   // We need it even if there aren't any misses, since it's the floor for normal and crit damage.
   if (state.data.reliable && state.data.reliable_val) {
@@ -372,8 +377,6 @@ export async function rollNormalDamage(state: FlowState<LancerFlowState.DamageRo
   if (!state.data) throw new TypeError(`Damage flow state missing!`);
   if (!state.data.damage_hud_data) throw new TypeError(`Damage configuration missing!`);
 
-  console.log("ROLL NORMAL DAMAGE ADHAKSUDHKASHDJHAKSD");
-
   // Convenience flag for whether this is a multi-target attack.
   // We'll use this later alongside a check for whether a given bonus damage result
   // is single-target; if not, the bonus damage needs to be halved.
@@ -382,7 +385,6 @@ export async function rollNormalDamage(state: FlowState<LancerFlowState.DamageRo
 
   // Evaluate normal damage. Even if every hit was a crit, we'll use this in
   // the next step for crits
-  console.log(state.data.damage);
   if (state.data.has_normal_hit || state.data.has_crit_hit) {
     for (const x of state.data.damage ?? []) {
       const hudTarget = state.data.damage_hud_data.targets.find(x => x.target === x.target);

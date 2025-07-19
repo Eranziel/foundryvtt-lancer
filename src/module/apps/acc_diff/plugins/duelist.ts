@@ -84,7 +84,7 @@ export default class Duelist_1 implements AccDiffHudCheckboxPluginData {
   }
 
   //The unique logic of the talent
-  partisan(data: AccDiffHudData, target?: AccDiffHudTarget) {
+  partisan(data: AccDiffHudData, target?: AccDiffHudTarget): boolean {
     if (data.weapon.weaponType !== WeaponType.Melee) return false;
     if (data.weapon.mount !== FittingSize.Main) return false;
 

@@ -86,7 +86,7 @@ export default class Brawler_1 implements AccDiffHudCheckboxPluginData {
   }
 
   //The unique logic of the talent
-  holdAndLock(data: AccDiffHudData, target?: AccDiffHudTarget) {
+  holdAndLock(data: AccDiffHudData, target?: AccDiffHudTarget): boolean {
     // Talent only applies to grappled targets
     // A brawler targeting somebody that isn't grappled by themselves still benefits.
     // Not aware of how it can be avoided, short of detecting other tokens nearby and

@@ -5,6 +5,8 @@ import { slugify } from "../../../util/lid";
 import { isTalentAvailable } from "../../../util/misc";
 import { DamageHudData, DamageHudTarget } from "../../damage";
 import { DamageHudCheckboxPluginData, DamageHudPluginCodec } from "./plugin";
+import { DamageData } from "../../../models/bits/damage";
+import { DamageType } from "../../../enums";
 
 export default class Nuke_1 implements DamageHudCheckboxPluginData {
   //Plugin state
@@ -61,6 +63,12 @@ export default class Nuke_1 implements DamageHudCheckboxPluginData {
   modifyRoll(roll: string): string {
     return roll;
   }
+  mutateDamage(damage?: DamageData[], bonus_damage?: DamageData[]) {
+    if (!this.active) return;
+
+    damage?.push({ type: DamageType.Heat, val: "2" });
+    return;
+  }
 
   //Dehydrated requirements
   hydrate(data: DamageHudData, target?: DamageHudTarget) {
@@ -80,7 +88,12 @@ export default class Nuke_1 implements DamageHudCheckboxPluginData {
   }
 
   //The unique logic of the talent
-  heatbleed(data: DamageHudData, target?: DamageHudTarget) {
+  heatbleed(data: DamageHudData, target?: DamageHudTarget): boolean {
+    if (!data.lancerActor?.is_mech()) return false;
+
+    const heat = data.lancerActor.system.heat;
+    if (!(heat.value >= heat.max / 2)) return false;
+
     return true;
   }
 }
