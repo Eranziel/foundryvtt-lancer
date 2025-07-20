@@ -16,6 +16,7 @@ import Brawler_1 from "./plugins/brawler";
 import Duelist_1 from "./plugins/duelist";
 import { NonNullish } from "@league-of-foundry-developers/foundry-vtt-types/src/types/utils.mjs";
 import Gunslinger_1 from "./plugins/gunslinger";
+import Hunter_1 from "./plugins/hunter";
 
 export enum Cover {
   None = 0,
@@ -510,3 +511,4 @@ AccDiffHudData.registerPlugin(Vanguard_1);
 AccDiffHudData.registerPlugin(Brawler_1);
 AccDiffHudData.registerPlugin(Duelist_1);
 AccDiffHudData.registerPlugin(Gunslinger_1);
+AccDiffHudData.registerPlugin(Hunter_1);

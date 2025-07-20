@@ -68,6 +68,15 @@
       <span class="effect-text collapse" data-collapse-id="{{_uuid}}-effect">{{{on_crit}}}</span>
     </div>
   {{/if}}
+  {{#if talent_effects.length}}
+    {{#each talent_effects as |talent key|}}
+      <div class="card clipped">
+        {{!-- Not currently localized, sorry ;( --}}
+        <div class="lancer-mini-header collapse-trigger" data-collapse-id="{{_uuid}}-effect">// {{talent.title}} //</div>
+        <span class="effect-text collapse" data-collapse-id="{{_uuid}}-effect">{{{talent.text}}}</span>
+      </div>
+    {{/each}}
+  {{/if}}
   {{{tag-list "tags"}}}
   <button
     class="lancer-button lancer-damage-flow lancer-secondary"

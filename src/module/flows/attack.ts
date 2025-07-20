@@ -1,6 +1,12 @@
 // Import TypeScript modules
 import { LancerActor } from "../actor/lancer-actor";
-import { AccDiffHudData, AccDiffHudDataSerialized, RollModifier } from "../apps/acc_diff";
+import {
+  AccDiffHudData,
+  AccDiffHudDataSerialized,
+  AccDiffHudPlugin,
+  AccDiffHudPluginData,
+  RollModifier,
+} from "../apps/acc_diff";
 import { DamageHudData } from "../apps/damage";
 import { openSlidingHud } from "../apps/slidinghud";
 import { LANCER } from "../config";
@@ -466,41 +472,45 @@ export async function setAttackEffects(
   options?: {}
 ): Promise<boolean> {
   if (!state.data) throw new TypeError(`Attack flow state missing!`);
+  if (!state.data.acc_diff) throw new TypeError(`Accuracy/difficulty data missing!`);
 
-  state.data.effect = state.data.effect ?? [];
-  state.data.on_attack = state.data.on_attack ?? [];
-  state.data.on_hit = state.data.on_hit ?? [];
-  state.data.on_crit = state.data.on_crit ?? [];
-
-  const plugins = DamageHudData.plugins.concat(DamageHudData.targetedPlugins);
-  plugins.forEach(plugin => {});
+  state.data.talent_effects = state.data.talent_effects ?? [];
+  const acc_diff = state.data.acc_diff;
+  const basePlugins = Object.values(acc_diff.base.plugins);
+  const weaponPlugins = Object.values(acc_diff.weapon.plugins);
+  const targetPlugins = Object.values(acc_diff.targets[0].plugins) ?? [];
+  const plugins: AccDiffHudPluginData[] = basePlugins.concat(weaponPlugins, targetPlugins);
+  plugins.forEach(plugin => {
+    if (plugin.talentEffect === undefined) return;
+    state.data!.talent_effects!.push(plugin.talentEffect);
+  });
 
   // Basic attacks have no tags, just continue on.
   if (!state.item) return true;
   if (state.item.is_mech_weapon()) {
     let profile = state.item.system.active_profile;
-    state.data.effect.push(profile.effect);
-    state.data.on_attack.push(profile.on_attack);
-    state.data.on_hit.push(profile.on_hit);
-    state.data.on_crit.push(profile.on_crit);
+    state.data.effect = profile.effect;
+    state.data.on_attack = profile.on_attack;
+    state.data.on_hit = profile.on_hit;
+    state.data.on_crit = profile.on_crit;
     return true;
   } else if (state.item.is_mech_system()) {
-    state.data.effect.push(state.data.action?.detail ?? state.item.system.effect);
+    state.data.effect = state.data.action?.detail ?? state.item.system.effect;
     return true;
   } else if (state.item.is_talent()) {
-    state.data.effect.push(state.data.action?.detail ?? "");
+    state.data.effect = state.data.action?.detail ?? "";
     return true;
   } else if (state.item.is_frame()) {
     // Frame attacks should only be tech attacks from core systems
-    state.data.effect.push(state.data.action?.detail ?? state.item.system.core_system.active_effect);
+    state.data.effect = state.data.action?.detail ?? state.item.system.core_system.active_effect;
     return true;
   } else if (state.item.is_npc_feature()) {
     let asWeapon = state.item.system as SystemTemplates.NPC.WeaponData;
-    state.data.effect.push(asWeapon.effect);
-    state.data.on_hit.push(asWeapon.on_hit);
+    state.data.effect = asWeapon.effect;
+    state.data.on_hit = asWeapon.on_hit;
     return true;
   } else if (state.item.is_pilot_weapon()) {
-    state.data.effect.push(state.item.system.effect);
+    state.data.effect = state.item.system.effect;
     return true;
   }
   ui.notifications!.error(`Error in attack flow - ${state.item.name} is an invalid type!`);

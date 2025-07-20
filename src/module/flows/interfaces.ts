@@ -10,6 +10,10 @@ import { DamageHudData } from "../apps/damage";
 // -------- Flow state data types -------------------------------------
 // Each flow uses one of these data types to track its state.
 
+export interface TalentEffect {
+  title: string;
+  text: string;
+}
 export namespace LancerFlowState {
   // Shared by all rolls
   interface BaseRollData {
@@ -114,10 +118,11 @@ export namespace LancerFlowState {
 
     attack_type: AttackType; // Melee, Ranged, Quick Tech, Full Tech
     action: ActionData | null;
-    effect?: string[];
-    on_attack?: string[];
-    on_hit?: string[];
-    on_crit?: string[];
+    effect?: string;
+    on_attack?: string;
+    on_hit?: string;
+    on_crit?: string;
+    talent_effects?: TalentEffect[];
 
     tags?: Tag[];
     self_heat?: string; // The self heat roll string if present

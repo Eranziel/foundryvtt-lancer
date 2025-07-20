@@ -69,6 +69,9 @@ export class SampleCardReminder {
   //There is most likely a way to do this in TS. If you know, tell me so I can do it right
   //@ts-expect-error pinkie promise we will init it
   slug: string;
+  //Not actually used, should probably change plugin.d.ts
+  static category: "acc" | "diff" | "talentWindow" = "talentWindow";
+  category: "acc" | "diff" | "talentWindow" = "talentWindow";
 
   static get schema() {
     return {

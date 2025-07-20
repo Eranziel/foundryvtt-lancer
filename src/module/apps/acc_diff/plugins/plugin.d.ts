@@ -4,6 +4,7 @@ import { LancerActor } from "../../../actor/lancer-actor";
 
 import type { AccDiffData, AccDiffHudData, AccDiffHudTarget } from "../index";
 import { isTalentAvailable } from "../../../util/misc";
+import { TalentEffect } from "../../../flows/interfaces";
 
 // Implementing a plugin means implementing
 // * a data object that can compute its view behaviour,
@@ -44,21 +45,22 @@ declare interface Dehydrated {
   hydrate(data: AccDiffData, target?: AccDiffTarget);
 }
 
-export type AccDiffHudPluginData = UIBehaviour & RollModifier & Dehydrated;
-export type AccDiffHudCheckboxPluginData = CheckboxUI & RollModifier & Dehydrated;
-export type AccDiffHudNoUIPluginData = NoUI & RollModifier & Dehydrated;
+declare interface TalentEffectCard {
+  // Text for reminding about the talent if it applies. Especially if it's not automated. See hunter.ts
+  talentEffect?: TalentEffect;
+}
+
+export type AccDiffHudPluginData = UIBehaviour & RollModifier & Dehydrated & TalentEffectCard;
+export type AccDiffHudCheckboxPluginData = CheckboxUI & RollModifier & Dehydrated & TalentEffectCard;
+export type AccDiffHudNoUIPluginData = NoUI & RollModifier & Dehydrated & TalentEffectCard;
 
 export type AccDiffHudPluginCodec<C extends AccDiffHudPluginData, O, I> = Codec<C, O, I>;
 
 declare interface AccDiffHudPlugin<Data extends AccDiffHudPluginData> {
   slug: string;
   category: "acc" | "diff" | "talentWindow";
-  humanLabel?: string; //humanLabel used for title of effect and checkbox
   // the codec lets us know how to persist whatever data you need for rerolls
   codec: AccDiffHudPluginCodec<Data, O, I>;
-  // Text for reminding about the talent if it applies. Especially if it's not automated. See hunter.ts
-  reminderText?: string;
-  reminderKind?: "effect" | "onAttack" | "onHit" | "onCrit";
 
   // these constructors handle creating the initial data for a plugin
   // the presence of these three constructors also indicates what scopes the plugin lives in

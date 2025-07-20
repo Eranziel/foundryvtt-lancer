@@ -105,7 +105,7 @@ export async function initActivationData(
         invade: state.data.action.activation == ActivationType.Invade,
         attack_type: AttackType.Tech,
         action: state.data.action,
-        effect: [state.data.action.detail],
+        effect: state.data.action.detail,
         tags:
           state.item.is_mech_system() || state.item.is_mech_system() || state.item.is_npc_feature()
             ? state.item.system.tags

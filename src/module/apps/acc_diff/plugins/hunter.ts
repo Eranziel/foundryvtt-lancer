@@ -5,6 +5,7 @@ import { FittingSize, WeaponType } from "../../../enums";
 import { slugify } from "../../../util/lid";
 import { SampleCardReminder, SampleTalent } from "./sampleTalents";
 import { getHistory } from "../../../util/misc";
+import { TalentEffect } from "../../../flows/interfaces";
 
 // I'm aware that writing the effect after the attack is late.
 // I still think this will help users keep track of the talents.
@@ -15,10 +16,13 @@ export default class Hunter_1 extends SampleCardReminder implements AccDiffHudNo
   //Alternatively could use lid and rank_num
   static slug: string = slugify("Lunge", "-");
   slug: string = slugify("Lunge", "-");
-  humanLabel: string = "Lunge";
-  reminderText: string =
-    "1/round, when you attack with an Auxiliary melee weapon, you may fly up to 3 spaces directly towards the targeted character before the attack. This movement ignores engagement and doesn’t provoke reactions.";
-  reminderKind: "effect" | "onAttack" | "onHit" | "onCrit" = "onAttack";
+  get talentEffect(): TalentEffect | undefined {
+    if (!this.active) return;
+    return {
+      title: "Lunge",
+      text: "1/round, when you attack with an Auxiliary melee weapon, you may fly up to 3 spaces directly towards the targeted character before the attack. This movement ignores engagement and doesn’t provoke reactions.",
+    };
+  }
 
   //AccDiffHudPlugin requirements
   // the codec lets us know how to persist whatever data you need for rerolls
@@ -43,7 +47,7 @@ export default class Hunter_1 extends SampleCardReminder implements AccDiffHudNo
 
     const actionsThisTurn = getHistory()?.getCurrentTurn(data.lancerActor?.id)?.actions;
     const talentUsed = actionsThisTurn?.find(action => {
-      if (action.weapon.weaponType === WeaponType.Melee) return false;
+      if (action.weapon.weaponType !== WeaponType.Melee) return false;
       if (action.weapon.mount !== FittingSize.Auxiliary) return false;
 
       return true;
