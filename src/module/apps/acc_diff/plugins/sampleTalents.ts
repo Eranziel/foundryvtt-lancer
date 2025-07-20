@@ -8,6 +8,7 @@ export class SampleTalent {
   //Plugin state
   active: boolean = false;
   reminderActive: boolean = false;
+  actorId?: string | null;
 
   //AccDiffHudPlugin requirements
   //There is most likely a way to do this in TS. If you know, tell me so I can do it right
@@ -20,6 +21,8 @@ export class SampleTalent {
   static get schema() {
     return {
       active: t.boolean,
+      reminderActive: t.boolean,
+      actorId: t.union([t.string, t.null, t.undefined]),
     };
   }
   static get schemaCodec() {
@@ -28,6 +31,8 @@ export class SampleTalent {
   get raw() {
     return {
       active: this.active,
+      reminderActive: this.reminderActive,
+      actorId: this.actorId,
     };
   }
 
@@ -65,6 +70,7 @@ export class SampleTalent {
     this.active = this.talent(data, target);
     this.reminderActive = this.talentReminder(data, target);
     this.visible = true;
+    this.actorId = data.lancerActor?.id;
   }
 
   //Unless it's defined, we always return false
@@ -81,6 +87,7 @@ export class SampleCardReminder {
   //Plugin state
   active: boolean = false;
   reminderActive: boolean = false;
+  actorId?: string | null;
 
   //AccDiffHudPlugin requirements
   //There is most likely a way to do this in TS. If you know, tell me so I can do it right
@@ -94,6 +101,8 @@ export class SampleCardReminder {
   static get schema() {
     return {
       active: t.boolean,
+      reminderActive: t.boolean,
+      actorId: t.union([t.string, t.null, t.undefined]),
     };
   }
   static get schemaCodec() {
@@ -102,6 +111,8 @@ export class SampleCardReminder {
   get raw() {
     return {
       active: this.active,
+      reminderActive: this.reminderActive,
+      actorId: this.actorId,
     };
   }
 
@@ -128,6 +139,7 @@ export class SampleCardReminder {
     //Figure out whether we are in a situation the talent applies
     this.active = this.talent(data, target);
     this.reminderActive = this.talentReminder(data, target);
+    this.actorId = data.lancerActor?.id;
   }
 
   //Unless it's defined, we always return false

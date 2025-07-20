@@ -25,7 +25,7 @@ type HistoryTarget = {
   stunned: boolean;
 };
 
-type HistoryHitResult = {
+export type HistoryHitResult = {
   total: number;
   usedLockOn: boolean;
   hit: boolean;
@@ -158,11 +158,24 @@ export class LancerCombatHistory {
     if (typeof actorId !== "string") return;
 
     for (let turn of this.currentRound.turns) {
-      console.log(`Actor ID: ${actorId}, Combatant Actor ID: ${turn.combatant.actorId}`);
       if (turn.combatant.actorId !== actorId) continue;
 
       turn.actions.push(action);
       break;
     }
+  }
+
+  getAllActions(actorId: string | null): HistoryAction[] {
+    let actions = [];
+    for (const round of this.rounds) {
+      for (const turn of round.turns) {
+        if (turn.combatant.actorId !== actorId) continue;
+        for (const action of turn.actions) {
+          actions.push(action);
+        }
+      }
+    }
+
+    return actions;
   }
 }

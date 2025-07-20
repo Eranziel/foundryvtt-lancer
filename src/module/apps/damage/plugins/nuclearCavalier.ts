@@ -10,6 +10,12 @@ import { DamageType } from "../../../enums";
 import { SampleTalent } from "./sampleTalent";
 import { BoundedNum } from "../../../source-template";
 
+function isDangerZone(heat?: BoundedNum): boolean {
+  if (heat == undefined || heat.max === undefined) return false;
+
+  return heat.value >= heat.max / 2;
+}
+
 export default class Nuke_1 extends SampleTalent implements DamageHudCheckboxPluginData {
   //Shared type requirements
   //slugify here to make sure the slug is same across this plugin and TalentWindow.svelte
@@ -47,22 +53,17 @@ export default class Nuke_1 extends SampleTalent implements DamageHudCheckboxPlu
     return ret;
   }
 
-  isDangerZone(heat?: BoundedNum): boolean {
-    if (heat == undefined || heat.max === undefined) return false;
-
-    return heat.value >= heat.max / 2;
-  }
   //The unique logic of the talent
   talent(data: DamageHudData, target?: DamageHudTarget): boolean {
     if (!data.lancerActor?.is_mech()) return false;
 
     const recentActions = getHistory()?.getCurrentTurn(data.lancerActor.id)?.actions ?? [];
     const dangerZoneAttacks = recentActions.filter(action => {
-      return this.isDangerZone(action.heat);
+      return isDangerZone(action.heat);
     });
     if (dangerZoneAttacks.length > 1) return false;
 
-    if (!this.isDangerZone(data.lancerActor.system.heat)) return false;
+    if (!isDangerZone(data.lancerActor.system.heat)) return false;
 
     return true;
   }

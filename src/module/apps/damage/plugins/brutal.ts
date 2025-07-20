@@ -1,5 +1,3 @@
-import * as t from "io-ts";
-// import { enclass } from "../serde";
 import { enclass } from "../../serde";
 import { slugify } from "../../../util/lid";
 import { DamageHudData, DamageHudTarget } from "..";
@@ -67,3 +65,5 @@ export default class Brutal_1 extends SampleTalent implements DamageHudCheckboxP
     return true;
   }
 }
+
+//Brutal_1 is in acc_diff
