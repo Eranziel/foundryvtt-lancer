@@ -1,12 +1,4 @@
-import { LancerActor } from "../actor/lancer-actor";
-import {
-  AccDiffHudBase,
-  AccDiffHudData,
-  AccDiffHudPluginData,
-  AccDiffHudTarget,
-  AccDiffHudWeapon,
-  Cover,
-} from "../apps/acc_diff";
+import { AccDiffHudBase, AccDiffHudData, AccDiffHudPluginData, Cover } from "../apps/acc_diff";
 import { FittingSize, WeaponType } from "../enums";
 import { LancerFlowState } from "../flows/interfaces";
 import { BoundedNum } from "../source-template";
@@ -45,6 +37,7 @@ type HistoryAction = {
   weapon: HistoryWeapon;
   targets: HistoryTarget[];
   base: AccDiffHudBase;
+  type: string;
   hit_results: HistoryHitResult[];
   //Both of these are as of the beginning of the action
   hp?: BoundedNum;
@@ -98,7 +91,7 @@ export class LancerCombatHistory {
   }
 
   dataToAction(
-    data: LancerFlowState.AttackRollData | LancerFlowState.WeaponRollData,
+    data: LancerFlowState.AttackRollData | LancerFlowState.WeaponRollData | LancerFlowState.StatRollData,
     acc_diff: AccDiffHudData
   ): HistoryAction {
     const newWeapon = {
@@ -120,14 +113,17 @@ export class LancerCombatHistory {
       };
     });
 
-    const newHitResults: HistoryHitResult[] = data.hit_results.map(result => {
-      return {
-        total: parseInt(result.total), //Can it be float?
-        usedLockOn: result.usedLockOn,
-        hit: result.hit,
-        crit: result.crit,
-      };
-    });
+    let newHitResults: HistoryHitResult[] = [];
+    if (data.type !== "stat") {
+      newHitResults = data?.hit_results.map(result => {
+        return {
+          total: parseInt(result.total), //Can it be float?
+          usedLockOn: result.usedLockOn,
+          hit: result.hit,
+          crit: result.crit,
+        };
+      });
+    }
 
     const actor = acc_diff.lancerActor;
     const hp = actor?.system.hp;
@@ -144,12 +140,13 @@ export class LancerCombatHistory {
       weapon: newWeapon,
       targets: newTargets,
       base: acc_diff?.base,
+      type: data.type,
       hit_results: newHitResults,
       hp,
       heat,
     };
   }
-  newAction(data: LancerFlowState.AttackRollData | LancerFlowState.WeaponRollData) {
+  newAction(data: LancerFlowState.AttackRollData | LancerFlowState.WeaponRollData | LancerFlowState.StatRollData) {
     if (data.acc_diff === undefined) {
       console.error("MISSING ACC DIFF!!!!");
       return;

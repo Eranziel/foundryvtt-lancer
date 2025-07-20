@@ -85,26 +85,36 @@ export class AccDiffHudWeapon {
   }
 
   get weaponType(): WeaponType | null {
-    if (this.#data?.lancerActor?.is_mech()) {
+    const actor = this.#data?.lancerActor;
+    if (actor === undefined) return null;
+
+    if (actor.is_mech()) {
       // @ts-expect-error
       return this.#data?.lancerItem?.system?.active_profile.type;
-    } else {
+    } else if (actor.is_npc()) {
       //If NPC, they're different in this regard for some reason
       // @ts-expect-error
       return this.#data?.lancerItem?.system?.weapon_type.split(" ")[1];
     }
+
+    return null;
   }
 
   //Is there an integrated melee weapon?
   get mount(): FittingSize | null {
-    if (this.#data?.lancerActor?.is_mech()) {
+    const actor = this.#data?.lancerActor;
+    if (actor === undefined) return null;
+
+    if (actor.is_mech()) {
       // @ts-expect-error
-      return this.#data?.lancerItem?.system?.size;
-    } else {
+      return this.#data?.lancerItem?.system?.size ?? null;
+    } else if (actor.is_npc()) {
       //If NPC, they're different in this regard for some reason
       // @ts-expect-error
-      return this.#data?.lancerItem?.system?.weapon_type.split(" ")[0];
+      return this.#data?.lancerItem?.system?.weapon_type.split(" ")[0] ?? null;
     }
+
+    return null;
   }
 
   total(cover: number) {

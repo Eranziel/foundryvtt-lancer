@@ -19,7 +19,7 @@ export default class Hunter_1 extends SampleCardReminder implements AccDiffHudNo
   static kind: "hase" | "attack" = "attack";
   kind: "hase" | "attack" = "attack";
   get talentEffect(): TalentEffect | undefined {
-    if (!this.active) return;
+    if (!this.reminderActive) return;
     return {
       title: "Lunge",
       text: "1/round, when you attack with an Auxiliary melee weapon, you may fly up to 3 spaces directly towards the targeted character before the attack. This movement ignores engagement and doesn’t provoke reactions.",
@@ -41,7 +41,7 @@ export default class Hunter_1 extends SampleCardReminder implements AccDiffHudNo
 
   //The unique logic of the talent
   //Name defined from SampleTalent
-  talent(data: AccDiffHudData, target?: AccDiffHudTarget): boolean {
+  talentReminder(data: AccDiffHudData, target?: AccDiffHudTarget): boolean {
     // Talent only applies to first Melee Auxillary this turn
     // We won't remind after the first one this turn
     if (data.weapon.weaponType !== WeaponType.Melee) return false;

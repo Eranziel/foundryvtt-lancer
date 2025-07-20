@@ -558,9 +558,7 @@ export async function printAttackCard(
   };
   await renderTemplateStep(state.actor, template, templateData, flags);
 
-  //oQ0zGSqisY5Nyl8P - token
-  //ETH1AmxXlxHv7AU7 - actor
-  //Guiness has already been called to claim the longest one-liner award
+  //Update history
   if (state.data.acc_diff !== undefined) {
     getCombat()?.receiveHistoryAction(state.data);
   }

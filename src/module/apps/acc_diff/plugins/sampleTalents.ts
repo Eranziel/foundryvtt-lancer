@@ -6,6 +6,7 @@ import { isTalentAvailable } from "../../../util/misc";
 export class SampleTalent {
   //Plugin state
   active: boolean = false;
+  reminderActive: boolean = false;
 
   //AccDiffHudPlugin requirements
   //There is most likely a way to do this in TS. If you know, tell me so I can do it right
@@ -54,11 +55,17 @@ export class SampleTalent {
     //Figure out whether we are in a situation the talent applies
     console.log(`${this.slug} is hydrated`);
     this.active = this.talent(data, target);
+    this.reminderActive = this.talentReminder(data, target);
     this.visible = true;
   }
 
-  //@ts-expect-error pinkie promise we will init it
-  talent(data: AccDiffHudData, target?: AccDiffHudTarget): boolean;
+  //Unless it's defined, we always return false
+  talent(data: AccDiffHudData, target?: AccDiffHudTarget): boolean {
+    return false;
+  }
+  talentReminder(data: AccDiffHudData, target?: AccDiffHudTarget): boolean {
+    return false;
+  }
 }
 
 // See hunter.ts for an example implementation

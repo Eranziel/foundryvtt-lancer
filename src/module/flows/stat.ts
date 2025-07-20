@@ -9,6 +9,7 @@ import { AccDiffHudData, AccDiffHudDataSerialized } from "../apps/acc_diff";
 import { openSlidingHud } from "../apps/slidinghud";
 import { UUIDRef } from "../source-template";
 import { Flow, FlowState, Step } from "./flow";
+import { getCombat, getHistory } from "../util/misc";
 
 const lp = LANCER.log_prefix;
 
@@ -46,6 +47,7 @@ async function initStatRollData(
   // If we only have an actor, it's a HASE roll
   if (!state.item) {
     let pathParts = state.data.path.split(".");
+    console.log(pathParts);
     state.data.title = options?.title || state.data.title || pathParts[pathParts.length - 1].toUpperCase();
     state.data.bonus = resolveDotpath(state.actor, state.data.path) as number;
     state.data.acc_diff = options?.acc_diff
@@ -97,6 +99,13 @@ async function rollCheck(state: FlowState<LancerFlowState.StatRollData>): Promis
 async function printStatRollCard(state: FlowState<LancerFlowState.StatRollData>): Promise<boolean> {
   if (!state.data) throw new TypeError(`Stat roll flow state missing!`);
   const template = `systems/${game.system.id}/templates/chat/stat-roll-card.hbs`;
+
+  //Update history
+  if (state.data.acc_diff !== undefined) {
+    getCombat()?.receiveHistoryAction(state.data);
+  }
+  console.log(getHistory());
+
   await renderTemplateStep(state.actor, template, state.data);
   return true;
 }

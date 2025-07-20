@@ -5,6 +5,7 @@ import { slugify } from "../../../util/lid";
 import { SampleTalent } from "./sampleTalents";
 import { LancerItem } from "../../../item/lancer-item";
 import { LancerActor } from "../../../actor/lancer-actor";
+import { HASE } from "../../../enums";
 
 //A lot of common talent boilerplate is contained in SampleTalent
 export default class Ace_1 extends SampleTalent implements AccDiffHudCheckboxPluginData {
@@ -31,6 +32,10 @@ export default class Ace_1 extends SampleTalent implements AccDiffHudCheckboxPlu
   //The unique logic of the talent
   //Name defined from SampleTalent
   talent(data: AccDiffHudData, target?: AccDiffHudTarget): boolean {
+    //This is less explicit of a condition than I'd like
+    //Why would anyone ever change the title :clueless:
+    if (data.title.toLowerCase() !== HASE.A) return false;
+
     if (!data.lancerActor?.system.statuses.flying) return false;
 
     return true;
