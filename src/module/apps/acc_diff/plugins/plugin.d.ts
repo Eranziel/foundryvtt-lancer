@@ -17,7 +17,7 @@ declare interface CheckboxUI {
   uiElement: "checkbox" = "checkbox";
   slug: string;
   humanLabel: string;
-  tooltip: string | null;
+  tooltip?: string;
   get uiState(): boolean;
   set uiState(data: boolean): this;
   get disabled(): boolean;
@@ -31,8 +31,8 @@ declare interface NoUI {
 type UIBehaviour = CheckboxUI | NoUI;
 
 declare interface RollModifier {
-  category: "acc" | "diff" | "talentWindow";
-  modifyRoll(roll: string): string;
+  category?: "acc" | "diff" | "talentWindow";
+  modifyRoll?(roll: string): string;
   get accBonus(): number;
   get rollPrecedence(): number; // higher numbers happen earlier
 }
@@ -53,8 +53,13 @@ export type AccDiffHudPluginCodec<C extends AccDiffHudPluginData, O, I> = Codec<
 declare interface AccDiffHudPlugin<Data extends AccDiffHudPluginData> {
   slug: string;
   category: "acc" | "diff" | "talentWindow";
+  humanLabel?: string; //humanLabel used for title of effect and checkbox
   // the codec lets us know how to persist whatever data you need for rerolls
   codec: AccDiffHudPluginCodec<Data, O, I>;
+  // Text for reminding about the talent if it applies. Especially if it's not automated. See hunter.ts
+  reminderText?: string;
+  reminderKind?: "effect" | "onAttack" | "onHit" | "onCrit";
+
   // these constructors handle creating the initial data for a plugin
   // the presence of these three constructors also indicates what scopes the plugin lives in
   // a "perRoll" plugin applies to all rolls, like weapon seeking

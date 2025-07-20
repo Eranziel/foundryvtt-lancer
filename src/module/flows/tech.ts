@@ -26,12 +26,12 @@ export class TechAttackFlow extends Flow<LancerFlowState.TechAttackRollData> {
     "checkItemLimited",
     "checkItemCharged",
     "setAttackTags",
-    "setAttackEffects",
     "setAttackTargets",
     "showAttackHUD",
     "rollAttacks",
     "applySelfHeat",
     "updateItemAfterAction",
+    "setAttackEffects",
     "printTechAttackCard",
   ];
 
@@ -47,7 +47,7 @@ export class TechAttackFlow extends Flow<LancerFlowState.TechAttackRollData> {
       action: data?.action || null,
       is_smart: true, // Tech attacks always target e-def
       invade: data?.invade || false,
-      effect: data?.effect || "",
+      effect: data?.effect || [],
       attack_rolls: data?.attack_rolls || { roll: "", targeted: [] },
       attack_results: data?.attack_results || [],
       hit_results: data?.hit_results || [],
@@ -75,7 +75,7 @@ function commonMechTechAttackInit(
     // Use the action data
     state.data.title =
       state.data.action.name == ActivationType.Invade ? `INVADE // ${state.data.action.name}` : state.data.action.name;
-    state.data.effect = state.data.action.detail;
+    state.data.effect = [state.data.action.detail];
   }
 
   // TODO: check bonuses for flat attack bonus
@@ -163,8 +163,8 @@ export async function initTechAttackData(
       commonMechTechAttackInit(state, options);
       state.data.tags = state.item.getTags() ?? undefined;
       if (!state.data.action && !state.data.effect) {
-        if (state.item.is_mech_system()) state.data.effect = state.item.system.effect;
-        else state.data.effect = state.item.system.core_system.active_effect;
+        if (state.item.is_mech_system()) state.data.effect = [state.item.system.effect];
+        else state.data.effect = [state.item.system.core_system.active_effect];
       }
       return true;
     } else if (state.item.is_talent()) {

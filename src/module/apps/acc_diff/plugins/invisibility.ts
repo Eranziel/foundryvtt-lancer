@@ -67,7 +67,6 @@ export default class Invisibility implements AccDiffHudCheckboxPluginData {
   humanLabel: string = "Invisible (*)";
   category: "acc" | "diff" | "talentWindow" = "diff";
   static category: "acc" | "diff" | "talentWindow" = "diff";
-  tooltip: string | null = null;
 
   // our uiState is whether we're treating the current target as invisible
   get uiState() {

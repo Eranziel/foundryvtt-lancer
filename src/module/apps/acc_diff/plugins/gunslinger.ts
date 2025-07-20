@@ -4,7 +4,7 @@ import { enclass } from "../../serde";
 import { FittingSize, WeaponType } from "../../../enums";
 import { slugify } from "../../../util/lid";
 import { getHistory } from "../../../util/misc";
-import { SampleTalent } from "./sampleTalent";
+import { SampleTalent } from "./sampleTalents";
 
 export default class Gunslinger_1 extends SampleTalent implements AccDiffHudCheckboxPluginData {
   //Shared type requirements

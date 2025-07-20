@@ -114,10 +114,10 @@ export namespace LancerFlowState {
 
     attack_type: AttackType; // Melee, Ranged, Quick Tech, Full Tech
     action: ActionData | null;
-    effect?: string;
-    on_attack?: string;
-    on_hit?: string;
-    on_crit?: string;
+    effect?: string[];
+    on_attack?: string[];
+    on_hit?: string[];
+    on_crit?: string[];
 
     tags?: Tag[];
     self_heat?: string; // The self heat roll string if present

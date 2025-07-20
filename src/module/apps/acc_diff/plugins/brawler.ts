@@ -4,7 +4,7 @@ import { enclass } from "../../serde";
 import { LancerToken } from "../../../token";
 import { WeaponType } from "../../../enums";
 import { slugify } from "../../../util/lid";
-import { SampleTalent } from "./sampleTalent";
+import { SampleTalent } from "./sampleTalents";
 
 export default class Brawler_1 extends SampleTalent implements AccDiffHudCheckboxPluginData {
   //Shared type requirements

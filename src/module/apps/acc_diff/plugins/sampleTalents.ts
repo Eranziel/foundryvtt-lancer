@@ -46,20 +46,59 @@ export class SampleTalent {
   visible = false;
   disabled = false;
 
-  //RollModifier requirements
-  //We do nothing to modify the roll
-  modifyRoll(roll: string): string {
-    return roll;
+  //Dehydrated requirements
+  hydrate(data: AccDiffHudData, target?: AccDiffHudTarget) {
+    // Check if actor has talent
+    if (!isTalentAvailable(data.lancerActor, this.slug)) return;
+
+    //Figure out whether we are in a situation the talent applies
+    this.active = this.talent(data, target);
+    this.visible = true;
   }
+
+  //@ts-expect-error pinkie promise we will init it
+  talent(data: AccDiffHudData, target?: AccDiffHudTarget): boolean;
+}
+
+// See hunter.ts for an example implementation
+export class SampleCardReminder {
+  //Plugin state
+  active: boolean = false;
+
+  //AccDiffHudPlugin requirements
+  //There is most likely a way to do this in TS. If you know, tell me so I can do it right
+  //@ts-expect-error pinkie promise we will init it
+  slug: string;
+
+  static get schema() {
+    return {
+      active: t.boolean,
+    };
+  }
+  static get schemaCodec() {
+    return t.type(this.schema);
+  }
+  get raw() {
+    return {
+      active: this.active,
+    };
+  }
+
+  //NoUI requirement
+  uiElement: "none" = "none";
+
+  //RollModifier requirements
+  readonly accBonus = 0;
+  //Doesn't matter as of time of writing I don't think
+  rollPrecedence = 0; // higher numbers happen earlier
 
   //Dehydrated requirements
   hydrate(data: AccDiffHudData, target?: AccDiffHudTarget) {
     // Check if actor has talent
     if (!isTalentAvailable(data.lancerActor, this.slug)) return;
 
-    //Figure out whether we are in a Handshake Etiquette situation
+    //Figure out whether we are in a situation the talent applies
     this.active = this.talent(data, target);
-    this.visible = true;
   }
 
   //@ts-expect-error pinkie promise we will init it
