@@ -65,6 +65,8 @@ export default class Invisibility implements AccDiffHudCheckboxPluginData {
   slug: string = "invisibility";
   static slug: string = "invisibility";
   humanLabel: string = "Invisible (*)";
+  static kind: "hase" | "attack" = "attack";
+  kind: "hase" | "attack" = "attack";
   category: "acc" | "diff" | "talentWindow" = "diff";
   static category: "acc" | "diff" | "talentWindow" = "diff";
 

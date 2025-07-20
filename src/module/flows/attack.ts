@@ -479,7 +479,7 @@ export async function setAttackEffects(
   const basePlugins = Object.values(acc_diff.base.plugins);
   const weaponPlugins = Object.values(acc_diff.weapon.plugins);
   const targetPlugins = Object.values(acc_diff.targets[0].plugins) ?? [];
-  const plugins: AccDiffHudPluginData[] = basePlugins.concat(weaponPlugins, targetPlugins);
+  const plugins = basePlugins.concat(weaponPlugins, targetPlugins);
   plugins.forEach(plugin => {
     if (plugin.talentEffect === undefined) return;
     state.data!.talent_effects!.push(plugin.talentEffect);

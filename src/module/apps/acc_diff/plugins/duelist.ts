@@ -11,6 +11,8 @@ export default class Duelist_1 extends SampleTalent implements AccDiffHudCheckbo
   //slugify here to make sure the slug is same across this plugin and TalentWindow.svelte
   static slug: string = slugify("Partisan", "-");
   slug: string = slugify("Partisan", "-");
+  static kind: "hase" | "attack" = "attack";
+  kind: "hase" | "attack" = "attack";
   humanLabel: string = "Partisan (+1)";
   tooltip: string = "Gain +1 Accuracy on the first melee attack you make with a Main Melee weapon on your turn.";
 

@@ -45,20 +45,18 @@ declare interface Dehydrated {
   hydrate(data: AccDiffData, target?: AccDiffTarget);
 }
 
-declare interface TalentEffectCard {
-  // Text for reminding about the talent if it applies. Especially if it's not automated. See hunter.ts
-  talentEffect?: TalentEffect;
-}
-
-export type AccDiffHudPluginData = UIBehaviour & RollModifier & Dehydrated & TalentEffectCard;
-export type AccDiffHudCheckboxPluginData = CheckboxUI & RollModifier & Dehydrated & TalentEffectCard;
-export type AccDiffHudNoUIPluginData = NoUI & RollModifier & Dehydrated & TalentEffectCard;
+export type AccDiffHudPluginData = UIBehaviour & RollModifier & Dehydrated;
+export type AccDiffHudCheckboxPluginData = CheckboxUI & RollModifier & Dehydrated;
+export type AccDiffHudNoUIPluginData = NoUI & RollModifier & Dehydrated;
 
 export type AccDiffHudPluginCodec<C extends AccDiffHudPluginData, O, I> = Codec<C, O, I>;
 
 declare interface AccDiffHudPlugin<Data extends AccDiffHudPluginData> {
   slug: string;
   category: "acc" | "diff" | "talentWindow";
+  kind: "hase" | "attack";
+  // Text for reminding about the talent if it applies. Especially if it's not automated. See hunter.ts
+  talentEffect?: TalentEffect;
   // the codec lets us know how to persist whatever data you need for rerolls
   codec: AccDiffHudPluginCodec<Data, O, I>;
 

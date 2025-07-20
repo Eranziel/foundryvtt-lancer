@@ -52,6 +52,7 @@ export class SampleTalent {
     if (!isTalentAvailable(data.lancerActor, this.slug)) return;
 
     //Figure out whether we are in a situation the talent applies
+    console.log(`${this.slug} is hydrated`);
     this.active = this.talent(data, target);
     this.visible = true;
   }
@@ -64,6 +65,7 @@ export class SampleTalent {
 export class SampleCardReminder {
   //Plugin state
   active: boolean = false;
+  reminderActive: boolean = false;
 
   //AccDiffHudPlugin requirements
   //There is most likely a way to do this in TS. If you know, tell me so I can do it right
@@ -102,8 +104,14 @@ export class SampleCardReminder {
 
     //Figure out whether we are in a situation the talent applies
     this.active = this.talent(data, target);
+    this.reminderActive = this.talentReminder(data, target);
   }
 
-  //@ts-expect-error pinkie promise we will init it
-  talent(data: AccDiffHudData, target?: AccDiffHudTarget): boolean;
+  //Unless it's defined, we always return false
+  talent(data: AccDiffHudData, target?: AccDiffHudTarget): boolean {
+    return true;
+  }
+  talentReminder(data: AccDiffHudData, target?: AccDiffHudTarget): boolean {
+    return false;
+  }
 }

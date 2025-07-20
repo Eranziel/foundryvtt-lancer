@@ -105,6 +105,7 @@ export namespace SystemTemplates {
       stunned: boolean;
       hidden: boolean;
       grappled: boolean;
+      flying: boolean;
     };
     resistances: {
       // These can be set by active effects

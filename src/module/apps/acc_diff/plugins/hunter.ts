@@ -16,6 +16,8 @@ export default class Hunter_1 extends SampleCardReminder implements AccDiffHudNo
   //Alternatively could use lid and rank_num
   static slug: string = slugify("Lunge", "-");
   slug: string = slugify("Lunge", "-");
+  static kind: "hase" | "attack" = "attack";
+  kind: "hase" | "attack" = "attack";
   get talentEffect(): TalentEffect | undefined {
     if (!this.active) return;
     return {

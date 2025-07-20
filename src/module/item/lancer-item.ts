@@ -704,7 +704,6 @@ export class LancerItem extends Item {
   }
 
   async beginActivationFlow(path?: string) {
-    console.log("PAAAAAATH");
     console.log(path);
     if (!path) {
       // If no path is provided, default to the first action

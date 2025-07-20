@@ -12,6 +12,8 @@ export default class Brawler_1 extends SampleTalent implements AccDiffHudCheckbo
   //Alternatively could use lid and rank_num
   static slug: string = slugify("Hold and Lock", "-");
   slug: string = slugify("Hold and Lock", "-");
+  static kind: "hase" | "attack" = "attack";
+  kind: "hase" | "attack" = "attack";
   humanLabel: string = "Hold and Lock (+1)";
   tooltip: string = "You gain +1 Accuracy on all melee attacks against targets YOU are Grappling.";
 

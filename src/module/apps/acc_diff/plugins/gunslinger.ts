@@ -11,6 +11,8 @@ export default class Gunslinger_1 extends SampleTalent implements AccDiffHudChec
   //slugify here to make sure the slug is same across this plugin and TalentWindow.svelte
   static slug: string = slugify("Opening Argument", "-");
   slug: string = slugify("Opening Argument", "-");
+  static kind: "hase" | "attack" = "attack";
+  kind: "hase" | "attack" = "attack";
   humanLabel: string = "Opening Argument (+1)";
   tooltip: string = "Gain +1 Accuracy on the first attack roll you make with an Auxiliary ranged weapon on your turn.";
 

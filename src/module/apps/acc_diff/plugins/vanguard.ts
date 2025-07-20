@@ -19,6 +19,8 @@ export default class Vanguard_1 extends SampleTalent implements AccDiffHudCheckb
   //Alternatively could use lid and rank_num
   static slug: string = slugify("Handshake Etiquette", "-");
   slug: string = slugify("Handshake Etiquette", "-");
+  static kind: "hase" | "attack" = "attack";
+  kind: "hase" | "attack" = "attack";
   humanLabel: string = "Handshake Etiquette (+1)";
   tooltip: string = "Gain +1 Accuracy when using CQB weapons to attack targets within Range 3.";
 

@@ -17,6 +17,7 @@ import Duelist_1 from "./plugins/duelist";
 import { NonNullish } from "@league-of-foundry-developers/foundry-vtt-types/src/types/utils.mjs";
 import Gunslinger_1 from "./plugins/gunslinger";
 import Hunter_1 from "./plugins/hunter";
+import Ace_1 from "./plugins/ace";
 
 export enum Cover {
   None = 0,
@@ -34,7 +35,7 @@ export class AccDiffHudWeapon {
   seeking: boolean;
   engaged: boolean;
   #data!: AccDiffHudData; // never use this class before calling hydrate
-  plugins: { [k: string]: AccDiffHudPluginData };
+  plugins: { [k: string]: any };
 
   static pluginSchema: { [k: string]: AccDiffHudPluginCodec<any, any, any> } = {};
 
@@ -107,12 +108,18 @@ export class AccDiffHudWeapon {
   }
 
   total(cover: number) {
+    let pluginBonus: number = Object.values(this.plugins).reduce(
+      (a: number, b: AccDiffHudPluginData) => a + b.accBonus,
+      0
+    );
+
     return (
       (this.accurate ? 1 : 0) -
       (this.inaccurate ? 1 : 0) -
       (this.seeking ? 0 : cover) -
       (this.impaired ? 1 : 0) -
-      (this.engaged ? 1 : 0)
+      (this.engaged ? 1 : 0) +
+      pluginBonus
     );
   }
 
@@ -130,7 +137,7 @@ export class AccDiffHudBase {
   accuracy: number;
   difficulty: number;
   cover: Cover;
-  plugins: { [k: string]: AccDiffHudPluginData };
+  plugins: { [k: string]: any };
   #weapon!: AccDiffHudWeapon; // never use this class before calling hydrate
 
   static pluginSchema: { [k: string]: AccDiffHudPluginCodec<any, any, any> } = {};
@@ -180,7 +187,11 @@ export class AccDiffHudBase {
   }
 
   get total() {
-    return this.accuracy - this.difficulty + this.#weapon.total(this.cover);
+    let pluginBonus: number = Object.values(this.plugins).reduce(
+      (a: number, b: AccDiffHudPluginData) => a + b.accBonus,
+      0
+    );
+    return this.accuracy - this.difficulty + this.#weapon.total(this.cover) + pluginBonus;
   }
 }
 
@@ -512,3 +523,4 @@ AccDiffHudData.registerPlugin(Brawler_1);
 AccDiffHudData.registerPlugin(Duelist_1);
 AccDiffHudData.registerPlugin(Gunslinger_1);
 AccDiffHudData.registerPlugin(Hunter_1);
+AccDiffHudData.registerPlugin(Ace_1);
