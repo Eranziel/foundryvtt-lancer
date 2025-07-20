@@ -1,4 +1,3 @@
-import * as t from "io-ts";
 import { AccDiffHudData, AccDiffHudTarget } from "../data";
 import { AccDiffHudCheckboxPluginData, AccDiffHudPluginCodec } from "./plugin";
 import { enclass } from "../../serde";

@@ -210,7 +210,7 @@ export class DamageHudBase {
 // so if you extend DamageBase it's trying to assign DamageBase to DamageTarget
 export class DamageHudTarget {
   target: LancerToken;
-  hitResult: DamageHudHitResult | undefined;
+  hitResult: DamageHudHitResult;
   quality: HitQuality;
   ap: boolean;
   paracausal: boolean;
@@ -225,7 +225,7 @@ export class DamageHudTarget {
   static get schema() {
     return {
       target_id: t.string,
-      hitResult: t.union([DamageHudHitResult.codec, t.undefined]),
+      hitResult: DamageHudHitResult.codec,
       quality: t.number,
       ap: t.boolean,
       paracausal: t.boolean,
@@ -275,8 +275,8 @@ export class DamageHudTarget {
 
   static fromParams(
     t: Token,
+    hitResult: DamageHudHitResult,
     data?: {
-      hitResult?: DamageHudHitResult;
       quality?: HitQuality;
       ap?: boolean;
       paracausal?: boolean;
@@ -286,7 +286,7 @@ export class DamageHudTarget {
   ): DamageHudTarget {
     let ret = {
       target_id: t.id,
-      hitResult: data?.hitResult,
+      hitResult,
       quality: data?.quality ?? HitQuality.Hit,
       ap: data?.ap || false,
       paracausal: data?.paracausal || false,
@@ -428,8 +428,7 @@ export class DamageHudData {
     this.targets = ts.map(
       (t, idx) =>
         oldTargets[t.id] ??
-        DamageHudTarget.fromParams(t, {
-          hitResult: this.hitResults[idx],
+        DamageHudTarget.fromParams(t, this.hitResults[idx], {
           quality: this.getHitQuality(t as LancerToken),
         })
     );

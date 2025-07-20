@@ -152,7 +152,6 @@ async function showDamageHUD(state: FlowState<LancerFlowState.DamageRollData>): 
   if (!state.data) throw new TypeError(`Damage flow state missing!`);
   try {
     // Initialize damage HUD data from the flow state
-    console.log({ damage: state.data.damage, bonusDamage: state.data.bonus_damage });
     state.data.damage_hud_data = DamageHudData.fromParams(state.item ?? state.actor, {
       tags: state.data.tags,
       title: state.data.title,
