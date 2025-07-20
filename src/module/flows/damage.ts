@@ -632,8 +632,6 @@ export async function getCritRoll(normal: Roll) {
       return t;
     }
   });
-  console.log(terms);
-
   return Roll.fromTerms(terms);
 }
 

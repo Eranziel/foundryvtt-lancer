@@ -2,12 +2,13 @@ import * as t from "io-ts";
 // import { enclass } from "../serde";
 import { enclass } from "../../serde";
 import { slugify } from "../../../util/lid";
-import { isTalentAvailable } from "../../../util/misc";
+import { getHistory, isTalentAvailable } from "../../../util/misc";
 import { DamageHudData, DamageHudTarget } from "../../damage";
 import { DamageHudCheckboxPluginData, DamageHudPluginCodec } from "./plugin";
 import { DamageData } from "../../../models/bits/damage";
 import { DamageType } from "../../../enums";
 import { SampleTalent } from "./sampleTalent";
+import { BoundedNum } from "../../../source-template";
 
 export default class Nuke_1 extends SampleTalent implements DamageHudCheckboxPluginData {
   //Shared type requirements
@@ -46,12 +47,22 @@ export default class Nuke_1 extends SampleTalent implements DamageHudCheckboxPlu
     return ret;
   }
 
+  isDangerZone(heat?: BoundedNum): boolean {
+    if (heat == undefined || heat.max === undefined) return false;
+
+    return heat.value >= heat.max / 2;
+  }
   //The unique logic of the talent
   talent(data: DamageHudData, target?: DamageHudTarget): boolean {
     if (!data.lancerActor?.is_mech()) return false;
 
-    const heat = data.lancerActor.system.heat;
-    if (!(heat.value >= heat.max / 2)) return false;
+    const recentActions = getHistory()?.getCurrentTurn(data.lancerActor.id)?.actions ?? [];
+    const dangerZoneAttacks = recentActions.filter(action => {
+      return this.isDangerZone(action.heat);
+    });
+    if (dangerZoneAttacks.length > 1) return false;
+
+    if (!this.isDangerZone(data.lancerActor.system.heat)) return false;
 
     return true;
   }

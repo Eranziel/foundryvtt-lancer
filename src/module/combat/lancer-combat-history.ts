@@ -9,6 +9,7 @@ import {
 } from "../apps/acc_diff";
 import { FittingSize, WeaponType } from "../enums";
 import { LancerFlowState } from "../flows/interfaces";
+import { BoundedNum } from "../source-template";
 import { LancerCombatant } from "./lancer-combat";
 
 type HistoryWeapon = {
@@ -45,6 +46,9 @@ type HistoryAction = {
   targets: HistoryTarget[];
   base: AccDiffHudBase;
   hit_results: HistoryHitResult[];
+  //Both of these are as of the beginning of the action
+  hp?: BoundedNum;
+  heat?: BoundedNum;
 };
 
 type HistoryTurn = {
@@ -125,11 +129,24 @@ export class LancerCombatHistory {
       };
     });
 
+    const actor = acc_diff.lancerActor;
+    const hp = actor?.system.hp;
+    let heat: BoundedNum = {
+      min: 0,
+      max: 0,
+      value: 0,
+    };
+    if (actor?.hasHeatcap()) {
+      heat = actor?.system.heat;
+    }
+
     return {
       weapon: newWeapon,
       targets: newTargets,
       base: acc_diff?.base,
       hit_results: newHitResults,
+      hp,
+      heat,
     };
   }
   newAction(data: LancerFlowState.AttackRollData | LancerFlowState.WeaponRollData) {
