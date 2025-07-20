@@ -2,13 +2,12 @@ import * as t from "io-ts";
 // import { enclass } from "../serde";
 import { enclass } from "../../serde";
 import { slugify } from "../../../util/lid";
-import { isTalentAvailable } from "../../../util/misc";
 import { DamageHudData, DamageHudTarget } from "..";
 import { DamageHudCheckboxPluginData, DamageHudPluginCodec } from "./plugin";
-import { dice } from "@league-of-foundry-developers/foundry-vtt-types/src/foundry/client-esm/applications/_module.mjs";
-import { DamageHudHitResult } from "../data";
 import { DamageData } from "../../../models/bits/damage";
 import { SampleTalent } from "./sampleTalent";
+import { LancerActor } from "../../../actor/lancer-actor";
+import { LancerItem } from "../../../item/lancer-item";
 
 export default class Brutal_1 extends SampleTalent implements DamageHudCheckboxPluginData {
   //Shared type requirements
@@ -42,7 +41,7 @@ export default class Brutal_1 extends SampleTalent implements DamageHudCheckboxP
       })
       .join(" ");
   }
-  concatDamages(damages: { damage: DamageData[]; bonus_damage: DamageData[] }): {
+  modifyDamages(damages: { damage: DamageData[]; bonus_damage: DamageData[] }): {
     damage: DamageData[];
     bonus_damage: DamageData[];
   } {
@@ -56,7 +55,7 @@ export default class Brutal_1 extends SampleTalent implements DamageHudCheckboxP
   //   return ret;
   // }
 
-  static perTarget(item: Token): Brutal_1 {
+  static perRoll(item?: LancerItem | LancerActor): Brutal_1 {
     let ret = new Brutal_1();
     return ret;
   }

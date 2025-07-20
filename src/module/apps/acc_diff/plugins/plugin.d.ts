@@ -57,6 +57,8 @@ declare interface AccDiffHudPlugin<Data extends AccDiffHudPluginData> {
   kind: "hase" | "attack";
   // Text for reminding about the talent if it applies. Especially if it's not automated. See hunter.ts
   talentEffect?: TalentEffect;
+  // If true and the setting for talent automation is off, this plugin won't be registered
+  isTalent: boolean;
   // the codec lets us know how to persist whatever data you need for rerolls
   codec: AccDiffHudPluginCodec<Data, O, I>;
 

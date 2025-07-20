@@ -11,6 +11,7 @@ import { DamageType, NpcFeatureType } from "../../enums";
 import { LancerFlowState } from "../../flows/interfaces";
 import Nuke_1 from "./plugins/nuclearCavalier";
 import Brutal_1 from "./plugins/brutal";
+import { LANCER } from "../../config";
 
 export enum HitQuality {
   Miss = 0,
@@ -187,7 +188,7 @@ export class DamageHudBase {
 
   get total() {
     const newDamages = Object.values(this.plugins)
-      .map(plugin => plugin.concatDamages({ damage: this.damage, bonus_damage: this.bonusDamage }))
+      .map(plugin => plugin.modifyDamages({ damage: this.damage, bonus_damage: this.bonusDamage }))
       .reduce(
         (sum, damages) => {
           return {
@@ -589,5 +590,6 @@ export class DamageHudData {
   }
 }
 
+//We need to register plugins after settings are initialized
 DamageHudData.registerPlugin(Nuke_1);
 DamageHudData.registerPlugin(Brutal_1);

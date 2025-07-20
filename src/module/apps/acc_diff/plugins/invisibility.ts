@@ -69,6 +69,7 @@ export default class Invisibility implements AccDiffHudCheckboxPluginData {
   kind: "hase" | "attack" = "attack";
   category: "acc" | "diff" | "talentWindow" = "diff";
   static category: "acc" | "diff" | "talentWindow" = "diff";
+  static isTalent: boolean = false;
 
   // our uiState is whether we're treating the current target as invisible
   get uiState() {

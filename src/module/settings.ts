@@ -250,6 +250,12 @@ export class AutomationOptions extends foundry.abstract.DataModel<AutomationOpti
         label: "lancer.automation.attacks",
         hint: "lancer.automation.attacks-desc",
       }),
+      talents: new fields.BooleanField({
+        required: true,
+        initial: false,
+        label: "lancer.automation.talents",
+        hint: "lancer.automation.talents-desc",
+      }),
       structure: new fields.BooleanField({
         required: true,
         initial: true,

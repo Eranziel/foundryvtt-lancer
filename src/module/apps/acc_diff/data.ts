@@ -14,10 +14,10 @@ import { Tag } from "../../models/bits/tag";
 import { FittingSize, WeaponType } from "../../enums";
 import Brawler_1 from "./plugins/brawler";
 import Duelist_1 from "./plugins/duelist";
-import { NonNullish } from "@league-of-foundry-developers/foundry-vtt-types/src/types/utils.mjs";
 import Gunslinger_1 from "./plugins/gunslinger";
 import Hunter_1 from "./plugins/hunter";
 import Ace_1 from "./plugins/ace";
+import { LANCER } from "../../config";
 
 export enum Cover {
   None = 0,

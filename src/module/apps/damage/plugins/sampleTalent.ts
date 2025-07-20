@@ -1,6 +1,7 @@
 import * as t from "io-ts";
 import { DamageHudData, DamageHudTarget } from "../data";
 import { isTalentAvailable } from "../../../util/misc";
+import { LANCER } from "../../../config";
 
 //See ./vanguard.ts and this file for an example of how to implement a new talent
 export class SampleTalent {
@@ -13,6 +14,9 @@ export class SampleTalent {
   slug: string;
   static category: "acc" | "diff" | "talentWindow" = "talentWindow";
   category: "acc" | "diff" | "talentWindow" = "talentWindow";
+  static kind: "damage" = "damage";
+  kind: "damage" = "damage";
+  static isTalent: boolean = true;
 
   static get schema() {
     return {
@@ -54,9 +58,16 @@ export class SampleTalent {
 
   //Dehydrated requirements
   hydrate(data: DamageHudData, target?: DamageHudTarget) {
+    //Property 'talents' does not exist on type 'AutomationOptions'
+    //It does tho ?
+    //If the setting is off, do not proceed
+    const talentsActive = game.settings.get(game.system.id, LANCER.setting_automation).talents;
+    if (!talentsActive) return;
+
     // Check if actor has talent
     if (!isTalentAvailable(data.lancerActor, this.slug)) return;
 
+    console.log(`${this.slug} is hydrated`);
     //Figure out whether we are in a Handshake Etiquette situation
     this.active = this.talent(data, target);
     this.visible = true;

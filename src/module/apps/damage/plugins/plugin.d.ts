@@ -17,6 +17,7 @@ declare interface CheckboxUI {
   uiElement: "checkbox" = "checkbox";
   slug: string;
   humanLabel: string;
+  tooltip?: string;
   get uiState(): boolean;
   set uiState(data: boolean): this;
   get disabled(): boolean;
@@ -32,7 +33,7 @@ type UIBehaviour = CheckboxUI | NoUI;
 declare interface RollModifier {
   modifyRoll(roll: string): string;
   //This has to be non-mutating to avoid recursion
-  concatDamages(damages: { damage: DamageData[]; bonus_damage: DamageData[] }): {
+  modifyDamages(damages: { damage: DamageData[]; bonus_damage: DamageData[] }): {
     damage: DamageData[];
     bonus_damage: DamageData[];
   };
@@ -54,6 +55,9 @@ export type DamageHudPluginCodec<C extends DamageHudPluginData, O, I> = Codec<C,
 
 declare interface DamageHudPlugin<Data extends DamageHudPluginData> {
   slug: string;
+  // If true and the setting for talent automation is off, this plugin won't be registered
+  isTalent: boolean;
+  kind: "damage" = "damage";
   // the codec lets us know how to persist whatever data you need for rerolls
   codec: DamageHudPluginCodec<Data, O, I>;
   // these constructors handle creating the initial data for a plugin

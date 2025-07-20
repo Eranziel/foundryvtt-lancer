@@ -24,7 +24,7 @@ export default class Nuke_1 extends SampleTalent implements DamageHudCheckboxPlu
     return enclass(this.schemaCodec, Nuke_1);
   }
 
-  concatDamages(damages: { damage: DamageData[]; bonus_damage: DamageData[] }): {
+  modifyDamages(damages: { damage: DamageData[]; bonus_damage: DamageData[] }): {
     damage: DamageData[];
     bonus_damage: DamageData[];
   } {

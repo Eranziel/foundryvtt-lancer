@@ -332,6 +332,8 @@
       "master-switch-desc": "Turn this off to do everything manually",
       "attacks": "Attack roll evaluation",
       "attacks-desc": "Toggle for whether or not you want the system to auto-calculate hits and other attack related automation.",
+      "talents": "Talent application (EXPERIMENTAL!!!1!1!!)",
+      "talents-desc": "Toggle for whether or not you want the system to provide checkboxes for toggling talents as well as automatically enabling and applying some of them.",
       "damage": "Damage application",
       "damage-desc": "Toggle for whether or not you want the system to apply rolled damage to targets.",
       "structure": "Structure/Stress",
