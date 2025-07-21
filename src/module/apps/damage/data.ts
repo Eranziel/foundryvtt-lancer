@@ -12,6 +12,7 @@ import { LancerFlowState } from "../../flows/interfaces";
 import Nuke_1 from "./plugins/nuclearCavalier";
 import Brutal_1 from "./plugins/brutal";
 import { LANCER } from "../../config";
+import Brawler_2 from "./plugins/brawler2";
 
 export enum HitQuality {
   Miss = 0,
@@ -103,7 +104,21 @@ export class DamageHudWeapon {
   }
 
   get total() {
-    return { damage: this.damage, bonusDamage: this.bonusDamage };
+    const pluginDamages = Object.values(this.plugins)
+      .map(plugin => plugin.modifyDamages({ damage: this.damage, bonus_damage: this.bonusDamage }))
+      .reduce(
+        (sum, damages) => {
+          return {
+            damage: sum.damage.concat(damages.damage),
+            bonus_damage: sum.bonus_damage.concat(damages.bonus_damage),
+          };
+        },
+        { damage: [], bonus_damage: [] }
+      );
+    return {
+      damage: this.damage.concat(pluginDamages.damage),
+      bonusDamage: this.bonusDamage.concat(pluginDamages.bonus_damage),
+    };
   }
 
   static parseReliableVal(tag: Tag, source?: LancerItem | LancerActor): number {
@@ -593,3 +608,4 @@ export class DamageHudData {
 //We need to register plugins after settings are initialized
 DamageHudData.registerPlugin(Nuke_1);
 DamageHudData.registerPlugin(Brutal_1);
+DamageHudData.registerPlugin(Brawler_2);

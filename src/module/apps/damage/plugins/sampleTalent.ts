@@ -73,6 +73,8 @@ export class SampleTalent {
     this.visible = true;
   }
 
-  //@ts-expect-error pinkie promise we will init it
-  talent(data: DamageHudData, target?: DamageHudTarget): boolean;
+  //If it's not initialized, always return false
+  talent(data: DamageHudData, target?: DamageHudTarget): boolean {
+    return false;
+  }
 }

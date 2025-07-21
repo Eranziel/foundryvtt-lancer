@@ -1,7 +1,6 @@
 import { AccDiffHudData, AccDiffHudTarget } from "../data";
 import { AccDiffHudCheckboxPluginData, AccDiffHudPluginCodec } from "./plugin";
 import { enclass } from "../../serde";
-import { LancerToken } from "../../../token";
 import { WeaponType } from "../../../enums";
 import { slugify } from "../../../util/lid";
 import { SampleTalent } from "./sampleTalents";
@@ -21,8 +20,8 @@ export default class Pankrati_1 extends SampleTalent implements AccDiffHudCheckb
   slug: string = slugify("Veni", "-");
   static kind: "hase" | "attack" = "attack";
   kind: "hase" | "attack" = "attack";
-  humanLabel: string = "Handshake Etiquette (+1)";
-  tooltip: string = "Gain +1 Accuracy when using CQB weapons to attack targets within Range 3.";
+  humanLabel: string = "Veni (+1)";
+  tooltip: string = "You gain +1 Accuracy to melee attacks against Immobilized or Slowed targets.";
 
   //AccDiffHudPlugin requirements
   // the codec lets us know how to persist whatever data you need for rerolls
@@ -40,22 +39,16 @@ export default class Pankrati_1 extends SampleTalent implements AccDiffHudCheckb
   //The unique logic of the talent
   //Name defined from SampleTalent
   talent(data: AccDiffHudData, target?: AccDiffHudTarget): boolean {
-    // Talent only applies to CQB
-    if (data.weapon.weaponType !== WeaponType.CQB) return false;
+    if (data.weapon.weaponType !== WeaponType.Melee) return false;
 
-    const range = 3;
-    let areTargetsNearby = data
-      .lancerActor!.getActiveTokens()[0]
-      .areTargetsInRange(range, (o: QuadtreeObject<LancerToken>, distance: number) => {
-        //If not the target, invalid
-        if (o.t !== target?.target) return false;
+    const statuses = target?.target.actor?.system.statuses;
 
-        //If not in range, invalid
-        if (distance > range) return false;
+    if (statuses === undefined) return false;
+    //slow is different from slowed??
+    //@ts-expect-error from console.log I can tell slow is there, works for now
+    if (statuses.immobilized || statuses.slowed || statuses.slow) return true; //We return here <-----
 
-        return true;
-      });
-    return areTargetsNearby;
+    return false;
   }
 
   //RollModifier Requirements

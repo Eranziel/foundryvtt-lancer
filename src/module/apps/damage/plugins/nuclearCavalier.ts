@@ -1,5 +1,3 @@
-import * as t from "io-ts";
-// import { enclass } from "../serde";
 import { enclass } from "../../serde";
 import { slugify } from "../../../util/lid";
 import { getHistory, isTalentAvailable } from "../../../util/misc";
@@ -21,7 +19,8 @@ export default class Nuke_1 extends SampleTalent implements DamageHudCheckboxPlu
   //slugify here to make sure the slug is same across this plugin and TalentWindow.svelte
   static slug: string = slugify("Aggressive Heat Bleed", "-");
   slug: string = slugify("Aggressive Heat Bleed", "-");
-  humanLabel: string = "Aggressive Heat Bleed (+2)";
+  humanLabel: string = "Aggressive Heat Bleed";
+  quickReference: string = "+2";
   tooltip: string = "The first attack roll you make on your turn while in the Danger Zone deals +2 Heat on a hit.";
 
   //AccDiffHudPlugin requirements

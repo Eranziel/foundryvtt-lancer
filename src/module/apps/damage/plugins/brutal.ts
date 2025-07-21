@@ -12,7 +12,8 @@ export default class Brutal_1 extends SampleTalent implements DamageHudCheckboxP
   //slugify here to make sure the slug is same across this plugin and TalentWindow.svelte
   static slug: string = slugify("Predator", "-");
   slug: string = slugify("Predator", "-");
-  humanLabel: string = "Predator (*)";
+  humanLabel: string = "Predator";
+  quickReference: string = "*";
   tooltip: string =
     "When you roll a 20 on a die for any attack (sometimes called a ‘natural 20’) and critical hit, you deal the maximum possible damage and bonus damage.";
 
