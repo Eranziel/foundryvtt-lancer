@@ -7,7 +7,7 @@
 node_modules/**
 
 # Build
-# foundryconfig.json
+foundryconfig.json
 stats.html
 dist/**/*
 package/**
