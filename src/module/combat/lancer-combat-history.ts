@@ -1,8 +1,22 @@
 import { AccDiffHudBase, AccDiffHudData, AccDiffHudPluginData, Cover } from "../apps/acc_diff";
+import { LANCER } from "../config";
 import { FittingSize, WeaponType } from "../enums";
 import { LancerFlowState } from "../flows/interfaces";
 import { BoundedNum } from "../source-template";
 import { LancerCombatant } from "./lancer-combat";
+
+//Whenever an AccDiff is submitted, history is appended
+
+//We redefine targets/base/weapon to avoid infinite recursion from token/plugins
+type HistoryTarget = {
+  target_id: string;
+  accuracy: number;
+  difficulty: number;
+  cover: Cover;
+  consumeLockOn: boolean;
+  prone: boolean;
+  stunned: boolean;
+};
 
 type HistoryWeapon = {
   mount: FittingSize | null;
@@ -13,15 +27,12 @@ type HistoryWeapon = {
   engaged: boolean;
 };
 
-//We redefine targets to avoid infinite recursion from token
-type HistoryTarget = {
-  target_id: string;
+type HistoryBase = {
+  grit: number;
+  flatBonus: number;
   accuracy: number;
   difficulty: number;
   cover: Cover;
-  consumeLockOn: boolean;
-  prone: boolean;
-  stunned: boolean;
 };
 
 export type HistoryHitResult = {
@@ -35,7 +46,7 @@ export type HistoryHitResult = {
 type HistoryAction = {
   weapon: HistoryWeapon;
   targets: HistoryTarget[];
-  base: AccDiffHudBase;
+  base: HistoryBase;
   type: string;
   hit_results: HistoryHitResult[];
   //Both of these are as of the beginning of the action
@@ -90,9 +101,12 @@ export class LancerCombatHistory {
   }
 
   dataToAction(
-    data: LancerFlowState.AttackRollData | LancerFlowState.WeaponRollData | LancerFlowState.StatRollData,
-    acc_diff: AccDiffHudData
+    data: LancerFlowState.AttackRollData | LancerFlowState.WeaponRollData | LancerFlowState.StatRollData
   ): HistoryAction {
+    if (data.acc_diff === undefined) throw new TypeError(`Accuracy/difficulty data missing!`);
+
+    const acc_diff = data.acc_diff;
+
     const newTargets: HistoryTarget[] = acc_diff.targets.map(target => {
       return {
         target_id: target.target.id,
@@ -114,6 +128,14 @@ export class LancerCombatHistory {
       mount: acc_diff.weapon.mount,
       weaponType: acc_diff.weapon.weaponType,
       // same with ...acc_diff.weapon
+    };
+
+    const newBase = {
+      grit: acc_diff.base.grit,
+      flatBonus: acc_diff.base.flatBonus,
+      accuracy: acc_diff.base.accuracy,
+      difficulty: acc_diff.base.difficulty,
+      cover: acc_diff.base.cover,
     };
 
     let newHitResults: HistoryHitResult[] = [];
@@ -142,7 +164,7 @@ export class LancerCombatHistory {
     return {
       weapon: newWeapon,
       targets: newTargets,
-      base: acc_diff?.base,
+      base: newBase,
       type: data.type,
       hit_results: newHitResults,
       hp,
@@ -151,13 +173,13 @@ export class LancerCombatHistory {
   }
   newAction(data: LancerFlowState.AttackRollData | LancerFlowState.WeaponRollData | LancerFlowState.StatRollData) {
     if (data.acc_diff === undefined) {
-      console.error("MISSING ACC DIFF!!!!");
+      console.error(`${LANCER.log_prefix}Accuracy/difficulty data missing!`);
       return;
     }
 
-    const actorId = data.acc_diff.lancerActor?.id;
-    const action = this.dataToAction(data, data.acc_diff);
+    const action = this.dataToAction(data);
 
+    const actorId = data.acc_diff.lancerActor?.id;
     if (typeof actorId !== "string") return;
 
     for (let turn of this.currentRound.turns) {

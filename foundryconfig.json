@@ -1,5 +1,5 @@
 {
-  "dataPath": "/home/titleless/.local/share/FoundryVTT/",
+  "dataPath": "/path/to/foundry/data",
   "systemName": "lancer",
   "repository": "https://github.com/Eranziel/foundryvtt-lancer",
   "rawURL": "https://github.com/Eranziel/foundryvtt-lancer/releases/latest/download",
