@@ -18,7 +18,8 @@ export class CombinedArms_2 extends SampleTalent implements AccDiffHudCheckboxPl
   slug: string = slugify("CQB-Trained", "-");
   static kind: "hase" | "attack" = "attack";
   kind: "hase" | "attack" = "attack";
-  humanLabel: string = "CQB-Trained (*)";
+  humanLabel: string = "CQB-Trained";
+  quickReference: string = "*";
   tooltip: string = "You don’t gain Difficulty from being Engaged.";
 
   //AccDiffHudPlugin requirements
@@ -80,7 +81,8 @@ export class CombinedArms_3 extends SampleTalent implements AccDiffHudCheckboxPl
   slug: string = slugify("Storm of Violence", "-");
   static kind: "hase" | "attack" = "attack";
   kind: "hase" | "attack" = "attack";
-  humanLabel: string = "Storm of Violence (+1)";
+  humanLabel: string = "Storm of Violence";
+  quickReference: string = "+1";
   tooltip: string =
     "Whenever you hit a character with a melee attack, you gain +1 Accuracy on your next ranged attack against them; and, whenever you hit a character with a ranged attack, you gain +1 Accuracy on your next melee attack against them. This effect doesn’t stack.";
 

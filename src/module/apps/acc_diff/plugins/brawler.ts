@@ -14,7 +14,8 @@ export default class Brawler_1 extends SampleTalent implements AccDiffHudCheckbo
   slug: string = slugify("Hold and Lock", "-");
   static kind: "hase" | "attack" = "attack";
   kind: "hase" | "attack" = "attack";
-  humanLabel: string = "Hold and Lock (+1)";
+  humanLabel: string = "Hold and Lock";
+  quickReference: string = "+1";
   tooltip: string = "You gain +1 Accuracy on all melee attacks against targets YOU are Grappling.";
 
   //AccDiffHudPlugin requirements

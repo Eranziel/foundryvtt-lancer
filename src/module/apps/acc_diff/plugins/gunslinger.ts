@@ -13,7 +13,8 @@ export default class Gunslinger_1 extends SampleTalent implements AccDiffHudChec
   slug: string = slugify("Opening Argument", "-");
   static kind: "hase" | "attack" = "attack";
   kind: "hase" | "attack" = "attack";
-  humanLabel: string = "Opening Argument (+1)";
+  humanLabel: string = "Opening Argument";
+  quickReference: string = "+1";
   tooltip: string = "Gain +1 Accuracy on the first attack roll you make with an Auxiliary ranged weapon on your turn.";
 
   // the codec lets us know how to persist whatever data you need for rerolls

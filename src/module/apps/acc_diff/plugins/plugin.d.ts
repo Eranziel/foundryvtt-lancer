@@ -17,7 +17,8 @@ import { TalentEffect } from "../../../flows/interfaces";
 declare interface CheckboxUI {
   uiElement: "checkbox" = "checkbox";
   slug: string;
-  humanLabel: string;
+  humanLabel: string; //Human name of rank and talent
+  quickReference: string; //small string in () to tell damage
   tooltip?: string;
   get uiState(): boolean;
   set uiState(data: boolean): this;

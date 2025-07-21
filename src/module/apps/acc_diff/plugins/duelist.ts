@@ -13,7 +13,8 @@ export default class Duelist_1 extends SampleTalent implements AccDiffHudCheckbo
   slug: string = slugify("Partisan", "-");
   static kind: "hase" | "attack" = "attack";
   kind: "hase" | "attack" = "attack";
-  humanLabel: string = "Partisan (+1)";
+  humanLabel: string = "Partisan";
+  quickReference: string = "+1";
   tooltip: string = "Gain +1 Accuracy on the first melee attack you make with a Main Melee weapon on your turn.";
 
   //AccDiffHudPlugin requirements

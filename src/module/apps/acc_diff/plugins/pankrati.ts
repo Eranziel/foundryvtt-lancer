@@ -20,7 +20,8 @@ export default class Pankrati_1 extends SampleTalent implements AccDiffHudCheckb
   slug: string = slugify("Veni", "-");
   static kind: "hase" | "attack" = "attack";
   kind: "hase" | "attack" = "attack";
-  humanLabel: string = "Veni (+1)";
+  humanLabel: string = "Veni";
+  quickReference: string = "+1";
   tooltip: string = "You gain +1 Accuracy to melee attacks against Immobilized or Slowed targets.";
 
   //AccDiffHudPlugin requirements

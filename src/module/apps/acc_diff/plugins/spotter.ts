@@ -40,7 +40,8 @@ function spotter(): AccDiffHudPluginData {
     uiElement: "checkbox" as "checkbox",
     slug: "spotter",
     category: "acc" as "acc",
-    humanLabel: "Spotter (*)",
+    humanLabel: "Spotter",
+    quickReference: "*",
     accBonus: 0,
     tooltip:
       "When an allied character adjacent to the Spotter attacks a target and consumes Lock On, they may roll twice and choose either result.",

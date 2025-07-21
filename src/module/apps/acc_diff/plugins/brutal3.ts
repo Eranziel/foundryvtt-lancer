@@ -33,7 +33,10 @@ export default class Brutal_3 extends SampleTalent implements AccDiffHudCheckbox
   slug: string = slugify("Relentless", "-");
   static kind: "hase" | "attack" = "attack";
   kind: "hase" | "attack" = "attack";
-  humanLabel: string = "Relentless (*)";
+  humanLabel: string = "Relentless";
+  get quickReference(): string {
+    return "+" + this.accBonus;
+  }
   tooltip: string =
     "When you make an attack roll and miss, your next attack roll gains +1 Accuracy. This effect stacks and persists until you hit.";
 

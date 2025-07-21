@@ -64,7 +64,8 @@ export default class Invisibility implements AccDiffHudCheckboxPluginData {
   uiElement: "checkbox" = "checkbox";
   slug: string = "invisibility";
   static slug: string = "invisibility";
-  humanLabel: string = "Invisible (*)";
+  humanLabel: string = "Invisible";
+  quickReference: string = "*";
   static kind: "hase" | "attack" = "attack";
   kind: "hase" | "attack" = "attack";
   category: "acc" | "diff" | "talentWindow" = "diff";

@@ -125,7 +125,7 @@
     .human-label {
       text-overflow: ellipsis;
       overflow: hidden;
-      max-width: 20ch;
+      max-width: 25ch;
     }
     @media only screen and (max-width: 1100px) {
       .human-label {
