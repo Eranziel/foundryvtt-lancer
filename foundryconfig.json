@@ -1,7 +1,0 @@
-{
-  "dataPath": "/path/to/foundry/data",
-  "systemName": "lancer",
-  "repository": "https://github.com/Eranziel/foundryvtt-lancer",
-  "rawURL": "https://github.com/Eranziel/foundryvtt-lancer/releases/latest/download",
-  "downloadURL": "https://github.com/Eranziel/foundryvtt-lancer/releases/download"
-}
