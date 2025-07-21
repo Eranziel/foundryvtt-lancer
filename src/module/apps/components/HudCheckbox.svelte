@@ -6,6 +6,7 @@
 
   export let style = "";
   export let label = "";
+  export let quickReference = "";
   export let icon = "";
   export let tooltip: string | null = null;
   export let checked: boolean | null = null;
@@ -28,7 +29,10 @@
     on:change={() => dispatch("change", value)}
   />
   {#if icon}<i class="{icon} i--s" />{/if}
-  <span style="text-wrap: nowrap;">{label}</span>
+  <span class="human-label" style="text-wrap: nowrap;">{label}</span>
+  {#if quickReference !== ""}
+    <span style="text-wrap: nowrap; ">({quickReference})</span>
+  {/if}
 </label>
 
 <style lang="scss">
@@ -115,6 +119,17 @@
       cursor: unset;
       &:hover {
         box-shadow: none;
+      }
+    }
+
+    .human-label {
+      text-overflow: ellipsis;
+      overflow: hidden;
+      max-width: 20ch;
+    }
+    @media only screen and (max-width: 1100px) {
+      .human-label {
+        max-width: 11ch;
       }
     }
   }
