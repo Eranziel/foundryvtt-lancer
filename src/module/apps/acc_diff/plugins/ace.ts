@@ -6,6 +6,7 @@ import { SampleTalent } from "./sampleTalents";
 import { LancerItem } from "../../../item/lancer-item";
 import { LancerActor } from "../../../actor/lancer-actor";
 import { HASE } from "../../../enums";
+//Automated
 
 //A lot of common talent boilerplate is contained in SampleTalent
 export default class Ace_1 extends SampleTalent implements AccDiffHudCheckboxPluginData {

@@ -5,12 +5,7 @@ import { WeaponType } from "../../../enums";
 import { slugify } from "../../../util/lid";
 import { SampleTalent } from "./sampleTalents";
 
-// An important distinction not made clear here
-// The gunslinger.ts way of finding if an action triggering this talent happened this turn
-// Will not work the same for damage talents.
-// AccDiff talents are called before history is appended, Damage talents after
-// See nuclearCavalier.ts for example of what I mean
-
+//Automated
 //A lot of common talent boilerplate is contained in SampleTalent
 export default class Pankrati_1 extends SampleTalent implements AccDiffHudCheckboxPluginData {
   //Shared type requirements

@@ -7,6 +7,7 @@ import { LancerActor } from "../../../actor/lancer-actor";
 import { LancerItem } from "../../../item/lancer-item";
 import { getHistory } from "../../../util/misc";
 import { HistoryHitResult } from "../../../combat/lancer-combat-history";
+//Automated
 
 //Is this laggy?
 function getMisses(actorId?: string | null): HistoryHitResult[] {

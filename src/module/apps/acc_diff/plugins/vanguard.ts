@@ -12,6 +12,7 @@ import { SampleTalent } from "./sampleTalents";
 // AccDiff talents are called before history is appended, Damage talents after
 // See nuclearCavalier.ts for example of what I mean
 
+//Automated
 //A lot of common talent boilerplate is contained in SampleTalent
 export default class Vanguard_1 extends SampleTalent implements AccDiffHudCheckboxPluginData {
   //Shared type requirements

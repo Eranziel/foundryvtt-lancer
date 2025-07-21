@@ -7,6 +7,7 @@ import { SampleTalent } from "./sampleTalent";
 import { LancerActor } from "../../../actor/lancer-actor";
 import { LancerItem } from "../../../item/lancer-item";
 
+//Automated
 export default class Brutal_1 extends SampleTalent implements DamageHudCheckboxPluginData {
   //Shared type requirements
   //slugify here to make sure the slug is same across this plugin and TalentWindow.svelte

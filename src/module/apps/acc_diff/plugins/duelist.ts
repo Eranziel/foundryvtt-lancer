@@ -6,6 +6,7 @@ import { slugify } from "../../../util/lid";
 import { getHistory } from "../../../util/misc";
 import { SampleTalent } from "./sampleTalents";
 
+//Automated
 export default class Duelist_1 extends SampleTalent implements AccDiffHudCheckboxPluginData {
   //Shared type requirements
   //slugify here to make sure the slug is same across this plugin and TalentWindow.svelte

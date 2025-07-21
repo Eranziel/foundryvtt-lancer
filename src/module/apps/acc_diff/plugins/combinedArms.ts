@@ -1,16 +1,14 @@
-import * as t from "io-ts";
 import { AccDiffHudData, AccDiffHudTarget } from "../data";
 import { AccDiffHudCheckboxPluginData, AccDiffHudPluginCodec } from "./plugin";
 import { enclass } from "../../serde";
-import { LancerToken } from "../../../token";
 import { WeaponType } from "../../../enums";
 import { slugify } from "../../../util/lid";
 import { SampleTalent } from "./sampleTalents";
 import { LancerItem } from "../../../item/lancer-item";
 import { LancerActor } from "../../../actor/lancer-actor";
-import { getHistory, isTalentAvailable } from "../../../util/misc";
-import { LANCER } from "../../../config";
+import { getHistory } from "../../../util/misc";
 
+//Automated
 //A lot of common talent boilerplate is contained in SampleTalent
 export class CombinedArms_2 extends SampleTalent implements AccDiffHudCheckboxPluginData {
   //AccDiffHudPlugin requirements
@@ -72,6 +70,8 @@ function findLastHitWeaponType(actorId: string | null): WeaponType | undefined {
   }
   return;
 }
+
+//Automated
 //A lot of common talent boilerplate is contained in SampleTalent
 export class CombinedArms_3 extends SampleTalent implements AccDiffHudCheckboxPluginData {
   //Shared type requirements

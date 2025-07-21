@@ -7,6 +7,8 @@ import { SampleCardReminder, SampleTalent } from "./sampleTalents";
 import { getHistory } from "../../../util/misc";
 import { TalentEffect } from "../../../flows/interfaces";
 
+//An after attack reminder
+
 // I'm aware that writing the effect after the attack is late.
 // I still think this will help users keep track of the talents.
 // The GM can also let them backtrack if they forgot.

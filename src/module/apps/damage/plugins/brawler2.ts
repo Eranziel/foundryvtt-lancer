@@ -4,9 +4,8 @@ import { DamageHudCheckboxPluginData, DamageHudPluginCodec } from "./plugin";
 import { DamageData } from "../../../models/bits/damage";
 import { DamageType } from "../../../enums";
 import { SampleTalent } from "./sampleTalent";
-import { LancerItem } from "../../../item/lancer-item";
-import { LancerActor } from "../../../actor/lancer-actor";
 
+//Manual Checkbox
 export default class Brawler_2 extends SampleTalent implements DamageHudCheckboxPluginData {
   //Shared type requirements
   //slugify here to make sure the slug is same across this plugin and TalentWindow.svelte

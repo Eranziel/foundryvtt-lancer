@@ -1,6 +1,6 @@
 import { enclass } from "../../serde";
 import { slugify } from "../../../util/lid";
-import { getHistory, isTalentAvailable } from "../../../util/misc";
+import { getHistory } from "../../../util/misc";
 import { DamageHudData, DamageHudTarget } from "../../damage";
 import { DamageHudCheckboxPluginData, DamageHudPluginCodec } from "./plugin";
 import { DamageData } from "../../../models/bits/damage";
@@ -14,6 +14,7 @@ function isDangerZone(heat?: BoundedNum): boolean {
   return heat.value >= heat.max / 2;
 }
 
+//Automated
 export class Nuke_1 extends SampleTalent implements DamageHudCheckboxPluginData {
   //Shared type requirements
   //slugify here to make sure the slug is same across this plugin and TalentWindow.svelte
@@ -68,6 +69,7 @@ export class Nuke_1 extends SampleTalent implements DamageHudCheckboxPluginData 
   }
 }
 
+//Automated
 export class Nuke_2 extends SampleTalent implements DamageHudCheckboxPluginData {
   //Shared type requirements
   //slugify here to make sure the slug is same across this plugin and TalentWindow.svelte

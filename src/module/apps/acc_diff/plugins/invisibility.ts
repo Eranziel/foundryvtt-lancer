@@ -1,5 +1,4 @@
 import * as t from "io-ts";
-import { LancerActor } from "../../../actor/lancer-actor";
 import { AccDiffHudPlugin, AccDiffHudCheckboxPluginData, AccDiffHudPluginCodec } from "./plugin";
 import { AccDiffHudData, AccDiffHudTarget } from "../index";
 import { enclass } from "../../serde";
