@@ -9,10 +9,11 @@ import { Tag } from "../../models/bits/tag";
 import { DamageData } from "../../models/bits/damage";
 import { DamageType, NpcFeatureType } from "../../enums";
 import { LancerFlowState } from "../../flows/interfaces";
-import Nuke_1 from "./plugins/nuclearCavalier";
+import { Nuke_1, Nuke_2 } from "./plugins/nuclearCavalier";
 import Brutal_1 from "./plugins/brutal";
 import { LANCER } from "../../config";
 import Brawler_2 from "./plugins/brawler2";
+import Juggernaut_2 from "./plugins/juggernaut2";
 
 export enum HitQuality {
   Miss = 0,
@@ -607,5 +608,7 @@ export class DamageHudData {
 
 //We need to register plugins after settings are initialized
 DamageHudData.registerPlugin(Nuke_1);
+DamageHudData.registerPlugin(Nuke_2);
 DamageHudData.registerPlugin(Brutal_1);
 DamageHudData.registerPlugin(Brawler_2);
+DamageHudData.registerPlugin(Juggernaut_2);

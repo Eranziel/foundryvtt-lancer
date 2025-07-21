@@ -20,6 +20,7 @@ import Ace_1 from "./plugins/ace";
 import Brutal_3 from "./plugins/brutal3";
 import { CombinedArms_2, CombinedArms_3 } from "./plugins/combinedArms";
 import Pankrati_1 from "./plugins/pankrati";
+import Juggernaut_1 from "./plugins/juggernaut";
 
 export enum Cover {
   None = 0,
@@ -540,3 +541,4 @@ AccDiffHudData.registerPlugin(Brutal_3);
 AccDiffHudData.registerPlugin(CombinedArms_2);
 AccDiffHudData.registerPlugin(CombinedArms_3);
 AccDiffHudData.registerPlugin(Pankrati_1);
+AccDiffHudData.registerPlugin(Juggernaut_1);

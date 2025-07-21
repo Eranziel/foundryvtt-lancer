@@ -373,6 +373,7 @@ export async function rollNormalDamage(state: FlowState<LancerFlowState.DamageRo
   // Convenience flag for whether this is a multi-target attack.
   // We'll use this later alongside a check for whether a given bonus damage result
   // is single-target; if not, the bonus damage needs to be halved.
+  console.log(state.data.damage_hud_data);
   const multiTarget: boolean = state.data.damage_hud_data.targets.length > 1;
   const allBonusDamage = _collectBonusDamage(state);
 
