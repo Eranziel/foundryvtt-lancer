@@ -18,7 +18,7 @@ import Gunslinger_1 from "./plugins/gunslinger";
 import Hunter_1 from "./plugins/hunter";
 import Ace_1 from "./plugins/ace";
 import Brutal_3 from "./plugins/brutal3";
-import { CombinedArms_2 } from "./plugins/combinedArms";
+import { CombinedArms_2, CombinedArms_3 } from "./plugins/combinedArms";
 
 export enum Cover {
   None = 0,
@@ -537,3 +537,4 @@ AccDiffHudData.registerPlugin(Hunter_1);
 AccDiffHudData.registerPlugin(Ace_1);
 AccDiffHudData.registerPlugin(Brutal_3);
 AccDiffHudData.registerPlugin(CombinedArms_2);
+AccDiffHudData.registerPlugin(CombinedArms_3);

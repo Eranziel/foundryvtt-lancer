@@ -8,7 +8,7 @@ import { slugify } from "../../../util/lid";
 import { SampleTalent } from "./sampleTalents";
 import { LancerItem } from "../../../item/lancer-item";
 import { LancerActor } from "../../../actor/lancer-actor";
-import { isTalentAvailable } from "../../../util/misc";
+import { getHistory, isTalentAvailable } from "../../../util/misc";
 import { LANCER } from "../../../config";
 
 //A lot of common talent boilerplate is contained in SampleTalent
@@ -53,17 +53,36 @@ export class CombinedArms_2 extends SampleTalent implements AccDiffHudCheckboxPl
   }
 }
 
+function findLastHitWeaponType(actorId: string | null): WeaponType | undefined {
+  const history = getHistory();
+  if (history === undefined) return undefined;
+
+  //Getting all actions is kind of a waste
+  const actions = history
+    .getAllActions(actorId)
+    .filter(action => {
+      for (const hit_result of action.hit_results) {
+        if (hit_result.hit) return true;
+      }
+    })
+    .reverse();
+  for (const action of actions) {
+    if (action.weapon.weaponType !== null) return action.weapon.weaponType;
+  }
+  return;
+}
 //A lot of common talent boilerplate is contained in SampleTalent
 export class CombinedArms_3 extends SampleTalent implements AccDiffHudCheckboxPluginData {
   //Shared type requirements
   //slugify here to make sure the slug is same across this plugin and TalentWindow.svelte
   //Alternatively could use lid and rank_num
-  static slug: string = slugify("Handshake Etiquette", "-");
-  slug: string = slugify("Handshake Etiquette", "-");
+  static slug: string = slugify("Storm of Violence", "-");
+  slug: string = slugify("Storm of Violence", "-");
   static kind: "hase" | "attack" = "attack";
   kind: "hase" | "attack" = "attack";
-  humanLabel: string = "Handshake Etiquette (+1)";
-  tooltip: string = "Gain +1 Accuracy when using CQB weapons to attack targets within Range 3.";
+  humanLabel: string = "Storm of Violence (+1)";
+  tooltip: string =
+    "Whenever you hit a character with a melee attack, you gain +1 Accuracy on your next ranged attack against them; and, whenever you hit a character with a ranged attack, you gain +1 Accuracy on your next melee attack against them. This effect doesn’t stack.";
 
   //AccDiffHudPlugin requirements
   // the codec lets us know how to persist whatever data you need for rerolls
@@ -81,22 +100,16 @@ export class CombinedArms_3 extends SampleTalent implements AccDiffHudCheckboxPl
   //The unique logic of the talent
   //Name defined from SampleTalent
   talent(data: AccDiffHudData, target?: AccDiffHudTarget): boolean {
-    // Talent only applies to CQB
-    if (data.weapon.weaponType !== WeaponType.CQB) return false;
+    const currentType = data.weapon.weaponType;
+    if (currentType === null) return false;
 
-    const range = 3;
-    let areTargetsNearby = data
-      .lancerActor!.getActiveTokens()[0]
-      .areTargetsInRange(range, (o: QuadtreeObject<LancerToken>, distance: number) => {
-        //If not the target, invalid
-        if (o.t !== target?.target) return false;
+    if (data.lancerActor?.id === undefined) return false;
 
-        //If not in range, invalid
-        if (distance > range) return false;
+    const lastWeaponType = findLastHitWeaponType(data.lancerActor.id);
+    if (lastWeaponType === undefined) return false;
+    if (lastWeaponType === currentType) return false;
 
-        return true;
-      });
-    return areTargetsNearby;
+    return true;
   }
 
   //RollModifier Requirements

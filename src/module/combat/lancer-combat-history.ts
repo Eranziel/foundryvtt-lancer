@@ -11,7 +11,6 @@ type HistoryWeapon = {
   inaccurate: boolean;
   seeking: boolean;
   engaged: boolean;
-  plugins: { [k: string]: AccDiffHudPluginData };
 };
 
 //We redefine targets to avoid infinite recursion from token
@@ -94,12 +93,6 @@ export class LancerCombatHistory {
     data: LancerFlowState.AttackRollData | LancerFlowState.WeaponRollData | LancerFlowState.StatRollData,
     acc_diff: AccDiffHudData
   ): HistoryAction {
-    const newWeapon = {
-      ...acc_diff.weapon,
-      mount: acc_diff.weapon.mount,
-      weaponType: acc_diff.weapon.weaponType,
-    };
-
     const newTargets: HistoryTarget[] = acc_diff.targets.map(target => {
       return {
         target_id: target.target.id,
@@ -112,6 +105,16 @@ export class LancerCombatHistory {
         // ...target leads to recursion :(,
       };
     });
+
+    const newWeapon = {
+      accurate: acc_diff.weapon.accurate,
+      inaccurate: acc_diff.weapon.inaccurate,
+      seeking: acc_diff.weapon.seeking,
+      engaged: acc_diff.weapon.engaged,
+      mount: acc_diff.weapon.mount,
+      weaponType: acc_diff.weapon.weaponType,
+      // same with ...acc_diff.weapon
+    };
 
     let newHitResults: HistoryHitResult[] = [];
     if (data.type !== "stat") {
