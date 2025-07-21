@@ -1,3 +1,4 @@
+import * as t from "io-ts";
 import { AccDiffHudData, AccDiffHudTarget } from "../data";
 import { AccDiffHudCheckboxPluginData, AccDiffHudPluginCodec } from "./plugin";
 import { enclass } from "../../serde";
@@ -7,12 +8,12 @@ import { slugify } from "../../../util/lid";
 import { SampleTalent } from "./sampleTalents";
 import { LancerItem } from "../../../item/lancer-item";
 import { LancerActor } from "../../../actor/lancer-actor";
+import { isTalentAvailable } from "../../../util/misc";
+import { LANCER } from "../../../config";
 
 //A lot of common talent boilerplate is contained in SampleTalent
 export class CombinedArms_2 extends SampleTalent implements AccDiffHudCheckboxPluginData {
-  //Shared type requirements
-  //slugify here to make sure the slug is same across this plugin and TalentWindow.svelte
-  //Alternatively could use lid and rank_num
+  //AccDiffHudPlugin requirements
   static slug: string = slugify("CQB-Trained", "-");
   slug: string = slugify("CQB-Trained", "-");
   static kind: "hase" | "attack" = "attack";
@@ -35,7 +36,7 @@ export class CombinedArms_2 extends SampleTalent implements AccDiffHudCheckboxPl
   //The unique logic of the talent
   //Name defined from SampleTalent
   talent(data: AccDiffHudData, target?: AccDiffHudTarget): boolean {
-    if (!data.lancerActor?.system.statuses.engaged) return false;
+    if (!data.weapon.engaged && !data.lancerActor?.system.statuses.engaged) return false;
     if (data.weapon.weaponType === WeaponType.Melee) return false;
     return true;
   }
@@ -45,8 +46,10 @@ export class CombinedArms_2 extends SampleTalent implements AccDiffHudCheckboxPl
   get accBonus(): number {
     //How to mimic not gaining difficulty from Engaged?
     //Just add 1 Accuracy, duh
-    //To be fair, it would be nicer if we could reference the actor here
-    return this.active ? 1 : 0;
+    if (this.active) {
+      return this.acc_diff?.weapon.engaged ? 1 : 0;
+    }
+    return 0;
   }
 }
 

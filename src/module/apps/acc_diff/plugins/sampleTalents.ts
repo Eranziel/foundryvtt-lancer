@@ -2,13 +2,14 @@ import * as t from "io-ts";
 import { AccDiffHudData, AccDiffHudTarget } from "../data";
 import { isTalentAvailable } from "../../../util/misc";
 import { LANCER } from "../../../config";
+import { LancerActor } from "../../../actor/lancer-actor";
 
 //See ./vanguard.ts and this file for an example of how to implement a new talent
 export class SampleTalent {
   //Plugin state
   active: boolean = false;
   reminderActive: boolean = false;
-  actorId?: string | null;
+  acc_diff?: AccDiffHudData;
 
   //AccDiffHudPlugin requirements
   //There is most likely a way to do this in TS. If you know, tell me so I can do it right
@@ -22,7 +23,6 @@ export class SampleTalent {
     return {
       active: t.boolean,
       reminderActive: t.boolean,
-      actorId: t.union([t.string, t.null, t.undefined]),
     };
   }
   static get schemaCodec() {
@@ -32,7 +32,6 @@ export class SampleTalent {
     return {
       active: this.active,
       reminderActive: this.reminderActive,
-      actorId: this.actorId,
     };
   }
 
@@ -42,7 +41,7 @@ export class SampleTalent {
   rollPrecedence = 0; // higher numbers happen earlier
 
   get uiState(): boolean {
-    return this.active;
+    return this.accBonus !== 0;
   }
   set uiState(data: boolean) {
     this.active = data;
@@ -70,7 +69,7 @@ export class SampleTalent {
     this.active = this.talent(data, target);
     this.reminderActive = this.talentReminder(data, target);
     this.visible = true;
-    this.actorId = data.lancerActor?.id;
+    this.acc_diff = data;
   }
 
   //Unless it's defined, we always return false
@@ -80,6 +79,11 @@ export class SampleTalent {
   talentReminder(data: AccDiffHudData, target?: AccDiffHudTarget): boolean {
     return false;
   }
+
+  //RollModifier
+  get accBonus(): number {
+    return 0;
+  }
 }
 
 // See hunter.ts for an example implementation
@@ -87,7 +91,7 @@ export class SampleCardReminder {
   //Plugin state
   active: boolean = false;
   reminderActive: boolean = false;
-  actorId?: string | null;
+  acc_diff?: AccDiffHudData;
 
   //AccDiffHudPlugin requirements
   //There is most likely a way to do this in TS. If you know, tell me so I can do it right
@@ -102,7 +106,6 @@ export class SampleCardReminder {
     return {
       active: t.boolean,
       reminderActive: t.boolean,
-      actorId: t.union([t.string, t.null, t.undefined]),
     };
   }
   static get schemaCodec() {
@@ -112,7 +115,6 @@ export class SampleCardReminder {
     return {
       active: this.active,
       reminderActive: this.reminderActive,
-      actorId: this.actorId,
     };
   }
 
@@ -139,7 +141,7 @@ export class SampleCardReminder {
     //Figure out whether we are in a situation the talent applies
     this.active = this.talent(data, target);
     this.reminderActive = this.talentReminder(data, target);
-    this.actorId = data.lancerActor?.id;
+    this.acc_diff = data;
   }
 
   //Unless it's defined, we always return false
