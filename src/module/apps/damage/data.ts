@@ -105,6 +105,7 @@ export class DamageHudWeapon {
   }
 
   get total() {
+    //THIS ADDS ON TOP OF EXISTING DAMAGE
     const pluginDamages = Object.values(this.plugins)
       .map(plugin => plugin.modifyDamages({ damage: this.damage, bonus_damage: this.bonusDamage }))
       .reduce(
@@ -117,8 +118,8 @@ export class DamageHudWeapon {
         { damage: [], bonus_damage: [] }
       );
     return {
-      damage: this.damage.concat(pluginDamages.damage),
-      bonusDamage: this.bonusDamage.concat(pluginDamages.bonus_damage),
+      damage: pluginDamages.damage,
+      bonusDamage: pluginDamages.bonus_damage,
     };
   }
 
@@ -203,6 +204,7 @@ export class DamageHudBase {
   }
 
   get total() {
+    //THIS ADDS ON TOP OF EXISTING DAMAGE
     const newDamages = Object.values(this.plugins)
       .map(plugin => plugin.modifyDamages({ damage: this.damage, bonus_damage: this.bonusDamage }))
       .reduce(
