@@ -3,7 +3,7 @@ import { DamageHudData, DamageHudTarget } from "../data";
 import { isTalentAvailable } from "../../../util/misc";
 import { LANCER } from "../../../config";
 
-//See ./vanguard.ts and this file for an example of how to implement a new talent
+//See ./src/module/apps/acc_diff/plugins/vanguard.ts and this file for an example of how to implement a new talent
 export class SampleTalent {
   //Plugin state
   active: boolean = false;

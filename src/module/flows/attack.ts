@@ -1,21 +1,13 @@
 // Import TypeScript modules
 import { LancerActor } from "../actor/lancer-actor";
-import {
-  AccDiffHudData,
-  AccDiffHudDataSerialized,
-  AccDiffHudPlugin,
-  AccDiffHudPluginData,
-  RollModifier,
-} from "../apps/acc_diff";
-import { DamageHudData } from "../apps/damage";
+import { AccDiffHudData, AccDiffHudDataSerialized, RollModifier } from "../apps/acc_diff";
 import { openSlidingHud } from "../apps/slidinghud";
 import { LANCER } from "../config";
-import { AttackType, DamageType, RangeType, WeaponType } from "../enums";
+import { AttackType, RangeType, WeaponType } from "../enums";
 import { checkForHit } from "../helpers/automation/targeting";
 import { LancerItem } from "../item/lancer-item";
-import { Damage } from "../models/bits/damage";
 import { UUIDRef } from "../source-template";
-import { SystemData, SystemTemplates } from "../system-template";
+import { SystemTemplates } from "../system-template";
 import { getCombat, getHistory } from "../util/misc";
 import { renderTemplateStep } from "./_render";
 import { Flow, FlowState, Step } from "./flow";

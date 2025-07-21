@@ -9,9 +9,9 @@ import { Tag } from "../../models/bits/tag";
 import { DamageData } from "../../models/bits/damage";
 import { DamageType, NpcFeatureType } from "../../enums";
 import { LancerFlowState } from "../../flows/interfaces";
+
 import { Nuke_1, Nuke_2 } from "./plugins/nuclearCavalier";
 import Brutal_1 from "./plugins/brutal";
-import { LANCER } from "../../config";
 import Brawler_2 from "./plugins/brawler2";
 import Juggernaut_2 from "./plugins/juggernaut2";
 

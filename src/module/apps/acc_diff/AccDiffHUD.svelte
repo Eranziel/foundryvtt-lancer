@@ -13,7 +13,7 @@
   import MiniProfile from "../components/MiniProfile.svelte";
   import { fade } from "../slidinghud";
 
-  import type { LancerItem, LancerMECH_WEAPON, LancerNPC_FEATURE, LancerPILOT_WEAPON } from "../../item/lancer-item";
+  import type { LancerItem } from "../../item/lancer-item";
   import { NpcFeatureType, RangeType } from "../../enums";
   import { WeaponRangeTemplate } from "../../canvas/weapon-range-template";
   import { targetsFromTemplate } from "../../flows/_template";

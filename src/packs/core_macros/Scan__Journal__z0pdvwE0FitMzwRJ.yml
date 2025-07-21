@@ -278,7 +278,7 @@ command: >-
       <td>${actor.system.sys || 0}</td>
       <td>${actor.system.eng || 0}</td>
     </tr>
-  </> `;
+  </table> `;
     let stat_table_html = `
   <table>
     <tr>

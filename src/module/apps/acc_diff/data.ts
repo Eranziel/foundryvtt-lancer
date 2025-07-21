@@ -4,14 +4,13 @@ import type { LancerActor } from "../../actor/lancer-actor";
 import type { AccDiffHudPlugin, AccDiffHudPluginData, AccDiffHudPluginCodec } from "./plugins/plugin";
 import { enclass, encode, decode } from "../serde";
 import { LancerItem } from "../../item/lancer-item";
+import { LancerToken } from "../../token";
+import { Tag } from "../../models/bits/tag";
+import { FittingSize, WeaponType } from "../../enums";
 
 import Invisibility from "./plugins/invisibility";
 import Spotter from "./plugins/spotter";
 import Vanguard_1 from "./plugins/vanguard";
-import { LancerToken } from "../../token";
-import { Tag } from "../../models/bits/tag";
-
-import { FittingSize, WeaponType } from "../../enums";
 import Brawler_1 from "./plugins/brawler";
 import Duelist_1 from "./plugins/duelist";
 import Gunslinger_1 from "./plugins/gunslinger";
@@ -95,10 +94,10 @@ export class AccDiffHudWeapon {
       // @ts-expect-error
       return this.#data?.lancerItem?.system?.active_profile.type;
     } else if (actor.is_npc()) {
-      //If NPC, they're different in this regard for some reason
       // @ts-expect-error
-      return this.#data?.lancerItem?.system?.weapon_type.split(" ")[1];
+      return this.#data?.lancerItem?.system?.weapon_type.split(" ")[1] ?? null;
     }
+    //If this were a pilot, we return null
 
     return null;
   }
@@ -112,10 +111,10 @@ export class AccDiffHudWeapon {
       // @ts-expect-error
       return this.#data?.lancerItem?.system?.size ?? null;
     } else if (actor.is_npc()) {
-      //If NPC, they're different in this regard for some reason
       // @ts-expect-error
       return this.#data?.lancerItem?.system?.weapon_type.split(" ")[0] ?? null;
     }
+    //If this were a pilot, we return null
 
     return null;
   }

@@ -1,12 +1,6 @@
 <script lang="ts">
   import { LANCER } from "../../config";
-  import {
-    AccDiffHudBase,
-    AccDiffHudPlugin,
-    AccDiffHudPluginData,
-    AccDiffHudTarget,
-    AccDiffHudWeapon,
-  } from "../acc_diff";
+  import { AccDiffHudBase, AccDiffHudTarget, AccDiffHudWeapon } from "../acc_diff";
   import Plugin from "../acc_diff/Plugin.svelte";
   import { DamageHudTarget } from "../damage";
 
