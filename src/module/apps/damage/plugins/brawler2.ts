@@ -5,6 +5,8 @@ import { DamageData } from "../../../models/bits/damage";
 import { DamageType } from "../../../enums";
 import { SampleTalent } from "./sampleTalent";
 import { DamageHudData, DamageHudTarget } from "../data";
+import { LancerActor } from "../../../actor/lancer-actor";
+import { LancerItem } from "../../../item/lancer-item";
 
 //Manual Checkbox
 export default class Brawler_2 extends SampleTalent implements DamageHudCheckboxPluginData {
@@ -23,7 +25,7 @@ export default class Brawler_2 extends SampleTalent implements DamageHudCheckbox
   }
 
   //Perhaps don't initialize at all if talent not applicable?
-  static perUnknownTarget(): Brawler_2 {
+  static perRoll(item?: LancerItem | LancerActor): Brawler_2 {
     let ret = new Brawler_2();
     return ret;
   }

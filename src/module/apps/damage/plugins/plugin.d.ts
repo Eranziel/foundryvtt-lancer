@@ -3,6 +3,7 @@ import { LancerItem } from "../../item/lancer-item";
 import { LancerActor } from "../../actor/lancer-actor";
 
 import type { DamageHudData } from "./index";
+import { DamageHudTarget } from "../data";
 
 // Implementing a plugin means implementing
 // * a data object that can compute its view behaviour,
@@ -34,7 +35,10 @@ type UIBehaviour = CheckboxUI | NoUI;
 declare interface RollModifier {
   modifyRoll?(roll: string): string;
   //This has to be non-mutating to avoid recursion
-  modifyDamages?(damages: { damage: DamageData[]; bonusDamage: DamageData[] }): {
+  modifyDamages?(
+    damages: { damage: DamageData[]; bonusDamage: DamageData[] },
+    target?: DamageHudTarget
+  ): {
     damage: DamageData[];
     bonusDamage: DamageData[];
   };

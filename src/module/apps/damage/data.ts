@@ -329,9 +329,19 @@ export class DamageHudTarget {
       bonusDamage: [],
     };
 
-    return {
+    //Plugins should modify it last because stuff like NucCav might be converting it
+    let damages = {
       damage: base.damage.concat(weapon.damage),
       bonusDamage: this.bonusDamage.concat(base.bonusDamage, weapon.bonusDamage),
+    };
+    for (const plugin of Object.values(this.plugins)) {
+      if (plugin.modifyDamages === undefined) continue;
+      damages = plugin.modifyDamages(damages, this);
+    }
+
+    return {
+      damage: damages.damage,
+      bonusDamage: damages.bonusDamage,
     };
   }
 }

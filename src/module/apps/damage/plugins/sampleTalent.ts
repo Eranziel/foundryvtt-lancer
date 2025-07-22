@@ -7,6 +7,7 @@ import { LANCER } from "../../../config";
 export class SampleTalent {
   //Plugin state
   active: boolean = false;
+  data?: DamageHudData;
 
   //AccDiffHudPlugin requirements
   //There is most likely a way to do this in TS. If you know, tell me so I can do it right
@@ -66,6 +67,7 @@ export class SampleTalent {
     this.visible = this.isVisible(data, target);
     if (this.visible) {
       this.active = this.talent(data, target);
+      this.data = data;
     }
   }
 

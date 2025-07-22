@@ -11,9 +11,6 @@ import { TalentEffect } from "../../../flows/interfaces";
 // * a codec to serialize it,
 // * and a bunch of freestanding constructors
 
-// If it has been two weeks since talents were pulled into main and and I did not write docs
-// on how to make more talents, yell at me on discord (@histidinedwarf)
-
 // You don't _have_ to make the data object a class with static methods for the constructors
 // but it's convenient
 

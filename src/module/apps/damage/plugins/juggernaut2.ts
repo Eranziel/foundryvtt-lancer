@@ -5,6 +5,8 @@ import { DamageData } from "../../../models/bits/damage";
 import { DamageType } from "../../../enums";
 import { SampleTalent } from "./sampleTalent";
 import { DamageHudData, DamageHudTarget } from "../data";
+import { LancerActor } from "../../../actor/lancer-actor";
+import { LancerItem } from "../../../item/lancer-item";
 
 //Manual checkbox
 export default class Juggernaut_2 extends SampleTalent implements DamageHudCheckboxPluginData {
@@ -24,7 +26,7 @@ export default class Juggernaut_2 extends SampleTalent implements DamageHudCheck
   }
 
   //Perhaps don't initialize at all if talent not applicable?
-  static perUnknownTarget(): Juggernaut_2 {
+  static perRoll(item?: LancerItem | LancerActor): Juggernaut_2 {
     let ret = new Juggernaut_2();
     return ret;
   }

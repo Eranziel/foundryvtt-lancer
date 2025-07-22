@@ -7,6 +7,8 @@ import { DamageData } from "../../../models/bits/damage";
 import { DamageType } from "../../../enums";
 import { SampleTalent } from "./sampleTalent";
 import { BoundedNum } from "../../../source-template";
+import { LancerActor } from "../../../actor/lancer-actor";
+import { LancerItem } from "../../../item/lancer-item";
 
 function isDangerZone(heat?: BoundedNum): boolean {
   if (heat == undefined || heat.max === undefined) return false;
@@ -46,10 +48,12 @@ export class Nuke_1 extends SampleTalent implements DamageHudCheckboxPluginData 
     };
   }
 
-  //perTarget because we have to know where the token is
-  //Perhaps don't initialize at all if talent not applicable?
   static perUnknownTarget(): Nuke_1 {
     let ret = new Nuke_1();
+    return ret;
+  }
+  static perTarget(item: Token): Nuke_1 {
+    let ret = Nuke_1.perUnknownTarget();
     return ret;
   }
 
@@ -86,11 +90,24 @@ export class Nuke_2 extends SampleTalent implements DamageHudCheckboxPluginData 
     return enclass(this.schemaCodec, Nuke_2);
   }
 
-  modifyDamages(damages: { damage: DamageData[]; bonusDamage: DamageData[] }): {
+  modifyDamages(
+    damages: { damage: DamageData[]; bonusDamage: DamageData[] },
+    target?: DamageHudTarget
+  ): {
     damage: DamageData[];
     bonusDamage: DamageData[];
   } {
     if (!this.active) return damages;
+
+    console.log("NucCav2");
+
+    //NucCav 2 only applies bonus damage to first target
+    if (this.data?.targets !== undefined && this.data?.targets.length > 0) {
+      const firstTargetId = this.data.targets[0].target.id;
+      console.log(firstTargetId);
+      console.log(target?.target.id);
+      if (firstTargetId !== target?.target.id) return damages;
+    }
 
     const convertDamage = (damage: DamageData) => {
       if (damage.type === DamageType.Explosive || damage.type === DamageType.Kinetic) {
@@ -103,16 +120,19 @@ export class Nuke_2 extends SampleTalent implements DamageHudCheckboxPluginData 
     let bonusDamageSlice = damages.bonusDamage.slice().map(convertDamage);
 
     bonusDamageSlice.push({ type: DamageType.Energy, val: "1d6" });
+    console.log(bonusDamageSlice);
     return {
       damage: damageSlice,
       bonusDamage: bonusDamageSlice,
     };
   }
 
-  //perTarget because we have to know where the token is
-  //Perhaps don't initialize at all if talent not applicable?
   static perUnknownTarget(): Nuke_2 {
     let ret = new Nuke_2();
+    return ret;
+  }
+  static perTarget(item: Token): Nuke_2 {
+    let ret = Nuke_2.perUnknownTarget();
     return ret;
   }
 
