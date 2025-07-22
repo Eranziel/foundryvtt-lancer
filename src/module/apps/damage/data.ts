@@ -92,11 +92,6 @@ export class DamageHudWeapon {
     };
   }
 
-  // TODO: refactor to damage specs
-  // total(cover: number) {
-  //   return (this.accurate ? 1 : 0) - (this.inaccurate ? 1 : 0) - (this.seeking ? 0 : cover) - (this.impaired ? 1 : 0);
-  // }
-
   hydrate(d: DamageHudData) {
     for (let key of Object.keys(this.plugins)) {
       this.plugins[key].hydrate(d);
@@ -328,10 +323,15 @@ export class DamageHudTarget {
   }
 
   get total() {
-    const baseTotal = this.#base.total;
+    const base = this.#base.total;
+    const weapon = this.#weapon?.total ?? {
+      damage: [],
+      bonusDamage: [],
+    };
+
     return {
-      damage: baseTotal,
-      bonusDamage: this.bonusDamage.concat(baseTotal.bonusDamage),
+      damage: base.damage.concat(weapon.damage),
+      bonusDamage: this.bonusDamage.concat(base.bonusDamage, weapon.bonusDamage),
     };
   }
 }
@@ -456,6 +456,28 @@ export class DamageHudData {
       target.hydrate(this);
     }
     return this;
+  }
+
+  get total(): { damage: DamageData[]; bonusDamage: DamageData[] }[] {
+    if (this.targets.length === 0) {
+      const base = this.base.total;
+      const weapon = this.weapon?.total ?? {
+        damage: [],
+        bonusDamage: [],
+      };
+      return [
+        {
+          damage: base.damage.concat(weapon.damage),
+          bonusDamage: base.bonusDamage.concat(weapon.bonusDamage),
+        },
+      ];
+    }
+
+    let damages = [];
+    for (const target of this.targets) {
+      damages.push(target.total);
+    }
+    return damages;
   }
 
   get raw() {

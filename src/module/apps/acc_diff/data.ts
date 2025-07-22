@@ -202,12 +202,13 @@ export class AccDiffHudBase {
     }
   }
 
+  //Base will no longer include accuracy from weapon, use other total methods for combined total
   get total() {
     let pluginBonus: number = Object.values(this.plugins).reduce(
       (a: number, b: AccDiffHudPluginData) => a + b.accBonus,
       0
     );
-    return this.accuracy - this.difficulty + this.#weapon.total(this.cover) + pluginBonus;
+    return this.accuracy - this.difficulty + pluginBonus;
   }
 }
 
@@ -319,20 +320,21 @@ export class AccDiffHudTarget {
   }
 
   get total() {
-    let base = this.accuracy - this.difficulty + this.#weapon.total(this.cover);
-    let pluginBonus: number = Object.values(this.plugins).reduce(
+    const base = this.#base.total;
+    const weapon = this.#weapon.total(this.cover);
+    const pluginBonus: number = Object.values(this.plugins).reduce(
       (a: number, b: AccDiffHudPluginData) => a + b.accBonus,
       0
     );
-    // the only thing we actually use base for is the untyped bonuses
-    let raw = base + this.#base.accuracy - this.#base.difficulty;
-    let lockon = this.usingLockOn ? 1 : 0;
-    let prone = this.prone ? 1 : 0;
 
-    return raw + lockon + prone + pluginBonus;
+    const lockon = this.usingLockOn ? 1 : 0;
+    const prone = this.prone ? 1 : 0;
+
+    return base + weapon + lockon + prone + pluginBonus;
   }
 }
 
+// If you want total, use AccDiffHudData.total() or target.total()
 export type AccDiffHudDataSerialized = t.OutputOf<typeof AccDiffHudData.schemaCodec>;
 export class AccDiffHudData {
   title: string;
@@ -403,6 +405,21 @@ export class AccDiffHudData {
       target.hydrate(this);
     }
     return this;
+  }
+
+  get total(): number[] {
+    if (this.targets.length === 0) {
+      const base = this.base.total;
+      const weapon = this.weapon.total(Cover.None);
+
+      return [base + weapon];
+    }
+
+    let acc = [];
+    for (const target of this.targets) {
+      acc.push(target.total);
+    }
+    return acc;
   }
 
   get raw() {
