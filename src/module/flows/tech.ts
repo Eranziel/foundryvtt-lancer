@@ -90,7 +90,8 @@ function commonMechTechAttackInit(
         state.data.flat_bonus,
         // TODO: is there a bonus we can check for this type of effect?
         // Add 1 accuracy for all you goblins
-        state.actor.is_mech() && state.actor.system.loadout.frame?.value?.system.lid == "mf_goblin" ? 1 : 0
+        state.actor.is_mech() && state.actor.system.loadout.frame?.value?.system.lid == "mf_goblin" ? 1 : 0,
+        true
       );
 }
 
@@ -121,7 +122,9 @@ export async function initTechAttackData(
           state.data.title,
           Array.from(game.user!.targets),
           state.data.grit,
-          state.data.flat_bonus
+          state.data.flat_bonus,
+          undefined,
+          true
         );
     return true;
   } else {
@@ -147,7 +150,8 @@ export async function initTechAttackData(
             Array.from(game.user!.targets),
             state.data.grit,
             state.data.flat_bonus,
-            acc
+            acc,
+            true
           );
       return true;
     } else if (state.item.is_mech_system() || state.item.is_frame()) {
@@ -197,6 +201,7 @@ export async function printTechAttackCard(
       origin: state.actor.id!,
       attackerUuid: state.actor.uuid!,
       attackerItemUuid: state.item?.uuid,
+      tech: true,
       invade: state.data.invade,
       targets: state.data.hit_results.map(hr => {
         return {

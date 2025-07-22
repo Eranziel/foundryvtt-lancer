@@ -41,12 +41,6 @@ export default class Brutal_1 extends SampleTalent implements DamageHudCheckboxP
       })
       .join(" ");
   }
-  modifyDamages(damages: { damage: DamageData[]; bonus_damage: DamageData[] }): {
-    damage: DamageData[];
-    bonus_damage: DamageData[];
-  } {
-    return damages;
-  }
 
   //perTarget because we have to know where the token is
   //Perhaps don't initialize at all if talent not applicable?

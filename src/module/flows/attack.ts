@@ -52,6 +52,7 @@ export type AttackFlag = {
   origin: string; // Attacker's ID. Somewhat deprecated, kept because LWFX is probably using it.
   attackerUuid: string; // Attacker's UUID
   attackerItemUuid?: string; // Item UUID used for the attack, if applicable
+  tech?: boolean;
   invade?: boolean;
   targets: {
     uuid: string;
@@ -197,7 +198,9 @@ export async function initAttackData(
           state.data.title,
           Array.from(game.user!.targets),
           state.data.grit,
-          state.data.flat_bonus
+          state.data.flat_bonus,
+          undefined,
+          isTech
         );
     return true;
   } else {
@@ -225,8 +228,6 @@ export async function initAttackData(
           state.data.flat_bonus += 1;
         }
       }
-
-      // console.log(state.item);
 
       state.data.acc_diff = options?.acc_diff
         ? AccDiffHudData.fromObject(options.acc_diff)
@@ -259,7 +260,9 @@ export async function initAttackData(
             state.data.title,
             Array.from(game.user!.targets),
             state.data.grit,
-            state.data.flat_bonus
+            state.data.flat_bonus,
+            undefined,
+            true
           );
       return true;
     } else if (state.item.is_npc_feature()) {

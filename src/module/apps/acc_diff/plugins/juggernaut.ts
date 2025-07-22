@@ -3,7 +3,6 @@ import { enclass } from "../../serde";
 import { slugify } from "../../../util/lid";
 import { SampleTalent } from "./sampleTalents";
 import { AccDiffHudData, AccDiffHudTarget } from "../data";
-import { isTech } from "../../../util/misc";
 
 //Manual Checkbox
 //A lot of common talent boilerplate is contained in SampleTalent
@@ -35,7 +34,7 @@ export default class Juggernaut_1 extends SampleTalent implements AccDiffHudChec
 
   isVisible(data: AccDiffHudData, target?: AccDiffHudTarget): boolean {
     //This talent does not apply to tech attacks
-    if (isTech(data.lancerItem ?? null, data.title)) return false;
+    if (data.base.tech) return false;
 
     return true;
   }

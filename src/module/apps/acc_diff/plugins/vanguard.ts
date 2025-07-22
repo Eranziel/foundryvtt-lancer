@@ -5,7 +5,6 @@ import { LancerToken } from "../../../token";
 import { WeaponType } from "../../../enums";
 import { slugify } from "../../../util/lid";
 import { SampleTalent } from "./sampleTalents";
-import { isTech } from "../../../util/misc";
 
 // An important distinction not made clear here
 // The gunslinger.ts way of finding if an action triggering this talent happened this turn
@@ -65,7 +64,7 @@ export default class Vanguard_1 extends SampleTalent implements AccDiffHudCheckb
   //Defined in SampleTalent
   isVisible(data: AccDiffHudData, target?: AccDiffHudTarget): boolean {
     //This talent does not apply to tech attacks
-    if (isTech(data.lancerItem ?? null, data.title)) return false;
+    if (data.base.tech) return false;
 
     return true;
   }

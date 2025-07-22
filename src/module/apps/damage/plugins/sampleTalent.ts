@@ -50,12 +50,6 @@ export class SampleTalent {
   visible = false;
   disabled = false;
 
-  //RollModifier requirements
-  //We do nothing to modify the roll
-  modifyRoll(roll: string): string {
-    return roll;
-  }
-
   //Dehydrated requirements
   hydrate(data: DamageHudData, target?: DamageHudTarget) {
     //Property 'talents' does not exist on type 'AutomationOptions'

@@ -1,6 +1,6 @@
 import * as t from "io-ts";
 import { AccDiffHudData, AccDiffHudTarget } from "../data";
-import { isTalentAvailable, isTech } from "../../../util/misc";
+import { isTalentAvailable } from "../../../util/misc";
 import { LANCER } from "../../../config";
 import { LancerActor } from "../../../actor/lancer-actor";
 

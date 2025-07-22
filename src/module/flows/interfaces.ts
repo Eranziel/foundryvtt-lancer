@@ -172,6 +172,7 @@ export namespace LancerFlowState {
     overkill_heat?: number;
     reliable: boolean;
     reliable_val?: number;
+    tech: boolean;
     damage: DamageData[];
     bonus_damage?: DamageData[];
     hit_results: HitResult[];

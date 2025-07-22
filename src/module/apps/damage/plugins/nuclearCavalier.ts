@@ -1,6 +1,6 @@
 import { enclass } from "../../serde";
 import { slugify } from "../../../util/lid";
-import { getHistory, isTech } from "../../../util/misc";
+import { getHistory } from "../../../util/misc";
 import { DamageHudData, DamageHudTarget } from "../../damage";
 import { DamageHudCheckboxPluginData, DamageHudPluginCodec } from "./plugin";
 import { DamageData } from "../../../models/bits/damage";
@@ -30,19 +30,19 @@ export class Nuke_1 extends SampleTalent implements DamageHudCheckboxPluginData 
     return enclass(this.schemaCodec, Nuke_1);
   }
 
-  modifyDamages(damages: { damage: DamageData[]; bonus_damage: DamageData[] }): {
+  modifyDamages(damages: { damage: DamageData[]; bonusDamage: DamageData[] }): {
     damage: DamageData[];
-    bonus_damage: DamageData[];
+    bonusDamage: DamageData[];
   } {
     if (!this.active) return damages;
 
     let damageSlice = damages.damage.slice();
-    let bonusDamageSlice = damages.bonus_damage.slice();
+    let bonusDamageSlice = damages.bonusDamage.slice();
 
     damageSlice.push({ type: DamageType.Heat, val: "2" });
     return {
       damage: damageSlice,
-      bonus_damage: bonusDamageSlice,
+      bonusDamage: bonusDamageSlice,
     };
   }
 
@@ -86,9 +86,9 @@ export class Nuke_2 extends SampleTalent implements DamageHudCheckboxPluginData 
     return enclass(this.schemaCodec, Nuke_2);
   }
 
-  modifyDamages(damages: { damage: DamageData[]; bonus_damage: DamageData[] }): {
+  modifyDamages(damages: { damage: DamageData[]; bonusDamage: DamageData[] }): {
     damage: DamageData[];
-    bonus_damage: DamageData[];
+    bonusDamage: DamageData[];
   } {
     if (!this.active) return damages;
 
@@ -100,12 +100,12 @@ export class Nuke_2 extends SampleTalent implements DamageHudCheckboxPluginData 
     };
 
     let damageSlice = damages.damage.slice().map(convertDamage);
-    let bonusDamageSlice = damages.bonus_damage.slice().map(convertDamage);
+    let bonusDamageSlice = damages.bonusDamage.slice().map(convertDamage);
 
     bonusDamageSlice.push({ type: DamageType.Energy, val: "1d6" });
     return {
       damage: damageSlice,
-      bonus_damage: bonusDamageSlice,
+      bonusDamage: bonusDamageSlice,
     };
   }
 
@@ -133,11 +133,8 @@ export class Nuke_2 extends SampleTalent implements DamageHudCheckboxPluginData 
   }
 
   isVisible(data: DamageHudData, target?: DamageHudTarget): boolean {
-    console.log(data);
-    console.log(target);
-
     //This talent does not apply to tech attacks
-    if (isTech(data.lancerItem ?? null, data.title)) return false;
+    if (data.base.tech) return false;
 
     return true;
   }

@@ -148,6 +148,7 @@ export class AccDiffHudBase {
   flatBonus: number;
   accuracy: number;
   difficulty: number;
+  tech: boolean;
   cover: Cover;
   plugins: { [k: string]: any };
   #weapon!: AccDiffHudWeapon; // never use this class before calling hydrate
@@ -160,6 +161,7 @@ export class AccDiffHudBase {
       flatBonus: t.number,
       accuracy: t.number,
       difficulty: t.number,
+      tech: t.boolean,
       cover: coverSchema,
       plugins: t.type(this.pluginSchema),
     };
@@ -176,6 +178,7 @@ export class AccDiffHudBase {
     this.flatBonus = obj.flatBonus;
     this.accuracy = obj.accuracy;
     this.difficulty = obj.difficulty;
+    this.tech = obj.tech;
     this.cover = obj.cover;
     this.plugins = obj.plugins;
   }
@@ -186,6 +189,7 @@ export class AccDiffHudBase {
       flatBonus: this.flatBonus,
       accuracy: this.accuracy,
       difficulty: this.difficulty,
+      tech: this.tech,
       cover: this.cover,
       plugins: this.plugins,
     };
@@ -444,7 +448,8 @@ export class AccDiffHudData {
     targets?: Token[],
     grit?: number,
     flat?: number,
-    starting?: [number, number] | number
+    starting?: [number, number] | number,
+    tech?: boolean
   ): AccDiffHudData {
     let weapon = {
       accurate: false,
@@ -481,6 +486,7 @@ export class AccDiffHudData {
       cover: Cover.None,
       accuracy: starting[0],
       difficulty: starting[1],
+      tech: tech ?? false,
       plugins: {} as { [k: string]: any },
     };
 

@@ -105,21 +105,19 @@ export class DamageHudWeapon {
   }
 
   get total() {
-    //THIS ADDS ON TOP OF EXISTING DAMAGE
-    const pluginDamages = Object.values(this.plugins)
-      .map(plugin => plugin.modifyDamages({ damage: this.damage, bonus_damage: this.bonusDamage }))
-      .reduce(
-        (sum, damages) => {
-          return {
-            damage: sum.damage.concat(damages.damage),
-            bonus_damage: sum.bonus_damage.concat(damages.bonus_damage),
-          };
-        },
-        { damage: [], bonus_damage: [] }
-      );
+    //Adds on top of existing damage
+    let damages = {
+      damage: this.damage,
+      bonusDamage: this.bonusDamage,
+    };
+    for (const plugin of Object.values(this.plugins)) {
+      if (plugin.modifyDamages === undefined) continue;
+      damages = plugin.modifyDamages(damages);
+    }
+
     return {
-      damage: pluginDamages.damage,
-      bonusDamage: pluginDamages.bonus_damage,
+      damage: damages.damage,
+      bonusDamage: damages.bonusDamage,
     };
   }
 
@@ -145,6 +143,7 @@ export class DamageHudWeapon {
 }
 
 export class DamageHudBase {
+  tech: boolean;
   ap: boolean;
   paracausal: boolean;
   halfDamage: boolean;
@@ -157,6 +156,7 @@ export class DamageHudBase {
 
   static get schema() {
     return {
+      tech: t.boolean,
       ap: t.boolean,
       paracausal: t.boolean,
       halfDamage: t.boolean,
@@ -177,6 +177,7 @@ export class DamageHudBase {
   constructor(obj: t.TypeOf<typeof DamageHudBase.schemaCodec>) {
     const objectDamage = obj.damage.map(ensureDamageType);
     const objBonusDamage = obj.bonusDamage.map(ensureDamageType);
+    this.tech = obj.tech;
     this.ap = obj.ap;
     this.paracausal = obj.paracausal;
     this.halfDamage = obj.halfDamage;
@@ -187,6 +188,7 @@ export class DamageHudBase {
 
   get raw() {
     return {
+      tech: this.tech,
       ap: this.ap,
       paracausal: this.paracausal,
       halfDamage: this.halfDamage,
@@ -204,21 +206,19 @@ export class DamageHudBase {
   }
 
   get total() {
-    //THIS ADDS ON TOP OF EXISTING DAMAGE
-    const newDamages = Object.values(this.plugins)
-      .map(plugin => plugin.modifyDamages({ damage: this.damage, bonus_damage: this.bonusDamage }))
-      .reduce(
-        (sum, damages) => {
-          return {
-            damage: sum.damage.concat(damages.damage),
-            bonus_damage: sum.bonus_damage.concat(damages.bonus_damage),
-          };
-        },
-        { damage: [], bonus_damage: [] }
-      );
+    //Adds on top of existing damage
+    let damages = {
+      damage: this.damage,
+      bonusDamage: this.bonusDamage,
+    };
+    for (const plugin of Object.values(this.plugins)) {
+      if (plugin.modifyDamages === undefined) continue;
+      damages = plugin.modifyDamages(damages);
+    }
+
     return {
-      damage: newDamages.damage,
-      bonusDamage: newDamages.bonus_damage,
+      damage: damages.damage,
+      bonusDamage: damages.bonusDamage,
     };
   }
 }
@@ -518,6 +518,7 @@ export class DamageHudData {
       ap?: boolean;
       paracausal?: boolean;
       halfDamage?: boolean;
+      tech?: boolean;
       starting?: { damage?: DamageData[]; bonusDamage?: DamageData[] };
     }
   ): DamageHudData {
@@ -530,6 +531,7 @@ export class DamageHudData {
       plugins: {} as { [k: string]: any },
     };
     let base = {
+      tech: data?.tech ?? false,
       ap: data?.ap ?? false,
       paracausal: data?.paracausal ?? false,
       halfDamage: data?.halfDamage ?? false,

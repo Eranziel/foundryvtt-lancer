@@ -32,6 +32,7 @@ export class BurnFlow extends DamageRollFlow {
       half_damage: false,
       overkill: false, // Burn ticks aren't overkill
       reliable: false, // Burn ticks aren't reliable
+      tech: false,
       hit_results: [],
       has_normal_hit: true, // Set this to true to make it do a normal damage roll
       has_crit_hit: false, // Don't do a crit damage roll
@@ -67,6 +68,7 @@ async function initBurnCheckData(state: FlowState<LancerFlowState.BurnCheckData>
     paracausal: true, // Burn ticks do not apply resistance
     halfDamage: false,
     starting: { damage: state.data.damage, bonusDamage: [] },
+    tech: false,
   });
   state.data.damage_results = [];
   state.data.crit_damage_results = [];

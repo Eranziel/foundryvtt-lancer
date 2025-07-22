@@ -31,7 +31,7 @@
   {#if icon}<i class="{icon} i--s" />{/if}
   <span class="human-label" style="text-wrap: nowrap;">{label}</span>
   {#if quickReference !== ""}
-    <span style="text-wrap: nowrap; ">({quickReference})</span>
+    <span style="text-wrap: nowrap; "> ({quickReference})</span>
   {/if}
 </label>
 
@@ -127,10 +127,10 @@
       overflow: hidden;
       max-width: 25ch;
     }
-    @media only screen and (max-width: 1100px) {
-      .human-label {
-        max-width: 11ch;
-      }
-    }
+    // @media only screen and (max-width: 1100px) {
+    //   .human-label {
+    //     max-width: 14ch;
+    //   }
+    // }
   }
 </style>

@@ -61,6 +61,7 @@ export class DamageRollFlow extends Flow<LancerFlowState.DamageRollData> {
       half_damage: data?.half_damage || false,
       overkill: data?.overkill || false,
       reliable: data?.reliable || false,
+      tech: data?.tech || false,
       hit_results: data?.hit_results || [],
       has_normal_hit: data?.has_normal_hit || false,
       has_crit_hit: data?.has_crit_hit || false,
@@ -161,6 +162,7 @@ async function showDamageHUD(state: FlowState<LancerFlowState.DamageRollData>): 
       paracausal: state.data.paracausal,
       halfDamage: state.data.half_damage,
       starting: { damage: state.data.damage, bonusDamage: state.data.bonus_damage },
+      tech: state.data.tech,
     });
 
     state.data.damage_hud_data = await openSlidingHud("damage", state.data.damage_hud_data!);
@@ -232,7 +234,10 @@ async function _rollDamage(
   if (plugins !== undefined) {
     damage.val = Object.values(plugins)
       .sort((p: RollModifier, q: RollModifier) => q.rollPrecedence - p.rollPrecedence)
-      .reduce((roll: string, p: RollModifier) => p.modifyRoll(roll), damage.val);
+      .reduce((roll: string, p: RollModifier) => {
+        if (p.modifyRoll === undefined) return roll;
+        return p.modifyRoll(roll);
+      }, damage.val);
   }
 
   let damageRoll: Roll | undefined = new Roll(damage.val);
@@ -373,7 +378,6 @@ export async function rollNormalDamage(state: FlowState<LancerFlowState.DamageRo
   // Convenience flag for whether this is a multi-target attack.
   // We'll use this later alongside a check for whether a given bonus damage result
   // is single-target; if not, the bonus damage needs to be halved.
-  console.log(state.data.damage_hud_data);
   const multiTarget: boolean = state.data.damage_hud_data.targets.length > 1;
   const allBonusDamage = _collectBonusDamage(state);
 
@@ -711,6 +715,7 @@ export async function rollDamageCallback(event: JQuery.ClickEvent) {
   const flow = new DamageRollFlow(item ? item.uuid : attackData.attackerUuid, {
     title: `${item?.name || actor.name} DAMAGE`,
     configurable: true,
+    tech: attackData.tech,
     invade: attackData.invade,
     hit_results,
     has_normal_hit: hit_results.some(hr => hr.hit && !hr.crit),
