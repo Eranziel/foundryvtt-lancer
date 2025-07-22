@@ -1,6 +1,6 @@
 // Import TypeScript modules
 import { LancerActor } from "../actor/lancer-actor";
-import { AccDiffHudData, AccDiffHudDataSerialized, RollModifier } from "../apps/acc_diff";
+import { AccDiffHudData, AccDiffHudDataSerialized, Cover, RollModifier } from "../apps/acc_diff";
 import { openSlidingHud } from "../apps/slidinghud";
 import { LANCER } from "../config";
 import { AttackType, RangeType, WeaponType } from "../enums";
@@ -36,7 +36,7 @@ export function attackRolls(flat_bonus: number, acc_diff: AccDiffHudData): Lance
   let perRoll = Object.values(acc_diff.weapon.plugins);
   let base = perRoll.concat(Object.values(acc_diff.base.plugins));
   return {
-    roll: applyPluginsToRoll(rollStr(flat_bonus, acc_diff.base.total), base),
+    roll: applyPluginsToRoll(rollStr(flat_bonus, acc_diff.base.total + acc_diff.weapon.total(Cover.None)), base),
     targeted: acc_diff.targets.map(tad => {
       let perTarget = perRoll.concat(Object.values(tad.plugins));
       return {

@@ -79,7 +79,8 @@ async function showStatRollHUD(state: FlowState<LancerFlowState.StatRollData>): 
     // User hit cancel, abort the flow
     return false;
   }
-  let acc_str = state.data.acc_diff.base.total != 0 ? ` + ${state.data.acc_diff.base.total}d6kh1` : "";
+  const total_acc = state.data.acc_diff.base.total + state.data.acc_diff.weapon.total(0);
+  let acc_str = total_acc != 0 ? ` + ${total_acc}d6kh1` : "";
   state.data.roll_str = `1d20+${state.data.bonus || 0}${acc_str}`;
   return true;
 }
