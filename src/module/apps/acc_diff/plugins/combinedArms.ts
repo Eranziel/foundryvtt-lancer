@@ -6,7 +6,7 @@ import { slugify } from "../../../util/lid";
 import { SampleTalent } from "./sampleTalents";
 import { LancerItem } from "../../../item/lancer-item";
 import { LancerActor } from "../../../actor/lancer-actor";
-import { getHistory } from "../../../util/misc";
+import { getHistory, isTech } from "../../../util/misc";
 
 //Automated
 //A lot of common talent boilerplate is contained in SampleTalent
@@ -37,6 +37,13 @@ export class CombinedArms_2 extends SampleTalent implements AccDiffHudCheckboxPl
   talent(data: AccDiffHudData, target?: AccDiffHudTarget): boolean {
     if (!data.weapon.engaged && !data.lancerActor?.system.statuses.engaged) return false;
     if (data.weapon.weaponType === WeaponType.Melee) return false;
+    return true;
+  }
+
+  isVisible(data: AccDiffHudData, target?: AccDiffHudTarget): boolean {
+    //This talent does not apply to tech attacks
+    if (isTech(data.lancerItem ?? null, data.title)) return false;
+
     return true;
   }
 
@@ -110,6 +117,13 @@ export class CombinedArms_3 extends SampleTalent implements AccDiffHudCheckboxPl
     const lastWeaponType = findLastHitWeaponType(data.lancerActor.id);
     if (lastWeaponType === undefined) return false;
     if (lastWeaponType === currentType) return false;
+
+    return true;
+  }
+
+  isVisible(data: AccDiffHudData, target?: AccDiffHudTarget): boolean {
+    //This talent does not apply to tech attacks
+    if (isTech(data.lancerItem ?? null, data.title)) return false;
 
     return true;
   }

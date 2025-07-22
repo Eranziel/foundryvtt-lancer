@@ -4,6 +4,7 @@ import { enclass } from "../../serde";
 import { WeaponType } from "../../../enums";
 import { slugify } from "../../../util/lid";
 import { SampleTalent } from "./sampleTalents";
+import { isTech } from "../../../util/misc";
 
 //Automated with a caveat, see talent()
 export default class Brawler_1 extends SampleTalent implements AccDiffHudCheckboxPluginData {
@@ -40,6 +41,13 @@ export default class Brawler_1 extends SampleTalent implements AccDiffHudCheckbo
     if (!target?.target.actor?.system.statuses.grappled) return false;
 
     if (data.weapon.weaponType !== WeaponType.Melee) return false;
+
+    return true;
+  }
+
+  isVisible(data: AccDiffHudData, target?: AccDiffHudTarget): boolean {
+    //This talent does not apply to tech attacks
+    if (isTech(data.lancerItem ?? null, data.title)) return false;
 
     return true;
   }

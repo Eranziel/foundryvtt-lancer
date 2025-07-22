@@ -5,6 +5,7 @@ import { LancerToken } from "../../../token";
 import { WeaponType } from "../../../enums";
 import { slugify } from "../../../util/lid";
 import { SampleTalent } from "./sampleTalents";
+import { isTech } from "../../../util/misc";
 
 // An important distinction not made clear here
 // The gunslinger.ts way of finding if an action triggering this talent happened this turn
@@ -27,7 +28,7 @@ export default class Vanguard_1 extends SampleTalent implements AccDiffHudCheckb
   tooltip: string = "Gain +1 Accuracy when using CQB weapons to attack targets within Range 3.";
 
   //AccDiffHudPlugin requirements
-  // the codec lets us know how to persist whatever data you need for rerolls
+  //the codec lets us know how to persist whatever data you need for rerolls
   static get codec(): AccDiffHudPluginCodec<Vanguard_1, unknown, unknown> {
     return enclass(this.schemaCodec, Vanguard_1);
   }
@@ -58,6 +59,15 @@ export default class Vanguard_1 extends SampleTalent implements AccDiffHudCheckb
         return true;
       });
     return areTargetsNearby;
+  }
+
+  //Returns true by default if not defined
+  //Defined in SampleTalent
+  isVisible(data: AccDiffHudData, target?: AccDiffHudTarget): boolean {
+    //This talent does not apply to tech attacks
+    if (isTech(data.lancerItem ?? null, data.title)) return false;
+
+    return true;
   }
 
   //RollModifier Requirements

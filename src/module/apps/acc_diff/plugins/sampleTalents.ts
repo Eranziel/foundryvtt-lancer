@@ -1,6 +1,6 @@
 import * as t from "io-ts";
 import { AccDiffHudData, AccDiffHudTarget } from "../data";
-import { isTalentAvailable } from "../../../util/misc";
+import { isTalentAvailable, isTech } from "../../../util/misc";
 import { LANCER } from "../../../config";
 import { LancerActor } from "../../../actor/lancer-actor";
 
@@ -65,16 +65,22 @@ export class SampleTalent {
     if (!isTalentAvailable(data.lancerActor, this.slug)) return;
 
     //Figure out whether we are in a situation the talent applies
-    console.log(`${this.slug} is hydrated`);
-    this.active = this.talent(data, target);
+    console.log(`${LANCER.log_prefix} ${this.slug} is hydrated`);
+
+    this.visible = this.isVisible(data, target);
+    if (this.visible) {
+      this.active = this.talent(data, target);
+      this.acc_diff = data;
+    }
     this.reminderActive = this.talentReminder(data, target);
-    this.visible = true;
-    this.acc_diff = data;
   }
 
   //Unless it's defined, we always return false
   talent(data: AccDiffHudData, target?: AccDiffHudTarget): boolean {
     return false;
+  }
+  isVisible(data: AccDiffHudData, target?: AccDiffHudTarget): boolean {
+    return true;
   }
   talentReminder(data: AccDiffHudData, target?: AccDiffHudTarget): boolean {
     return false;
@@ -137,7 +143,7 @@ export class SampleCardReminder {
     // Check if actor has talent
     if (!isTalentAvailable(data.lancerActor, this.slug)) return;
 
-    console.log(`${this.slug} is hydrated`);
+    console.log(`${LANCER.log_prefix} ${this.slug} is hydrated`);
     //Figure out whether we are in a situation the talent applies
     this.active = this.talent(data, target);
     this.reminderActive = this.talentReminder(data, target);

@@ -2,6 +2,8 @@ import { LancerActor } from "../actor/lancer-actor";
 import { LancerCombat } from "../combat/lancer-combat";
 import { LancerCombatHistory } from "../combat/lancer-combat-history";
 import { LANCER } from "../config";
+import { NpcFeatureType } from "../enums";
+import { LancerItem } from "../item/lancer-item";
 import { slugify } from "./lid";
 
 /**
@@ -163,4 +165,12 @@ export function getHistory(): LancerCombatHistory | undefined {
   const serializedHistory = getCombat()?.flags.lancer.history;
 
   return serializedHistory ? new LancerCombatHistory(serializedHistory.rounds) : undefined;
+}
+
+export function isTech(lancerItem: LancerItem | null, title: string) {
+  if (!lancerItem) return title.toLowerCase() === "tech attack";
+  if (lancerItem.is_mech_weapon()) return false;
+  if (lancerItem.is_pilot_weapon()) return false;
+  if (lancerItem.is_npc_feature() && lancerItem.system.type === NpcFeatureType.Weapon) return false;
+  return true;
 }

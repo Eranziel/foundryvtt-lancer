@@ -3,7 +3,7 @@ import { AccDiffHudCheckboxPluginData, AccDiffHudPluginCodec } from "./plugin";
 import { enclass } from "../../serde";
 import { FittingSize, WeaponType } from "../../../enums";
 import { slugify } from "../../../util/lid";
-import { getHistory } from "../../../util/misc";
+import { getHistory, isTech } from "../../../util/misc";
 import { SampleTalent } from "./sampleTalents";
 
 //Automated
@@ -43,6 +43,13 @@ export default class Duelist_1 extends SampleTalent implements AccDiffHudCheckbo
       return true;
     });
     if (partisanUsed !== undefined) return false;
+
+    return true;
+  }
+
+  isVisible(data: AccDiffHudData, target?: AccDiffHudTarget): boolean {
+    //This talent does not apply to tech attacks
+    if (isTech(data.lancerItem ?? null, data.title)) return false;
 
     return true;
   }

@@ -39,10 +39,10 @@
 
 {#if visibleTalents.length != 0}
   <form id="talent_window" class="lancer-hud window-content">
-    <label class="flexrow accdiff-weight lancer-border-primary talent-title">Talents</label>
+    <label class="flexrow accdiff-weight lancer-border-primary talent-title" for="talent_checkboxes">Talents</label>
 
     <!-- Talent Checkboxes -->
-    <div class="talent-column-container">
+    <div class="talent-column-container" id="talent_checkboxes">
       <div class="talent-column">
         {#each visibleTalents as plugin, idx}
           <!-- Odd -->

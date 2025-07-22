@@ -4,6 +4,8 @@ import { DamageHudCheckboxPluginData, DamageHudPluginCodec } from "./plugin";
 import { DamageData } from "../../../models/bits/damage";
 import { DamageType } from "../../../enums";
 import { SampleTalent } from "./sampleTalent";
+import { DamageHudData, DamageHudTarget } from "../data";
+import { isTech } from "../../../util/misc";
 
 //Manual checkbox
 export default class Juggernaut_2 extends SampleTalent implements DamageHudCheckboxPluginData {
@@ -42,5 +44,12 @@ export default class Juggernaut_2 extends SampleTalent implements DamageHudCheck
       damage: damageSlice,
       bonus_damage: bonusDamageSlice,
     };
+  }
+
+  isVisible(data: DamageHudData, target?: DamageHudTarget): boolean {
+    //This talent does not apply to tech attacks
+    if (isTech(data.lancerItem ?? null, data.title)) return false;
+
+    return true;
   }
 }

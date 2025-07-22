@@ -22,6 +22,7 @@
   import { LancerToken } from "../../token";
   import AccDiffInput from "./AccDiffInput.svelte";
   import { SystemTemplates } from "../../system-template";
+  import { isTech } from "../../util/misc";
 
   export let weapon: AccDiffHudWeapon;
   export let base: AccDiffHudBase;
@@ -53,7 +54,7 @@
   let rollerName = lancerActor ? ` -- ${lancerActor.token?.name || lancerActor.name}` : "";
 
   // Initialize engaged
-  if (kind === "attack" && lancerItem && !isTech()) {
+  if (kind === "attack" && lancerItem && !isTech(lancerItem, title)) {
     let ranges: RangeType[] = [];
     if (
       lancerItem.is_pilot_weapon() ||
@@ -129,17 +130,17 @@
     return kind === "attack";
   }
 
-  function isTech() {
-    if (!lancerItem) return title.toLowerCase() === "tech attack";
-    if (lancerItem.is_mech_weapon()) return false;
-    if (lancerItem.is_pilot_weapon()) return false;
-    if (lancerItem.is_npc_feature() && lancerItem.system.type === NpcFeatureType.Weapon) return false;
-    return true;
-  }
+  // function isTech(lancerItem, title) {
+  //   if (!lancerItem) return title.toLowerCase() === "tech attack";
+  //   if (lancerItem.is_mech_weapon()) return false;
+  //   if (lancerItem.is_pilot_weapon()) return false;
+  //   if (lancerItem.is_npc_feature() && lancerItem.system.type === NpcFeatureType.Weapon) return false;
+  //   return true;
+  // }
 
   function gritLabel() {
     // This is a tech attack
-    if (isTech()) {
+    if (isTech(lancerItem, title)) {
       if (lancerItem?.is_npc_feature() && lancerItem.system.type === NpcFeatureType.Tech) {
         return "Tech Item Base";
       }
@@ -209,9 +210,9 @@
   }}
 >
   {#if title != ""}
-    <div class="lancer-header {isTech() ? 'lancer-tech' : 'lancer-weapon'} medium">
+    <div class="lancer-header {isTech(lancerItem, title) ? 'lancer-tech' : 'lancer-weapon'} medium">
       {#if kind == "attack"}
-        {#if isTech()}
+        {#if isTech(lancerItem, title)}
           <i class="cci cci-tech-quick i--m i--light" />
         {:else}
           <i class="cci cci-weapon i--m i--light" />
@@ -281,7 +282,7 @@
       <div class="accdiff-grid__column">
         <HudCheckbox label="Inaccurate (-1)" bind:value={weapon.inaccurate} />
         <HudCheckbox label="Impaired (-1)" value={!!weapon.impaired} disabled />
-        {#if kind == "attack" && !isTech()}
+        {#if kind == "attack" && !isTech(lancerItem, title)}
           <HudCheckbox label="Engaged (-1)" bind:value={weapon.engaged} />
           {#each diffWeaponPlugins as plugin}
             <Plugin data={plugin} />
@@ -316,7 +317,7 @@
             <Plugin data={plugin} />
           {/each}
           <!-- Cover -->
-          {#if !isTech()}
+          {#if !isTech(lancerItem, title)}
             <div class="grid-enforcement">
               {#if targets.length == 0}
                 <div transition:slide|local>
@@ -413,7 +414,7 @@
                         <i class="cci cci-accuracy i--m" style="border:none" />
                       </button>
                       <input style="display: none" type="number" bind:value={data.accuracy} min="0" />
-                      {#if !isTech()}
+                      {#if !isTech(lancerItem, title)}
                         <Cover
                           bind:cover={data.cover}
                           disabled={weapon.seeking}

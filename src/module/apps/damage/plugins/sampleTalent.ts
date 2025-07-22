@@ -67,14 +67,19 @@ export class SampleTalent {
     // Check if actor has talent
     if (!isTalentAvailable(data.lancerActor, this.slug)) return;
 
-    console.log(`${this.slug} is hydrated`);
-    //Figure out whether we are in a Handshake Etiquette situation
-    this.active = this.talent(data, target);
-    this.visible = true;
+    console.log(`${LANCER.log_prefix} ${this.slug} is hydrated`);
+    //Figure out whether we are in a situation where this talent is visible and then if we should start active
+    this.visible = this.isVisible(data, target);
+    if (this.visible) {
+      this.active = this.talent(data, target);
+    }
   }
 
   //If it's not initialized, always return false
   talent(data: DamageHudData, target?: DamageHudTarget): boolean {
     return false;
+  }
+  isVisible(data: DamageHudData, target?: DamageHudTarget): boolean {
+    return true;
   }
 }

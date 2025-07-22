@@ -1,6 +1,6 @@
 import { enclass } from "../../serde";
 import { slugify } from "../../../util/lid";
-import { getHistory } from "../../../util/misc";
+import { getHistory, isTech } from "../../../util/misc";
 import { DamageHudData, DamageHudTarget } from "../../damage";
 import { DamageHudCheckboxPluginData, DamageHudPluginCodec } from "./plugin";
 import { DamageData } from "../../../models/bits/damage";
@@ -128,6 +128,16 @@ export class Nuke_2 extends SampleTalent implements DamageHudCheckboxPluginData 
     if (dangerZoneAttacks.length > 1) return false;
 
     if (!isDangerZone(data.lancerActor.system.heat)) return false;
+
+    return true;
+  }
+
+  isVisible(data: DamageHudData, target?: DamageHudTarget): boolean {
+    console.log(data);
+    console.log(target);
+
+    //This talent does not apply to tech attacks
+    if (isTech(data.lancerItem ?? null, data.title)) return false;
 
     return true;
   }

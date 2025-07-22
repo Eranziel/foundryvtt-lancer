@@ -4,6 +4,7 @@ import { enclass } from "../../serde";
 import { WeaponType } from "../../../enums";
 import { slugify } from "../../../util/lid";
 import { SampleTalent } from "./sampleTalents";
+import { isTech } from "../../../util/misc";
 
 //Automated
 //A lot of common talent boilerplate is contained in SampleTalent
@@ -45,6 +46,13 @@ export default class Pankrati_1 extends SampleTalent implements AccDiffHudCheckb
     if (statuses.immobilized || statuses.slowed || statuses.slow) return true; //We return here <-----
 
     return false;
+  }
+
+  isVisible(data: AccDiffHudData, target?: AccDiffHudTarget): boolean {
+    //This talent does not apply to tech attacks
+    if (isTech(data.lancerItem ?? null, data.title)) return false;
+
+    return true;
   }
 
   //RollModifier Requirements
