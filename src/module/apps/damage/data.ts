@@ -15,6 +15,11 @@ import Brutal_1 from "./plugins/brutal";
 import Brawler_2 from "./plugins/brawler2";
 import Juggernaut_2 from "./plugins/juggernaut2";
 
+export type TotalDamage = {
+  damage: DamageData[];
+  bonusDamage: DamageData[];
+};
+
 export enum HitQuality {
   Miss = 0,
   Hit = 1,

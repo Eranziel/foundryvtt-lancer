@@ -7,8 +7,6 @@ import { DamageData } from "../../../models/bits/damage";
 import { DamageType } from "../../../enums";
 import { SampleTalent } from "./sampleTalent";
 import { BoundedNum } from "../../../source-template";
-import { LancerActor } from "../../../actor/lancer-actor";
-import { LancerItem } from "../../../item/lancer-item";
 
 function isDangerZone(heat?: BoundedNum): boolean {
   if (heat == undefined || heat.max === undefined) return false;
@@ -41,7 +39,7 @@ export class Nuke_1 extends SampleTalent implements DamageHudCheckboxPluginData 
     let damageSlice = damages.damage.slice();
     let bonusDamageSlice = damages.bonusDamage.slice();
 
-    damageSlice.push({ type: DamageType.Heat, val: "2" });
+    bonusDamageSlice.push({ type: DamageType.Heat, val: "2" });
     return {
       damage: damageSlice,
       bonusDamage: bonusDamageSlice,
