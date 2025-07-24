@@ -55,10 +55,10 @@ export default class Brutal_1 extends SampleTalent implements DamageHudCheckboxP
   }
 
   //The unique logic of the talent
-  talent(data: DamageHudData, target?: DamageHudTarget): boolean {
-    if (target?.hitResult.base !== "20") return false;
+  talent(data: DamageHudData, target?: DamageHudTarget) {
+    if (target?.hitResult.base !== "20") return;
 
-    return true;
+    this.active = true;
   }
 }
 
