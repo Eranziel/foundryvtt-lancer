@@ -127,6 +127,11 @@ export class Nuke_2 extends SampleTalent implements DamageHudCheckboxPluginData 
     };
   }
 
+  //We do need to do all three to make sure all damage is converted when applicable
+  static perRoll(): Nuke_2 {
+    let ret = new Nuke_2();
+    return ret;
+  }
   static perUnknownTarget(): Nuke_2 {
     let ret = new Nuke_2();
     return ret;
