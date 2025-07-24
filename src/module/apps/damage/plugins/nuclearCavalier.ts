@@ -17,6 +17,11 @@ function isDangerZone(heat?: BoundedNum): boolean {
 
 //Automated
 export class Nuke_1 extends SampleTalent implements DamageHudCheckboxPluginData {
+  //Plugin state
+  // This plugin can exist in multiple plugins objects.
+  // Pressing the checkbox for one should activate all.
+  static active: boolean = false;
+
   //Shared type requirements
   //slugify here to make sure the slug is same across this plugin and TalentWindow.svelte
   static slug: string = slugify("Aggressive Heat Bleed", "-");
@@ -25,6 +30,15 @@ export class Nuke_1 extends SampleTalent implements DamageHudCheckboxPluginData 
   quickReference: string = "+2";
   tooltip: string = "The first attack roll you make on your turn while in the Danger Zone deals +2 Heat on a hit.";
 
+  get uiState(): boolean {
+    return Nuke_1.active;
+  }
+  set uiState(data: boolean) {
+    Nuke_1.active = data;
+
+    console.log("BEING SET, active = " + Nuke_1.active);
+  }
+
   //AccDiffHudPlugin requirements
   // the codec lets us know how to persist whatever data you need for rerolls
   static get codec(): DamageHudPluginCodec<Nuke_1, unknown, unknown> {
@@ -32,12 +46,24 @@ export class Nuke_1 extends SampleTalent implements DamageHudCheckboxPluginData 
   }
 
   modifyDamages(damages: TotalDamage, target?: DamageHudTarget): TotalDamage {
-    if (!this.active) return damages;
+    if (!Nuke_1.active) return damages;
 
     let damageSlice = damages.damage.slice();
     let bonusDamageSlice = damages.bonusDamage.slice();
 
-    bonusDamageSlice.push({ type: DamageType.Heat, val: "2" });
+    if (target !== undefined) {
+      //Avoid adding bonus damage when this is called in base by adding it here
+      bonusDamageSlice.push({ type: DamageType.Heat, val: "2" });
+
+      //NucCav 1 only applies bonus damage to first target
+      if (this.data !== undefined && this.data.targets.length > 1) {
+        const firstTargetId = this.data.targets[0].target.id;
+        console.log(firstTargetId);
+        console.log(target?.target.id);
+        if (firstTargetId !== target?.target.id) return damages;
+      }
+    }
+
     return {
       damage: damageSlice,
       bonusDamage: bonusDamageSlice,
@@ -54,25 +80,27 @@ export class Nuke_1 extends SampleTalent implements DamageHudCheckboxPluginData 
   }
 
   //The unique logic of the talent
-  talent(data: DamageHudData, target?: DamageHudTarget): boolean {
-    if (!data.lancerActor?.is_mech()) return false;
+  talent(data: DamageHudData, target?: DamageHudTarget) {
+    if (!data.lancerActor?.is_mech()) return;
 
     const recentActions = getHistory()?.getCurrentTurn(data.lancerActor.id)?.actions ?? [];
     const dangerZoneAttacks = recentActions.filter(action => {
       return isDangerZone(action.heat);
     });
-    if (dangerZoneAttacks.length > 1) return false;
+    if (dangerZoneAttacks.length > 1) return;
 
-    if (!isDangerZone(data.lancerActor.system.heat)) return false;
+    if (!isDangerZone(data.lancerActor.system.heat)) return;
 
-    return true;
+    Nuke_1.active = true;
   }
 }
 
 //Automated
 export class Nuke_2 extends SampleTalent implements DamageHudCheckboxPluginData {
-  // //Plugin state
-  // static active: boolean = false;
+  //Plugin state
+  // This plugin can exist in multiple plugins objects.
+  // Pressing the checkbox for one should activate all.
+  static active: boolean = false;
 
   //Shared type requirements
   //slugify here to make sure the slug is same across this plugin and TalentWindow.svelte
@@ -83,10 +111,14 @@ export class Nuke_2 extends SampleTalent implements DamageHudCheckboxPluginData 
   tooltip: string =
     "The first ranged or melee attack roll you make on your turn while in the Danger Zone deals Energy instead of Kinetic or Explosive and additionally deals +1d6 Energy bonus damage on a hit.";
 
-  // set uiState(data: boolean) {
-  //   Nuke_2.active = data;
-  //   this.active = data;
-  // }
+  get uiState(): boolean {
+    return Nuke_2.active;
+  }
+  set uiState(data: boolean) {
+    Nuke_2.active = data;
+
+    console.log("BEING SET, active = " + Nuke_2.active);
+  }
 
   //AccDiffHudPlugin requirements
   // the codec lets us know how to persist whatever data you need for rerolls
@@ -142,7 +174,7 @@ export class Nuke_2 extends SampleTalent implements DamageHudCheckboxPluginData 
   }
 
   //The unique logic of the talent
-  talent(data: DamageHudData, target?: DamageHudTarget): boolean {
+  talent(data: DamageHudData, target?: DamageHudTarget) {
     if (!data.lancerActor?.is_mech()) return false;
 
     const recentActions = getHistory()?.getCurrentTurn(data.lancerActor.id)?.actions ?? [];
@@ -150,9 +182,9 @@ export class Nuke_2 extends SampleTalent implements DamageHudCheckboxPluginData 
       if (action.type === "attack") return false;
       return isDangerZone(action.heat);
     });
-    if (dangerZoneAttacks.length > 1) return false;
+    if (dangerZoneAttacks.length > 1) return;
 
-    if (!isDangerZone(data.lancerActor.system.heat)) return false;
+    if (!isDangerZone(data.lancerActor.system.heat)) return;
 
     return true;
   }

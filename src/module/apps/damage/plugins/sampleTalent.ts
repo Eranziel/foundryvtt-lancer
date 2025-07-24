@@ -7,7 +7,6 @@ import { LANCER } from "../../../config";
 export class SampleTalent {
   //Plugin state
   active: boolean = false;
-  static active: boolean = false;
   data?: DamageHudData;
 
   //AccDiffHudPlugin requirements
@@ -43,7 +42,6 @@ export class SampleTalent {
     return this.active;
   }
   set uiState(data: boolean) {
-    SampleTalent.active = data;
     this.active = data;
 
     console.log("BEING SET, active = " + this.active);
@@ -72,13 +70,12 @@ export class SampleTalent {
     console.log(`${LANCER.log_prefix} ${this.slug} is hydrated`);
     //Figure out whether we are in a situation where this talent is visible and then if we should start active
     if (this.visible) {
-      this.active = this.talent(data, target);
-      SampleTalent.active = this.active;
+      this.talent(data, target);
     }
   }
 
-  //If it's not initialized, always return false
-  talent(data: DamageHudData, target?: DamageHudTarget): boolean {
-    return false;
+  //If it's not initialized, set this.active to false
+  talent(data: DamageHudData, target?: DamageHudTarget) {
+    this.active = false;
   }
 }
