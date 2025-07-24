@@ -1,5 +1,6 @@
 import { DamageType, DamageTypeChecklist } from "../../enums";
 import { restrict_enum } from "../../helpers/commons";
+import { LancerToken } from "../../token";
 import { PackedDamageData } from "../../util/unpacking/packed-types";
 
 const fields: any = foundry.data.fields;
@@ -8,6 +9,7 @@ const fields: any = foundry.data.fields;
 export interface DamageData {
   type: DamageType;
   val: string;
+  target?: LancerToken;
 }
 
 // "Hydrated" DamageData

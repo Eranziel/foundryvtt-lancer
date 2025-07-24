@@ -267,18 +267,10 @@ async function _rollDamage(
  * @param state Flow state to get bonus damage from
  * @returns Array of bonus damage rolls, including target-specific bonus damage
  */
-function _collectBonusDamage(state: FlowState<LancerFlowState.DamageRollData>): {
-  type: DamageType;
-  val: string;
-  target?: LancerToken;
-}[] {
+function _collectBonusDamage(state: FlowState<LancerFlowState.DamageRollData>): DamageData[] {
   if (!state.data) throw new TypeError(`Damage flow state missing!`);
   if (!state.data.damage_hud_data) throw new TypeError(`Damage configuration missing!`);
-  const total: {
-    type: DamageType;
-    val: string;
-    target?: LancerToken;
-  }[] = duplicate(state.data.bonus_damage);
+  const total: DamageData[] = state.data.bonus_damage?.slice() ?? [];
   // Find all the target-specific bonus damage rolls and add them to the base rolls
   // so they can be rolled together.
   for (const hudTarget of state.data.damage_hud_data.targets) {
@@ -322,6 +314,10 @@ export async function rollReliable(state: FlowState<LancerFlowState.DamageRollDa
   if (!state.data.damage_hud_data) throw new TypeError(`Damage configuration missing!`);
 
   //Awkawrd way of applying targetted damage conversion. Should be changed.
+  console.log(state.data.damage_hud_data);
+  console.log(state.data.damage_hud_data.base.total);
+  console.log(state.data.damage_hud_data?.weapon.total);
+  console.log(state.data.damage_hud_data.targets[0].total);
   const sharedTotal = state.data.damage_hud_data.sharedTotal;
   const totalDamage = sharedTotal.damage;
   const totalBonusDamage = sharedTotal.bonusDamage;

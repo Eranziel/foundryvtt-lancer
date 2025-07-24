@@ -330,8 +330,8 @@ export class DamageHudTarget {
 
     //Plugins should modify it last because stuff like NucCav might be converting it
     let damages = {
-      damage: base.damage.concat(weapon.damage),
-      bonusDamage: this.bonusDamage.concat(base.bonusDamage, weapon.bonusDamage),
+      damage: [],
+      bonusDamage: this.bonusDamage,
     };
     for (const plugin of Object.values(this.plugins)) {
       if (plugin.modifyDamages === undefined) continue;
@@ -465,14 +465,15 @@ export class DamageHudData {
   }
 
   get sharedTotal(): TotalDamage {
-    const base = this.base.total;
     const weapon = this.weapon?.total ?? {
       damage: [],
       bonusDamage: [],
     };
+    const base = this.base.total;
+
     return {
-      damage: base.damage.concat(weapon.damage),
-      bonusDamage: base.bonusDamage.concat(weapon.bonusDamage),
+      damage: weapon.damage.concat(base.damage),
+      bonusDamage: weapon.bonusDamage.concat(base.bonusDamage),
     };
   }
 

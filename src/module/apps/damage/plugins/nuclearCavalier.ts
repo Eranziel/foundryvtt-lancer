@@ -71,6 +71,9 @@ export class Nuke_1 extends SampleTalent implements DamageHudCheckboxPluginData 
 
 //Automated
 export class Nuke_2 extends SampleTalent implements DamageHudCheckboxPluginData {
+  // //Plugin state
+  // static active: boolean = false;
+
   //Shared type requirements
   //slugify here to make sure the slug is same across this plugin and TalentWindow.svelte
   static slug: string = slugify("Fusion Hemorrhage", "-");
@@ -80,6 +83,11 @@ export class Nuke_2 extends SampleTalent implements DamageHudCheckboxPluginData 
   tooltip: string =
     "The first ranged or melee attack roll you make on your turn while in the Danger Zone deals Energy instead of Kinetic or Explosive and additionally deals +1d6 Energy bonus damage on a hit.";
 
+  // set uiState(data: boolean) {
+  //   Nuke_2.active = data;
+  //   this.active = data;
+  // }
+
   //AccDiffHudPlugin requirements
   // the codec lets us know how to persist whatever data you need for rerolls
   static get codec(): DamageHudPluginCodec<Nuke_2, unknown, unknown> {
@@ -87,18 +95,9 @@ export class Nuke_2 extends SampleTalent implements DamageHudCheckboxPluginData 
   }
 
   modifyDamages(damages: TotalDamage, target?: DamageHudTarget): TotalDamage {
-    if (!this.active) return damages;
+    if (!Nuke_2.active) return damages;
 
     console.log("NucCav2");
-
-    //NucCav 2 only applies bonus damage to first target
-    if (this.data?.targets !== undefined && this.data?.targets.length > 0) {
-      const firstTargetId = this.data.targets[0].target.id;
-      console.log(firstTargetId);
-      console.log(target?.target.id);
-      if (firstTargetId !== target?.target.id) return damages;
-    }
-
     const convertDamage = (damage: DamageData) => {
       if (damage.type === DamageType.Explosive || damage.type === DamageType.Kinetic) {
         damage.type = DamageType.Energy;
@@ -109,7 +108,19 @@ export class Nuke_2 extends SampleTalent implements DamageHudCheckboxPluginData 
     let damageSlice = damages.damage.slice().map(convertDamage);
     let bonusDamageSlice = damages.bonusDamage.slice().map(convertDamage);
 
-    bonusDamageSlice.push({ type: DamageType.Energy, val: "1d6" });
+    if (target !== undefined) {
+      //Avoid adding bonus damage when this is called in base by adding it here
+      bonusDamageSlice.push({ type: DamageType.Energy, val: "1d6" });
+
+      //NucCav 2 only applies bonus damage to first target
+      if (this.data !== undefined && this.data.targets.length > 1) {
+        const firstTargetId = this.data.targets[0].target.id;
+        console.log(firstTargetId);
+        console.log(target?.target.id);
+        if (firstTargetId !== target?.target.id) return damages;
+      }
+    }
+
     return {
       damage: damageSlice,
       bonusDamage: bonusDamageSlice,

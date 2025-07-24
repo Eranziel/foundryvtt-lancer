@@ -7,6 +7,7 @@ import { LANCER } from "../../../config";
 export class SampleTalent {
   //Plugin state
   active: boolean = false;
+  static active: boolean = false;
   data?: DamageHudData;
 
   //AccDiffHudPlugin requirements
@@ -42,6 +43,7 @@ export class SampleTalent {
     return this.active;
   }
   set uiState(data: boolean) {
+    SampleTalent.active = data;
     this.active = data;
 
     console.log("BEING SET, active = " + this.active);
@@ -67,6 +69,7 @@ export class SampleTalent {
     this.visible = this.isVisible(data, target);
     if (this.visible) {
       this.active = this.talent(data, target);
+      SampleTalent.active = this.active;
       this.data = data;
     }
   }
