@@ -17,16 +17,23 @@
   function determineTalents(targets: AccDiffHudTarget[] | DamageHudTarget[] | undefined) {
     if (targets === undefined) return [];
 
-    //Assume talents on one target apply to all
-    //Alternatively, it could just not display the window at all
-    //Maybe eventually show talent window per target
+    //Maybe eventually have a small checklist under targets for target-specific talents
+
     const basePlugins = Object.values(base.plugins);
     const weaponPlugins = Object.values(weapon.plugins);
 
     let targetPlugins = [];
     if (targets.length > 0) targetPlugins = Object.values(targets[0].plugins);
+    const targetSlugs = targetPlugins.map(plugin => plugin.slug);
 
-    const totalPlugins = basePlugins.concat(weaponPlugins, targetPlugins);
+    //If a targeted version of a weapon plugin exists, remove the weapon duplicate
+    let baseTargetPlugins = targetPlugins;
+    for (const plugin of basePlugins) {
+      if (!targetSlugs.includes(plugin.slug)) baseTargetPlugins.push(plugin);
+    }
+
+    const totalPlugins = baseTargetPlugins.concat(weaponPlugins);
+    console.log(totalPlugins);
     //Should we filter duplicates? Invisibility appears multiple times but doesn't seem to matter
     const talentPlugins = totalPlugins
       .filter(plugin => plugin.category === "talentWindow")

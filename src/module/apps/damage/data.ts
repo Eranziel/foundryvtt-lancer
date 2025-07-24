@@ -104,7 +104,7 @@ export class DamageHudWeapon {
     this.#data = d;
   }
 
-  get total() {
+  get total(): TotalDamage {
     //Adds on top of existing damage
     let damages = {
       damage: this.damage,
@@ -115,10 +115,7 @@ export class DamageHudWeapon {
       damages = plugin.modifyDamages(damages);
     }
 
-    return {
-      damage: damages.damage,
-      bonusDamage: damages.bonusDamage,
-    };
+    return damages;
   }
 
   static parseReliableVal(tag: Tag, source?: LancerItem | LancerActor): number {
@@ -216,10 +213,7 @@ export class DamageHudBase {
       damages = plugin.modifyDamages(damages);
     }
 
-    return {
-      damage: damages.damage,
-      bonusDamage: damages.bonusDamage,
-    };
+    return damages;
   }
 }
 
@@ -344,10 +338,7 @@ export class DamageHudTarget {
       damages = plugin.modifyDamages(damages, this);
     }
 
-    return {
-      damage: damages.damage,
-      bonusDamage: damages.bonusDamage,
-    };
+    return damages;
   }
 }
 
@@ -473,7 +464,7 @@ export class DamageHudData {
     return this;
   }
 
-  get total(): { damage: DamageData[]; bonusDamage: DamageData[] }[] {
+  get total(): TotalDamage[] {
     if (this.targets.length === 0) {
       const base = this.base.total;
       const weapon = this.weapon?.total ?? {

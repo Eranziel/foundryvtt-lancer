@@ -4,7 +4,7 @@ import { DamageHudCheckboxPluginData, DamageHudPluginCodec } from "./plugin";
 import { DamageData } from "../../../models/bits/damage";
 import { DamageType } from "../../../enums";
 import { SampleTalent } from "./sampleTalent";
-import { DamageHudData, DamageHudTarget } from "../data";
+import { DamageHudData, DamageHudTarget, TotalDamage } from "../data";
 import { LancerActor } from "../../../actor/lancer-actor";
 import { LancerItem } from "../../../item/lancer-item";
 
@@ -30,10 +30,7 @@ export default class Brawler_2 extends SampleTalent implements DamageHudCheckbox
     return ret;
   }
 
-  modifyDamages(damages: { damage: DamageData[]; bonusDamage: DamageData[] }): {
-    damage: DamageData[];
-    bonusDamage: DamageData[];
-  } {
+  modifyDamages(damages: TotalDamage): TotalDamage {
     if (!this.active) return damages;
 
     let damageSlice = damages.damage.slice();

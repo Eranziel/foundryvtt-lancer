@@ -35,13 +35,7 @@ type UIBehaviour = CheckboxUI | NoUI;
 declare interface RollModifier {
   modifyRoll?(roll: string): string;
   //This has to be non-mutating to avoid recursion
-  modifyDamages?(
-    damages: TotalDamage,
-    target?: DamageHudTarget
-  ): {
-    damage: DamageData[];
-    bonusDamage: DamageData[];
-  };
+  modifyDamages?(damages: TotalDamage, target?: DamageHudTarget): TotalDamage;
   get rollPrecedence(): number; // higher numbers happen earlier
 }
 

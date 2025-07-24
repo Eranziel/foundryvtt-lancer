@@ -7,6 +7,7 @@ import { DamageData } from "../../../models/bits/damage";
 import { DamageType } from "../../../enums";
 import { SampleTalent } from "./sampleTalent";
 import { BoundedNum } from "../../../source-template";
+import { TotalDamage } from "../data";
 
 function isDangerZone(heat?: BoundedNum): boolean {
   if (heat == undefined || heat.max === undefined) return false;
@@ -30,10 +31,7 @@ export class Nuke_1 extends SampleTalent implements DamageHudCheckboxPluginData 
     return enclass(this.schemaCodec, Nuke_1);
   }
 
-  modifyDamages(damages: { damage: DamageData[]; bonusDamage: DamageData[] }): {
-    damage: DamageData[];
-    bonusDamage: DamageData[];
-  } {
+  modifyDamages(damages: TotalDamage, target?: DamageHudTarget): TotalDamage {
     if (!this.active) return damages;
 
     let damageSlice = damages.damage.slice();
@@ -88,13 +86,7 @@ export class Nuke_2 extends SampleTalent implements DamageHudCheckboxPluginData 
     return enclass(this.schemaCodec, Nuke_2);
   }
 
-  modifyDamages(
-    damages: { damage: DamageData[]; bonusDamage: DamageData[] },
-    target?: DamageHudTarget
-  ): {
-    damage: DamageData[];
-    bonusDamage: DamageData[];
-  } {
+  modifyDamages(damages: TotalDamage, target?: DamageHudTarget): TotalDamage {
     if (!this.active) return damages;
 
     console.log("NucCav2");
@@ -118,7 +110,6 @@ export class Nuke_2 extends SampleTalent implements DamageHudCheckboxPluginData 
     let bonusDamageSlice = damages.bonusDamage.slice().map(convertDamage);
 
     bonusDamageSlice.push({ type: DamageType.Energy, val: "1d6" });
-    console.log(bonusDamageSlice);
     return {
       damage: damageSlice,
       bonusDamage: bonusDamageSlice,
