@@ -464,26 +464,16 @@ export class DamageHudData {
     return this;
   }
 
-  get total(): TotalDamage[] {
-    if (this.targets.length === 0) {
-      const base = this.base.total;
-      const weapon = this.weapon?.total ?? {
-        damage: [],
-        bonusDamage: [],
-      };
-      return [
-        {
-          damage: base.damage.concat(weapon.damage),
-          bonusDamage: base.bonusDamage.concat(weapon.bonusDamage),
-        },
-      ];
-    }
-
-    let damages = [];
-    for (const target of this.targets) {
-      damages.push(target.total);
-    }
-    return damages;
+  get sharedTotal(): TotalDamage {
+    const base = this.base.total;
+    const weapon = this.weapon?.total ?? {
+      damage: [],
+      bonusDamage: [],
+    };
+    return {
+      damage: base.damage.concat(weapon.damage),
+      bonusDamage: base.bonusDamage.concat(weapon.bonusDamage),
+    };
   }
 
   get raw() {

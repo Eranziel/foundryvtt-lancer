@@ -282,7 +282,7 @@ function _collectBonusDamage(state: FlowState<LancerFlowState.DamageRollData>): 
   // Find all the target-specific bonus damage rolls and add them to the base rolls
   // so they can be rolled together.
   for (const hudTarget of state.data.damage_hud_data.targets) {
-    const hudTargetBonusDamage = hudTarget.bonusDamage.map(d => ({
+    const hudTargetBonusDamage = hudTarget.total.bonusDamage.map(d => ({
       ...d,
       target: hudTarget.target,
     }));
@@ -322,9 +322,9 @@ export async function rollReliable(state: FlowState<LancerFlowState.DamageRollDa
   if (!state.data.damage_hud_data) throw new TypeError(`Damage configuration missing!`);
 
   //Awkawrd way of applying targetted damage conversion. Should be changed.
-  const total = state.data.damage_hud_data.total;
-  const totalDamage = total[0].damage;
-  const totalBonusDamage = total[0].bonusDamage;
+  const sharedTotal = state.data.damage_hud_data.sharedTotal;
+  const totalDamage = sharedTotal.damage;
+  const totalBonusDamage = sharedTotal.bonusDamage;
   state.data.damage = totalDamage;
   state.data.bonus_damage = totalBonusDamage;
   state.data.reliable_val = state.data.damage_hud_data.weapon?.reliableValue ?? 0;
