@@ -145,6 +145,9 @@ export class Nuke_2 extends SampleTalent implements DamageHudCheckboxPluginData 
     //This talent does not apply to tech attacks
     if (data.base.tech) return false;
 
+    //It's complicated
+    if (data.targets.length > 1) return false;
+
     return true;
   }
 }

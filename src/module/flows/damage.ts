@@ -321,10 +321,12 @@ export async function rollReliable(state: FlowState<LancerFlowState.DamageRollDa
   if (!state.data) throw new TypeError(`Damage flow state missing!`);
   if (!state.data.damage_hud_data) throw new TypeError(`Damage configuration missing!`);
 
-  const baseDamage = state.data.damage_hud_data.base.total;
-  const weaponDamage = state.data.damage_hud_data?.weapon?.total ?? { damage: [], bonusDamage: [] };
-  state.data.damage = baseDamage.damage.concat(weaponDamage.damage);
-  state.data.bonus_damage = baseDamage.bonusDamage.concat(weaponDamage.bonusDamage);
+  //Awkawrd way of applying targetted damage conversion. Should be changed.
+  const total = state.data.damage_hud_data.total;
+  const totalDamage = total[0].damage;
+  const totalBonusDamage = total[0].bonusDamage;
+  state.data.damage = totalDamage;
+  state.data.bonus_damage = totalBonusDamage;
   state.data.reliable_val = state.data.damage_hud_data.weapon?.reliableValue ?? 0;
   const allBonusDamage = _collectBonusDamage(state);
 
