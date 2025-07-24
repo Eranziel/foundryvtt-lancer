@@ -40,9 +40,9 @@ export class CombinedArms_2 extends SampleTalent implements AccDiffHudCheckboxPl
     return true;
   }
 
-  isVisible(data: AccDiffHudData, target?: AccDiffHudTarget): boolean {
+  get visible(): boolean {
     //This talent does not apply to tech attacks
-    if (data.base.tech) return false;
+    if (this.data?.base.tech) return false;
 
     return true;
   }
@@ -53,7 +53,7 @@ export class CombinedArms_2 extends SampleTalent implements AccDiffHudCheckboxPl
     //How to mimic not gaining difficulty from Engaged?
     //Just add 1 Accuracy, duh
     if (this.active) {
-      return this.acc_diff?.weapon.engaged ? 1 : 0;
+      return this.data?.weapon.engaged ? 1 : 0;
     }
     return 0;
   }
@@ -121,9 +121,9 @@ export class CombinedArms_3 extends SampleTalent implements AccDiffHudCheckboxPl
     return true;
   }
 
-  isVisible(data: AccDiffHudData, target?: AccDiffHudTarget): boolean {
+  get visible(): boolean {
     //This talent does not apply to tech attacks
-    if (data.base.tech) return false;
+    if (this.data?.base.tech) return false;
 
     return true;
   }

@@ -63,6 +63,6 @@ export default class Brutal_3 extends SampleTalent implements AccDiffHudCheckbox
   //RollModifier Requirements
   //Modify accuracy
   get accBonus(): number {
-    return this.active ? getMisses(this.acc_diff?.lancerActor?.id).length : 0;
+    return this.active ? getMisses(this.data?.lancerActor?.id).length : 0;
   }
 }

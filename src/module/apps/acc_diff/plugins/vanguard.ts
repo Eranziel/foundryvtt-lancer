@@ -62,9 +62,9 @@ export default class Vanguard_1 extends SampleTalent implements AccDiffHudCheckb
 
   //Returns true by default if not defined
   //Defined in SampleTalent
-  isVisible(data: AccDiffHudData, target?: AccDiffHudTarget): boolean {
+  get visible(): boolean {
     //This talent does not apply to tech attacks
-    if (data.base.tech) return false;
+    if (this.data?.base.tech) return false;
 
     return true;
   }

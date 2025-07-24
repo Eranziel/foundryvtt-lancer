@@ -32,9 +32,9 @@ export default class Juggernaut_1 extends SampleTalent implements AccDiffHudChec
     return ret;
   }
 
-  isVisible(data: AccDiffHudData, target?: AccDiffHudTarget): boolean {
+  get visible(): boolean {
     //This talent does not apply to tech attacks
-    if (data.base.tech) return false;
+    if (this.data?.base.tech) return false;
 
     return true;
   }

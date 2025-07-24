@@ -50,7 +50,10 @@ export class SampleTalent {
   }
   // this talent is only visible when the owner has talent
   // only enabled if conditions are satisfied
-  visible = false;
+  get visible() {
+    //Default to true because it should make it easier to catch related bugs
+    return true;
+  }
   disabled = false;
 
   //Dehydrated requirements
@@ -64,21 +67,18 @@ export class SampleTalent {
     // Check if actor has talent
     if (!isTalentAvailable(data.lancerActor, this.slug)) return;
 
+    this.data = data;
+
     console.log(`${LANCER.log_prefix} ${this.slug} is hydrated`);
     //Figure out whether we are in a situation where this talent is visible and then if we should start active
-    this.visible = this.isVisible(data, target);
     if (this.visible) {
       this.active = this.talent(data, target);
       SampleTalent.active = this.active;
-      this.data = data;
     }
   }
 
   //If it's not initialized, always return false
   talent(data: DamageHudData, target?: DamageHudTarget): boolean {
     return false;
-  }
-  isVisible(data: DamageHudData, target?: DamageHudTarget): boolean {
-    return true;
   }
 }

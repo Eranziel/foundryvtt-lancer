@@ -16,25 +16,31 @@
 
   function determineTalents(targets: AccDiffHudTarget[] | DamageHudTarget[] | undefined) {
     if (targets === undefined) return [];
-
     //Maybe eventually have a small checklist under targets for target-specific talents
 
     const basePlugins = Object.values(base.plugins);
+    const baseSlugs = basePlugins.map(plugin => plugin.slug);
+
     const weaponPlugins = Object.values(weapon.plugins);
+
+    //Since .active can be static now, don't need to do this?
+    //If base version of weapon plugin exists, discard weapon plugin
+    let baseWeaponPlugins = basePlugins;
+    for (const plugin of weaponPlugins) {
+      if (!baseSlugs.includes(plugin.slug)) baseWeaponPlugins.push(plugin);
+    }
 
     let targetPlugins = [];
     if (targets.length > 0) targetPlugins = Object.values(targets[0].plugins);
     const targetSlugs = targetPlugins.map(plugin => plugin.slug);
 
-    //If a targeted version of a weapon plugin exists, remove the weapon duplicate
-    let baseTargetPlugins = targetPlugins;
-    for (const plugin of basePlugins) {
-      if (!targetSlugs.includes(plugin.slug)) baseTargetPlugins.push(plugin);
+    //If a targeted version of a weapon plugin exists, remove the base/weapon duplicate
+    let totalPlugins = targetPlugins;
+    for (const plugin of baseWeaponPlugins) {
+      if (!targetSlugs.includes(plugin.slug)) totalPlugins.push(plugin);
     }
 
-    const totalPlugins = baseTargetPlugins.concat(weaponPlugins);
     console.log(totalPlugins);
-    //Should we filter duplicates? Invisibility appears multiple times but doesn't seem to matter
     const talentPlugins = totalPlugins
       .filter(plugin => plugin.category === "talentWindow")
       .filter(plugin => plugin.kind === kind);

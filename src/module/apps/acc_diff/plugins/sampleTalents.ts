@@ -9,7 +9,7 @@ export class SampleTalent {
   //Plugin state
   active: boolean = false;
   reminderActive: boolean = false;
-  acc_diff?: AccDiffHudData;
+  data?: AccDiffHudData;
 
   //AccDiffHudPlugin requirements
   //There is most likely a way to do this in TS. If you know, tell me so I can do it right
@@ -50,7 +50,10 @@ export class SampleTalent {
   }
   // this talent is only visible when the owner has talent
   // only enabled if conditions are satisfied
-  visible = false;
+  get visible() {
+    //Default to true because it should make it easier to catch related bugs
+    return true;
+  }
   disabled = false;
 
   //Dehydrated requirements
@@ -67,10 +70,10 @@ export class SampleTalent {
     //Figure out whether we are in a situation the talent applies
     console.log(`${LANCER.log_prefix} ${this.slug} is hydrated`);
 
-    this.visible = this.isVisible(data, target);
+    this.data = data;
+
     if (this.visible) {
       this.active = this.talent(data, target);
-      this.acc_diff = data;
     }
     this.reminderActive = this.talentReminder(data, target);
   }
@@ -78,9 +81,6 @@ export class SampleTalent {
   //Unless it's defined, we always return false
   talent(data: AccDiffHudData, target?: AccDiffHudTarget): boolean {
     return false;
-  }
-  isVisible(data: AccDiffHudData, target?: AccDiffHudTarget): boolean {
-    return true;
   }
   talentReminder(data: AccDiffHudData, target?: AccDiffHudTarget): boolean {
     return false;
@@ -97,7 +97,7 @@ export class SampleCardReminder {
   //Plugin state
   active: boolean = false;
   reminderActive: boolean = false;
-  acc_diff?: AccDiffHudData;
+  data?: AccDiffHudData;
 
   //AccDiffHudPlugin requirements
   //There is most likely a way to do this in TS. If you know, tell me so I can do it right
@@ -147,7 +147,7 @@ export class SampleCardReminder {
     //Figure out whether we are in a situation the talent applies
     this.active = this.talent(data, target);
     this.reminderActive = this.talentReminder(data, target);
-    this.acc_diff = data;
+    this.data = data;
   }
 
   //Unless it's defined, we always return false
