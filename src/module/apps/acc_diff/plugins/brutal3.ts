@@ -47,10 +47,13 @@ export default class Brutal_3 extends SampleTalent implements AccDiffHudCheckbox
     return enclass(this.schemaCodec, Brutal_3);
   }
 
-  //Perhaps don't initialize at all if talent not applicable?
-  static perRoll(item?: LancerItem | LancerActor): Brutal_3 {
+  //We care about individual targets, so we do both
+  static perUnknownTarget(): Brutal_3 {
     let ret = new Brutal_3();
     return ret;
+  }
+  static perTarget(item: Token): Brutal_3 {
+    return Brutal_3.perUnknownTarget();
   }
 
   //The unique logic of the talent

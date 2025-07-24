@@ -44,6 +44,8 @@ export default class Hunter_1 extends SampleCardReminder implements AccDiffHudNo
   //The unique logic of the talent
   //Name defined from SampleTalent
   talentReminder(data: AccDiffHudData, target?: AccDiffHudTarget): boolean {
+    if (data.title.toLowerCase() === "basic attack") return false;
+
     // Talent only applies to first Melee Auxillary this turn
     // We won't remind after the first one this turn
     if (data.weapon.weaponType !== WeaponType.Melee) return false;

@@ -26,7 +26,7 @@ export class CombinedArms_2 extends SampleTalent implements AccDiffHudCheckboxPl
     return enclass(this.schemaCodec, CombinedArms_2);
   }
 
-  //perTarget because we have to know where the token is
+  //We don't care about targets
   static perRoll(item?: LancerItem | LancerActor): CombinedArms_2 {
     let ret = new CombinedArms_2();
     return ret;
@@ -100,16 +100,22 @@ export class CombinedArms_3 extends SampleTalent implements AccDiffHudCheckboxPl
     return enclass(this.schemaCodec, CombinedArms_3);
   }
 
-  //perTarget because we have to know where the token is
-  //Perhaps don't initialize at all if talent not applicable?
-  static perTarget(item: Token): CombinedArms_3 {
+  //We care about individual targets, so we do both
+  static perUnknownTarget(): CombinedArms_3 {
     let ret = new CombinedArms_3();
     return ret;
+  }
+  static perTarget(item: Token): CombinedArms_3 {
+    return CombinedArms_3.perUnknownTarget();
   }
 
   //The unique logic of the talent
   //Name defined from SampleTalent
   talent(data: AccDiffHudData, target?: AccDiffHudTarget) {
+    //Surely nobody would change the title
+    //This should be a more defined field
+    if (data.title.toLowerCase() === "basic attack") return;
+
     const currentType = data.weapon.weaponType;
     if (currentType === null) return;
 

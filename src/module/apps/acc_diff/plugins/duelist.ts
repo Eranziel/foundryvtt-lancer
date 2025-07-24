@@ -23,14 +23,19 @@ export default class Duelist_1 extends SampleTalent implements AccDiffHudCheckbo
     return enclass(this.schemaCodec, Duelist_1);
   }
 
-  //perTarget because we have to know where the token is
-  static perTarget(item: Token): Duelist_1 {
+  //We care about individual targets, so we do both
+  static perUnknownTarget(): Duelist_1 {
     let ret = new Duelist_1();
     return ret;
+  }
+  static perTarget(item: Token): Duelist_1 {
+    return Duelist_1.perUnknownTarget();
   }
 
   //The unique logic of the talent
   talent(data: AccDiffHudData, target?: AccDiffHudTarget) {
+    if (data.title.toLowerCase() === "basic attack") return;
+
     if (data.weapon.weaponType !== WeaponType.Melee) return;
     if (data.weapon.mount !== FittingSize.Main) return;
 

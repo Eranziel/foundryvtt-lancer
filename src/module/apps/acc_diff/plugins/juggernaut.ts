@@ -25,9 +25,8 @@ export default class Juggernaut_1 extends SampleTalent implements AccDiffHudChec
     return enclass(this.schemaCodec, Juggernaut_1);
   }
 
-  //perTarget because we have to know where the token is
-  //Perhaps don't initialize at all if talent not applicable?
-  static perTarget(item: Token): Juggernaut_1 {
+  //We don't care what the target is, it's manual
+  static perUnknownTarget(): Juggernaut_1 {
     let ret = new Juggernaut_1();
     return ret;
   }

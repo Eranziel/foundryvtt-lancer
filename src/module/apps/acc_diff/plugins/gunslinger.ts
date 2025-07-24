@@ -28,15 +28,19 @@ export default class Gunslinger_1 extends SampleTalent implements AccDiffHudChec
     return this.active ? 1 : 0;
   }
 
-  //perTarget because we have to know where the token is
-  //Perhaps don't initialize at all if talent not applicable?
-  static perTarget(item: Token): Gunslinger_1 {
+  //We care about individual targets, so we do both
+  static perUnknownTarget(): Gunslinger_1 {
     let ret = new Gunslinger_1();
     return ret;
+  }
+  static perTarget(item: Token): Gunslinger_1 {
+    return Gunslinger_1.perUnknownTarget();
   }
 
   //The unique logic of the talent
   talent(data: AccDiffHudData, target?: AccDiffHudTarget) {
+    if (data.title.toLowerCase() === "basic attack") return;
+
     // Talent only applies to Ranged
     if (data.weapon.weaponType === WeaponType.Melee) return;
     if (data.weapon.mount !== FittingSize.Auxiliary) return;

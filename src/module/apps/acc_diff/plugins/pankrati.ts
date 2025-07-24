@@ -25,18 +25,23 @@ export default class Pankrati_1 extends SampleTalent implements AccDiffHudCheckb
     return enclass(this.schemaCodec, Pankrati_1);
   }
 
-  //perTarget because we have to know where the token is
-  //Perhaps don't initialize at all if talent not applicable?
-  static perTarget(item: Token): Pankrati_1 {
+  //We care about individual targets, so we do both
+  static perUnknownTarget(): Pankrati_1 {
     let ret = new Pankrati_1();
     return ret;
+  }
+  static perTarget(item: Token): Pankrati_1 {
+    return Pankrati_1.perUnknownTarget();
   }
 
   //The unique logic of the talent
   //Name defined from SampleTalent
   talent(data: AccDiffHudData, target?: AccDiffHudTarget) {
+    if (data.title.toLowerCase() === "basic attack") return;
+
     if (data.weapon.weaponType !== WeaponType.Melee) return;
 
+    if (target?.target === undefined) return;
     const statuses = target?.target.actor?.system.statuses;
 
     if (statuses === undefined) return;

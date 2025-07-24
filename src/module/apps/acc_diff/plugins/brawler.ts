@@ -24,19 +24,24 @@ export default class Brawler_1 extends SampleTalent implements AccDiffHudCheckbo
     return enclass(this.schemaCodec, Brawler_1);
   }
 
-  //perTarget because we have to know where the token is
-  //Perhaps don't initialize at all if talent not applicable?
-  static perTarget(item: Token): Brawler_1 {
+  //We care about individual targets, so we do both
+  static perUnknownTarget(): Brawler_1 {
     let ret = new Brawler_1();
     return ret;
+  }
+  static perTarget(item: Token): Brawler_1 {
+    return Brawler_1.perUnknownTarget();
   }
 
   //The unique logic of the talent
   talent(data: AccDiffHudData, target?: AccDiffHudTarget) {
+    if (data.title.toLowerCase() === "basic attack") return;
+
     // Talent only applies to grappled targets.
     // A brawler targeting somebody that isn't grappled by themselves still benefits.
     // Not aware of how it can be avoided, short of detecting other tokens nearby and
     // then not enabling the option by default. (or something elaborate)
+    if (target?.target === undefined) return;
     if (!target?.target.actor?.system.statuses.grappled) return;
 
     if (data.weapon.weaponType !== WeaponType.Melee) return;

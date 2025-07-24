@@ -32,16 +32,22 @@ export default class Vanguard_1 extends SampleTalent implements AccDiffHudCheckb
     return enclass(this.schemaCodec, Vanguard_1);
   }
 
-  //perTarget because we have to know where the token is
-  //Perhaps don't initialize at all if talent not applicable?
-  static perTarget(item: Token): Vanguard_1 {
+  // We care about individual targets, so we do both.
+  // We do not care about all of them being active at once,
+  // else we might have done the static .active method in nuclearCavalier.ts.
+  static perUnknownTarget(): Vanguard_1 {
     let ret = new Vanguard_1();
     return ret;
+  }
+  static perTarget(item: Token): Vanguard_1 {
+    return Vanguard_1.perUnknownTarget();
   }
 
   //The unique logic of the talent
   //Name defined from SampleTalent
   talent(data: AccDiffHudData, target?: AccDiffHudTarget) {
+    if (data.title.toLowerCase() === "basic attack") return;
+
     // Talent only applies to CQB
     if (data.weapon.weaponType !== WeaponType.CQB) return;
 

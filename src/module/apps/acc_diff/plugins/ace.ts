@@ -11,7 +11,6 @@ import { HASE } from "../../../enums";
 //A lot of common talent boilerplate is contained in SampleTalent
 export default class Ace_1 extends SampleTalent implements AccDiffHudCheckboxPluginData {
   //Shared type requirements
-
   static slug: string = slugify("Acrobatics", "-");
   slug: string = slugify("Acrobatics", "-");
   static kind: "hase" | "attack" = "hase";
