@@ -34,17 +34,17 @@ export default class Pankrati_1 extends SampleTalent implements AccDiffHudCheckb
 
   //The unique logic of the talent
   //Name defined from SampleTalent
-  talent(data: AccDiffHudData, target?: AccDiffHudTarget): boolean {
-    if (data.weapon.weaponType !== WeaponType.Melee) return false;
+  talent(data: AccDiffHudData, target?: AccDiffHudTarget) {
+    if (data.weapon.weaponType !== WeaponType.Melee) return;
 
     const statuses = target?.target.actor?.system.statuses;
 
-    if (statuses === undefined) return false;
+    if (statuses === undefined) return;
     //slow is different from slowed??
     //@ts-expect-error from console.log I can tell slow is there, works for now
-    if (statuses.immobilized || statuses.slowed || statuses.slow) return true; //We return here <-----
-
-    return false;
+    if (statuses.immobilized || statuses.slowed || statuses.slow) {
+      this.active = true; //We return here <-----
+    }
   }
 
   get visible(): boolean {

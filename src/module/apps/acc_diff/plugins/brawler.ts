@@ -32,16 +32,16 @@ export default class Brawler_1 extends SampleTalent implements AccDiffHudCheckbo
   }
 
   //The unique logic of the talent
-  talent(data: AccDiffHudData, target?: AccDiffHudTarget): boolean {
+  talent(data: AccDiffHudData, target?: AccDiffHudTarget) {
     // Talent only applies to grappled targets.
     // A brawler targeting somebody that isn't grappled by themselves still benefits.
     // Not aware of how it can be avoided, short of detecting other tokens nearby and
     // then not enabling the option by default. (or something elaborate)
-    if (!target?.target.actor?.system.statuses.grappled) return false;
+    if (!target?.target.actor?.system.statuses.grappled) return;
 
-    if (data.weapon.weaponType !== WeaponType.Melee) return false;
+    if (data.weapon.weaponType !== WeaponType.Melee) return;
 
-    return true;
+    this.active = true;
   }
 
   get visible(): boolean {

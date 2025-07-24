@@ -55,9 +55,9 @@ export default class Brutal_3 extends SampleTalent implements AccDiffHudCheckbox
 
   //The unique logic of the talent
   //Name defined from SampleTalent
-  talent(data: AccDiffHudData, target?: AccDiffHudTarget): boolean {
+  talent(data: AccDiffHudData, target?: AccDiffHudTarget) {
     //We enable the checkbox if there has been at least one miss
-    return getMisses(data.lancerActor?.id).length > 0;
+    this.active = getMisses(data.lancerActor?.id).length > 0;
   }
 
   //RollModifier Requirements

@@ -33,14 +33,14 @@ export default class Ace_1 extends SampleTalent implements AccDiffHudCheckboxPlu
 
   //The unique logic of the talent
   //Name defined from SampleTalent
-  talent(data: AccDiffHudData, target?: AccDiffHudTarget): boolean {
+  talent(data: AccDiffHudData, target?: AccDiffHudTarget) {
     //This is less explicit of a condition than I'd like
     //Why would anyone ever change the title :clueless:
-    if (data.title.toLowerCase() !== HASE.A) return false;
+    if (data.title.toLowerCase() !== HASE.A) return;
 
-    if (!data.lancerActor?.system.statuses.flying) return false;
+    if (!data.lancerActor?.system.statuses.flying) return;
 
-    return true;
+    this.active = true;
   }
 
   //RollModifier Requirements

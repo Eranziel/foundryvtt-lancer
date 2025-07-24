@@ -34,10 +34,11 @@ export class CombinedArms_2 extends SampleTalent implements AccDiffHudCheckboxPl
 
   //The unique logic of the talent
   //Name defined from SampleTalent
-  talent(data: AccDiffHudData, target?: AccDiffHudTarget): boolean {
-    if (!data.weapon.engaged && !data.lancerActor?.system.statuses.engaged) return false;
-    if (data.weapon.weaponType === WeaponType.Melee) return false;
-    return true;
+  talent(data: AccDiffHudData, target?: AccDiffHudTarget) {
+    if (!data.weapon.engaged && !data.lancerActor?.system.statuses.engaged) return;
+    if (data.weapon.weaponType === WeaponType.Melee) return;
+
+    this.active = true;
   }
 
   get visible(): boolean {
@@ -108,17 +109,17 @@ export class CombinedArms_3 extends SampleTalent implements AccDiffHudCheckboxPl
 
   //The unique logic of the talent
   //Name defined from SampleTalent
-  talent(data: AccDiffHudData, target?: AccDiffHudTarget): boolean {
+  talent(data: AccDiffHudData, target?: AccDiffHudTarget) {
     const currentType = data.weapon.weaponType;
-    if (currentType === null) return false;
+    if (currentType === null) return;
 
-    if (data.lancerActor?.id === undefined) return false;
+    if (data.lancerActor?.id === undefined) return;
 
     const lastWeaponType = findLastHitWeaponType(data.lancerActor.id);
-    if (lastWeaponType === undefined) return false;
-    if (lastWeaponType === currentType) return false;
+    if (lastWeaponType === undefined) return;
+    if (lastWeaponType === currentType) return;
 
-    return true;
+    this.active = true;
   }
 
   get visible(): boolean {

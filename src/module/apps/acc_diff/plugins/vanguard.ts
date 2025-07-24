@@ -41,9 +41,9 @@ export default class Vanguard_1 extends SampleTalent implements AccDiffHudCheckb
 
   //The unique logic of the talent
   //Name defined from SampleTalent
-  talent(data: AccDiffHudData, target?: AccDiffHudTarget): boolean {
+  talent(data: AccDiffHudData, target?: AccDiffHudTarget) {
     // Talent only applies to CQB
-    if (data.weapon.weaponType !== WeaponType.CQB) return false;
+    if (data.weapon.weaponType !== WeaponType.CQB) return;
 
     const range = 3;
     let areTargetsNearby = data
@@ -57,7 +57,7 @@ export default class Vanguard_1 extends SampleTalent implements AccDiffHudCheckb
 
         return true;
       });
-    return areTargetsNearby;
+    this.active = areTargetsNearby;
   }
 
   //Returns true by default if not defined

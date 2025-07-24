@@ -36,10 +36,10 @@ export default class Gunslinger_1 extends SampleTalent implements AccDiffHudChec
   }
 
   //The unique logic of the talent
-  talent(data: AccDiffHudData, target?: AccDiffHudTarget): boolean {
+  talent(data: AccDiffHudData, target?: AccDiffHudTarget) {
     // Talent only applies to Ranged
-    if (data.weapon.weaponType === WeaponType.Melee) return false;
-    if (data.weapon.mount !== FittingSize.Auxiliary) return false;
+    if (data.weapon.weaponType === WeaponType.Melee) return;
+    if (data.weapon.mount !== FittingSize.Auxiliary) return;
 
     const actionsThisTurn = getHistory()?.getCurrentTurn(data.lancerActor?.id)?.actions;
     //I don't think you get a choice of whether to use the talent now or later
@@ -49,9 +49,9 @@ export default class Gunslinger_1 extends SampleTalent implements AccDiffHudChec
 
       return true;
     });
-    if (talentUsed !== undefined) return false;
+    if (talentUsed !== undefined) return;
 
-    return true;
+    this.active = true;
   }
 
   get visible(): boolean {

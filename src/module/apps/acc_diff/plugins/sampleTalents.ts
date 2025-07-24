@@ -73,14 +73,14 @@ export class SampleTalent {
     this.data = data;
 
     if (this.visible) {
-      this.active = this.talent(data, target);
+      this.talent(data, target);
     }
     this.reminderActive = this.talentReminder(data, target);
   }
 
-  //Unless it's defined, we always return false
-  talent(data: AccDiffHudData, target?: AccDiffHudTarget): boolean {
-    return false;
+  //Unless it's defined, we never assume talent is on
+  talent(data: AccDiffHudData, target?: AccDiffHudTarget) {
+    this.active = false;
   }
   talentReminder(data: AccDiffHudData, target?: AccDiffHudTarget): boolean {
     return false;
@@ -145,14 +145,14 @@ export class SampleCardReminder {
 
     console.log(`${LANCER.log_prefix} ${this.slug} is hydrated`);
     //Figure out whether we are in a situation the talent applies
-    this.active = this.talent(data, target);
+    this.talent(data, target);
     this.reminderActive = this.talentReminder(data, target);
     this.data = data;
   }
 
-  //Unless it's defined, we always return false
-  talent(data: AccDiffHudData, target?: AccDiffHudTarget): boolean {
-    return true;
+  //Unless it's defined, we never assume talent is on
+  talent(data: AccDiffHudData, target?: AccDiffHudTarget) {
+    this.active = false;
   }
   talentReminder(data: AccDiffHudData, target?: AccDiffHudTarget): boolean {
     return false;

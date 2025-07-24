@@ -30,9 +30,9 @@ export default class Duelist_1 extends SampleTalent implements AccDiffHudCheckbo
   }
 
   //The unique logic of the talent
-  talent(data: AccDiffHudData, target?: AccDiffHudTarget): boolean {
-    if (data.weapon.weaponType !== WeaponType.Melee) return false;
-    if (data.weapon.mount !== FittingSize.Main) return false;
+  talent(data: AccDiffHudData, target?: AccDiffHudTarget) {
+    if (data.weapon.weaponType !== WeaponType.Melee) return;
+    if (data.weapon.mount !== FittingSize.Main) return;
 
     const actionsThisTurn = getHistory()?.getCurrentTurn(data.lancerActor?.id)?.actions;
     //I don't think you get a choice of whether to use the talent now or later
@@ -42,9 +42,9 @@ export default class Duelist_1 extends SampleTalent implements AccDiffHudCheckbo
 
       return true;
     });
-    if (partisanUsed !== undefined) return false;
+    if (partisanUsed !== undefined) return;
 
-    return true;
+    this.active = true;
   }
 
   get visible(): boolean {
