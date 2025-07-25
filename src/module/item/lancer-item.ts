@@ -704,7 +704,6 @@ export class LancerItem extends Item {
   }
 
   async beginActivationFlow(path?: string) {
-    console.log(path);
     if (!path) {
       // If no path is provided, default to the first action
       // @ts-expect-error We know it doesn't exist on all types, that's why we're checking

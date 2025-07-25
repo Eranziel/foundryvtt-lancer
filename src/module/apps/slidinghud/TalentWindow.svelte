@@ -40,7 +40,6 @@
       if (!targetSlugs.includes(plugin.slug)) totalPlugins.push(plugin);
     }
 
-    console.log(totalPlugins);
     const talentPlugins = totalPlugins
       .filter(plugin => plugin.category === "talentWindow")
       .filter(plugin => plugin.kind === kind);

@@ -314,10 +314,6 @@ export async function rollReliable(state: FlowState<LancerFlowState.DamageRollDa
   if (!state.data.damage_hud_data) throw new TypeError(`Damage configuration missing!`);
 
   //Awkawrd way of applying targetted damage conversion. Should be changed.
-  console.log(state.data.damage_hud_data);
-  console.log(state.data.damage_hud_data.base.total);
-  console.log(state.data.damage_hud_data?.weapon?.total);
-  console.log(state.data.damage_hud_data.targets[0].total);
   const sharedTotal = state.data.damage_hud_data.sharedTotal;
   const totalDamage = sharedTotal.damage;
   const totalBonusDamage = sharedTotal.bonusDamage;
