@@ -127,7 +127,6 @@ export class Nuke_2 extends SampleTalent implements DamageHudCheckboxPluginData 
   modifyDamages(damages: TotalDamage, target?: DamageHudTarget): TotalDamage {
     if (!Nuke_2.active) return damages;
 
-    console.log("NucCav2");
     const convertDamage = (damage: DamageData) => {
       if (damage.type === DamageType.Explosive || damage.type === DamageType.Kinetic) {
         damage.type = DamageType.Energy;
@@ -145,8 +144,6 @@ export class Nuke_2 extends SampleTalent implements DamageHudCheckboxPluginData 
       //NucCav 2 only applies bonus damage to first target
       if (this.data !== undefined && this.data.targets.length > 1) {
         const firstTargetId = this.data.targets[0].target.id;
-        console.log(firstTargetId);
-        console.log(target?.target.id);
         if (firstTargetId !== target?.target.id) return damages;
       }
     }
