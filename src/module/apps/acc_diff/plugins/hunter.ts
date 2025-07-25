@@ -3,7 +3,7 @@ import { AccDiffHudNoUIPluginData, AccDiffHudPluginCodec } from "./plugin";
 import { enclass } from "../../serde";
 import { FittingSize, WeaponType } from "../../../enums";
 import { slugify } from "../../../util/lid";
-import { SampleCardReminder, SampleTalent } from "./sampleTalents";
+import { AbstractCardReminder } from "./abstractTalents";
 import { getHistory } from "../../../util/misc";
 import { TalentEffect } from "../../../flows/interfaces";
 
@@ -12,7 +12,7 @@ import { TalentEffect } from "../../../flows/interfaces";
 // I'm aware that writing the effect after the attack is late.
 // I still think this will help users keep track of the talents.
 // The GM can also let them backtrack if they forgot.
-export default class Hunter_1 extends SampleCardReminder implements AccDiffHudNoUIPluginData {
+export default class Hunter_1 extends AbstractCardReminder implements AccDiffHudNoUIPluginData {
   //Shared type requirements
   //slugify here to make sure the slug is same across this plugin and TalentWindow.svelte
   //Alternatively could use lid and rank_num

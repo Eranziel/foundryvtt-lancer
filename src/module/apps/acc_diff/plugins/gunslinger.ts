@@ -4,10 +4,10 @@ import { enclass } from "../../serde";
 import { FittingSize, WeaponType } from "../../../enums";
 import { slugify } from "../../../util/lid";
 import { getHistory } from "../../../util/misc";
-import { SampleTalent } from "./sampleTalents";
+import { AbstractTalent } from "./abstractTalents";
 
 //Automated
-export default class Gunslinger_1 extends SampleTalent implements AccDiffHudCheckboxPluginData {
+export default class Gunslinger_1 extends AbstractTalent implements AccDiffHudCheckboxPluginData {
   //Shared type requirements
   //slugify here to make sure the slug is same across this plugin and TalentWindow.svelte
   static slug: string = slugify("Opening Argument", "-");

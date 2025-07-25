@@ -1,12 +1,11 @@
 import { AccDiffHudCheckboxPluginData, AccDiffHudPluginCodec } from "./plugin";
 import { enclass } from "../../serde";
 import { slugify } from "../../../util/lid";
-import { SampleTalent } from "./sampleTalents";
-import { AccDiffHudData, AccDiffHudTarget } from "../data";
+import { AbstractTalent } from "./abstractTalents";
 
 //Manual Checkbox
 //A lot of common talent boilerplate is contained in SampleTalent
-export default class Juggernaut_1 extends SampleTalent implements AccDiffHudCheckboxPluginData {
+export default class Juggernaut_1 extends AbstractTalent implements AccDiffHudCheckboxPluginData {
   //Shared type requirements
   //slugify here to make sure the slug is same across this plugin and TalentWindow.svelte
   //Alternatively could use lid and rank_num

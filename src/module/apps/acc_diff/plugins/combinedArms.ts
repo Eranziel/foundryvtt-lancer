@@ -3,14 +3,14 @@ import { AccDiffHudCheckboxPluginData, AccDiffHudPluginCodec } from "./plugin";
 import { enclass } from "../../serde";
 import { WeaponType } from "../../../enums";
 import { slugify } from "../../../util/lid";
-import { SampleTalent } from "./sampleTalents";
+import { AbstractTalent } from "./abstractTalents";
 import { LancerItem } from "../../../item/lancer-item";
 import { LancerActor } from "../../../actor/lancer-actor";
 import { getHistory } from "../../../util/misc";
 
 //Automated
 //A lot of common talent boilerplate is contained in SampleTalent
-export class CombinedArms_2 extends SampleTalent implements AccDiffHudCheckboxPluginData {
+export class CombinedArms_2 extends AbstractTalent implements AccDiffHudCheckboxPluginData {
   //AccDiffHudPlugin requirements
   static slug: string = slugify("CQB-Trained", "-");
   slug: string = slugify("CQB-Trained", "-");
@@ -81,7 +81,7 @@ function findLastHitWeaponType(actorId: string | null): WeaponType | undefined {
 
 //Automated
 //A lot of common talent boilerplate is contained in SampleTalent
-export class CombinedArms_3 extends SampleTalent implements AccDiffHudCheckboxPluginData {
+export class CombinedArms_3 extends AbstractTalent implements AccDiffHudCheckboxPluginData {
   //Shared type requirements
   //slugify here to make sure the slug is same across this plugin and TalentWindow.svelte
   //Alternatively could use lid and rank_num

@@ -2,10 +2,9 @@ import * as t from "io-ts";
 import { AccDiffHudData, AccDiffHudTarget } from "../data";
 import { isTalentAvailable } from "../../../util/misc";
 import { LANCER } from "../../../config";
-import { LancerActor } from "../../../actor/lancer-actor";
 
 //See ./vanguard.ts and this file for an example of how to implement a new talent
-export class SampleTalent {
+export class AbstractTalent {
   //Plugin state
   active: boolean = false;
   reminderActive: boolean = false;
@@ -93,7 +92,7 @@ export class SampleTalent {
 }
 
 // See hunter.ts for an example implementation
-export class SampleCardReminder {
+export class AbstractCardReminder {
   //Plugin state
   active: boolean = false;
   reminderActive: boolean = false;

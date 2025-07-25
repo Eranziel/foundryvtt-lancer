@@ -2,14 +2,14 @@ import { AccDiffHudData, AccDiffHudTarget } from "../data";
 import { AccDiffHudCheckboxPluginData, AccDiffHudPluginCodec } from "./plugin";
 import { enclass } from "../../serde";
 import { slugify } from "../../../util/lid";
-import { SampleTalent } from "./sampleTalents";
+import { AbstractTalent } from "./abstractTalents";
 import { LancerItem } from "../../../item/lancer-item";
 import { LancerActor } from "../../../actor/lancer-actor";
 import { HASE } from "../../../enums";
 //Automated
 
 //A lot of common talent boilerplate is contained in SampleTalent
-export default class Ace_1 extends SampleTalent implements AccDiffHudCheckboxPluginData {
+export default class Ace_1 extends AbstractTalent implements AccDiffHudCheckboxPluginData {
   //Shared type requirements
   static slug: string = slugify("Acrobatics", "-");
   slug: string = slugify("Acrobatics", "-");

@@ -34,7 +34,6 @@ import { BurnFlow } from "../flows/burn";
 import { createChatMessageStep } from "../flows/_render";
 import { DamageRollFlow } from "../flows/damage";
 import { type DatabaseDeleteOperation } from "@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/abstract/_types.mjs";
-import { slugify } from "../util/lid";
 
 const lp = LANCER.log_prefix;
 

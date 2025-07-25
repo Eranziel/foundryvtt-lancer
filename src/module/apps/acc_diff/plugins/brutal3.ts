@@ -2,9 +2,7 @@ import { AccDiffHudData, AccDiffHudTarget } from "../data";
 import { AccDiffHudCheckboxPluginData, AccDiffHudPluginCodec } from "./plugin";
 import { enclass } from "../../serde";
 import { slugify } from "../../../util/lid";
-import { SampleTalent } from "./sampleTalents";
-import { LancerActor } from "../../../actor/lancer-actor";
-import { LancerItem } from "../../../item/lancer-item";
+import { AbstractTalent } from "./abstractTalents";
 import { getHistory } from "../../../util/misc";
 import { HistoryHitResult } from "../../../combat/lancer-combat-history";
 //Automated
@@ -27,7 +25,7 @@ function getMisses(actorId?: string | null): HistoryHitResult[] {
 }
 
 //A lot of common talent boilerplate is contained in SampleTalent
-export default class Brutal_3 extends SampleTalent implements AccDiffHudCheckboxPluginData {
+export default class Brutal_3 extends AbstractTalent implements AccDiffHudCheckboxPluginData {
   //Shared type requirements
   //slugify here to make sure the slug is same across this plugin and TalentWindow.svelte
   static slug: string = slugify("Relentless", "-");

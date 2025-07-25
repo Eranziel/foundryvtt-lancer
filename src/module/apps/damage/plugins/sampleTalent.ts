@@ -4,7 +4,7 @@ import { isTalentAvailable } from "../../../util/misc";
 import { LANCER } from "../../../config";
 
 //See ./src/module/apps/acc_diff/plugins/vanguard.ts and this file for an example of how to implement a new talent
-export class SampleTalent {
+export class AbstractTalent {
   //Plugin state
   active: boolean = false;
   data?: DamageHudData;

@@ -5,7 +5,7 @@ import { DamageHudData, DamageHudTarget } from "../../damage";
 import { DamageHudCheckboxPluginData, DamageHudPluginCodec } from "./plugin";
 import { DamageData } from "../../../models/bits/damage";
 import { DamageType } from "../../../enums";
-import { SampleTalent } from "./sampleTalent";
+import { AbstractTalent } from "./sampleTalent";
 import { BoundedNum } from "../../../source-template";
 import { TotalDamage } from "../data";
 
@@ -16,7 +16,7 @@ function isDangerZone(heat?: BoundedNum): boolean {
 }
 
 //Automated
-export class Nuke_1 extends SampleTalent implements DamageHudCheckboxPluginData {
+export class Nuke_1 extends AbstractTalent implements DamageHudCheckboxPluginData {
   //Plugin state
   // This plugin can exist in multiple plugins objects.
   // Pressing the checkbox for one should activate all.
@@ -94,7 +94,7 @@ export class Nuke_1 extends SampleTalent implements DamageHudCheckboxPluginData 
 }
 
 //Automated
-export class Nuke_2 extends SampleTalent implements DamageHudCheckboxPluginData {
+export class Nuke_2 extends AbstractTalent implements DamageHudCheckboxPluginData {
   //Plugin state
   // This plugin can exist in multiple plugins objects.
   // Pressing the checkbox for one should activate all.

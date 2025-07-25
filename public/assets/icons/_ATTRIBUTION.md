@@ -16,7 +16,7 @@ Other specific image attributions:
 - [`status_intangible.svg`](./status_intangible.svg) by @lostdeviljho on Discord, [CC BY 4.0 license](https://fontawesome.com/license/free).
 - [`horizon.svg`](../faction-logos/horizon.svg) by @lostdeviljho on Discord, [CC BY 4.0 license](https://fontawesome.com/license/free)
 - [`ra.svg`](../faction-logos/ra.svg) by @rishenko on Discord, [CC BY 4.0 license](https://fontawesome.com/license/free)
-- [`grab.svg`](./white/grab.svg) by Lorc on [Game-icons.net](https://game-icons.net/1x1/lorc/grab.html). [CC BY 3.0 license]
+- [`grab.svg`](./white/grab.svg) by Lorc on [Game-icons.net](https://game-icons.net/1x1/lorc/grab.html). [CC BY 3.0 license](https://creativecommons.org/licenses/by/3.0/)
 
 # Alternate Status Icon Sets
 

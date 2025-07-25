@@ -127,10 +127,5 @@
       overflow: hidden;
       max-width: 25ch;
     }
-    // @media only screen and (max-width: 1100px) {
-    //   .human-label {
-    //     max-width: 14ch;
-    //   }
-    // }
   }
 </style>

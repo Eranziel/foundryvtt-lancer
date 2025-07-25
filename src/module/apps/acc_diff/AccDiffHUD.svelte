@@ -130,14 +130,6 @@
     return kind === "attack";
   }
 
-  // function isTech(lancerItem, title) {
-  //   if (!lancerItem) return title.toLowerCase() === "tech attack";
-  //   if (lancerItem.is_mech_weapon()) return false;
-  //   if (lancerItem.is_pilot_weapon()) return false;
-  //   if (lancerItem.is_npc_feature() && lancerItem.system.type === NpcFeatureType.Weapon) return false;
-  //   return true;
-  // }
-
   function gritLabel() {
     // This is a tech attack
     if (isTech(lancerItem, title)) {

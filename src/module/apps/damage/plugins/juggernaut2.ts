@@ -1,15 +1,14 @@
 import { enclass } from "../../serde";
 import { slugify } from "../../../util/lid";
 import { DamageHudCheckboxPluginData, DamageHudPluginCodec } from "./plugin";
-import { DamageData } from "../../../models/bits/damage";
 import { DamageType } from "../../../enums";
-import { SampleTalent } from "./sampleTalent";
-import { DamageHudData, DamageHudTarget, TotalDamage } from "../data";
+import { AbstractTalent } from "./sampleTalent";
+import { TotalDamage } from "../data";
 import { LancerActor } from "../../../actor/lancer-actor";
 import { LancerItem } from "../../../item/lancer-item";
 
 //Manual checkbox
-export default class Juggernaut_2 extends SampleTalent implements DamageHudCheckboxPluginData {
+export default class Juggernaut_2 extends AbstractTalent implements DamageHudCheckboxPluginData {
   //Shared type requirements
   //slugify here to make sure the slug is same across this plugin and TalentWindow.svelte
   static slug: string = slugify("Kinetic Mass Transfer", "-");

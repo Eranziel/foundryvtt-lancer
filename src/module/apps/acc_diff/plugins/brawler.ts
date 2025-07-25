@@ -3,10 +3,10 @@ import { AccDiffHudCheckboxPluginData, AccDiffHudPluginCodec } from "./plugin";
 import { enclass } from "../../serde";
 import { WeaponType } from "../../../enums";
 import { slugify } from "../../../util/lid";
-import { SampleTalent } from "./sampleTalents";
+import { AbstractTalent } from "./abstractTalents";
 
 //Automated with a caveat, see talent()
-export default class Brawler_1 extends SampleTalent implements AccDiffHudCheckboxPluginData {
+export default class Brawler_1 extends AbstractTalent implements AccDiffHudCheckboxPluginData {
   //Shared type requirements
   //slugify here to make sure the slug is same across this plugin and TalentWindow.svelte
   //Alternatively could use lid and rank_num
