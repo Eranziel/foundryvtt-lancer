@@ -2,7 +2,7 @@ import { enclass } from "../../serde";
 import { slugify } from "../../../util/lid";
 import { DamageHudData, DamageHudTarget } from "..";
 import { DamageHudCheckboxPluginData, DamageHudPluginCodec } from "./plugin";
-import { AbstractTalent } from "./sampleTalent";
+import { AbstractTalent } from "./abstractTalent";
 import { LancerActor } from "../../../actor/lancer-actor";
 import { LancerItem } from "../../../item/lancer-item";
 

@@ -5,7 +5,7 @@ import { DamageHudData, DamageHudTarget } from "../../damage";
 import { DamageHudCheckboxPluginData, DamageHudPluginCodec } from "./plugin";
 import { DamageData } from "../../../models/bits/damage";
 import { DamageType } from "../../../enums";
-import { AbstractTalent } from "./sampleTalent";
+import { AbstractTalent } from "./abstractTalent";
 import { BoundedNum } from "../../../source-template";
 import { TotalDamage } from "../data";
 
