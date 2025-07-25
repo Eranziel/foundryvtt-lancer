@@ -30,7 +30,7 @@
   />
   {#if icon}<i class="{icon} i--s" />{/if}
   <span class="human-label" style="text-wrap: nowrap;">{label}</span>
-  {#if quickReference !== ""}
+  {#if quickReference}
     <span style="text-wrap: nowrap; "> ({quickReference})</span>
   {/if}
 </label>
