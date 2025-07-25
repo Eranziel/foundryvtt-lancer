@@ -330,7 +330,7 @@ export class AccDiffHudTarget {
     const lockon = this.usingLockOn ? 1 : 0;
     const prone = this.prone ? 1 : 0;
 
-    return base + weapon + lockon + prone + pluginBonus;
+    return base + weapon + lockon + prone + pluginBonus + this.accuracy - this.difficulty;
   }
 }
 

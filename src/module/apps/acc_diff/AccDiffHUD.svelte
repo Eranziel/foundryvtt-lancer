@@ -1,7 +1,7 @@
 <svelte:options accessors={true} />
 
 <script lang="ts">
-  import { AccDiffHudWeapon, AccDiffHudBase, AccDiffHudTarget } from "./index";
+  import { AccDiffHudWeapon, AccDiffHudBase, AccDiffHudTarget, AccDiffHudData } from "./index";
 
   import { slide } from "svelte/transition";
   import { flip } from "svelte/animate";
