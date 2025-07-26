@@ -369,6 +369,9 @@ export async function rollNormalDamage(state: FlowState<LancerFlowState.DamageRo
   if (!state.data) throw new TypeError(`Damage flow state missing!`);
   if (!state.data.damage_hud_data) throw new TypeError(`Damage configuration missing!`);
 
+  console.log(state);
+  console.log(state.data.damage_hud_data);
+
   // Convenience flag for whether this is a multi-target attack.
   // We'll use this later alongside a check for whether a given bonus damage result
   // is single-target; if not, the bonus damage needs to be halved.

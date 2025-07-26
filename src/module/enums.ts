@@ -379,6 +379,11 @@ export enum AccDiffWindowType {
   System = HASE.S,
   Engineering = HASE.E,
 }
+export enum DamageWindowType {
+  Weapon = "weapon",
+  Tech = "tech",
+  Basic = "basic",
+}
 
 export enum ReserveType {
   Resources = "Resources",
