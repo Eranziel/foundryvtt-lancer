@@ -16,7 +16,6 @@ export class AbstractTalent {
   slug: string;
   static category: "acc" | "diff" | "talentWindow" = "talentWindow";
   category: "acc" | "diff" | "talentWindow" = "talentWindow";
-  static isTalent: true;
 
   static get schema() {
     return {
@@ -105,7 +104,6 @@ export class AbstractCardReminder {
   //Not actually used, should probably change plugin.d.ts
   static category: "acc" | "diff" | "talentWindow" = "talentWindow";
   category: "acc" | "diff" | "talentWindow" = "talentWindow";
-  static isTalent: true;
 
   static get schema() {
     return {

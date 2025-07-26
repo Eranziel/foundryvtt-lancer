@@ -54,8 +54,6 @@ export type DamageHudPluginCodec<C extends DamageHudPluginData, O, I> = Codec<C,
 
 declare interface DamageHudPlugin<Data extends DamageHudPluginData> {
   slug: string;
-  // If true and the setting for talent automation is off, this plugin won't be registered
-  isTalent: boolean;
   kind: "damage" = "damage";
   // the codec lets us know how to persist whatever data you need for rerolls
   codec: DamageHudPluginCodec<Data, O, I>;

@@ -17,7 +17,6 @@ export class AbstractTalent {
   category: "acc" | "diff" | "talentWindow" = "talentWindow";
   static kind: "damage" = "damage";
   kind: "damage" = "damage";
-  static isTalent: boolean = true;
 
   static get schema() {
     return {
