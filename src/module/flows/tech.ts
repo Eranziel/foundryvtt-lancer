@@ -11,6 +11,7 @@ import { ActivationType, AttackType, AccDiffWindowType } from "../enums";
 import { Flow, FlowState, Step } from "./flow";
 import { UUIDRef } from "../source-template";
 import { AttackFlag } from "./attack";
+import { getCombat, getHistory } from "../util/misc";
 
 const lp = LANCER.log_prefix;
 
@@ -229,6 +230,13 @@ export async function printTechAttackCard(
     item_uuid: state.item?.uuid,
     profile: state.item?.currentProfile(),
   };
+
+  //Update history with attack
+  if (state.data.acc_diff !== undefined) {
+    getCombat()?.receiveHistoryAction(state.data);
+  }
+  console.log(getHistory());
+
   await renderTemplateStep(state.actor, template, templateData, flags);
   return true;
 }

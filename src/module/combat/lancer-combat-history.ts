@@ -101,7 +101,11 @@ export class LancerCombatHistory {
   }
 
   dataToAction(
-    data: LancerFlowState.AttackRollData | LancerFlowState.WeaponRollData | LancerFlowState.StatRollData
+    data:
+      | LancerFlowState.AttackRollData
+      | LancerFlowState.WeaponRollData
+      | LancerFlowState.StatRollData
+      | LancerFlowState.TechAttackRollData
   ): HistoryAction {
     if (data.acc_diff === undefined) throw new TypeError(`Accuracy/difficulty data missing!`);
 
@@ -171,7 +175,13 @@ export class LancerCombatHistory {
       heat,
     };
   }
-  newAction(data: LancerFlowState.AttackRollData | LancerFlowState.WeaponRollData | LancerFlowState.StatRollData) {
+  newAction(
+    data:
+      | LancerFlowState.AttackRollData
+      | LancerFlowState.WeaponRollData
+      | LancerFlowState.StatRollData
+      | LancerFlowState.TechAttackRollData
+  ) {
     if (data.acc_diff === undefined) {
       console.error(`${LANCER.log_prefix}Accuracy/difficulty data missing!`);
       return;

@@ -559,6 +559,7 @@ export async function printAttackCard(
   if (state.data.acc_diff !== undefined) {
     getCombat()?.receiveHistoryAction(state.data);
   }
+  console.log(getHistory());
   return true;
 }
 

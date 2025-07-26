@@ -153,7 +153,11 @@ export class LancerCombat extends Combat {
   }
 
   receiveHistoryAction(
-    data: LancerFlowState.AttackRollData | LancerFlowState.WeaponRollData | LancerFlowState.StatRollData
+    data:
+      | LancerFlowState.AttackRollData
+      | LancerFlowState.WeaponRollData
+      | LancerFlowState.StatRollData
+      | LancerFlowState.TechAttackRollData
   ) {
     let newHistory = new LancerCombatHistory(this.flags.lancer.history.rounds);
     newHistory.newAction(data);
