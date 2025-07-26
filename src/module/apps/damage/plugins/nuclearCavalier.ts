@@ -185,7 +185,7 @@ export class Nuke_2 extends AbstractTalent implements DamageHudCheckboxPluginDat
 
     if (!isDangerZone(data.lancerActor.system.heat)) return;
 
-    return true;
+    Nuke_2.active = true;
   }
 
   get visible(): boolean {
