@@ -20,6 +20,8 @@ export default class Hunter_1 extends AbstractCardReminder implements AccDiffHud
   slug: string = slugify("Lunge", "-");
   static kind: "hase" | "attack" = "attack";
   kind: "hase" | "attack" = "attack";
+  lid: string = "t_hunter";
+  talentRank: number = 1;
   get talentEffect(): TalentEffect | undefined {
     if (!this.reminderActive) return;
     return {

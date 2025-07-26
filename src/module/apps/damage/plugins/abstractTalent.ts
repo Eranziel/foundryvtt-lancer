@@ -13,6 +13,10 @@ export class AbstractTalent {
   //There is most likely a way to do this in TS. If you know, tell me so I can do it right
   //@ts-expect-error pinkie promise we will init it
   slug: string;
+  //@ts-expect-error pinkie promise we will init it
+  lid: string;
+  //@ts-expect-error pinkie promise we will init it
+  talentRank: number;
   static category: "acc" | "diff" | "talentWindow" = "talentWindow";
   category: "acc" | "diff" | "talentWindow" = "talentWindow";
   static kind: "damage" = "damage";
@@ -62,7 +66,7 @@ export class AbstractTalent {
     if (!talentsActive) return;
 
     // Check if actor has talent
-    if (!isTalentAvailable(data.lancerActor, this.slug)) return;
+    if (!isTalentAvailable(data.lancerActor, this.lid, this.talentRank)) return;
 
     this.data = data;
 

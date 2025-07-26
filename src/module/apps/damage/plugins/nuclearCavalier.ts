@@ -26,6 +26,8 @@ export class Nuke_1 extends AbstractTalent implements DamageHudCheckboxPluginDat
   //slugify here to make sure the slug is same across this plugin and TalentWindow.svelte
   static slug: string = slugify("Aggressive Heat Bleed", "-");
   slug: string = slugify("Aggressive Heat Bleed", "-");
+  lid: string = "t_nuclear_cavalier";
+  talentRank: number = 1;
   humanLabel: string = "Aggressive Heat Bleed";
   quickReference: string = "+2";
   tooltip: string = "The first attack roll you make on your turn while in the Danger Zone deals +2 Heat on a hit.";
@@ -104,6 +106,8 @@ export class Nuke_2 extends AbstractTalent implements DamageHudCheckboxPluginDat
   //slugify here to make sure the slug is same across this plugin and TalentWindow.svelte
   static slug: string = slugify("Fusion Hemorrhage", "-");
   slug: string = slugify("Fusion Hemorrhage", "-");
+  lid: string = "t_nuclear_cavalier";
+  talentRank: number = 2;
   humanLabel: string = "Fusion Hemorrhage";
   quickReference: string = "1d6";
   tooltip: string =

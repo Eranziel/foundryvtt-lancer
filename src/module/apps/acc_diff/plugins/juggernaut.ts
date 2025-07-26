@@ -13,6 +13,8 @@ export default class Juggernaut_1 extends AbstractTalent implements AccDiffHudCh
   slug: string = slugify("Momentum", "-");
   static kind: "hase" | "attack" = "attack";
   kind: "hase" | "attack" = "attack";
+  lid: string = "t_juggernaut";
+  talentRank: number = 1;
   humanLabel: string = "Momentum";
   quickReference: string = "+1";
   tooltip: string =

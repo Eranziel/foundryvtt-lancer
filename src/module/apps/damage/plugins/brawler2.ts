@@ -13,6 +13,8 @@ export default class Brawler_2 extends AbstractTalent implements DamageHudCheckb
   //slugify here to make sure the slug is same across this plugin and TalentWindow.svelte
   static slug: string = slugify("Sledgehammer", "-");
   slug: string = slugify("Sledgehammer", "-");
+  lid: string = "t_brawler";
+  talentRank: number = 2;
   humanLabel: string = "Sledgehammer";
   quickReference: string = "2d6+2";
   tooltip: string = "Your Improvised Attacks gain Knockback 2 and deal 2d6+2 Kinetic damage.";

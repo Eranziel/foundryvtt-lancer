@@ -32,6 +32,8 @@ export default class Brutal_3 extends AbstractTalent implements AccDiffHudCheckb
   slug: string = slugify("Relentless", "-");
   static kind: "hase" | "attack" = "attack";
   kind: "hase" | "attack" = "attack";
+  lid: string = "t_brutal";
+  talentRank: number = 3;
   humanLabel: string = "Relentless";
   get quickReference(): string {
     return "+" + this.accBonus;

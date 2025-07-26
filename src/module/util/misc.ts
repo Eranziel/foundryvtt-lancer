@@ -140,17 +140,17 @@ export async function tokenScrollText(
 
 //Used to check actor may use talent
 //Perhaps should be LancerPILOT method
-export function isTalentAvailable(actor: LancerActor | undefined, talentSlug: string): boolean {
+export function isTalentAvailable(actor: LancerActor | undefined, lid: string, talentRank: number): boolean {
   if (!actor?.is_mech() || !actor.system.pilot?.value?.is_pilot()) return false;
 
   let talents = actor.system.pilot.value.items.filter(i => i.is_talent());
 
   //Go through the slugs of all the available talent ranks
   for (const talent of talents) {
+    if (!talent.is_talent()) continue;
     let rank_num = talent.system!.curr_rank;
     for (let i = 0; i < rank_num; i++) {
-      const rank_name = talent.system!.ranks[i].name;
-      if (slugify(rank_name, "-") === talentSlug) return true;
+      if (talent.system.lid == lid && talent.system.curr_rank >= talentRank) return true;
     }
   }
 

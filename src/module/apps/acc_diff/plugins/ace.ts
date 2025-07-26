@@ -15,6 +15,8 @@ export default class Ace_1 extends AbstractTalent implements AccDiffHudCheckboxP
   slug: string = slugify("Acrobatics", "-");
   static kind: "hase" | "attack" = "hase";
   kind: "hase" | "attack" = "hase";
+  lid: string = "t_ace";
+  talentRank: number = 1;
   humanLabel: string = "Acrobatics";
   quickReference: string = "+1";
   tooltip: string = "While flying, you make all Agility checks and saves with +1 Accuracy.";

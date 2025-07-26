@@ -13,6 +13,8 @@ export default class Juggernaut_2 extends AbstractTalent implements DamageHudChe
   //slugify here to make sure the slug is same across this plugin and TalentWindow.svelte
   static slug: string = slugify("Kinetic Mass Transfer", "-");
   slug: string = slugify("Kinetic Mass Transfer", "-");
+  lid: string = "t_juggernaut";
+  talentRank: number = 2;
   humanLabel: string = "Kinetic Mass Transfer";
   quickReference: string = "1d6";
   tooltip: string =

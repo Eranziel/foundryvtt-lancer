@@ -14,6 +14,10 @@ export class AbstractTalent {
   //There is most likely a way to do this in TS. If you know, tell me so I can do it right
   //@ts-expect-error pinkie promise we will init it
   slug: string;
+  //@ts-expect-error pinkie promise we will init it
+  lid: string;
+  //@ts-expect-error pinkie promise we will init it
+  talentRank: number;
   static category: "acc" | "diff" | "talentWindow" = "talentWindow";
   category: "acc" | "diff" | "talentWindow" = "talentWindow";
 
@@ -63,7 +67,7 @@ export class AbstractTalent {
     if (!talentsActive) return;
 
     // Check if actor has talent
-    if (!isTalentAvailable(data.lancerActor, this.slug)) return;
+    if (!isTalentAvailable(data.lancerActor, this.lid, this.talentRank)) return;
 
     //Figure out whether we are in a situation the talent applies
     console.log(`${LANCER.log_prefix} ${this.slug} is hydrated`);
@@ -101,6 +105,10 @@ export class AbstractCardReminder {
   //There is most likely a way to do this in TS. If you know, tell me so I can do it right
   //@ts-expect-error pinkie promise we will init it
   slug: string;
+  //@ts-expect-error pinkie promise we will init it
+  lid: string;
+  //@ts-expect-error pinkie promise we will init it
+  talentRank: number;
   //Not actually used, should probably change plugin.d.ts
   static category: "acc" | "diff" | "talentWindow" = "talentWindow";
   category: "acc" | "diff" | "talentWindow" = "talentWindow";
@@ -138,7 +146,7 @@ export class AbstractCardReminder {
     if (!talentsActive) return;
 
     // Check if actor has talent
-    if (!isTalentAvailable(data.lancerActor, this.slug)) return;
+    if (!isTalentAvailable(data.lancerActor, this.lid, this.talentRank)) return;
 
     console.log(`${LANCER.log_prefix} ${this.slug} is hydrated`);
     //Figure out whether we are in a situation the talent applies

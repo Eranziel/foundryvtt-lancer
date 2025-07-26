@@ -54,7 +54,12 @@ export type DamageHudPluginCodec<C extends DamageHudPluginData, O, I> = Codec<C,
 
 declare interface DamageHudPlugin<Data extends DamageHudPluginData> {
   slug: string;
+  // Determines which window this talent will pop up in
   kind: "damage" = "damage";
+  //lid and talentRank used to find talent in items
+  //Maybe should be an interface
+  lid?: string;
+  talentRank?: number;
   // the codec lets us know how to persist whatever data you need for rerolls
   codec: DamageHudPluginCodec<Data, O, I>;
   // these constructors handle creating the initial data for a plugin

@@ -14,6 +14,8 @@ export default class Brawler_1 extends AbstractTalent implements AccDiffHudCheck
   slug: string = slugify("Hold and Lock", "-");
   static kind: "hase" | "attack" = "attack";
   kind: "hase" | "attack" = "attack";
+  lid: string = "t_brawler";
+  talentRank: number = 1;
   humanLabel: string = "Hold and Lock";
   quickReference: string = "+1";
   tooltip: string = "You gain +1 Accuracy on all melee attacks against targets YOU are Grappling.";

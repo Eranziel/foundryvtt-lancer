@@ -14,6 +14,8 @@ export default class Gunslinger_1 extends AbstractTalent implements AccDiffHudCh
   slug: string = slugify("Opening Argument", "-");
   static kind: "hase" | "attack" = "attack";
   kind: "hase" | "attack" = "attack";
+  lid: string = "t_gunslinger";
+  talentRank: number = 1;
   humanLabel: string = "Opening Argument";
   quickReference: string = "+1";
   tooltip: string = "Gain +1 Accuracy on the first attack roll you make with an Auxiliary ranged weapon on your turn.";

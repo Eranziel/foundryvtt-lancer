@@ -12,6 +12,8 @@ export default class Brutal_1 extends AbstractTalent implements DamageHudCheckbo
   //slugify here to make sure the slug is same across this plugin and TalentWindow.svelte
   static slug: string = slugify("Predator", "-");
   slug: string = slugify("Predator", "-");
+  lid: string = "t_brutal";
+  talentRank: number = 1;
   humanLabel: string = "Predator";
   quickReference: string = "*";
   tooltip: string =

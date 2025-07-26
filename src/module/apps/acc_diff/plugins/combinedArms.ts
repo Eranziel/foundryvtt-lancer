@@ -16,6 +16,8 @@ export class CombinedArms_2 extends AbstractTalent implements AccDiffHudCheckbox
   slug: string = slugify("CQB-Trained", "-");
   static kind: "hase" | "attack" = "attack";
   kind: "hase" | "attack" = "attack";
+  lid: string = "t_combined_arms";
+  talentRank: number = 2;
   humanLabel: string = "CQB-Trained";
   quickReference: string = "*";
   tooltip: string = "You don’t gain Difficulty from being Engaged.";
@@ -89,6 +91,8 @@ export class CombinedArms_3 extends AbstractTalent implements AccDiffHudCheckbox
   slug: string = slugify("Storm of Violence", "-");
   static kind: "hase" | "attack" = "attack";
   kind: "hase" | "attack" = "attack";
+  lid: string = "t_combined_arms";
+  talentRank: number = 3;
   humanLabel: string = "Storm of Violence";
   quickReference: string = "+1";
   tooltip: string =

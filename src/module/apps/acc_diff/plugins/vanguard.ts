@@ -22,6 +22,8 @@ export default class Vanguard_1 extends AbstractTalent implements AccDiffHudChec
   slug: string = slugify("Handshake Etiquette", "-");
   static kind: "hase" | "attack" = "attack";
   kind: "hase" | "attack" = "attack";
+  lid: string = "t_vanguard";
+  talentRank: number = 1;
   humanLabel: string = "Handshake Etiquette";
   quickReference: string = "+1";
   tooltip: string = "Gain +1 Accuracy when using CQB weapons to attack targets within Range 3.";

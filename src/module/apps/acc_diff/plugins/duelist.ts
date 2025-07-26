@@ -14,6 +14,8 @@ export default class Duelist_1 extends AbstractTalent implements AccDiffHudCheck
   slug: string = slugify("Partisan", "-");
   static kind: "hase" | "attack" = "attack";
   kind: "hase" | "attack" = "attack";
+  lid: string = "t_duelist";
+  talentRank: number = 1;
   humanLabel: string = "Partisan";
   quickReference: string = "+1";
   tooltip: string = "Gain +1 Accuracy on the first melee attack you make with a Main Melee weapon on your turn.";

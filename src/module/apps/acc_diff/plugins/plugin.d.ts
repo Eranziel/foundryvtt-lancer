@@ -55,7 +55,12 @@ export type AccDiffHudPluginCodec<C extends AccDiffHudPluginData, O, I> = Codec<
 declare interface AccDiffHudPlugin<Data extends AccDiffHudPluginData> {
   slug: string;
   category: "acc" | "diff" | "talentWindow";
+  // Determines which window this talent will pop up in
   kind: "hase" | "attack";
+  // lid and talentRank used to find talent in items
+  //Maybe should be an interface
+  lid?: string;
+  talentRank?: number;
   // Text for reminding about the talent if it applies. Especially if it's not automated. See hunter.ts
   talentEffect?: TalentEffect;
   // the codec lets us know how to persist whatever data you need for rerolls
