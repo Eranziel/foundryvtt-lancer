@@ -6,7 +6,7 @@ import { enclass, encode, decode } from "../serde";
 import { LancerItem } from "../../item/lancer-item";
 import { LancerToken } from "../../token";
 import { Tag } from "../../models/bits/tag";
-import { FittingSize, WeaponType } from "../../enums";
+import { AccDiffWindowType, FittingSize, WeaponType } from "../../enums";
 
 import Invisibility from "./plugins/invisibility";
 import Spotter from "./plugins/spotter";
@@ -148,7 +148,6 @@ export class AccDiffHudBase {
   flatBonus: number;
   accuracy: number;
   difficulty: number;
-  tech: boolean;
   cover: Cover;
   plugins: { [k: string]: any };
   #weapon!: AccDiffHudWeapon; // never use this class before calling hydrate
@@ -161,7 +160,6 @@ export class AccDiffHudBase {
       flatBonus: t.number,
       accuracy: t.number,
       difficulty: t.number,
-      tech: t.boolean,
       cover: coverSchema,
       plugins: t.type(this.pluginSchema),
     };
@@ -178,7 +176,6 @@ export class AccDiffHudBase {
     this.flatBonus = obj.flatBonus;
     this.accuracy = obj.accuracy;
     this.difficulty = obj.difficulty;
-    this.tech = obj.tech;
     this.cover = obj.cover;
     this.plugins = obj.plugins;
   }
@@ -189,7 +186,6 @@ export class AccDiffHudBase {
       flatBonus: this.flatBonus,
       accuracy: this.accuracy,
       difficulty: this.difficulty,
-      tech: this.tech,
       cover: this.cover,
       plugins: this.plugins,
     };
@@ -334,10 +330,21 @@ export class AccDiffHudTarget {
   }
 }
 
+let attackWindowSchema = t.union([
+  t.literal("weapon"),
+  t.literal("tech"),
+  t.literal("basic"),
+  t.literal("skill"),
+  t.literal("hull"),
+  t.literal("agi"),
+  t.literal("sys"),
+  t.literal("eng"),
+]);
 // If you want total, use AccDiffHudData.total() or target.total()
 export type AccDiffHudDataSerialized = t.OutputOf<typeof AccDiffHudData.schemaCodec>;
 export class AccDiffHudData {
   title: string;
+  windowType: AccDiffWindowType;
   weapon: AccDiffHudWeapon;
   base: AccDiffHudBase;
   targets: AccDiffHudTarget[];
@@ -347,6 +354,7 @@ export class AccDiffHudData {
   static get schema() {
     return {
       title: t.string,
+      windowType: attackWindowSchema,
       weapon: AccDiffHudWeapon.codec,
       base: AccDiffHudBase.codec,
       targets: t.array(AccDiffHudTarget.codec),
@@ -362,6 +370,7 @@ export class AccDiffHudData {
 
   constructor(obj: t.TypeOf<typeof AccDiffHudData.schemaCodec>) {
     this.title = obj.title;
+    this.windowType = obj.windowType as AccDiffWindowType;
     this.weapon = obj.weapon;
     this.base = obj.base;
     this.targets = obj.targets;
@@ -425,6 +434,7 @@ export class AccDiffHudData {
   get raw() {
     return {
       title: this.title,
+      windowType: this.windowType,
       weapon: this.weapon,
       base: this.base,
       targets: this.targets,
@@ -460,13 +470,13 @@ export class AccDiffHudData {
 
   static fromParams(
     runtimeData?: LancerItem | LancerActor,
+    windowType?: AccDiffWindowType,
     tags?: Tag[],
     title?: string,
     targets?: Token[],
     grit?: number,
     flat?: number,
-    starting?: [number, number] | number,
-    tech?: boolean
+    starting?: [number, number] | number
   ): AccDiffHudData {
     let weapon = {
       accurate: false,
@@ -503,12 +513,12 @@ export class AccDiffHudData {
       cover: Cover.None,
       accuracy: starting[0],
       difficulty: starting[1],
-      tech: tech ?? false,
       plugins: {} as { [k: string]: any },
     };
 
     let obj: AccDiffHudDataSerialized = {
       title: title ? title : "Accuracy and Difficulty",
+      windowType: windowType ? windowType : AccDiffWindowType.Basic,
       weapon,
       base,
       targets: (targets || []).map(t => {

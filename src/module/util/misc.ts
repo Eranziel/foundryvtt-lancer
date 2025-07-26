@@ -167,6 +167,7 @@ export function getHistory(): LancerCombatHistory | undefined {
   return serializedHistory ? new LancerCombatHistory(serializedHistory.rounds) : undefined;
 }
 
+// Should use AccDiffHudData.windowType
 export function isTech(lancerItem: LancerItem | null, title: string) {
   if (!lancerItem) return title.toLowerCase() === "tech attack";
   if (lancerItem.is_mech_weapon()) return false;

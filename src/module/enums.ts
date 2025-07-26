@@ -369,6 +369,17 @@ export enum HASE {
   E = "eng",
 }
 
+export enum AccDiffWindowType {
+  Weapon = "weapon",
+  Tech = "tech",
+  Basic = "basic",
+  Skill = "skill",
+  Hull = HASE.H,
+  Agility = HASE.A,
+  System = HASE.S,
+  Engineering = HASE.E,
+}
+
 export enum ReserveType {
   Resources = "Resources",
   Tactical = "Tactical",

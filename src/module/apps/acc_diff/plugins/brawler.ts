@@ -1,7 +1,7 @@
 import { AccDiffHudData, AccDiffHudTarget } from "../data";
 import { AccDiffHudCheckboxPluginData, AccDiffHudPluginCodec } from "./plugin";
 import { enclass } from "../../serde";
-import { WeaponType } from "../../../enums";
+import { AccDiffWindowType, WeaponType } from "../../../enums";
 import { slugify } from "../../../util/lid";
 import { AbstractTalent } from "./abstractTalents";
 
@@ -37,7 +37,7 @@ export default class Brawler_1 extends AbstractTalent implements AccDiffHudCheck
 
   //The unique logic of the talent
   talent(data: AccDiffHudData, target?: AccDiffHudTarget) {
-    if (data.title.toLowerCase() === "basic attack") return;
+    if (data.windowType === AccDiffWindowType.Basic) return;
 
     // Talent only applies to grappled targets.
     // A brawler targeting somebody that isn't grappled by themselves still benefits.
@@ -53,7 +53,7 @@ export default class Brawler_1 extends AbstractTalent implements AccDiffHudCheck
 
   get visible(): boolean {
     //This talent does not apply to tech attacks
-    if (this.data?.base.tech) return false;
+    if (this.data?.windowType === AccDiffWindowType.Tech) return false;
 
     return true;
   }

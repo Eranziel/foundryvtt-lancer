@@ -7,7 +7,7 @@ import { SystemTemplates } from "../system-template";
 import { LancerFlowState } from "./interfaces";
 import { LancerItem } from "../item/lancer-item";
 import { resolveDotpath } from "../helpers/commons";
-import { ActivationType, AttackType } from "../enums";
+import { ActivationType, AttackType, AccDiffWindowType } from "../enums";
 import { Flow, FlowState, Step } from "./flow";
 import { UUIDRef } from "../source-template";
 import { AttackFlag } from "./attack";
@@ -83,6 +83,7 @@ function commonMechTechAttackInit(
     ? AccDiffHudData.fromObject(options.acc_diff)
     : AccDiffHudData.fromParams(
         state.item,
+        AccDiffWindowType.Tech,
         state.item.getTags() ?? [],
         state.data.title,
         Array.from(game.user!.targets),
@@ -90,8 +91,7 @@ function commonMechTechAttackInit(
         state.data.flat_bonus,
         // TODO: is there a bonus we can check for this type of effect?
         // Add 1 accuracy for all you goblins
-        state.actor.is_mech() && state.actor.system.loadout.frame?.value?.system.lid == "mf_goblin" ? 1 : 0,
-        true
+        state.actor.is_mech() && state.actor.system.loadout.frame?.value?.system.lid == "mf_goblin" ? 1 : 0
       );
 }
 
@@ -118,13 +118,13 @@ export async function initTechAttackData(
       ? AccDiffHudData.fromObject(options.acc_diff)
       : AccDiffHudData.fromParams(
           state.actor,
+          AccDiffWindowType.Tech,
           [],
           state.data.title,
           Array.from(game.user!.targets),
           state.data.grit,
           state.data.flat_bonus,
-          undefined,
-          true
+          undefined
         );
     return true;
   } else {
@@ -145,13 +145,13 @@ export async function initTechAttackData(
         ? AccDiffHudData.fromObject(options.acc_diff)
         : AccDiffHudData.fromParams(
             state.item,
+            AccDiffWindowType.Tech,
             asTech.tags,
             state.data.title,
             Array.from(game.user!.targets),
             state.data.grit,
             state.data.flat_bonus,
-            acc,
-            true
+            acc
           );
       return true;
     } else if (state.item.is_mech_system() || state.item.is_frame()) {

@@ -1,7 +1,7 @@
 import { AccDiffHudData, AccDiffHudTarget } from "../data";
 import { AccDiffHudNoUIPluginData, AccDiffHudPluginCodec } from "./plugin";
 import { enclass } from "../../serde";
-import { FittingSize, WeaponType } from "../../../enums";
+import { AccDiffWindowType, FittingSize, WeaponType } from "../../../enums";
 import { slugify } from "../../../util/lid";
 import { AbstractCardReminder } from "./abstractTalents";
 import { getHistory } from "../../../util/misc";
@@ -46,7 +46,7 @@ export default class Hunter_1 extends AbstractCardReminder implements AccDiffHud
   //The unique logic of the talent
   //Name defined from SampleTalent
   talentReminder(data: AccDiffHudData, target?: AccDiffHudTarget): boolean {
-    if (data.title.toLowerCase() === "basic attack") return false;
+    if (data.windowType === AccDiffWindowType.Basic) return false;
 
     // Talent only applies to first Melee Auxillary this turn
     // We won't remind after the first one this turn

@@ -5,7 +5,7 @@ import { slugify } from "../../../util/lid";
 import { AbstractTalent } from "./abstractTalents";
 import { LancerItem } from "../../../item/lancer-item";
 import { LancerActor } from "../../../actor/lancer-actor";
-import { HASE } from "../../../enums";
+import { AccDiffWindowType, HASE } from "../../../enums";
 //Automated
 
 //A lot of common talent boilerplate is contained in SampleTalent
@@ -35,9 +35,7 @@ export default class Ace_1 extends AbstractTalent implements AccDiffHudCheckboxP
   //The unique logic of the talent
   //Name defined from SampleTalent
   talent(data: AccDiffHudData, target?: AccDiffHudTarget) {
-    //This is less explicit of a condition than I'd like
-    //Why would anyone ever change the title :clueless:
-    if (data.title.toLowerCase() !== HASE.A) return;
+    if (data.windowType !== AccDiffWindowType.Agility) return;
 
     if (!data.lancerActor?.system.statuses.flying) return;
 

@@ -2,6 +2,7 @@ import { AccDiffHudCheckboxPluginData, AccDiffHudPluginCodec } from "./plugin";
 import { enclass } from "../../serde";
 import { slugify } from "../../../util/lid";
 import { AbstractTalent } from "./abstractTalents";
+import { AccDiffWindowType } from "../../../enums";
 
 //Manual Checkbox
 //A lot of common talent boilerplate is contained in SampleTalent
@@ -34,7 +35,7 @@ export default class Juggernaut_1 extends AbstractTalent implements AccDiffHudCh
 
   get visible(): boolean {
     //This talent does not apply to tech attacks
-    if (this.data?.base.tech) return false;
+    if (this.data?.windowType === AccDiffWindowType.Tech) return false;
 
     return true;
   }

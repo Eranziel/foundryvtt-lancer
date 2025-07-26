@@ -2,7 +2,7 @@ import { AccDiffHudData, AccDiffHudTarget } from "../data";
 import { AccDiffHudCheckboxPluginData, AccDiffHudPluginCodec } from "./plugin";
 import { enclass } from "../../serde";
 import { LancerToken } from "../../../token";
-import { WeaponType } from "../../../enums";
+import { AccDiffWindowType, WeaponType } from "../../../enums";
 import { slugify } from "../../../util/lid";
 import { AbstractTalent } from "./abstractTalents";
 
@@ -48,7 +48,7 @@ export default class Vanguard_1 extends AbstractTalent implements AccDiffHudChec
   //The unique logic of the talent
   //Name defined from SampleTalent
   talent(data: AccDiffHudData, target?: AccDiffHudTarget) {
-    if (data.title.toLowerCase() === "basic attack") return;
+    if (data.windowType === AccDiffWindowType.Basic) return;
 
     // Talent only applies to CQB
     if (data.weapon.weaponType !== WeaponType.CQB) return;
@@ -72,7 +72,7 @@ export default class Vanguard_1 extends AbstractTalent implements AccDiffHudChec
   //Defined in SampleTalent
   get visible(): boolean {
     //This talent does not apply to tech attacks
-    if (this.data?.base.tech) return false;
+    if (this.data?.windowType === AccDiffWindowType.Tech) return false;
 
     return true;
   }

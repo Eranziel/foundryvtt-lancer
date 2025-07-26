@@ -3,7 +3,7 @@ import { LancerActor } from "../actor/lancer-actor";
 import { AccDiffHudData, AccDiffHudDataSerialized, Cover, RollModifier } from "../apps/acc_diff";
 import { openSlidingHud } from "../apps/slidinghud";
 import { LANCER } from "../config";
-import { AttackType, RangeType, WeaponType } from "../enums";
+import { AttackType, AccDiffWindowType, RangeType, WeaponType } from "../enums";
 import { checkForHit } from "../helpers/automation/targeting";
 import { LancerItem } from "../item/lancer-item";
 import { UUIDRef } from "../source-template";
@@ -178,6 +178,7 @@ export async function initAttackData(
   // If we only have an actor, it's a basic attack
   if (!state.item) {
     const isTech = LancerFlowState.isTechRoll(state.data);
+    const windowType = isTech ? AccDiffWindowType.Tech : AccDiffWindowType.Basic;
     const defaultTitle = isTech ? "TECH ATTACK" : "BASIC ATTACK";
     state.data.title = options?.title ?? defaultTitle;
     state.data.attack_type = isTech ? AttackType.Tech : AttackType.Melee; // Virtually all basic attacks are melee, so it's a good default
@@ -194,13 +195,12 @@ export async function initAttackData(
       ? AccDiffHudData.fromObject(options.acc_diff)
       : AccDiffHudData.fromParams(
           state.actor,
+          windowType,
           [],
           state.data.title,
           Array.from(game.user!.targets),
           state.data.grit,
-          state.data.flat_bonus,
-          undefined,
-          isTech
+          state.data.flat_bonus
         );
     return true;
   } else {
@@ -233,6 +233,7 @@ export async function initAttackData(
         ? AccDiffHudData.fromObject(options.acc_diff)
         : AccDiffHudData.fromParams(
             state.item,
+            AccDiffWindowType.Weapon,
             profile.all_tags,
             state.data.title,
             Array.from(game.user!.targets),
@@ -256,13 +257,12 @@ export async function initAttackData(
         ? AccDiffHudData.fromObject(options.acc_diff)
         : AccDiffHudData.fromParams(
             state.item,
+            undefined,
             state.item.system.tags,
             state.data.title,
             Array.from(game.user!.targets),
             state.data.grit,
-            state.data.flat_bonus,
-            undefined,
-            true
+            state.data.flat_bonus
           );
       return true;
     } else if (state.item.is_npc_feature()) {
@@ -279,6 +279,7 @@ export async function initAttackData(
         ? AccDiffHudData.fromObject(options.acc_diff)
         : AccDiffHudData.fromParams(
             state.item,
+            AccDiffWindowType.Weapon,
             asWeapon.tags,
             state.data.title,
             Array.from(game.user!.targets),
@@ -302,6 +303,7 @@ export async function initAttackData(
         ? AccDiffHudData.fromObject(options.acc_diff)
         : AccDiffHudData.fromParams(
             state.item,
+            AccDiffWindowType.Weapon,
             state.item.system.tags,
             state.data.title,
             Array.from(game.user!.targets),
