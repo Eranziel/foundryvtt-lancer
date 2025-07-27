@@ -1,10 +1,8 @@
-import { stateless } from "./serde";
+import { stateless } from "../../serde";
 import type { AccDiffHudPlugin, AccDiffHudPluginData } from "./plugin";
-import type { AccDiffHudData, AccDiffHudTarget } from "./index";
-import type { LancerActor, LancerMECH, LancerPILOT } from "../../actor/lancer-actor";
-import type { LancerToken } from "../../token";
-import { LancerTALENT } from "../../item/lancer-item";
-import type BaseGrid from "@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/grid/base.mjs";
+import type { AccDiffHudData, AccDiffHudTarget } from "../index";
+import type { LancerActor } from "../../../actor/lancer-actor";
+import type { LancerToken } from "../../../token";
 
 // this is an example of a case implemented without defining a full class
 function adjacentSpotter(actor: LancerActor): boolean {
@@ -15,28 +13,26 @@ function adjacentSpotter(actor: LancerActor): boolean {
 
   let token: LancerToken = actor.getActiveTokens()[0];
 
-  // Rough bounding box with allowance for hg1
-  const aabb = new PIXI.Rectangle(
-    token.bounds.x - 2 * canvas.grid!.sizeX,
-    token.bounds.y - 2 * canvas.grid!.sizeY,
-    token.bounds.right + 4 * canvas.grid!.sizeX,
-    token.bounds.bottom + 4 * canvas.grid!.sizeY
-  );
-
-  const spotters: Set<LancerToken> = canvas.tokens!.quadtree!.getObjects(aabb, {
-    // @ts-expect-error Quadtree not set specific enough in types
-    collisionTest: (o: QuadtreeObject<LancerToken>) => {
+  let isSpotterNearby = actor
+    .getActiveTokens()[0]
+    //maxRange: 2 as opposed to 1 due to House Guard 1
+    .areTargetsInRange(2, (o: QuadtreeObject<LancerToken>, distance: number) => {
       if (!o.t.actor?.is_mech() || o.t === token) return false;
       if (!o.t.actor.system.pilot?.value?.itemTypes.talent.some(t => t.system.lid === "t_spotter")) return false;
+
       const house_guard: boolean =
         o.t.actor.system.pilot?.value?.itemTypes.talent.some(t => t.system.lid === "t_house_guard") ?? false;
       const range = (house_guard ? 2 : 1) + 0.1;
-      return o.t.document.computeRange(token.document) <= range;
-    },
-  }) as any;
-  return spotters.size >= 1;
+
+      //If not in range, invalid
+      if (distance > range) return false;
+
+      return true;
+    });
+  return isSpotterNearby;
 }
 
+//Ought to rename to spotter_1
 function spotter(): AccDiffHudPluginData {
   let sp = {
     actor: null as LancerActor | null,
@@ -44,7 +40,11 @@ function spotter(): AccDiffHudPluginData {
     uiElement: "checkbox" as "checkbox",
     slug: "spotter",
     category: "acc" as "acc",
-    humanLabel: "Spotter (*)",
+    humanLabel: "Spotter",
+    quickReference: "*",
+    accBonus: 0,
+    tooltip:
+      "When an allied character adjacent to the Spotter attacks a target and consumes Lock On, they may roll twice and choose either result.",
     get uiState() {
       return !!(this.actor && this.target?.usingLockOn && adjacentSpotter(this.actor));
     },
@@ -75,6 +75,7 @@ function spotter(): AccDiffHudPluginData {
 const Spotter: AccDiffHudPlugin<AccDiffHudPluginData> = {
   slug: "spotter",
   category: "acc",
+  kind: "attack",
   codec: stateless(
     "Spotter",
     (t: unknown): t is AccDiffHudPluginData => typeof t == "object" && (t as any)?.slug == "spotter",

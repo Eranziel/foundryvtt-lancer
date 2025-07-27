@@ -10,6 +10,10 @@ import { DamageHudData } from "../apps/damage";
 // -------- Flow state data types -------------------------------------
 // Each flow uses one of these data types to track its state.
 
+export interface TalentEffect {
+  title: string;
+  text: string;
+}
 export namespace LancerFlowState {
   // Shared by all rolls
   interface BaseRollData {
@@ -73,6 +77,7 @@ export namespace LancerFlowState {
 
   export type HitResult = {
     target: LancerToken;
+    base: string;
     total: string;
     usedLockOn: boolean;
     hit: boolean;
@@ -117,6 +122,7 @@ export namespace LancerFlowState {
     on_attack?: string;
     on_hit?: string;
     on_crit?: string;
+    talent_effects?: TalentEffect[];
 
     tags?: Tag[];
     self_heat?: string; // The self heat roll string if present
@@ -166,6 +172,7 @@ export namespace LancerFlowState {
     overkill_heat?: number;
     reliable: boolean;
     reliable_val?: number;
+    tech: boolean;
     damage: DamageData[];
     bonus_damage?: DamageData[];
     hit_results: HitResult[];

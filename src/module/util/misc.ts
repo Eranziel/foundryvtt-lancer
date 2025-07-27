@@ -1,5 +1,10 @@
 import { LancerActor } from "../actor/lancer-actor";
+import { LancerCombat } from "../combat/lancer-combat";
+import { LancerCombatHistory } from "../combat/lancer-combat-history";
 import { LANCER } from "../config";
+import { NpcFeatureType } from "../enums";
+import { LancerItem } from "../item/lancer-item";
+import { slugify } from "./lid";
 
 /**
  * Watches for exact changes in its payload, detected by monitoring changes int its payload is stringified to JSON
@@ -131,4 +136,42 @@ export async function tokenScrollText(
   if (!(await game.settings.get(game.system.id, LANCER.setting_floating_damage_numbers))) return;
   // @ts-expect-error v11 types
   await canvas.interface.createScrollingText(token.center, content, style);
+}
+
+//Used to check actor may use talent
+//Perhaps should be LancerPILOT method
+export function isTalentAvailable(actor: LancerActor | undefined, lid: string, talentRank: number): boolean {
+  if (!actor?.is_mech() || !actor.system.pilot?.value?.is_pilot()) return false;
+
+  let talents = actor.system.pilot.value.items.filter(i => i.is_talent());
+
+  //Go through the slugs of all the available talent ranks
+  for (const talent of talents) {
+    if (!talent.is_talent()) continue;
+    let rank_num = talent.system!.curr_rank;
+    for (let i = 0; i < rank_num; i++) {
+      if (talent.system.lid == lid && talent.system.curr_rank >= talentRank) return true;
+    }
+  }
+
+  return false;
+}
+
+//Guiness has already been called to claim the longest one-liner record
+export function getCombat(): LancerCombat | null {
+  return canvas!.scene!.tokens.entries().next().value[1].combatant.combat;
+}
+export function getHistory(): LancerCombatHistory | undefined {
+  const serializedHistory = getCombat()?.flags.lancer.history;
+
+  return serializedHistory ? new LancerCombatHistory(serializedHistory.rounds) : undefined;
+}
+
+// Should use AccDiffHudData.windowType
+export function isTech(lancerItem: LancerItem | null, title: string) {
+  if (!lancerItem) return title.toLowerCase() === "tech attack";
+  if (lancerItem.is_mech_weapon()) return false;
+  if (lancerItem.is_pilot_weapon()) return false;
+  if (lancerItem.is_npc_feature() && lancerItem.system.type === NpcFeatureType.Weapon) return false;
+  return true;
 }

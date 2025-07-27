@@ -147,6 +147,11 @@ export const defaultStatuses = [
     name: "lancer.statusIconsNames.flying",
     img: "icons/svg/wing.svg",
   },
+  {
+    id: "grappled",
+    name: "lancer.statusIconsNames.grappled",
+    img: "systems/lancer/assets/icons/white/grab.svg",
+  },
 ];
 
 export const cancerConditionsStatus = [

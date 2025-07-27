@@ -7,10 +7,11 @@ import { SystemTemplates } from "../system-template";
 import { LancerFlowState } from "./interfaces";
 import { LancerItem } from "../item/lancer-item";
 import { resolveDotpath } from "../helpers/commons";
-import { ActivationType, AttackType } from "../enums";
+import { ActivationType, AttackType, AccDiffWindowType } from "../enums";
 import { Flow, FlowState, Step } from "./flow";
 import { UUIDRef } from "../source-template";
 import { AttackFlag } from "./attack";
+import { getCombat, getHistory } from "../util/misc";
 
 const lp = LANCER.log_prefix;
 
@@ -26,12 +27,12 @@ export class TechAttackFlow extends Flow<LancerFlowState.TechAttackRollData> {
     "checkItemLimited",
     "checkItemCharged",
     "setAttackTags",
-    "setAttackEffects",
     "setAttackTargets",
     "showAttackHUD",
     "rollAttacks",
     "applySelfHeat",
     "updateItemAfterAction",
+    "setAttackEffects",
     "printTechAttackCard",
   ];
 
@@ -83,6 +84,7 @@ function commonMechTechAttackInit(
     ? AccDiffHudData.fromObject(options.acc_diff)
     : AccDiffHudData.fromParams(
         state.item,
+        AccDiffWindowType.Tech,
         state.item.getTags() ?? [],
         state.data.title,
         Array.from(game.user!.targets),
@@ -117,11 +119,13 @@ export async function initTechAttackData(
       ? AccDiffHudData.fromObject(options.acc_diff)
       : AccDiffHudData.fromParams(
           state.actor,
+          AccDiffWindowType.Tech,
           [],
           state.data.title,
           Array.from(game.user!.targets),
           state.data.grit,
-          state.data.flat_bonus
+          state.data.flat_bonus,
+          undefined
         );
     return true;
   } else {
@@ -142,6 +146,7 @@ export async function initTechAttackData(
         ? AccDiffHudData.fromObject(options.acc_diff)
         : AccDiffHudData.fromParams(
             state.item,
+            AccDiffWindowType.Tech,
             asTech.tags,
             state.data.title,
             Array.from(game.user!.targets),
@@ -197,12 +202,14 @@ export async function printTechAttackCard(
       origin: state.actor.id!,
       attackerUuid: state.actor.uuid!,
       attackerItemUuid: state.item?.uuid,
+      tech: true,
       invade: state.data.invade,
       targets: state.data.hit_results.map(hr => {
         return {
           id: hr.target.document.id,
           uuid: hr.target.document.uuid,
           setConditions: !!hr.usedLockOn ? { lockon: !hr.usedLockOn } : undefined,
+          base: hr.base,
           total: hr.total,
           hit: hr.hit,
           crit: hr.crit,
@@ -223,6 +230,13 @@ export async function printTechAttackCard(
     item_uuid: state.item?.uuid,
     profile: state.item?.currentProfile(),
   };
+
+  //Update history with attack
+  if (state.data.acc_diff !== undefined) {
+    getCombat()?.receiveHistoryAction(state.data);
+  }
+  console.log(getHistory());
+
   await renderTemplateStep(state.actor, template, templateData, flags);
   return true;
 }

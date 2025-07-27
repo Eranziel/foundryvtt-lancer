@@ -9,6 +9,8 @@ import { AccDiffHudData, AccDiffHudDataSerialized } from "../apps/acc_diff";
 import { openSlidingHud } from "../apps/slidinghud";
 import { UUIDRef } from "../source-template";
 import { Flow, FlowState, Step } from "./flow";
+import { getCombat } from "../util/misc";
+import { AccDiffWindowType } from "../enums";
 
 const lp = LANCER.log_prefix;
 
@@ -46,11 +48,12 @@ async function initStatRollData(
   // If we only have an actor, it's a HASE roll
   if (!state.item) {
     let pathParts = state.data.path.split(".");
+    const windowType = pathParts[pathParts.length - 1] as AccDiffWindowType;
     state.data.title = options?.title || state.data.title || pathParts[pathParts.length - 1].toUpperCase();
     state.data.bonus = resolveDotpath(state.actor, state.data.path) as number;
     state.data.acc_diff = options?.acc_diff
       ? AccDiffHudData.fromObject(options.acc_diff)
-      : AccDiffHudData.fromParams(state.actor, undefined, state.data.title);
+      : AccDiffHudData.fromParams(state.actor, windowType, undefined, state.data.title);
     state.data.effect = undefined; // HASE rolls don't have effects
     return true;
   } else {
@@ -62,7 +65,7 @@ async function initStatRollData(
     state.data.bonus = state.item.system.curr_rank * 2;
     state.data.acc_diff = options?.acc_diff
       ? AccDiffHudData.fromObject(options.acc_diff)
-      : AccDiffHudData.fromParams(state.actor, undefined, state.data.title);
+      : AccDiffHudData.fromParams(state.actor, AccDiffWindowType.Skill, undefined, state.data.title);
     // I guess we don't show skill descriptions in the chat cards.
     // state.data.effect = state.item.system.description;
     return true;
@@ -77,7 +80,8 @@ async function showStatRollHUD(state: FlowState<LancerFlowState.StatRollData>): 
     // User hit cancel, abort the flow
     return false;
   }
-  let acc_str = state.data.acc_diff.base.total != 0 ? ` + ${state.data.acc_diff.base.total}d6kh1` : "";
+  const total_acc = state.data.acc_diff.base.total + state.data.acc_diff.weapon.total(0);
+  let acc_str = total_acc != 0 ? ` + ${total_acc}d6kh1` : "";
   state.data.roll_str = `1d20+${state.data.bonus || 0}${acc_str}`;
   return true;
 }
@@ -97,6 +101,12 @@ async function rollCheck(state: FlowState<LancerFlowState.StatRollData>): Promis
 async function printStatRollCard(state: FlowState<LancerFlowState.StatRollData>): Promise<boolean> {
   if (!state.data) throw new TypeError(`Stat roll flow state missing!`);
   const template = `systems/${game.system.id}/templates/chat/stat-roll-card.hbs`;
+
+  //Update history
+  if (state.data.acc_diff !== undefined) {
+    getCombat()?.receiveHistoryAction(state.data);
+  }
+
   await renderTemplateStep(state.actor, template, state.data);
   return true;
 }

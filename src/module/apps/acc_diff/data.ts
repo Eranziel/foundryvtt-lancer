@@ -1,14 +1,25 @@
 import * as t from "io-ts";
 
 import type { LancerActor } from "../../actor/lancer-actor";
-import type { AccDiffHudPlugin, AccDiffHudPluginData, AccDiffHudPluginCodec } from "./plugin";
-import { enclass, encode, decode } from "./serde";
+import type { AccDiffHudPlugin, AccDiffHudPluginData, AccDiffHudPluginCodec } from "./plugins/plugin";
+import { enclass, encode, decode } from "../serde";
 import { LancerItem } from "../../item/lancer-item";
-
-import Invisibility from "./invisibility";
-import Spotter from "./spotter";
 import { LancerToken } from "../../token";
 import { Tag } from "../../models/bits/tag";
+import { AccDiffWindowType, FittingSize, WeaponType } from "../../enums";
+
+import Invisibility from "./plugins/invisibility";
+import Spotter from "./plugins/spotter";
+import Vanguard_1 from "./plugins/vanguard";
+import Brawler_1 from "./plugins/brawler";
+import Duelist_1 from "./plugins/duelist";
+import Gunslinger_1 from "./plugins/gunslinger";
+import Hunter_1 from "./plugins/hunter";
+import Ace_1 from "./plugins/ace";
+import Brutal_3 from "./plugins/brutal3";
+import { CombinedArms_2, CombinedArms_3 } from "./plugins/combinedArms";
+import Pankrati_1 from "./plugins/pankrati";
+import Juggernaut_1 from "./plugins/juggernaut";
 
 export enum Cover {
   None = 0,
@@ -26,7 +37,7 @@ export class AccDiffHudWeapon {
   seeking: boolean;
   engaged: boolean;
   #data!: AccDiffHudData; // never use this class before calling hydrate
-  plugins: { [k: string]: AccDiffHudPluginData };
+  plugins: { [k: string]: any };
 
   static pluginSchema: { [k: string]: AccDiffHudPluginCodec<any, any, any> } = {};
 
@@ -75,13 +86,52 @@ export class AccDiffHudWeapon {
     return !!this.#data?.lancerActor?.system?.statuses.engaged;
   }
 
+  get weaponType(): WeaponType | null {
+    const actor = this.#data?.lancerActor;
+    if (actor === undefined) return null;
+
+    if (actor.is_mech()) {
+      // @ts-expect-error
+      return this.#data?.lancerItem?.system?.active_profile.type;
+    } else if (actor.is_npc()) {
+      // @ts-expect-error
+      return this.#data?.lancerItem?.system?.weapon_type.split(" ")[1] ?? null;
+    }
+    //If this were a pilot, we return null
+
+    return null;
+  }
+
+  //Is there an integrated melee weapon?
+  get mount(): FittingSize | null {
+    const actor = this.#data?.lancerActor;
+    if (actor === undefined) return null;
+
+    if (actor.is_mech()) {
+      // @ts-expect-error
+      return this.#data?.lancerItem?.system?.size ?? null;
+    } else if (actor.is_npc()) {
+      // @ts-expect-error
+      return this.#data?.lancerItem?.system?.weapon_type.split(" ")[0] ?? null;
+    }
+    //If this were a pilot, we return null
+
+    return null;
+  }
+
   total(cover: number) {
+    let pluginBonus: number = Object.values(this.plugins).reduce(
+      (a: number, b: AccDiffHudPluginData) => a + b.accBonus,
+      0
+    );
+
     return (
       (this.accurate ? 1 : 0) -
       (this.inaccurate ? 1 : 0) -
       (this.seeking ? 0 : cover) -
       (this.impaired ? 1 : 0) -
-      (this.engaged ? 1 : 0)
+      (this.engaged ? 1 : 0) +
+      pluginBonus
     );
   }
 
@@ -99,7 +149,7 @@ export class AccDiffHudBase {
   accuracy: number;
   difficulty: number;
   cover: Cover;
-  plugins: { [k: string]: AccDiffHudPluginData };
+  plugins: { [k: string]: any };
   #weapon!: AccDiffHudWeapon; // never use this class before calling hydrate
 
   static pluginSchema: { [k: string]: AccDiffHudPluginCodec<any, any, any> } = {};
@@ -144,12 +194,17 @@ export class AccDiffHudBase {
   hydrate(d: AccDiffHudData) {
     this.#weapon = d.weapon;
     for (let key of Object.keys(this.plugins)) {
-      this.plugins[key].hydrate(d, this);
+      this.plugins[key].hydrate(d);
     }
   }
 
+  //Base will no longer include accuracy from weapon, use other total methods for combined total
   get total() {
-    return this.accuracy - this.difficulty + this.#weapon.total(this.cover);
+    let pluginBonus: number = Object.values(this.plugins).reduce(
+      (a: number, b: AccDiffHudPluginData) => a + b.accBonus,
+      0
+    );
+    return this.accuracy - this.difficulty + pluginBonus;
   }
 }
 
@@ -261,19 +316,35 @@ export class AccDiffHudTarget {
   }
 
   get total() {
-    let base = this.accuracy - this.difficulty + this.#weapon.total(this.cover);
-    // the only thing we actually use base for is the untyped bonuses
-    let raw = base + this.#base.accuracy - this.#base.difficulty;
-    let lockon = this.usingLockOn ? 1 : 0;
-    let prone = this.prone ? 1 : 0;
+    const base = this.#base.total;
+    const weapon = this.#weapon.total(this.cover);
+    const pluginBonus: number = Object.values(this.plugins).reduce(
+      (a: number, b: AccDiffHudPluginData) => a + b.accBonus,
+      0
+    );
 
-    return raw + lockon + prone;
+    const lockon = this.usingLockOn ? 1 : 0;
+    const prone = this.prone ? 1 : 0;
+
+    return base + weapon + lockon + prone + pluginBonus + this.accuracy - this.difficulty;
   }
 }
 
+let attackWindowSchema = t.union([
+  t.literal("weapon"),
+  t.literal("tech"),
+  t.literal("basic"),
+  t.literal("skill"),
+  t.literal("hull"),
+  t.literal("agi"),
+  t.literal("sys"),
+  t.literal("eng"),
+]);
+// If you want total, use AccDiffHudData.total() or target.total()
 export type AccDiffHudDataSerialized = t.OutputOf<typeof AccDiffHudData.schemaCodec>;
 export class AccDiffHudData {
   title: string;
+  windowType: AccDiffWindowType;
   weapon: AccDiffHudWeapon;
   base: AccDiffHudBase;
   targets: AccDiffHudTarget[];
@@ -283,6 +354,7 @@ export class AccDiffHudData {
   static get schema() {
     return {
       title: t.string,
+      windowType: attackWindowSchema,
       weapon: AccDiffHudWeapon.codec,
       base: AccDiffHudBase.codec,
       targets: t.array(AccDiffHudTarget.codec),
@@ -298,6 +370,7 @@ export class AccDiffHudData {
 
   constructor(obj: t.TypeOf<typeof AccDiffHudData.schemaCodec>) {
     this.title = obj.title;
+    this.windowType = obj.windowType as AccDiffWindowType;
     this.weapon = obj.weapon;
     this.base = obj.base;
     this.targets = obj.targets;
@@ -343,9 +416,25 @@ export class AccDiffHudData {
     return this;
   }
 
+  get total(): number[] {
+    if (this.targets.length === 0) {
+      const base = this.base.total;
+      const weapon = this.weapon.total(Cover.None);
+
+      return [base + weapon];
+    }
+
+    let acc = [];
+    for (const target of this.targets) {
+      acc.push(target.total);
+    }
+    return acc;
+  }
+
   get raw() {
     return {
       title: this.title,
+      windowType: this.windowType,
       weapon: this.weapon,
       base: this.base,
       targets: this.targets,
@@ -381,6 +470,7 @@ export class AccDiffHudData {
 
   static fromParams(
     runtimeData?: LancerItem | LancerActor,
+    windowType?: AccDiffWindowType,
     tags?: Tag[],
     title?: string,
     targets?: Token[],
@@ -428,6 +518,7 @@ export class AccDiffHudData {
 
     let obj: AccDiffHudDataSerialized = {
       title: title ? title : "Accuracy and Difficulty",
+      windowType: windowType ? windowType : AccDiffWindowType.Basic,
       weapon,
       base,
       targets: (targets || []).map(t => {
@@ -472,3 +563,14 @@ export class AccDiffHudData {
 // side effects for importing, yes, yes, I know
 AccDiffHudData.registerPlugin(Invisibility);
 AccDiffHudData.registerPlugin(Spotter);
+AccDiffHudData.registerPlugin(Vanguard_1);
+AccDiffHudData.registerPlugin(Brawler_1);
+AccDiffHudData.registerPlugin(Duelist_1);
+AccDiffHudData.registerPlugin(Gunslinger_1);
+AccDiffHudData.registerPlugin(Hunter_1);
+AccDiffHudData.registerPlugin(Ace_1);
+AccDiffHudData.registerPlugin(Brutal_3);
+AccDiffHudData.registerPlugin(CombinedArms_2);
+AccDiffHudData.registerPlugin(CombinedArms_3);
+AccDiffHudData.registerPlugin(Pankrati_1);
+AccDiffHudData.registerPlugin(Juggernaut_1);

@@ -328,6 +328,8 @@ export class LancerActor extends Actor {
       slowed: false,
       stunned: false,
       hidden: false,
+      grappled: false,
+      flying: false,
     };
     sys.resistances = {
       burn: false,

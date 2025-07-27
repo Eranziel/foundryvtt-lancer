@@ -1,14 +1,24 @@
 import * as t from "io-ts";
 
 import { LancerActor, LancerNPC } from "../../actor/lancer-actor";
-import { DamageHudPlugin, DamageHudPluginCodec, DamageHudPluginData } from "./plugin";
-import { enclass, encode, decode } from "../acc_diff/serde";
+import { DamageHudPlugin, DamageHudPluginCodec, DamageHudPluginData } from "./plugins/plugin";
+import { enclass, encode, decode } from "../serde";
 import { LancerItem } from "../../item/lancer-item";
 import { LancerToken } from "../../token";
 import { Tag } from "../../models/bits/tag";
 import { DamageData } from "../../models/bits/damage";
 import { DamageType, NpcFeatureType } from "../../enums";
 import { LancerFlowState } from "../../flows/interfaces";
+
+import { Nuke_1, Nuke_2 } from "./plugins/nuclearCavalier";
+import Brutal_1 from "./plugins/brutal";
+import Brawler_2 from "./plugins/brawler2";
+import Juggernaut_2 from "./plugins/juggernaut2";
+
+export type TotalDamage = {
+  damage: DamageData[];
+  bonusDamage: DamageData[];
+};
 
 export enum HitQuality {
   Miss = 0,
@@ -87,11 +97,6 @@ export class DamageHudWeapon {
     };
   }
 
-  // TODO: refactor to damage specs
-  // total(cover: number) {
-  //   return (this.accurate ? 1 : 0) - (this.inaccurate ? 1 : 0) - (this.seeking ? 0 : cover) - (this.impaired ? 1 : 0);
-  // }
-
   hydrate(d: DamageHudData) {
     for (let key of Object.keys(this.plugins)) {
       this.plugins[key].hydrate(d);
@@ -99,8 +104,18 @@ export class DamageHudWeapon {
     this.#data = d;
   }
 
-  get total() {
-    return { damage: this.damage, bonusDamage: this.bonusDamage };
+  get total(): TotalDamage {
+    //Adds on top of existing damage
+    let damages = {
+      damage: this.damage,
+      bonusDamage: this.bonusDamage,
+    };
+    for (const plugin of Object.values(this.plugins)) {
+      if (plugin.modifyDamages === undefined) continue;
+      damages = plugin.modifyDamages(damages);
+    }
+
+    return damages;
   }
 
   static parseReliableVal(tag: Tag, source?: LancerItem | LancerActor): number {
@@ -125,6 +140,7 @@ export class DamageHudWeapon {
 }
 
 export class DamageHudBase {
+  tech: boolean;
   ap: boolean;
   paracausal: boolean;
   halfDamage: boolean;
@@ -137,6 +153,7 @@ export class DamageHudBase {
 
   static get schema() {
     return {
+      tech: t.boolean,
       ap: t.boolean,
       paracausal: t.boolean,
       halfDamage: t.boolean,
@@ -157,6 +174,7 @@ export class DamageHudBase {
   constructor(obj: t.TypeOf<typeof DamageHudBase.schemaCodec>) {
     const objectDamage = obj.damage.map(ensureDamageType);
     const objBonusDamage = obj.bonusDamage.map(ensureDamageType);
+    this.tech = obj.tech;
     this.ap = obj.ap;
     this.paracausal = obj.paracausal;
     this.halfDamage = obj.halfDamage;
@@ -167,6 +185,7 @@ export class DamageHudBase {
 
   get raw() {
     return {
+      tech: this.tech,
       ap: this.ap,
       paracausal: this.paracausal,
       halfDamage: this.halfDamage,
@@ -184,11 +203,17 @@ export class DamageHudBase {
   }
 
   get total() {
-    const weaponTotal = this.#weapon?.total || { damage: [], bonusDamage: [] };
-    return {
-      damage: weaponTotal.damage.concat(this.damage),
-      bonusDamage: weaponTotal.bonusDamage.concat(this.bonusDamage),
+    //Adds on top of existing damage
+    let damages = {
+      damage: this.damage,
+      bonusDamage: this.bonusDamage,
     };
+    for (const plugin of Object.values(this.plugins)) {
+      if (plugin.modifyDamages === undefined) continue;
+      damages = plugin.modifyDamages(damages);
+    }
+
+    return damages;
   }
 }
 
@@ -198,6 +223,7 @@ export class DamageHudBase {
 // so if you extend DamageBase it's trying to assign DamageBase to DamageTarget
 export class DamageHudTarget {
   target: LancerToken;
+  hitResult: DamageHudHitResult;
   quality: HitQuality;
   ap: boolean;
   paracausal: boolean;
@@ -212,6 +238,7 @@ export class DamageHudTarget {
   static get schema() {
     return {
       target_id: t.string,
+      hitResult: DamageHudHitResult.codec,
       quality: t.number,
       ap: t.boolean,
       paracausal: t.boolean,
@@ -237,6 +264,7 @@ export class DamageHudTarget {
     const objBonusDamage = obj.bonusDamage.map(ensureDamageType);
 
     this.target = target.object! as LancerToken;
+    this.hitResult = obj.hitResult;
     this.quality = obj.quality;
     this.ap = obj.ap;
     this.paracausal = obj.paracausal;
@@ -248,6 +276,7 @@ export class DamageHudTarget {
   get raw() {
     return {
       target_id: this.target.id,
+      hitResult: this.hitResult,
       quality: this.quality,
       ap: this.ap,
       paracausal: this.paracausal,
@@ -259,6 +288,7 @@ export class DamageHudTarget {
 
   static fromParams(
     t: Token,
+    hitResult: DamageHudHitResult,
     data?: {
       quality?: HitQuality;
       ap?: boolean;
@@ -269,6 +299,7 @@ export class DamageHudTarget {
   ): DamageHudTarget {
     let ret = {
       target_id: t.id,
+      hitResult,
       quality: data?.quality ?? HitQuality.Hit,
       ap: data?.ap || false,
       paracausal: data?.paracausal || false,
@@ -291,19 +322,32 @@ export class DamageHudTarget {
   }
 
   get total() {
-    const baseTotal = this.#base.total;
-    return {
-      damage: baseTotal,
-      bonusDamage: this.bonusDamage.concat(baseTotal.bonusDamage),
+    const base = this.#base.total;
+    const weapon = this.#weapon?.total ?? {
+      damage: [],
+      bonusDamage: [],
     };
+
+    //Plugins should modify it last because stuff like NucCav might be converting it
+    let damages = {
+      damage: [],
+      bonusDamage: this.bonusDamage,
+    };
+    for (const plugin of Object.values(this.plugins)) {
+      if (plugin.modifyDamages === undefined) continue;
+      damages = plugin.modifyDamages(damages, this);
+    }
+
+    return damages;
   }
 }
 
 // Simple class for storing the results of the attack roll which this damage roll is derived from.
 // Needs to match LancerFlowState.HitResult, other than target being a UUID string instead of a
 // hydrated token.
-class DamageHudHitResult {
+export class DamageHudHitResult {
   target: string; // token UUID
+  base: string;
   total: string;
   usedLockOn: boolean;
   hit: boolean;
@@ -312,6 +356,7 @@ class DamageHudHitResult {
   static get schema() {
     return {
       target: t.string,
+      base: t.string,
       total: t.string,
       usedLockOn: t.boolean,
       hit: t.boolean,
@@ -328,6 +373,7 @@ class DamageHudHitResult {
 
   constructor(obj: t.TypeOf<typeof DamageHudHitResult.schemaCodec>) {
     this.target = obj.target;
+    this.base = obj.base;
     this.total = obj.total;
     this.usedLockOn = obj.usedLockOn;
     this.hit = obj.hit;
@@ -337,6 +383,7 @@ class DamageHudHitResult {
   get raw() {
     return {
       target: this.target,
+      base: this.base,
       total: this.total,
       usedLockOn: this.usedLockOn,
       hit: this.hit,
@@ -404,13 +451,30 @@ export class DamageHudData {
     }
 
     this.targets = ts.map(
-      t => oldTargets[t.id] ?? DamageHudTarget.fromParams(t, { quality: this.getHitQuality(t as LancerToken) })
+      (t, idx) =>
+        oldTargets[t.id] ??
+        DamageHudTarget.fromParams(t, this.hitResults[idx], {
+          quality: this.getHitQuality(t as LancerToken),
+        })
     );
 
     for (let target of this.targets) {
       target.hydrate(this);
     }
     return this;
+  }
+
+  get sharedTotal(): TotalDamage {
+    const weapon = this.weapon?.total ?? {
+      damage: [],
+      bonusDamage: [],
+    };
+    const base = this.base.total;
+
+    return {
+      damage: weapon.damage.concat(base.damage),
+      bonusDamage: weapon.bonusDamage.concat(base.bonusDamage),
+    };
   }
 
   get raw() {
@@ -473,6 +537,7 @@ export class DamageHudData {
       ap?: boolean;
       paracausal?: boolean;
       halfDamage?: boolean;
+      tech?: boolean;
       starting?: { damage?: DamageData[]; bonusDamage?: DamageData[] };
     }
   ): DamageHudData {
@@ -485,6 +550,7 @@ export class DamageHudData {
       plugins: {} as { [k: string]: any },
     };
     let base = {
+      tech: data?.tech ?? false,
       ap: data?.ap ?? false,
       paracausal: data?.paracausal ?? false,
       halfDamage: data?.halfDamage ?? false,
@@ -530,9 +596,10 @@ export class DamageHudData {
       weapon,
       base,
       hitResults,
-      targets: (data?.targets || []).map(t => {
+      targets: (data?.targets || []).map((t, idx) => {
         let ret = {
           target_id: t.id,
+          hitResult: hitResults[idx],
           quality: DamageHudData.getHitQuality(t, hitResults),
           ap: base.ap,
           paracausal: base.paracausal,
@@ -561,3 +628,10 @@ export class DamageHudData {
     return DamageHudData.fromObject(obj, runtimeData);
   }
 }
+
+//We need to register plugins after settings are initialized
+DamageHudData.registerPlugin(Nuke_1);
+DamageHudData.registerPlugin(Nuke_2);
+DamageHudData.registerPlugin(Brutal_1);
+DamageHudData.registerPlugin(Brawler_2);
+DamageHudData.registerPlugin(Juggernaut_2);

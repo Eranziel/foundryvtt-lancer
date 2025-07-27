@@ -1,6 +1,7 @@
 import { AppliedDamage } from "../actor/damage-calc";
 import { LancerActor } from "../actor/lancer-actor";
-import { DamageHudData, HitQuality } from "../apps/damage";
+import { RollModifier } from "../apps/damage/plugins/plugin";
+import { DamageHudData, DamageHudTarget, HitQuality } from "../apps/damage";
 import { openSlidingHud } from "../apps/slidinghud";
 import { DamageType } from "../enums";
 import { LancerItem } from "../item/lancer-item";
@@ -60,6 +61,7 @@ export class DamageRollFlow extends Flow<LancerFlowState.DamageRollData> {
       half_damage: data?.half_damage || false,
       overkill: data?.overkill || false,
       reliable: data?.reliable || false,
+      tech: data?.tech || false,
       hit_results: data?.hit_results || [],
       has_normal_hit: data?.has_normal_hit || false,
       has_crit_hit: data?.has_crit_hit || false,
@@ -160,6 +162,7 @@ async function showDamageHUD(state: FlowState<LancerFlowState.DamageRollData>): 
       paracausal: state.data.paracausal,
       halfDamage: state.data.half_damage,
       starting: { damage: state.data.damage, bonusDamage: state.data.bonus_damage },
+      tech: state.data.tech,
     });
 
     state.data.damage_hud_data = await openSlidingHud("damage", state.data.damage_hud_data!);
@@ -181,6 +184,7 @@ async function showDamageHUD(state: FlowState<LancerFlowState.DamageRollData>): 
       if (state.data.hit_results.some(hr => hr.target.id === t.target.id)) continue;
       state.data.hit_results.push({
         target: t.target,
+        base: "10",
         total: "10",
         hit: t.quality === HitQuality.Hit,
         crit: t.quality === HitQuality.Crit,
@@ -221,9 +225,21 @@ async function _rollDamage(
   damage: DamageData,
   bonus: boolean,
   overkill: boolean,
+  plugins?: { [k: string]: any },
   target?: LancerToken
 ): Promise<LancerFlowState.DamageResult | null> {
   if (!damage.val || damage.val == "0") return null; // Skip undefined and zero damage
+
+  //Apply plugins if there are any
+  if (plugins !== undefined) {
+    damage.val = Object.values(plugins)
+      .sort((p: RollModifier, q: RollModifier) => q.rollPrecedence - p.rollPrecedence)
+      .reduce((roll: string, p: RollModifier) => {
+        if (p.modifyRoll === undefined) return roll;
+        return p.modifyRoll(roll);
+      }, damage.val);
+  }
+
   let damageRoll: Roll | undefined = new Roll(damage.val);
   // Add overkill if enabled.
   if (overkill) {
@@ -251,22 +267,14 @@ async function _rollDamage(
  * @param state Flow state to get bonus damage from
  * @returns Array of bonus damage rolls, including target-specific bonus damage
  */
-function _collectBonusDamage(state: FlowState<LancerFlowState.DamageRollData>): {
-  type: DamageType;
-  val: string;
-  target?: LancerToken;
-}[] {
+function _collectBonusDamage(state: FlowState<LancerFlowState.DamageRollData>): DamageData[] {
   if (!state.data) throw new TypeError(`Damage flow state missing!`);
   if (!state.data.damage_hud_data) throw new TypeError(`Damage configuration missing!`);
-  const total: {
-    type: DamageType;
-    val: string;
-    target?: LancerToken;
-  }[] = duplicate(state.data.bonus_damage);
+  const total: DamageData[] = state.data.bonus_damage?.slice() ?? [];
   // Find all the target-specific bonus damage rolls and add them to the base rolls
   // so they can be rolled together.
   for (const hudTarget of state.data.damage_hud_data.targets) {
-    const hudTargetBonusDamage = hudTarget.bonusDamage.map(d => ({
+    const hudTargetBonusDamage = hudTarget.total.bonusDamage.map(d => ({
       ...d,
       target: hudTarget.target,
     }));
@@ -305,9 +313,12 @@ export async function rollReliable(state: FlowState<LancerFlowState.DamageRollDa
   if (!state.data) throw new TypeError(`Damage flow state missing!`);
   if (!state.data.damage_hud_data) throw new TypeError(`Damage configuration missing!`);
 
-  const totalDamage = state.data.damage_hud_data.base.total;
-  state.data.damage = totalDamage.damage;
-  state.data.bonus_damage = totalDamage.bonusDamage ?? [];
+  //Awkawrd way of applying targetted damage conversion. Should be changed.
+  const sharedTotal = state.data.damage_hud_data.sharedTotal;
+  const totalDamage = sharedTotal.damage;
+  const totalBonusDamage = sharedTotal.bonusDamage;
+  state.data.damage = totalDamage;
+  state.data.bonus_damage = totalBonusDamage;
   state.data.reliable_val = state.data.damage_hud_data.weapon?.reliableValue ?? 0;
   const allBonusDamage = _collectBonusDamage(state);
 
@@ -368,12 +379,14 @@ export async function rollNormalDamage(state: FlowState<LancerFlowState.DamageRo
   // the next step for crits
   if (state.data.has_normal_hit || state.data.has_crit_hit) {
     for (const x of state.data.damage ?? []) {
-      const result = await _rollDamage(x, false, state.data.overkill);
+      const hudTarget = state.data.damage_hud_data.targets.find(x => x.target === x.target);
+      const result = await _rollDamage(x, false, state.data.overkill, hudTarget?.plugins);
       if (result) state.data.damage_results.push(result);
     }
 
     for (const x of allBonusDamage ?? []) {
-      const result = await _rollDamage(x, true, state.data.overkill, x.target);
+      const hudTarget = state.data.damage_hud_data.targets.find(x => x.target === x.target);
+      const result = await _rollDamage(x, true, state.data.overkill, hudTarget?.plugins, x.target);
       if (result) {
         result.bonus = true;
         if (x.target) {
@@ -618,7 +631,6 @@ export async function getCritRoll(normal: Roll) {
       return t;
     }
   });
-
   return Roll.fromTerms(terms);
 }
 
@@ -678,6 +690,7 @@ export async function rollDamageCallback(event: JQuery.ClickEvent) {
 
     hit_results.push({
       target: target,
+      base: t.base,
       total: t.total,
       usedLockOn,
       hit: t.hit,
@@ -696,6 +709,7 @@ export async function rollDamageCallback(event: JQuery.ClickEvent) {
   const flow = new DamageRollFlow(item ? item.uuid : attackData.attackerUuid, {
     title: `${item?.name || actor.name} DAMAGE`,
     configurable: true,
+    tech: attackData.tech,
     invade: attackData.invade,
     hit_results,
     has_normal_hit: hit_results.some(hr => hr.hit && !hr.crit),

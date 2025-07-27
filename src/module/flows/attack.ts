@@ -1,13 +1,14 @@
 // Import TypeScript modules
 import { LancerActor } from "../actor/lancer-actor";
-import { AccDiffHudData, AccDiffHudDataSerialized, RollModifier } from "../apps/acc_diff";
+import { AccDiffHudData, AccDiffHudDataSerialized, Cover, RollModifier } from "../apps/acc_diff";
 import { openSlidingHud } from "../apps/slidinghud";
 import { LANCER } from "../config";
-import { AttackType, RangeType, WeaponType } from "../enums";
+import { AttackType, AccDiffWindowType, RangeType, WeaponType } from "../enums";
 import { checkForHit } from "../helpers/automation/targeting";
 import { LancerItem } from "../item/lancer-item";
 import { UUIDRef } from "../source-template";
 import { SystemTemplates } from "../system-template";
+import { getCombat, getHistory } from "../util/misc";
 import { renderTemplateStep } from "./_render";
 import { Flow, FlowState, Step } from "./flow";
 import { LancerFlowState } from "./interfaces";
@@ -26,7 +27,8 @@ function rollStr(bonus: number, total: number): string {
 }
 
 function applyPluginsToRoll(str: string, plugins: RollModifier[]): string {
-  return plugins.sort((p, q) => q.rollPrecedence - p.rollPrecedence).reduce((acc, p) => p.modifyRoll(acc), str);
+  plugins = plugins.filter(p => p.modifyRoll !== undefined);
+  return plugins.sort((p, q) => q.rollPrecedence - p.rollPrecedence).reduce((acc, p) => p.modifyRoll!(acc), str);
 }
 
 /** Create the attack roll(s) for a given attack configuration */
@@ -34,7 +36,7 @@ export function attackRolls(flat_bonus: number, acc_diff: AccDiffHudData): Lance
   let perRoll = Object.values(acc_diff.weapon.plugins);
   let base = perRoll.concat(Object.values(acc_diff.base.plugins));
   return {
-    roll: applyPluginsToRoll(rollStr(flat_bonus, acc_diff.base.total), base),
+    roll: applyPluginsToRoll(rollStr(flat_bonus, acc_diff.base.total + acc_diff.weapon.total(Cover.None)), base),
     targeted: acc_diff.targets.map(tad => {
       let perTarget = perRoll.concat(Object.values(tad.plugins));
       return {
@@ -50,10 +52,12 @@ export type AttackFlag = {
   origin: string; // Attacker's ID. Somewhat deprecated, kept because LWFX is probably using it.
   attackerUuid: string; // Attacker's UUID
   attackerItemUuid?: string; // Item UUID used for the attack, if applicable
+  tech?: boolean;
   invade?: boolean;
   targets: {
     uuid: string;
     setConditions?: object; // keys are statusEffect ids, values are boolean to indicate whether to apply or remove
+    base: string;
     total: string;
     hit: boolean;
     crit: boolean;
@@ -120,12 +124,12 @@ export class WeaponAttackFlow extends Flow<LancerFlowState.WeaponRollData> {
     "checkItemLimited",
     "checkItemCharged",
     "setAttackTags",
-    "setAttackEffects",
     "setAttackTargets",
     "showAttackHUD",
     "rollAttacks",
     "applySelfHeat",
     "updateItemAfterAction",
+    "setAttackEffects",
     "printAttackCard",
     // TODO: Start damage flow after attack
     // "applyDamage"
@@ -174,6 +178,7 @@ export async function initAttackData(
   // If we only have an actor, it's a basic attack
   if (!state.item) {
     const isTech = LancerFlowState.isTechRoll(state.data);
+    const windowType = isTech ? AccDiffWindowType.Tech : AccDiffWindowType.Basic;
     const defaultTitle = isTech ? "TECH ATTACK" : "BASIC ATTACK";
     state.data.title = options?.title ?? defaultTitle;
     state.data.attack_type = isTech ? AttackType.Tech : AttackType.Melee; // Virtually all basic attacks are melee, so it's a good default
@@ -185,10 +190,12 @@ export async function initAttackData(
       state.data.grit = isTech ? state.actor.system.sys : state.actor.system.tier;
     }
     // TODO: check bonuses for flat attack bonus
+
     state.data.acc_diff = options?.acc_diff
       ? AccDiffHudData.fromObject(options.acc_diff)
       : AccDiffHudData.fromParams(
           state.actor,
+          windowType,
           [],
           state.data.title,
           Array.from(game.user!.targets),
@@ -226,6 +233,7 @@ export async function initAttackData(
         ? AccDiffHudData.fromObject(options.acc_diff)
         : AccDiffHudData.fromParams(
             state.item,
+            AccDiffWindowType.Weapon,
             profile.all_tags,
             state.data.title,
             Array.from(game.user!.targets),
@@ -249,6 +257,7 @@ export async function initAttackData(
         ? AccDiffHudData.fromObject(options.acc_diff)
         : AccDiffHudData.fromParams(
             state.item,
+            undefined,
             state.item.system.tags,
             state.data.title,
             Array.from(game.user!.targets),
@@ -270,6 +279,7 @@ export async function initAttackData(
         ? AccDiffHudData.fromObject(options.acc_diff)
         : AccDiffHudData.fromParams(
             state.item,
+            AccDiffWindowType.Weapon,
             asWeapon.tags,
             state.data.title,
             Array.from(game.user!.targets),
@@ -293,6 +303,7 @@ export async function initAttackData(
         ? AccDiffHudData.fromObject(options.acc_diff)
         : AccDiffHudData.fromParams(
             state.item,
+            AccDiffWindowType.Weapon,
             state.item.system.tags,
             state.data.title,
             Array.from(game.user!.targets),
@@ -348,45 +359,6 @@ export async function setAttackTags(
     if (!!(smartTags && smartTags.length)) state.data.is_smart = true;
   }
   return success;
-}
-
-export async function setAttackEffects(
-  state: FlowState<
-    LancerFlowState.AttackRollData | LancerFlowState.WeaponRollData | LancerFlowState.TechAttackRollData
-  >,
-  options?: {}
-): Promise<boolean> {
-  if (!state.data) throw new TypeError(`Attack flow state missing!`);
-  // Basic attacks have no tags, just continue on.
-  if (!state.item) return true;
-  if (state.item.is_mech_weapon()) {
-    let profile = state.item.system.active_profile;
-    state.data.effect = profile.effect;
-    state.data.on_attack = profile.on_attack;
-    state.data.on_hit = profile.on_hit;
-    state.data.on_crit = profile.on_crit;
-    return true;
-  } else if (state.item.is_mech_system()) {
-    state.data.effect = state.data.action?.detail ?? state.item.system.effect;
-    return true;
-  } else if (state.item.is_talent()) {
-    state.data.effect = state.data.action?.detail ?? "";
-    return true;
-  } else if (state.item.is_frame()) {
-    // Frame attacks should only be tech attacks from core systems
-    state.data.effect = state.data.action?.detail ?? state.item.system.core_system.active_effect;
-    return true;
-  } else if (state.item.is_npc_feature()) {
-    let asWeapon = state.item.system as SystemTemplates.NPC.WeaponData;
-    state.data.effect = asWeapon.effect;
-    state.data.on_hit = asWeapon.on_hit;
-    return true;
-  } else if (state.item.is_pilot_weapon()) {
-    state.data.effect = state.item.system.effect;
-    return true;
-  }
-  ui.notifications!.error(`Error in attack flow - ${state.item.name} is an invalid type!`);
-  return false;
 }
 
 export async function setAttackTargets(
@@ -445,6 +417,9 @@ export async function rollAttacks(
         attack_roll.dice.forEach(d => (d.options.rollOrder = 1));
         const attack_tt = await attack_roll.getTooltip();
 
+        //Pure d20 roll for Brutal_1
+        const raw_attack_result = attack_roll.dice[0].results[0].result;
+
         if (targetingData.usedLockOn && game.user!.isGM) {
           targetingData.target.actor?.effectHelper.removeActiveEffect("lockon");
         }
@@ -453,6 +428,7 @@ export async function rollAttacks(
           attack: { roll: attack_roll, tt: attack_tt },
           hit: {
             target,
+            base: String(raw_attack_result).padStart(2, "0"),
             total: String(attack_roll.total).padStart(2, "0"),
             usedLockOn: !!targetingData.usedLockOn,
             hit: await checkForHit(state.data?.is_smart ?? false, attack_roll, actor),
@@ -485,6 +461,59 @@ export async function clearTargets(
   return true;
 }
 
+//This has been moved in order to take into account effects from talents
+export async function setAttackEffects(
+  state: FlowState<
+    LancerFlowState.AttackRollData | LancerFlowState.WeaponRollData | LancerFlowState.TechAttackRollData
+  >,
+  options?: {}
+): Promise<boolean> {
+  if (!state.data) throw new TypeError(`Attack flow state missing!`);
+  if (!state.data.acc_diff) throw new TypeError(`Accuracy/difficulty data missing!`);
+
+  state.data.talent_effects = state.data.talent_effects ?? [];
+  const acc_diff = state.data.acc_diff;
+  const basePlugins = Object.values(acc_diff.base.plugins);
+  const weaponPlugins = Object.values(acc_diff.weapon.plugins);
+  const targetPlugins = acc_diff.targets[0] !== undefined ? Object.values(acc_diff.targets[0].plugins) : [];
+  const plugins = basePlugins.concat(weaponPlugins, targetPlugins);
+  plugins.forEach(plugin => {
+    if (plugin.talentEffect === undefined) return;
+    state.data!.talent_effects!.push(plugin.talentEffect);
+  });
+
+  // Basic attacks have no tags, just continue on.
+  if (!state.item) return true;
+  if (state.item.is_mech_weapon()) {
+    let profile = state.item.system.active_profile;
+    state.data.effect = profile.effect;
+    state.data.on_attack = profile.on_attack;
+    state.data.on_hit = profile.on_hit;
+    state.data.on_crit = profile.on_crit;
+    return true;
+  } else if (state.item.is_mech_system()) {
+    state.data.effect = state.data.action?.detail ?? state.item.system.effect;
+    return true;
+  } else if (state.item.is_talent()) {
+    state.data.effect = state.data.action?.detail ?? "";
+    return true;
+  } else if (state.item.is_frame()) {
+    // Frame attacks should only be tech attacks from core systems
+    state.data.effect = state.data.action?.detail ?? state.item.system.core_system.active_effect;
+    return true;
+  } else if (state.item.is_npc_feature()) {
+    let asWeapon = state.item.system as SystemTemplates.NPC.WeaponData;
+    state.data.effect = asWeapon.effect;
+    state.data.on_hit = asWeapon.on_hit;
+    return true;
+  } else if (state.item.is_pilot_weapon()) {
+    state.data.effect = state.item.system.effect;
+    return true;
+  }
+  ui.notifications!.error(`Error in attack flow - ${state.item.name} is an invalid type!`);
+  return false;
+}
+
 export async function printAttackCard(
   state: FlowState<LancerFlowState.AttackRollData | LancerFlowState.WeaponRollData>,
   options?: { template?: string }
@@ -501,6 +530,7 @@ export async function printAttackCard(
           id: hr.target.document.id,
           uuid: hr.target.document.uuid,
           setConditions: !!hr.usedLockOn ? { lockon: !hr.usedLockOn } : undefined,
+          base: hr.base,
           total: hr.total,
           hit: hr.hit,
           crit: hr.crit,
@@ -524,6 +554,11 @@ export async function printAttackCard(
     profile: state.item?.currentProfile(),
   };
   await renderTemplateStep(state.actor, template, templateData, flags);
+
+  //Update history
+  if (state.data.acc_diff !== undefined) {
+    getCombat()?.receiveHistoryAction(state.data);
+  }
   return true;
 }
 
