@@ -194,7 +194,7 @@ export class AccDiffHudBase {
   hydrate(d: AccDiffHudData) {
     this.#weapon = d.weapon;
     for (let key of Object.keys(this.plugins)) {
-      this.plugins[key].hydrate(d, this);
+      this.plugins[key].hydrate(d);
     }
   }
 

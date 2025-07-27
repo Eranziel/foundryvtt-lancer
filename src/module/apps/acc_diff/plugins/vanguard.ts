@@ -48,6 +48,10 @@ export default class Vanguard_1 extends AbstractTalent implements AccDiffHudChec
   //The unique logic of the talent
   //Name defined from SampleTalent
   talent(data: AccDiffHudData, target?: AccDiffHudTarget) {
+    // This talent may have a perTarget instance.
+    // If there are targets but we weren't given one, ignore this instance
+    if (data.targets.length > 0 && target === undefined) return;
+
     if (data.windowType === AccDiffWindowType.Basic) return;
 
     // Talent only applies to CQB

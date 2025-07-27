@@ -116,6 +116,8 @@ export class CombinedArms_3 extends AbstractTalent implements AccDiffHudCheckbox
   //The unique logic of the talent
   //Name defined from SampleTalent
   talent(data: AccDiffHudData, target?: AccDiffHudTarget) {
+    if (data.targets.length > 0 && target === undefined) return;
+
     if (data.windowType === AccDiffWindowType.Basic) return;
 
     const currentType = data.weapon.weaponType;

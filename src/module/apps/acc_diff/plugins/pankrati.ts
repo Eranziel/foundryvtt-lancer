@@ -39,6 +39,8 @@ export default class Pankrati_1 extends AbstractTalent implements AccDiffHudChec
   //The unique logic of the talent
   //Name defined from SampleTalent
   talent(data: AccDiffHudData, target?: AccDiffHudTarget) {
+    if (data.targets.length > 0 && target === undefined) return;
+
     if (data.windowType === AccDiffWindowType.Basic) return;
 
     if (data.weapon.weaponType !== WeaponType.Melee) return;

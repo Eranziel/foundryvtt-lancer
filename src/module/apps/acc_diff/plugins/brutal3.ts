@@ -59,6 +59,8 @@ export default class Brutal_3 extends AbstractTalent implements AccDiffHudCheckb
   //The unique logic of the talent
   //Name defined from SampleTalent
   talent(data: AccDiffHudData, target?: AccDiffHudTarget) {
+    if (data.targets.length > 0 && target === undefined) return;
+
     //We enable the checkbox if there has been at least one miss
     this.active = getMisses(data.lancerActor?.id).length > 0;
   }

@@ -37,6 +37,8 @@ export default class Brawler_1 extends AbstractTalent implements AccDiffHudCheck
 
   //The unique logic of the talent
   talent(data: AccDiffHudData, target?: AccDiffHudTarget) {
+    if (data.targets.length > 0 && target === undefined) return;
+
     if (data.windowType === AccDiffWindowType.Basic) return;
 
     // Talent only applies to grappled targets.
