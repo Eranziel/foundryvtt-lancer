@@ -34,10 +34,6 @@
     if (targets.length > 0) targetPlugins = Object.values(targets[0].plugins);
     const targetSlugs = targetPlugins.map(plugin => plugin.slug);
 
-    console.log(basePlugins);
-    console.log(weaponPlugins);
-    console.log(targetPlugins);
-
     //If a targeted version of a weapon plugin exists, remove the base/weapon duplicate
     let totalPlugins = targetPlugins;
     for (const plugin of baseWeaponPlugins) {
