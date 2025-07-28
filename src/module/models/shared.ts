@@ -125,11 +125,7 @@ type ApplyLIDDefaults<Options> = SimpleMerge<LIDFieldDefaultOptions, Options>;
 // Use this for all LIDs, to ensure consistent formatting, and to allow easier setting
 export class LIDField<
   const Options extends fields.StringField.Options<unknown> = LIDFieldDefaultOptions,
-  // eslint-disable-next-line @typescript-eslint/no-deprecated
-  const AssignmentType = fields.StringField.AssignmentType<ApplyLIDDefaults<Options>>,
-  const InitializedType = fields.StringField.InitializedType<ApplyLIDDefaults<Options>>,
-  const PersistedType extends string | null | undefined = fields.StringField.InitializedType<ApplyLIDDefaults<Options>>,
-> extends fields.StringField<Options, AssignmentType, InitializedType, PersistedType> {
+> extends fields.StringField<ApplyLIDDefaults<Options>> {
   static get _defaults() {
     return {
       ...super._defaults,

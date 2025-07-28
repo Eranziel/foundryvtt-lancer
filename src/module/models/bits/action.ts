@@ -17,13 +17,14 @@ const frequencyFieldDefaults = {
 };
 
 type FrequencyFieldDefaults = SimpleMerge<fields.StringField.DefaultOptions, typeof frequencyFieldDefaults>;
+type ApplyFrequencyDefaults<T extends fields.StringField.Options> = SimpleMerge<FrequencyFieldDefaults, T>;
 
 /**
  * A subclass of StringField which deals with frequency data.
  */
-class FrequencyField<
-  Options extends fields.StringField.Options = FrequencyFieldDefaults,
-> extends fields.StringField<Options> {
+class FrequencyField<Options extends fields.StringField.Options = FrequencyFieldDefaults> extends fields.StringField<
+  ApplyFrequencyDefaults<Options>
+> {
   /** @inheritdoc */
   static get _defaults() {
     return foundry.utils.mergeObject(super._defaults, frequencyFieldDefaults);
