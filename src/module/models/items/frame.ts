@@ -3,6 +3,7 @@ import { frameToPath } from "../../actor/retrograde-map";
 import { ActivationType, EntryType, FrameEffectUse, MechType, MountType } from "../../enums";
 import { restrict_enum } from "../../helpers/commons";
 import type { SourceData } from "../../source-template";
+import type { BaseData } from "../../base-data";
 import type { PackedFrameData } from "../../util/unpacking/packed-types";
 import { unpackDeployable } from "../actors/deployable";
 import { ActionField, repairActivationType, unpackAction } from "../bits/action";
@@ -82,7 +83,7 @@ const defineFrameSchema = () => {
 
 type FrameModelSchema = ReturnType<typeof defineFrameSchema>;
 
-export class FrameModel extends LancerDataModel<FrameModelSchema, Item.Implementation> {
+export class FrameModel extends LancerDataModel<FrameModelSchema, Item.Implementation, BaseData.Frame> {
   static DEFAULT_ICON = "systems/lancer/assets/icons/mech.svg";
   static defineSchema() {
     return defineFrameSchema();

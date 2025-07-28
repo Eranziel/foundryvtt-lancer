@@ -3,6 +3,7 @@ import { regRefToUuid } from "../../util/migrations";
 import { CounterField } from "../bits/counter";
 import { EmbeddedRefField, FullBoundedNumberField, LancerDataModel, SyncUUIDRefField } from "../shared";
 import { template_action_tracking, template_statuses, template_universal_actor } from "./shared";
+import type { BaseData } from "../../base-data";
 
 import fields = foundry.data.fields;
 
@@ -54,7 +55,7 @@ const pilot_schema = {
 
 type PilotSchema = typeof pilot_schema;
 
-export class PilotModel extends LancerDataModel<PilotSchema, Actor.Implementation> {
+export class PilotModel extends LancerDataModel<PilotSchema, Actor.Implementation, BaseData.Pilot> {
   static DEFAULT_ICON = "systems/lancer/assets/icons/pilot.svg";
   static defineSchema(): PilotSchema {
     return pilot_schema;

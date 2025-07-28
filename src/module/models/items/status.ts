@@ -2,6 +2,7 @@ import type { DeepPartial } from "fvtt-types/utils";
 import { EntryType } from "../../enums";
 import { restrict_choices } from "../../helpers/commons";
 import type { SourceData } from "../../source-template";
+import type { BaseData } from "../../base-data";
 import type { PackedStatusData } from "../../util/unpacking/packed-types";
 import { LancerDataModel, type UnpackContext } from "../shared";
 import { template_universal_item } from "./shared";
@@ -20,7 +21,7 @@ const defineStatusModelSchema = () => {
 
 type StatusModelSchema = ReturnType<typeof defineStatusModelSchema>;
 
-export class StatusModel extends LancerDataModel<StatusModelSchema, Item.Implementation> {
+export class StatusModel extends LancerDataModel<StatusModelSchema, Item.Implementation, BaseData.Status> {
   static DEFAULT_ICON = "systems/lancer/assets/icons/reticule.svg";
   static defineSchema() {
     return defineStatusModelSchema();

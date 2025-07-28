@@ -269,7 +269,7 @@ export class LancerActor<SubType extends Actor.SubType = Actor.SubType> extends 
     // this.system.finalize_tasks();
 
     // 2. Initialize our universal derived stat fields
-    let sys = this.system as unknown as SystemTemplates.actor_universal;
+    let sys = this.system;
     sys.edef = 0;
     sys.evasion = 0;
     sys.speed = 0;
@@ -581,9 +581,7 @@ export class LancerActor<SubType extends Actor.SubType = Actor.SubType> extends 
     // If changing active mech, all mechs need to render to recompute if they are the active mech
     let changing_active_mech = (changed as any).system?.active_mech !== undefined;
     if (changing_active_mech) {
-      let owned_mechs = game.actors!.filter(
-        (a) => a.is_mech() && a.system.pilot?.value == this
-      );
+      let owned_mechs = game.actors!.filter(a => a.is_mech() && a.system.pilot?.value == this);
       owned_mechs?.forEach(m => m.render());
     }
 

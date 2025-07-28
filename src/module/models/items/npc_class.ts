@@ -2,6 +2,7 @@ import type { DeepPartial } from "fvtt-types/utils";
 import { frameToPath } from "../../actor/retrograde-map";
 import { EntryType } from "../../enums";
 import type { SourceData } from "../../source-template";
+import type { BaseData } from "../../base-data";
 import { convertNpcStats, regRefToLid } from "../../util/migrations";
 import type { PackedNpcClassData } from "../../util/unpacking/packed-types";
 import { LIDField, LancerDataModel, NpcStatBlockField, type UnpackContext } from "../shared";
@@ -27,7 +28,7 @@ const defineNpcClassModelSchema = () => {
 
 type NpcClassModelSchema = ReturnType<typeof defineNpcClassModelSchema>;
 
-export class NpcClassModel extends LancerDataModel<NpcClassModelSchema, Item.Implementation> {
+export class NpcClassModel extends LancerDataModel<NpcClassModelSchema, Item.Implementation, BaseData.NpcClass> {
   static DEFAULT_ICON = "systems/lancer/assets/icons/npc_class.svg";
   static defineSchema() {
     return defineNpcClassModelSchema();

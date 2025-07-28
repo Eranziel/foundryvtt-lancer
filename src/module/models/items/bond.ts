@@ -6,6 +6,7 @@ import { PowerField, unpackPower } from "../bits/power";
 import { BondQuestionField } from "../bits/question";
 import { LancerDataModel } from "../shared";
 import { template_universal_item } from "./shared";
+import type { BaseData } from "../../base-data";
 
 import fields = foundry.data.fields;
 
@@ -21,7 +22,7 @@ const defineBondModelSchema = () => {
 
 type BondModelSchema = ReturnType<typeof defineBondModelSchema>;
 
-export class BondModel extends LancerDataModel<BondModelSchema, Item.Implementation> {
+export class BondModel extends LancerDataModel<BondModelSchema, Item.Implementation, BaseData.Bond> {
   static DEFAULT_ICON = "systems/lancer/assets/icons/bond.svg";
   static defineSchema() {
     return defineBondModelSchema();

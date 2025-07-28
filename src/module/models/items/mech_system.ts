@@ -1,6 +1,7 @@
 import type { DeepPartial } from "fvtt-types/utils";
 import { EntryType } from "../../enums";
 import type { SourceData } from "../../source-template";
+import type { BaseData } from "../../base-data";
 import type { PackedMechSystemData } from "../../util/unpacking/packed-types";
 import { unpackAction } from "../bits/action";
 import { AmmoField, unpackAmmo } from "../bits/ammo";
@@ -37,7 +38,7 @@ const defineMechSystemModelSchema = () => {
 
 type MechSystemModelSchema = ReturnType<typeof defineMechSystemModelSchema>;
 
-export class MechSystemModel extends LancerDataModel<MechSystemModelSchema, Item.Implementation> {
+export class MechSystemModel extends LancerDataModel<MechSystemModelSchema, Item.Implementation, BaseData.MechSystem> {
   static DEFAULT_ICON = "systems/lancer/assets/icons/mech_system.svg";
   static defineSchema() {
     return defineMechSystemModelSchema();

@@ -9,6 +9,7 @@ import {
 
 import type { DeepPartial } from "fvtt-types/utils";
 import type { SourceData } from "../../source-template";
+import type { BaseData } from "../../base-data";
 import { LancerDataModel } from "../shared";
 
 import fields = foundry.data.fields;
@@ -27,7 +28,7 @@ const npc_schema = {
 };
 
 type NpcSchema = typeof npc_schema;
-export class NpcModel extends LancerDataModel<NpcSchema, Actor.Implementation> {
+export class NpcModel extends LancerDataModel<NpcSchema, Actor.Implementation, BaseData.Npc> {
   static DEFAULT_ICON = "systems/lancer/assets/icons/npc_class.svg";
   static defineSchema(): NpcSchema {
     return npc_schema;

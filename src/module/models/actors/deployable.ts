@@ -4,6 +4,7 @@ import type { DeepPartial } from "fvtt-types/utils";
 import { ActivationType, DeployableType, EntryType } from "../../enums";
 import { restrict_enum } from "../../helpers/commons";
 import type { SourceData } from "../../source-template";
+import type { BaseData } from "../../base-data";
 import { slugify } from "../../util/lid";
 import { fixCCFormula } from "../../util/misc";
 import type { PackedDeployableData } from "../../util/unpacking/packed-types";
@@ -55,7 +56,7 @@ const deployable_schema = {
 };
 
 type DeployableSchema = typeof deployable_schema;
-export class DeployableModel extends LancerDataModel<DeployableSchema, Actor.Implementation> {
+export class DeployableModel extends LancerDataModel<DeployableSchema, Actor.Implementation, BaseData.Deployable> {
   static DEFAULT_ICON = "systems/lancer/assets/icons/deployable.svg";
   static defineSchema(): DeployableSchema {
     return deployable_schema;

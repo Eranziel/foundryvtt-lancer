@@ -1,7 +1,7 @@
 import type { DeepPartial } from "fvtt-types/utils";
 import { EntryType } from "../../enums";
 import type { SourceData } from "../../source-template";
-import type { SystemData } from "../../system-template";
+import type { BaseData } from "../../base-data";
 import type { PackedPilotGearData } from "../../util/unpacking/packed-types";
 import { unpackAction } from "../bits/action";
 import { unpackBonus } from "../bits/bonus";
@@ -23,7 +23,7 @@ const definePilotGearModelSchema = () => {
 
 type PilotGearModelSchema = ReturnType<typeof definePilotGearModelSchema>;
 
-export class PilotGearModel extends LancerDataModel<PilotGearModelSchema, Item.Implementation> {
+export class PilotGearModel extends LancerDataModel<PilotGearModelSchema, Item.Implementation, BaseData.PilotGear> {
   static DEFAULT_ICON = "systems/lancer/assets/icons/generic_item.svg";
   static defineSchema() {
     return definePilotGearModelSchema();
