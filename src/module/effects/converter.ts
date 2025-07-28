@@ -19,8 +19,6 @@ const PILOT_STAT_PRIORITY = 30;
 const EFFECT_STAT_PRIORITY = 40;
 const FEATURE_OVERRIDE_PRIORITY = 50;
 
-const x: string = 1;
-
 // Makes an active effect for a frame.
 type FrameStatKey = keyof Item.OfType<"frame">["stats"];
 type MechStatKey = keyof Actor.OfType<"mech">;
