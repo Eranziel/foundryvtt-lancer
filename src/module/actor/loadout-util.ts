@@ -1,7 +1,6 @@
 import { fittingsForMount, FittingSize, MountType, WeaponSize } from "../enums";
 import { LancerItem } from "../item/lancer-item";
 import type { SourceData } from "../source-template";
-import type { SystemData } from "../system-template";
 import { LancerActor } from "./lancer-actor";
 
 /** Holds helper methods for loadout validation etc */
@@ -260,7 +259,7 @@ export class LoadoutHelper {
    * Yields a simple error message on a misconfigured mount, or null if no issues detected.
    * @param mount Specific mount to validate
    */
-  validateMount(mount: SystemData.Mech["loadout"]["weapon_mounts"][0]): string | null {
+  validateMount(mount: Actor.OfType<"mech">["loadout"]["weapon_mounts"][0]): string | null {
     if (this.actor.is_mech()) {
       let loadout = this.actor.system.loadout;
       let hasBracing = loadout.weapon_mounts.some(m => m.bracing);

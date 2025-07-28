@@ -113,7 +113,8 @@ export function unpackMechWeapon(
 ): {
   name: string;
   type: EntryType.MECH_WEAPON;
-  system: DeepPartial<SourceData.MechWeapon>;
+  // TODO(LukeAbby): Should specifically be mech weapon's `CreateData`.
+  system: Item.CreateData;
 } {
   let profiles: Array<Partial<SourceData.MechWeapon["profiles"][0]>> = [];
 

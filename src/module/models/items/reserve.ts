@@ -1,7 +1,5 @@
-import type { DeepPartial } from "fvtt-types/utils";
 import { EntryType, ReserveType } from "../../enums";
 import { restrict_enum } from "../../helpers/commons";
-import type { SourceData } from "../../source-template";
 import type { BaseData } from "../../base-data";
 import type { PackedReserveData } from "../../util/unpacking/packed-types";
 import { unpackDeployable } from "../actors/deployable";
@@ -47,7 +45,8 @@ export function unpackReserve(
 ): {
   name: string;
   type: EntryType.RESERVE;
-  system: DeepPartial<SourceData.Reserve>;
+  // TODO(LukeAbby): Should specifically be reserve's `CreateData`.
+  system: Item.CreateData;
 } {
   return {
     name: data.name ?? data.label ?? "Unnamed Reserve",

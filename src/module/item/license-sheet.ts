@@ -75,7 +75,7 @@ export class LancerLicenseSheet extends LancerItemSheet<EntryType.LICENSE> {
   /**
    * @override
    * Activate event listeners using the prepared sheet HTML
-   * @param html {JQuery}   The prepared HTML object ready to be rendered into the DOM
+   * @param html - The prepared HTML object ready to be rendered into the DOM
    */
   activateListeners(html: JQuery) {
     super.activateListeners(html);

@@ -3,17 +3,6 @@ import type { PackedBondPowerData } from "../../util/unpacking/packed-types";
 
 import fields = foundry.data.fields;
 
-export interface PowerData {
-  name: string;
-  description: string;
-  unlocked: boolean;
-  frequency: string | null;
-  uses: FullBoundedNum | null;
-  veteran: boolean;
-  master: boolean;
-  prerequisite: string | null;
-}
-
 const definePowerFieldSchema = () => {
   return {
     name: new fields.StringField({ nullable: false }),
@@ -35,6 +24,8 @@ const definePowerFieldSchema = () => {
 };
 
 type PowerFieldSchema = ReturnType<typeof definePowerFieldSchema>;
+
+export type PowerData = fields.SchemaField.InitializedData<PowerFieldSchema>;
 
 export class PowerField<Options extends fields.SchemaField.Options<PowerFieldSchema>> extends fields.SchemaField<
   PowerFieldSchema,

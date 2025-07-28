@@ -14,7 +14,6 @@ import { mechLoadoutWeaponSlot, buildDeployablesArrayHBS, buildDeployablesArray,
 import { limitedUsesIndicator, ref_params, simple_ref_slot } from "./refs";
 import { compactTagListHBS, compactTagList } from "./tags";
 import type { LancerMECH, LancerPILOT } from "../actor/lancer-actor";
-import type { SystemData } from "../system-template";
 import type { LancerFRAME, LancerMECH_SYSTEM } from "../item/lancer-item";
 import { collapseButton, collapseParam, type CollapseRegistry } from "./collapse";
 import { lookupOwnedDeployables, slugify } from "../util/lid";
@@ -121,7 +120,7 @@ export function mechSystemView(
 // A drag-drop slot for a weapon mount. TODO: delete button, clear button
 function weaponMount(mount_path: string, options: HelperOptions): string {
   let mech = resolveHelperDotpath(options, "actor") as LancerMECH;
-  let mount = resolveHelperDotpath(options, mount_path) as SystemData.Mech["loadout"]["weapon_mounts"][0];
+  let mount = resolveHelperDotpath(options, mount_path) as LancerMECH["loadout"]["weapon_mounts"][0];
 
   // If bracing, override
   if (mount.bracing) {
@@ -186,7 +185,7 @@ function weaponMount(mount_path: string, options: HelperOptions): string {
 
 // Helper to display all weapon mounts on a mech loadout
 function allWeaponMountView(loadout_path: string, options: HelperOptions) {
-  let loadout = resolveHelperDotpath(options, loadout_path) as SystemData.Mech["loadout"];
+  let loadout = resolveHelperDotpath(options, loadout_path) as Actor.OfType<"mech">["loadout"];
   const weapon_mounts = loadout.weapon_mounts.map((_wep, index) =>
     weaponMount(`${loadout_path}.weapon_mounts.${index}`, options)
   );

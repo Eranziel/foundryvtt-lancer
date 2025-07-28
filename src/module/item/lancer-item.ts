@@ -1,6 +1,5 @@
 import { LANCER } from "../config";
-import type { SystemDataType, SystemTemplates } from "../system-template";
-import type { SourceDataType } from "../source-template";
+import type { SystemTemplates } from "../system-template";
 import { DamageType, EntryType, EntryTypeLidPrefix, NpcFeatureType, RangeType, WeaponType } from "../enums";
 import type { ActionData } from "../models/bits/action";
 import { type RangeData, Range } from "../models/bits/range";
@@ -65,23 +64,20 @@ export class LancerItem<out SubType extends Item.SubType = Item.SubType> extends
    * Returns all ranges for the item that match the provided range types
    */
   rangesFor(types: Set<RangeType> | RangeType[]): RangeData[] {
-    const self = this as Item.Implementation;
+    // TODO(LukeAbby): Ideally this wouldn't be required.
+    // The issue at hand is that `this` is generic-like and causing issues.
+    const self = this as Item.OfType<Item.SubType>;
 
     const filter = new Set(types);
     switch (self.type) {
       case EntryType.MECH_WEAPON:
-        // @ts-expect-error Should be fixed with v10 types
-        const p = this.system.selected_profile_index;
-        // @ts-expect-error Should be fixed with v10 types
-        return this.system.profiles[p].range.filter(r => filter.has(r.type));
+        const p = self.system.selected_profile_index;
+        return self.system.profiles[p].range.filter(r => filter.has(r.type));
       case EntryType.PILOT_WEAPON:
-        // @ts-expect-error Should be fixed with v10 types
-        return this.system.range.filter(r => filter.has(r.type));
+        return self.system.range.filter(r => filter.has(r.type));
       case EntryType.NPC_FEATURE:
-        // @ts-expect-error Should be fixed with v10 types
-        if (this.system.type !== NpcFeatureType.Weapon) return [];
-        // @ts-expect-error Should be fixed with v10 types
-        return this.system.range.filter(r => filter.has(r.type));
+        if (self.system.type !== NpcFeatureType.Weapon) return [];
+        return self.system.range.filter(r => filter.has(r.type));
       default:
         return [];
     }

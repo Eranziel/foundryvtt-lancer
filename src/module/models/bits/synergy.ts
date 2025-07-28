@@ -1,10 +1,8 @@
 import {
   AllSynergyLocations,
-  type DamageTypeChecklist,
   makeSystemTypeChecklist,
   makeWeaponSizeChecklist,
   makeWeaponTypeChecklist,
-  type RangeTypeChecklist,
   type SynergyLocation,
   SystemType,
   type SystemTypeChecklist,
@@ -23,17 +21,6 @@ import {
 } from "../shared";
 
 import fields = foundry.data.fields;
-import fields = foundry.data.fields;
-
-export interface SynergyData {
-  locations: SynergyLocation[];
-  detail: string;
-  system_types?: SystemTypeChecklist | null;
-  damage_types: DamageTypeChecklist | null;
-  range_types: RangeTypeChecklist | null;
-  weapon_types: WeaponTypeChecklist | null;
-  weapon_sizes: WeaponSizeChecklist | null;
-}
 
 const defineSynergyFieldSchema = () => {
   return {
@@ -48,6 +35,8 @@ const defineSynergyFieldSchema = () => {
 };
 
 type SynergyFieldSchema = ReturnType<typeof defineSynergyFieldSchema>;
+
+export type SynergyData = fields.SchemaField.InitializedData<SynergyFieldSchema>;
 
 export class SynergyField<Options extends fields.SchemaField.Options<SynergyFieldSchema>> extends fields.SchemaField<
   SynergyFieldSchema,
@@ -71,7 +60,7 @@ export class SynergyField<Options extends fields.SchemaField.Options<SynergyFiel
   }
 }
 
-export function unpackSynergy(data: PackedSynergyData): SynergyData {
+export function unpackSynergy(data: PackedSynergyData) {
   // Have to do a lot of annoying fixup
   let raw_locations = data.locations ?? [];
   if (!Array.isArray(raw_locations)) raw_locations = [raw_locations];

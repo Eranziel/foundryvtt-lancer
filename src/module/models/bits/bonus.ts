@@ -19,19 +19,6 @@ import { Range } from "./range";
 
 import fields = foundry.data.fields;
 
-// Make all fields required, force val to string, and use checklists
-export interface BonusData {
-  lid: string;
-  val: string;
-  damage_types: DamageTypeChecklist | null;
-  range_types: RangeTypeChecklist | null;
-  weapon_types: WeaponTypeChecklist | null;
-  weapon_sizes: WeaponSizeChecklist | null;
-
-  overwrite: boolean;
-  replace: boolean;
-}
-
 const defineBonusFieldSchema = () => {
   return {
     lid: new fields.StringField({ nullable: false }), // Don't really want an LID field here
@@ -46,6 +33,8 @@ const defineBonusFieldSchema = () => {
 };
 
 type BonusFieldSchema = ReturnType<typeof defineBonusFieldSchema>;
+
+export type BonusData = fields.SchemaField.InitializedData<BonusFieldSchema>;
 
 export class BonusField<Options extends fields.SchemaField.Options<BonusFieldSchema>> extends fields.SchemaField<
   BonusFieldSchema,

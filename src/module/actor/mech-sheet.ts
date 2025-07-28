@@ -3,7 +3,6 @@ import { resolveDotpath } from "../helpers/commons";
 import type { LancerMECH } from "./lancer-actor";
 import type { ResolvedDropData } from "../helpers/dragdrop";
 import { EntryType, fittingsForMount, MountType } from "../enums";
-import type { SystemData } from "../system-template";
 import type { SourceData } from "../source-template";
 
 /**
@@ -184,7 +183,7 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
           let mountPath = html[0].dataset.path ?? "";
 
           // Get the current mount
-          let mount = resolveDotpath(this.actor, mountPath) as SystemData.Mech["loadout"]["weapon_mounts"][0];
+          let mount = resolveDotpath(this.actor, mountPath) as Actor.OfType<"mech">["loadout"]["weapon_mounts"][0];
           if (!mount) {
             console.error("Bad mountpath:", mountPath);
           }
@@ -228,7 +227,7 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
         let mountPath = html[0].dataset.path ?? "";
 
         // Get the current mount
-        let mount = resolveDotpath(cd, mountPath) as SystemData.Mech["loadout"]["weapon_mounts"][0];
+        let mount = resolveDotpath(cd, mountPath) as Actor.OfType<"mech">["loadout"]["weapon_mounts"][0];
         if (!mount) {
           console.error("Bad mountpath:", mountPath);
         }

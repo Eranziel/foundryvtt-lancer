@@ -167,7 +167,7 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet<ItemShe
       // Use compendium. This is probably overkill but, who well
       let deps =
         (await game.packs.get(get_pack_id(EntryType.DEPLOYABLE))?.getDocuments({ type: EntryType.DEPLOYABLE })) ?? [];
-      for (let d of deps as LancerDEPLOYABLE) {
+      for (let d of deps as LancerDEPLOYABLE[]) {
         data.deployables[d.system.lid] = d;
       }
     }
