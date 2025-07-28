@@ -304,9 +304,7 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
     let activeMechUuid = "";
     for (const cloudMech of data.mechs) {
       // Find the existing mech, or create one as necessary
-      let mech = game.actors!.find(
-        (m: LancerActor) => m.is_mech() && m.system.lid == cloudMech.id
-      ) as unknown as LancerMECH | null;
+      let mech = game.actors!.find((m): m is LancerMECH => m.is_mech() && m.system.lid == cloudMech.id);
       if (!mech) {
         if (!game.user?.can("ACTOR_CREATE")) {
           ui.notifications!.warn(
@@ -317,7 +315,7 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
           continue;
         }
 
-        mech = (await LancerActor.create({
+        mech = await LancerActor.create({
           name: cloudMech.name,
           type: EntryType.MECH,
           folder: unitFolder?.id,
@@ -325,7 +323,7 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
           system: {
             pilot: pilot.uuid,
           },
-        })) as unknown as LancerMECH;
+        });
       }
       if (!mech.canUserModify(game.user!, "update")) {
         ui.notifications!.warn(
@@ -395,7 +393,7 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
       flatMounts.push(...loadout.mounts);
       let populatedMounts: SourceData.Mech["loadout"]["weapon_mounts"] = [];
       for (let mount of flatMounts) {
-        let populatedSlots: typeof populatedMounts[0]["slots"] = [];
+        let populatedSlots: (typeof populatedMounts)[0]["slots"] = [];
         for (const slot of mount.slots) {
           let weapon = slot.weapon ? ((await getMechItemByLid(slot.weapon.id)) as LancerMECH_WEAPON | null) : null;
           let mod =

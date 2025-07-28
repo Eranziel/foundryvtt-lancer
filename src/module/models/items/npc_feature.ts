@@ -76,9 +76,7 @@ type NpcFeatureModelSchema = ReturnType<typeof defineNpcFeatureModelSchema>;
 
 export class NpcFeatureModel extends LancerDataModel<NpcFeatureModelSchema, Item.Implementation> {
   static DEFAULT_ICON = "systems/lancer/assets/icons/npc_feature.svg";
-  static getDefaultArtwork(
-    itemData?: Parameters<typeof Item.getDefaultArtwork>[0]
-  ): ReturnType<typeof Item.getDefaultArtwork> {
+  static getDefaultArtwork(itemData?: Item.CreateData): Item.GetDefaultArtworkReturn {
     let img = this.DEFAULT_ICON;
     switch (itemData?.system?.type) {
       case NpcFeatureType.Reaction:
@@ -135,7 +133,7 @@ export function unpackNpcFeature(
 } {
   let base = {
     name: data.name,
-    type: EntryType.NPC_FEATURE,
+    type: EntryType.NPC_FEATURE as const,
     system: {
       lid: data.id,
       effect: data.effect,

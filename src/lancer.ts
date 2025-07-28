@@ -300,7 +300,8 @@ Hooks.once("setup", () => {
   /////////////////////////////////
   // Change the default value of the grid based templates option
   // TODO Remove when we get https://github.com/foundryvtt/foundryvtt/issues/11477
-  if (game.settings.settings.get("core.gridTemplates")) game.settings.settings.get("core.gridTemplates").default = true;
+  const gridTemplates = game.settings.settings.get("core.gridTemplates");
+  if (gridTemplates) gridTemplates.default = true;
 });
 
 /* ------------------------------------ */

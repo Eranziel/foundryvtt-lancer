@@ -272,6 +272,7 @@ export namespace SystemData {
     grit: number;
     hp_bonus: number; // Used to get around an obnoxious chicken egg situation
   }
+
   export interface Frame extends SystemTemplates.item_universal, SystemTemplates.licensed {
     description: string;
     mechtype: MechType[];

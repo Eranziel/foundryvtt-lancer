@@ -260,7 +260,7 @@ export class LancerActor<SubType extends Actor.SubType = Actor.SubType> extends 
    */
   prepareBaseData() {
     // Some modules create actors with type "base", or potentially others we don't care about
-    if (!ACTOR_TYPES.includes(this.type)) {
+    if (!(ACTOR_TYPES as string[]).includes(this.type)) {
       console.log("Actor is not a LancerActor:", this);
       return super.prepareBaseData();
     }
@@ -269,7 +269,7 @@ export class LancerActor<SubType extends Actor.SubType = Actor.SubType> extends 
     // this.system.finalize_tasks();
 
     // 2. Initialize our universal derived stat fields
-    let sys: SystemTemplates.actor_universal = this.system;
+    let sys = this.system as unknown as SystemTemplates.actor_universal;
     sys.edef = 0;
     sys.evasion = 0;
     sys.speed = 0;
@@ -538,21 +538,25 @@ export class LancerActor<SubType extends Actor.SubType = Actor.SubType> extends 
     // Only apply these defaults for fresh documents
     if (data?._stats?.createdTime) return;
 
-    let disposition: typeof CONST["TOKEN_DISPOSITIONS"][keyof typeof CONST["TOKEN_DISPOSITIONS"]] =
-      {
-        [EntryType.NPC]: CONST.TOKEN_DISPOSITIONS.HOSTILE,
-        [EntryType.PILOT]: CONST.TOKEN_DISPOSITIONS.FRIENDLY,
-        [EntryType.DEPLOYABLE]: CONST.TOKEN_DISPOSITIONS.NEUTRAL,
-        [EntryType.MECH]: CONST.TOKEN_DISPOSITIONS.FRIENDLY,
-        ["base"]: undefined,
-      }[this.type] ?? CONST.TOKEN_DISPOSITIONS.FRIENDLY;
+    let disposition;
+    if (this.type === EntryType.NPC) {
+      disposition = CONST.TOKEN_DISPOSITIONS.HOSTILE;
+    } else if (this.type === EntryType.PILOT) {
+      disposition = CONST.TOKEN_DISPOSITIONS.FRIENDLY;
+    } else if (this.type === EntryType.DEPLOYABLE) {
+      disposition = CONST.TOKEN_DISPOSITIONS.NEUTRAL;
+    } else if (this.type === EntryType.MECH) {
+      disposition = CONST.TOKEN_DISPOSITIONS.FRIENDLY;
+    } else {
+      disposition = CONST.TOKEN_DISPOSITIONS.FRIENDLY;
+    }
 
     // Put in the basics
     this.updateSource({
       // Link the token to the Actor for pilots and mechs, but not for NPCs or deployables
       prototypeToken: {
         actorLink: [EntryType.PILOT, EntryType.MECH].includes(this.type as EntryType),
-        disposition: disposition,
+        disposition,
         lockRotation: true,
       },
     });
@@ -577,8 +581,8 @@ export class LancerActor<SubType extends Actor.SubType = Actor.SubType> extends 
     // If changing active mech, all mechs need to render to recompute if they are the active mech
     let changing_active_mech = (changed as any).system?.active_mech !== undefined;
     if (changing_active_mech) {
-      let owned_mechs: LancerActor[] = game.actors!.filter(
-        (a: LancerActor) => a.is_mech() && a.system.pilot?.value == this
+      let owned_mechs = game.actors!.filter(
+        (a) => a.is_mech() && a.system.pilot?.value == this
       );
       owned_mechs?.forEach(m => m.render());
     }
@@ -643,14 +647,9 @@ export class LancerActor<SubType extends Actor.SubType = Actor.SubType> extends 
    * Due to the complex effects equipment can have on an actors statistical values, it is necessary to be sure our
    * effects are kept in lockstep as items are created, updated, and deleted
    */
-  _onCreateDescendantDocuments(
-    parent: ClientDocument,
-    collection: "items" | "effects",
-    documents: LancerItem[] | LancerActiveEffect[],
-    changes: any[],
-    options: any,
-    userId: string
-  ) {
+  _onCreateDescendantDocuments(...args: Actor.OnCreateDescendantDocumentsArgs) {
+    const [parent, collection, documents, changes, options, userId] = args;
+
     // When adding an NPC class, find the old class if one exists.
     let oldClass: LancerNPC_CLASS | null = null;
     // What janky types! If someone has ideas to clean this up, be my guest.
@@ -663,7 +662,7 @@ export class LancerActor<SubType extends Actor.SubType = Actor.SubType> extends 
       ) as LancerNPC_CLASS;
     }
 
-    super._onCreateDescendantDocuments(parent, collection, documents, changes, options, userId);
+    super._onCreateDescendantDocuments(...args);
 
     if (game.userId != userId) return;
 
@@ -694,30 +693,20 @@ export class LancerActor<SubType extends Actor.SubType = Actor.SubType> extends 
   }
 
   /** @inheritdoc */
-  _onUpdateDescendantDocuments(
-    parent: ClientDocument,
-    collection: "items" | "effects",
-    documents: LancerItem[] | LancerActiveEffect[],
-    changes: any[],
-    options: any,
-    userId: string
-  ) {
-    super._onUpdateDescendantDocuments(parent, collection, documents, changes, options, userId);
+  _onUpdateDescendantDocuments(...args: Actor.OnUpdateDescendantDocumentsArgs) {
+    const [parent, collection, documents, changes, options, userId] = args;
+
+    super._onUpdateDescendantDocuments(...args);
     if (game.userId == userId) {
       this.effectHelper.propagateEffects(false); // Effects have changed - may need to propagate
     }
   }
 
   /** @inheritdoc */
-  _onDeleteDescendantDocuments(
-    parent: ClientDocument,
-    collection: "items" | "effects",
-    documents: LancerItem[] | LancerActiveEffect[],
-    changes: any,
-    options: any,
-    userId: string
-  ) {
-    super._onDeleteDescendantDocuments(parent, collection, documents, changes, options, userId);
+  _onDeleteDescendantDocuments(...args: Actor.OnDeleteDescendantDocumentsArgs) {
+    const [parent, collection, documents, ids, options, userId] = args;
+
+    super._onDeleteDescendantDocuments(...args);
 
     // Mark them all as deleted for delete-deduplication purposes
     for (let doc of documents) {
@@ -778,11 +767,10 @@ export class LancerActor<SubType extends Actor.SubType = Actor.SubType> extends 
   async removeClassFeatures(item: LancerItem) {
     if (!this.is_npc() || (!item.is_npc_class() && !item.is_npc_template())) return;
     const targetFeatures = [...item.system.base_features, ...item.system.optional_features];
-    // @ts-ignore Intermittent types error
     let matches = this.itemTypes.npc_feature.filter(feat => targetFeatures.includes(feat.system.lid));
     await this._safeDeleteDescendant(
       "Item",
-      matches.filter((x: LancerItem | undefined) => x)
+      matches.filter(x => x != null)
     );
   }
 
@@ -816,7 +804,7 @@ export class LancerActor<SubType extends Actor.SubType = Actor.SubType> extends 
   async updateTokenSize(newFrame: LancerFRAME | LancerNPC_CLASS): Promise<void> {
     let new_size: number | undefined;
     if (newFrame.is_frame() && this.is_mech()) {
-      new_size = Math.max(1, newFrame.system.stats.size);
+      new_size = Math.max(1, newFrame.system.stats.size ?? 0);
     } else if (newFrame.is_npc_class() && this.is_npc()) {
       const tier = this.system.tier || 1;
       new_size = Math.max(1, newFrame.system.base_stats[tier - 1].size);
@@ -893,37 +881,39 @@ export class LancerActor<SubType extends Actor.SubType = Actor.SubType> extends 
   // Checks that the provided document is not null, and is a lancer actor
   static async fromUuid(x: string | LancerActor, messagePrefix?: string): Promise<LancerActor> {
     if (x instanceof LancerActor) return x;
-    x = (await fromUuid(x)) as LancerActor;
-    if (!x) {
+
+    let actor = (await fromUuid(x)) as LancerActor | TokenDocument.Implementation;
+    if (!actor) {
       let message = `${messagePrefix ? messagePrefix + " | " : ""}Actor ${x} not found.`;
       ui.notifications?.error(message);
       throw new Error(message);
     }
-    if (x instanceof TokenDocument.implementation) x = x.actor!;
-    if (!(x instanceof LancerActor)) {
+    if (actor instanceof TokenDocument.implementation) actor = actor.actor!;
+    if (!(actor instanceof LancerActor)) {
       let message = `${messagePrefix ? messagePrefix + " | " : ""}Document ${x} not an actor.`;
       ui.notifications?.error(message);
       throw new Error(message);
     }
-    return x;
+    return actor;
   }
 
   // Checks that the provided document is not null, and is a lancer actor
   static fromUuidSync(x: string | LancerActor, messagePrefix?: string): LancerActor {
     if (x instanceof LancerActor) return x;
-    x = fromUuidSync(x) as LancerActor;
-    if (!x) {
+
+    let actor = fromUuidSync(x) as LancerActor | TokenDocument.Implementation;
+    if (!actor) {
       let message = `${messagePrefix ? messagePrefix + " | " : ""}Actor ${x} not found.`;
       ui.notifications?.error(message);
       throw new Error(message);
     }
-    if (x instanceof TokenDocument.implementation) x = x.actor!;
-    if (!(x instanceof LancerActor)) {
+    if (actor instanceof TokenDocument.implementation) actor = actor.actor!;
+    if (!(actor instanceof LancerActor)) {
       let message = `${messagePrefix ? messagePrefix + " | " : ""}Document ${x} not an actor.`;
       ui.notifications?.error(message);
       throw new Error(message);
     }
-    return x;
+    return actor;
   }
 
   async statChangeScrollingText(data: unknown) {
@@ -1157,10 +1147,10 @@ export class LancerActor<SubType extends Actor.SubType = Actor.SubType> extends 
 }
 
 // Typeguards
-export type LancerPILOT = LancerActor & { system: SystemData.Pilot };
-export type LancerMECH = LancerActor & { system: SystemData.Mech };
-export type LancerNPC = LancerActor & { system: SystemData.Npc };
-export type LancerDEPLOYABLE = LancerActor & { system: SystemData.Deployable };
+export type LancerPILOT = LancerActor<EntryType.PILOT>;
+export type LancerMECH = LancerActor<EntryType.MECH>;
+export type LancerNPC = LancerActor<EntryType.NPC>;
+export type LancerDEPLOYABLE = LancerActor<EntryType.DEPLOYABLE>;
 
 export type LancerActorType = EntryType.MECH | EntryType.DEPLOYABLE | EntryType.NPC | EntryType.PILOT;
 export const ACTOR_TYPES: LancerActorType[] = [EntryType.MECH, EntryType.DEPLOYABLE, EntryType.NPC, EntryType.PILOT];

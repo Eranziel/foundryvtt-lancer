@@ -404,10 +404,9 @@ export interface TerrainHeightToolsAPI {
       token2RelativeHeight: number | undefined;
     }
   ): {
-    // TODO: LukeAbby
-    left: { p1: left[0]; p2: left[1] };
-    centre: { p1: centre[0]; p2: centre[1] };
-    right: { p1: right[0]; p2: right[1] };
+    left: { p1: { x: number; y: number }; p2: { x: number; y: number } };
+    centre: { p1: { x: number; y: number }; p2: { x: number; y: number } };
+    right: { p1: { x: number; y: number }; p2: { x: number; y: number } };
   };
 
   /**

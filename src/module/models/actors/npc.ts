@@ -11,7 +11,7 @@ import type { DeepPartial } from "fvtt-types/utils";
 import type { SourceData } from "../../source-template";
 import { LancerDataModel } from "../shared";
 
-const fields = foundry.data.fields;
+import fields = foundry.data.fields;
 
 const npc_schema = {
   destroyed: new fields.BooleanField({ initial: false }),

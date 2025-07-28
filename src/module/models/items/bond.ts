@@ -7,7 +7,7 @@ import { BondQuestionField } from "../bits/question";
 import { LancerDataModel } from "../shared";
 import { template_universal_item } from "./shared";
 
-const fields = foundry.data.fields;
+import fields = foundry.data.fields;
 
 const defineBondModelSchema = () => {
   return {
