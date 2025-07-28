@@ -18,24 +18,24 @@ export class LancerCombat<SubType extends Combat.SubType = Combat.SubType> exten
     return super._preCreate(data, options, user);
   }
 
-  async _manageTurnEvents(adjustedTurn: any) {
+  async _manageTurnEvents(...args: unknown[]) {
     // Avoid the Foundry bug where this is called on create, before this.previous is set.
     if (!this.previous) return;
-    super._manageTurnEvents(adjustedTurn);
+    super._manageTurnEvents(...args);
   }
 
   /**
    * Set all combatants to their max activations
    */
   async resetActivations(): Promise<LancerCombatant[]> {
-    const skipDefeated = "skipDefeated" in this.settings && this.settings.skipDefeated;
+    const skipDefeated = this.settings.skipDefeated;
     const updates = this.combatants.map(c => {
       return {
         _id: c.id,
-        "system.activations.value": skipDefeated && c.isDefeated ? 0 : (<LancerCombatant>c).activations.max ?? 0,
+        "system.activations.value": skipDefeated && c.isDefeated ? 0 : (c.activations.max ?? 0),
       };
     });
-    return <Promise<LancerCombatant[]>>this.updateEmbeddedDocuments("Combatant", updates);
+    return this.updateEmbeddedDocuments("Combatant", updates);
   }
 
   override async startCombat(): Promise<this> {
@@ -117,14 +117,14 @@ export class LancerCombat<SubType extends Combat.SubType = Combat.SubType> exten
   async activateCombatant(id: string, override = false): Promise<this | undefined> {
     if (!(game.user?.isGM || (this.turn == null && this.combatants.get(id)?.isOwner) || override))
       return this.requestActivation(id);
-    const combatant = <LancerCombatant | undefined>this.getEmbeddedDocument("Combatant", id, {});
+    const combatant = this.getEmbeddedDocument("Combatant", id, {});
     if (!combatant?.activations.value) return this;
     await combatant?.modifyCurrentActivations(-1);
     const turn = this.turns.findIndex(t => t.id === id);
     const updateData = { turn };
-    const updateOptions = { advanceTime: CONFIG.time.turnTime, direction: 1 };
+    const updateOptions = { advanceTime: CONFIG.time.turnTime, direction: 1 as const };
     Hooks.callAll("combatTurn", this, updateData, updateOptions);
-    return this.update(updateData, updateOptions as any);
+    return this.update(updateData, updateOptions);
   }
 
   /**

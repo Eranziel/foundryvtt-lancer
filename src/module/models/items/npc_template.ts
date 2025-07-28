@@ -11,8 +11,8 @@ import fields = foundry.data.fields;
 const defineNpcTemplateModelSchema = () => {
   return {
     description: new fields.HTMLField(),
-    base_features: new fields.SetField(new LIDField()),
-    optional_features: new fields.SetField(new LIDField()),
+    base_features: new fields.SetField(new LIDField({ required: true })),
+    optional_features: new fields.SetField(new LIDField({ required: true })),
     ...template_universal_item(),
   };
 };

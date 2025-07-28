@@ -5,6 +5,7 @@ import type { DeployableModel } from "./module/models/actors/deployable";
 import type { MechModel } from "./module/models/actors/mech";
 import type { NpcModel } from "./module/models/actors/npc";
 import type { PilotModel } from "./module/models/actors/pilot";
+import type { LancerCombatantModel } from "./module/models/combatant/base";
 import type { BondModel } from "./module/models/items/bond";
 import type { CoreBonusModel } from "./module/models/items/core_bonus";
 import type { FrameModel } from "./module/models/items/frame";
@@ -62,6 +63,15 @@ declare module "fvtt-types/configuration" {
     name: "lancer";
   }
 
+  interface SystemConfig {
+    Item: {
+      discriminate: "all";
+    };
+    Actor: {
+      discriminate: "all";
+    };
+  }
+
   interface AssumeHookRan {
     ready: true;
   }
@@ -103,6 +113,9 @@ declare module "fvtt-types/configuration" {
       talent: typeof TalentModel;
       weapon_mod: typeof WeaponModModel;
     };
+    Combatant: {
+      base: typeof LancerCombatantModel;
+    };
   }
 
   interface FlagConfig {
@@ -112,6 +125,13 @@ declare module "fvtt-types/configuration" {
         damageData?: DamageFlag;
       };
     };
+  }
+
+  namespace Hooks {
+    interface HookConfig {
+        "lancer.statusesReady": () => boolean | void;
+        "lancer.statusInitComplete": () => boolean | void;
+    }
   }
 
   interface SettingConfig {

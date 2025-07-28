@@ -53,7 +53,7 @@ export function generateStunnedEffect({ name = "Stunned", description = "" }): P
     changes: [
       {
         key: "system.evasion",
-        mode: 5,
+        mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
         priority: null,
         value: "5",
       },

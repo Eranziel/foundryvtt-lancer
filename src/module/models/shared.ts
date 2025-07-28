@@ -1,4 +1,4 @@
-import type { AnyObject, DeepPartial, EmptyObject, SimpleMerge } from "fvtt-types/utils";
+import type { AnyObject, DeepPartial, EmptyObject, InterfaceToObject, SimpleMerge } from "fvtt-types/utils";
 import { LancerActor } from "../actor/lancer-actor";
 import { DamageType, EntryType, RangeType, SystemType, WeaponSize, WeaponType } from "../enums";
 import { formatDotpath } from "../helpers/commons";
@@ -10,12 +10,16 @@ import { regRefToId, regRefToLid, regRefToUuid } from "../util/migrations";
 import fields = foundry.data.fields;
 type AnyDocument = foundry.abstract.Document.Any;
 
+// Note: stuff like `SystemTemplates.actor_universal` is used as `BaseData` but this is slightly incorrect for
+// two reasons:
+// 1. It contains properties that only exist after `prepareDerivedData`.
+// 2. Currently preparation happens on `Actor#prepareDerivedData` rather than `LancerDataModel#prepareDerivedData`.
 export class LancerDataModel<
   Schema extends foundry.data.fields.DataSchema,
   Parent extends AnyDocument,
-  BaseData extends AnyObject = EmptyObject,
-  DerivedData extends AnyObject = EmptyObject
-> extends foundry.abstract.TypeDataModel<Schema, Parent, BaseData, DerivedData> {
+  BaseData extends object = EmptyObject,
+  DerivedData extends object = EmptyObject,
+> extends foundry.abstract.TypeDataModel<Schema, Parent, InterfaceToObject<BaseData>, InterfaceToObject<DerivedData>> {
   /**
    * Create a full update payload, e.g. to preserve arrays
    * @param update_data the update data to apply
@@ -120,7 +124,9 @@ export function fancy_merge_data(full_source_data: any, update_data: any): any {
 }
 
 // Use this for all LIDs, to ensure consistent formatting, and to allow easier setting
-export class LIDField extends fields.StringField {
+export class LIDField<
+  const Options extends fields.StringField.Options<unknown> = fields.StringField.DefaultOptions,
+> extends fields.StringField<Options> {
   /** @override */
   _cast(value: any) {
     const rrtl = regRefToLid(value);
@@ -149,9 +155,9 @@ declare namespace EmbeddedRefField {
   }
 }
 
-export class EmbeddedRefField extends fields.StringField<
-  EmbeddedRefField.Options,
-  fields.StringField.AssignmentType<EmbeddedRefField.Options>,
+export class EmbeddedRefField<const Options extends EmbeddedRefField.Options> extends fields.StringField<
+  Options,
+  fields.StringField.AssignmentType<Options>,
   SystemTemplates.ResolvedEmbeddedRef<any> | null
 > {
   // The acceptable document.type's for this to resolve to. Null is any
@@ -160,9 +166,12 @@ export class EmbeddedRefField extends fields.StringField<
   /**
    * @param {StringFieldOptions} options  Options which configure the behavior of the field
    */
-  constructor(readonly document_type: "Item" | "ActiveEffect", options: EmbeddedRefField.Options = {}) {
+  constructor(
+    readonly document_type: "Item" | "ActiveEffect",
+    options?: Options
+  ) {
     super(options);
-    this.allowed_types = options.allowed_types ?? null;
+    this.allowed_types = options?.allowed_types ?? null;
   }
 
   /** @inheritdoc */
@@ -248,7 +257,10 @@ export class SyncUUIDRefField extends fields.StringField<
   /**
    * @param {StringFieldOptions} options  Options which configure the behavior of the field
    */
-  constructor(readonly document_type: "Actor" | "Item", options: SyncUUIDRefField.Options = {}) {
+  constructor(
+    readonly document_type: "Actor" | "Item",
+    options: SyncUUIDRefField.Options = {}
+  ) {
     super(options);
     this.allowed_types = options.allowed_types ?? null;
   }
@@ -348,7 +360,7 @@ declare namespace FakeBoundedNumberField {
 // Use this to represent a field that is effectively just a number, but should present as a min/max/value field in expanded `system` data
 // This is 10% so we can show them with bars, and 90% because usually the max is computed and we don't want to confuse anyone
 export class FakeBoundedNumberField<
-  Options extends FakeBoundedNumberField.Options = FakeBoundedNumberField.DefaultOptions
+  const Options extends FakeBoundedNumberField.Options = FakeBoundedNumberField.DefaultOptions,
 > extends fields.NumberField<
   Options,
   fields.NumberField.AssignmentType<Options>,
@@ -377,7 +389,7 @@ export class FakeBoundedNumberField<
   }
 }
 
-const defineFullBoundedNumberFieldSchema = <Options extends FullBoundedNumberFieldOptions<any> | undefined>(
+const defineFullBoundedNumberFieldSchema = <const Options extends FullBoundedNumberFieldOptions | undefined>(
   options?: Options
 ) => {
   return {
@@ -391,18 +403,21 @@ const defineFullBoundedNumberFieldSchema = <Options extends FullBoundedNumberFie
   };
 };
 
-type FullBoundedNumberFieldSchema = ReturnType<typeof defineFullBoundedNumberFieldSchema>;
+interface FullBoundedNumberFieldSchema<Options extends FullBoundedNumberFieldOptions | undefined>
+  extends foundry.data.fields.DataSchema,
+    ReturnType<typeof defineFullBoundedNumberFieldSchema<Options>> {}
 
-interface FullBoundedNumberFieldOptions<Options extends FullBoundedNumberFieldSchema>
-  extends fields.SchemaField.Options<Options> {
+interface FullBoundedNumberFieldOptions
+  extends fields.SchemaField.Options<FullBoundedNumberFieldSchema<FullBoundedNumberFieldOptions | undefined>> {
   min?: number;
   max?: number;
   initialValue?: number;
 }
 
-export class FullBoundedNumberField<
-  Options extends FullBoundedNumberFieldOptions<FullBoundedNumberFieldSchema>
-> extends fields.SchemaField<FullBoundedNumberFieldSchema, Options> {
+export class FullBoundedNumberField<const Options extends FullBoundedNumberFieldOptions> extends fields.SchemaField<
+  FullBoundedNumberFieldSchema<Options>,
+  Options
+> {
   static defaultValue: number = 10;
   static defaultMax: number = 10;
 
@@ -494,52 +509,38 @@ export class SystemTypeChecklistField extends ChecklistField<typeof SystemType> 
   }
 }
 
+const defineNpcStatBlockFields = <Nullable extends boolean | undefined>(nullable: Nullable) => ({
+  activations: new fields.NumberField({ integer: true, nullable, initial: nullable ? null : 1 }),
+  armor: new fields.NumberField({ integer: true, nullable, initial: nullable ? null : 0 }),
+  hp: new fields.NumberField({ integer: true, nullable, initial: nullable ? null : 10 }),
+  evasion: new fields.NumberField({ integer: true, nullable, initial: nullable ? null : 5 }),
+  edef: new fields.NumberField({ integer: true, nullable, initial: nullable ? null : 8 }),
+  heatcap: new fields.NumberField({ integer: true, nullable, initial: nullable ? null : 0 }),
+  speed: new fields.NumberField({ integer: true, nullable, initial: nullable ? null : 3 }),
+  sensor_range: new fields.NumberField({ integer: true, nullable, initial: nullable ? null : 10 }),
+  save: new fields.NumberField({ integer: true, nullable, initial: nullable ? null : 10 }),
+  hull: new fields.NumberField({ integer: true, nullable, initial: nullable ? null : 0 }),
+  agi: new fields.NumberField({ integer: true, nullable, initial: nullable ? null : 0 }),
+  sys: new fields.NumberField({ integer: true, nullable, initial: nullable ? null : 0 }),
+  eng: new fields.NumberField({ integer: true, nullable, initial: nullable ? null : 0 }),
+  size: new fields.NumberField({ integer: false, nullable, minimum: 0.5, initial: nullable ? null : 1 }),
+  structure: new fields.NumberField({ integer: true, nullable, initial: nullable ? null : 1 }),
+  stress: new fields.NumberField({ integer: true, nullable, initial: nullable ? null : 1 }),
+});
+
 declare namespace NpcStatBlockField {
-  interface Fields extends foundry.data.fields.DataSchema {
-    activations: fields.NumberField<{}>;
-    armor: fields.NumberField<{}>;
-    hp: fields.NumberField<{}>;
-    evasion: fields.NumberField<{}>;
-    edef: fields.NumberField<{}>;
-    heatcap: fields.NumberField<{}>;
-    speed: fields.NumberField<{}>;
-    sensor_range: fields.NumberField<{}>;
-    save: fields.NumberField<{}>;
-    hull: fields.NumberField<{}>;
-    agi: fields.NumberField<{}>;
-    sys: fields.NumberField<{}>;
-    eng: fields.NumberField<{}>;
-    size: fields.NumberField<{}>;
-    structure: fields.NumberField<{}>;
-    stress: fields.NumberField<{}>;
-  }
-  interface Options extends fields.SchemaField.Options<Fields> {}
+  type Fields<Nullable extends boolean | undefined> = ReturnType<typeof defineNpcStatBlockFields<Nullable>>;
+
+  interface Options extends fields.SchemaField.Options<Fields<boolean>> {}
 }
+
 /** A single tier of npc stats */
-export class NpcStatBlockField extends fields.SchemaField<NpcStatBlockField.Fields, NpcStatBlockField.Options> {
-  constructor(options: NpcStatBlockField.Options) {
-    const nullable = options.nullable;
-    super(
-      {
-        activations: new fields.NumberField({ integer: true, nullable, initial: nullable ? null : 1 }),
-        armor: new fields.NumberField({ integer: true, nullable, initial: nullable ? null : 0 }),
-        hp: new fields.NumberField({ integer: true, nullable, initial: nullable ? null : 10 }),
-        evasion: new fields.NumberField({ integer: true, nullable, initial: nullable ? null : 5 }),
-        edef: new fields.NumberField({ integer: true, nullable, initial: nullable ? null : 8 }),
-        heatcap: new fields.NumberField({ integer: true, nullable, initial: nullable ? null : 0 }),
-        speed: new fields.NumberField({ integer: true, nullable, initial: nullable ? null : 3 }),
-        sensor_range: new fields.NumberField({ integer: true, nullable, initial: nullable ? null : 10 }),
-        save: new fields.NumberField({ integer: true, nullable, initial: nullable ? null : 10 }),
-        hull: new fields.NumberField({ integer: true, nullable, initial: nullable ? null : 0 }),
-        agi: new fields.NumberField({ integer: true, nullable, initial: nullable ? null : 0 }),
-        sys: new fields.NumberField({ integer: true, nullable, initial: nullable ? null : 0 }),
-        eng: new fields.NumberField({ integer: true, nullable, initial: nullable ? null : 0 }),
-        size: new fields.NumberField({ integer: false, nullable, minimum: 0.5, initial: nullable ? null : 1 }),
-        structure: new fields.NumberField({ integer: true, nullable, initial: nullable ? null : 1 }),
-        stress: new fields.NumberField({ integer: true, nullable, initial: nullable ? null : 1 }),
-      },
-      options
-    );
+export class NpcStatBlockField<const Options extends NpcStatBlockField.Options> extends fields.SchemaField<
+  NpcStatBlockField.Fields<Options["nullable"]>,
+  NpcStatBlockField.Options
+> {
+  constructor(options: Options) {
+    super(defineNpcStatBlockFields(options.nullable), options);
   }
 }
 
@@ -557,7 +558,7 @@ declare namespace ControlledLengthArrayField {
 export class ControlledLengthArrayField<
   ElementField extends fields.DataField.Any,
   AssignmentElementField = fields.ArrayField.AssignmentElementType<ElementField>,
-  InitializedElementType = fields.ArrayField.InitializedElementType<ElementField>
+  InitializedElementType = fields.ArrayField.InitializedElementType<ElementField>,
 > extends fields.ArrayField<
   ElementField,
   ControlledLengthArrayField.Options<AssignmentElementField>,

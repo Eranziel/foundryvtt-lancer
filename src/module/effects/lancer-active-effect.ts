@@ -29,8 +29,14 @@ export type LancerEffectTarget =
   | "only_deployable"
   | "mech_and_npc";
 
+interface StatusEffect {
+  id: string;
+  name: string;
+  img: string;
+}
+
 export class LancerActiveEffect<
-  SubType extends ActiveEffect.SubType = ActiveEffect.SubType
+  SubType extends ActiveEffect.SubType = ActiveEffect.SubType,
 > extends ActiveEffect<SubType> {
   /**
    * Determine whether this Active Effect is suppressed or not.
@@ -291,30 +297,29 @@ export class LancerActiveEffect<
 }
 
 // To support more effects, we add several effect types.
-export const AE_MODE_SET_JSON = 11 as any;
-export const AE_MODE_APPEND_JSON = 12 as any;
+export const AE_MODE_SET_JSON = 11 as CONST.ACTIVE_EFFECT_MODES;
+export const AE_MODE_APPEND_JSON = 12 as CONST.ACTIVE_EFFECT_MODES;
+
 const _json_cache = {} as Record<string, any>;
-Hooks.on(
-  "applyActiveEffect",
-  function (actor: LancerActor, change: EffectChangeData, _current: any, _delta: any, _changes: any) {
-    if (change.mode == AE_MODE_SET_JSON || change.mode == AE_MODE_APPEND_JSON) {
-      try {
-        let parsed_delta = _json_cache[change.value] ?? JSON.parse(change.value);
-        _json_cache[change.value] = parsed_delta;
-        // Ok, now set it to wherever it was labeled
-        if (change.mode == AE_MODE_SET_JSON) {
-          foundry.utils.setProperty(actor, change.key, parsed_delta);
-        } else if (change.mode == AE_MODE_APPEND_JSON) {
-          foundry.utils.getProperty(actor, change.key).push(parsed_delta);
-        }
-      } catch (e) {
-        // Nothing to do really, except log it
-        console.warn(e);
-        console.warn(`JSON effect parse failed, ${change.value}`);
+Hooks.on("applyActiveEffect", function (actor, change) {
+  if (change.mode == AE_MODE_SET_JSON || change.mode == AE_MODE_APPEND_JSON) {
+    try {
+      let parsed_delta = _json_cache[change.value] ?? JSON.parse(change.value);
+      _json_cache[change.value] = parsed_delta;
+      // Ok, now set it to wherever it was labeled
+      if (change.mode == AE_MODE_SET_JSON) {
+        foundry.utils.setProperty(actor, change.key, parsed_delta);
+      } else if (change.mode == AE_MODE_APPEND_JSON) {
+        const items = foundry.utils.getProperty(actor, change.key) as unknown[];
+        items.push(parsed_delta);
       }
+    } catch (e) {
+      // Nothing to do really, except log it
+      console.warn(e);
+      console.warn(`JSON effect parse failed, ${change.value}`);
     }
   }
-);
+});
 
 declare module "fvtt-types/configuration" {
   interface DocumentClassConfig {

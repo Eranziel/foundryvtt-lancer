@@ -21,7 +21,8 @@ export class LancerCombatantModel extends foundry.abstract.TypeDataModel<
   }
 
   prepareBaseData(): void {
-    this.activations.max ??= foundry.utils.getProperty(this.parent.actor?.getRollData() ?? {}, "activations") ?? 1;
+    const activations = foundry.utils.getProperty(this.parent.actor?.getRollData() ?? {}, "activations") as number;
+    this.activations.max ??= activations ?? 1;
     this.activations.value ??= this.parent.combat?.started ? this.activations.max : 0;
   }
 }

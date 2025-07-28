@@ -3,7 +3,7 @@ import { template_action_tracking, template_heat, template_struss, template_univ
 import { LancerDataModel, EmbeddedRefField, SyncUUIDRefField, FullBoundedNumberField } from "../shared";
 import { EntryType, FittingSize, MountType } from "../../enums";
 
-const fields = foundry.data.fields;
+import fields = foundry.data.fields;
 
 const mech_schema = {
   overcharge: new fields.NumberField({ min: 0, integer: true, nullable: false, initial: 0 }),

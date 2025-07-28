@@ -37,6 +37,8 @@ import { maybeImportActor } from "./requests";
 
 const PACK_SCOPE = "world";
 
+import CompendiumCollection = foundry.documents.collections.CompendiumCollection;
+
 // Sort items. Moves moverand to dest, either before or after depending on third arg
 export async function resort_item(moverand: LancerItem, dest: LancerItem, sort_before = true) {
   // Make sure owner is the same
@@ -46,7 +48,7 @@ export async function resort_item(moverand: LancerItem, dest: LancerItem, sort_b
   }
 
   // Ok, now get siblings
-  let siblings: LancerItem[] = dest.collection.contents;
+  let siblings = dest.collection?.contents ?? [];
   siblings = siblings.filter(s => s.id != moverand.id);
 
   // Now resort
@@ -61,7 +63,7 @@ export async function resort_item(moverand: LancerItem, dest: LancerItem, sort_b
 // Helper for finding what license an item comes from. Checks by name, an inelegant solution but probably good enough
 export async function findLicenseFor(item: LancerItem, inActor?: LancerActor): Promise<LancerLICENSE | null> {
   // If the item does not have a license name, then we just bail
-  let licenseKey = ((item as any).system as SystemTemplates.licensed).license;
+  let licenseKey = item.system.license;
   if (!licenseKey) {
     return null;
   }
@@ -81,21 +83,21 @@ export async function findLicenseFor(item: LancerItem, inActor?: LancerActor): P
         pilot.items.filter(i => i.is_license()).find(lic => lic.system.key === licenseKey) ||
         // Fall back to matching the license name
         pilot.items.filter(i => i.is_license()).find(lic => lic.name === licenseKey);
-      if (found) found as LancerLICENSE;
+      if (found) found;
     }
   }
 
   // Actor was a bust. Try global.
-  const pack = game.packs.get(get_pack_id(EntryType.LICENSE));
+  const pack = game.packs.get(get_pack_id(EntryType.LICENSE)) as CompendiumCollection<"Item">;
   if (!pack) {
     console.error("License pack not found");
     return null;
   }
   await pack.getIndex();
   const entry =
-    pack.index.find((e: any) => e.system?.key == licenseKey) ||
+    pack.index.find((e) => e.system?.key == licenseKey) ||
     // Fall back to matching the license name
-    pack.index.find((e: any) => e.name == licenseKey);
+    pack.index.find((e) => e.name == licenseKey);
   if (!entry) {
     console.error(`License not found: ${licenseKey}`);
     return null;
@@ -242,7 +244,7 @@ export async function insinuate(items: Array<LancerItem>, to: LancerActor): Prom
   }
 
   // Await and recombine
-  let actualNewItems: LancerItem[] = await to.createEmbeddedDocuments("Item", newItems);
+  let actualNewItems = await to.createEmbeddedDocuments("Item", newItems) ?? [];
 
   // Prompt for deployables if they don't yet exist
   for (let item of actualNewItems) {

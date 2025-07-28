@@ -111,7 +111,7 @@ const getActionFieldSchema = () => {
     // available_mounted: new fields.BooleanField(),
     heat_cost: new fields.NumberField({ min: 0, integer: true, nullable: false }),
     // TODO: synergy_locations: make em more fancy or somethin
-    synergy_locations: new fields.ArrayField(new fields.StringField()),
+    synergy_locations: new fields.ArrayField(new fields.StringField({ required: true })),
     damage: new fields.ArrayField(new DamageField()),
     range: new fields.ArrayField(new RangeField()),
     // ignore_used?

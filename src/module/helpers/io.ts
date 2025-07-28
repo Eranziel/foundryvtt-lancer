@@ -8,25 +8,13 @@ import type {
   PackedPilotLoadoutData,
 } from "../util/unpacking/packed-types";
 
-// GOODBYE LEGACY TYPES
-type LegacyLancerActor = {
-  name: string;
-  data: {
-    type: string;
-    data?: {
-      cc_ver?: string;
-    };
-  };
-  items: Item.Implementation[];
-};
-
 /**
  * LEGACY: Exports an actor into a compatible format for importing (faked C/C style).
  * @param actor actor to export to fake C/C data.
  * @param download whether to trigger an automatic download of the json file.
  * @returns the export in object form, or null if error occurred.
  */
-export function handleActorExport(actor: LegacyLancerActor | LancerActor, download = true) {
+export function handleActorExport(actor:  LancerActor, download = true) {
   // TODO: replace check with version check and appropriate export handler.
   if (!validForExport(actor)) {
     // ui.notifications!.warn("Exporting for this version of actor is currently unsupported.");
@@ -63,7 +51,7 @@ export function handleActorExport(actor: LegacyLancerActor | LancerActor, downlo
   return dump;
 }
 
-export function addExportButton(actor: LegacyLancerActor | LancerActor, html: JQuery) {
+export function addExportButton(actor: LancerActor, html: JQuery) {
   const id = actor._id;
   if (!document.getElementById(id) && validForExport(actor)) {
     // if (!document.getElementById(id)) {
@@ -130,7 +118,7 @@ type FakePackedNPC = {
 
 //
 // HANDLERS
-function handleNPCExport(actor: LegacyLancerActor) {
+function handleNPCExport(actor: LancerActor) {
   const data = actor;
   console.log(`Exporting NPC: ${data.name}`);
 
@@ -193,7 +181,7 @@ function handleNPCExport(actor: LegacyLancerActor) {
   return exportNPC;
 }
 
-function handlePilotExport(actor: LegacyLancerActor) {
+function handlePilotExport(actor: LancerActor) {
   const data = actor as any;
   console.log(`Exporting Pilot: ${data.name}`);
   // const loadout = actor.system.loadout;
@@ -410,6 +398,6 @@ function mapWeapon(weapon: any): FakePackedWeapon {
   };
 }
 
-export function validForExport(actor: LegacyLancerActor | LancerActor) {
+export function validForExport(actor: LancerActor) {
   return !actor.system?.cc_ver?.startsWith("MchMnd2");
 }

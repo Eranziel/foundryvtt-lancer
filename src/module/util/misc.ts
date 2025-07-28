@@ -79,8 +79,8 @@ export type TokenScrollTextOptions = {
   tokenId?: string;
   content?: string;
   style?: {
-    anchor?: 0 | 1 | 2 | 3 | 4;
-    direction?: 0 | 1 | 2 | 3 | 4;
+    anchor?: CONST.TEXT_ANCHOR_POINTS;
+    direction?: CONST.TEXT_ANCHOR_POINTS;
     duration?: number;
     fontSize?: number;
     fill?: string | number | Array<string> | Array<number>;
@@ -128,6 +128,6 @@ export async function tokenScrollText(
   const token = canvas.tokens?.get(tokenId);
   if (!token) return;
   // If this client does not have floating numbers enabled, don't show them.
-  if (!(await game.settings.get(game.system.id, LANCER.setting_floating_damage_numbers))) return;
-  await canvas.interface.createScrollingText(token.center, content, style);
+  if (!(game.settings.get(game.system.id, LANCER.setting_floating_damage_numbers))) return;
+  await canvas.interface?.createScrollingText(token.center, content, style);
 }

@@ -31,62 +31,6 @@ import { generateItemID } from "../util/lcps";
 
 const lp = LANCER.log_prefix;
 
-interface LancerItemDataSource<T extends LancerItemType> {
-  type: T;
-  system: SourceDataType<T>;
-}
-interface LancerItemDataProperties<T extends LancerItemType> {
-  type: T;
-  system: SystemDataType<T>;
-}
-
-/**
- * Union type for Item.data._source. Only really used in prepareData
- */
-type LancerItemSource =
-  | LancerItemDataSource<EntryType.CORE_BONUS>
-  | LancerItemDataSource<EntryType.FRAME>
-  | LancerItemDataSource<EntryType.LICENSE>
-  | LancerItemDataSource<EntryType.MECH_SYSTEM>
-  | LancerItemDataSource<EntryType.MECH_WEAPON>
-  | LancerItemDataSource<EntryType.NPC_CLASS>
-  | LancerItemDataSource<EntryType.NPC_FEATURE>
-  | LancerItemDataSource<EntryType.NPC_TEMPLATE>
-  | LancerItemDataSource<EntryType.ORGANIZATION>
-  | LancerItemDataSource<EntryType.PILOT_ARMOR>
-  | LancerItemDataSource<EntryType.PILOT_GEAR>
-  | LancerItemDataSource<EntryType.PILOT_WEAPON>
-  | LancerItemDataSource<EntryType.RESERVE>
-  | LancerItemDataSource<EntryType.SKILL>
-  | LancerItemDataSource<EntryType.STATUS>
-  | LancerItemDataSource<EntryType.TALENT>
-  | LancerItemDataSource<EntryType.BOND>
-  | LancerItemDataSource<EntryType.WEAPON_MOD>;
-
-/**
- * Union type for Item.data
- * Can be discriminated by testing Item.data.type
- */
-type LancerItemProperties =
-  | LancerItemDataProperties<EntryType.CORE_BONUS>
-  | LancerItemDataProperties<EntryType.FRAME>
-  | LancerItemDataProperties<EntryType.LICENSE>
-  | LancerItemDataProperties<EntryType.MECH_SYSTEM>
-  | LancerItemDataProperties<EntryType.MECH_WEAPON>
-  | LancerItemDataProperties<EntryType.NPC_CLASS>
-  | LancerItemDataProperties<EntryType.NPC_FEATURE>
-  | LancerItemDataProperties<EntryType.NPC_TEMPLATE>
-  | LancerItemDataProperties<EntryType.ORGANIZATION>
-  | LancerItemDataProperties<EntryType.PILOT_ARMOR>
-  | LancerItemDataProperties<EntryType.PILOT_GEAR>
-  | LancerItemDataProperties<EntryType.PILOT_WEAPON>
-  | LancerItemDataProperties<EntryType.RESERVE>
-  | LancerItemDataProperties<EntryType.SKILL>
-  | LancerItemDataProperties<EntryType.STATUS>
-  | LancerItemDataProperties<EntryType.TALENT>
-  | LancerItemDataProperties<EntryType.BOND>
-  | LancerItemDataProperties<EntryType.WEAPON_MOD>;
-
 declare module "fvtt-types/configuration" {
   interface DocumentClassConfig {
     Item: typeof LancerItem<Item.SubType>;
@@ -97,7 +41,14 @@ declare module "fvtt-types/configuration" {
   }
 }
 
-export class LancerItem<SubType extends Item.SubType = Item.SubType> extends Item<SubType> {
+interface CurrentProfile {
+  range: RangeData[];
+  damage?: DamageData[];
+  accuracy?: number | null;
+  attack?: number | null;
+}
+
+export class LancerItem<out SubType extends Item.SubType = Item.SubType> extends Item<SubType> {
   static DEFAULT_ICON = "systems/lancer/assets/icons/generic_item.svg";
   static override getDefaultArtwork(
     itemData: Parameters<typeof Item.getDefaultArtwork>[0]
@@ -136,8 +87,8 @@ export class LancerItem<SubType extends Item.SubType = Item.SubType> extends Ite
     }
   }
 
-  currentProfile(): { range: RangeData[]; damage?: DamageData[]; accuracy?: number; attack?: number } {
-    const result: { range: RangeData[]; damage?: DamageData[]; accuracy?: number; attack?: number } = {
+  currentProfile(): CurrentProfile {
+    const result: CurrentProfile = {
       range: [],
     };
     if (this.is_mech_weapon()) {
@@ -210,7 +161,7 @@ export class LancerItem<SubType extends Item.SubType = Item.SubType> extends Ite
   prepareBaseData() {
     super.prepareBaseData();
     // Some modules create items with type "base", or potentially others we don't care about
-    if (!ITEM_TYPES.includes(this.type)) return;
+    if (!(ITEM_TYPES as string[]).includes(this.type)) return;
 
     // Collect all tags on mech weapons
     if (this.is_mech_weapon()) {
