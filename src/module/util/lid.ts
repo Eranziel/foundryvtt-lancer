@@ -1,12 +1,5 @@
 import { LancerActor, type LancerDEPLOYABLE } from "../actor/lancer-actor";
 
-// TODO(LUKEABBY)
-declare const x: Actor.OfType<Actor.SubType>;
-if (x.is_deployable()) {
-    // Look why this is sensitive to `LancerActor` vs `Actor.OfType` for `LancerDEPLOYABLE`
-    x.system;
-}
-
 // Lookup deployables that have the provided actor set as their owner, keyed by lid
 export function lookupOwnedDeployables(owner: LancerActor, filter?: string[]): Record<string, LancerDEPLOYABLE> {
   if (owner.is_deployable()) return {};
