@@ -1,6 +1,7 @@
 import type { DeepPartial } from "fvtt-types/utils";
 import { EntryType } from "../../enums";
 import type { SourceData } from "../../source-template";
+import type { BaseData } from "../../base-data";
 import type { PackedTalentData } from "../../util/unpacking/packed-types";
 import { unpackDeployable } from "../actors/deployable";
 import { ActionField, unpackAction } from "../bits/action";
@@ -38,7 +39,7 @@ const defineTalentModelSchema = () => {
 
 type TalentModelSchema = ReturnType<typeof defineTalentModelSchema>;
 
-export class TalentModel extends LancerDataModel<TalentModelSchema, Item.Implementation> {
+export class TalentModel extends LancerDataModel<TalentModelSchema, Item.Implementation, BaseData.Talent> {
   static DEFAULT_ICON = "systems/lancer/assets/icons/talent.svg";
   static defineSchema() {
     return defineTalentModelSchema();

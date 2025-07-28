@@ -1,6 +1,7 @@
 import type { DeepPartial } from "fvtt-types/utils";
 import { EntryType } from "../../enums";
 import type { SourceData } from "../../source-template";
+import type { BaseData } from "../../base-data";
 import { regRefToLid } from "../../util/migrations";
 import type { PackedNpcTemplateData } from "../../util/unpacking/packed-types";
 import { LancerDataModel, LIDField, type UnpackContext } from "../shared";
@@ -19,7 +20,11 @@ const defineNpcTemplateModelSchema = () => {
 
 type NpcTemplateModelSchema = ReturnType<typeof defineNpcTemplateModelSchema>;
 
-export class NpcTemplateModel extends LancerDataModel<NpcTemplateModelSchema, Item.Implementation> {
+export class NpcTemplateModel extends LancerDataModel<
+  NpcTemplateModelSchema,
+  Item.Implementation,
+  BaseData.NpcTemplate
+> {
   static DEFAULT_ICON = "systems/lancer/assets/icons/npc_template.svg";
   static defineSchema() {
     return defineNpcTemplateModelSchema();

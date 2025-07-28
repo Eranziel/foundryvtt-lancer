@@ -1,6 +1,7 @@
 import type { DeepPartial } from "fvtt-types/utils";
 import { EntryType, makeWeaponSizeChecklist, makeWeaponTypeChecklist } from "../../enums";
 import type { SourceData } from "../../source-template";
+import type { BaseData } from "../../base-data";
 import type { PackedWeaponModData } from "../../util/unpacking/packed-types";
 import { unpackAction } from "../bits/action";
 import { unpackBonus } from "../bits/bonus";
@@ -42,7 +43,7 @@ const defineWeaponModModel = () => {
 
 type WeaponModModelSchema = ReturnType<typeof defineWeaponModModel>;
 
-export class WeaponModModel extends LancerDataModel<WeaponModModelSchema, Item.Implementation> {
+export class WeaponModModel extends LancerDataModel<WeaponModModelSchema, Item.Implementation, BaseData.WeaponMod> {
   static DEFAULT_ICON = "systems/lancer/assets/icons/weapon_mod.svg";
   static defineSchema() {
     return defineWeaponModModel();

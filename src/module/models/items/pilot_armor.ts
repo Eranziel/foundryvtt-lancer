@@ -1,6 +1,7 @@
 import type { DeepPartial } from "fvtt-types/utils";
 import { EntryType } from "../../enums";
 import type { SourceData } from "../../source-template";
+import type { BaseData } from "../../base-data";
 import type { PackedPilotArmorData } from "../../util/unpacking/packed-types";
 import { unpackAction } from "../bits/action";
 import { unpackBonus } from "../bits/bonus";
@@ -22,7 +23,7 @@ const definePilotArmorModelSchema = () => {
 
 type PilotArmorModelSchema = ReturnType<typeof definePilotArmorModelSchema>;
 
-export class PilotArmorModel extends LancerDataModel<PilotArmorModelSchema, Item.Implementation> {
+export class PilotArmorModel extends LancerDataModel<PilotArmorModelSchema, Item.Implementation, BaseData.PilotArmor> {
   static DEFAULT_ICON = "systems/lancer/assets/icons/role_tank.svg";
   static defineSchema() {
     return definePilotArmorModelSchema();

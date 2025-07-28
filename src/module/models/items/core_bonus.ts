@@ -9,6 +9,7 @@ import { unpackCounter } from "../bits/counter";
 import { unpackSynergy } from "../bits/synergy";
 import { LancerDataModel, type UnpackContext } from "../shared";
 import { migrateManufacturer, template_bascdt, template_universal_item } from "./shared";
+import type { BaseData } from "../../base-data";
 
 import fields = foundry.data.fields;
 
@@ -25,7 +26,7 @@ const defineCoreBonusModelSchema = () => {
 
 type CoreBonusModelSchema = ReturnType<typeof defineCoreBonusModelSchema>;
 
-export class CoreBonusModel extends LancerDataModel<CoreBonusModelSchema, Item.Implementation> {
+export class CoreBonusModel extends LancerDataModel<CoreBonusModelSchema, Item.Implementation, BaseData.CoreBonus> {
   static DEFAULT_ICON = "systems/lancer/assets/icons/core_bonus.svg";
   static defineSchema() {
     return defineCoreBonusModelSchema();

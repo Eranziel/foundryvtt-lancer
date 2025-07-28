@@ -2,6 +2,7 @@ import type { DeepPartial } from "fvtt-types/utils";
 import { EntryType, NpcFeatureType, NpcTechType } from "../../enums";
 import { restrict_enum } from "../../helpers/commons";
 import type { SourceData, SourceTemplates } from "../../source-template";
+import type { BaseData } from "../../base-data";
 import { convertNpcStats } from "../../util/migrations";
 import type {
   PackedNpcReactionData,
@@ -74,7 +75,7 @@ const defineNpcFeatureModelSchema = () => {
 
 type NpcFeatureModelSchema = ReturnType<typeof defineNpcFeatureModelSchema>;
 
-export class NpcFeatureModel extends LancerDataModel<NpcFeatureModelSchema, Item.Implementation> {
+export class NpcFeatureModel extends LancerDataModel<NpcFeatureModelSchema, Item.Implementation, BaseData.NpcFeature> {
   static DEFAULT_ICON = "systems/lancer/assets/icons/npc_feature.svg";
   static getDefaultArtwork(itemData?: Item.CreateData): Item.GetDefaultArtworkReturn {
     let img = this.DEFAULT_ICON;

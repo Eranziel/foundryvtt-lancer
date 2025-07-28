@@ -10,10 +10,6 @@ import { regRefToId, regRefToLid, regRefToUuid } from "../util/migrations";
 import fields = foundry.data.fields;
 type AnyDocument = foundry.abstract.Document.Any;
 
-// Note: stuff like `SystemTemplates.actor_universal` is used as `BaseData` but this is slightly incorrect for
-// two reasons:
-// 1. It contains properties that only exist after `prepareDerivedData`.
-// 2. Currently preparation happens on `Actor#prepareDerivedData` rather than `LancerDataModel#prepareDerivedData`.
 export class LancerDataModel<
   Schema extends foundry.data.fields.DataSchema,
   Parent extends AnyDocument,

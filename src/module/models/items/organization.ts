@@ -1,6 +1,7 @@
 import type { DeepPartial } from "fvtt-types/utils";
 import { EntryType, OrgType } from "../../enums";
 import type { SourceData } from "../../source-template";
+import type { BaseData } from "../../base-data";
 import type { PackedOrganizationData } from "../../util/unpacking/packed-types";
 import { LancerDataModel, type UnpackContext } from "../shared";
 import { template_universal_item } from "./shared";
@@ -20,7 +21,11 @@ const defineOrganizationModelSchema = () => {
 
 type OrganizationModelSchema = ReturnType<typeof defineOrganizationModelSchema>;
 
-export class OrganizationModel extends LancerDataModel<OrganizationModelSchema, Item.Implementation> {
+export class OrganizationModel extends LancerDataModel<
+  OrganizationModelSchema,
+  Item.Implementation,
+  BaseData.Organization
+> {
   static DEFAULT_ICON = "systems/lancer/assets/icons/encounter.svg";
   static defineSchema() {
     return defineOrganizationModelSchema();

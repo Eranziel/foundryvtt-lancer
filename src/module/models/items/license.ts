@@ -1,6 +1,7 @@
 import type { DeepPartial } from "fvtt-types/utils";
 import { EntryType } from "../../enums";
 import type { SourceData } from "../../source-template";
+import type { BaseData } from "../../base-data";
 import { LancerDataModel, type UnpackContext } from "../shared";
 import { template_universal_item } from "./shared";
 
@@ -17,7 +18,7 @@ const defineLicenseModelSchema = () => {
 
 type LicenseModelSchema = ReturnType<typeof defineLicenseModelSchema>;
 
-export class LicenseModel extends LancerDataModel<LicenseModelSchema, Item.Implementation> {
+export class LicenseModel extends LancerDataModel<LicenseModelSchema, Item.Implementation, BaseData.License> {
   static DEFAULT_ICON = "systems/lancer/assets/icons/license.svg";
   static defineSchema() {
     return defineLicenseModelSchema();

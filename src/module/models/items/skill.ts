@@ -1,6 +1,7 @@
 import type { DeepPartial } from "fvtt-types/utils";
 import { EntryType } from "../../enums";
 import type { SourceData } from "../../source-template";
+import type { BaseData } from "../../base-data";
 import type { PackedSkillData } from "../../util/unpacking/packed-types";
 import { LancerDataModel, type UnpackContext } from "../shared";
 import { template_universal_item } from "./shared";
@@ -18,7 +19,7 @@ const defineSkillModelSchema = () => {
 
 type SkillModelSchema = ReturnType<typeof defineSkillModelSchema>;
 
-export class SkillModel extends LancerDataModel<SkillModelSchema, Item.Implementation> {
+export class SkillModel extends LancerDataModel<SkillModelSchema, Item.Implementation, BaseData.Skill> {
   static DEFAULT_ICON = "systems/lancer/assets/icons/skill.svg";
   static defineSchema() {
     return defineSkillModelSchema();

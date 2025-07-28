@@ -19,8 +19,29 @@ import {
   template_universal_item,
   template_uses,
 } from "./shared";
+import type { BaseData } from "../../base-data";
 
 import fields = foundry.data.fields;
+
+const defineProfileSchema = () => ({
+  name: new fields.StringField({ initial: "Base Profile" }),
+  type: new fields.StringField({ choices: Object.values(WeaponType), initial: WeaponType.Rifle }),
+  damage: new fields.ArrayField(new DamageField()),
+  range: new fields.ArrayField(new RangeField()),
+  tags: new fields.ArrayField(new TagField()),
+  description: new fields.StringField(),
+  effect: new fields.StringField(),
+  on_attack: new fields.StringField(),
+  on_hit: new fields.StringField(),
+  on_crit: new fields.StringField(),
+  cost: new fields.NumberField({ nullable: false, initial: 0 }),
+  skirmishable: new fields.BooleanField(),
+  barrageable: new fields.BooleanField(),
+  actions: new fields.ArrayField(new ActionField()),
+  bonuses: new fields.ArrayField(new BonusField()),
+  synergies: new fields.ArrayField(new SynergyField()),
+  counters: new fields.ArrayField(new CounterField()),
+});
 
 const defineMechWeaponModelSchema = () => {
   return {
@@ -30,25 +51,7 @@ const defineMechWeaponModelSchema = () => {
     actions: new fields.ArrayField(new ActionField()),
     profiles: new fields.ArrayField(
       // TODO: Convert to EmbeddedDataField
-      new fields.SchemaField({
-        name: new fields.StringField({ initial: "Base Profile" }),
-        type: new fields.StringField({ choices: Object.values(WeaponType), initial: WeaponType.Rifle }),
-        damage: new fields.ArrayField(new DamageField()),
-        range: new fields.ArrayField(new RangeField()),
-        tags: new fields.ArrayField(new TagField()),
-        description: new fields.StringField(),
-        effect: new fields.StringField(),
-        on_attack: new fields.StringField(),
-        on_hit: new fields.StringField(),
-        on_crit: new fields.StringField(),
-        cost: new fields.NumberField({ nullable: false, initial: 0 }),
-        skirmishable: new fields.BooleanField(),
-        barrageable: new fields.BooleanField(),
-        actions: new fields.ArrayField(new ActionField()),
-        bonuses: new fields.ArrayField(new BonusField()),
-        synergies: new fields.ArrayField(new SynergyField()),
-        counters: new fields.ArrayField(new CounterField()),
-      }),
+      new fields.SchemaField(defineProfileSchema()),
       {
         min: 1,
         initial: [
@@ -86,7 +89,11 @@ const defineMechWeaponModelSchema = () => {
 
 type MechWeaponModelSchema = ReturnType<typeof defineMechWeaponModelSchema>;
 
-export class MechWeaponModel extends LancerDataModel<MechWeaponModelSchema, Item.Implementation> {
+type ProfileSchema = ReturnType<typeof defineProfileSchema>;
+
+export type InitializedProfile = fields.SchemaField.InitializedData<ProfileSchema>;
+
+export class MechWeaponModel extends LancerDataModel<MechWeaponModelSchema, Item.Implementation, BaseData.MechWeapon> {
   static DEFAULT_ICON = "systems/lancer/assets/icons/mech_weapon.svg";
   static defineSchema() {
     return defineMechWeaponModelSchema();

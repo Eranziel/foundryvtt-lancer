@@ -2,6 +2,7 @@ import type { DeepPartial } from "fvtt-types/utils";
 import { EntryType, ReserveType } from "../../enums";
 import { restrict_enum } from "../../helpers/commons";
 import type { SourceData } from "../../source-template";
+import type { BaseData } from "../../base-data";
 import type { PackedReserveData } from "../../util/unpacking/packed-types";
 import { unpackDeployable } from "../actors/deployable";
 import { unpackAction } from "../bits/action";
@@ -32,7 +33,7 @@ const defineReserveModelSchema = () => {
 
 type ReserveModelSchema = ReturnType<typeof defineReserveModelSchema>;
 
-export class ReserveModel extends LancerDataModel<ReserveModelSchema, Item.Implementation> {
+export class ReserveModel extends LancerDataModel<ReserveModelSchema, Item.Implementation, BaseData.Reserve> {
   static DEFAULT_ICON = "systems/lancer/assets/icons/reserve_tac.svg";
   static defineSchema() {
     return defineReserveModelSchema();
