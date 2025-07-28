@@ -1,36 +1,11 @@
 import { ActivationType, ActivePeriod } from "../../enums";
 import type { PackedActionData } from "../../util/unpacking/packed-types";
 import { LIDField } from "../shared";
-import { type DamageData, DamageField, unpackDamage } from "./damage";
-import { type RangeData, RangeField, unpackRange } from "./range";
+import { DamageField, unpackDamage } from "./damage";
+import { RangeField, unpackRange } from "./range";
 import type { SimpleMerge } from "fvtt-types/utils";
 
 import fields = foundry.data.fields;
-
-// Lightly trimmed
-export interface ActionData {
-  lid: string;
-  name: string;
-  activation: ActivationType;
-  cost: number;
-  frequency: string;
-  init: string;
-  trigger: string;
-  terse: string;
-  detail: string;
-  pilot: boolean;
-  mech: boolean;
-  tech_attack: boolean;
-  // hide_active: boolean;
-  // confirm: string[];
-  // available_mounted: boolean;
-  heat_cost: number;
-  synergy_locations: string[];
-  damage: DamageData[];
-  range: RangeData[];
-  // log: string;
-  // ignore_used: boolean;
-}
 
 const frequencyFieldDefaults = {
   required: true,
@@ -47,7 +22,7 @@ type FrequencyFieldDefaults = SimpleMerge<fields.StringField.DefaultOptions, typ
  * A subclass of StringField which deals with frequency data.
  */
 class FrequencyField<
-  Options extends fields.StringField.Options = FrequencyFieldDefaults
+  Options extends fields.StringField.Options = FrequencyFieldDefaults,
 > extends fields.StringField<Options> {
   /** @inheritdoc */
   static get _defaults() {
@@ -120,6 +95,8 @@ const getActionFieldSchema = () => {
 };
 
 type ActionFieldSchema = ReturnType<typeof getActionFieldSchema>;
+
+export type ActionData = fields.SchemaField.InitializedData<ActionFieldSchema>;
 
 // Action field is frequent, but not exactly deserving of a custom class like damage or range. It still needs a custom field (frequency)
 export class ActionField<Options extends fields.SchemaField.Options<ActionFieldSchema>> extends fields.SchemaField<

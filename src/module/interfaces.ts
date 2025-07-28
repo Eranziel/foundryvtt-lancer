@@ -7,8 +7,6 @@ import {
   type LancerPILOT,
 } from "./actor/lancer-actor";
 import { LancerActiveEffect } from "./effects/lancer-active-effect";
-import type { SystemDataType } from "./system-template";
-import type { DamageData } from "./models/bits/damage";
 import type { CollapseRegistry } from "./helpers/collapse";
 
 // ------------------------------------------------------
@@ -19,7 +17,7 @@ import type { CollapseRegistry } from "./helpers/collapse";
 export interface LancerItemSheetData<T extends LancerItemType> extends ItemSheet.Data<ItemSheet.Options> {
   // The license, if it could be recovered
   license: LancerLICENSE | null;
-  system: SystemDataType<T>;
+  system: Item.SystemOfType<T>;
   collapse: CollapseRegistry;
   deployables: Record<string, LancerDEPLOYABLE>;
   org_types?: { [key: string]: string }; // Organization types, only provided on org sheets
@@ -43,8 +41,8 @@ export interface LancerActorSheetData<T extends LancerActorType> extends ActorSh
   cleanedOwnerID: string;
   vaultID: string;
   rawID: string;
-  effect_categories: ReturnType<typeof LancerActiveEffect["prepareActiveEffectCategories"]>;
-  system: SystemDataType<T>;
+  effect_categories: ReturnType<(typeof LancerActiveEffect)["prepareActiveEffectCategories"]>;
+  system: Actor.SystemOfType<T>;
   itemTypes: LancerActor["itemTypes"];
   collapse: CollapseRegistry;
   deployables: Record<string, LancerDEPLOYABLE>;

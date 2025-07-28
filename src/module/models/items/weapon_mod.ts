@@ -64,7 +64,8 @@ export function unpackWeaponMod(
 ): {
   name: string;
   type: EntryType.WEAPON_MOD;
-  system: DeepPartial<SourceData.WeaponMod>;
+  // TODO(LukeAbby): Should specifically be weapon mod's `CreateData`.
+  system: Item.CreateData;
 } {
   const { deployables, tags } = addDeployableTags(data.deployables, data.tags, context);
   return {

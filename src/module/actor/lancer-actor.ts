@@ -1,8 +1,7 @@
 import { LANCER, replaceDefaultResource } from "../config";
 import { DamageType, EntryType } from "../enums";
 import { AppliedDamage } from "./damage-calc";
-import type { SystemData, SystemDataType, SystemTemplates } from "../system-template";
-import type { SourceDataType } from "../source-template";
+import type { SystemTemplates } from "../system-template";
 import {
   type LancerBOND,
   type LancerFRAME,

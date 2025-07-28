@@ -9,7 +9,7 @@ import {
   type LancerSTATUS,
 } from "../item/lancer-item";
 import type { BonusData } from "../models/bits/bonus";
-import type { SystemData, SystemTemplates } from "../system-template";
+import type { SystemTemplates } from "../system-template";
 import { rollEvalSync } from "../util/misc";
 import { AE_MODE_APPEND_JSON, LancerActiveEffect, type LancerEffectTarget } from "./lancer-active-effect";
 
@@ -19,9 +19,11 @@ const PILOT_STAT_PRIORITY = 30;
 const EFFECT_STAT_PRIORITY = 40;
 const FEATURE_OVERRIDE_PRIORITY = 50;
 
+const x: string = 1;
+
 // Makes an active effect for a frame.
-type FrameStatKey = keyof SystemData.Frame["stats"];
-type MechStatKey = keyof SystemData.Mech;
+type FrameStatKey = keyof Item.OfType<"frame">["stats"];
+type MechStatKey = keyof Actor.OfType<"mech">;
 export function frameInnateEffect(frame: LancerFRAME) {
   let keys: Array<FrameStatKey & MechStatKey> = [
     "armor",
