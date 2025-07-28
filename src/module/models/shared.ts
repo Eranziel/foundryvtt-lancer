@@ -1,4 +1,4 @@
-import type { AnyObject, DeepPartial, EmptyObject, InterfaceToObject, SimpleMerge } from "fvtt-types/utils";
+import type { DeepPartial, EmptyObject, InterfaceToObject, SimpleMerge } from "fvtt-types/utils";
 import { LancerActor } from "../actor/lancer-actor";
 import { DamageType, EntryType, RangeType, SystemType, WeaponSize, WeaponType } from "../enums";
 import { formatDotpath } from "../helpers/commons";
@@ -123,10 +123,24 @@ export function fancy_merge_data(full_source_data: any, update_data: any): any {
   return full_source_data;
 }
 
+type LIDFieldDefaultOptions = SimpleMerge<fields.StringField.DefaultOptions, { required: true }>;
+type ApplyLIDDefaults<Options> = SimpleMerge<LIDFieldDefaultOptions, Options>;
+
 // Use this for all LIDs, to ensure consistent formatting, and to allow easier setting
 export class LIDField<
-  const Options extends fields.StringField.Options<unknown> = fields.StringField.DefaultOptions,
-> extends fields.StringField<Options> {
+  const Options extends fields.StringField.Options<unknown> = LIDFieldDefaultOptions,
+  // eslint-disable-next-line @typescript-eslint/no-deprecated
+  const AssignmentType = fields.StringField.AssignmentType<ApplyLIDDefaults<Options>>,
+  const InitializedType = fields.StringField.InitializedType<ApplyLIDDefaults<Options>>,
+  const PersistedType extends string | null | undefined = fields.StringField.InitializedType<ApplyLIDDefaults<Options>>,
+> extends fields.StringField<Options, AssignmentType, InitializedType, PersistedType> {
+  static get _defaults() {
+    return {
+      ...super._defaults,
+      required: true,
+    };
+  }
+
   /** @override */
   _cast(value: any) {
     const rrtl = regRefToLid(value);

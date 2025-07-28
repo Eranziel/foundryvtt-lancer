@@ -14,8 +14,8 @@ const defineNpcClassModelSchema = () => {
     role: new fields.StringField(),
     flavor: new fields.HTMLField(),
     tactics: new fields.HTMLField(),
-    base_features: new fields.SetField(new LIDField({ required: true })),
-    optional_features: new fields.SetField(new LIDField({ required: true })),
+    base_features: new fields.SetField(new LIDField()),
+    optional_features: new fields.SetField(new LIDField()),
     base_stats: new fields.ArrayField(new NpcStatBlockField({ nullable: false }), {
       min: 3,
       max: 3,

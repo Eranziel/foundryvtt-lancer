@@ -24,8 +24,8 @@ import fields = foundry.data.fields;
 
 const defineMechWeaponModelSchema = () => {
   return {
-    deployables: new fields.ArrayField(new LIDField({ required: true })),
-    integrated: new fields.ArrayField(new LIDField({ required: true })),
+    deployables: new fields.ArrayField(new LIDField()),
+    integrated: new fields.ArrayField(new LIDField()),
     sp: new fields.NumberField({ nullable: false, initial: 0 }),
     actions: new fields.ArrayField(new ActionField()),
     profiles: new fields.ArrayField(

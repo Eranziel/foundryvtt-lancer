@@ -35,8 +35,8 @@ export function template_bascdt() {
     actions: new fields.ArrayField(new ActionField()),
     synergies: new fields.ArrayField(new SynergyField()),
     counters: new fields.ArrayField(new CounterField()),
-    deployables: new fields.ArrayField(new LIDField({ required: true })),
-    integrated: new fields.ArrayField(new LIDField({ required: true })),
+    deployables: new fields.ArrayField(new LIDField()),
+    integrated: new fields.ArrayField(new LIDField()),
     tags: new fields.ArrayField(new TagField()),
   };
 }
