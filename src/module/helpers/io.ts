@@ -14,7 +14,7 @@ import type {
  * @param download whether to trigger an automatic download of the json file.
  * @returns the export in object form, or null if error occurred.
  */
-export function handleActorExport(actor:  LancerActor, download = true) {
+export function handleActorExport(actor: LancerActor, download = true) {
   // TODO: replace check with version check and appropriate export handler.
   if (!validForExport(actor)) {
     // ui.notifications!.warn("Exporting for this version of actor is currently unsupported.");

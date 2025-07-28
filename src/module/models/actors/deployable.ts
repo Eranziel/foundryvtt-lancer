@@ -17,7 +17,7 @@ import { LancerDataModel, SyncUUIDRefField, type UnpackContext } from "../shared
 
 import fields = foundry.data.fields;
 
-const deployable_schema = {
+const defineDeployableSchema = () => ({
   actions: new fields.ArrayField(new ActionField()),
   // bonuses: new fields.ArrayField(new BonusField()),
   counters: new fields.ArrayField(new CounterField()),
@@ -53,13 +53,13 @@ const deployable_schema = {
   ...template_universal_actor(),
   ...template_heat(),
   ...template_statuses(),
-};
+});
 
-type DeployableSchema = typeof deployable_schema;
+type DeployableSchema = ReturnType<typeof defineDeployableSchema>;
 export class DeployableModel extends LancerDataModel<DeployableSchema, Actor.Implementation, BaseData.Deployable> {
   static DEFAULT_ICON = "systems/lancer/assets/icons/deployable.svg";
   static defineSchema(): DeployableSchema {
-    return deployable_schema;
+    return defineDeployableSchema();
   }
 
   static migrateData(data: any) {

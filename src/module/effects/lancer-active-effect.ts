@@ -15,8 +15,6 @@ import {
 } from "../status-icons";
 import { get_pack_id } from "../util/doc";
 
-type EffectChangeData = ActiveEffect.ChangeData;
-
 const lp = LANCER.log_prefix;
 
 // Chassis = mech or standard npc
