@@ -1,0 +1,11 @@
+/* prettier-ignore */
+$theme-types: "primary" "secondary" "dark-gray" "light-gray" "tooltip"    // General themes
+  "gms" "ips-n" "ssc" "horus" "ha"                       // Manufacturers
+  "trait" "mod" "bonus" "system" "tech" "talent" "weapon"     // Gear types
+  "reaction" "protocol" "quick" "full" "move" "free"; // Action types
+
+/* Item/document types, useful for shorthand */
+$item-types: core_bonus environment faction frame manufacturer npc_class npc_template npc_feature weapon_mod mech_system
+  mech_weapon organization pilot_armor pilot_gear pilot_weapon reserve sitrep skill status tag talent quirk;
+$actor-types: npc pilot mech deployable;
+$document-types: join($item-types, $actor-types);

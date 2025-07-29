@@ -1,5 +1,6 @@
 /* TODO: Rewrite to split into multiple modules and utilize sass mixins where possible */
 
+@use "styles/variables" as *;
 @use "styles/overrides";
 @use "styles/applications";
 @use "styles/chat";
@@ -11,12 +12,6 @@
 @use "styles/sheets/components";
 @use "styles/sheets/item";
 @use "styles/token/token-config";
-
-/* Item/document types, useful for shorthand */
-$item-types: core_bonus environment faction frame manufacturer npc_class npc_template npc_feature weapon_mod mech_system
-  mech_weapon organization pilot_armor pilot_gear pilot_weapon reserve sitrep skill status tag talent quirk;
-$actor-types: npc pilot mech deployable;
-$document-types: join($item-types, $actor-types);
 
 /* Settings Layer*/
 :root {
@@ -156,11 +151,6 @@ $document-types: join($item-types, $actor-types);
 /* Elements Layer */
 
 /* General-purpose theme color classes */
-/* prettier-ignore */
-$theme-types: "primary" "secondary" "dark-gray" "light-gray" "tooltip"    // General themes
-  "gms" "ips-n" "ssc" "horus" "ha"                       // Manufacturers
-  "trait" "mod" "bonus" "system" "tech" "talent" "weapon"     // Gear types
-  "reaction" "protocol" "quick" "full" "move" "free"; // Action types
 @each $theme-type in $theme-types {
   /* Headers, buttons, and chips */
   a.action.lancer-#{$theme-type},

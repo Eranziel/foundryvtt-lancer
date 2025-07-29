@@ -1,3 +1,5 @@
+@use "variables" as *;
+
 /* ===== RULES FOR LANCER APPLICATIONS ===== */
 .application.lancer {
   .window-content {
@@ -94,23 +96,6 @@ Here, this means we want to allow for drag stuff etc to show contextually if:
   min-height: 6em;
 }
 
-.line-drop-target {
-  @include glow;
-  align-content: center;
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 0;
-  height: 0;
-  opacity: 95%;
-  z-index: -100;
-  transition: all 0.5s;
-}
-
-.slot:not(.set) {
-  align-items: center;
-}
-
 /* Glow effect courtesy of https://codepen.io/jackrugile/pen/ABeIi */
 @mixin glow {
   animation: glow-anim 800ms ease-out infinite alternate;
@@ -133,6 +118,22 @@ Here, this means we want to allow for drag stuff etc to show contextually if:
   }
 }
 
+.line-drop-target {
+  @include glow;
+  align-content: center;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 0;
+  opacity: 95%;
+  z-index: -100;
+  transition: all 0.5s;
+}
+
+.slot:not(.set) {
+  align-items: center;
+}
 /* ===== End Custom drag-drop handling ===== */
 
 /* ===== Action Tracker ===== */

@@ -1,3 +1,5 @@
+@use "../variables" as *;
+
 /* Default text and background color for sheets */
 .lancer.sheet .window-content {
   color: var(--dark-text);
