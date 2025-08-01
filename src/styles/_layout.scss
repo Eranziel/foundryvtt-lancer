@@ -103,3 +103,69 @@
   text-transform: uppercase;
   font-family: Roboto, sans-serif !important;
 }
+
+/** Fixes CSS priority on flexrows within cards */
+.card.flexrow {
+  flex-direction: row;
+}
+
+.card {
+  background-color: var(--darken-1);
+  margin: 3px 10px;
+  text-align: center;
+  padding-bottom: 1px;
+  display: flex;
+  flex-direction: column;
+
+  &.nested {
+    margin: 0;
+  }
+}
+
+.card .editor-content {
+  text-align: left;
+}
+
+.clipped {
+  clip-path: var(--double-dogear-path);
+  -webkit-clip-path: var(--double-dogear-path);
+}
+
+.clipped-top {
+  clip-path: var(--top-dogear-path);
+  -webkit-clip-path: var(--top-dogear-path);
+}
+
+.clipped-bot {
+  clip-path: var(--bottom-dogear-path);
+  -webkit-clip-path: var(--bottom-dogear-path);
+}
+
+.vsep {
+  border: none;
+  border-left: 1px solid var(--secondary-color, black);
+  border-right: 1px solid var(--secondary-color, black);
+  min-width: 3px;
+  max-width: 3px;
+  margin-left: 6px;
+  margin-right: 6px;
+}
+
+.hsep {
+  border: none;
+  border-top: 1px solid var(--secondary-color, black);
+  max-height: 3px;
+  margin-top: 6px;
+  margin-bottom: 6px;
+  width: 95%;
+}
+
+ul.items-list {
+  padding: 0;
+}
+
+.lancer-flow-button-grid {
+  display: flex;
+  margin-bottom: 8px;
+  padding: 4px;
+}

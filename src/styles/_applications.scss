@@ -1,5 +1,10 @@
 @use "variables" as *;
 
+@use "applications/action-manager";
+@use "applications/actor-sheet";
+@use "applications/item-sheet";
+@use "applications/stabilize";
+
 /* ===== RULES FOR LANCER APPLICATIONS ===== */
 .application.lancer {
   .window-content {

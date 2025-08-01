@@ -2,15 +2,13 @@
 
 @use "styles/variables" as *;
 @use "styles/overrides";
+@use "styles/components";
 @use "styles/applications";
 @use "styles/chat";
 @use "styles/layout";
 @use "styles/combat/lancer-combat-tracker";
 @use "styles/combat/combat-tracker-config";
 @use "styles/settings/lancer-initiative-config";
-@use "styles/sheets/actor";
-@use "styles/sheets/components";
-@use "styles/sheets/item";
 @use "styles/token/token-config";
 
 /* Settings Layer*/
