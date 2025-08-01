@@ -136,3 +136,14 @@
   pointer-events: none;
   cursor: default;
 }
+
+// TODO: use a mixin, specify actor sheet, echo in _item-sheet.scss
+/* Default text and background color for sheets */
+.lancer.sheet .window-content {
+  color: var(--dark-text);
+  background: var(--background-color);
+}
+
+.lancer.sheet select {
+  width: min-content;
+}
