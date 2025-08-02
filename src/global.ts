@@ -30,6 +30,7 @@ import type {
   CombatTrackerAppearance,
   StatusIconConfigOptions,
 } from "./module/settings";
+import type { IContentPackManifest } from "./module/util/unpacking/packed-types";
 import type { TerrainHeightToolsAPI } from "./types/terrain-height-tools";
 
 interface LancerInitiativeConfig<T extends string = string> {
