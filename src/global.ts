@@ -147,7 +147,7 @@ declare module "fvtt-types/configuration" {
     "lancer.automationSwitch": boolean;
     "lancer.combat-tracker-appearance": typeof CombatTrackerAppearance;
     "lancer.combat-tracker-sort": boolean;
-    "lancer.combatTrackerConfig": { sortTracker: boolean } | ClientSettings.Values["lancer.combatTrackerConfig"];
+    "lancer.combatTrackerConfig": { sortTracker: boolean };
     "lancer.coreDataVersion": string;
     "lancer.dsnSetup": boolean;
     "lancer.floatingNumbers": boolean;
