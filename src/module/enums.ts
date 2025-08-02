@@ -296,7 +296,8 @@ export enum Duration {
   Mission = "Mission",
 }
 
-export enum FrameEffectUse { // Handles cores and traits usage duration thingies
+export enum FrameEffectUse {
+  // Handles cores and traits usage duration thingies
   Turn = "Turn",
   NextTurn = "Next Turn",
   Round = "Round",

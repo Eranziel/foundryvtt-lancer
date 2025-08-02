@@ -199,10 +199,13 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
         if (p1.name > p2.name) return 1;
         return 0;
       })
-      .reduce((acc, pilot) => {
-        acc[`${pilot.callsign} // ${pilot.name}`] = pilot.cloudID;
-        return acc;
-      }, {} as Record<string, string>);
+      .reduce(
+        (acc, pilot) => {
+          acc[`${pilot.callsign} // ${pilot.name}`] = pilot.cloudID;
+          return acc;
+        },
+        {} as Record<string, string>
+      );
 
     return data;
   }

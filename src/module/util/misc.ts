@@ -128,6 +128,6 @@ export async function tokenScrollText(
   const token = canvas.tokens?.get(tokenId);
   if (!token) return;
   // If this client does not have floating numbers enabled, don't show them.
-  if (!(game.settings.get(game.system.id, LANCER.setting_floating_damage_numbers))) return;
+  if (!game.settings.get(game.system.id, LANCER.setting_floating_damage_numbers)) return;
   await canvas.interface?.createScrollingText(token.center, content, style);
 }

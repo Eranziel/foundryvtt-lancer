@@ -63,8 +63,8 @@ export function attackTarget(hit: LancerFlowState.HitResultWithRoll, options: He
   const hitChip = hit.crit
     ? `<span class="card clipped lancer-hit-chip crit">${game.i18n.format("lancer.chat-card.attack.crit")}</span>`
     : hit.hit
-    ? `<span class="card clipped lancer-hit-chip hit">${game.i18n.format("lancer.chat-card.attack.hit")}</span>`
-    : `<span class="card clipped lancer-hit-chip miss">${game.i18n.format("lancer.chat-card.attack.miss")}</span>`;
+      ? `<span class="card clipped lancer-hit-chip hit">${game.i18n.format("lancer.chat-card.attack.hit")}</span>`
+      : `<span class="card clipped lancer-hit-chip miss">${game.i18n.format("lancer.chat-card.attack.miss")}</span>`;
   const img = hit.target.actor?.img;
   const uuid = hit.target.document.uuid;
   const icon = hit.crit ? "fas fa-explosion i--s" : hit.hit ? "fas fa-crosshairs i--s" : "mdi mdi-call-missed i--sm";

@@ -161,7 +161,7 @@ export async function importCP(
       let pack = await get_pack(et);
       let folder: Folder | undefined = [EntryType.NPC, EntryType.STATUS].includes(et)
         ? undefined
-        : pack.folders.find(f => f.getFlag(game.system.id, "entrytype") === et) ??
+        : (pack.folders.find(f => f.getFlag(game.system.id, "entrytype") === et) ??
           (await Folder.create(
             {
               name: game.i18n.localize(`TYPES.${pack.metadata.type}.${et}`),
@@ -169,7 +169,7 @@ export async function importCP(
               [`flags.${game.system.id}.entrytype`]: et,
             },
             { pack: get_pack_id(et) }
-          ));
+          )));
       let results = [];
       for (let d of item_data) {
         let key = d.system.lid || d.name;

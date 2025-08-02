@@ -39,14 +39,14 @@ export function actionTypeSelector(a_type: string, data_target: string): string 
     <option value="${ActivationType.Full}" ${a === ActivationType.Full.toLowerCase() ? "selected" : ""}>FULL</option>
     <option value="${ActivationType.Quick}" ${a === ActivationType.Quick.toLowerCase() ? "selected" : ""}>QUICK</option>
     <option value="${ActivationType.Reaction}" ${
-    a === ActivationType.Reaction.toLowerCase() ? "selected" : ""
-  }>REACTION</option>
+      a === ActivationType.Reaction.toLowerCase() ? "selected" : ""
+    }>REACTION</option>
     <option value="${ActivationType.Protocol}" ${
-    a === ActivationType.Protocol.toLowerCase() ? "selected" : ""
-  }>PROTOCOL</option>
+      a === ActivationType.Protocol.toLowerCase() ? "selected" : ""
+    }>PROTOCOL</option>
     <option value="${ActivationType.Passive}" ${
-    a === ActivationType.Passive.toLowerCase() ? "selected" : ""
-  }>PASSIVE</option>
+      a === ActivationType.Passive.toLowerCase() ? "selected" : ""
+    }>PASSIVE</option>
     <option value="${ActivationType.Other}" ${a === ActivationType.Other.toLowerCase() ? "selected" : ""}>OTHER</option>
   </select>
   </div>`;
@@ -233,8 +233,8 @@ export function npcWeaponView(path: string, options: HelperOptions): string {
       </div>
       <div>
         <span>${featureData.weapon_type} // ${npcFeature.system.origin.name} ${
-      npcFeature.system.origin.type
-    } Feature</span>
+          npcFeature.system.origin.type
+        } Feature</span>
       </div>
       ${effectBox("ON HIT", featureData.on_hit)}
       ${effectBox("EFFECT", featureData.effect)}
