@@ -1,5 +1,5 @@
 import { LancerActor } from "./actor/lancer-actor";
-import { tokenScrollText, TokenScrollTextOptions, userOwnsActor } from "./util/misc";
+import { tokenScrollText, type TokenScrollTextOptions, userOwnsActor } from "./util/misc";
 
 function socketScrollText(msg: { action: string; data: Partial<TokenScrollTextOptions> }) {
   tokenScrollText(msg.data);
