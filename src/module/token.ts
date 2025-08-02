@@ -118,10 +118,13 @@ export class LancerToken extends Token {
   }
 }
 
-export function extendTokenConfig(app: foundry.applications.sheets.TokenConfig, html: HTMLElement) {
+export function extendTokenConfig(
+  app: foundry.applications.sheets.PrototypeTokenConfig | foundry.applications.sheets.TokenConfig,
+  html: HTMLElement
+) {
   const { token_size } = game.settings.get(game.system.id, LANCER.setting_automation);
   if (!token_size) return;
-  const manual = (<LancerTokenDocument>app.token).getFlag(game.system.id, "manual_token_size") ?? false;
+  const manual = app.token.getFlag(game.system.id, "manual_token_size") ?? false;
 
   const lock = foundry.applications.fields.createCheckboxInput({
     name: `flags.${game.system.id}.manual_token_size`,
