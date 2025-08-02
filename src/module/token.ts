@@ -114,7 +114,10 @@ export class LancerToken extends Token {
       "getOccupiedSpaces is deprecated in favor of the core getOccupiedGridSpaceOffsets",
       { since: 13, until: 14 }
     );
-    return this.document.getOccupiedGridSpaceOffsets()?.map(o => canvas.grid?.getCenterPoint(o));
+    return this.document
+      .getOccupiedGridSpaceOffsets()
+      .map(o => canvas.grid?.getCenterPoint(o))
+      .filter(o => !!o);
   }
 }
 
