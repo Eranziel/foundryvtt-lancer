@@ -338,7 +338,7 @@ Hooks.once("ready", async function () {
     if (!item.is_status()) return;
     await LancerActiveEffect.updateIcons();
   };
-  Hooks.on("itemCreated", _updateIcons);
+  Hooks.on("createItem", _updateIcons);
   Hooks.on("deleteItem", _updateIcons);
   Hooks.on("updateItem", _updateIcons);
 });
