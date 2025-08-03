@@ -384,8 +384,10 @@ Hooks.on("updateActor", (_actor, changes): void => {
 Hooks.on("closeSettingsConfig", () => {
   game.action_manager?.updateConfig();
 });
-Hooks.on("getSceneNavigationContext", async () => {
-  game.action_manager && (await game.action_manager!.reset());
+Hooks.on("getSceneNavigationContext", () => {
+  // FIXME: This hook has been removed for some time now. If this functionality is still needed, it needs to be placed
+  // on a different hook.
+  game.action_manager?.reset();
 });
 Hooks.on("createCombat", _actor => {
   game.action_manager?.update();
