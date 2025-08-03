@@ -8,15 +8,15 @@
     "src/lancer.ts"
   ],
   "scripts": {
-    "package": "gulp package",
-    "build": "gulp build",
-    "build:packs": "gulp build_packs",
     "link": "gulp link",
-    "build:watch": "gulp watch",
-    "watch": "gulp watch",
-    "serve": "gulp serve",
-    "format": "prettier --write --config .prettierrc.json 'src/**/*.ts'",
+    "build": "vite build",
+    "build:watch": "vite build -w",
+    "build:packs": "gulp build_packs",
     "generate:yml": "gulp export_packs",
+    "watch": "vite build -w",
+    "serve": "vite serve",
+    "package": "gulp package",
+    "format": "prettier --write --config .prettierrc.json 'src/**/*.ts'",
     "clean": "rm -fR dist && gulp link --clean",
     "prepare": "husky install"
   },

@@ -110,32 +110,6 @@ async function export_packs() {
   return Promise.resolve();
 }
 
-function _distWatcher() {
-  const publicDirPath = path.resolve(process.cwd(), "public");
-  const watcher = gulp.watch(["public/**/*.hbs"], { ignoreInitial: false });
-  watcher.on("change", async function (file, stats) {
-    console.log(`File ${file} was changed`);
-    const partial_file = path.relative(publicDirPath, file);
-    await fs.copy(path.join("public", partial_file), path.join("dist", partial_file));
-  });
-}
-
-function watch() {
-  _distWatcher();
-  return cp.spawn("npx", ["vite", "build", "-w"], { stdio: "inherit", shell: true });
-}
-
-function serve() {
-  _distWatcher();
-  // forward arguments on serves
-  const serveArg = process.argv[2];
-  let commands = ["vite", "serve"];
-  if (serveArg == "serve" && process.argv.length > 3) {
-    commands = commands.concat(process.argv.slice(3));
-  }
-  return cp.spawn("npx", commands, { stdio: "inherit", shell: true });
-}
-
 /********************/
 /*		LINK		*/
 /********************/
@@ -349,8 +323,6 @@ const execGit = gulp.series(gitAdd, gitCommit, gitTag);
 exports.build = build;
 exports.build_packs = build_packs;
 exports.export_packs = export_packs;
-exports.watch = watch;
-exports.serve = serve;
 exports.link = linkUserData;
 exports.package = packageBuild;
 exports.manifest = updateManifest;
