@@ -405,10 +405,6 @@ Hooks.on("updateCombat", (_combat, changes) => {
       if (t.document.getFlag("lancer", "isAttack")) t.document.delete();
     });
   }
-  // This can be removed in v10
-  if (foundry.utils.hasProperty(changes, "turn")) {
-    ui.combatCarousel?.render();
-  }
 });
 
 // Handle dropping statuses on tokens
