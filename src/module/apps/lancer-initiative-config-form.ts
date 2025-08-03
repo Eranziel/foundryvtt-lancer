@@ -66,7 +66,7 @@ export class LancerInitiativeConfigApp extends HandlebarsApplicationMixin(Applic
   }
 }
 
-export function extendCombatTrackerConfig(app: foundry.applications.api.ApplicationV2, html: HTMLElement) {
+export function extendCombatTrackerConfig(app: foundry.applications.apps.CombatTrackerConfig.Any, html: HTMLElement) {
   const button = document.createElement("button");
   button.type = "button";
   button.innerHTML = game.i18n.localize("LANCERINITIATIVE.IconSettingsMenu");
