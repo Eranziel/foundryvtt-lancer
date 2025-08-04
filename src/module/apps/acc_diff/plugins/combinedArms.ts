@@ -85,8 +85,6 @@ function findLastHitWeaponType(actorId: string | null): WeaponType | undefined {
 //A lot of common talent boilerplate is contained in SampleTalent
 export class CombinedArms_3 extends AbstractTalent implements AccDiffHudCheckboxPluginData {
   //Shared type requirements
-  //slugify here to make sure the slug is same across this plugin and TalentWindow.svelte
-  //Alternatively could use lid and rank_num
   static slug: string = slugify("Storm of Violence", "-");
   slug: string = slugify("Storm of Violence", "-");
   static kind: "hase" | "attack" = "attack";

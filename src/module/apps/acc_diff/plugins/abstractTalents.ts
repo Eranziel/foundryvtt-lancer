@@ -37,7 +37,6 @@ export class AbstractTalent {
 
   //CheckboxUI requirements
   uiElement: "checkbox" = "checkbox";
-  //Doesn't matter as of time of writing I don't think
   rollPrecedence = 0; // higher numbers happen earlier
 
   get uiState(): boolean {
@@ -45,8 +44,8 @@ export class AbstractTalent {
   }
   set uiState(data: boolean) {
     this.active = data;
-
     console.log("BEING SET, active = " + this.active);
+    document.dispatchEvent(new Event("pluginUpdate"));
   }
   // this talent is only visible when the owner has talent
   visible = false;
@@ -89,7 +88,7 @@ export class AbstractTalent {
     return true;
   }
 
-  //RollModifier
+  //RollModifier Requirements
   get accBonus(): number {
     return 0;
   }
@@ -132,7 +131,6 @@ export class AbstractCardReminder {
 
   //RollModifier requirements
   readonly accBonus = 0;
-  //Doesn't matter as of time of writing I don't think
   rollPrecedence = 0; // higher numbers happen earlier
 
   //Dehydrated requirements

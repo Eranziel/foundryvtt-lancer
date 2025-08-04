@@ -14,8 +14,6 @@ import { TalentEffect } from "../../../flows/interfaces";
 // The GM can also let them backtrack if they forgot.
 export default class Hunter_1 extends AbstractCardReminder implements AccDiffHudNoUIPluginData {
   //Shared type requirements
-  //slugify here to make sure the slug is same across this plugin and TalentWindow.svelte
-  //Alternatively could use lid and rank_num
   static slug: string = slugify("Lunge", "-");
   slug: string = slugify("Lunge", "-");
   static kind: "hase" | "attack" = "attack";

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { createEventDispatcher } from "svelte";
   import { LANCER } from "../../config";
   import { AccDiffHudBase, AccDiffHudTarget, AccDiffHudWeapon } from "../acc_diff";
   import Plugin from "../acc_diff/Plugin.svelte";
@@ -13,6 +14,8 @@
     console.warn(`${LANCER.log_prefix} Talent window called for unknown kind of HUD: ${kind}`);
 
   $: visibleTalents = determineTalents(targets);
+
+  const dispatch = createEventDispatcher();
 
   function determineTalents(targets: AccDiffHudTarget[] | DamageHudTarget[] | undefined) {
     if (!targets) return [];

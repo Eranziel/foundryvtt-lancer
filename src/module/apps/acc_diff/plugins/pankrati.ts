@@ -9,8 +9,6 @@ import { AbstractTalent } from "./abstractTalents";
 //A lot of common talent boilerplate is contained in SampleTalent
 export default class Pankrati_1 extends AbstractTalent implements AccDiffHudCheckboxPluginData {
   //Shared type requirements
-  //slugify here to make sure the slug is same across this plugin and TalentWindow.svelte
-  //Alternatively could use lid and rank_num
   static slug: string = slugify("Veni", "-");
   slug: string = slugify("Veni", "-");
   static kind: "hase" | "attack" = "attack";

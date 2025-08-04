@@ -101,7 +101,16 @@
     .sort((a, b) => huds[b].open! - huds[a].open!);
 </script>
 
-<div id="hudzone" class="window-app" class:faded={faded || $isDragging} style="bottom: 0; right: {$sidebarWidth}px">
+<!-- TalentWindow may dispatch "change" and if it does, update other huds -->
+<div
+  id="hudzone"
+  class="window-app"
+  class:faded={faded || $isDragging}
+  style="bottom: 0; right: {$sidebarWidth}px"
+  on:change={() => {
+    huds.attack.data = huds.attack.data;
+  }}
+>
   {#each visibleHudsKeys as key (key + huds[key].data.title)}
     <div class="component grid-enforcement" transition:slide>
       <svelte:component
