@@ -8,6 +8,7 @@ export class AbstractTalent {
   //Plugin state
   active: boolean = false;
   reminderActive: boolean = false;
+  manuallySet: boolean = false;
   data?: AccDiffHudData;
 
   //AccDiffHudPlugin requirements
@@ -40,12 +41,11 @@ export class AbstractTalent {
   rollPrecedence = 0; // higher numbers happen earlier
 
   get uiState(): boolean {
-    return this.accBonus !== 0;
+    return this.active;
   }
   set uiState(data: boolean) {
     this.active = data;
-    console.log("BEING SET, active = " + this.active);
-    document.dispatchEvent(new Event("pluginUpdate"));
+    this.manuallySet = true;
   }
   // this talent is only visible when the owner has talent
   visible = false;
@@ -53,6 +53,12 @@ export class AbstractTalent {
 
   //Dehydrated requirements
   hydrate(data: AccDiffHudData, target?: AccDiffHudTarget) {
+    //This might be called after the window initially pops up
+    //We need to check for that and not set it to anything again
+    //Would not be needed with a better way
+    if (this.manuallySet) return;
+
+    //Check if talent did not init the stuff it needed to init, innit
     if (this.slug === "i-was-not-initialized" || this.lid === "i_was_not_initialized" || this.talentRank == 0) {
       console.error(`${LANCER.log_prefix} slug/lid/talentRank were not initialized from AbstractTalent`);
     }

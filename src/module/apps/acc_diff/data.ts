@@ -149,7 +149,7 @@ export class AccDiffHudBase {
   accuracy: number;
   difficulty: number;
   cover: Cover;
-  plugins: { [k: string]: any };
+  plugins: { [k: string]: AccDiffHudPlugin<any> & AccDiffHudPluginData };
   #weapon!: AccDiffHudWeapon; // never use this class before calling hydrate
 
   static pluginSchema: { [k: string]: AccDiffHudPluginCodec<any, any, any> } = {};

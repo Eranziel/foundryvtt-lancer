@@ -108,7 +108,7 @@
   class:faded={faded || $isDragging}
   style="bottom: 0; right: {$sidebarWidth}px"
   on:change={() => {
-    huds.attack.data = huds.attack.data;
+    huds.attack.data = huds.attack.data; // Trigger a re-render for talent's sake
   }}
 >
   {#each visibleHudsKeys as key (key + huds[key].data.title)}

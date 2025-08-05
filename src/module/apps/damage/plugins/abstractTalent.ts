@@ -7,6 +7,7 @@ import { LANCER } from "../../../config";
 export class AbstractTalent {
   //Plugin state
   active: boolean = false;
+  manuallySet: boolean = false;
   data?: DamageHudData;
 
   //AccDiffHudPlugin requirements
@@ -44,8 +45,7 @@ export class AbstractTalent {
   }
   set uiState(data: boolean) {
     this.active = data;
-
-    console.log("BEING SET, active = " + this.active);
+    this.manuallySet = true;
   }
   // this talent is only visible when the owner has talent
   visible = false;
@@ -53,6 +53,12 @@ export class AbstractTalent {
 
   //Dehydrated requirements
   hydrate(data: DamageHudData, target?: DamageHudTarget) {
+    //This might be called after the window initially pops up
+    //We need to check for that and not set it to anything again
+    //Would not be needed with a better way
+    if (this.manuallySet) return;
+
+    //Check if talent did not init the stuff it needed to init
     if (this.slug === "i-was-not-initialized" || this.lid === "i_was_not_initialized" || this.talentRank == 0) {
       console.error(`${LANCER.log_prefix} slug/lid/talentRank were not initialized from AbstractTalent`);
     }

@@ -37,8 +37,7 @@ export class Nuke_1 extends AbstractTalent implements DamageHudCheckboxPluginDat
   }
   set uiState(data: boolean) {
     Nuke_1.active = data;
-
-    console.log("BEING SET, active = " + Nuke_1.active);
+    this.manuallySet = true;
   }
 
   //AccDiffHudPlugin requirements
@@ -126,8 +125,7 @@ export class Nuke_2 extends AbstractTalent implements DamageHudCheckboxPluginDat
   }
   set uiState(data: boolean) {
     Nuke_2.active = data;
-
-    console.log("BEING SET, active = " + Nuke_2.active);
+    this.manuallySet = true;
   }
 
   //AccDiffHudPlugin requirements
