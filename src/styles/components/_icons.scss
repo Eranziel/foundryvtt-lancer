@@ -1,117 +1,119 @@
-.small-icon {
-  flex-grow: 0;
-  min-width: 1em;
-  max-height: 1em;
-}
+@layer lancer.components {
+  .small-icon {
+    flex-grow: 0;
+    min-width: 1em;
+    max-height: 1em;
+  }
 
-.med-icon {
-  flex-grow: 0;
-  max-width: 2.5em;
-  max-height: 2.5em;
-}
+  .med-icon {
+    flex-grow: 0;
+    max-width: 2.5em;
+    max-height: 2.5em;
+  }
 
-.large-icon {
-  flex-grow: 0;
-  min-width: 5em;
-  max-height: 5em;
-}
+  .large-icon {
+    flex-grow: 0;
+    min-width: 5em;
+    max-height: 5em;
+  }
 
-@mixin icon-size($pixels) {
-  font-size: $pixels;
-  min-width: $pixels;
-  max-width: $pixels;
-  min-height: $pixels;
-  max-height: $pixels;
-}
+  @mixin icon-size($pixels) {
+    font-size: $pixels;
+    min-width: $pixels;
+    max-width: $pixels;
+    min-height: $pixels;
+    max-height: $pixels;
+  }
 
-@mixin vert-mid() {
-  vertical-align: middle;
-}
+  @mixin vert-mid() {
+    vertical-align: middle;
+  }
 
-.i--click {
-  cursor: pointer;
-}
+  .i--click {
+    cursor: pointer;
+  }
 
-.i--xs {
-  @include icon-size(15px);
-  @include vert-mid();
-}
+  .i--xs {
+    @include icon-size(15px);
+    @include vert-mid();
+  }
 
-.i--s {
-  @include icon-size(20px);
-  @include vert-mid();
-}
+  .i--s {
+    @include icon-size(20px);
+    @include vert-mid();
+  }
 
-.i--sm {
-  @include icon-size(25px);
-  @include vert-mid();
-}
+  .i--sm {
+    @include icon-size(25px);
+    @include vert-mid();
+  }
 
-.i--m {
-  @include icon-size(30px);
-  @include vert-mid();
-}
+  .i--m {
+    @include icon-size(30px);
+    @include vert-mid();
+  }
 
-.i--l {
-  @include icon-size(40px);
-  @include vert-mid();
-}
+  .i--l {
+    @include icon-size(40px);
+    @include vert-mid();
+  }
 
-.i--xl {
-  @include icon-size(60px);
-  @include vert-mid();
-}
+  .i--xl {
+    @include icon-size(60px);
+    @include vert-mid();
+  }
 
-.size-icon,
-.tier-icon {
-  @include icon-size(120px);
-  @include vert-mid();
-}
+  .size-icon,
+  .tier-icon {
+    @include icon-size(120px);
+    @include vert-mid();
+  }
 
-.profile-img {
-  @include icon-size(100px);
-  object-fit: cover;
-}
+  .profile-img {
+    @include icon-size(100px);
+    object-fit: cover;
+  }
 
-.faded {
-  opacity: 75%;
-}
+  .faded {
+    opacity: 75%;
+  }
 
-.i--dark {
-  color: var(--dark-text);
-}
+  .i--dark {
+    color: var(--dark-text);
+  }
 
-.i--light {
-  color: var(--light-text);
-}
+  .i--light {
+    color: var(--light-text);
+  }
 
-.damage--kinetic {
-  color: #616161;
-}
+  .damage--kinetic {
+    color: #616161;
+  }
 
-.damage--energy {
-  color: #2195ca;
-}
+  .damage--energy {
+    color: #2195ca;
+  }
 
-.damage--explosive {
-  color: #fca017;
-}
+  .damage--explosive {
+    color: #fca017;
+  }
 
-.damage--burn {
-  color: #ce871e;
-}
+  .damage--burn {
+    color: #ce871e;
+  }
 
-.damage--heat {
-  color: #e74210;
-}
+  .damage--heat {
+    color: #e74210;
+  }
 
-.damage--variable {
-  color: #d500f9;
-}
+  .damage--variable {
+    color: #d500f9;
+  }
 
-.size-icon {
-  color: var(--primary-color, fuchsia);
-}
-.tier-icon {
-  color: var(--light-text);
+  .size-icon {
+    color: var(--primary-color, fuchsia);
+  }
+  .tier-icon {
+    color: var(--light-text);
+  }
 }

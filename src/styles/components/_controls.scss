@@ -63,7 +63,10 @@
   max-height: 1000em;
   opacity: 1;
   overflow: unset;
-  transition: max-height 0.5s, opacity 0.2s, padding 0.5s ease-in;
+  transition:
+    max-height 0.5s,
+    opacity 0.2s,
+    padding 0.5s ease-in;
 }
 .collapse.collapsed {
   max-height: 0;

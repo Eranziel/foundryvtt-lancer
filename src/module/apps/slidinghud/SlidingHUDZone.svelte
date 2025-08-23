@@ -116,31 +116,37 @@
 </div>
 
 <style>
-  #hudzone {
-    position: absolute;
-    display: flex;
-    align-items: flex-end;
-    background-color: transparent;
-    border: none;
-    box-shadow: none;
-    flex-direction: row-reverse;
-    pointer-events: none;
-    transition: right 600ms, opacity 200ms;
-    z-index: 999;
-  }
+  @layer lancer {
+    @layer applications {
+      #hudzone {
+        position: absolute;
+        display: flex;
+        align-items: flex-end;
+        background-color: transparent;
+        border: none;
+        box-shadow: none;
+        flex-direction: row-reverse;
+        pointer-events: none;
+        transition:
+          right 600ms,
+          opacity 200ms;
+        z-index: 999;
+      }
 
-  #hudzone > .component {
-    padding-right: 12px;
-    pointer-events: initial;
-    flex: unset;
-    filter: drop-shadow(0.4rem 0.4rem 0.6rem #333);
-  }
+      #hudzone > .component {
+        padding-right: 12px;
+        pointer-events: initial;
+        flex: unset;
+        filter: drop-shadow(0.4rem 0.4rem 0.6rem #333);
+      }
 
-  #hudzone.faded {
-    opacity: 0.2;
-  }
+      #hudzone.faded {
+        opacity: 0.2;
+      }
 
-  #hudzone.faded > .component {
-    pointer-events: unset;
+      #hudzone.faded > .component {
+        pointer-events: unset;
+      }
+    }
   }
 </style>

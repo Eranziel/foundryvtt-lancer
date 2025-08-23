@@ -29,19 +29,23 @@
 </button>
 
 <style lang="scss">
-  .lancer-button {
-    width: 5em;
-    align-self: center;
-  }
+  @layer lancer {
+    @layer components {
+      .lancer-button {
+        width: 5em;
+        align-self: center;
+      }
 
-  label {
-    text-align: center;
-    margin: 0 0.5em;
-    height: 3em;
-  }
+      label {
+        text-align: center;
+        margin: 0 0.5em;
+        height: 3em;
+      }
 
-  .accdiff-value {
-    height: 2em;
-    vertical-align: middle;
+      .accdiff-value {
+        height: 2em;
+        vertical-align: middle;
+      }
+    }
   }
 </style>

@@ -49,47 +49,51 @@
 </div>
 
 <style lang="scss">
-  select,
-  input {
-    color: unset;
-  }
+  @layer lancer {
+    @layer components {
+      select,
+      input {
+        color: unset;
+      }
 
-  .damage-input-container {
-    display: grid;
-    grid-template-columns: min-content min-content 1fr min-content;
-    grid-template-rows: auto;
-    align-items: center;
-    justify-items: center;
-  }
+      .damage-input-container {
+        display: grid;
+        grid-template-columns: min-content min-content 1fr min-content;
+        grid-template-rows: auto;
+        align-items: center;
+        justify-items: center;
+      }
 
-  .damage-input-type {
-    background-color: var(--darken-1);
+      .damage-input-type {
+        background-color: var(--darken-1);
 
-    & option {
-      color: var(--tooltip-text);
-      background-color: var(--tooltip-background);
-    }
-  }
+        & option {
+          color: var(--tooltip-text);
+          background-color: var(--tooltip-background);
+        }
+      }
 
-  .damage-input-val {
-    background-color: var(--darken-1);
-    margin: 0;
-    max-width: 10em;
-  }
+      .damage-input-val {
+        background-color: var(--darken-1);
+        margin: 0;
+        max-width: 10em;
+      }
 
-  .damage-delete {
-    line-height: 1.5em;
-    max-height: 1.5em;
-    max-width: 1.5em;
-    width: 1.5em;
-    height: 1.5em;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 0;
+      .damage-delete {
+        line-height: 1.5em;
+        max-height: 1.5em;
+        max-width: 1.5em;
+        width: 1.5em;
+        height: 1.5em;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 0;
 
-    i {
-      margin: 0;
+        i {
+          margin: 0;
+        }
+      }
     }
   }
 </style>

@@ -1,77 +1,80 @@
 @use "variables" as *;
 
+// Can't do @use inside of @layer, so each of these source files also add styles to the layer.
 @use "applications/action-manager";
 @use "applications/actor-sheet";
 @use "applications/item-sheet";
 @use "applications/stabilize";
 
-/* ===== RULES FOR LANCER APPLICATIONS ===== */
-.application.lancer {
-  .window-content {
-    width: 100%;
-    height: 100%;
-    background-color: var(--background-color);
-    color: var(--dark-text);
-
-    & .svelte-app-mount {
-      height: 100%;
+@layer lancer.applications {
+  /* ===== RULES FOR LANCER APPLICATIONS ===== */
+  .application.lancer {
+    .window-content {
       width: 100%;
-    }
-  }
-}
+      height: 100%;
+      background-color: var(--background-color);
+      color: var(--dark-text);
 
-// TODO: these should live somewhere else,
-// and lancer-sheet probably doesn't get used?
-.lancer.sheet,
-.lancer-sheet {
-  .editor,
-  .editor-content {
-    height: -webkit-fill-available;
-    min-height: 30em;
-  }
-}
-
-/* ===== RULES FOR ALL APPLICATIONS ===== */
-.application .window-content {
-  h1,
-  h2,
-  h3,
-  h4 {
-    font-family: var(--main-font-family);
-    margin-top: 0.5em;
-    margin-bottom: 0;
-  }
-
-  button,
-  a.button {
-    &:hover {
-      background-color: var(--primary-color);
-      border-color: var(--lighten-5);
+      & .svelte-app-mount {
+        height: 100%;
+        width: 100%;
+      }
     }
   }
 
-  input[type="checkbox"]:checked,
-  input[type="radio"]:checked {
-    --checkbox-checked-color: var(--secondary-color);
-    --checkbox-disabled-color: var(--dark-gray-color);
-    --checkbox-background-color: var(--dark-gray-color);
+  // TODO: these should live somewhere else,
+  // and lancer-sheet probably doesn't get used?
+  .lancer.sheet,
+  .lancer-sheet {
+    .editor,
+    .editor-content {
+      height: -webkit-fill-available;
+      min-height: 30em;
+    }
   }
-}
 
-.scroll-body {
-  overflow-y: auto;
-  margin-top: 8px;
-  height: calc(100% - 168px);
-}
+  /* ===== RULES FOR ALL APPLICATIONS ===== */
+  .application .window-content {
+    h1,
+    h2,
+    h3,
+    h4 {
+      font-family: var(--main-font-family);
+      margin-top: 0.5em;
+      margin-bottom: 0;
+    }
 
-.monospace {
-  font-family: var(--monospace-font-family);
-}
+    button,
+    a.button {
+      &:hover {
+        background-color: var(--primary-color);
+        border-color: var(--lighten-5);
+      }
+    }
 
-/* By default, edit*/
-.locked {
-  /* Only show edit button if not locked*/
-  .popout-text-edit-button {
-    display: none;
+    input[type="checkbox"]:checked,
+    input[type="radio"]:checked {
+      --checkbox-checked-color: var(--secondary-color);
+      --checkbox-disabled-color: var(--dark-gray-color);
+      --checkbox-background-color: var(--dark-gray-color);
+    }
+  }
+
+  .scroll-body {
+    overflow-y: auto;
+    margin-top: 8px;
+    height: calc(100% - 168px);
+  }
+
+  .monospace {
+    font-family: var(--monospace-font-family);
+  }
+
+  /* By default, edit*/
+  .locked {
+    /* Only show edit button if not locked*/
+    .popout-text-edit-button {
+      display: none;
+    }
   }
 }

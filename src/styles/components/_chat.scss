@@ -1,152 +1,92 @@
-.card.lancer-charge-chip {
-  color: var(--light-text);
-  background-color: var(--dark-gray-color);
-}
+@layer lancer.components {
+  .card.lancer-charge-chip {
+    color: var(--light-text);
+    background-color: var(--dark-gray-color);
+  }
 
-.card.lancer-charge-chip.charged {
-  color: var(--light-text);
-  background-color: var(--hit-color);
-}
-
-.lancer-dice-roll {
-  padding-left: 3px;
-  padding-right: 3px;
-}
-
-.lancer-dice-formula,
-.lancer-dice-total {
-  margin: 5px;
-  align-items: center;
-  text-align: center;
-  background: var(--darken-1);
-  border: 1px solid #999;
-  border-radius: 3px;
-  box-shadow: 0 0 2px #fff inset;
-}
-
-.lancer-dice-total {
-  margin: 5px;
-  min-width: max-content;
-  padding: 0px 5px;
-}
-
-/* ===== ATTACK RESULTS ===== */
-
-.lancer-hit {
-  display: inline-flex;
-  margin: 8px;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.card.lancer-hit-chip {
-  float: right;
-  width: 100%;
-  margin: 3px 0;
-  color: var(--light-text);
-  background-color: var(--miss-color);
-
-  &.hit {
+  .card.lancer-charge-chip.charged {
+    color: var(--light-text);
     background-color: var(--hit-color);
   }
 
-  &.crit {
-    background-color: var(--crit-color);
+  .lancer-dice-roll {
+    padding-left: 3px;
+    padding-right: 3px;
   }
-}
 
-.lancer-hit-thumb {
-  width: 50px;
-  min-width: 50px;
-  margin-right: 4px;
-  margin-top: 2px;
-  border: 2px solid var(--dark-gray-color);
-  border-radius: 5px;
-  border-right: none;
-  border-left: none;
-}
+  .lancer-dice-formula,
+  .lancer-dice-total {
+    margin: 5px;
+    align-items: center;
+    text-align: center;
+    background: var(--darken-1);
+    border: 1px solid #999;
+    border-radius: 3px;
+    box-shadow: 0 0 2px #fff inset;
+  }
 
-.lancer-hit-text {
-  display: inline-grid;
-  text-align: start;
-  width: 80%;
-}
+  .lancer-dice-total {
+    margin: 5px;
+    min-width: max-content;
+    padding: 0px 5px;
+  }
 
-.lancer-hit-text-name {
-  font-size: 1.1em;
-  overflow: hidden;
-  text-wrap: nowrap;
-  text-overflow: ellipsis;
-}
+  /* ===== ATTACK RESULTS ===== */
 
-.lancer-hit-target {
-  margin: 0.1em 0;
-  display: grid;
-  grid-template-areas:
-    "img name hit"
-    "img roll roll";
-  grid-template-columns: 55px 2fr 1fr;
-  align-items: center;
+  .lancer-hit {
+    display: inline-flex;
+    margin: 8px;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .card.lancer-hit-chip {
+    float: right;
+    width: 100%;
+    margin: 3px 0;
+    color: var(--light-text);
+    background-color: var(--miss-color);
+
+    &.hit {
+      background-color: var(--hit-color);
+    }
+
+    &.crit {
+      background-color: var(--crit-color);
+    }
+  }
 
   .lancer-hit-thumb {
-    grid-area: img;
-    margin: 0;
+    width: 50px;
+    min-width: 50px;
+    margin-right: 4px;
+    margin-top: 2px;
+    border: 2px solid var(--dark-gray-color);
+    border-radius: 5px;
+    border-right: none;
+    border-left: none;
+  }
+
+  .lancer-hit-text {
+    display: inline-grid;
+    text-align: start;
+    width: 80%;
   }
 
   .lancer-hit-text-name {
-    grid-area: name;
+    font-size: 1.1em;
+    overflow: hidden;
+    text-wrap: nowrap;
+    text-overflow: ellipsis;
   }
 
-  .lancer-hit-chip {
-    grid-area: hit;
-  }
-
-  .lancer-hit-roll {
-    grid-area: roll;
-    & i.fas {
-      margin-left: 0.1em;
-      margin-right: 0.1em;
-    }
-  }
-
-  &:has(+ .lancer-hit-target) {
-    .lancer-hit-roll {
-      border-bottom: 1px dashed var(--dark-gray-color);
-    }
-  }
-}
-
-.lancer-damage-flow {
-  margin: 0 0.5em 0.25em 0.5em;
-  width: calc(100% - 1em);
-
-  i {
-    margin-right: 0.25em;
-  }
-}
-
-/* ===== DAMAGE RESULTS ===== */
-.lancer-damage-tag {
-  padding: 0.1em 0.5em;
-  background-color: var(--primary-color);
-  color: var(--light-text);
-  border-radius: 0.5em;
-  font-size: 0.8em;
-  display: flex;
-  align-content: center;
-  align-items: center;
-  text-wrap: nowrap;
-}
-.lancer-damage-targets {
-  margin: 0px 0.25em;
-
-  .lancer-damage-target {
-    margin: 0.3em 0;
+  .lancer-hit-target {
+    margin: 0.1em 0;
     display: grid;
     grid-template-areas:
-      "img name button"
-      "img tags tags";
-    grid-template-columns: 55px auto min-content;
+      "img name hit"
+      "img roll roll";
+    grid-template-columns: 55px 2fr 1fr;
     align-items: center;
 
     .lancer-hit-thumb {
@@ -156,102 +96,164 @@
 
     .lancer-hit-text-name {
       grid-area: name;
-      text-align: left;
-      height: 100%;
-      align-content: center;
     }
 
-    .lancer-damage-totals {
-      grid-area: totals;
+    .lancer-hit-chip {
+      grid-area: hit;
     }
 
-    .lancer-damage-button-group {
-      grid-area: button;
-    }
-
-    .lancer-damage-rolls-tags {
-      grid-area: tags;
-      min-height: 1.3em;
-      padding: 0.1em;
-
-      .lancer-target-bonus-damage:not(:has(*)) {
-        display: none;
-
-        & ~ .lancer-damage-tags {
-          flex-grow: 1 !important;
-        }
+    .lancer-hit-roll {
+      grid-area: roll;
+      & i.fas {
+        margin-left: 0.1em;
+        margin-right: 0.1em;
       }
     }
 
-    .lancer-damage-tags {
-      display: flex;
-      flex-wrap: wrap;
-      justify-self: flex-end;
-      justify-content: flex-end;
-      align-items: center;
-      flex-grow: 0;
-    }
-
-    &:has(+ .lancer-damage-target) {
-      .lancer-damage-rolls-tags {
+    &:has(+ .lancer-hit-target) {
+      .lancer-hit-roll {
         border-bottom: 1px dashed var(--dark-gray-color);
       }
     }
+  }
 
-    // Add a small margin below the last target if there's another
-    // header following
-    &:has(+ .lancer-mini-header) {
-      margin-bottom: 4px;
+  .lancer-damage-flow {
+    margin: 0 0.5em 0.25em 0.5em;
+    width: calc(100% - 1em);
+
+    i {
+      margin-right: 0.25em;
     }
   }
-}
 
-.lancer-damage-button-group {
-  display: flex;
-  align-items: center;
-  max-width: min-content;
-  border-radius: 5px;
-  box-shadow: var(--button-shadow);
+  /* ===== DAMAGE RESULTS ===== */
+  .lancer-damage-tag {
+    padding: 0.1em 0.5em;
+    background-color: var(--primary-color);
+    color: var(--light-text);
+    border-radius: 0.5em;
+    font-size: 0.8em;
+    display: flex;
+    align-content: center;
+    align-items: center;
+    text-wrap: nowrap;
+  }
+  .lancer-damage-targets {
+    margin: 0px 0.25em;
 
-  .lancer-damage-apply-select {
-    width: min-content;
-    border: 1px solid var(--darken-4);
-    border-radius: 5px;
-    padding: 0.25em;
-    background: var(--darken-1);
-    text-align: center;
+    .lancer-damage-target {
+      margin: 0.3em 0;
+      display: grid;
+      grid-template-areas:
+        "img name button"
+        "img tags tags";
+      grid-template-columns: 55px auto min-content;
+      align-items: center;
 
-    & option {
-      background: var(--light-gray-color);
-      color: var(--dark-text);
-    }
+      .lancer-hit-thumb {
+        grid-area: img;
+        margin: 0;
+      }
 
-    &:has(+ .lancer-button) {
-      border-top-right-radius: 0px;
-      border-bottom-right-radius: 0px;
-      margin-right: 0px;
-      padding-right: 0px;
-      height: 29px;
-    }
+      .lancer-hit-text-name {
+        grid-area: name;
+        text-align: left;
+        height: 100%;
+        align-content: center;
+      }
 
-    & + .lancer-button {
-      border-top-left-radius: 0px;
-      border-bottom-left-radius: 0px;
-      margin-left: 0px;
-      padding-left: 0px;
-      margin-right: 0px;
-      height: 29px;
-      box-shadow: none;
+      .lancer-damage-totals {
+        grid-area: totals;
+      }
 
-      &:hover {
-        box-shadow: var(--hover-bright);
+      .lancer-damage-button-group {
+        grid-area: button;
+      }
+
+      .lancer-damage-rolls-tags {
+        grid-area: tags;
+        min-height: 1.3em;
+        padding: 0.1em;
+
+        .lancer-target-bonus-damage:not(:has(*)) {
+          display: none;
+
+          & ~ .lancer-damage-tags {
+            flex-grow: 1 !important;
+          }
+        }
+      }
+
+      .lancer-damage-tags {
+        display: flex;
+        flex-wrap: wrap;
+        justify-self: flex-end;
+        justify-content: flex-end;
+        align-items: center;
+        flex-grow: 0;
+      }
+
+      &:has(+ .lancer-damage-target) {
+        .lancer-damage-rolls-tags {
+          border-bottom: 1px dashed var(--dark-gray-color);
+        }
+      }
+
+      // Add a small margin below the last target if there's another
+      // header following
+      &:has(+ .lancer-mini-header) {
+        margin-bottom: 4px;
       }
     }
   }
-}
 
-.chat-message .lancer-damage-applied {
-  & i.cci {
-    margin-right: -0.2em;
+  .lancer-damage-button-group {
+    display: flex;
+    align-items: center;
+    max-width: min-content;
+    border-radius: 5px;
+    box-shadow: var(--button-shadow);
+
+    .lancer-damage-apply-select {
+      width: min-content;
+      border: 1px solid var(--darken-4);
+      border-radius: 5px;
+      padding: 0.25em;
+      background: var(--darken-1);
+      text-align: center;
+
+      & option {
+        background: var(--light-gray-color);
+        color: var(--dark-text);
+      }
+
+      &:has(+ .lancer-button) {
+        border-top-right-radius: 0px;
+        border-bottom-right-radius: 0px;
+        margin-right: 0px;
+        padding-right: 0px;
+        height: 29px;
+      }
+
+      & + .lancer-button {
+        border-top-left-radius: 0px;
+        border-bottom-left-radius: 0px;
+        margin-left: 0px;
+        padding-left: 0px;
+        margin-right: 0px;
+        height: 29px;
+        box-shadow: none;
+
+        &:hover {
+          box-shadow: var(--hover-bright);
+        }
+      }
+    }
+  }
+
+  .chat-message .lancer-damage-applied {
+    & i.cci {
+      margin-right: -0.2em;
+    }
   }
 }

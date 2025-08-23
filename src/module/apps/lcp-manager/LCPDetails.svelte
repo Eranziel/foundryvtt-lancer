@@ -111,45 +111,49 @@
 </div>
 
 <style lang="scss">
-  .lcp-details.card {
-    margin-left: 0;
-    margin-right: 0;
-    margin-bottom: 0;
-    max-height: calc(100% - 5.5em);
-  }
-  .lcp-details__content {
-    display: inline-grid;
-    grid-template-rows: auto 1fr auto;
-    max-height: calc(100% - 3em);
-    overflow-y: hidden;
-    .lcp-description {
-      overflow-y: scroll;
-
-      & ul {
-        margin-top: 0.25em;
+  @layer lancer {
+    @layer components {
+      .lcp-details.card {
+        margin-left: 0;
+        margin-right: 0;
+        margin-bottom: 0;
+        max-height: calc(100% - 5.5em);
       }
-    }
-  }
+      .lcp-details__content {
+        display: inline-grid;
+        grid-template-rows: auto 1fr auto;
+        max-height: calc(100% - 3em);
+        overflow-y: hidden;
+        .lcp-description {
+          overflow-y: scroll;
 
-  .transition {
-    &.fade-in {
-      opacity: 1;
-      transition: opacity ease-in 0.333s;
-    }
-    &.fade-out {
-      opacity: 0;
-      transition: opacity ease-in 0.1s;
-    }
-  }
-  .manifest-image {
-    max-width: 400px;
-    max-height: 400px;
+          & ul {
+            margin-top: 0.25em;
+          }
+        }
+      }
 
-    .lcp-description & {
-      float: right;
-      margin-left: 10px;
-      margin-bottom: 10px;
-      max-width: 60%;
+      .transition {
+        &.fade-in {
+          opacity: 1;
+          transition: opacity ease-in 0.333s;
+        }
+        &.fade-out {
+          opacity: 0;
+          transition: opacity ease-in 0.1s;
+        }
+      }
+      .manifest-image {
+        max-width: 400px;
+        max-height: 400px;
+
+        .lcp-description & {
+          float: right;
+          margin-left: 10px;
+          margin-bottom: 10px;
+          max-width: 60%;
+        }
+      }
     }
   }
 </style>

@@ -1,7 +1,9 @@
-#combat-tracker-config {
-  .form-group.submenu {
-    button {
-      flex-basis: 100%;
+@layer lancer.applications {
+  #combat-tracker-config {
+    .form-group.submenu {
+      button {
+        flex-basis: 100%;
+      }
     }
   }
 }

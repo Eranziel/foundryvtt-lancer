@@ -71,15 +71,19 @@
 </form>
 
 <style>
-  .message-body {
-    margin: 8px 4px;
-  }
+  @layer lancer {
+    @layer applications {
+      .message-body {
+        margin: 8px 4px;
+      }
 
-  .damage-preview {
-    text-align: center;
-  }
+      .damage-preview {
+        text-align: center;
+      }
 
-  .damaged {
-    opacity: 30%;
+      .damaged {
+        opacity: 30%;
+      }
+    }
   }
 </style>
