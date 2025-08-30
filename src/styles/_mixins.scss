@@ -1,0 +1,11 @@
+@mixin icon-size($pixels) {
+  font-size: $pixels;
+  min-width: $pixels;
+  max-width: $pixels;
+  min-height: $pixels;
+  max-height: $pixels;
+}
+
+@mixin vert-mid() {
+  vertical-align: middle;
+}
