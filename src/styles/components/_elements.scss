@@ -1,4 +1,20 @@
+@use "../mixins";
+
 @layer lancer.components {
+  img.portrait-img {
+    @include mixins.icon-size(100px);
+    object-fit: cover;
+    border: none;
+    margin: 0;
+    float: right;
+    filter: drop-shadow(0 0 5px var(--primary-highlight));
+    transition: filter 0.2s ease-in;
+
+    &:hover {
+      filter: drop-shadow(0 0 10px var(--primary-highlight));
+    }
+  }
+
   .desc-text {
     text-align: left;
     padding: 0.5em;

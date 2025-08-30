@@ -4,11 +4,6 @@
     //height: -webkit-fill-available;
   }
 
-  .header-field,
-  .header-fields > * {
-    color: var(--light-text) !important;
-  }
-
   .lancer.sheet .mount-header select {
     color: var(--light-text);
     outline: 0;
@@ -20,19 +15,60 @@
     color: var(--light-text);
   }
 
-  /* Components Layer */
-  .lancer.sheet header:not(.window-header) {
+  .lancer.sheet .sheet-header {
     align-items: center;
-    display: flex;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 170px;
+    grid-template-rows: 2fr 1fr;
+    grid-template-areas:
+      "name name name img"
+      "detail1 detail2 detail3 img";
+    position: relative;
     flex-direction: row;
     justify-content: space-between;
     background-color: var(--primary-color, fuchsia);
-    margin: 10px;
+    margin: 0 0 0.5em 0;
     color: var(--light-text);
 
     &.inactive-mech {
       background-color: var(--secondary-color, fuchsia);
       color: var(--secondary-text);
+    }
+
+    .header-field,
+    .header-fields > * {
+      color: var(--light-text) !important;
+    }
+
+    .name {
+      grid-area: name;
+    }
+
+    .portrait-img-container {
+      grid-area: img;
+      background-color: var(--background-color);
+      height: 105%;
+      padding: 5% 20px 0 40px;
+      clip-path: polygon(0 100%, 40px 0, 100% 0, 100% 100%);
+    }
+
+    .header-detail-1 {
+      grid-area: detail1;
+    }
+
+    .header-detail-2 {
+      grid-area: detail2;
+    }
+
+    .header-detail-3 {
+      grid-area: detail3;
+    }
+
+    .header-details {
+      grid-area: detail1 / detail1 / detail1 / detail3;
+      display: flex;
+      flex-direction: row;
+      justify-items: center;
     }
   }
 

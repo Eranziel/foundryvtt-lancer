@@ -1,18 +1,23 @@
 <form class="{{cssClass}} lancer-sheet" autocomplete="off">
   {{! Sheet Header }}
   <header class="sheet-header card clipped-bot">
-    <div class="header-fields">
-      <h1 class="charname">
-        <input
-          class="header-field"
-          name="name"
-          type="text"
-          value="{{actor.name}}"
-          placeholder="{{localize 'lancer.placeholder.name'}}"
-        />
-      </h1>
-    </div>
+    <h1 class="name header-fields">
+      <input
+        class="header-field"
+        name="name"
+        type="text"
+        value="{{actor.name}}"
+        placeholder="{{localize 'lancer.placeholder.name'}}"
+      />
+    </h1>
     {{{ref-portrait-img actor.img "img" actor}}}
+    <div class="header-details monospace">
+      DEPLOYABLE
+      {{#if owner}}
+        </br>OWNER ::
+        {{system.owner.value.name}}
+      {{/if}}
+    </div>
   </header>
 
   {{! Sheet Tab Navigation }}
