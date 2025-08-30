@@ -1,4 +1,4 @@
-// Set up our layers
+// Set up our layers, must be the first thing in the file.
 @use "styles/layers";
 
 @use "styles/variables" as *;
@@ -15,6 +15,7 @@
 @layer lancer.defaults {
   /* Settings Layer*/
   :root {
+    --header-font-family: Orbitron, Helvetica, Arial, sans-serif;
     --main-font-family: Helvetica, Arial, sans-serif;
     --monospace-font-family: Consolas, "Courier New", Courier, monaco, monospace;
 
