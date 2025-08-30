@@ -142,7 +142,8 @@
     -webkit-clip-path: var(--bottom-dogear-path);
   }
 
-  .vsep {
+  span.vsep {
+    background-image: none;
     border: none;
     border-left: 1px solid var(--secondary-color, black);
     border-right: 1px solid var(--secondary-color, black);

@@ -483,10 +483,10 @@ export function pilotWeaponRefview(weapon_path: string, options: HelperOptions):
           <i class="fas fa-dice-d20 i--sm i--dark"></i>
         </a>
         ${rangeArrayView(weapon.system.range, options)}
-        <hr class="vsep">
+        <span class="vsep"></span>
         ${damageArrayView(weapon.system.damage, { ...options, rollable: true })}
 
-        ${inc_if(`<hr class="vsep"><div class="uses-wrapper">`, loading || limited)}
+        ${inc_if(`<span class="vsep"></span><div class="uses-wrapper">`, loading || limited)}
         ${loading}
         ${limited}
         ${inc_if(`</div>`, loading || limited)}
@@ -589,8 +589,8 @@ export function reserveRefView(reserve_path: string, options: HelperOptions): st
   let resType = resTypes.includes(reserve.system.type)
     ? reserve.system.type
     : resTypes.includes(reserve.system.label)
-    ? reserve.system.label
-    : reserve.system.type;
+      ? reserve.system.label
+      : reserve.system.type;
   switch (resType) {
     case "Bonus": // missing?
       icon = "cci cci-accuracy";
@@ -753,12 +753,12 @@ data-action="set" data-action-value="(int)${i}" data-path="${weapon_path}.system
           <a class="roll-attack lancer-button" data-tooltip="Roll an attack with this weapon">
             <i class="fas fa-dice-d20 i--m i--dark"></i>
           </a>
-          <hr class="vsep">
+          <span class="vsep"></span>
           ${rangeArrayView(profile.all_range, options)}
-          <hr class="vsep">
+          <span class="vsep"></span>
           ${damageArrayView(profile.all_damage, { ...options, rollable: true })}
 
-          ${inc_if(`<hr class="vsep"><div class="uses-wrapper">`, loading || limited)}
+          ${inc_if(`<span class="vsep"></span><div class="uses-wrapper">`, loading || limited)}
           <!-- Loading toggle, if we are loading-->
           ${loading}
           <!-- Limited toggle if we are limited-->
@@ -1019,7 +1019,7 @@ export function buildActionHTML(
       { uuid: doc.uuid, path: path },
       { nonInteractive: options?.nonInteractive }
     );
-    chip = `<div class="action-flow-container">${chip}<hr class="vsep"></div>`;
+    chip = `<div class="action-flow-container">${chip}<span class="vsep"></span></div>`;
   } else {
     chip = "";
   }
@@ -1219,7 +1219,7 @@ export function buildDeployableHTML(
           ${chips.join(`</div>\n<div class="flexrow">`)}
         </div>
       </div>
-      ${options?.vertical ? "" : `<hr class="vsep">`}
+      ${options?.vertical ? "" : `<span class="vsep"></span>`}
     </div>
     <div style="grid-area: desc">${detailText ? detailText : ""}</div>
     ${
