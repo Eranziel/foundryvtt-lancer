@@ -2,6 +2,7 @@
 @use "styles/layers";
 
 @use "styles/variables" as *;
+@use "styles/themes/themes";
 @use "styles/layout";
 @use "styles/token/token-config";
 @use "styles/settings/lancer-initiative-config";
@@ -19,22 +20,6 @@
     --main-font-family: Helvetica, Arial, sans-serif;
     --monospace-font-family: Consolas, "Courier New", Courier, monaco, monospace;
 
-    /* Sheet theme vars */
-    --primary-color: #991e2a;
-    --primary-highlight: color-mix(in srgb, var(--primary-color), #fff 55%);
-    --color-shadow-primary: #991e2a;
-    --light-text: #efefef;
-    --dark-text: #000000;
-    --background-color: #ededed;
-    --secondary-color: #9e541f;
-    --secondary-highlight: color-mix(in srgb, var(--secondary-color), #fff 55%);
-    --secondary-text: #ffffff;
-    --dark-gray-color: #4d4d4d;
-    --light-gray-color: #919a9b;
-    --tooltip-background: #ffffff;
-    --tooltip-text: #000000;
-    --ref-color: color-mix(in srgb, var(--primary-color), #fff 90%);
-
     /* Manufacturer theme vars */
     --gms-color: #991e2a;
     --ips-n-color: #1662b8;
@@ -42,39 +27,7 @@
     --horus-color: #00a256;
     --ha-color: #6e4373;
 
-    /* Gear and type color vars */
-    --system-color: #58b434;
-    --weapon-color: #111111;
-    --trait-color: #0a7674;
-    --mod-color: var(--trait-color);
-    --bonus-color: #5d8673;
-    --bonus-list-color: #71a373;
-    --tech-color: #7d2477;
-    --talent-color: #3a81c3;
-    --pilot-stat-color: color-mix(in srgb, var(--background-color), #888 50%);
-
-    /* Action color vars */
-    --reaction-color: #892eb1;
-    --protocol-color: #c75a00;
-    --quick-color: #3949ab;
-    --quick-tech-color: #3949ab; // TODO is this needed?
-    --invade-color: #222222;
-    --full-color: #283593;
-    --full-tech-color: #283593; // TODO is this needed?
-    --free-color: #00695c;
-    --move-color: #cc0a0a;
-
-    /* Hit type color vars */
-    --crit-color: #9c5e35;
-    --hit-color: #337494;
-    --miss-color: #3c3c3c;
-    --error-color: #b4800e;
-
-    /* Accurate / difficult color vars */
-    --accurate-color: #0d689c;
-    --difficult-color: #9c0d0d;
-
-    /* Darkens tone by a small increment. For some themes should probably lighten instead, somehow? */
+    /* "Darkens" tone by a small increment. Themes can change --darken-color. */
     --darken-color: 0, 0, 0;
     --darken-1: rgba(var(--darken-color), 0.1);
     --darken-2: rgba(var(--darken-color), 0.2);
@@ -82,7 +35,7 @@
     --darken-4: rgba(var(--darken-color), 0.4);
     --darken-5: rgba(var(--darken-color), 0.5);
 
-    /* Darkens tone by a small increment. For some themes should probably lighten instead, somehow? */
+    /* "Lightens" tone by a small increment. Themes can change --lighten-color to customize. */
     --lighten-color: 255, 255, 255;
     --lighten-1: rgba(var(--lighten-color), 0.1);
     --lighten-2: rgba(var(--lighten-color), 0.2);
