@@ -38,10 +38,15 @@
         padding: 0em;
 
         .portrait-header {
-          font-size: var(--font-size-12);
           background-color: var(--primary-color);
           border-radius: 5px 5px 0px 0px;
           padding: 0em 0em 0em 0.5em;
+
+          h2 {
+            font-size: var(--font-size-12);
+            font-family: var(--header-font-family);
+            letter-spacing: 1px;
+          }
 
           .initiative {
             background-color: var(--dark-gray-color);
@@ -51,6 +56,11 @@
             border-bottom: 2px solid var(--primary-color);
             clip-path: polygon(1em 0%, 100% 0%, 100% 100%, 0% 100%);
             -webkit-clip-path: polygon(1em 0%, 100% 0%, 100% 100%, 0% 100%);
+
+            h3 {
+              font-size: var(--font-size-10);
+              font-family: var(--header-font-family);
+            }
           }
         }
 
