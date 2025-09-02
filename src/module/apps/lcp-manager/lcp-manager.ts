@@ -38,7 +38,7 @@ export function addLCPManagerButton(_app: foundry.applications.api.ApplicationV2
   let button = document.createElement("button");
   button.setAttribute("id", "lcp-manager-button");
   button.setAttribute("style", "flex-basis: 100%;margin-top: 5px;");
-  button.innerHTML = "<i class='cci cci-content-manager i--s'></i> LANCER Compendium Manager";
+  button.innerHTML = "<i class='cci cci-content-manager i--2'></i> LANCER Compendium Manager";
   buttons.append(button);
   button.addEventListener("click", () => {
     new LCPManager().render(true);
@@ -85,7 +85,7 @@ export class LCPManager extends HandlebarsApplicationMixin(ApplicationV2) {
     id: "lcp-manager",
     window: {
       title: "LANCER Compendium Manager",
-      icon: "cci cci-content-manager i--sm",
+      icon: "cci cci-content-manager i--3",
       resizable: false,
     },
     classes: ["lancer", "lcp-manager"],

@@ -69,7 +69,7 @@ function npcFeatureScaffold(
   return `
   <div class="set ref card ${feature_class}" data-item-id="${npc_feature.id}" ${ref_params(npc_feature)}>
     <div class="flexrow lancer-header clipped-top ${npc_feature.system.destroyed ? "destroyed" : ""}">
-      <i class="${npc_feature.system.destroyed ? "mdi mdi-cog" : `cci ${icon} i--m i--light`}"> </i>
+      <i class="${npc_feature.system.destroyed ? "mdi mdi-cog" : `cci ${icon} i--4 i--light`}"> </i>
       ${macro_button}
       <span class="minor grow">${npc_feature.name}</span>
       <a class="lancer-context-menu" data-path="${path}" ${options.hash.isRef ? `data-uuid=${npc_feature.uuid}` : ""}>
@@ -135,7 +135,7 @@ export function npcTechView(path: string, options: HelperOptions) {
   if (featureData.tech_attack) {
     subheaderItems.push(
       `<a class="roll-tech lancer-button" data-tooltip="Roll an attack with this system">
-        <i class="fas fa-dice-d20 i--m"></i>
+        <i class="fas fa-dice-d20 i--4"></i>
       </a>`
     );
   }
@@ -190,7 +190,7 @@ export function npcWeaponView(path: string, options: HelperOptions): string {
   let sep = `<span class="vsep"></span>`;
   let subheaderItems = [
     `<a class="roll-attack lancer-button no-grow" data-tooltip="Roll an attack with this weapon">
-      <i class="fas fa-dice-d20 i--m i--dark"></i>
+      <i class="fas fa-dice-d20 i--4 i--dark"></i>
     </a>`,
   ];
   let subheader2Items = [];

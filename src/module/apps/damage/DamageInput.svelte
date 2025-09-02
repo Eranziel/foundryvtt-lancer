@@ -21,7 +21,7 @@
 </script>
 
 <div class="damage-input-container" in:slide={{ delay: 100, duration: 300 }} out:slide={{ duration: 100 }}>
-  <i class="i--sm cci cci-{damage.type.toLowerCase()} damage--{damage.type.toLowerCase()}" data-tooltip={damage.type} />
+  <i class="i--3 cci cci-{damage.type.toLowerCase()} damage--{damage.type.toLowerCase()}" data-tooltip={damage.type} />
   <select class="damage-input-type" bind:value={damage.type}>
     {#each damageSelectOptions as damageOption}
       <option value={damageOption[1]} selected={selected(damageOption[1])}>

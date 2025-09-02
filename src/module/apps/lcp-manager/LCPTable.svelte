@@ -192,7 +192,7 @@
       disabled={disabled || !lcpData.some(p => rowSelectionTracker[p.id].checked)}
       on:click={dispatchLcpsToInstall}
     >
-      <i class="cci cci-content-manager i--m" />
+      <i class="cci cci-content-manager i--4" />
       Import/Update Selected
     </button>
 
@@ -204,7 +204,7 @@
       disabled={disabled || !lcpData.some(p => p.currentVersion !== "--")}
       on:click={clearCompendiums}
     >
-      <i class="fas fa-trash i--s" />
+      <i class="fas fa-trash i--2" />
       Clear Compendium Data
     </button>
   </div>

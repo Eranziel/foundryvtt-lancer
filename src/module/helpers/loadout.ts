@@ -46,12 +46,12 @@ export function mechSystemView(
   const icon_types = [SystemType.Deployable, SystemType.Drone, SystemType.Mod, SystemType.System, SystemType.Tech];
   if (icon_types.includes(doc.system.type)) {
     if (doc.system.type === SystemType.Tech) {
-      icon = `cci cci-${slugify(doc.system.type, "-")}-quick i--m`;
+      icon = `cci cci-${slugify(doc.system.type, "-")}-quick i--4`;
     } else {
-      icon = `cci cci-${slugify(doc.system.type, "-")} i--m`;
+      icon = `cci cci-${slugify(doc.system.type, "-")} i--4`;
     }
   } else {
-    icon = `cci cci-system i--m`;
+    icon = `cci cci-system i--4`;
   }
 
   sp = spDisplay(doc.system.sp ?? 0);
@@ -217,7 +217,7 @@ function allMechSystemsView(loadout_path: string, options: HelperOptions) {
       <i class="mdi mdi-unfold-less-horizontal collapse-trigger collapse-icon" data-collapse-id="systems"></i>
       <span>MOUNTED SYSTEMS</span>
       <span style="flex-grow: 0">
-        <i class="cci cci-system-point i--m"></i>
+        <i class="cci cci-system-point i--4"></i>
         ${loadout.sp.value} / ${loadout.sp.max} SP USED
       </span>
     </div>
@@ -389,9 +389,9 @@ function frameActive(frame_path: string, core_energy: number, options: HelperOpt
           class="activation-chip activation-flow lancer-button ${activationClass} ${activationThemeClass}"
           data-uuid="${frame.uuid}" data-path="system.core_system"
         >
-          <i class="cci cci-corebonus i--l"></i>
+          <i class="cci cci-corebonus i--5"></i>
           <b class="active-name">${activeName.toUpperCase()}</b>
-          <i class="${activationIcon(core.activation)} i--l"></i>
+          <i class="${activationIcon(core.activation)} i--5"></i>
         </a>
       </div>
     </div>

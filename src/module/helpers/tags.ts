@@ -49,11 +49,11 @@ function tagView(tagPath: string, tag: Tag, compact: boolean = true, editable: b
     ${
       compact
         ? `
-    <i class="mdi mdi-label i--s i--light"></i>
+    <i class="mdi mdi-label i--2 i--light"></i>
     <span style="margin: 3px;" >${interpolatedName}</span>`
         : `
     <div class="tag-header flexrow">
-      <i class="mdi mdi-label i--s i--light"></i>
+      <i class="mdi mdi-label i--2 i--light"></i>
       <span style="margin: 3px;" >${interpolatedName}</span>
       ${
         editable

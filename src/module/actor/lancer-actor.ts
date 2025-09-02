@@ -206,27 +206,27 @@ export class LancerActor<SubType extends Actor.SubType = Actor.SubType> extends 
     const damageStrings = [];
     let totalTypes = 0;
     if (damage.Kinetic) {
-      damageStrings.push(`${damage.Kinetic}<i class="cci cci-kinetic damage--kinetic i--s"></i>`);
+      damageStrings.push(`${damage.Kinetic}<i class="cci cci-kinetic damage--kinetic i--2"></i>`);
       totalTypes += 1;
     }
     if (damage.Energy) {
-      damageStrings.push(`${damage.Energy}<i class="cci cci-energy damage--energy i--s"></i>`);
+      damageStrings.push(`${damage.Energy}<i class="cci cci-energy damage--energy i--2"></i>`);
       totalTypes += 1;
     }
     if (damage.Explosive) {
-      damageStrings.push(`${damage.Explosive}<i class="cci cci-explosive damage--explosive i--s"></i>`);
+      damageStrings.push(`${damage.Explosive}<i class="cci cci-explosive damage--explosive i--2"></i>`);
       totalTypes += 1;
     }
     if (damage.Variable) {
-      damageStrings.push(`${damage.Variable}<i class="cci cci-variable damage--variable i--s"></i>`);
+      damageStrings.push(`${damage.Variable}<i class="cci cci-variable damage--variable i--2"></i>`);
       totalTypes += 1;
     }
     if (damage.Burn) {
-      damageStrings.push(`${damage.Burn}<i class="cci cci-burn damage--burn i--s"></i>`);
+      damageStrings.push(`${damage.Burn}<i class="cci cci-burn damage--burn i--2"></i>`);
       totalTypes += 1;
     }
     if (damage.Heat) {
-      damageStrings.push(`${damage.Heat}<i class="cci cci-heat damage--heat i--s"></i>`);
+      damageStrings.push(`${damage.Heat}<i class="cci cci-heat damage--heat i--2"></i>`);
       totalTypes += 1;
     }
     const allDamageString = damageStrings.length ? damageStrings.join(", ") : "0";

@@ -1,22 +1,24 @@
 <form class="{{cssClass}} lancer-sheet" autocomplete="off">
   {{!-- Sheet Header --}}
   <header class="sheet-header card clipped-bot">
-    <div class="header-fields">
-      <h1 class="charname">
-        <input class="header-field" name="name" type="text" value="{{actor.name}}" placeholder="{{localize "lancer.placeholder.name"}}" />
-      </h1>
-    </div>
-    <div class="details flexcol">
-      <i class="cci cci-npc-tier-{{system.tier}} tier-icon theme--npc"></i>
-    </div>
-
-    <div class="details flexcol">
-      <span>{{localize "lancer.npc-sheet.header.class"}}</span>
-      <span class="major">
-        {{#if system.class}} {{system.class.name}} {{else}} {{localize "lancer.npc-sheet.class.none"}} {{/if}}
-      </span>
-    </div>
+    <h1 class="name">
+      <input name="name" type="text" value="{{actor.name}}" placeholder="{{localize "lancer.placeholder.name"}}" />
+      <i class="cci cci-npc-tier-{{system.tier}} tier-icon theme--npc" data-tooltip="Tier {{system.tier}}"></i>
+    </h1>
     {{{ ref-portrait-img actor.img "img" actor }}}
+    <div class="header-details flexcol monospace">
+      <div>
+        <span>{{localize "lancer.npc-sheet.header.class"}} :: </span>
+        <span class="major">
+          {{#if system.class}}
+            {{system.class.name}}
+          {{else}}
+            {{localize "lancer.npc-sheet.class.none"}}
+          {{/if}}
+        </span>
+        {{#if system.class.system.role}} <span> // {{system.class.system.role}}</span> {{/if}}
+      </div>
+    </div>
   </header>
 
   {{!-- Sheet Body --}}
@@ -87,7 +89,7 @@
           <div style="width: 120px;"></div>
           <span>{{localize "lancer.npc-sheet.features.label"}}</span>
           <div class="lancer-button charge-macro" style="margin-top: 2px; margin-bottom: 2px; font-size: 0.75rem;">
-            <i class="mdi mdi-refresh i--sm"></i> Recharge
+            <i class="mdi mdi-refresh i--3"></i> Recharge
           </div>
         </div>
         <div class="wraprow double">

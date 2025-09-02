@@ -155,7 +155,7 @@
       // @ts-expect-error This should expect a partial, not a complete window configuration.
       window: { title: "Clear Compendiums", icon: "fas fa-triangle-exclamation" },
       content: `<p>Are you sure you want to delete all actors and items from the Lancer compendiums?</p>
-        <p><i class="fas fa-triangle-exclamation i--m"></i> This action cannot be undone!</p>`,
+        <p><i class="fas fa-triangle-exclamation i--4"></i> This action cannot be undone!</p>`,
     });
     if (!answer) return;
     clearing = true;

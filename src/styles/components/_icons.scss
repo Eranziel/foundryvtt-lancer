@@ -1,61 +1,51 @@
 @use "../mixins";
+@use "../variables" as *;
 
 @layer lancer.components {
-  .small-icon {
-    flex-grow: 0;
-    min-width: 1em;
-    max-height: 1em;
-  }
-
-  .med-icon {
-    flex-grow: 0;
-    max-width: 2.5em;
-    max-height: 2.5em;
-  }
-
-  .large-icon {
-    flex-grow: 0;
-    min-width: 5em;
-    max-height: 5em;
-  }
-
   .i--click {
     cursor: pointer;
   }
 
-  .i--xs {
-    @include mixins.icon-size(15px);
+  // TODO: around v14, remove the non-numeric versions of these classes.
+  .i--xs,
+  .i--1 {
+    @include mixins.icon-size($icon-size-1);
     @include mixins.vert-mid();
   }
 
-  .i--s {
-    @include mixins.icon-size(20px);
+  .i--s,
+  .i--2 {
+    @include mixins.icon-size($icon-size-2);
     @include mixins.vert-mid();
   }
 
-  .i--sm {
-    @include mixins.icon-size(25px);
+  .i--sm,
+  .i--3 {
+    @include mixins.icon-size($icon-size-3);
     @include mixins.vert-mid();
   }
 
-  .i--m {
-    @include mixins.icon-size(30px);
+  .i--m,
+  .i--4 {
+    @include mixins.icon-size($icon-size-4);
     @include mixins.vert-mid();
   }
 
-  .i--l {
-    @include mixins.icon-size(40px);
+  .i--l,
+  .i--5 {
+    @include mixins.icon-size($icon-size-5);
     @include mixins.vert-mid();
   }
 
-  .i--xl {
-    @include mixins.icon-size(60px);
+  .i--xl,
+  .i--6 {
+    @include mixins.icon-size($icon-size-6);
     @include mixins.vert-mid();
   }
 
   .size-icon,
   .tier-icon {
-    @include mixins.icon-size(120px);
+    @include mixins.icon-size($tier-icon-size);
     @include mixins.vert-mid();
   }
 

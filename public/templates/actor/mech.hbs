@@ -2,14 +2,19 @@
   {{! Sheet Header }}
   <div>
     <header class="sheet-header card clipped-bot {{#if (not is_active)}}inactive-mech{{/if}}">
-      <div>
-        <h1 class="charname">
-          <input class="header-field" name="name" type="text" value="{{actor.name}}" placeholder="{{localize "
-            lancer.placeholder.name"}}" />
-        </h1>
-        {{#if (not is_active)}}<span>WARNING: INACTIVE MECH - PILOT BONUSES NOT TRACKED</span>{{/if}}
-      </div>
+      <h1 class="name">
+        <input name="name" type="text" value="{{actor.name}}" placeholder="{{localize "
+          lancer.placeholder.name"}}" />
+      </h1>
       {{{ref-portrait-img actor.img "img" actor}}}
+      <div class="header-details monospace">
+        {{#if (not is_active)}}
+          {{localize "lancer.mech-sheet.inactive-warning"}}
+        {{else}}
+          <span>{{localize "TYPES.Actor.pilot"}} :: {{pilot.system.callsign}}</br>
+          {{localize "TYPES.Item.frame"}} :: {{itemTypes.frame.0.system.manufacturer}} {{itemTypes.frame.0.name}}</span>
+        {{/if}}
+      </div>
     </header>
 
     {{!-- Sheet Tab Navigation --}}
@@ -117,7 +122,7 @@
           {{{localize "lancer.mech-sheet.system.label"}}}
           </span>
           <span style="flex-grow: 0">
-            <i class="cci cci-system-point i--m"></i>
+            <i class="cci cci-system-point i--4"></i>
             {{system.loadout.sp.value}} / {{system.loadout.sp.max}} {{localize "lancer.mech-sheet.system.sp-used"}}
           </span>
         </div>

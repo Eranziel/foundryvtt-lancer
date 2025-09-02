@@ -20,7 +20,7 @@ interface ButtonOverrides {
 function _flowButton(button_class: string, html_data: string, overrides: ButtonOverrides = {}): string {
   const tooltip = overrides.tooltip ? `data-tooltip="${overrides.tooltip}"` : "";
   return `<a class="${button_class} lancer-button ${overrides.classes ?? ""}" ${html_data} ${tooltip}>
-    <i class="fas ${overrides.icon ?? "fa-dice-d20"} i--dark i--s"></i>
+    <i class="fas ${overrides.icon ?? "fa-dice-d20"} i--dark i--2"></i>
   </a>`;
 }
 
@@ -53,7 +53,7 @@ export function stat_edit_card_max(
   return `
     <div class="stat-card card clipped">
       <div class="lancer-header lancer-primary ">
-        <i class="${icon} i--m i--light header-icon"> </i>
+        <i class="${icon} i--4 i--light header-icon"> </i>
         <span class="major">${title}</span>
       </div>
       ${std_x_of_y(data_path, data_val, max_val, "lancer-stat")}
@@ -80,7 +80,7 @@ export function stat_edit_card(
   return `
     <div class="card clipped">
       <div class="lancer-header lancer-primary ">
-        <i class="${icon} i--m i--light header-icon"> </i>
+        <i class="${icon} i--4 i--light header-icon"> </i>
         <span class="major">${title}</span>
       </div>
       <div class="${flowButton ? "stat-flow-container" : "flexrow flex-center"}">
@@ -122,7 +122,7 @@ export function stat_view_card(
   return `
     <div class="stat-card card clipped">
       <div class="lancer-header lancer-primary ">
-        ${inc_if(`<i class="${icon} i--m i--light header-icon"> </i>`, icon)}
+        ${inc_if(`<i class="${icon} i--4 i--light header-icon"> </i>`, icon)}
         <span class="major">${title}</span>
       </div>
       <div class="${leftFlowButton || rightFlowButton ? "stat-flow-container" : "flexrow flex-center"}">
@@ -144,7 +144,7 @@ export function compact_stat_view(icon: string, data_path: string, options: Help
   let data_val = resolveHelperDotpath(options, data_path);
   return `
     <div class="compact-stat">
-        <i class="${icon} i--m i--dark"></i>
+        <i class="${icon} i--4 i--dark"></i>
         <span class="lancer-stat minor">${data_val}</span>
     </div>
     `;
@@ -161,7 +161,7 @@ export function compact_stat_edit(icon: string, data_path: string, max_path: str
   }
   return `
         <div class="compact-stat">
-          <i class="${icon} i--m i--dark"></i>
+          <i class="${icon} i--4 i--dark"></i>
           ${std_num_input(data_path, extendHelper(options, { classes: "lancer-stat minor" }))}
           ${max_html}
         </div>
@@ -189,14 +189,14 @@ export function clicker_stat_card(
   let statButton = "";
   let attackButton = "<div></div>";
   if (roller) {
-    statButton = `<a class="roll-stat lancer-button" data-uuid="${uuid}" data-path="${data_path}"><i class="fas fa-dice-d20 i--dark i--s"></i></a>`;
+    statButton = `<a class="roll-stat lancer-button" data-uuid="${uuid}" data-path="${data_path}"><i class="fas fa-dice-d20 i--dark i--2"></i></a>`;
     if (data_path === "system.grit" || data_path === "system.tier") {
       attackButton = _basicFlowButton(uuid, "BasicAttack", { icon: "cci cci-weapon" });
     }
   }
   return `<div class="card clipped stat-container">
       <div class="lancer-header lancer-primary ">
-        <i class="${icon} i--m i--light header-icon"> </i>
+        <i class="${icon} i--4 i--light header-icon"> </i>
         <span class="major">${title}</span>
       </div>
       <div class="flexrow">
@@ -253,7 +253,7 @@ export function action_button(
     enabled = true;
   }
 
-  const icon = `<i class="${actionIcon(action)} i--m"></i>`;
+  const icon = `<i class="${actionIcon(action)} i--4"></i>`;
 
   return `
     <button
@@ -301,7 +301,7 @@ export function actor_flow_button(
 
   return `
       <button type="button" class="lancer-flow-button lancer-button lancer-secondary" data-flow-type="${type}" data-flow-args=${args}>
-        <i class="cci ${mIcon} i--m"></i> ${title}
+        <i class="cci ${mIcon} i--4"></i> ${title}
       </button>
     `;
 }
@@ -313,7 +313,7 @@ export function tech_flow_card(title: string, icon: string, data_path: string, o
   return `
     <div class="stat-card card clipped">
       <div class="lancer-header lancer-primary">
-        ${inc_if(`<i class="${icon} i--m i--light header-icon"> </i>`, icon)}
+        ${inc_if(`<i class="${icon} i--4 i--light header-icon"> </i>`, icon)}
         <span class="major">${title}</span>
       </div>
       <div class="stat-flow-container">
@@ -337,7 +337,7 @@ export function npc_stat_block_clicker_card(
   for (let tier = 1; tier <= stat_blocks.length; tier++) {
     tier_clickers.push(`
       <div class="flexrow stat-container" style="align-self: center;">
-        <i class="cci cci-npc-tier-${tier} i--m i--dark"></i>
+        <i class="cci cci-npc-tier-${tier} i--4 i--dark"></i>
         ${clicker_num_input(`${data_base_path}.${tier - 1}.${key}`, options)}
       </div>`);
   }
@@ -359,7 +359,7 @@ export function npc_stat_array_clicker_card(title: string, path: string, options
   for (let tier = 1; tier <= stats.length; tier++) {
     tier_clickers.push(`
       <div class="flexrow stat-container" style="align-self: center;">
-        <i class="cci cci-npc-tier-${tier} i--m i--dark"></i>
+        <i class="cci cci-npc-tier-${tier} i--4 i--dark"></i>
         ${clicker_num_input(`${path}.${tier - 1}`, options)}
       </div>`);
   }

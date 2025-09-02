@@ -194,7 +194,7 @@
 >
   {#if title != ""}
     <div class="lancer-header lancer-weapon medium">
-      <i class="cci cci-large-beam i--m i--light" />
+      <i class="cci cci-large-beam i--4 i--light" />
       <span>{title}{rollerName}</span>
     </div>
   {/if}
@@ -282,7 +282,7 @@
       />
       {#if weapon.reliable}
         <i
-          class="cci i--sm cci-{reliableType().toLowerCase()} damage--{reliableType().toLowerCase()}"
+          class="cci i--3 cci-{reliableType().toLowerCase()} damage--{reliableType().toLowerCase()}"
           data-tooltip={reliableType()}
           transition:fade
         />

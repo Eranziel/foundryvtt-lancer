@@ -1,40 +1,38 @@
 <form class="{{cssClass}} lancer-sheet" autocomplete="off">
   {{!-- Sheet Header --}}
   <header class="sheet-header">
-    <div class="flexcol">
-      <div class="flexrow">
-        <div class="details flexcol">
-          <span>{{localize "lancer.pilot-sheet.header.ll"}}</span>
-          <span class="pilot-callsign">{{system.level}}</span>
-        </div>
-
-        <div class="details flexcol">
-          <span>{{localize "lancer.pilot-sheet.header.cs"}}</span>
-          <span class="pilot-callsign">{{system.callsign}}</span>
-        </div>
-
-        <div class="details flexcol">
-          <span>{{localize "lancer.pilot-sheet.header.name"}}</span>
-          <span class="medium">{{actor.name}}</span>
-        </div>
-
-        <div class="details flexcol">
-          <span>{{localize "lancer.pilot-sheet.header.bg"}}</span>
-          <span class="medium">{{{system.background}}}</span>
-        </div>
+    <div class="name flexrow">
+      <div class="details flexcol">
+        <span>{{localize "lancer.pilot-sheet.header.ll"}}</span>
+        <h1 class="pilot-callsign">{{system.level}}</span>
       </div>
-      <div class="flexrow pilot-stats">
-        {{{compact-stat-edit "mdi mdi-heart-outline" "system.hp.value" "system.hp.max" }}}
-        {{{compact-stat-edit "mdi mdi-shield-star-outline" "system.overshield.value" "" }}}
-        {{{compact-stat-view "mdi mdi-shield-outline" "system.armor" }}}
-        {{{compact-stat-view "cci cci-evasion" "system.evasion" }}}
-        {{{compact-stat-view "cci cci-edef" "system.edef" }}}
-        {{{compact-stat-view "mdi mdi-arrow-right-bold-hexagon-outline" "system.speed" }}}
-        {{{compact-stat-view "cci cci-save" "system.save" }}}
-        {{{compact-stat-view "cci cci-sensor" "system.sensor_range" }}}
+
+      <div class="details flexcol">
+        <span>{{localize "lancer.pilot-sheet.header.cs"}}</span>
+        <h1 class="pilot-callsign">{{system.callsign}}</span>
+      </div>
+
+      <div class="details flexcol">
+        <span>{{localize "lancer.pilot-sheet.header.name"}}</span>
+        <h2 class="medium">{{actor.name}}</span>
+      </div>
+
+      <div class="details flexcol">
+        <span>{{localize "lancer.pilot-sheet.header.bg"}}</span>
+        <h3 class="medium">{{{system.background}}}</span>
       </div>
     </div>
     {{{ ref-portrait-img actor.img "img" actor }}}
+    <div class="header-details pilot-stats flexrow">
+      {{{compact-stat-edit "mdi mdi-heart-outline" "system.hp.value" "system.hp.max" }}}
+      {{{compact-stat-edit "mdi mdi-shield-star-outline" "system.overshield.value" "" }}}
+      {{{compact-stat-view "mdi mdi-shield-outline" "system.armor" }}}
+      {{{compact-stat-view "cci cci-evasion" "system.evasion" }}}
+      {{{compact-stat-view "cci cci-edef" "system.edef" }}}
+      {{{compact-stat-view "mdi mdi-arrow-right-bold-hexagon-outline" "system.speed" }}}
+      {{{compact-stat-view "cci cci-save" "system.save" }}}
+      {{{compact-stat-view "cci cci-sensor" "system.sensor_range" }}}
+    </div>
   </header>
 
   {{!-- Sheet Tab Navigation --}}
@@ -65,7 +63,7 @@
         <div class="card clipped" style="grid-area: 2/1/3/2;">
           <span class="lancer-header lancer-primary major">{{localize "lancer.pilot-sheet.cloud-download.label"}}</span>
           <a class="cloud-control lancer-button" style="align-self: center;" data-action="download">
-            <i class="cci cci-tech-quick i--dark i--l"></i>
+            <i class="cci cci-tech-quick i--dark i--5"></i>
           </a>
           <span class="minor desc-text" style="text-align: center;">
             {{localize "lancer.pilot-sheet.cloud-download.lastSync" timestamp=system.last_cloud_update}}
@@ -96,8 +94,12 @@
           <input class="lancer-input major" name="name" value="{{actor.name}}" type="text" data-dtype="String" />
         </div>
 
-        {{{textarea-card "BACKGROUND" "system.background"}}} {{{textarea-card "HISTORY" "system.history"}}} {{{textarea-card
-        "NOTES" "system.notes"}}}
+        <div class="card clipped">
+          <span class="lancer-header lancer-primary">{{localize "lancer.pilot-sheet.dossier.background"}}</span>
+          <input class="lancer-input major" {{{getset "system.background" }}} type="text" data-dtype="String" />
+        </div>
+        {{{textarea-card "HISTORY" "system.history"}}}
+        {{{textarea-card "NOTES" "system.notes"}}}
       </div>
     </div>
 
@@ -147,7 +149,7 @@
               </div>
               <div class="flexrow flex-center">
                 <button class="bond-xp-button lancer-tech lancer-button grow">
-                  <i class="mdi mdi-arrow-up-bold-hexagon-outline i--sm"></i>
+                  <i class="mdi mdi-arrow-up-bold-hexagon-outline i--3"></i>
                   Tally XP
                 </button>
               </div>
@@ -159,7 +161,7 @@
               {{{generic-counter "Stress" system.bond_state.stress "system.bond_state.stress"}}}
               {{{generic-counter "XP" system.bond_state.xp "system.bond_state.xp"}}}
               <button class="refresh-powers-button lancer-tech lancer-button flexcol flex-center">
-                <i class="mdi mdi-refresh i--sm"></i>
+                <i class="mdi mdi-refresh i--3"></i>
                 Refresh Powers
               </button>
             </div>

@@ -598,7 +598,7 @@ async function promptInstallCoreData() {
   <p style="text-align: center;margin-bottom: 1em">THIS IS YOUR <span class="horus--very--subtle">FIRST</span> TIME LAUNCHING</p>
   <p style="text-align: center;margin-bottom: 1em">Use the LANCER Compendium Manager window to install the <span class="horus--very--subtle">LANCER DATA</span> you wish to use.</p>`;
   new foundry.applications.api.DialogV2({
-    window: { title: `Install Core Data`, icon: "cci cci-content-manager i--sm" },
+    window: { title: `Install Core Data`, icon: "cci cci-content-manager i--3" },
     position: {
       width: 700,
     },

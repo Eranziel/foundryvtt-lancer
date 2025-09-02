@@ -73,7 +73,7 @@
     />
     {#if target.stunned}
       <label transition:blur for={stunnedId} class="stunned-label" title="Stunned">
-        <i class="cci cci-condition-stunned i--sm" />
+        <i class="cci cci-condition-stunned i--3" />
       </label>
     {/if}
     <label
@@ -86,8 +86,8 @@
       <i
         class="cci cci-condition-lock-on"
         class:i--click={target.lockOnAvailable}
-        class:i--sm={!target.usingLockOn}
-        class:i--l={target.usingLockOn}
+        class:i--3={!target.usingLockOn}
+        class:i--5={target.usingLockOn}
         on:click={toggleLockOn}
         on:keypress={toggleLockOn}
       />
@@ -123,7 +123,7 @@
         <i
           in:fly|local={{ y: -50, duration: 200 }}
           out:fly|local={{ y: 50, duration: 200 }}
-          class="cci i--m i--dark white--text middle"
+          class="cci i--4 i--dark white--text middle"
           class:cci-accuracy={total >= 0}
           class:cci-difficulty={total < 0}
         />
@@ -208,7 +208,7 @@
         text-shadow: 0 0 3px white;
         transition: font-size 200ms;
       }
-      .cci-condition-lock-on.i--l {
+      .cci-condition-lock-on.i--5 {
         animation: lockon 800ms linear 1s infinite alternate;
       }
 

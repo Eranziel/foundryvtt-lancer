@@ -9,13 +9,13 @@
   data-tooltip="Add global accuracy"
   on:click={() => (value = value + 1)}
 >
-  <i class="cci cci-accuracy i--sm" />
+  <i class="cci cci-accuracy i--3" />
 </button>
 <label for={id} class="flexcol" data-tooltip="Global Accuracy/Difficulty Adjustment">
   <strong style="text-wrap: nowrap">Manual Adjust</strong>
   <strong class="accdiff-value">
     <span>{Math.abs(value)}</span>
-    <i class="i--sm cci" class:cci-accuracy={value >= 0} class:cci-difficulty={value < 0} />
+    <i class="i--3 cci" class:cci-accuracy={value >= 0} class:cci-difficulty={value < 0} />
   </strong>
 </label>
 <input {id} class="difficulty lancer-invisible-input dec-set" style="display: none" type="number" bind:value />
@@ -25,7 +25,7 @@
   data-tooltip="Add global difficulty"
   on:click={() => (value = value - 1)}
 >
-  <i class="cci cci-difficulty i--sm" />
+  <i class="cci cci-difficulty i--3" />
 </button>
 
 <style lang="scss">

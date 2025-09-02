@@ -213,12 +213,12 @@
     <div class="lancer-header {isTech() ? 'lancer-tech' : 'lancer-weapon'} medium">
       {#if kind == "attack"}
         {#if isTech()}
-          <i class="cci cci-tech-quick i--m i--light" />
+          <i class="cci cci-tech-quick i--4 i--light" />
         {:else}
-          <i class="cci cci-weapon i--m i--light" />
+          <i class="cci cci-weapon i--4 i--light" />
         {/if}
       {:else if kind == "hase"}
-        <i class="fas fa-dice-d20 i--m i--light" />
+        <i class="fas fa-dice-d20 i--4 i--light" />
       {/if}
       <span>{title}{rollerName}</span>
     </div>
@@ -254,13 +254,13 @@
       <!-- Column Headers -->
       <div class="accdiff-grid__column">
         <h4 class="lancer-border-primary">
-          <i class="cci cci-accuracy i--m" style="vertical-align:middle;border:none" />
+          <i class="cci cci-accuracy i--4" style="vertical-align:middle;border:none" />
           <strong>Accuracy</strong>
         </h4>
       </div>
       <div class="accdiff-grid__column">
         <h4 class="lancer-border-primary">
-          <i class="cci cci-difficulty i--m" style="vertical-align:middle;border:none" />
+          <i class="cci cci-difficulty i--4" style="vertical-align:middle;border:none" />
           <strong>Difficulty</strong>
         </h4>
       </div>
@@ -349,7 +349,7 @@
           <div class="accdiff-ranges flexrow">
             {#each ranges as range}
               <button class="range-button" type="button" on:click={() => deployTemplate(range)}>
-                <i class="cci cci-{range.type.toLowerCase()} i--m i--light" />
+                <i class="cci cci-{range.type.toLowerCase()} i--4 i--light" />
                 {ranges.length && ranges.length < 3 ? range.type.toUpperCase() : ""}
                 {range.val}
               </button>
@@ -407,11 +407,11 @@
                     </div>
                     <div class="flexrow">
                       <button
-                        class="i--m no-grow accdiff-button"
+                        class="i--4 no-grow accdiff-button"
                         type="button"
                         on:click={() => (data.accuracy = data.accuracy + 1)}
                       >
-                        <i class="cci cci-accuracy i--m" style="border:none" />
+                        <i class="cci cci-accuracy i--4" style="border:none" />
                       </button>
                       <input style="display: none" type="number" bind:value={data.accuracy} min="0" />
                       {#if !isTech()}
@@ -419,18 +419,18 @@
                           bind:cover={data.cover}
                           disabled={weapon.seeking}
                           class="accdiff-targeted-cover flexrow flex-center"
-                          labelClass="i--s"
+                          labelClass="i--2"
                         />
                       {:else}
                         <div />
                       {/if}
                       <input style="display: none" type="number" bind:value={data.difficulty} min="0" />
                       <button
-                        class="i--m no-grow accdiff-button"
+                        class="i--4 no-grow accdiff-button"
                         type="button"
                         on:click={() => (data.difficulty = data.difficulty + 1)}
                       >
-                        <i class="cci cci-difficulty i--m" style="border:none" />
+                        <i class="cci cci-difficulty i--4" style="border:none" />
                       </button>
                     </div>
                   </div>

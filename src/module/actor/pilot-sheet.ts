@@ -199,10 +199,13 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
         if (p1.name > p2.name) return 1;
         return 0;
       })
-      .reduce((acc, pilot) => {
-        acc[`${pilot.callsign} // ${pilot.name}`] = pilot.cloudID;
-        return acc;
-      }, {} as Record<string, string>);
+      .reduce(
+        (acc, pilot) => {
+          acc[`${pilot.callsign} // ${pilot.name}`] = pilot.cloudID;
+          return acc;
+        },
+        {} as Record<string, string>
+      );
 
     return data;
   }
@@ -402,7 +405,7 @@ export function mech_preview(mech: LancerMECH, active: boolean, _options: Helper
     const builder = preview_stats_arr[i];
     stats_html = stats_html.concat(`
     <div class="mech-preview-stat-wrapper">
-      <i class="${builder.icon} i--m i--dark"> </i>
+      <i class="${builder.icon} i--4 i--dark"> </i>
       <span class="major">${builder.title}</span>
       <span class="major">${resolveDotpath(mech, builder.path, 0)}</span>
     </div>`);

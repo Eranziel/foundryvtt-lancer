@@ -102,7 +102,7 @@
           {disabled}
           on:click={() => dispatch("importLcp")}
         >
-          <i class="cci cci-content-manager i--m" />
+          <i class="cci cci-content-manager i--4" />
           Import LCP
         </button>
       {/if}
