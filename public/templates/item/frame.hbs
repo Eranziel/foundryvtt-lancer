@@ -1,11 +1,11 @@
 <form class="{{cssClass}} lancer-sheet" autocomplete="off">
   {{!-- Sheet Header --}}
   <header class="sheet-header card clipped-bot">
-    <div class="flexcol grow">
-      <h1 class="charname"><input class="header-field" name="name" type="text" value="{{item.name}}" placeholder="{{localize "lancer.placeholder.name"}}"/></h1>
+    <h1 class="name"><input class="header-field" name="name" type="text" value="{{item.name}}" placeholder="{{localize "lancer.placeholder.name"}}"/></h1>
+    {{{ ref-portrait-img item.img "img" item }}}
+    <div class="header-details">
       {{{item-edit-license}}}
     </div>
-    {{{ ref-portrait-img item.img "img" item }}}
   </header>
 
   {{{textarea-card "DESCRIPTION" "system.description"}}}

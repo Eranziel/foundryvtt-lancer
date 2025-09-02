@@ -8,4 +8,12 @@
 
 @mixin vert-mid() {
   vertical-align: middle;
+  align-content: center;
+  align-items: center;
+}
+
+@mixin horiz-mid() {
+  justify-items: center;
+  justify-content: center;
+  text-align: center;
 }

@@ -2,8 +2,8 @@
   {{!-- Sheet Header --}}
   <header class="sheet-header card clipped-bot">
     <h1 class="name">
-      <input name="name" type="text" value="{{actor.name}}" placeholder="{{localize "lancer.placeholder.name"}}" />
       <i class="cci cci-npc-tier-{{system.tier}} tier-icon theme--npc" data-tooltip="Tier {{system.tier}}"></i>
+      <input name="name" type="text" value="{{actor.name}}" placeholder="{{localize "lancer.placeholder.name"}}" />
     </h1>
     {{{ ref-portrait-img actor.img "img" actor }}}
     <div class="header-details flexcol monospace">

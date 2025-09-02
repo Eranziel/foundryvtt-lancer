@@ -338,26 +338,28 @@
   .edit-license-wrapper {
     border: 1px solid var(--secondary-color);
     border-radius: 5px;
-    margin: 0.5em;
-    padding: 0 0.25em;
     width: min-content;
     max-width: min-content;
     flex-wrap: unset;
     align-self: center;
     gap: 1em;
+    text-wrap: nowrap;
+
+    span {
+      margin: 0 0.5em;
+    }
 
     .rank-wrapper {
       align-items: center;
       justify-content: center;
       flex-wrap: unset;
 
-      & span {
-        margin-right: 0.5em;
+      span {
         font-size: 1.2em;
         flex-grow: unset;
       }
 
-      & input {
+      input {
         max-width: 2em;
       }
     }
