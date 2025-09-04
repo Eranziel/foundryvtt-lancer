@@ -1,6 +1,6 @@
 <script lang="ts">
   import { createEventDispatcher, onMount } from "svelte";
-  import { ContentSummary, generateLcpSummary, generateMultiLcpSummary, LCPData } from "../../util/lcps";
+  import { generateLcpSummary, generateMultiLcpSummary, type LCPData } from "../../util/lcps";
 
   const dispatch = createEventDispatcher();
 

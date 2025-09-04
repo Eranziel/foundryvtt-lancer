@@ -1,7 +1,7 @@
 <script lang="ts">
   import { createEventDispatcher } from "svelte";
-  import { parseContentPack, ContentSummary, generateLcpSummary, generateMultiLcpSummary } from "../../util/lcps";
-  import { IContentPack, IContentPackManifest } from "../../util/unpacking/packed-types";
+  import { parseContentPack, type ContentSummary, generateLcpSummary, generateMultiLcpSummary } from "../../util/lcps";
+  import type { IContentPack, IContentPackManifest } from "../../util/unpacking/packed-types";
 
   const dispatch = createEventDispatcher();
 

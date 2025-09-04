@@ -6,9 +6,9 @@
   import Spinner from "../components/Spinner.svelte";
   import LcpDetails from "./LCPDetails.svelte";
   import LcpSelector from "./LCPSelector.svelte";
-  import { ContentSummary, getOfficialData, LCPData, mergeOfficialDataAndLcpIndex } from "../../util/lcps";
+  import { type ContentSummary, getOfficialData, type LCPData, mergeOfficialDataAndLcpIndex } from "../../util/lcps";
   import LCPTable from "./LCPTable.svelte";
-  import { IContentPack, IContentPackManifest } from "../../util/unpacking/packed-types";
+  import type { IContentPack, IContentPackManifest } from "../../util/unpacking/packed-types";
   import { clearCompendiumData, importCP } from "../../comp-builder";
   import { LCPIndex } from "./lcp-manager";
   const lp = LANCER.log_prefix;
@@ -152,7 +152,6 @@
   async function clearCompendiums() {
     // Confirmation prompt
     const answer = await foundry.applications.api.DialogV2.confirm({
-      // @ts-expect-error This should expect a partial, not a complete window configuration.
       window: { title: "Clear Compendiums", icon: "fas fa-triangle-exclamation" },
       content: `<p>Are you sure you want to delete all actors and items from the Lancer compendiums?</p>
         <p><i class="fas fa-triangle-exclamation i--4"></i> This action cannot be undone!</p>`,
