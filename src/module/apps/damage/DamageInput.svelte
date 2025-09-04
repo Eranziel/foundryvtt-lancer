@@ -3,7 +3,7 @@
   import { slide } from "svelte/transition";
 
   import { DamageType } from "../../enums";
-  import { DamageData } from "../../models/bits/damage";
+  import type { DamageData } from "../../models/bits/damage";
 
   const dispatch = createEventDispatcher();
   const damageSelectOptions = Object.entries(DamageType);

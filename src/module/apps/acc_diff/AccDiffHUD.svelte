@@ -1,7 +1,7 @@
 <svelte:options accessors={true} />
 
 <script lang="ts">
-  import { AccDiffHudWeapon, AccDiffHudBase, AccDiffHudTarget, AccDiffHudPluginData } from "./index";
+  import { AccDiffHudWeapon, AccDiffHudBase, AccDiffHudTarget } from "./index";
 
   import { slide } from "svelte/transition";
   import { flip } from "svelte/animate";
@@ -21,7 +21,7 @@
   import HudCheckbox from "../components/HudCheckbox.svelte";
   import { LancerToken } from "../../token";
   import AccDiffInput from "./AccDiffInput.svelte";
-  import { SystemTemplates } from "../../system-template";
+  import type { SystemTemplates } from "../../system-template";
 
   export let weapon: AccDiffHudWeapon;
   export let base: AccDiffHudBase;
