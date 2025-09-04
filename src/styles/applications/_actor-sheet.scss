@@ -1,4 +1,8 @@
 @layer lancer.applications {
+  .lancer.actor.sheet {
+    font-family: var(--main-font-family);
+  }
+
   .lancer.actor.mech.sheet {
     /* The main, top region */
     .stat-grid {

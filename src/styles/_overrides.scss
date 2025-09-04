@@ -1,6 +1,6 @@
 @layer lancer.overrides {
   /* ===== RULES FOR NON-LANCER APPLICATIONS ===== */
-  .application .window-content {
+  .application:not(#chat-popout) .window-content {
     font-family: var(--main-font-family);
   }
 
@@ -203,28 +203,25 @@
     color: white;
   }
 
-  .window-app .window-content,
-#chat-controls div.roll-type-select select,
-#chat-form textarea,
-/* button, <- TODO This is too broad and breaks v13 styles */
-.sheet.journal-entry .journal-entry-content {
-    background: var(--background-color); /* Set default backgrounds to a futuristic gundam light grey */
+  /* Override chat message font. */
+  .chat-sidebar .chat-message,
+  .chat-popout .chat-message,
+  .chat-notifications .chat-message {
+    background: #e1e1e1; /* Flat gray instead of parchment */
     font-family: var(--main-font-family);
-  }
+    // color: var(--dark-text);
 
-  .window-app.lancer .window-content {
-    background-color: var(--background-color);
-    color: var(--dark-text);
-    font-family: var(--main-font-family);
-  }
+    // .message-header {
+    //   color: var(--dark-text);
+    // }
 
-  // TODO: should we set main font for the whole UI instead of just our stuff?
-  /* Default font for sheets and chat messages. */
-  .lancer.sheet .window-content,
-  #chat-log .message,
-  .chat-popout .message {
-    /* An exception for each icon font */
-    font-family: var(--main-font-family);
+    // h1,
+    // h2,
+    // h3,
+    // h4 {
+    //   font-family: var(--header-font-family);
+    //   color: var(--dark-text);
+    // }
   }
 
   /* ---------- */

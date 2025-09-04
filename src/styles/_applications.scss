@@ -34,7 +34,7 @@
   }
 
   /* ===== RULES FOR ALL APPLICATIONS ===== */
-  .application .window-content {
+  .application:not(#chat-popout) .window-content {
     h1,
     h2,
     h3,
@@ -44,11 +44,14 @@
       margin-bottom: 0;
     }
 
-    button,
-    a.button {
-      &:hover {
-        background-color: var(--primary-color);
-        border-color: var(--lighten-5);
+    // TODO: are there any other buttons that we *don't* want to apply this style to?
+    *:not(nav.tabs) {
+      & > button,
+      & > a.button {
+        &:hover {
+          background-color: var(--primary-color);
+          border-color: var(--lighten-5);
+        }
       }
     }
 
