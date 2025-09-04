@@ -546,6 +546,7 @@
         h4 {
           border: none;
           margin-bottom: 0;
+          font-size: 1rem;
         }
 
         &__section {
@@ -643,7 +644,7 @@
       }
 
       .accdiff-target {
-        box-shadow: 1px 1px 2px;
+        box-shadow: 1px 1px 2px var(--darken-5);
         max-width: 12em;
 
         .target-name {

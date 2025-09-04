@@ -153,7 +153,7 @@
         background-color: var(--dark-gray-color);
       }
       .total-container {
-        filter: drop-shadow(1px 1px 0px);
+        filter: drop-shadow(1px 1px 0px var(--darken-5));
       }
       .accurate > .card.total {
         background-color: var(--accurate-color);

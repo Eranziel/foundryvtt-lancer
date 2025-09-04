@@ -8,12 +8,14 @@
 
 @layer lancer.applications {
   /* ===== RULES FOR LANCER APPLICATIONS ===== */
-  .application.lancer {
+  .application.lancer,
+  .lancer-hud-zone {
     .window-content {
       width: 100%;
       height: 100%;
       background-color: var(--background-color);
       color: var(--dark-text);
+      font-family: var(--main-font-family);
 
       & .svelte-app-mount {
         height: 100%;
@@ -30,6 +32,17 @@
     .editor-content {
       height: -webkit-fill-available;
       min-height: 30em;
+    }
+  }
+
+  .lancer-hud {
+    font-family: var(--main-font-family);
+    h1,
+    h2,
+    h3,
+    h4 {
+      font-family: var(--main-font-family);
+      color: var(--dark-text);
     }
   }
 
