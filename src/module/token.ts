@@ -119,20 +119,6 @@ export class LancerToken extends Token {
       .map(o => canvas.grid?.getCenterPoint(o))
       .filter(o => !!o);
   }
-
-  /**
-   * This exists only to expose protected hover methods from {@link Token}.
-   */
-  onHoverIn(ev: Canvas.Event.Pointer | MouseEvent): void {
-    this._onHoverIn(ev as Canvas.Event.Pointer);
-  }
-
-  /**
-   * This exists only to expose protected hover methods from {@link Token}.
-   */
-  onHoverOut(ev: Canvas.Event.Pointer | MouseEvent): void {
-    this._onHoverOut(ev as Canvas.Event.Pointer);
-  }
 }
 
 export function extendTokenConfig(

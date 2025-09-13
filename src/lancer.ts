@@ -458,28 +458,6 @@ Hooks.on("preCreateScene", scene => {
   scene.updateSource({ tokenVision: false, fog: { exploration: false } });
 });
 
-async function highlightAttackAndDamageTargets(ev: MouseEvent): Promise<void> {
-  if (!canvas.ready) return;
-
-  const targetEl = ev.currentTarget;
-  if (!(targetEl instanceof HTMLElement)) return;
-
-  const targetId = targetEl.dataset.uuid;
-  if (!targetId) return;
-
-  const tokenDoc = (await fromUuid(targetId)) as LancerTokenDocument | null;
-  if (!tokenDoc) return;
-
-  const token = tokenDoc.object;
-  if (!token) return;
-
-  if (ev.type === "mouseover") {
-    token.onHoverIn(ev);
-  } else if (ev.type === "mouseout") {
-    token.onHoverOut(ev);
-  }
-}
-
 Hooks.on("renderChatMessageHTML", async (cm, el, data) => {
   // TODO: get rid of JQuery?
   const html = $(el);
@@ -571,11 +549,25 @@ Hooks.on("renderChatMessageHTML", async (cm, el, data) => {
   });
 
   // Highlight attack and damage targets on hover
-  for (const atkDmgTarget of el.querySelectorAll(".lancer-hit-target, .lancer-damage-target")) {
-    if (!(atkDmgTarget instanceof HTMLElement)) continue;
-    atkDmgTarget.addEventListener("mouseenter", highlightAttackAndDamageTargets);
-    atkDmgTarget.addEventListener("mouseleave", highlightAttackAndDamageTargets);
-  }
+  const hoverCallback = async (
+    ev:
+      | JQuery.MouseEnterEvent<HTMLElement, undefined, HTMLElement, HTMLElement>
+      | JQuery.MouseLeaveEvent<HTMLElement, undefined, HTMLElement, HTMLElement>
+  ) => {
+    if (!canvas.ready) return;
+    const targetId = $(ev.target).closest("[data-uuid]").data("uuid");
+    if (!targetId) return;
+    const token = (await fromUuid(targetId)) as LancerTokenDocument | null;
+    if (!token) return;
+    if (ev.type === "mouseover") {
+      token.object?.["_onHoverIn"](ev as unknown as MouseEvent);
+    } else if (ev.type === "mouseout") {
+      token.object?.["_onHoverOut"]();
+    }
+  };
+  const atkDmgTargets = html.find(".lancer-hit-target, .lancer-damage-target");
+  atkDmgTargets.on("mouseenter", hoverCallback);
+  atkDmgTargets.on("mouseleave", hoverCallback);
 
   html.find(".lancer-damage-flow").on("click", rollDamageCallback);
 
