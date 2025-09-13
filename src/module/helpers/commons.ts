@@ -217,8 +217,8 @@ export function effectBox(title: string, text: string, options?: { add_classes?:
   if (text) {
     const flowButton = options?.flow
       ? `<div class="action-flow-container flexrow">
-        <a class="effect-flow lancer-button"><i class="cci cci-free-action i--sm"></i><span>USE</span></a>
-        <hr class="vsep">
+        <a class="effect-flow lancer-button"><i class="cci cci-free-action i--3"></i><span>USE</span></a>
+        <span class="vsep"></span>
       </div>`
       : "";
     return `
@@ -239,7 +239,7 @@ export function spDisplay(sp: number | string) {
   const sp_num = parseInt(sp.toString());
   if (isNaN(sp_num)) return "";
   let icons = "";
-  for (let i = 0; i < sp_num; i++) icons += `<i class="cci cci-system-point i--s"> </i>`;
+  for (let i = 0; i < sp_num; i++) icons += `<i class="cci cci-system-point i--2"> </i>`;
   return `<div class="sp-wrapper">
             ${icons}
             <span class="medium" style="padding: 5px;">${sp} SYSTEM POINTS</span>

@@ -360,7 +360,7 @@ export async function structureInsertDismembermentButton(
     data-flow-type="dismembermentDamage"
     data-actor-id="${actor.uuid}"
   >
-    <i class="compcon-icon kinetic i--sm"></i> ROLL DAMAGE
+    <i class="compcon-icon kinetic i--3"></i> ROLL DAMAGE
   </a>`);
   return true;
 }
@@ -426,7 +426,7 @@ export async function structureInsertHullCheckButton(
       data-check-type="hull"
       data-actor-id="${actor.uuid}"
     >
-      <i class="fas fa-dice-d20 i--sm"></i> HULL
+      <i class="fas fa-dice-d20 i--3"></i> HULL
     </a>`);
   }
   return true;
@@ -459,7 +459,7 @@ export async function structureInsertSecondaryRollButton(
       data-flow-type="secondaryStructure"
       data-actor-id="${actor.uuid}"
     >
-      <i class="fas fa-dice-d6 i--sm"></i> TEAR OFF
+      <i class="fas fa-dice-d6 i--3"></i> TEAR OFF
     </a>`);
   }
   return true;
@@ -485,7 +485,7 @@ export async function structureInsertCascadeRollButton(
     data-flow-type="cascade"
     data-actor-id="${actor.uuid}"
   >
-    <i class="fas fa-dice-d20 i--sm"></i> <span class="horus--subtle">CASCADE CHECK</span>
+    <i class="fas fa-dice-d20 i--3"></i> <span class="horus--subtle">CASCADE CHECK</span>
   </a>`);
   return true;
 }

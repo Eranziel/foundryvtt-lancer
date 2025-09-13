@@ -1,18 +1,22 @@
 <form class="{{cssClass}} lancer-sheet" autocomplete="off">
   {{! Sheet Header }}
   <header class="sheet-header card clipped-bot">
-    <div class="header-fields">
-      <h1 class="charname">
-        <input
-          class="header-field"
-          name="name"
-          type="text"
-          value="{{actor.name}}"
-          placeholder="{{localize 'lancer.placeholder.name'}}"
-        />
-      </h1>
-    </div>
+    <h1 class="name">
+      <input
+        name="name"
+        type="text"
+        value="{{actor.name}}"
+        placeholder="{{localize 'lancer.placeholder.name'}}"
+      />
+    </h1>
     {{{ref-portrait-img actor.img "img" actor}}}
+    <div class="header-details monospace">
+      {{localize "TYPES.Actor.deployable"}}
+      {{#if owner}}
+        </br>{{localize "lancer.deployable-sheet.header.owner"}} ::
+        {{system.owner.value.name}}
+      {{/if}}
+    </div>
   </header>
 
   {{! Sheet Tab Navigation }}
@@ -73,7 +77,7 @@
           <div class="wraprow quadruple">
             <div class="card clipped stat-container">
               <div class="lancer-header lancer-primary">
-                <i class="mdi mdi-heart-outline i--m i--light header-icon"> </i>
+                <i class="mdi mdi-heart-outline i--4 i--light header-icon"> </i>
                 <span class="major">MAX HP</span>
               </div>
               {{!-- prettier-ignore --}}

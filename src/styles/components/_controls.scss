@@ -1,3 +1,5 @@
+@use "../mixins";
+
 .lancer-tabs {
   clip-path: polygon(0 0, 100% 0, calc(100% - 20px) 100%, 0 100%);
   -webkit-clip-path: polygon(0 0, 100% 0, calc(100% - 20px) 100%, 0 100%);
@@ -7,7 +9,7 @@
   justify-content: flex-start;
   background-color: var(--primary-color, fuchsia);
   color: var(--light-text);
-  padding: 3px 10px;
+  padding: 3px 10px 0 10px;
   min-height: max-content;
   align-items: center;
 }
@@ -15,7 +17,11 @@
 .lancer-tab {
   clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
   -webkit-clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
-  padding: 10px;
+  padding: 0 10px;
+  min-height: 2em;
+  font-family: var(--header-font-family);
+  @include mixins.vert-mid();
+  @include mixins.horiz-mid();
   transition: all 0.25s ease-in;
 
   &:hover {
@@ -63,7 +69,10 @@
   max-height: 1000em;
   opacity: 1;
   overflow: unset;
-  transition: max-height 0.5s, opacity 0.2s, padding 0.5s ease-in;
+  transition:
+    max-height 0.5s,
+    opacity 0.2s,
+    padding 0.5s ease-in;
 }
 .collapse.collapsed {
   max-height: 0;

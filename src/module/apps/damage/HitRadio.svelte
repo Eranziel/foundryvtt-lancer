@@ -33,7 +33,7 @@
       {disabled}
     />
     <label for="{id}-{input.slug}" class="lancer-hit-quality-radio-label {labelClass}" data-tooltip={input.human}>
-      <i class="{input.icon} i--s" /><span class="no-grow">{input.human}</span>
+      <i class="{input.icon} i--2" /><span class="no-grow">{input.human}</span>
       {#if input.value == quality}
         <div class="hit-quality-arrow" in:send|local={{ key: id }} out:recv|local={{ key: id }} />
       {/if}
@@ -42,55 +42,59 @@
 </div>
 
 <style lang="scss">
-  i {
-    border: none;
-  }
+  @layer lancer {
+    @layer components {
+      i {
+        border: none;
+      }
 
-  input {
-    opacity: 0;
-    position: fixed;
-    width: 0;
-  }
+      input {
+        opacity: 0;
+        position: fixed;
+        width: 0;
+      }
 
-  label {
-    display: inline-block;
-    padding-left: 5px;
-    position: relative;
-    .flexrow & {
-      padding: 0px;
+      label {
+        display: inline-block;
+        padding-left: 5px;
+        position: relative;
+        .flexrow & {
+          padding: 0px;
+        }
+
+        &:has(.hit-quality-arrow) {
+          text-shadow: 0px 0px 5px var(--primary-color);
+        }
+      }
+
+      .hit-quality-arrow,
+      :not(.disabled) label:hover::after {
+        content: "";
+        position: absolute;
+        right: 98%;
+        top: calc(50% - 4px);
+        background-color: var(--primary-color);
+        width: 8px;
+        height: 8px;
+        clip-path: polygon(0 0, 0 100%, 100% 50%);
+        :global(.card) & {
+          right: unset;
+          top: unset;
+          bottom: 90%;
+          left: calc(50% - 3px);
+          width: 6px;
+          height: 6px;
+          clip-path: polygon(0 0, 100% 0, 50% 100%);
+        }
+      }
+
+      :not(.disabled) label:hover::after {
+        opacity: 40%;
+      }
+
+      .disabled {
+        opacity: 0.4;
+      }
     }
-
-    &:has(.hit-quality-arrow) {
-      text-shadow: 0px 0px 5px var(--primary-color);
-    }
-  }
-
-  .hit-quality-arrow,
-  :not(.disabled) label:hover::after {
-    content: "";
-    position: absolute;
-    right: 98%;
-    top: calc(50% - 4px);
-    background-color: var(--primary-color);
-    width: 8px;
-    height: 8px;
-    clip-path: polygon(0 0, 0 100%, 100% 50%);
-    :global(.card) & {
-      right: unset;
-      top: unset;
-      bottom: 90%;
-      left: calc(50% - 3px);
-      width: 6px;
-      height: 6px;
-      clip-path: polygon(0 0, 100% 0, 50% 100%);
-    }
-  }
-
-  :not(.disabled) label:hover::after {
-    opacity: 40%;
-  }
-
-  .disabled {
-    opacity: 0.4;
   }
 </style>

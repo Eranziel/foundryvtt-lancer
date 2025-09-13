@@ -9,10 +9,10 @@ command: |-
   async function getRange() {
     const roll = await new Roll("d20").roll({ async: true });
     const text =
-    `<i class="cci cci-range i--m"></i> ${roll.total}` +
+    `<i class="cci cci-range i--4"></i> ${roll.total}` +
     `&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;` +
     `${Math.ceil(roll.total / 2) + 1} ` +
-    `<i class="cci cci-kinetic i--m damage--kinetic"></i>`;
+    `<i class="cci cci-kinetic i--4 damage--kinetic"></i>`;
     return text;
   }
 

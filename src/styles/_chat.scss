@@ -1,30 +1,31 @@
-/* Chat Styles */
+@layer lancer.applications {
+  /* Chat Styles */
+  #chat-log,
+  .chat-popout {
+    & .message {
+      background: rgba(237, 237, 237);
+      border-radius: 20px 5px;
+      padding: 0;
+      // overflow: hidden;
+    }
 
-#chat-log,
-.chat-popout {
-  & .message {
-    background: rgba(237, 237, 237);
-    border-radius: 20px 5px;
-    padding: 0;
-    // overflow: hidden;
-  }
+    & .message-header {
+      overflow: hidden;
+      border-radius: 17px 1px 0 0;
+      background-color: var(--primary-color, fuchsia);
+      padding: 5px 10px;
+    }
 
-  & .message-header {
-    overflow: hidden;
-    border-radius: 17px 1px 0 0;
-    background-color: var(--primary-color, fuchsia);
-    padding: 5px 10px;
-  }
+    & .message-header * {
+      color: var(--light-text);
+    }
 
-  & .message-header * {
-    color: var(--light-text);
-  }
+    & .message-content {
+      padding: 5px 10px;
+    }
 
-  & .message-content {
-    padding: 5px 10px;
-  }
-
-  & .message.whisper {
-    border: 2px solid #fdcb28;
+    & .message.whisper {
+      border: 2px solid #fdcb28;
+    }
   }
 }

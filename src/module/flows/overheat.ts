@@ -287,7 +287,7 @@ export async function overheatInsertEngCheckButton(
       data-check-type="engineering"
       data-actor-id="${actor.uuid}"
     >
-      <i class="fas fa-dice-d20 i--sm"></i> ENGINEERING
+      <i class="fas fa-dice-d20 i--3"></i> ENGINEERING
     </a>`);
   }
   return true;

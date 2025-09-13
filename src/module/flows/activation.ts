@@ -141,7 +141,7 @@ export async function printActionUseCard(
     description: state.data.detail,
     roll: state.data.self_heat_result?.roll,
     roll_tt: state.data.self_heat_result?.tt,
-    roll_icon: "cci cci-heat i--m damage--heat",
+    roll_icon: "cci cci-heat i--4 damage--heat",
     tags: state.data.tags,
   };
   await renderTemplateStep(state.actor, template, data, flags);

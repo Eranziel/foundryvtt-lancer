@@ -161,9 +161,9 @@ export function refPortrait<T extends EntryType>(
   _options: HelperOptions
 ) {
   // Fetch the image
-  return `<img class="profile-img ref set" src="${img}" data-edit="${img_path}" ${ref_params(
+  return `<div class="portrait-img-container"><img class="portrait-img ref set" src="${img}" data-edit="${img_path}" ${ref_params(
     item
-  )} width="100" height="100" />`;
+  )} width="100" height="100" /></div>`;
 }
 
 // A helper suitable for showing a small preview of a ref (slot)
@@ -213,7 +213,7 @@ export function itemPreview<T extends LancerItemType>(
               ${ref_params(doc)}>
         <img class="ref-icon" src="${doc.img}"></img>
         <span class="major">${doc.name}</span>
-        <hr class="vsep">
+        <span class="vsep"></span>
         <div class="ref-controls">
           <a class="lancer-context-menu" data-path="${item_path}">
             <i class="fas fa-ellipsis-v"></i>

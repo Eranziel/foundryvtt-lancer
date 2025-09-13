@@ -1,6 +1,6 @@
 <script lang="ts">
   import { createEventDispatcher, onMount } from "svelte";
-  import { ContentSummary, generateLcpSummary, generateMultiLcpSummary, LCPData } from "../../util/lcps";
+  import { generateLcpSummary, generateMultiLcpSummary, type LCPData } from "../../util/lcps";
 
   const dispatch = createEventDispatcher();
 
@@ -192,7 +192,7 @@
       disabled={disabled || !lcpData.some(p => rowSelectionTracker[p.id].checked)}
       on:click={dispatchLcpsToInstall}
     >
-      <i class="cci cci-content-manager i--m" />
+      <i class="cci cci-content-manager i--4" />
       Import/Update Selected
     </button>
 
@@ -204,88 +204,92 @@
       disabled={disabled || !lcpData.some(p => p.currentVersion !== "--")}
       on:click={clearCompendiums}
     >
-      <i class="fas fa-trash i--s" />
+      <i class="fas fa-trash i--2" />
       Clear Compendium Data
     </button>
   </div>
 </div>
 
 <style lang="scss">
-  .lcp-table {
-    max-height: 100%;
-    height: 100%;
-    & * {
-      flex-grow: 0;
-    }
-  }
-  button {
-    margin: 10px;
-    width: auto;
-  }
-
-  #lcp-table {
-    display: grid;
-    max-height: calc(100% - 8em);
-    flex-grow: 1;
-    overflow-y: scroll;
-    .lcp-table__rows {
-      height: fit-content;
-    }
-
-    .row {
-      display: grid;
-      position: relative;
-      grid-template-columns: 2.5em 2fr 2fr 2.5em 1fr 3em 1fr;
-      cursor: pointer;
-
-      &:not(.header):nth-of-type(odd) {
-        background-color: var(--darken-2);
+  @layer lancer {
+    @layer components {
+      .lcp-table {
+        max-height: 100%;
+        height: 100%;
+        & * {
+          flex-grow: 0;
+        }
       }
-      &:not(.header):hover {
-        background-color: var(--lighten-1);
+      button {
+        margin: 10px;
+        width: auto;
       }
-    }
 
-    .header {
-      font-weight: bold;
-      border-bottom: 2px solid var(--secondary-color);
-      align-content: center;
-    }
+      #lcp-table {
+        display: grid;
+        max-height: calc(100% - 8em);
+        flex-grow: 1;
+        overflow-y: scroll;
+        .lcp-table__rows {
+          height: fit-content;
+        }
 
-    // .content-checkbox {
-    // }
+        .row {
+          display: grid;
+          position: relative;
+          grid-template-columns: 2.5em 2fr 2fr 2.5em 1fr 3em 1fr;
+          cursor: pointer;
 
-    .content-label {
-      margin: 5px 10px;
-    }
+          &:not(.header):nth-of-type(odd) {
+            background-color: var(--darken-2);
+          }
+          &:not(.header):hover {
+            background-color: var(--lighten-1);
+          }
+        }
 
-    .curr-version {
-      margin: 5px 10px;
-    }
+        .header {
+          font-weight: bold;
+          border-bottom: 2px solid var(--secondary-color);
+          align-content: center;
+        }
 
-    .avail-version {
-      margin: 5px 10px;
-    }
+        // .content-checkbox {
+        // }
 
-    .content-icon {
-      margin: 5px 10px;
-    }
-  }
-  .lcp-table__buttons {
-    flex-grow: 0;
-    .lcp-bulk-import,
-    .lcp-clear-all {
-      width: 100%;
-      max-height: 3em;
-      margin: 0.5em 0;
-    }
+        .content-label {
+          margin: 5px 10px;
+        }
 
-    .lcp-clear-all {
-      background-color: var(--background-color);
-      border: 1px solid var(--lighten-5);
-      &:hover {
-        background-color: var(--color-level-error-bg);
-        border: 1px solid var(--color-level-error-border);
+        .curr-version {
+          margin: 5px 10px;
+        }
+
+        .avail-version {
+          margin: 5px 10px;
+        }
+
+        .content-icon {
+          margin: 5px 10px;
+        }
+      }
+      .lcp-table__buttons {
+        flex-grow: 0;
+        .lcp-bulk-import,
+        .lcp-clear-all {
+          width: 100%;
+          max-height: 3em;
+          margin: 0.5em 0;
+        }
+
+        .lcp-clear-all {
+          background-color: var(--background-color);
+          border: 1px solid var(--lighten-5);
+          &:hover {
+            background-color: var(--color-level-error-bg);
+            border: 1px solid var(--color-level-error-border);
+          }
+        }
       }
     }
   }

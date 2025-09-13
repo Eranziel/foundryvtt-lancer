@@ -1,11 +1,11 @@
 <form class="{{cssClass}} lancer-sheet" autocomplete="off">
   {{!-- Sheet Header --}}
   <header class="sheet-header card clipped-bot">
-    <div class="flexcol grow">
-      <h1 class="charname"><input class="header-field" name="name" type="text" value="{{item.name}}" placeholder="{{localize "lancer.placeholder.name"}}"/></h1>
+    <h1 class="name"><input class="header-field" name="name" type="text" value="{{item.name}}" placeholder="{{localize "lancer.placeholder.name"}}"/></h1>
+    {{{ ref-portrait-img item.img "img" item }}}
+    <div class="header-details">
       {{{item-edit-license}}}
     </div>
-    {{{ ref-portrait-img item.img "img" item }}}
   </header>
 
   {{{textarea-card "DESCRIPTION" "system.description"}}}
@@ -63,7 +63,7 @@
     {{#each system.traits as |trait trait_index|}}
       <div class="card clipped lancer-trait">
         <div class="lancer-header lancer-trait major">
-          <i class="cci cci-trait i--m i--light header-icon"> </i>
+          <i class="cci cci-trait i--4 i--light header-icon"> </i>
           <input class="lancer-invisible-input i--light" name="system.traits.{{trait_index}}.name" value="{{trait.name}}" type="text" data-dtype="String" />
           {{{popout-editor-button (concat "system.traits." trait_index ".description") }}}
           <a class="gen-control" data-action="splice" data-path="system.traits.{{trait_index}}">
@@ -105,7 +105,7 @@
     {{!-- Passive Description + Bonuses --}}
     <div class="card clipped-top frame_core lancer-border-bonus">
       <div class="lancer-header lancer-bonus">
-        <i class="mdi mdi-circle-expand i--m i--light"> </i>
+        <i class="mdi mdi-circle-expand i--4 i--light"> </i>
         <input class="lancer-invisible-input medium i--light" name="system.core_system.passive_name" value="{{system.core_system.passive_name}}" data-dtype="String" />
         <div class="medium faded" style="justify-self: right;"> // PASSIVE</div>
         {{{popout-editor-button "system.core_system.passive_effect" }}}
@@ -120,7 +120,7 @@
     {{!-- Active Description + Bonuses --}}
     <div class="card clipped-top frame_core lancer-border-bonus">
       <div class="lancer-header lancer-bonus">
-        <i class="cci cci-corebonus i--m i--light"> </i>
+        <i class="cci cci-corebonus i--4 i--light"> </i>
         <input class="lancer-invisible-input medium i--light" name="system.core_system.active_name" value="{{system.core_system.active_name}}" data-dtype="String" />
         <div class="faded" style="justify-self: right;"> // ACTIVE</div>
         {{{popout-editor-button "system.core_system.active_effect" }}}

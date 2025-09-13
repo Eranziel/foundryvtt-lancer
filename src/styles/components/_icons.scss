@@ -1,117 +1,94 @@
-.small-icon {
-  flex-grow: 0;
-  min-width: 1em;
-  max-height: 1em;
-}
+@use "../mixins";
+@use "../variables" as *;
 
-.med-icon {
-  flex-grow: 0;
-  max-width: 2.5em;
-  max-height: 2.5em;
-}
+@layer lancer.components {
+  .i--click {
+    cursor: pointer;
+  }
 
-.large-icon {
-  flex-grow: 0;
-  min-width: 5em;
-  max-height: 5em;
-}
+  // TODO: around v14, remove the non-numeric versions of these classes.
+  .i--xs,
+  .i--1 {
+    @include mixins.icon-size($icon-size-1);
+    @include mixins.vert-mid();
+  }
 
-@mixin icon-size($pixels) {
-  font-size: $pixels;
-  min-width: $pixels;
-  max-width: $pixels;
-  min-height: $pixels;
-  max-height: $pixels;
-}
+  .i--s,
+  .i--2 {
+    @include mixins.icon-size($icon-size-2);
+    @include mixins.vert-mid();
+  }
 
-@mixin vert-mid() {
-  vertical-align: middle;
-}
+  .i--sm,
+  .i--3 {
+    @include mixins.icon-size($icon-size-3);
+    @include mixins.vert-mid();
+  }
 
-.i--click {
-  cursor: pointer;
-}
+  .i--m,
+  .i--4 {
+    @include mixins.icon-size($icon-size-4);
+    @include mixins.vert-mid();
+  }
 
-.i--xs {
-  @include icon-size(15px);
-  @include vert-mid();
-}
+  .i--l,
+  .i--5 {
+    @include mixins.icon-size($icon-size-5);
+    @include mixins.vert-mid();
+  }
 
-.i--s {
-  @include icon-size(20px);
-  @include vert-mid();
-}
+  .i--xl,
+  .i--6 {
+    @include mixins.icon-size($icon-size-6);
+    @include mixins.vert-mid();
+  }
 
-.i--sm {
-  @include icon-size(25px);
-  @include vert-mid();
-}
+  .size-icon,
+  .tier-icon {
+    @include mixins.icon-size($tier-icon-size);
+    @include mixins.vert-mid();
+  }
 
-.i--m {
-  @include icon-size(30px);
-  @include vert-mid();
-}
+  .faded {
+    opacity: 75%;
+  }
 
-.i--l {
-  @include icon-size(40px);
-  @include vert-mid();
-}
+  .i--dark {
+    color: var(--dark-text);
+  }
 
-.i--xl {
-  @include icon-size(60px);
-  @include vert-mid();
-}
+  .i--light {
+    color: var(--light-text);
+  }
 
-.size-icon,
-.tier-icon {
-  @include icon-size(120px);
-  @include vert-mid();
-}
+  .damage--kinetic {
+    color: #616161;
+  }
 
-.profile-img {
-  @include icon-size(100px);
-  object-fit: cover;
-}
+  .damage--energy {
+    color: #2195ca;
+  }
 
-.faded {
-  opacity: 75%;
-}
+  .damage--explosive {
+    color: #fca017;
+  }
 
-.i--dark {
-  color: var(--dark-text);
-}
+  .damage--burn {
+    color: #ce871e;
+  }
 
-.i--light {
-  color: var(--light-text);
-}
+  .damage--heat {
+    color: #e74210;
+  }
 
-.damage--kinetic {
-  color: #616161;
-}
+  .damage--variable {
+    color: #d500f9;
+  }
 
-.damage--energy {
-  color: #2195ca;
-}
-
-.damage--explosive {
-  color: #fca017;
-}
-
-.damage--burn {
-  color: #ce871e;
-}
-
-.damage--heat {
-  color: #e74210;
-}
-
-.damage--variable {
-  color: #d500f9;
-}
-
-.size-icon {
-  color: var(--primary-color, fuchsia);
-}
-.tier-icon {
-  color: var(--light-text);
+  .size-icon {
+    color: var(--primary-color, fuchsia);
+  }
+  .tier-icon {
+    color: var(--light-text);
+  }
 }

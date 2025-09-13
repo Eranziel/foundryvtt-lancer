@@ -297,7 +297,7 @@ export function item_edit_license(options: HelperOptions): string {
     rankInfo = ``;
   } else {
     licenseInfo = `<div class="${EntryType.LICENSE} ref lancer-license medium" ${ref_params(license)}>
-      <i class="cci cci-license i--m i--dark"> </i>
+      <i class="cci cci-license i--4 i--dark"> </i>
       <span class="major modifier-name">${license.name}</span>
     </div>`;
     rankInfo = `<div class="flexrow rank-wrapper">

@@ -1,53 +1,54 @@
-// Stabilize dialog
-// Begin "Button" radio buttons
+@layer lancer.applications {
+  // Stabilize dialog
+  // Begin "Button" radio buttons
+  .stabilize-wrapper {
+    .button-label {
+      background-color: var(--secondary-color);
+      color: var(--secondary-text);
+      flex-basis: 45%;
 
-.stabilize-wrapper {
-  .button-label {
-    background-color: var(--secondary-color);
-    color: var(--secondary-text);
-    flex-basis: 45%;
+      i.checked-icon {
+        display: none;
+      }
+    }
 
-    i.checked-icon {
+    .hidden {
       display: none;
     }
-  }
 
-  .hidden {
-    display: none;
-  }
+    .radio-label:checked + .button-label {
+      background-color: var(--primary-color);
+      color: var(--light-text);
 
-  .radio-label:checked + .button-label {
-    background-color: var(--primary-color);
-    color: var(--light-text);
-
-    i.checked-icon {
-      display: inline;
+      i.checked-icon {
+        display: inline;
+      }
     }
-  }
 
-  .radio-label + .button-label:hover {
-    filter: brightness(120%);
-  }
+    .radio-label + .button-label:hover {
+      filter: brightness(120%);
+    }
 
-  .button-label {
-    display: grid;
-    grid-template-columns: 2em 2em auto;
-    padding: 1em;
-    margin: 0.5em;
-    cursor: pointer;
-    border-radius: 0.25em;
-    box-shadow: 0 3px 10px var(--darken-2);
-    user-select: none;
-    align-items: center;
+    .button-label {
+      display: grid;
+      grid-template-columns: 2em 2em auto;
+      padding: 1em;
+      margin: 0.5em;
+      cursor: pointer;
+      border-radius: 0.25em;
+      box-shadow: 0 3px 10px var(--darken-2);
+      user-select: none;
+      align-items: center;
 
-    i,
-    span {
+      i,
+      span {
+        text-align: center;
+      }
+    }
+
+    .center-text {
+      display: table;
       text-align: center;
     }
-  }
-
-  .center-text {
-    display: table;
-    text-align: center;
   }
 }

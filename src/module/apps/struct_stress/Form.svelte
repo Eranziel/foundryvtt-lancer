@@ -39,7 +39,7 @@
   }}
 >
   <div class="lancer-header lancer-primary medium">
-    <i class="cci cci-{icon} i--m i--light" />
+    <i class="cci cci-{icon} i--4 i--light" />
     <span>{title}{rollerName}</span>
   </div>
   {#if lancerActor && (lancerActor.is_mech() || lancerActor.is_npc())}
@@ -47,10 +47,10 @@
       <h3>{lancerActor?.name ?? "UNKNOWN MECH"} has taken {icon} damage!</h3>
       <div class="damage-preview">
         {#each { length: current } as _}
-          <i class="cci cci-{icon} i--m damage-pip" />
+          <i class="cci cci-{icon} i--4 damage-pip" />
         {/each}
         {#each { length: damage } as _}
-          <i class="mdi mdi-hexagon-outline i--m damage-pip damaged" />
+          <i class="mdi mdi-hexagon-outline i--4 damage-pip damaged" />
         {/each}
       </div>
       <p class="message">
@@ -71,15 +71,19 @@
 </form>
 
 <style>
-  .message-body {
-    margin: 8px 4px;
-  }
+  @layer lancer {
+    @layer applications {
+      .message-body {
+        margin: 8px 4px;
+      }
 
-  .damage-preview {
-    text-align: center;
-  }
+      .damage-preview {
+        text-align: center;
+      }
 
-  .damaged {
-    opacity: 30%;
+      .damaged {
+        opacity: 30%;
+      }
+    }
   }
 </style>

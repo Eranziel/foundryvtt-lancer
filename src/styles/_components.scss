@@ -1,3 +1,5 @@
+// No layer defined here because you can't do @use inside @layer. Each source file adds to the layer
+// instead.
 @use "components/elements";
 @use "components/icons";
 @use "components/buttons";

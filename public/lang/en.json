@@ -42,6 +42,9 @@
       }
     },
     "deployable-sheet": {
+      "header": {
+        "owner": "Owner"
+      },
       "tabs": {
         "status": "<STATUS>",
         "config": "<CONFIG>"
@@ -54,6 +57,9 @@
       }
     },
     "mech-sheet": {
+      "header": {
+        "inactive-warning": "Warning: Inactive Mech - Pilot bonuses not tracked"
+      },
       "tabs": {
         "stats": "<MECH//STATS>",
         "loadout": "<MECH//LOADOUT>",
@@ -75,7 +81,8 @@
     },
     "npc-sheet": {
       "header": {
-        "class": "CLASS:"
+        "class": "CLASS",
+        "templates": "TEMPLATES"
       },
       "class": {
         "label": "CLASS",
@@ -93,10 +100,10 @@
     },
     "pilot-sheet": {
       "header": {
-        "ll": "LICENSE LEVEL:",
-        "cs": "CALLSIGN:",
-        "name": "NAME:",
-        "bg": "BACKGROUND:"
+        "ll": "LL",
+        "cs": "CALLSIGN",
+        "name": "NAME",
+        "bg": "BACKGROUND"
       },
       "tabs": {
         "cloud": "<RM-4://SYNC>",
@@ -124,7 +131,8 @@
       },
       "dossier": {
         "cs": "CALLSIGN",
-        "name": "NAME"
+        "name": "NAME",
+        "background": "BACKGROUND"
       },
       "narrative": {
         "bond": "BOND OF {bondName}",

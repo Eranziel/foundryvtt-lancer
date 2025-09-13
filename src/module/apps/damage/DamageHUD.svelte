@@ -39,8 +39,8 @@
     !targets.length || targets[0]?.quality === HitQuality.Hit
       ? "target-hit"
       : targets[0]?.quality === HitQuality.Crit
-      ? "target-crit"
-      : "target-miss";
+        ? "target-crit"
+        : "target-miss";
 
   let rollerName = lancerActor ? ` -- ${lancerActor.token?.name || lancerActor.name}` : "";
 
@@ -194,7 +194,7 @@
 >
   {#if title != ""}
     <div class="lancer-header lancer-weapon medium">
-      <i class="cci cci-large-beam i--m i--light" />
+      <i class="cci cci-large-beam i--4 i--light" />
       <span>{title}{rollerName}</span>
     </div>
   {/if}
@@ -282,7 +282,7 @@
       />
       {#if weapon.reliable}
         <i
-          class="cci i--sm cci-{reliableType().toLowerCase()} damage--{reliableType().toLowerCase()}"
+          class="cci i--3 cci-{reliableType().toLowerCase()} damage--{reliableType().toLowerCase()}"
           data-tooltip={reliableType()}
           transition:fade
         />
@@ -335,154 +335,158 @@
 </form>
 
 <style lang="scss">
-  #damage-hud {
-    // background-color: var(--background-color);
-    // color: var(--dark-text);
+  @layer lancer {
+    @layer applications {
+      #damage-hud {
+        // background-color: var(--background-color);
+        // color: var(--dark-text);
 
-    input {
-      color: unset;
-    }
+        input {
+          color: unset;
+        }
 
-    .group-box {
-      border: 1px solid var(--primary-color);
-      border-radius: 5px;
-    }
+        .group-box {
+          border: 1px solid var(--primary-color);
+          border-radius: 5px;
+        }
 
-    .damage-grid {
-      display: flex;
-      justify-content: space-between;
-    }
+        .damage-grid {
+          display: flex;
+          justify-content: space-between;
+        }
 
-    .base-damage,
-    .bonus-damage {
-      width: 100%;
-      padding: 0.2em;
-      min-width: 200px;
-    }
+        .base-damage,
+        .bonus-damage {
+          width: 100%;
+          padding: 0.2em;
+          min-width: 200px;
+        }
 
-    h3 {
-      justify-content: space-between;
-    }
+        h3 {
+          justify-content: space-between;
+        }
 
-    .base-damage {
-      border-right-width: 1px;
-      border-right-style: dashed;
-    }
+        .base-damage {
+          border-right-width: 1px;
+          border-right-style: dashed;
+        }
 
-    .add-damage-type {
-      max-height: 1.5em;
-      max-width: 1.5em;
-      line-height: 1.5em;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 0;
+        .add-damage-type {
+          max-height: 1.5em;
+          max-width: 1.5em;
+          line-height: 1.5em;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          padding: 0;
 
-      i {
-        margin: 0;
-      }
-    }
+          i {
+            margin: 0;
+          }
+        }
 
-    h3.damage-hud-section {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 0.1em;
-    }
+        h3.damage-hud-section {
+          display: flex;
+          justify-content: space-between;
+          margin-bottom: 0.1em;
+        }
 
-    .damage-hud-options-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      grid-template-rows: auto auto auto auto;
-      grid-template-areas:
-        "title title"
-        "ap overkill"
-        "paracausal reliable"
-        "halfdamage empty";
-      margin-bottom: 0.5em;
+        .damage-hud-options-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          grid-template-rows: auto auto auto auto;
+          grid-template-areas:
+            "title title"
+            "ap overkill"
+            "paracausal reliable"
+            "halfdamage empty";
+          margin-bottom: 0.5em;
 
-      .reliable-value {
-        width: 5em;
-        max-width: 5em;
-      }
-    }
-  }
-
-  .damage-hud-targets {
-    display: grid;
-    grid-template-columns: auto auto auto;
-    grid-auto-flow: dense;
-    grid-row-gap: 0.3em;
-    justify-items: center;
-    border-top: 1px solid var(--primary-color);
-    padding-top: 0.5em;
-
-    .single-target-container {
-      grid-column-start: 1;
-      grid-column-end: 4;
-      width: 65%;
-      background-color: var(--darken-1);
-      box-shadow: 1px 1px 2px;
-      margin-bottom: 0.3em;
-      transition: all 0.3s ease;
-
-      &.target-miss {
-        opacity: 70%;
-      }
-
-      .target-name {
-        justify-content: center;
-        padding: 0px 0.2em;
-        justify-content: space-between;
-        b {
-          text-align: center;
+          .reliable-value {
+            width: 5em;
+            max-width: 5em;
+          }
         }
       }
 
-      .lancer-hit-thumb {
-        max-width: 50px;
-      }
+      .damage-hud-targets {
+        display: grid;
+        grid-template-columns: auto auto auto;
+        grid-auto-flow: dense;
+        grid-row-gap: 0.3em;
+        justify-items: center;
+        border-top: 1px solid var(--primary-color);
+        padding-top: 0.5em;
 
-      .target-body {
-        justify-content: center;
-        align-items: center;
-        img {
-          flex-grow: 0;
+        .single-target-container {
+          grid-column-start: 1;
+          grid-column-end: 4;
+          width: 65%;
+          background-color: var(--darken-1);
+          box-shadow: 1px 1px 2px;
+          margin-bottom: 0.3em;
+          transition: all 0.3s ease;
+
+          &.target-miss {
+            opacity: 70%;
+          }
+
+          .target-name {
+            justify-content: center;
+            padding: 0px 0.2em;
+            justify-content: space-between;
+            b {
+              text-align: center;
+            }
+          }
+
+          .lancer-hit-thumb {
+            max-width: 50px;
+          }
+
+          .target-body {
+            justify-content: center;
+            align-items: center;
+            img {
+              flex-grow: 0;
+            }
+          }
+
+          :global(.damage-target-quality) {
+            flex-grow: 1;
+            max-width: fit-content;
+            font-size: 0.85em;
+            margin-top: 0.2em;
+            padding-left: 10px;
+            cursor: pointer;
+          }
+          :global(.damage-target-quality i) {
+            vertical-align: middle;
+            margin-right: 0.4em;
+            margin-top: 0.1em;
+            margin-bottom: 0.1em;
+          }
+
+          :global(.damage-target-quality span) {
+            vertical-align: middle;
+          }
+
+          :global(.damage-target-quality label) {
+            align-content: center;
+          }
+        }
+
+        .target-container {
+          min-width: 200px;
+          max-width: 200px;
+        }
+
+        .target-container:has(.damage-hud-target-card .target-bonus-damage-wrapper) {
+          grid-column-start: 1;
+          grid-column-end: 3;
+          max-width: unset;
         }
       }
-
-      :global(.damage-target-quality) {
-        flex-grow: 1;
-        max-width: fit-content;
-        font-size: 0.85em;
-        margin-top: 0.2em;
-        padding-left: 10px;
-        cursor: pointer;
-      }
-      :global(.damage-target-quality i) {
-        vertical-align: middle;
-        margin-right: 0.4em;
-        margin-top: 0.1em;
-        margin-bottom: 0.1em;
-      }
-
-      :global(.damage-target-quality span) {
-        vertical-align: middle;
-      }
-
-      :global(.damage-target-quality label) {
-        align-content: center;
-      }
-    }
-
-    .target-container {
-      min-width: 200px;
-      max-width: 200px;
-    }
-
-    .target-container:has(.damage-hud-target-card .target-bonus-damage-wrapper) {
-      grid-column-start: 1;
-      grid-column-end: 3;
-      max-width: unset;
     }
   }
 </style>

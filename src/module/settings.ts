@@ -93,7 +93,7 @@ export const registerSettings = function () {
     name: "lancer.statusIconsConfig.menu-name",
     label: "lancer.statusIconsConfig.menu-label",
     hint: "lancer.statusIconsConfig.menu-hint",
-    icon: "cci cci-difficulty i--s",
+    icon: "cci cci-difficulty i--2",
     type: StatusIconConfig,
     restricted: true,
   });

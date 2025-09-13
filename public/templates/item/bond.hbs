@@ -2,9 +2,7 @@
 
   {{!-- Sheet Header --}}
   <header class="sheet-header card clipped-bot">
-    <div class="flexcol grow">
-      <h1 class="charname"><input class="header-field" name="name" type="text" value="{{item.name}}" placeholder="{{localize "lancer.placeholder.name"}}"/></h1>
-    </div>
+    <h1 class="name"><input class="header-field" name="name" type="text" value="{{item.name}}" placeholder="{{localize "lancer.placeholder.name"}}"/></h1>
     {{{ ref-portrait-img item.img "img" item }}}
   </header>
 
@@ -98,7 +96,7 @@
           <div class="lancer-header lancer-primary major">
             {{{std-checkbox (concat "system.powers." (concat power_index ".unlocked")) label="" classes=""}}}
             {{!-- TODO: bond icon? --}}
-            <i class="cci cci-trait i--m i--light header-icon"> </i> 
+            <i class="cci cci-trait i--4 i--light header-icon"> </i> 
             {{{std-text-input (concat "system.powers." (concat power_index ".name")) classes="lancer-text-field"}}}
             <a class="gen-control" data-action="splice" data-path="system.powers.{{power_index}}">
               <i class="fas fa-trash"></i>
