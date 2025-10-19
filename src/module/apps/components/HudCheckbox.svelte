@@ -27,7 +27,7 @@
     class={partial ? "partial" : ""}
     on:change={() => dispatch("change", value)}
   />
-  {#if icon}<i class="{icon} i--s" />{/if}
+  {#if icon}<i class="{icon} i--2" />{/if}
   <span style="text-wrap: nowrap;">{label}</span>
 </label>
 
@@ -110,6 +110,10 @@
           }
           &:checked::before {
             content: "\f00d";
+          }
+          &.partial::after,
+          &:checked::after {
+            display: none;
           }
         }
 
