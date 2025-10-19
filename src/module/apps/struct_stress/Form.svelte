@@ -58,7 +58,7 @@
       </p>
     </div>
   {/if}
-  <div class="dialog-buttons flexrow">
+  <div class="lancer-hud-buttons flexrow">
     <button class="dialog-button submit default" data-button="submit" type="submit" use:focus>
       <i class="fas fa-check" />
       Roll

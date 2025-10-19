@@ -442,7 +442,7 @@
       </div>
     </div>
   </div>
-  <div class="dialog-buttons flexrow">
+  <div class="lancer-hud-buttons flexrow">
     <button
       class="lancer-button lancer-secondary dialog-button submit default"
       data-button="submit"
