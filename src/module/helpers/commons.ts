@@ -21,9 +21,9 @@ export function inc_if(val: string, test: any) {
 // Generic template for dice roll results in chat
 export function lancerDiceRoll(roll: Roll, tooltip?: string, icon?: string): string {
   const iconHTML = icon ? `<i class="${icon}"></i>` : "";
-  const tooltipHTML = tooltip ? `<div style="text-align: left;">${tooltip}</div>` : "";
+  const tooltipHTML = tooltip || "";
   return `
-<div class="dice-roll lancer-dice-roll collapse">
+<div class="dice-roll lancer-dice-roll" data-action="expandRoll">
   <div class="dice-result">
     <div class="dice-formula lancer-dice-formula flexrow">
       <span style="text-align: left; margin-left: 5px;">${roll.formula}</span>

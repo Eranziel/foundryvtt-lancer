@@ -12,23 +12,62 @@
   .lancer-dice-roll {
     padding-left: 3px;
     padding-right: 3px;
-  }
-
-  .lancer-dice-formula,
-  .lancer-dice-total {
     margin: 5px;
-    align-items: center;
-    text-align: center;
-    background: var(--darken-1);
-    border: 1px solid #999;
-    border-radius: 3px;
-    box-shadow: 0 0 2px #fff inset;
-  }
 
-  .lancer-dice-total {
-    margin: 5px;
-    min-width: max-content;
-    padding: 0px 5px;
+    .dice-formula,
+    .dice-total {
+      align-items: center;
+      text-align: center;
+      background: none;
+    }
+
+    .dice-formula {
+      background: var(--darken-1);
+      border-top: 1px solid var(--secondary-color);
+      border-left: 1px solid var(--secondary-color);
+      border-bottom: none;
+      border-right: none;
+      box-shadow: none;
+      border-radius: 5px 0 0 5px;
+
+      &:has(+ .dice-tooltip) {
+        margin-bottom: 0px;
+      }
+
+      &:not(&:has(+ .dice-tooltip)) {
+        border-bottom: 1px solid var(--secondary-color);
+      }
+    }
+
+    .dice-total {
+      margin: 5px;
+      min-width: max-content;
+      padding: 0px 5px;
+      border: none;
+      box-shadow: none;
+    }
+
+    .dice-tooltip {
+      text-align: left;
+      margin-left: 0.3em;
+      padding-left: 0.3em;
+      background: var(--darken-2);
+      transition: all 250ms ease;
+      border-left: 1px solid var(--secondary-color);
+      border-bottom: 1px solid var(--secondary-color);
+      border-radius: 0 0 0 5px;
+
+      .part-total {
+        background: none;
+        border: none;
+      }
+    }
+
+    &.expanded {
+      .dice-formula {
+        border-bottom: none;
+      }
+    }
   }
 
   /* ===== ATTACK RESULTS ===== */
