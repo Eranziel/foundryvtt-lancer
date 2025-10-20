@@ -25,9 +25,9 @@ export function lancerDiceRoll(roll: Roll, tooltip?: string, icon?: string): str
   return `
 <div class="dice-roll lancer-dice-roll" data-action="expandRoll">
   <div class="dice-result">
-    <div class="dice-formula lancer-dice-formula flexrow">
-      <span style="text-align: left; margin-left: 5px;">${roll.formula}</span>
-      <span class="dice-total lancer-dice-total major">${roll.total}</span>${iconHTML}
+    <div class="dice-formula flexrow">
+      ${roll.formula}
+      <span class="dice-total major">${roll.total} ${iconHTML}</span>
     </div>
     ${tooltipHTML}
   </div>
