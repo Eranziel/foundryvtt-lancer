@@ -29,11 +29,12 @@ const config: UserConfig = {
     ],
   },
   optimizeDeps: {
-    include: ["@massif/lancer-data", "jszip" /* "axios" */], // machine-mind's cjs dependencies
+    include: ["@massif/lancer-data"],
   },
   build: {
     outDir: path.resolve(__dirname, "dist"),
     emptyOutDir: false,
+    copyPublicDir: true,
     sourcemap: true,
     lib: {
       name: "lancer",
