@@ -12,7 +12,7 @@
   import { userTargets } from "./user-targets";
   import AccDiffHud from "../acc_diff/AccDiffHUD.svelte";
   import DamageHud from "../damage/DamageHUD.svelte";
-  import StructStressHud from "../struct_stress/Form.svelte";
+  import StructStressHud from "../struct_stress/StructStressHUD.svelte";
 
   let dispatch = createEventDispatcher();
 
