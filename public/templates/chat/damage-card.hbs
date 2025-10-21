@@ -88,10 +88,9 @@
     <div class="card clipped">
       <div class="lancer-mini-header collapse-trigger" data-collapse-id="{{_uuid}}-self-heat">{{localize "lancer.chat-card.title.self-heat"}}</div>
       <div class="collapse" data-collapse-id="{{_uuid}}-self-heat">
-        <div class="lancer-dice-total flexrow">
-          <span style="text-align: left; margin-left: 5px;">{{localize "lancer.chat-card.exclamation.overkill"}}</span>
-          <span class="dice-total lancer-dice-total major">{{ overkill_heat }}</span>
-          <i class="cci cci-heat i--4 damage--heat"> </i>
+        <div class="flexrow">
+          <span style="text-align: left; margin-left: 5px; flex: 3;">{{localize "lancer.chat-card.exclamation.overkill"}}</span>
+          <span class="dice-total major">{{ overkill_heat }} <i class="cci cci-heat i--4 damage--heat"></i></span>
         </div>
       </div>
     </div>
