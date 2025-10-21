@@ -58,7 +58,7 @@
 
       .damage-input-container {
         display: grid;
-        grid-template-columns: min-content min-content 1fr min-content;
+        grid-template-columns: min-content 12ch 1fr min-content;
         grid-template-rows: auto;
         align-items: center;
         justify-items: center;

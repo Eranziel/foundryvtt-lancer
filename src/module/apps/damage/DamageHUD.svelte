@@ -202,124 +202,132 @@
     <MiniProfile {profile} />
   {/if}
 
-  <!-- Damage types and values -->
-  <div class="damage-grid">
-    <div class="base-damage lancer-border-primary">
-      <h3 class="damage-hud-section lancer-border-primary flexrow">
-        Base Damage
-        <button class="add-damage-type" type="button" on:click={addBaseDamage}
-          ><i class="mdi mdi-plus-thick" data-tooltip="Add a base damage type" /></button
-        >
-      </h3>
-      {#each weaponDamage as damage, i (i)}
-        <div>
-          <DamageInput bind:damage on:delete={() => removeBaseDamage(i, false)} />
-        </div>
-      {/each}
-      {#each baseDamage as damage, i (i)}
-        <div>
-          <DamageInput bind:damage on:delete={() => removeBaseDamage(i)} />
-        </div>
-      {/each}
+  <div class="lancer-hud-body">
+    <!-- Damage types and values -->
+    <div class="damage-grid">
+      <div class="base-damage lancer-border-primary">
+        <h4 class="damage-hud-section lancer-border-primary flexrow">
+          Base Damage
+          <button class="add-damage-type" type="button" on:click={addBaseDamage}
+            ><i class="mdi mdi-plus-thick" data-tooltip="Add a base damage type" /></button
+          >
+        </h4>
+        {#each weaponDamage as damage, i (i)}
+          <div>
+            <DamageInput bind:damage on:delete={() => removeBaseDamage(i, false)} />
+          </div>
+        {/each}
+        {#each baseDamage as damage, i (i)}
+          <div>
+            <DamageInput bind:damage on:delete={() => removeBaseDamage(i)} />
+          </div>
+        {/each}
+      </div>
+      <div class="bonus-damage">
+        <h4 class="damage-hud-section lancer-border-primary flexrow">
+          Bonus Damage
+          <button class="add-damage-type" type="button" on:click={addBonusDamage}
+            ><i class="mdi mdi-plus-thick" data-tooltip="Add a bonus damage type" /></button
+          >
+        </h4>
+        {#each weaponBonusDamage as damage, i (i)}
+          <div>
+            <DamageInput bind:damage on:delete={() => removeBonusDamage(i, false)} />
+          </div>
+        {/each}
+        {#each baseBonusDamage as damage, i (i)}
+          <div>
+            <DamageInput bind:damage on:delete={() => removeBonusDamage(i)} />
+          </div>
+        {/each}
+      </div>
     </div>
-    <div class="bonus-damage">
-      <h3 class="damage-hud-section lancer-border-primary flexrow">
-        Bonus Damage
-        <button class="add-damage-type" type="button" on:click={addBonusDamage}
-          ><i class="mdi mdi-plus-thick" data-tooltip="Add a bonus damage type" /></button
-        >
-      </h3>
-      {#each weaponBonusDamage as damage, i (i)}
-        <div>
-          <DamageInput bind:damage on:delete={() => removeBonusDamage(i, false)} />
-        </div>
-      {/each}
-      {#each baseBonusDamage as damage, i (i)}
-        <div>
-          <DamageInput bind:damage on:delete={() => removeBonusDamage(i)} />
-        </div>
-      {/each}
-    </div>
-  </div>
-  <!-- Checkboxes - AP etc... -->
-  <div class="damage-hud-options-grid">
-    <h3 class="damage-hud-section lancer-border-primary" style="justify-content: center; grid-area: title;">
-      Configuration
-    </h3>
-    <HudCheckbox
-      icon="mdi mdi-shield-off-outline"
-      label="Armor Piercing (AP)"
-      bind:value={base.ap}
-      bind:partial={partialAP}
-      on:change={toggleAP}
-      disabled={base.paracausal}
-      style="grid-area: ap"
-    />
-    <HudCheckbox label="Overkill" bind:value={weapon.overkill} style="grid-area: overkill" />
-    <HudCheckbox
-      icon="cci cci-large-beam"
-      label="Cannot be Reduced"
-      bind:value={base.paracausal}
-      bind:partial={partialParacausal}
-      on:change={toggleParacausal}
-      tooltip="For 'cannot be reduced' effects like the Paracausal mod"
-      style="grid-area: paracausal"
-    />
-    <HudCheckbox
-      icon="mdi mdi-fraction-one-half"
-      label="Half Damage"
-      bind:value={base.halfDamage}
-      bind:partial={partialHalfDamage}
-      on:change={toggleHalfDamage}
-      tooltip="For effects which cause the attacker to deal half damage in addition to resistance, like Heavy Gunner"
-      style="grid-area: halfdamage"
-    />
-    <div class="flexrow" style="grid-area: reliable; align-items: center;">
+    <!-- Checkboxes - AP etc... -->
+    <div class="damage-hud-options-grid">
+      <h4 class="damage-hud-section lancer-border-primary" style="justify-content: center; grid-area: title;">
+        Configuration
+      </h4>
       <HudCheckbox
-        label="Reliable"
-        bind:value={weapon.reliable}
-        style="grid-area: reliable; max-width: fit-content; padding-right: 0.5em;"
+        icon="mdi mdi-shield-off-outline"
+        label="Armor Piercing (AP)"
+        bind:value={base.ap}
+        bind:partial={partialAP}
+        on:change={toggleAP}
+        disabled={base.paracausal}
+        style="grid-area: ap"
       />
-      {#if weapon.reliable}
-        <i
-          class="cci i--3 cci-{reliableType().toLowerCase()} damage--{reliableType().toLowerCase()}"
-          data-tooltip={reliableType()}
-          transition:fade
+      <HudCheckbox label="Overkill" bind:value={weapon.overkill} style="grid-area: overkill" />
+      <HudCheckbox
+        icon="cci cci-large-beam"
+        label="Cannot be Reduced"
+        bind:value={base.paracausal}
+        bind:partial={partialParacausal}
+        on:change={toggleParacausal}
+        tooltip="For 'cannot be reduced' effects like the Paracausal mod"
+        style="grid-area: paracausal"
+      />
+      <HudCheckbox
+        icon="mdi mdi-fraction-one-half"
+        label="Half Damage"
+        bind:value={base.halfDamage}
+        bind:partial={partialHalfDamage}
+        on:change={toggleHalfDamage}
+        tooltip="For effects which cause the attacker to deal half damage in addition to resistance, like Heavy Gunner"
+        style="grid-area: halfdamage"
+      />
+      <div class="flexrow" style="grid-area: reliable; align-items: center;">
+        <HudCheckbox
+          label="Reliable"
+          bind:value={weapon.reliable}
+          style="grid-area: reliable; max-width: fit-content; padding-right: 0.5em;"
         />
-        <input class="reliable-value" type="number" bind:value={weapon.reliableValue} transition:fade />
+        {#if weapon.reliable}
+          <i
+            class="cci i--2 cci-{reliableType().toLowerCase()} damage--{reliableType().toLowerCase()}"
+            data-tooltip={reliableType()}
+            transition:fade
+          />
+          <input
+            class="lancer-input reliable-value"
+            type="text"
+            data-dtype="string"
+            bind:value={weapon.reliableValue}
+            transition:fade
+          />
+        {/if}
+      </div>
+    </div>
+    <!-- Target cards -->
+    <div class="damage-hud-targets">
+      {#if targets.length === 1}
+        <div
+          class={`single-target-container ${targetHitQualityClass}`}
+          on:mouseenter={ev => targetHoverIn(ev, targets[0].target)}
+          on:mouseleave={ev => targetHoverOut(ev, targets[0].target)}
+        >
+          <span class="target-name flexrow lancer-mini-header">🞂<b>{targets[0].target.name}</b>🞀</span>
+          <div class="target-body flexrow">
+            <img
+              class="lancer-hit-thumb accdiff-target-has-dropdown"
+              alt={targets[0].target.name ?? undefined}
+              src={targets[0].target.actor?.img}
+            />
+            <HitRadio bind:quality={targets[0].quality} class="damage-target-quality flexcol" />
+          </div>
+        </div>
+      {:else if targets.length > 1}
+        {#each targets as target (target.target.id)}
+          <div
+            class="target-container {targets.length <= 1 ? 'solo' : ''}"
+            animate:flip={{ duration: 200 }}
+            on:mouseenter={ev => targetHoverIn(ev, target.target)}
+            on:mouseleave={ev => targetHoverOut(ev, target.target)}
+          >
+            <DamageTarget {target} on:ap={updateTargets} on:paracausal={updateTargets} on:halfDmg={updateTargets} />
+          </div>
+        {/each}
       {/if}
     </div>
-  </div>
-  <!-- Target cards -->
-  <div class="damage-hud-targets">
-    {#if targets.length === 1}
-      <div
-        class={`single-target-container ${targetHitQualityClass}`}
-        on:mouseenter={ev => targetHoverIn(ev, targets[0].target)}
-        on:mouseleave={ev => targetHoverOut(ev, targets[0].target)}
-      >
-        <span class="target-name flexrow lancer-mini-header">🞂<b>{targets[0].target.name}</b>🞀</span>
-        <div class="target-body flexrow">
-          <img
-            class="lancer-hit-thumb accdiff-target-has-dropdown"
-            alt={targets[0].target.name ?? undefined}
-            src={targets[0].target.actor?.img}
-          />
-          <HitRadio bind:quality={targets[0].quality} class="damage-target-quality flexcol" />
-        </div>
-      </div>
-    {:else if targets.length > 1}
-      {#each targets as target (target.target.id)}
-        <div
-          class="target-container {targets.length <= 1 ? 'solo' : ''}"
-          animate:flip={{ duration: 200 }}
-          on:mouseenter={ev => targetHoverIn(ev, target.target)}
-          on:mouseleave={ev => targetHoverOut(ev, target.target)}
-        >
-          <DamageTarget {target} on:ap={updateTargets} on:paracausal={updateTargets} on:halfDmg={updateTargets} />
-        </div>
-      {/each}
-    {/if}
   </div>
 
   <div class="lancer-hud-buttons flexrow">
@@ -353,6 +361,7 @@
         .damage-grid {
           display: flex;
           justify-content: space-between;
+          border-bottom: 1px solid var(--primary-color);
         }
 
         .base-damage,
@@ -385,10 +394,13 @@
           }
         }
 
-        h3.damage-hud-section {
+        h4.damage-hud-section {
           display: flex;
           justify-content: space-between;
-          margin-bottom: 0.1em;
+          padding-bottom: 0.3em;
+          margin: 0.2em 0 0.2em;
+          font-size: 1rem;
+          border-bottom: 1px solid var(--primary-color);
         }
 
         .damage-hud-options-grid {
@@ -401,10 +413,18 @@
             "paracausal reliable"
             "halfdamage empty";
           margin-bottom: 0.5em;
+          border-top: 1px solid var(--primary-color);
 
+          i:has(+ .reliable-value) {
+            min-height: 1rem;
+            max-height: 1rem;
+            vertical-align: middle;
+          }
           .reliable-value {
             width: 5em;
             max-width: 5em;
+            max-height: 1.5em;
+            margin: 0 0.4em 0;
           }
         }
       }
