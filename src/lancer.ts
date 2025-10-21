@@ -105,6 +105,7 @@ import { WeaponModModel } from "./module/models/items/weapon_mod";
 import { registerTours } from "./module/tours/register-tours";
 import { get_pack_id } from "./module/util/doc";
 import handleSocketMessage from "./module/socket";
+import preloadHUDs from "./module/apps/slidinghud/preload";
 
 const lp = LANCER.log_prefix;
 
@@ -275,6 +276,7 @@ Hooks.once("init", () => {
   // ------------------------------------------------------------------------
   // Sliding HUD Zone, including accuracy/difficulty window
   Hooks.on("renderHeadsUpDisplay", slidingHUD.attach);
+  preloadHUDs();
 
   // Combat tracker HUD modules integration
   if (game.modules!.get("combat-tracker-dock")?.active) {
