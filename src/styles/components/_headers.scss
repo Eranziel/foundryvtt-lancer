@@ -54,16 +54,6 @@
       font-family: var(--header-font-family);
       font-weight: bold;
       color: var(--light-text);
-      border-top: none;
-      border-right: none;
-      border-left: 2px solid var(--darken-2);
-      border-bottom: 1px solid var(--darken-2);
-      transition: (filter, background) 0.2s ease-in;
-
-      &:hover {
-        background: var(--hover-bright);
-        filter: drop-shadow(0 0 5px var(--primary-highlight));
-      }
     }
 
     .name {
