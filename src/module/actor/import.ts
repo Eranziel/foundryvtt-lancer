@@ -45,7 +45,8 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
   if (!pilot.is_pilot() || !data) return;
   if (clearFirst) {
     await pilot.deleteEmbeddedDocuments("Item", Array.from(pilot.items.keys()));
-    let existing_mechs = game.actors?.filter(x => x.is_mech() && x.system.pilot?.value == pilot) ?? [];
+    const existing_mechs = (game.actors.filter(x => x.is_mech() && (x as LancerMECH).system.pilot?.value == pilot) ??
+      []) as LancerMECH[];
     for (let m of existing_mechs) {
       await m.deleteEmbeddedDocuments("Item", Array.from(m.items.keys()));
     }
@@ -58,7 +59,7 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
 
   try {
     let unitFolder = pilot.folder;
-    let permission = foundry.utils.duplicate(pilot.ownership);
+    let permission = foundry.utils.duplicate(pilot.ownership) as typeof pilot.ownership;
 
     // Check whether players are allowed to create Actors
     const canCreate = game.user?.can("ACTOR_CREATE");
@@ -145,8 +146,10 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
             {
               type: EntryType.SKILL,
               name: skill.id ?? "Custom Skill",
-              "system.rank": skill.rank,
-              "system.description": skill.custom_desc || skill.custom_detail || "",
+              system: {
+                curr_rank: skill.rank,
+                description: skill.custom_desc || skill.custom_detail || "",
+              },
             },
           ]);
         } else {
@@ -176,14 +179,16 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
       if (bond && data.bondPowers) {
         // Disable all powers, in case the pilot already had this bond
         bond.system.powers.forEach(p => {
-          p.unlocked = false;
+          if (p) p.unlocked = false;
         });
 
         const bondPack = game.packs.get(get_pack_id(EntryType.BOND));
         await bondPack?.getIndex();
         const bonds: LancerItem[] | null =
           ((await bondPack?.getDocuments({ type: EntryType.BOND })) as unknown as LancerItem[]) ?? null;
-        const unlockAndRefill = function (power: PowerData) {
+        const unlockAndRefill = function (power: PowerData | null | undefined) {
+          if (!power) return;
+
           power.unlocked = true;
           if (power.uses) {
             power.uses.value = power.uses.max;
@@ -191,7 +196,7 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
         };
         data.bondPowers.forEach(p => {
           // Find and unlock the power on the bond
-          let i = bond!.system.powers.findIndex(x => x.name == p.name);
+          let i = bond!.system.powers.findIndex(x => x && x.name == p.name);
           if (i != undefined && i != -1) {
             const power = bond!.system.powers[i];
             unlockAndRefill(power);
@@ -201,14 +206,14 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
           let found = false;
           for (const b of bonds) {
             if (found || !b.is_bond()) return;
-            const newPower = b.system.powers.find(x => x.name == p.name);
+            const newPower = b.system.powers.find(x => x && x.name == p.name);
             if (newPower) {
               found = true;
               unlockAndRefill(newPower);
               bond!.system.powers.push(newPower);
 
               // The pilot has a power from another bond - unlock the veteran power
-              i = bond!.system.powers.findIndex(x => x.veteran);
+              i = bond!.system.powers.findIndex(x => x && x.veteran);
               if (i != undefined && i != -1) {
                 const power = bond!.system.powers[i];
                 unlockAndRefill(power);
@@ -304,7 +309,9 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
     let activeMechUuid = "";
     for (const cloudMech of data.mechs) {
       // Find the existing mech, or create one as necessary
-      let mech = game.actors!.find((m): m is LancerMECH => m.is_mech() && m.system.lid == cloudMech.id);
+      let mech = game.actors.find(m => m.is_mech() && (m as LancerMECH).system.lid == cloudMech.id) as
+        | LancerMECH
+        | undefined;
       if (!mech) {
         if (!game.user?.can("ACTOR_CREATE")) {
           ui.notifications!.warn(
@@ -315,7 +322,7 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
           continue;
         }
 
-        mech = await LancerActor.create({
+        mech = (await LancerActor.create({
           name: cloudMech.name,
           type: EntryType.MECH,
           folder: unitFolder?.id,
@@ -323,7 +330,7 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
           system: {
             pilot: pilot.uuid,
           },
-        });
+        })) as LancerMECH;
       }
       if (!mech.canUserModify(game.user!, "update")) {
         ui.notifications!.warn(
@@ -346,7 +353,7 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
             missingItems.push({ actor: mech.name, lid });
             return;
           }
-          return (await insinuate([fromCompendium], mech!))[0];
+          return (await insinuate([fromCompendium], mech))[0];
         }
       };
 
