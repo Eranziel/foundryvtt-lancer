@@ -1,6 +1,10 @@
 @layer lancer.applications {
   .lancer.actor.sheet {
     font-family: var(--main-font-family);
+
+    header.sheet-header input {
+      text-align: center;
+    }
   }
 
   .lancer.actor.mech.sheet {

@@ -96,6 +96,13 @@
     grid-row: 1/2;
   }
 
+  .lancer-hud-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5em;
+    margin: 0.5em;
+  }
+
   .overline {
     font-size: 0.75rem !important;
     font-weight: 500;

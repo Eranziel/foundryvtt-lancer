@@ -226,7 +226,7 @@
   {#if profile}
     <MiniProfile {profile} />
   {/if}
-  <div id="{kind}-accdiff-dialog" style="padding:0.3em">
+  <div id="{kind}-accdiff-dialog" class="lancer-hud-body">
     <!-- Flat attack bonus -->
     {#if isAttack()}
       <label class="flexrow accdiff-weight lancer-border-primary" for="accdiff-flat-bonus"> Flat Modifier </label>
@@ -442,7 +442,7 @@
       </div>
     </div>
   </div>
-  <div class="dialog-buttons flexrow">
+  <div class="lancer-hud-buttons flexrow">
     <button
       class="lancer-button lancer-secondary dialog-button submit default"
       data-button="submit"

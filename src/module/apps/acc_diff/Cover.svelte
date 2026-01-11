@@ -49,10 +49,15 @@
         border: none;
       }
 
+      // The input itself takes is effectively invisible.
+      // The label handles display & interaction.
       input {
         opacity: 0;
         position: fixed;
+        pointer-events: none;
         width: 0;
+        min-width: 0;
+        margin: 0;
       }
 
       label {

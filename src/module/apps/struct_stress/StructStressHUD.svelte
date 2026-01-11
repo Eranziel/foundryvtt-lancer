@@ -43,8 +43,8 @@
     <span>{title}{rollerName}</span>
   </div>
   {#if lancerActor && (lancerActor.is_mech() || lancerActor.is_npc())}
-    <div class="message-body">
-      <h3>{lancerActor?.name ?? "UNKNOWN MECH"} has taken {icon} damage!</h3>
+    <div class="lancer-hud-body">
+      <h4>{lancerActor?.name ?? "UNKNOWN MECH"} has taken {icon} damage!</h4>
       <div class="damage-preview">
         {#each { length: current } as _}
           <i class="cci cci-{icon} i--4 damage-pip" />
@@ -58,7 +58,7 @@
       </p>
     </div>
   {/if}
-  <div class="dialog-buttons flexrow">
+  <div class="lancer-hud-buttons flexrow">
     <button class="dialog-button submit default" data-button="submit" type="submit" use:focus>
       <i class="fas fa-check" />
       Roll
@@ -73,8 +73,9 @@
 <style>
   @layer lancer {
     @layer applications {
-      .message-body {
-        margin: 8px 4px;
+      .lancer-hud-body h4 {
+        margin-bottom: 0;
+        font-size: 1rem;
       }
 
       .damage-preview {

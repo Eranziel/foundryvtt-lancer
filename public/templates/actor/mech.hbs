@@ -3,7 +3,7 @@
   <div>
     <header class="sheet-header card clipped-bot {{#if (not is_active)}}inactive-mech{{/if}}">
       <h1 class="name">
-        <input name="name" type="text" value="{{actor.name}}" placeholder="{{localize "
+        <input class="lancer-input" name="name" type="text" value="{{actor.name}}" placeholder="{{localize "
           lancer.placeholder.name"}}" />
       </h1>
       {{{ref-portrait-img actor.img "img" actor}}}

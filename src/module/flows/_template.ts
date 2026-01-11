@@ -88,7 +88,7 @@ export function targetsFromTemplate(templateId: string): void {
       ({ x, y }) => canvas.grid!.getOffset({ x: x + sizeX / 2, y: y + sizeY / 2 })
     );
     test_token = (token: LancerToken) => {
-      const token_offsets: BaseGrid.Offset[] = token.document.getOccupiedSpaceOffsets();
+      const token_offsets: BaseGrid.Offset[] = token.document.getOccupiedGridSpaceOffsets();
       return token_offsets.some(o => template_offsets.some(e => o.i === e.i && o.j === e.j));
     };
   }

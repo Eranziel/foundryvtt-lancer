@@ -237,7 +237,7 @@ export class LancerSlidingHudTour extends LancerTour {
 
   protected async _tearDown() {
     // Dismiss the dialogue to avoid an error from trying to roll
-    document.querySelector<HTMLElement>("#hudzone #accdiff .dialog-buttons .cancel")?.click();
+    document.querySelector<HTMLElement>("#hudzone #accdiff .lancer-hud-buttons .cancel")?.click();
     delete this.npc;
   }
 }

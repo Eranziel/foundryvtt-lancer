@@ -30,7 +30,7 @@
     },
     {
       "id": "finish",
-      "selector": "#hudzone #accdiff .dialog-buttons",
+      "selector": "#hudzone #accdiff .lancer-hud-buttons",
       "title": "lancer.tour.attack-dialog.finish.title",
       "content": "lancer.tour.attack-dialog.finish.content"
     }

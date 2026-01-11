@@ -1,10 +1,14 @@
 import { readable } from "svelte/store";
 
 export const sidebarWidth = readable(0, update => {
-  const sidebar = $("#sidebar");
+  const sidebar = document.getElementById("sidebar");
 
-  function setWidth() {
-    update(sidebar.width() || 0);
+  async function setWidth() {
+    if (!sidebar) return;
+    // Delay until transition is done
+    await new Promise(resolve => setTimeout(resolve, 200));
+    // console.log(sidebar.offsetWidth);
+    update(sidebar.offsetWidth || 0);
   }
 
   setWidth();
