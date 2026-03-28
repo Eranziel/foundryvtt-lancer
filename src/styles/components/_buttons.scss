@@ -168,4 +168,10 @@
     margin-left: 1em;
     margin-right: 1em;
   }
+
+  .lancer-hud-buttons {
+    .dialog-button.submit {
+      background-color: var(--primary-color);
+    }
+  }
 }
