@@ -100,7 +100,7 @@ export function targetsFromTemplate(templateId: string): void {
       collisionTest: o => {
         const t = o.t as any as LancerToken;
         let skip = (ignore?.tokens.includes(t.id) || ignore?.dispositions.includes(t.document.disposition)) ?? false;
-        return !skip && test_token(t);
+        return !skip && t.isVisible && test_token(t);
       },
     })
     .toObject()
