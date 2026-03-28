@@ -315,7 +315,7 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
     if (!this.actor.is_pilot()) return;
     // Do some pre-processing
     // Do these only if the callsign updated
-    if (this.actor.system.callsign !== formData["callsign"]) {
+    if (formData["callsign"] && this.actor.system.callsign !== formData["callsign"]) {
       // Use the Actor's name for the pilot's callsign
       // formData["name"] = formData["data.callsign"];
       // Copy the pilot's callsign to the prototype token
