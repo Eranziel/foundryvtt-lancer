@@ -23,7 +23,7 @@
   "author": "",
   "license": "",
   "devDependencies": {
-    "@foundryvtt/foundryvtt-cli": "^1.1.0",
+    "@foundryvtt/foundryvtt-cli": "^3.0.3",
     "@sveltejs/vite-plugin-svelte": "^2.4.6",
     "@tsconfig/svelte": "^5.0.4",
     "@types/node": "^24.0.1",
