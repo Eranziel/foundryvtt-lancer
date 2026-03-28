@@ -28,6 +28,15 @@
     }
   },
   "lancer": {
+    "LancerPilotSheet": "Lancer System Pilot Sheet",
+    "LancerMechSheet": "Lancer System Mech Sheet",
+    "LancerDeployableSheet": "Lancer System Deployable Sheet",
+    "LancerNPCSheet": "Lancer System NPC Sheet",
+    "LancerItemSheet": "Lancer System Item Sheet",
+    "LancerFrameSheet": "Lancer System Frame Sheet",
+    "LancerLicenseSheet": "Lancer System License Sheet",
+    "LancerNPCClassSheet": "Lancer System NPC Class/Template Sheet",
+    "LancerNPCFeatureSheet": "Lancer System NPC Feature Sheet",
     "Actor": {
       "FIELDS": {
         "activations": { "label": "Activations" }
@@ -467,12 +476,12 @@
       }
     },
     "movement": {
-        "actions": {
-            "blink": "Teleport (Move)",
-            "forced": "Forced Move",
-            "ignore": "Ignore Terrain",
-            "teleport": "Teleport (Ability)"
-        }
+      "actions": {
+        "blink": "Teleport (Move)",
+        "forced": "Forced Move",
+        "ignore": "Ignore Terrain",
+        "teleport": "Teleport (Ability)"
+      }
     }
   },
   "LANCERINITIATIVE": {
