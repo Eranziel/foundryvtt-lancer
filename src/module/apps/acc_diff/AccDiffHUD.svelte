@@ -255,13 +255,13 @@
       <div class="accdiff-grid__column">
         <h4 class="lancer-border-primary">
           <i class="cci cci-accuracy i--4" style="vertical-align:middle;border:none" />
-          <strong>Accuracy</strong>
+          <span>Accuracy</span>
         </h4>
       </div>
       <div class="accdiff-grid__column">
         <h4 class="lancer-border-primary">
           <i class="cci cci-difficulty i--4" style="vertical-align:middle;border:none" />
-          <strong>Difficulty</strong>
+          <span>Difficulty</span>
         </h4>
       </div>
     </div>

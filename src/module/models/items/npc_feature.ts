@@ -163,13 +163,13 @@ export function unpackNpcFeature(
   } else if (data.type == NpcFeatureType.Tech) {
     let bs = base.system as Partial<SourceTemplates.NPC.TechData>;
     bs.tech_type = restrict_enum(NpcTechType, NpcTechType.Quick, data.tech_type);
-    bs.accuracy = data.accuracy ?? [];
-    bs.attack_bonus = data.attack_bonus ?? [];
+    bs.accuracy = data.accuracy ?? [0, 0, 0];
+    bs.attack_bonus = data.attack_bonus ?? [0, 0, 0];
     bs.tech_attack = !!data.attack_bonus || !!data.accuracy;
   } else if (data.type == NpcFeatureType.Weapon) {
     let bs = base.system as Partial<SourceTemplates.NPC.WeaponData>;
-    bs.accuracy = data.accuracy ?? [];
-    bs.attack_bonus = data.attack_bonus ?? [];
+    bs.accuracy = data.accuracy ?? [0, 0, 0];
+    bs.attack_bonus = data.attack_bonus ?? [0, 0, 0];
     bs.weapon_type = data.weapon_type;
     bs.on_hit = data.on_hit;
 

@@ -45,5 +45,5 @@ export const preloadTemplates = async function () {
     `systems/${game.system.id}/templates/window/tag.hbs`,
   ];
 
-  return loadTemplates(templatePaths);
+  return foundry.applications.handlebars.loadTemplates(templatePaths);
 };

@@ -261,7 +261,7 @@ function _collectBonusDamage(state: FlowState<LancerFlowState.DamageRollData>): 
     type: DamageType;
     val: string;
     target?: LancerToken;
-  }[] = duplicate(state.data.bonus_damage);
+  }[] = foundry.utils.duplicate(state.data.bonus_damage);
   // Find all the target-specific bonus damage rolls and add them to the base rolls
   // so they can be rolled together.
   for (const hudTarget of state.data.damage_hud_data.targets) {

@@ -11,36 +11,42 @@
   .i--1 {
     @include mixins.icon-size($icon-size-1);
     @include mixins.vert-mid();
+    display: inline-flex;
   }
 
   .i--s,
   .i--2 {
     @include mixins.icon-size($icon-size-2);
     @include mixins.vert-mid();
+    display: inline-flex;
   }
 
   .i--sm,
   .i--3 {
     @include mixins.icon-size($icon-size-3);
     @include mixins.vert-mid();
+    display: inline-flex;
   }
 
   .i--m,
   .i--4 {
     @include mixins.icon-size($icon-size-4);
     @include mixins.vert-mid();
+    display: inline-flex;
   }
 
   .i--l,
   .i--5 {
     @include mixins.icon-size($icon-size-5);
     @include mixins.vert-mid();
+    display: inline-flex;
   }
 
   .i--xl,
   .i--6 {
     @include mixins.icon-size($icon-size-6);
     @include mixins.vert-mid();
+    display: inline-flex;
   }
 
   .size-icon,

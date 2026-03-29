@@ -246,54 +246,6 @@
     margin: 0;
   }
 
-  // TODO: how much of this should stay as global overrides, and how much should
-  // be moved to component styles?
-  .lancer button,
-  .lancer-button {
-    border: 1px solid var(--darken-3);
-    border-radius: 5px;
-    padding: 0.25em;
-    background: var(--light-gray-color);
-    color: var(--dark-text);
-    box-shadow: var(--button-shadow);
-
-    &:hover {
-      box-shadow: var(--button-shadow), var(--hover-bright);
-    }
-
-    &.noninteractive {
-      cursor: default;
-      text-shadow: none;
-      box-shadow: none;
-    }
-
-    &:disabled {
-      cursor: not-allowed;
-      text-shadow: none;
-      box-shadow: none;
-      filter: brightness(0.7);
-    }
-
-    // TODO: make all chat buttons tighter. Needs alignment
-    // work in other styles/chat cards.
-    .chat-message .lancer-damage-button-group & {
-      width: fit-content;
-      display: flex;
-
-      & i {
-        margin: 0;
-
-        & ~ i {
-          margin-left: -0.4em;
-        }
-      }
-    }
-
-    & i.damage--kinetic {
-      color: var(--light-text);
-    }
-  }
-
   // needed to override a builtin that removes all shadows from the sidebar
   #sidebar a.chat-button:hover {
     text-shadow: 0 0 8px var(--color-shadow-primary);

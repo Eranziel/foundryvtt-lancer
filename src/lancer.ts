@@ -74,6 +74,7 @@ import { PilotArmorModel } from "./module/models/items/pilot_armor";
 import { PilotGearModel } from "./module/models/items/pilot_gear";
 import { PilotWeaponModel } from "./module/models/items/pilot_weapon";
 import { TalentModel } from "./module/models/items/talent";
+import { LancerTerrain } from "./module/terrain";
 import { LancerToken, LancerTokenDocument, extendTokenConfig } from "./module/token";
 import { lookupOwnedDeployables } from "./module/util/lid";
 import { fulfillImportActor } from "./module/util/requests";
@@ -254,10 +255,69 @@ Hooks.once("init", () => {
   CONFIG.ActiveEffect.documentClass = LancerActiveEffect;
   CONFIG.Token.documentClass = LancerTokenDocument;
   CONFIG.Token.objectClass = LancerToken;
+  // @ts-expect-error ???
+  CONFIG.Token.movement.TerrainData = LancerTerrain;
+  CONFIG.Token.movement.actions = foundry.utils.mergeObject(CONFIG.Token.movement.actions, {
+    swim: { canSelect: () => false, deriveTerrainDifficulty: () => 1 },
+    burrow: { canSelect: () => false, deriveTerrainDifficulty: () => 1 },
+    crawl: {
+      // @ts-expect-error
+      getCostFunction: () => (cost, _f, _t, dist) => Math.max(cost, dist * 2),
+    },
+    climb: {
+      // @ts-expect-error
+      getCostFunction: () => (cost, _f, _t, dist) => Math.max(cost, dist * 2),
+    },
+    jump: {
+      // @ts-expect-error
+      getCostFunction: () => (cost, _f, _t, dist) => Math.max(cost, dist * 2),
+    },
+    teleport: {
+      label: "lancer.movement.actions.teleport",
+      icon: "fa-solid fa-person-rays",
+      order: 7,
+      teleport: true,
+      getCostFunction: () => () => 0,
+      getAnimationOptions: () => ({ duration: 0 }),
+      deriveTerrainDifficulty: () => 1,
+      // @ts-expect-error
+      canSelect: token => token.inCombat,
+    },
+    blink: {
+      label: "lancer.movement.actions.blink",
+      order: 8,
+    },
+    ignore: {
+      label: "lancer.movement.actions.ignore",
+      icon: "fa-solid fa-person-walking-dashed-line-arrow-right",
+      order: 9,
+      // @ts-expect-error
+      deriveTerrainDifficulty: d => Math.min(d.walk, 1),
+    },
+    forced: {
+      label: "lancer.movement.actions.forced",
+      icon: "fa-solid fa-people-pulling",
+      img: "icons/svg/hazard.svg",
+      order: 10,
+      teleport: true,
+      measure: false,
+      canSelect: () => game.user.isGM,
+      deriveTerrainDifficulty: () => 1,
+      getCostFunction: () => () => 0,
+    },
+    displace: { order: 11 },
+  });
   CONFIG.Combat.documentClass = LancerCombat;
   CONFIG.Combat.fallbackTurnMarker = "systems/lancer/assets/turn-markers/mech-hud.svg";
   CONFIG.Combatant.documentClass = LancerCombatant;
   CONFIG.ui.combat = LancerCombatTracker;
+
+  CONFIG.Dice.fulfillment.dice = {
+    // Disabled due to https://github.com/foundryvtt/foundryvtt/issues/13694
+    // dc : { icon: "<i class='fa-solid fa-coins'></i>", label: "dc" },
+    d3: { icon: "<i class='fa-solid fa-dice-d6'></i>", label: "d3" },
+    ...CONFIG.Dice.fulfillment.dice,
+  };
 
   // Set up default system status icons
   // LancerActiveEffect.updateIcons() is called later, in the ready hook.

@@ -212,7 +212,7 @@
 
 <style lang="scss">
   @layer lancer {
-    @layer components {
+    @layer applications {
       .lcp-table {
         max-height: 100%;
         height: 100%;
@@ -286,8 +286,8 @@
           background-color: var(--background-color);
           border: 1px solid var(--lighten-5);
           &:hover {
-            background-color: var(--color-level-error-bg);
-            border: 1px solid var(--color-level-error-border);
+            background-color: var(--color-level-error-bg) !important;
+            border: 1px solid var(--color-level-error-border) !important;
           }
         }
       }

@@ -217,6 +217,7 @@ export class TagField<Options extends fields.SchemaField.Options<TagFieldSchema>
     if (value.num_val) {
       value["val"] = String(value.num_val);
     }
+    if (value instanceof Tag) return value;
     return super._cast(value);
   }
 
