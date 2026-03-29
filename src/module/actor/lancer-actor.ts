@@ -135,9 +135,13 @@ export class LancerActor<SubType extends Actor.SubType = Actor.SubType> extends 
      */
     if (!paracausal && !this.system.statuses.shredded) {
       const defenseFavor = true; // getAutomationOptions().defenderArmor
-      const resistArmorDamage = armoredDamageTypes.filter(t => resistAll || this.system.resistances[t.toLowerCase()]);
+      const resistArmorDamage = armoredDamageTypes.filter(
+        t => resistAll || this.system.resistances[t.toLowerCase() as Lowercase<typeof t>]
+      );
       const normalArmorDamage = armoredDamageTypes.filter(t => !resistArmorDamage.includes(t));
-      const resistApDamage = apDamageTypes.filter(t => resistAll || this.system.resistances[t.toLowerCase()]);
+      const resistApDamage = apDamageTypes.filter(
+        t => resistAll || this.system.resistances[t.toLowerCase() as Lowercase<typeof t>]
+      );
       let armor = ap ? 0 : this.system.armor;
       let leftoverArmor: number; // Temp 'storage' variable for tracking used armor
 
@@ -323,7 +327,7 @@ export class LancerActor<SubType extends Actor.SubType = Actor.SubType> extends 
     }
 
     if (this.is_pilot()) {
-      this.system.grit = Math.ceil(this.system.level / 2);
+      this.system.grit = Math.ceil(this.system.level ?? 0 / 2);
       this.system.hp.max = lancer_data.rules.base_pilot_hp + this.system.grit;
       this.system.bond = (this.items.find(i => i.is_bond()) ?? null) as unknown as LancerBOND | null;
       this.system.size = 0.5;
@@ -416,7 +420,9 @@ export class LancerActor<SubType extends Actor.SubType = Actor.SubType> extends 
   _markStatuses() {
     if (!this.statuses) return;
     for (const status of this.statuses.keys()) {
-      this.system.statuses[status] = true;
+      if (!(status in this.system.statuses)) return;
+
+      this.system.statuses[status as keyof typeof this.system.statuses] = true;
       // Mark resistances based on statuses
       switch (status) {
         case "resistance_burn":
@@ -514,6 +520,11 @@ export class LancerActor<SubType extends Actor.SubType = Actor.SubType> extends 
 
     let updates;
     if (isBar) {
+      if (typeof current !== "object" || current === null || !("value" in current)) {
+        console.error("LancerActor#modifyTokenAttribute | 'current' was not a bar object:", current);
+        return;
+      }
+
       if (isDelta) value = Number(current.value) + value;
       updates = { [`system.${attribute}.value`]: value };
     } else {
@@ -580,8 +591,10 @@ export class LancerActor<SubType extends Actor.SubType = Actor.SubType> extends 
     // If changing active mech, all mechs need to render to recompute if they are the active mech
     let changing_active_mech = (changed as any).system?.active_mech !== undefined;
     if (changing_active_mech) {
-      let owned_mechs = game.actors!.filter(a => a.is_mech() && a.system.pilot?.value == this);
-      owned_mechs?.forEach(m => m.render());
+      const owned_mechs = game.actors.filter(
+        a => a.is_mech() && (a as LancerMECH).system.pilot?.value == this
+      ) as LancerMECH[];
+      owned_mechs.forEach(m => m.render());
     }
 
     // All other changes we want to only be handled by this user who actually triggered the effect
@@ -804,7 +817,7 @@ export class LancerActor<SubType extends Actor.SubType = Actor.SubType> extends 
       new_size = Math.max(1, newFrame.system.stats.size ?? 0);
     } else if (newFrame.is_npc_class() && this.is_npc()) {
       const tier = this.system.tier || 1;
-      new_size = Math.max(1, newFrame.system.base_stats[tier - 1].size);
+      new_size = Math.max(1, newFrame.system.base_stats[tier - 1]?.size ?? 1);
     }
     if (!new_size) return;
     await this.prototypeToken.update({ height: new_size, width: new_size });
