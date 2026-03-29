@@ -70,7 +70,7 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
 
           // Fetch data to sync
           let raw_pilot_data = null;
-          if (pilot.system.cloud_id.match(shareCodeMatcher)) {
+          if (pilot.system.cloud_id?.match(shareCodeMatcher)) {
             // pilot share codes
             ui.notifications!.info("Importing character from share code...");
             console.log(`Attempting import with share code: ${pilot.system.cloud_id}`);
@@ -188,7 +188,7 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
     });
   }
 
-  async getData(): Promise<object> {
+  async getData(): Promise<Record<string, unknown>> {
     const data: any = await super.getData(); // Not fully populated yet!
 
     data.compConPilotList = pilotCache()
@@ -314,7 +314,8 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
    * @private
    */
   async _updateObject(event: Event, formData: any) {
-    if (!this.actor.is_pilot()) return;
+    const actor = this.actor;
+    if (!actor.is_pilot()) return;
     // Do some pre-processing
     // Do these only if the callsign updated
     if (this.actor.system.callsign !== formData["callsign"]) {
