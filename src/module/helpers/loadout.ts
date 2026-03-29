@@ -120,7 +120,7 @@ export function mechSystemView(
 // A drag-drop slot for a weapon mount. TODO: delete button, clear button
 function weaponMount(mount_path: string, options: HelperOptions): string {
   let mech = resolveHelperDotpath(options, "actor") as LancerMECH;
-  let mount = resolveHelperDotpath(options, mount_path) as LancerMECH["loadout"]["weapon_mounts"][0];
+  let mount = resolveHelperDotpath(options, mount_path) as LancerMECH["system"]["loadout"]["weapon_mounts"][number];
 
   // If bracing, override
   if (mount.bracing) {
