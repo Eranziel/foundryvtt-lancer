@@ -60,7 +60,7 @@
       lancerItem.is_pilot_weapon() ||
       (lancerItem.is_npc_feature() && lancerItem.system.type === NpcFeatureType.Weapon)
     ) {
-      ranges = (lancerItem.system as SystemTemplates.NPC.WeaponData).range.map(r => r.type);
+      ranges = lancerItem.system.range.map(r => r.type);
     } else if (lancerItem.is_mech_weapon()) {
       ranges = (lancerItem.system.active_profile?.range || []).map(r => r.type);
     }
@@ -98,16 +98,18 @@
   }
 
   function drawLos(target: Token) {
+    const thtModule = game.modules.get("terrain-height-tools");
+    if (!thtModule?.active || foundry.utils.isNewerVersion("0.3.3", thtModule.version)) return;
     const tokens = lancerActor?.getActiveTokens(true) ?? lancerItem?.actor?.getActiveTokens(true);
     const attacker = tokens?.shift();
     if (!attacker || attacker === target) return;
-    terrainHeightTools!.drawLineOfSightRaysBetweenTokens(attacker, target);
+    globalThis.terrainHeightTools?.drawLineOfSightRaysBetweenTokens(attacker, target);
   }
 
   function clearLos() {
     const thtModule = game.modules.get("terrain-height-tools");
     if (!thtModule?.active || foundry.utils.isNewerVersion("0.3.3", thtModule.version)) return;
-    terrainHeightTools!.clearLineOfSightRays();
+    globalThis.terrainHeightTools?.clearLineOfSightRays();
   }
 
   function escToCancel(_el: HTMLElement) {
@@ -183,7 +185,7 @@
 
   function deployTemplate(range: WeaponRangeTemplate["range"]) {
     const creator = lancerItem?.parent;
-    const token = (creator?.token?.object ?? creator?.getActiveTokens().shift() ?? undefined) as Token | undefined;
+    const token = creator?.token?.object ?? creator?.getActiveTokens().shift() ?? undefined;
     const t = WeaponRangeTemplate.fromRange(range, token);
     if (!t) return;
     fade("out");

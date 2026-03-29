@@ -38,9 +38,9 @@ function spotter(): AccDiffHudPluginData {
   let sp = {
     actor: null as LancerActor | null,
     target: null as AccDiffHudTarget | null,
-    uiElement: "checkbox" as "checkbox",
+    uiElement: "checkbox" as const,
     slug: "spotter",
-    category: "acc" as "acc",
+    category: "acc" as const,
     humanLabel: "Spotter (*)",
     get uiState() {
       return !!(this.actor && this.target?.usingLockOn && adjacentSpotter(this.actor));
@@ -69,7 +69,7 @@ function spotter(): AccDiffHudPluginData {
   return sp;
 }
 
-const Spotter: AccDiffHudPlugin<AccDiffHudPluginData> = {
+const Spotter: AccDiffHudPlugin<AccDiffHudPluginData, null> = {
   slug: "spotter",
   category: "acc",
   codec: stateless(

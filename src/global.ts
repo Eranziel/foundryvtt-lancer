@@ -184,10 +184,4 @@ declare module "fvtt-types/configuration" {
     "lancer-conditions.hayleyUtility": boolean;
     "lancer-conditions.tommyConditionsStatus": boolean;
   }
-
-  /**
-   * Terrain Height Tools API.
-   * Make sure to guard usage with a check for the module being active
-   */
-  const terrainHeightTools: TerrainHeightToolsAPI | undefined;
 }

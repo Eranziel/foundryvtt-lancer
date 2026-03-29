@@ -29,7 +29,7 @@ export default class Invisibility implements AccDiffHudCheckboxPluginData {
   }
 
   // as you may have guessed, the codec just stores the enum
-  static get codec(): AccDiffHudPluginCodec<Invisibility, InvisibilityEnum, unknown> {
+  static get codec(): AccDiffHudPluginCodec<Invisibility, InvisibilityEnum> {
     return enclass(t.union([t.literal(-1), t.literal(0), t.literal(1)]), Invisibility);
   }
 
@@ -106,4 +106,4 @@ export default class Invisibility implements AccDiffHudCheckboxPluginData {
 }
 
 // to check whether the static methods match the interface
-const _klass: AccDiffHudPlugin<Invisibility> = Invisibility;
+const _klass: AccDiffHudPlugin<Invisibility, InvisibilityEnum> = Invisibility;

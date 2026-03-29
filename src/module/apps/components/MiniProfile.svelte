@@ -2,7 +2,12 @@
   import type { DamageData } from "../../models/bits/damage";
   import type { RangeData } from "../../models/bits/range";
 
-  export let profile: { range: RangeData[]; damage?: DamageData[]; accuracy?: number; attack?: number };
+  export let profile: {
+    range: RangeData[];
+    damage?: DamageData[] | null | undefined;
+    accuracy?: number | null | undefined;
+    attack?: number | null | undefined;
+  };
 </script>
 
 <div class="mini-weapon-profile flexrow">
@@ -14,10 +19,8 @@
         >
       {/if}
       {#if profile.accuracy}
-        <span data-tooltip={(profile.accuracy ?? 0) > 0 ? "Accuracy" : "Difficulty"}
-          ><i class="cci cci-{(profile.accuracy ?? 0) > 0 ? 'accuracy' : 'difficulty'}" />{Math.abs(
-            profile.accuracy
-          )}</span
+        <span data-tooltip={profile.accuracy > 0 ? "Accuracy" : "Difficulty"}
+          ><i class="cci cci-{profile.accuracy > 0 ? 'accuracy' : 'difficulty'}" />{Math.abs(profile.accuracy)}</span
         >
       {/if}
     </div>

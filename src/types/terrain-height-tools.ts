@@ -460,8 +460,8 @@ export interface TerrainHeightToolsAPI {
    * @param options Options that change how the calculation is done.
    */
   drawLineOfSightRaysBetweenTokens(
-    token1: Token.Implementation,
-    token2: Token.Implementation,
+    token1: Token,
+    token2: Token,
     options?: {
       /**
        * How far the ray starts vertically relative to token1. The height is
@@ -491,4 +491,12 @@ export interface TerrainHeightToolsAPI {
    * Removes all lines of sight drawn by this user, INCLUDING those drawn by the tools in the side bar.
    */
   clearLineOfSightRays(): void;
+}
+
+declare global {
+  /**
+   * Terrain Height Tools API.
+   * Make sure to guard usage with a check for the module being active
+   */
+  var terrainHeightTools: TerrainHeightToolsAPI;
 }

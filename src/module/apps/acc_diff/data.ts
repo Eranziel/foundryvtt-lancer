@@ -361,9 +361,9 @@ export class AccDiffHudData {
     return encode(this, AccDiffHudData.codec);
   }
 
-  static plugins: AccDiffHudPlugin<AccDiffHudPluginData>[] = [];
-  static targetedPlugins: AccDiffHudPlugin<AccDiffHudPluginData>[] = [];
-  static registerPlugin<D extends AccDiffHudPluginData, P extends AccDiffHudPlugin<D>>(plugin: P) {
+  static plugins: AccDiffHudPlugin<AccDiffHudPluginData, unknown>[] = [];
+  static targetedPlugins: AccDiffHudPlugin<AccDiffHudPluginData, unknown>[] = [];
+  static registerPlugin(plugin: AccDiffHudPlugin<AccDiffHudPluginData, unknown>) {
     if (plugin.perRoll) {
       AccDiffHudWeapon.pluginSchema[plugin.slug] = plugin.codec;
     }
