@@ -8,7 +8,7 @@ import fields = foundry.data.fields;
 
 const mech_schema = {
   overcharge: new fields.NumberField({ min: 0, integer: true, nullable: false, initial: 0 }),
-  repairs: new FullBoundedNumberField({}),
+  repairs: new FullBoundedNumberField({}), // TODO: Refactor this to a non-custom data field.
   core_active: new fields.BooleanField({ initial: false }),
   core_energy: new fields.NumberField({ min: 0, integer: true, initial: 1 }),
   loadout: new fields.SchemaField({
