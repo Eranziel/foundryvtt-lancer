@@ -110,7 +110,8 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
   // Take ownership of appropriate items. Already filtered by can_drop_entry
   async onRootDrop(base_drop: ResolvedDropData, event: JQuery.DropEvent, _dest: JQuery<HTMLElement>): Promise<void> {
     // Type guard
-    if (!this.actor.is_npc()) return;
+    const actor = this.actor;
+    if (!actor.is_npc()) return;
 
     // Take posession
     let [drop, is_new] = await this.quickOwnDrop(base_drop);
@@ -134,8 +135,9 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
       // Update this, to re-populate arrays etc to reflect new item
       await this.actor.update({
         "system.hp.value": this.actor.system.hp.max,
-        "system.stress.value": this.actor.system.stress.max,
-        "system.structure.value": this.actor.system.structure.max,
+        // TODO: remove the non-null assertion, once FullBoundedNumberField is replaced.
+        "system.stress.value": this.actor.system.stress!.max,
+        "system.structure.value": this.actor.system.structure!.max,
       });
     }
 

@@ -72,8 +72,8 @@ export function template_heat() {
 
 export function template_struss() {
   return {
-    stress: new FullBoundedNumberField({ initialValue: 0, max: 1 }),
-    structure: new FullBoundedNumberField({ initialValue: 0, max: 1 }),
+    stress: new FullBoundedNumberField({ initialValue: 0, max: 1 }), // TODO: Refactor this to a non-custom data field
+    structure: new FullBoundedNumberField({ initialValue: 0, max: 1 }), // TODO: Refactor this to a non-custom data field
   };
 }
 
