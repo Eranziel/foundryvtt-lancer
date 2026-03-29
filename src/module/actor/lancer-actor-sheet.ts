@@ -581,7 +581,7 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<Acto
    * Prepare data for rendering the Actor sheet
    * The prepared data object contains both the actor data as well as additional sheet options
    */
-  async getData(): Promise<object> {
+  async getData(): Promise<Record<string, unknown>> {
     const data: any = await super.getData(); // Not fully populated yet!
     data.collapse = {};
     data.system = this.actor.system; // Alias

@@ -69,7 +69,8 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
     // Take posession
     let [drop, is_new] = await this.quickOwnDrop(base_drop);
 
-    if (drop.type == "Item" && drop.document.is_frame() && this.actor.is_mech()) {
+    const actor = this.actor;
+    if (drop.type == "Item" && drop.document.is_frame() && actor.is_mech()) {
       // Find and delete the old frame item, if it exists
       const oldFrame = this.actor.items.find(i => i.is_frame() && i.id != drop.document.id);
       if (oldFrame) {
@@ -129,8 +130,9 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
     let overchargeText = html.find(".overcharge-text");
 
     overchargeText.on("click", ev => {
-      if (!this.actor.is_mech()) return;
-      this._setOverchargeLevel(ev, Math.min(this.actor.system.overcharge + 1, 3));
+      const actor = this.actor;
+      if (!actor.is_mech()) return;
+      this._setOverchargeLevel(ev, Math.min(this.actor.system.overcharge ?? 0 + 1, 3));
     });
 
     // Overcharge reset
@@ -183,7 +185,10 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
           let mountPath = html[0].dataset.path ?? "";
 
           // Get the current mount
-          let mount = resolveDotpath(this.actor, mountPath) as Actor.OfType<"mech">["loadout"]["weapon_mounts"][0];
+          let mount = resolveDotpath(
+            this.actor,
+            mountPath
+          ) as Actor.OfType<"mech">["system"]["loadout"]["weapon_mounts"][number];
           if (!mount) {
             console.error("Bad mountpath:", mountPath);
           }
@@ -227,7 +232,7 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
         let mountPath = html[0].dataset.path ?? "";
 
         // Get the current mount
-        let mount = resolveDotpath(cd, mountPath) as Actor.OfType<"mech">["loadout"]["weapon_mounts"][0];
+        let mount = resolveDotpath(cd, mountPath) as Actor.OfType<"mech">["system"]["loadout"]["weapon_mounts"][number];
         if (!mount) {
           console.error("Bad mountpath:", mountPath);
         }
@@ -271,7 +276,7 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
     }
   }
 
-  async getData(): Promise<object> {
+  async getData(): Promise<Record<string, unknown>> {
     let data = await super.getData();
     data.pilot = this.actor.system.pilot?.value;
     data.is_active = this.actor.system.pilot?.value?.system.active_mech?.value == this.actor;
