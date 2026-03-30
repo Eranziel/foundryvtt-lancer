@@ -218,7 +218,7 @@
   .chat-sidebar .chat-message,
   .chat-popout .chat-message,
   .chat-notifications .chat-message {
-    background: #e1e1e1; /* Flat gray instead of parchment */
+    --chat-message-background: var(--lancer-light-app-bg);
     font-family: var(--main-font-family);
     // color: var(--dark-text);
 
