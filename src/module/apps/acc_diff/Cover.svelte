@@ -36,7 +36,7 @@
       <i class="mdi mdi-{input.icon} i--2" title={input.human} />
       <span class="no-grow">{input.human}</span>
       {#if input.value == cover}
-        <div class="cover-arrow" in:send|local={{ key: id }} out:recv|local={{ key: id }} />
+        <div class="cover-arrow" in:send={{ key: id }} out:recv={{ key: id }} />
       {/if}
     </label>
   {/each}

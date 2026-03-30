@@ -35,7 +35,7 @@
     <label for="{id}-{input.slug}" class="lancer-hit-quality-radio-label {labelClass}" data-tooltip={input.human}>
       <i class="{input.icon} i--2" /><span class="no-grow">{input.human}</span>
       {#if input.value == quality}
-        <div class="hit-quality-arrow" in:send|local={{ key: id }} out:recv|local={{ key: id }} />
+        <div class="hit-quality-arrow" in:send={{ key: id }} out:recv={{ key: id }} />
       {/if}
     </label>
   {/each}

@@ -285,14 +285,14 @@
           <i
             class="cci i--2 cci-{reliableType().toLowerCase()} damage--{reliableType().toLowerCase()}"
             data-tooltip={reliableType()}
-            transition:fade
+            transition:fade|global
           />
           <input
             class="lancer-input reliable-value"
             type="text"
             data-dtype="string"
             bind:value={weapon.reliableValue}
-            transition:fade
+            transition:fade|global
           />
         {/if}
       </div>
