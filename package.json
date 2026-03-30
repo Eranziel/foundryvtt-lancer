@@ -29,6 +29,7 @@
     "@types/node": "^24.0.1",
     "archiver": "^3.1.1",
     "chalk": "^3.0.0",
+    "dprint": "^0.53.1",
     "fs-extra": "^9.1.0",
     "fvtt-types": "github:League-of-Foundry-Developers/foundry-vtt-types#main",
     "gulp": "^5.0.0",
@@ -38,8 +39,6 @@
     "json-stringify-pretty-compact": "^2.0.0",
     "lint-staged": "^13.0.3",
     "nanoid": "^3.1.31",
-    "prettier": "^3.6.2",
-    "prettier-plugin-svelte": "^3.4.0",
     "rollup-plugin-visualizer": "^5.9.2",
     "sass": "^1.40.0",
     "svelte": "^4.0.0",
@@ -70,9 +69,11 @@
     "tippy.js": "^6.3.1"
   },
   "lint-staged": {
-    "*.ts": "prettier --write",
-    "*.svelte": "prettier --write",
-    "*.scss": "prettier --write",
-    "*.css": "prettier --write"
+    "*.ts": "dprint fmt --allow-no-files",
+    "*.svelte": "dprint fmt --allow-no-files",
+    "*.scss": "dprint fmt --allow-no-files",
+    "*.css": "dprint fmt --allow-no-files",
+    "*.hbs": "dprint fmt --allow-no-files",
+    "*.json": "dprint fmt --allow-no-files"
   }
 }

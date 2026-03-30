@@ -169,11 +169,11 @@
 
 <div class="lcp-manager">
   {#if loading}
-    <div class="flexrow" style="margin: 5em;">
+    <div class="flexrow" style="margin: 5em">
       <Spinner><span class="monospace">Loading data, please wait…</span></Spinner>
     </div>
   {:else}
-    <div class="flexrow lcp-manager__main-content" style="flex: 1 1;">
+    <div class="flexrow lcp-manager__main-content" style="flex: 1 1">
       <LCPTable
         {lcpData}
         bind:disabled={busy}
@@ -191,13 +191,13 @@
     <div class="lcp-manager__progress-area">
       <div class="lcp-manager__progress">
         {#if importing || importingMany}
-          <span transition:fade|global class="monospace"
-            >{`${importingLcp?.manifest.name} v${importingLcp?.manifest.version}`} {barWidth}%</span
-          >
-          <div transition:fade|global class="lcp-manager__progress-bar" style="width: {barWidth}%" />
+          <span transition:fade|global class="monospace">{
+              `${importingLcp?.manifest.name} v${importingLcp?.manifest.version}`
+            } {barWidth}%</span>
+          <div transition:fade|global class="lcp-manager__progress-bar" style:width={`${barWidth}%`} />
         {/if}
         {#if importingMany}
-          <div transition:fade|global class="lcp-manager__progress-bar" style="width: {secondBarWidth}%" />
+          <div transition:fade|global class="lcp-manager__progress-bar" style:width={`${secondBarWidth}%`} />
         {/if}
       </div>
     </div>
