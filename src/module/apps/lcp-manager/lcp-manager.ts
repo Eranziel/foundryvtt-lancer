@@ -2,6 +2,7 @@ import { LANCER } from "../../config";
 import type { ContentSummary } from "../../util/lcps";
 import type { IContentPackManifest } from "../../util/unpacking/packed-types";
 import type { DeepPartial } from "fvtt-types/utils";
+import { mount } from "svelte";
 
 import ApplicationV2 = foundry.applications.api.ApplicationV2;
 import HandlebarsApplicationMixin = foundry.applications.api.HandlebarsApplicationMixin;
@@ -14,7 +15,7 @@ async function mountLCPManager(target: HTMLElement, props: any) {
   if (!LCPManagerComponent) {
     LCPManagerComponent = (await import("./LCPManager.svelte")).default;
   }
-  return new LCPManagerComponent({
+  return mount(LCPManagerComponent, {
     target,
     props,
   });

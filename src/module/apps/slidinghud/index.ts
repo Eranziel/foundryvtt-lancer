@@ -2,6 +2,7 @@ import type HUDZone from "./SlidingHUDZone.svelte";
 import type { AccDiffHudData } from "../acc_diff";
 import type { StructStressData } from "../struct_stress/data";
 import { DamageHudData } from "../damage";
+import { mount } from "svelte";
 
 let hud: HUDZone;
 // Look - I don't really know enough typescript to get it right,
@@ -17,7 +18,7 @@ let activeCallbacks: Record<keyof HUDData, null | [(value: any) => any, () => an
 export async function attach() {
   if (!hud) {
     let HUDZone = (await import("./SlidingHUDZone.svelte")).default;
-    hud = new HUDZone({
+    hud = mount(HUDZone, {
       target: document.body,
     });
     for (let key of ["attack", "damage", "hase", "struct", "stress"] as Array<keyof HUDData>) {
