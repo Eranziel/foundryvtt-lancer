@@ -61,8 +61,8 @@
 
 {#if isTarget(target)}
   <div
-    in:send={{ key: `${id}-img`, delay: 100, duration: 200 }}
-    out:recv={{ key: `${id}-img`, duration: 200 }}
+    in:send|global={{ key: `${id}-img`, delay: 100, duration: 200 }}
+    out:recv|global={{ key: `${id}-img`, duration: 200 }}
     class="accdiff-grid lancer-hit-thumb accdiff-target-has-dropdown {pluginClasses}"
   >
     <img
@@ -72,7 +72,7 @@
       bind:this={imgElement}
     />
     {#if target.stunned}
-      <label transition:blur for={stunnedId} class="stunned-label" title="Stunned">
+      <label transition:blur|global for={stunnedId} class="stunned-label" title="Stunned">
         <i class="cci cci-condition-stunned i--3" />
       </label>
     {/if}
@@ -108,7 +108,7 @@
     </div>
   {/if}
 {/if}
-<div class="accdiff-grid accdiff-weight" in:send={{ key: id }} out:recv={{ key: id }}>
+<div class="accdiff-grid accdiff-weight" in:send|global={{ key: id }} out:recv|global={{ key: id }}>
   <div
     class="grid-enforcement total-container {pluginClasses}"
     class:accurate={target.total > 0}
@@ -116,13 +116,13 @@
   >
     <!-- #key blocks currently break |local, see https://github.com/sveltejs/svelte/issues/5950 -->
     {#each [target.total] as total (target.total)}
-      <div {id} transition:blur class="card clipped total">
-        <span in:fly|local={{ y: -50, duration: 400 }} out:fly|local={{ y: 50, duration: 200 }}>
+      <div {id} transition:blur|global class="card clipped total">
+        <span in:fly={{ y: -50, duration: 400 }} out:fly={{ y: 50, duration: 200 }}>
           {Math.abs(total)}
         </span>
         <i
-          in:fly|local={{ y: -50, duration: 200 }}
-          out:fly|local={{ y: 50, duration: 200 }}
+          in:fly={{ y: -50, duration: 200 }}
+          out:fly={{ y: 50, duration: 200 }}
           class="cci i--4 i--dark white--text middle"
           class:cci-accuracy={total >= 0}
           class:cci-difficulty={total < 0}

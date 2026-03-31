@@ -30,7 +30,7 @@
   <div class="lancer-header lancer-primary major"><span class={`transition ${fadeDirection}`}>{title}</span></div>
   <!-- New LCP Manifest -->
   {#if oldContentSummary}
-    <div class="lcp-details__content" transition:fade>
+    <div class="lcp-details__content" transition:fade|global>
       {#if oldContentSummary.website}
         <a href={oldContentSummary.website} class={`medium transition ${fadeDirection}`} style="margin: 5px;"
           >by {oldContentSummary.author}</a
@@ -94,7 +94,7 @@
       </div>
       {#if !showImportButton && !oldContentSummary.aggregate}
         <button
-          transition:fade
+          transition:fade|global
           type="button"
           class="lcp-import"
           title="Import LCP"

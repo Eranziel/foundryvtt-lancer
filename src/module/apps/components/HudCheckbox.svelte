@@ -19,7 +19,7 @@
   }
 </script>
 
-<label transition:slide|local class="container" class:invisible={!visible} {style} data-tooltip={tooltip}>
+<label transition:slide class="container" class:invisible={!visible} {style} data-tooltip={tooltip}>
   <input
     type="checkbox"
     bind:checked={value}

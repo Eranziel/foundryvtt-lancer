@@ -1,17 +1,17 @@
-import type { UserConfig } from "vite";
+import { defineConfig } from "vite";
 import { svelte } from "@sveltejs/vite-plugin-svelte";
 import { visualizer } from "rollup-plugin-visualizer";
-import preprocess from "svelte-preprocess";
+import { sveltePreprocess } from "svelte-preprocess";
+import foundryvtt from "vite-plugin-foundryvtt";
 import checker from "vite-plugin-checker";
-import path from "path";
 
-const config: UserConfig = {
-  root: "src/",
+import systemJson from "./src/system.json";
+
+export default defineConfig({
   base: "/systems/lancer/",
-  publicDir: path.resolve(__dirname, "public"),
   server: {
     port: 30001,
-    open: true,
+    open: "/",
     proxy: {
       "^(?!/systems/lancer)": "http://localhost:30000/",
       "/socket.io": {
@@ -20,25 +20,17 @@ const config: UserConfig = {
       },
     },
   },
-  resolve: {
-    alias: [
-      {
-        find: "./runtimeConfig",
-        replacement: "./runtimeConfig.browser",
-      },
-    ],
-  },
+  // For AWS Config
+  resolve: { alias: [{ find: "./runtimeConfig", replacement: "./runtimeConfig.browser" }] },
   optimizeDeps: {
     include: ["@massif/lancer-data"],
   },
   build: {
-    outDir: path.resolve(__dirname, "dist"),
     emptyOutDir: false,
-    copyPublicDir: true,
     sourcemap: true,
     lib: {
       name: "lancer",
-      entry: path.resolve(__dirname, "src/lancer.ts"),
+      entry: "src/lancer.ts",
       formats: ["es"],
       fileName: "lancer",
     },
@@ -48,21 +40,18 @@ const config: UserConfig = {
     keepNames: true,
   },
   plugins: [
-    svelte({
-      preprocess: preprocess(),
-    }),
-    checker({
-      typescript: true,
-      // svelte: { root: __dirname },
-    }),
-    visualizer({
-      gzipSize: true,
-      template: "treemap",
-    }),
+    checker({ typescript: true, enableBuild: false }),
+    svelte({ preprocess: sveltePreprocess() }),
+    foundryvtt(systemJson),
+    {
+      name: "aws-global-fix",
+      apply: "serve",
+      transform(code, id) {
+        // Define window.global for use by an aws dependency
+        if (id === "\0virtual:entrypoint") return "window.global = window;\n" + code;
+      },
+    },
+    visualizer({ gzipSize: true, template: "treemap" }),
   ],
-  define: {
-    "process.env": process.env,
-  },
-};
-
-export default config;
+  define: { "process.env.NODE_ENV": JSON.stringify(process.env.NODE_ENV) }, // This is to make tippy not error out in production
+});

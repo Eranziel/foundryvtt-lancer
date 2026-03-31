@@ -1,9 +1,11 @@
-import type HUDZone from "./SlidingHUDZone.svelte";
+// import type HUDZone from "./SlidingHUDZone.svelte";
 import type { AccDiffHudData } from "../acc_diff";
 import type { StructStressData } from "../struct_stress/data";
 import { DamageHudData } from "../damage";
+import { mount } from "svelte";
 
-let hud: HUDZone;
+// TODO: Find a better type for this
+let hud: ReturnType<typeof mount>;
 // Look - I don't really know enough typescript to get it right,
 // but these will hold the success/reject of any
 let activeCallbacks: Record<keyof HUDData, null | [(value: any) => any, () => any]> = {
@@ -17,19 +19,21 @@ let activeCallbacks: Record<keyof HUDData, null | [(value: any) => any, () => an
 export async function attach() {
   if (!hud) {
     let HUDZone = (await import("./SlidingHUDZone.svelte")).default;
-    hud = new HUDZone({
-      target: document.body,
-    });
-    for (let key of ["attack", "damage", "hase", "struct", "stress"] as Array<keyof HUDData>) {
-      hud.$on(`${key}.submit`, (ev: any) => {
+    const events: Record<string, (e: any) => any> = {};
+    for (const key of ["attack", "damage", "hase", "struct", "stress"] as Array<keyof HUDData>) {
+      events[`${key}.submit`] = (ev: any) => {
         activeCallbacks[key]?.[0](ev.detail);
         activeCallbacks[key] = null;
-      });
-      hud.$on(`${key}.cancel`, () => {
+      };
+      events[`${key}.cancel`] = () => {
         activeCallbacks[key]?.[1]();
         activeCallbacks[key] = null;
-      });
+      };
     }
+    hud = mount(HUDZone, {
+      target: document.body,
+      events,
+    });
   }
   return hud;
 }

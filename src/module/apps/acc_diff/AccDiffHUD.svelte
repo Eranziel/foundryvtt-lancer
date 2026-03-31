@@ -292,7 +292,7 @@
     </div>
 
     {#if kind == "attack" && (Object.values(weapon.plugins).length > 0 || targets.length == 1)}
-      <div transition:slide class="accdiff-grid accdiff-grid__section" style="width:100%;">
+      <div transition:slide|global class="accdiff-grid accdiff-grid__section" style="width:100%;">
         <!-- Target-related Accuracy -->
         <div class="accdiff-grid__column">
           {#if targets.length == 1}
@@ -320,12 +320,12 @@
           {#if !isTech()}
             <div class="grid-enforcement">
               {#if targets.length == 0}
-                <div transition:slide|local>
+                <div transition:slide>
                   <Cover bind:cover={base.cover} class="accdiff-base-cover flexcol" disabled={weapon.seeking} />
                 </div>
               {:else if targets.length == 1}
                 <div
-                  transition:slide|local
+                  transition:slide
                   on:mouseenter={ev => targetHoverIn(ev, targets[0].target)}
                   on:mouseleave={ev => targetHoverOut(ev, targets[0].target)}
                 >
@@ -363,7 +363,11 @@
         {#if targets.length < 2}
           {#key targets.length}
             <div class="flexrow flex-center">
-              <label transition:slide class="accdiff-weight total-label lancer-mini-header" for="total-display-0">
+              <label
+                transition:slide|global
+                class="accdiff-weight total-label lancer-mini-header"
+                for="total-display-0"
+              >
                 🞂 <span
                   >Total
                   {#if targets.length > 0}
@@ -391,8 +395,8 @@
             <div class="accdiff-weight accdiff-target-row">
               {#each targets as data, i (data.target.id)}
                 <div
-                  in:slide={{ delay: 100, duration: 300 }}
-                  out:slide={{ duration: 100 }}
+                  in:slide|global={{ delay: 100, duration: 300 }}
+                  out:slide|global={{ duration: 100 }}
                   animate:flip={{ duration: 200 }}
                   class="flexcol card accdiff-target"
                   on:mouseenter={ev => targetHoverIn(ev, data.target)}

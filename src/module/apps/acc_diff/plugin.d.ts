@@ -13,17 +13,17 @@ import type { AccDiffData } from "./index";
 // but it's convenient
 
 declare interface CheckboxUI {
-  uiElement: "checkbox" = "checkbox";
+  uiElement: "checkbox"; // = "checkbox";
   slug: string;
   humanLabel: string;
   get uiState(): boolean;
-  set uiState(data: boolean): this;
+  set uiState(data: boolean); //: this;
   get disabled(): boolean;
   get visible(): boolean;
 }
 
 declare interface NoUI {
-  uiElement: "none" = "none";
+  uiElement: "none"; // = "none";
 }
 
 type UIBehaviour = CheckboxUI | NoUI;

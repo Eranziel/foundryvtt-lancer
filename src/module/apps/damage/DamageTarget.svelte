@@ -47,8 +47,8 @@
 
 <div
   class={`damage-hud-target-card card ${hitQualityClass}`}
-  in:slide={{ delay: 100, duration: 300 }}
-  out:slide={{ duration: 100 }}
+  in:slide|global={{ delay: 100, duration: 300 }}
+  out:slide|global={{ duration: 100 }}
 >
   <span class="target-name flexrow lancer-mini-header">🞂<b>{target.target.name}</b>🞀</span>
   <div class="flexrow">
