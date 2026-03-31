@@ -40,7 +40,7 @@ export default defineConfig({
     keepNames: true,
   },
   plugins: [
-    checker({ typescript: true }),
+    checker({ typescript: true, enableBuild: false }),
     svelte({ preprocess: sveltePreprocess() }),
     foundryvtt(systemJson),
     {
