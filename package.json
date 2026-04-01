@@ -62,11 +62,9 @@
     "@massif/sotw-data": "^1.0.2",
     "@massif/ssmr-data": "^1.7.0",
     "@massif/wallflower-data": "^2.1.0",
-    "@types/marked": "^1.2.1",
     "aws-amplify": "^5.3.21",
     "fp-ts": "^2.11.2",
     "jszip": "^3.10.1",
-    "marked": "^4.0.10",
     "tippy.js": "^6.3.1"
   },
   "lint-staged": {
