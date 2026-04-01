@@ -61,7 +61,6 @@ allowing for easier tracking of the edit history of the individual macros.
 
 ### 8. Commit the modified macro
 
-Copy the macro yml file from the `dist/packs/core_macros/_source/` folder to
-`src/packs/core_macros`. Commit the new or modified file corresponding to the
-macro you were working on. Other files may show as changed after unpacking, but
-those can be ignored safely.
+Commit the new or modified file corresponding to the macro you were working on.
+Other files may show as changed after unpacking, but those can be ignored
+safely.

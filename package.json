@@ -8,17 +8,18 @@
     "src/lancer.ts"
   ],
   "scripts": {
-    "link": "gulp link",
     "build": "vite build",
-    "build:watch": "vite build -w",
-    "build:packs": "gulp build_packs",
-    "generate:yml": "gulp export_packs",
-    "watch": "vite build -w",
-    "serve": "vite serve",
-    "package": "gulp package",
-    "format": "prettier --write --config .prettierrc.json 'src/**/*.ts'",
-    "clean": "rm -fR dist && gulp link --clean",
-    "prepare": "husky install"
+    "build:packs": "./scripts/pack.mjs",
+    "build:watch": "vite build --watch",
+    "clean": "rm -fR dist",
+    "format": "dprint fmt",
+    "generate:yml": "./scripts/unpack.mjs",
+    "link": "./scripts/symlink.mjs",
+    "postinstall": "./scripts/symlink.mjs",
+    "prepare": "husky install",
+    "serve": "vite",
+    "version": "./scripts/version.mjs && git add src/system.json",
+    "watch": "vite build --watch"
   },
   "author": "",
   "license": "",
@@ -27,16 +28,10 @@
     "@sveltejs/vite-plugin-svelte": "^5.1.1",
     "@tsconfig/svelte": "^5.0.4",
     "@types/node": "^24.0.1",
-    "archiver": "^3.1.1",
-    "chalk": "^3.0.0",
     "dprint": "^0.53.1",
-    "fs-extra": "^9.1.0",
     "fvtt-types": "github:League-of-Foundry-Developers/foundry-vtt-types#main",
-    "gulp": "^5.0.0",
-    "gulp-git": "^2.10.1",
     "husky": "^8.0.1",
     "io-ts": "^2.2.22",
-    "json-stringify-pretty-compact": "^2.0.0",
     "lint-staged": "^13.0.3",
     "nanoid": "^3.1.31",
     "rollup-plugin-visualizer": "^5.9.2",
@@ -49,8 +44,7 @@
     "typescript": "^5.8.3",
     "vite": "^6.4.1",
     "vite-plugin-checker": "^0.12.0",
-    "vite-plugin-foundryvtt": "^2.2.3",
-    "yargs": "^15.4.1"
+    "vite-plugin-foundryvtt": "^2.2.3"
   },
   "dependencies": {
     "@massif/dustgrave-data": "^1.4.0",
@@ -62,11 +56,9 @@
     "@massif/sotw-data": "^1.0.2",
     "@massif/ssmr-data": "^1.7.0",
     "@massif/wallflower-data": "^2.1.0",
-    "@types/marked": "^1.2.1",
     "aws-amplify": "^5.3.21",
     "fp-ts": "^2.11.2",
     "jszip": "^3.10.1",
-    "marked": "^4.0.10",
     "tippy.js": "^6.3.1"
   },
   "lint-staged": {

@@ -16,6 +16,7 @@
   "excludes": [
     "**/*-lock.json",
     "**/node_modules",
+    "public/assets",
     "src/aws-exports.ts"
   ],
   "plugins": [
