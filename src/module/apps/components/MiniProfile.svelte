@@ -14,14 +14,14 @@
   {#if profile.attack || profile.accuracy}
     <div class="mini-weapon-profile-accuracy flexrow">
       {#if profile.attack}
-        <span data-tooltip="Attack bonus"
-          ><i class="cci cci-reticule" />{profile.attack < 0 ? "-" : "+"}{profile.attack}</span
-        >
+        <span data-tooltip="Attack bonus"><i class="cci cci-reticule" />{profile.attack < 0 ? "-" : "+"}{
+            profile.attack
+          }</span>
       {/if}
       {#if profile.accuracy}
-        <span data-tooltip={profile.accuracy > 0 ? "Accuracy" : "Difficulty"}
-          ><i class="cci cci-{profile.accuracy > 0 ? 'accuracy' : 'difficulty'}" />{Math.abs(profile.accuracy)}</span
-        >
+        <span data-tooltip={(profile.accuracy ?? 0) > 0 ? "Accuracy" : "Difficulty"}><i
+            class="cci cci-{(profile.accuracy ?? 0) > 0 ? 'accuracy' : 'difficulty'}"
+          />{Math.abs(profile.accuracy)}</span>
       {/if}
     </div>
     <span class="mini-weapon-profile-separator">//</span>
@@ -35,9 +35,9 @@
     <span class="mini-weapon-profile-separator">//</span>
     <div class="mini-weapon-profile-damage flexrow">
       {#each profile.damage as damage}
-        <span data-tooltip={damage.type}
-          ><i class="cci cci-{damage.type.toLowerCase()} damage--{damage.type.toLowerCase()}" />{damage.val}</span
-        >
+        <span data-tooltip={damage.type}><i
+            class="cci cci-{damage.type.toLowerCase()} damage--{damage.type.toLowerCase()}"
+          />{damage.val}</span>
       {/each}
     </div>
   {/if}
