@@ -244,7 +244,7 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
 
       // Delete all old items of certain types when done
       let toDelete = pilotItemPool.filter(x =>
-        [EntryType.TALENT, EntryType.SKILL, EntryType.CORE_BONUS].includes(x.type! as EntryType)
+        [EntryType.TALENT, EntryType.SKILL, EntryType.CORE_BONUS].includes(x.type as EntryType)
       );
       await pilot._safeDeleteDescendant("Item", toDelete);
     }
@@ -311,12 +311,10 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
     let activeMechUuid = "";
     for (const cloudMech of data.mechs) {
       // Find the existing mech, or create one as necessary
-      // FIXME: The type here needs to be for a stored mech actor or undefined. The errors further down occur, because
-      // `mech` here is just any actor.
       let mech = game.actors.find(actor => {
         const a = actor; // HACK: The `is_mech()` type check only works when put in a constant for some reason.
         return a.is_mech() && actor.system.lid == cloudMech.id;
-      });
+      }) as LancerMECH | undefined;
       if (!mech) {
         if (!game.user?.can("ACTOR_CREATE")) {
           ui.notifications!.warn(
@@ -327,7 +325,7 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
           continue;
         }
 
-        mech = await LancerActor.create({
+        mech = (await LancerActor.create({
           name: cloudMech.name,
           type: EntryType.MECH,
           folder: unitFolder?.id,
@@ -335,7 +333,7 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
           system: {
             pilot: pilot.uuid,
           },
-        });
+        })) as LancerMECH;
       }
       if (!mech?.canUserModify(game.user!, "update")) {
         ui.notifications!.warn(
