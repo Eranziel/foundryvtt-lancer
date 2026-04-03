@@ -311,6 +311,8 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
     let activeMechUuid = "";
     for (const cloudMech of data.mechs) {
       // Find the existing mech, or create one as necessary
+      // FIXME: The type here needs to be for a stored mech actor or undefined. The errors further down occur, because
+      // `mech` here is just any actor.
       let mech = game.actors.find(actor => {
         const a = actor; // HACK: The `is_mech()` type check only works when put in a constant for some reason.
         return a.is_mech() && actor.system.lid == cloudMech.id;
