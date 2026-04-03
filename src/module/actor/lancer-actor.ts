@@ -591,9 +591,10 @@ export class LancerActor<SubType extends Actor.SubType = Actor.SubType> extends 
     // If changing active mech, all mechs need to render to recompute if they are the active mech
     let changing_active_mech = (changed as any).system?.active_mech !== undefined;
     if (changing_active_mech) {
-      const owned_mechs = game.actors.filter(
-        a => a.is_mech() && (a as LancerMECH).system.pilot?.value == this
-      ) as LancerMECH[];
+      const owned_mechs = game.actors.filter(actor => {
+        const a = actor; // HACK: The `is_mech()` type check only works when put in a constant for some reason.
+        return a.is_mech() && actor.system.pilot?.value == this;
+      });
       owned_mechs.forEach(m => m.render());
     }
 

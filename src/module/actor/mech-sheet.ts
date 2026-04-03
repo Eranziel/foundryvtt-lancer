@@ -69,7 +69,7 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
     // Take posession
     let [drop, is_new] = await this.quickOwnDrop(base_drop);
 
-    const actor = this.actor;
+    const actor = this.actor; // HACK: The `is_mech()` type check only works when put in a constant for some reason.
     if (drop.type == "Item" && drop.document.is_frame() && actor.is_mech()) {
       // Find and delete the old frame item, if it exists
       const oldFrame = this.actor.items.find(i => i.is_frame() && i.id != drop.document.id);
@@ -130,7 +130,7 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
     let overchargeText = html.find(".overcharge-text");
 
     overchargeText.on("click", ev => {
-      const actor = this.actor;
+      const actor = this.actor; // HACK: The `is_mech()` type check only works when put in a constant for some reason.
       if (!actor.is_mech()) return;
       this._setOverchargeLevel(ev, Math.min(this.actor.system.overcharge ?? 0 + 1, 3));
     });

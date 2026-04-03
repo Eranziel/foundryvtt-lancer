@@ -314,7 +314,7 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
    * @private
    */
   async _updateObject(event: Event, formData: any) {
-    const actor = this.actor;
+    const actor = this.actor; // HACK: The `is_pilot()` type check only works when put in a constant for some reason.
     if (!actor.is_pilot()) return;
     // Do some pre-processing
     // Do these only if the callsign updated
