@@ -434,9 +434,9 @@ export class DamageHudData {
     return encode(this, DamageHudData.codec);
   }
 
-  static plugins: DamageHudPlugin<DamageHudPluginData>[] = [];
-  static targetedPlugins: DamageHudPlugin<DamageHudPluginData>[] = [];
-  static registerPlugin<D extends DamageHudPluginData, P extends DamageHudPlugin<D>>(plugin: P) {
+  static plugins: DamageHudPlugin<DamageHudPluginData, unknown>[] = [];
+  static targetedPlugins: DamageHudPlugin<DamageHudPluginData, unknown>[] = [];
+  static registerPlugin(plugin: DamageHudPlugin<DamageHudPluginData, unknown>) {
     if (plugin.perRoll) {
       DamageHudWeapon.pluginSchema[plugin.slug] = plugin.codec;
     }
