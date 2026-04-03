@@ -244,10 +244,10 @@ export async function migrateActor(actor: LancerActor): Promise<object> {
       system: actor.system.toObject(true), // To commit any datamodel migrations
     };
 
-    let currVersion = game.settings.get(game.system.id, LANCER.setting_migration_version);
-    if (foundry.utils.isNewerVersion("2.0", currVersion)) {
-      // ...
-    }
+    // let currVersion = game.settings.get(game.system.id, LANCER.setting_migration_version);
+    // if (foundry.utils.isNewerVersion("2.0", currVersion)) {
+    //   // ...
+    // }
 
     // Migrate Owned Items
     let itemUpdates = (await Promise.all(actor.items.contents.map(migrateItem))).filter(u => u && !!u._id);
@@ -350,10 +350,10 @@ export async function migrateTokenDocument(token: LancerTokenDocument): Promise<
       _id: token.id,
     };
 
-    let currVersion = game.settings.get(game.system.id, LANCER.setting_migration_version);
-    if (foundry.utils.isNewerVersion("2.0", currVersion)) {
-      // ...
-    }
+    // let currVersion = game.settings.get(game.system.id, LANCER.setting_migration_version);
+    // if (foundry.utils.isNewerVersion("2.0", currVersion)) {
+    //   // ...
+    // }
 
     migrationProgress(1);
     // Return update
