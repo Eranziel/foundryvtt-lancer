@@ -817,7 +817,7 @@ export class LancerActor<SubType extends Actor.SubType = Actor.SubType> extends 
     if (newFrame.is_frame() && this.is_mech()) {
       new_size = Math.max(1, newFrame.system.stats.size ?? 0);
     } else if (newFrame.is_npc_class() && this.is_npc()) {
-      const tier = this.system.tier || 1;
+      const tier = this.system.tier;
       new_size = Math.max(1, newFrame.system.base_stats[tier - 1]?.size ?? 1);
     }
     if (!new_size) return;

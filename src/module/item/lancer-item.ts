@@ -102,7 +102,7 @@ export class LancerItem<out SubType extends Item.SubType = Item.SubType> extends
     ) {
       let tier = 0;
       if (this.actor) {
-        tier = ((this.actor as LancerNPC).system.tier ?? 1) - 1;
+        tier = (this.actor as LancerNPC).system.tier - 1;
       }
       if (this.system.type === NpcFeatureType.Weapon) {
         // Weapons have range and damage
