@@ -35,7 +35,7 @@ export class LancerInitiativeConfigApp extends HandlebarsApplicationMixin(Applic
     return ctx;
   }
 
-  _onRender() {
+  async _onRender(): Promise<void> {
     const element: HTMLElement = this.element;
     const icon = element.querySelector<HTMLAnchorElement>("a.preview");
     const fake_combatant = element.querySelector<HTMLDivElement>("div.fake-combatant");

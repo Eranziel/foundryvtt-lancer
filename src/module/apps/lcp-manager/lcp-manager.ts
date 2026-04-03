@@ -76,7 +76,7 @@ export class LCPIndex {
 
 export class LCPManager extends HandlebarsApplicationMixin(ApplicationV2) {
   component: any = null;
-  renderPromise: Promise<void> | null = null;
+  renderPromise: Promise<unknown> | null = null;
 
   constructor(options: Partial<ApplicationV2.Configuration> = {}) {
     super(options);
@@ -106,7 +106,7 @@ export class LCPManager extends HandlebarsApplicationMixin(ApplicationV2) {
     return {};
   }
 
-  _onFirstRender(context: {}, options: DeepPartial<ApplicationV2.RenderOptions>): void {
+  async _onFirstRender(context: {}, options: DeepPartial<ApplicationV2.RenderOptions>): Promise<void> {
     super._onRender(context, options);
     const mount = $(this.element).find(".svelte-app-mount");
     if (!mount || !mount.length) return;

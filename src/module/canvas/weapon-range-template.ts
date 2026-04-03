@@ -50,7 +50,7 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
     if (!canvas.ready) return null;
     const dist = val;
     if (isNaN(dist)) return null;
-    const square: boolean = canvas.grid?.isSquare;
+    const square = canvas.grid?.isSquare;
     const grid_distance = (canvas.scene?.dimensions as Partial<Canvas.Dimensions> | undefined)?.distance ?? 1;
 
     let shape: "cone" | "ray" | "circle";
@@ -165,9 +165,9 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
         let destination = this.snapToCenter(event.getLocalPosition(this.layer));
         if (this.isBurst) {
           destination = this.snapToToken(event.getLocalPosition(this.layer));
-          const token = this.document.flags[game.system.id].burstToken;
+          const token = this.document.flags[game.system.id]?.burstToken;
           if (token) {
-            const ignore = this.document.flags[game.system.id].ignore.tokens;
+            const ignore = this.document.flags[game.system.id]?.ignore?.tokens ?? [];
             ignore.push(token);
             this.document.updateSource({
               [`flags.${game.system.id}.ignore.tokens`]: ignore,
