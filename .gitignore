@@ -7,7 +7,6 @@
 node_modules/**
 
 # Build
-foundryconfig.json
 stats.html
 dist/**/*
 package/**
@@ -17,3 +16,6 @@ foundry.js
 
 # MacOS filesystem metadata
 .DS_Store
+
+# foundryvtt-cli
+fvttrc.yml

@@ -44,7 +44,7 @@ jobs:
       # Set up Node
       - uses: actions/setup-node@v4
         with:
-          node-version: "18"
+          node-version: "22"
           cache: "npm"
 
       # Install Dependencies
@@ -53,13 +53,13 @@ jobs:
 
       # Build the code and packs for distribution
       - name: Build For Distribution
-        run: |
-          gulp build
-          gulp build_packs
+        run: npm run build
 
       # Package the built files
       - name: Package Files
-        run: gulp package
+        run: |
+          cd dist
+          zip -r "${{ steps.vars.outputs.zip_name }}" *
 
       # Create a release for this specific version
       - name: Create Release with Files
@@ -73,7 +73,7 @@ jobs:
           omitDraftDuringUpdate: true
           omitPrereleaseDuringUpdate: true
           token: ${{ secrets.GITHUB_TOKEN }}
-          artifacts: "./package/system.json, ./package/${{ steps.vars.outputs.zip_name }}"
+          artifacts: "./dist/system.json, ./dist/${{ steps.vars.outputs.zip_name }}"
           tag: ${{ steps.vars.outputs.tag_name }}
           # TODO: can we automatically extract the changelog for this release?
           body: |
