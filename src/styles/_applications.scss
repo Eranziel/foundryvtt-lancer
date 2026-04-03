@@ -9,10 +9,12 @@
 @layer lancer.applications {
   /* ===== RULES FOR LANCER APPLICATIONS ===== */
   .application.lancer,
+  .lancer-text-editor,
   .lancer-hud-zone {
     .window-content {
       width: 100%;
       height: 100%;
+      background: unset;
       background-color: var(--background-color);
       color: var(--dark-text);
       font-family: var(--main-font-family);

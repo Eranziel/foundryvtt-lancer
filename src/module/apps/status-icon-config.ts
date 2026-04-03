@@ -17,14 +17,14 @@ interface Configuration extends foundry.applications.api.ApplicationV2.Configura
 export class StatusIconConfig extends HandlebarsApplicationMixin(ApplicationV2<{}, Configuration, RenderOptions>) {
   static PARTS = {
     form: { template: "systems/lancer/templates/settings/status-icon-settings.hbs" },
-    footer: { template: "templates/generic/form-footer.hbs", classes: ["flexrow"] },
+    footer: { template: "templates/generic/form-footer.hbs" },
   };
 
   static DEFAULT_OPTIONS = {
     id: "lancer-status-icon-settings",
     tag: "form",
-    position: { width: 450 },
-    window: { title: "lancer.statusIconsConfig.menu-label" },
+    position: { width: 650 },
+    window: { title: "lancer.statusIconsConfig.menu-label", contentClasses: ["standard-form"] },
     form: {
       handler: this.#formHandler,
       submitOnChange: false,
@@ -33,7 +33,7 @@ export class StatusIconConfig extends HandlebarsApplicationMixin(ApplicationV2<{
     actions: {
       onReset: this.#onReset,
     },
-  } as const;
+  };
 
   async _prepareContext(opts: DeepPartial<RenderOptions>): Promise<{}> {
     const config = game.settings.get(game.system.id, LANCER.setting_status_icons);

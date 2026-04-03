@@ -236,15 +236,15 @@
         <div class="accdiff-other-grid">
           <span><b>{gritLabel()}:</b> {flatSign(base.grit)}{base.grit}</span>
         </div>
-        <div class="accdiff-other-grid accdiff-flat-mod" style="position: relative;">
+        <div class="accdiff-other-grid accdiff-flat-mod" style="position: relative">
           <!-- <PlusMinusInput bind:value={base.flatBonus} id="accdiff-flat-mod" /> -->
           <input class="accdiff-flat-mod__input" type="number" bind:value={base.flatBonus} />
-          <button class="accdiff-flat-mod__plus" type="button" on:click={() => (base.flatBonus = base.flatBonus + 1)}
-            ><i class="fas fa-plus" /></button
-          >
-          <button class="accdiff-flat-mod__minus" type="button" on:click={() => (base.flatBonus = base.flatBonus - 1)}
-            ><i class="fas fa-minus" /></button
-          >
+          <button class="accdiff-flat-mod__plus" type="button" on:click={() => (base.flatBonus = base.flatBonus + 1)}>
+            <i class="fas fa-plus" />
+          </button>
+          <button class="accdiff-flat-mod__minus" type="button" on:click={() => (base.flatBonus = base.flatBonus - 1)}>
+            <i class="fas fa-minus" />
+          </button>
         </div>
         <div class="accdiff-other-grid">
           <span><b>Total:</b> {flatSign(flatTotal)}{flatTotal}</span>
@@ -256,13 +256,13 @@
       <!-- Column Headers -->
       <div class="accdiff-grid__column">
         <h4 class="lancer-border-primary">
-          <i class="cci cci-accuracy i--4" style="vertical-align:middle;border:none" />
+          <i class="cci cci-accuracy i--4" style="vertical-align: middle; border: none" />
           <span>Accuracy</span>
         </h4>
       </div>
       <div class="accdiff-grid__column">
         <h4 class="lancer-border-primary">
-          <i class="cci cci-difficulty i--4" style="vertical-align:middle;border:none" />
+          <i class="cci cci-difficulty i--4" style="vertical-align: middle; border: none" />
           <span>Difficulty</span>
         </h4>
       </div>
@@ -294,14 +294,14 @@
     </div>
 
     {#if kind == "attack" && (Object.values(weapon.plugins).length > 0 || targets.length == 1)}
-      <div transition:slide class="accdiff-grid accdiff-grid__section" style="width:100%;">
+      <div transition:slide|global class="accdiff-grid accdiff-grid__section" style="width: 100%">
         <!-- Target-related Accuracy -->
         <div class="accdiff-grid__column">
           {#if targets.length == 1}
-            <HudCheckbox style="grid-area: prone;" label="Prone (+1)" bind:value={targets[0].prone} disabled />
+            <HudCheckbox style="grid-area: prone" label="Prone (+1)" bind:value={targets[0].prone} disabled />
             <HudCheckbox label="Stunned (EVA=5)" bind:value={targets[0].stunned} disabled />
             <HudCheckbox
-              style="grid-area: lock-on;"
+              style="grid-area: lock-on"
               label="Lock On (+1)"
               checked={!!targets[0].usingLockOn}
               bind:value={targets[0].consumeLockOn}
@@ -322,12 +322,12 @@
           {#if !isTech()}
             <div class="grid-enforcement">
               {#if targets.length == 0}
-                <div transition:slide|local>
+                <div transition:slide>
                   <Cover bind:cover={base.cover} class="accdiff-base-cover flexcol" disabled={weapon.seeking} />
                 </div>
               {:else if targets.length == 1}
                 <div
-                  transition:slide|local
+                  transition:slide
                   on:mouseenter={ev => targetHoverIn(ev, targets[0].target)}
                   on:mouseleave={ev => targetHoverOut(ev, targets[0].target)}
                 >
@@ -342,7 +342,7 @@
 
     <!-- Total accuracy / Targets -->
     <div class="flexcol accdiff-grid">
-      <div class="flexrow accdiff-grid__section" style="justify-content: space-evenly;">
+      <div class="flexrow accdiff-grid__section" style="justify-content: space-evenly">
         <AccDiffInput bind:value={base.accuracy} id="accdiff-manual-adjust" />
       </div>
       {#if ranges && ranges.length > 0}
@@ -365,13 +365,15 @@
         {#if targets.length < 2}
           {#key targets.length}
             <div class="flexrow flex-center">
-              <label transition:slide class="accdiff-weight total-label lancer-mini-header" for="total-display-0">
-                🞂 <span
-                  >Total
+              <label
+                transition:slide|global
+                class="accdiff-weight total-label lancer-mini-header"
+                for="total-display-0"
+              >
+                🞂 <span>Total
                   {#if targets.length > 0}
                     vs {targets[0].target.name}
-                  {/if}</span
-                > 🞀
+                  {/if}</span> 🞀
               </label>
             </div>
           {/key}
@@ -393,8 +395,8 @@
             <div class="accdiff-weight accdiff-target-row">
               {#each targets as data, i (data.target.id)}
                 <div
-                  in:slide={{ delay: 100, duration: 300 }}
-                  out:slide={{ duration: 100 }}
+                  in:slide|global={{ delay: 100, duration: 300 }}
+                  out:slide|global={{ duration: 100 }}
                   animate:flip={{ duration: 200 }}
                   class="flexcol card accdiff-target"
                   on:mouseenter={ev => targetHoverIn(ev, data.target)}
@@ -413,7 +415,7 @@
                         type="button"
                         on:click={() => (data.accuracy = data.accuracy + 1)}
                       >
-                        <i class="cci cci-accuracy i--4" style="border:none" />
+                        <i class="cci cci-accuracy i--4" style="border: none" />
                       </button>
                       <input style="display: none" type="number" bind:value={data.accuracy} min="0" />
                       {#if !isTech()}
@@ -432,7 +434,7 @@
                         type="button"
                         on:click={() => (data.difficulty = data.difficulty + 1)}
                       >
-                        <i class="cci cci-difficulty i--4" style="border:none" />
+                        <i class="cci cci-difficulty i--4" style="border: none" />
                       </button>
                     </div>
                   </div>
@@ -631,7 +633,7 @@
       }
 
       /* there's a very specific EMU rule that adds some margin here
-     because it assumes all icons in buttons are followed by text, I think */
+      because it assumes all icons in buttons are followed by text, I think */
       #accdiff .accdiff-target-row button > i,
       #accdiff .mech-weapon button > i {
         margin-inline-end: 0;

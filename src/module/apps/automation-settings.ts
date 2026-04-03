@@ -18,14 +18,14 @@ interface Configuration extends foundry.applications.api.ApplicationV2.Configura
 export class AutomationConfig extends HandlebarsApplicationMixin(ApplicationV2<{}, Configuration, RenderOptions>) {
   static PARTS = {
     form: { template: "systems/lancer/templates/settings/automation-config.hbs" },
-    footer: { template: "templates/generic/form-footer.hbs", classes: ["flexrow"] },
+    footer: { template: "templates/generic/form-footer.hbs" },
   };
 
   static DEFAULT_OPTIONS = {
     id: "lancer-automation-settings",
     tag: "form",
-    position: { width: 450 },
-    window: { title: "lancer.automation.menu-label" },
+    position: { width: 550 },
+    window: { title: "lancer.automation.menu-label", contentClasses: ["standard-form"] },
     form: {
       handler: this.#formHandler,
       submitOnChange: false,
@@ -35,7 +35,7 @@ export class AutomationConfig extends HandlebarsApplicationMixin(ApplicationV2<{
       onLoadEmpty: this.#loadEmpty,
       onReset: this.#onReset,
     },
-  } as const;
+  };
 
   async _prepareContext(opts: DeepPartial<RenderOptions>): Promise<{}> {
     super._prepareContext;

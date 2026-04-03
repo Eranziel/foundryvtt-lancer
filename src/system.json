@@ -9,35 +9,75 @@
     "maximum": 13
   },
   "authors": [
-    { "name": "Eranziel" },
-    { "name": "Whitespine" },
-    { "name": "BoltsJ" },
-    { "name": "Valkyrion" },
-    { "name": "Kuenaimaku" },
-    { "name": "dodgepong" },
-    { "name": "Grygon" },
-    { "name": "SohumB" }
+    {
+      "name": "Eranziel"
+    },
+    {
+      "name": "BoltsJ"
+    },
+    {
+      "name": "Whitespine"
+    },
+    {
+      "name": "Valkyrion"
+    },
+    {
+      "name": "Kuenaimaku"
+    },
+    {
+      "name": "dodgepong"
+    },
+    {
+      "name": "Grygon"
+    },
+    {
+      "name": "SohumB"
+    }
   ],
-  "esmodules": ["lancer.mjs"],
-  "styles": ["style.css", "fonts/compcon/glyphs.css", "fonts/mdi.css", "fonts/orbitron/orbitron.css"],
+  "esmodules": [
+    "lancer.mjs"
+  ],
+  "styles": [
+    "styles/lancer.css",
+    "fonts/compcon/glyphs.css",
+    "fonts/mdi.css",
+    "fonts/orbitron/orbitron.css"
+  ],
   "documentTypes": {
     "Actor": {
       "npc": {
-        "htmlFields": ["notes"]
+        "htmlFields": [
+          "notes"
+        ]
       },
       "pilot": {
-        "htmlFields": ["history", "notes", "text_appearance"]
+        "htmlFields": [
+          "history",
+          "notes",
+          "text_appearance"
+        ]
       },
       "mech": {
-        "htmlFields": ["notes"]
+        "htmlFields": [
+          "notes"
+        ]
       },
       "deployable": {
-        "htmlFields": ["detail", "action.init", "action.terse", "action.detail"]
+        "htmlFields": [
+          "detail",
+          "action.init",
+          "action.terse",
+          "action.detail"
+        ]
       }
     },
     "Item": {
       "core_bonus": {
-        "htmlFields": ["description", "effect", "mounted_effect"]
+        "htmlFields": [
+          "description",
+          "effect",
+          "mounted_effect"
+        ]
       },
       "frame": {
         "htmlFields": [
@@ -49,48 +89,81 @@
       },
       "license": {},
       "npc_class": {
-        "htmlFields": ["flavor", "tactics"]
+        "htmlFields": [
+          "flavor",
+          "tactics"
+        ]
       },
       "npc_template": {
-        "htmlFields": ["description"]
+        "htmlFields": [
+          "description"
+        ]
       },
       "npc_feature": {
-        "htmlFields": ["effect", "on_hit"]
+        "htmlFields": [
+          "effect",
+          "on_hit"
+        ]
       },
       "weapon_mod": {
-        "htmlFields": ["effect", "description"]
+        "htmlFields": [
+          "effect",
+          "description"
+        ]
       },
       "mech_system": {
-        "htmlFields": ["effect", "description"]
+        "htmlFields": [
+          "effect",
+          "description"
+        ]
       },
       "mech_weapon": {
         "htmlFields": []
       },
       "organization": {
-        "htmlFields": ["description"]
+        "htmlFields": [
+          "description"
+        ]
       },
       "pilot_armor": {
-        "htmlFields": ["description"]
+        "htmlFields": [
+          "description"
+        ]
       },
       "pilot_gear": {
-        "htmlFields": ["description"]
+        "htmlFields": [
+          "description"
+        ]
       },
       "pilot_weapon": {
-        "htmlFields": ["description", "effect"]
+        "htmlFields": [
+          "description",
+          "effect"
+        ]
       },
       "reserve": {
-        "htmlFields": ["description"]
+        "htmlFields": [
+          "description"
+        ]
       },
       "status": {
-        "htmlFields": ["effects"]
+        "htmlFields": [
+          "effects"
+        ]
       },
       "talent": {
-        "htmlFields": ["description"]
+        "htmlFields": [
+          "description"
+        ]
       },
       "skill": {
-        "htmlFields": ["description"]
+        "htmlFields": [
+          "description"
+        ]
       },
-      "bond": { "htmlFields": [] }
+      "bond": {
+        "htmlFields": []
+      }
     }
   },
   "packs": [
@@ -153,8 +226,14 @@
   ],
   "flags": {
     "hotReload": {
-      "extensions": ["json", "hbs"],
-      "paths": ["lang", "templates"]
+      "extensions": [
+        "json",
+        "hbs"
+      ],
+      "paths": [
+        "lang",
+        "templates"
+      ]
     }
   }
 }

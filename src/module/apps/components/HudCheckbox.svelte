@@ -19,7 +19,7 @@
   }
 </script>
 
-<label transition:slide|local class="container" class:invisible={!visible} {style} data-tooltip={tooltip}>
+<label transition:slide class="container" class:invisible={!visible} {style} data-tooltip={tooltip}>
   <input
     type="checkbox"
     bind:checked={value}
@@ -28,7 +28,7 @@
     on:change={() => dispatch("change", value)}
   />
   {#if icon}<i class="{icon} i--2" />{/if}
-  <span style="text-wrap: nowrap;">{label}</span>
+  <span style="text-wrap: nowrap">{label}</span>
 </label>
 
 <style lang="scss">

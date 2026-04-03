@@ -107,7 +107,7 @@
   style="bottom: 0; right: {$sidebarWidth}px"
 >
   {#each visibleHudsKeys as key (key + huds[key].data.title)}
-    <div class="component grid-enforcement" animate:flip transition:slide>
+    <div class="component grid-enforcement" animate:flip transition:slide|global>
       <svelte:component
         this={dialogs[key]}
         bind:this={components[key]}
@@ -132,9 +132,7 @@
         box-shadow: none;
         flex-direction: row-reverse;
         pointer-events: none;
-        transition:
-          right 600ms,
-          opacity 200ms;
+        transition: right 600ms, opacity 200ms;
         z-index: 999;
       }
 

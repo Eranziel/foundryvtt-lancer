@@ -202,8 +202,10 @@ async function showDamageHUD(state: FlowState<LancerFlowState.DamageRollData>): 
     if (state.data.reliable) {
       state.data.reliable_val = state.data.damage_hud_data.weapon?.reliableValue ?? 0;
     }
-  } catch (_e) {
-    // User hit cancel, abort the flow.
+  } catch (err) {
+    // Log any error
+    if (err) console.warn(err);
+    // User hit cancel or an error occurred, abort the flow.
     return false;
   }
   return true;

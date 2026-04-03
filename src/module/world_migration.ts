@@ -15,11 +15,12 @@ import { version as coreUpdate } from "@massif/lancer-data/package.json";
 const { log_prefix: lp } = LANCER;
 
 /**
+ * This strips extraneous fields out of our documents so that only the
+ * fields defined in the DataModel are left.
+ *
  * DataModels should internally handle any migrations across versions.
  * However, it can be helpful for efficiency to occasionally "write all" to world objects that are
  * consistently prepared.
- *
- * Call this when new versions happen, perhaps?
  */
 export async function commitDataModelMigrations() {
   // Commit all world documents. Don't bother with packs.
@@ -35,10 +36,8 @@ export async function commitDataModelMigrations() {
     game.scenes.map(s => s.toObject()),
     { diff: false, recursive: false, noHook: true }
   ); // Will innately handle unlinked tokens
-  ui.notifications?.info("All world Actors, Items, and Scenes migrated and data models cleaned.");
 }
 
-const migrationProgressBarLabel = () => `Migration to v${game.system.version} in progress...`;
 let toMigrate = 1;
 let migrated = 0;
 let migrationNotification: Notification | null = null;
@@ -47,7 +46,8 @@ let migrationNotification: Notification | null = null;
  */
 function migrationProgress(count: number) {
   migrated += count;
-  const percent = migrated / toMigrate;
+  // Since the count can be inaccurate, make sure it doesn't go above 100%
+  const percent = Math.min(1, migrated / toMigrate);
   migrationNotification.update({ pct: percent });
 }
 
@@ -59,59 +59,48 @@ function migrationProgress(count: number) {
 export async function migrateWorld() {
   const curr_version = game.settings.get(game.system.id, LANCER.setting_migration_version);
 
-  migrationNotification = ui.notifications!.info(migrationProgressBarLabel(), { progress: true });
-  // Migrate from the pre-2.0 compendium structure the combined compendiums
+  // Don't try to migrate worlds that are coming from 2+ major Foundry versions ago
   if (foundry.utils.isNewerVersion("2.0.0", curr_version)) {
-    console.log(`${lp} World is coming from 1.X. Show the migration journal and clear compendiums.`);
-    // Show the migration journal if the world is coming from 1.X.
-    const journals = await game.packs.get("lancer.lancer_info")?.getDocuments({ name: "LANCER System Information" });
-    if (journals.length) {
-      const systemInfo = journals[0]!;
-      const migrationPage = systemInfo.pages.find(p => p.name.startsWith("Migrating"));
-      await systemInfo.sheet?.render(true);
-      const showPage = async () => {
-        while (!systemInfo.sheet?.rendered) {
-          await new Promise(r => setTimeout(r, 100));
-        }
-        // await new Promise(r => setTimeout(r, 3000));
-        systemInfo.sheet?.goToPage(migrationPage._id);
-      };
-      showPage();
-    }
-    await clearCompendiumData({ v1: true });
-    await migrateCompendiumStructure();
-  }
-  // Update World Compendium Packs, since updates comes with a more up to date version of lancerdata usually
-  const coreData = await getBaseContentPack();
-  await importCP(coreData.cp);
-  await game.settings.set(game.system.id, LANCER.setting_core_data, coreData.availableVersion);
-
-  // For some reason the commitDataModelMigrations call clears the progress bar, so we delay showing it.
-  setTimeout(() => SceneNavigation.displayProgressBar({ label: migrationProgressBarLabel(), pct: 0 }), 1000);
-  // Clean out old data fields so they don't cause issues
-  await commitDataModelMigrations();
-
-  if (game.settings.get(game.system.id, LANCER.setting_core_data) !== coreUpdate) {
-    // Compendium migration failed.
-    new Dialog({
-      title: `Compendium Migration Failed`,
-      content: `
-<p>Something went wrong while attempting to build the core data Compendiums for the new Lancer system.
-Please refresh the page to try again.</p>`,
-      buttons: {
-        accept: {
-          label: "Refresh",
-          callback: () => {
-            ui.notifications.info("Page reloading in 3 seconds...");
-            setTimeout(() => foundry.utils.debouncedReload(), 3000);
-          },
-        },
-        cancel: {
+    new foundry.applications.api.DialogV2({
+      window: { title: `Cannot Migrate This World`, icon: "fas fa-triangle-exclamation" },
+      position: {
+        width: 400,
+      },
+      content: `<h4>
+        This world is too old to migrate directly to Lancer ${game.system.version} and Foundry 13.
+      </h4>
+      <p>
+        Restore a backup of this world and <strong>use Foundry 12.343</strong> to migrate it first.
+      </p>`,
+      buttons: [
+        {
+          action: "close",
           label: "Close",
         },
-      },
-      default: "accept",
+      ],
     }).render(true);
+    ui.notifications?.error(
+      `This world is too old to migrate directly to Lancer ${game.system.version} and Foundry 13. Restore a backup of this world and use Foundry 12.343 to migrate it first.`,
+      { permanent: true }
+    );
+    console.error(
+      4`${lp} World is coming from 1.X. World needs to be migrated through intermediate Foundry versions first.`
+    );
+    return;
+  }
+
+  migrationNotification = ui.notifications!.info(
+    `Migration to v${game.system.version} in progress. Please do not shut down your world or refresh the page until migration is complete.`,
+    {
+      progress: true,
+    }
+  );
+
+  // Build core data if it is missing
+  if (foundry.utils.isNewerVersion("0.0.0", game.settings.get(game.system.id, LANCER.setting_core_data))) {
+    const coreData = await getBaseContentPack();
+    await importCP(coreData.cp);
+    await game.settings.set(game.system.id, LANCER.setting_core_data, coreData.availableVersion);
   }
 
   function reduceScene(total: number, scene: Scene.Implementation) {
@@ -120,7 +109,7 @@ Please refresh the page to try again.</p>`,
       scene.tokens.contents.reduce((t2, token) => {
         t2 += 1; // Always count the token
         if (!token.isLinked) {
-          // Add the actor and items
+          // Add the actor and items if it's unlinked
           t2 += 1 + (token.actor?.items.size || 0);
         }
         return t2;
@@ -143,7 +132,7 @@ Please refresh the page to try again.</p>`,
       toMigrate += pack.contents.reduce(reduceScene, 0);
     }
   }
-  console.log(`Migrating approximately ${toMigrate} documents`);
+  console.log(`${lp} Migrating approximately ${toMigrate} documents`);
 
   // Migrate compendiums
   for (let p of game.packs.contents) {
@@ -151,6 +140,7 @@ Please refresh the page to try again.</p>`,
       await migrateCompendium(p);
     }
   }
+
   // Migrate World Actors
   let all_actor_updates = (await Promise.all(game.actors.contents.map(migrateActor))).filter(u => u && !!u._id);
   await Actor.updateDocuments(all_actor_updates);
@@ -162,13 +152,14 @@ Please refresh the page to try again.</p>`,
   // Migrate World Scenes
   await Promise.all(game.scenes.contents.map(migrateScene));
 
+  // Ensure data migrations are cleaned up
+  await commitDataModelMigrations();
+
   // Set world as having migrated successfully
   await game.settings.set(game.system.id, LANCER.setting_migration_version, game.system.version);
   // Update the progress bar to 100%
-  migrationProgress(toMigrate);
-
-  // Set the version for future migration and welcome message checking
-  ui.notifications.info(`LANCER System Migration to version ${game.system.version} completed!`, {
+  migrationProgress(toMigrate - migrated);
+  ui.notifications.info(`LANCER System migration to version ${game.system.version} completed!`, {
     permanent: true,
   });
 }
@@ -193,7 +184,7 @@ export async function migrateCompendium(pack: Compendium) {
     return;
   }
 
-  await pack.migrate();
+  await pack.migrate({ notify: false });
 
   // Iterate over compendium entries - applying fine-tuned migration functions
   if (pack.documentName == "Actor") {
@@ -253,10 +244,10 @@ export async function migrateActor(actor: LancerActor): Promise<object> {
       system: actor.system.toObject(true), // To commit any datamodel migrations
     };
 
-    let currVersion = game.settings.get(game.system.id, LANCER.setting_migration_version);
-    if (foundry.utils.isNewerVersion("2.0", currVersion)) {
-      // ...
-    }
+    // let currVersion = game.settings.get(game.system.id, LANCER.setting_migration_version);
+    // if (foundry.utils.isNewerVersion("2.0", currVersion)) {
+    //   // ...
+    // }
 
     // Migrate Owned Items
     let itemUpdates = (await Promise.all(actor.items.contents.map(migrateItem))).filter(u => u && !!u._id);
@@ -359,10 +350,10 @@ export async function migrateTokenDocument(token: LancerTokenDocument): Promise<
       _id: token.id,
     };
 
-    let currVersion = game.settings.get(game.system.id, LANCER.setting_migration_version);
-    if (foundry.utils.isNewerVersion("2.0", currVersion)) {
-      // ...
-    }
+    // let currVersion = game.settings.get(game.system.id, LANCER.setting_migration_version);
+    // if (foundry.utils.isNewerVersion("2.0", currVersion)) {
+    //   // ...
+    // }
 
     migrationProgress(1);
     // Return update

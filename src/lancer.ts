@@ -789,10 +789,6 @@ async function doMigration() {
   } else if (needsMigrate == "yes" && game.user!.isGM) {
     // Print the update message to chat
     printUpdateMessage();
-    ui.notifications!.info(
-      `Migrating to LANCER version ${game.system.version}. Please be patient and wait until migration completes.`,
-      { permanent: true }
-    );
     await migrations.migrateWorld();
     // Update the stored version number for next migration
     await game.settings.set(game.system.id, LANCER.setting_migration_version, game.system.version);
