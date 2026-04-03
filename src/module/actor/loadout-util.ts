@@ -1,4 +1,3 @@
-import type { BaseData } from "../base-data";
 import { fittingsForMount, FittingSize, MountType, WeaponSize } from "../enums";
 import { LancerItem } from "../item/lancer-item";
 import type { SourceData } from "../source-template";
