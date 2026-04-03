@@ -16,3 +16,6 @@ foundry.js
 
 # MacOS filesystem metadata
 .DS_Store
+
+# foundryvtt-cli
+fvttrc.yml
