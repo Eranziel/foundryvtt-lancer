@@ -259,7 +259,7 @@ export function pilotSlot(data_path: string, options: HelperOptions): string {
          data-accept-types="${EntryType.PILOT}"
          style="height: 100%" src="${pilot.img || "systems/lancer/assets/icons/pilot.svg"}"/>
     <div class="lancer-header lancer-primary license-level">
-      <span>LL${pilot.system?.level || `[--]`}</span>
+      <span>LL${pilot.system.level}</span>
     </div>
 </div>`;
 }

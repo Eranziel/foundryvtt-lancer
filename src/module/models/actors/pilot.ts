@@ -15,7 +15,7 @@ const pilot_schema = {
   history: new fields.HTMLField(),
   // We actually use this to show the last time the pilot was synced to Foundry.
   last_cloud_update: new fields.StringField({ initial: "never" }),
-  level: new fields.NumberField({ min: 0, max: 12, integer: true, initial: 0 }),
+  level: new fields.NumberField({ min: 0, max: 12, integer: true, initial: 0, nullable: false }),
 
   loadout: new fields.SchemaField({
     armor: new fields.ArrayField(new EmbeddedRefField("Item", { allowed_types: [EntryType.PILOT_ARMOR] })),

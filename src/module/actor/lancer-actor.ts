@@ -327,7 +327,7 @@ export class LancerActor<SubType extends Actor.SubType = Actor.SubType> extends 
     }
 
     if (this.is_pilot()) {
-      this.system.grit = Math.ceil(this.system.level ?? 0 / 2);
+      this.system.grit = Math.ceil(this.system.level / 2);
       this.system.hp.max = lancer_data.rules.base_pilot_hp + this.system.grit;
       this.system.bond = (this.items.find(i => i.is_bond()) ?? null) as unknown as LancerBOND | null;
       this.system.size = 0.5;
