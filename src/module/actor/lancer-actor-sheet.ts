@@ -39,6 +39,8 @@ const lp = LANCER.log_prefix;
  * Extend the basic ActorSheet
  */
 export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<ActorSheet.Options> {
+  declare object: Actor.OfType<T>;
+
   // Tracks collapse state between renders
   protected collapse_handler = new CollapseHandler();
 
