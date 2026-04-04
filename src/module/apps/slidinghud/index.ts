@@ -33,6 +33,7 @@ export async function attach() {
     hud = mount(HUDZone, {
       target: document.body,
       events,
+      props: { faded: false, components: [] },
     });
   }
   return hud;

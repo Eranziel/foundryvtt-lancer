@@ -1,5 +1,3 @@
-<svelte:options accessors={true} />
-
 <script lang="ts">
   import type SvelteComponent from "*.svelte";
 
@@ -14,15 +12,24 @@
   import DamageHud from "../damage/DamageHUD.svelte";
   import StructStressHud from "../struct_stress/StructStressHUD.svelte";
 
+  // let {open, close, refresh, data, isOpen, faded, fade, components}: {
+  let {
+    faded,
+    components,
+  }: {
+    faded: boolean;
+    components: { [key: string]: SvelteComponent };
+  } = $props();
+
   let dispatch = createEventDispatcher();
 
-  let dialogs: { [key: string]: typeof SvelteComponent } = {
+  let dialogs: { [key: string]: typeof SvelteComponent } = $state({
     hase: AccDiffHud,
     attack: AccDiffHud,
     damage: DamageHud,
     struct: StructStressHud,
     stress: StructStressHud,
-  };
+  });
 
   // @hmr:keep
   let huds: {
@@ -30,30 +37,26 @@
       open: number | null; // Time of opening, if applicable
       data?: any;
     };
-  } = {
+  } = $state({
     hase: { open: null },
     attack: { open: null },
     damage: { open: null },
     struct: { open: null },
     stress: { open: null },
-  };
+  });
 
-  // this indirection means that only actual changes to huds.attack.data trigger the following update
-  $: attackData = huds.attack.data;
-  $: {
+  const attackData = $derived(huds.attack.data);
+  const damageData = $derived(huds.damage.data);
+
+  userTargets.subscribe(newTargets => {
     if (attackData) {
-      attackData.replaceTargets($userTargets);
-      attackData = attackData;
+      attackData.replaceTargets(newTargets);
     }
-  }
-
-  $: damageData = huds.damage.data;
-  $: {
+    console.log(attackData);
     if (damageData) {
-      damageData.replaceTargets($userTargets);
-      damageData = damageData;
+      damageData.replaceTargets(newTargets);
     }
-  }
+  });
 
   export function open(key: string, data: any) {
     dispatch(`${key}.cancel`); // Re-opening closes the previous instance of this hud
@@ -81,12 +84,9 @@
     return (huds[key] && huds[key].open) !== null;
   }
 
-  export let faded: boolean = false;
   export function fade(dir: "in" | "out") {
     faded = dir == "out";
   }
-
-  export let components: { [key: string]: SvelteComponent } = {};
 
   function forward(key: string, event: string, data?: any | undefined) {
     dispatch(`${key}.${event}`, data ? data : undefined);
@@ -95,9 +95,11 @@
     huds[key].data = null;
   }
 
-  $: visibleHudsKeys = Object.keys(huds)
-    .filter(key => huds[key].open)
-    .sort((a, b) => huds[b].open! - huds[a].open!);
+  const visibleHudsKeys = $derived(
+    Object.keys(huds)
+      .filter(key => huds[key].open)
+      .sort((a, b) => huds[b].open! - huds[a].open!)
+  );
 </script>
 
 <div
@@ -107,10 +109,9 @@
   style="bottom: 0; right: {$sidebarWidth}px"
 >
   {#each visibleHudsKeys as key (key + huds[key].data.title)}
+    {@const Dialog = dialogs[key]}
     <div class="component grid-enforcement" animate:flip transition:slide|global>
-      <svelte:component
-        this={dialogs[key]}
-        bind:this={components[key]}
+      <Dialog
         kind={key}
         {...huds[key].data}
         on:submit={() => forward(key, "submit", huds[key].data)}
@@ -132,9 +133,7 @@
         box-shadow: none;
         flex-direction: row-reverse;
         pointer-events: none;
-        transition:
-          right 600ms,
-          opacity 200ms;
+        transition: right 600ms, opacity 200ms;
         z-index: 999;
       }
 
