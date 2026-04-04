@@ -662,15 +662,13 @@ export class LancerActor<SubType extends Actor.SubType = Actor.SubType> extends 
     const [parent, collection, documents, changes, options, userId] = args;
 
     // When adding an NPC class, find the old class if one exists.
-    let oldClass: LancerNPC_CLASS | null = null;
-    // What janky types! If someone has ideas to clean this up, be my guest.
-    let itemDocs: LancerItem[] = (documents as (LancerItem | LancerActiveEffect)[]).filter(
-      d => d.documentName === "Item"
-    ) as LancerItem[];
+    let oldClass: LancerNPC_CLASS | undefined;
+    let itemDocs = documents.filter(d => d.documentName === "Item") as LancerItem[];
     if (this.is_npc() && itemDocs.some(d => d.is_npc_class())) {
-      oldClass = this.items.find(
-        item => item.is_npc_class() && !itemDocs.find(doc => item._id === doc._id)
-      ) as LancerNPC_CLASS;
+      oldClass = this.items.find(item => {
+        const i = item; // HACK: The `is_npc_class()` type check only works when put in a constant for some reason.
+        return i.is_npc_class() && !itemDocs.find(doc => item._id === doc._id);
+      }) as LancerNPC_CLASS | undefined;
     }
 
     super._onCreateDescendantDocuments(...args);
@@ -845,7 +843,10 @@ export class LancerActor<SubType extends Actor.SubType = Actor.SubType> extends 
    * @param oldClass The old class which is being removed
    * @param newClass The new class which is being added
    */
-  async _swapNpcClass(oldClass: LancerNPC_CLASS | null, newClass: LancerNPC_CLASS | LancerNPC_TEMPLATE): Promise<void> {
+  async _swapNpcClass(
+    oldClass: LancerNPC_CLASS | null | undefined,
+    newClass: LancerNPC_CLASS | LancerNPC_TEMPLATE
+  ): Promise<void> {
     if (!game.users.activeGM?.isSelf || !this.is_npc() || (!newClass.is_npc_class() && !newClass.is_npc_template()))
       return;
     // Flag to know if we need to reset stats
