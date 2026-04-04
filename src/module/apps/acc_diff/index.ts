@@ -11,4 +11,4 @@ export type {
   AccDiffHudPluginCodec,
   AccDiffHudPlugin,
   Data as AccDiffPluginDataOf,
-} from "./plugin";
+} from "./plugins/plugin";

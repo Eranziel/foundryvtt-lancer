@@ -30,10 +30,12 @@
   export let lancerActor: LancerActor | null;
   export let lancerItem: LancerItem | null;
 
-  $: baseDamage = base.damage;
-  $: baseBonusDamage = base.bonusDamage;
-  $: weaponDamage = weapon.damage;
-  $: weaponBonusDamage = weapon.bonusDamage;
+  $: baseTotal = base.total;
+  $: weaponTotal = weapon.total;
+  $: baseDamage = baseTotal.damage;
+  $: baseBonusDamage = baseTotal.bonusDamage;
+  $: weaponDamage = weaponTotal.damage;
+  $: weaponBonusDamage = weaponTotal.bonusDamage;
   $: profile = lancerItem ? findProfile() : null;
   $: targetHitQualityClass =
     !targets.length || targets[0]?.quality === HitQuality.Hit

@@ -1,8 +1,10 @@
 import type * as t from "io-ts";
-import { LancerItem } from "../../item/lancer-item";
-import { LancerActor } from "../../actor/lancer-actor";
+import { LancerItem } from "../../../item/lancer-item";
+import { LancerActor } from "../../../actor/lancer-actor";
 
-import type { DamageHudData } from "./index";
+import type { AccDiffData, AccDiffHudData, AccDiffHudTarget } from "../index";
+import { isTalentAvailable } from "../../../util/misc";
+import { TalentEffect } from "../../../flows/interfaces";
 
 // Implementing a plugin means implementing
 // * a data object that can compute its view behaviour,
@@ -12,11 +14,12 @@ import type { DamageHudData } from "./index";
 // You don't _have_ to make the data object a class with static methods for the constructors
 // but it's convenient
 
-// TODO: move CheckboxUI through RollModifier to a common file
 declare interface CheckboxUI {
   uiElement: "checkbox" = "checkbox";
   slug: string;
-  humanLabel: string;
+  humanLabel: string; //Human name of rank and talent
+  quickReference: string; //small string in () to tell damage
+  tooltip?: string;
   get uiState(): boolean;
   set uiState(data: boolean): this;
   get disabled(): boolean;
@@ -30,7 +33,9 @@ declare interface NoUI {
 type UIBehaviour = CheckboxUI | NoUI;
 
 declare interface RollModifier {
-  modifyRoll(roll: string): string;
+  category?: "acc" | "diff" | "talentWindow";
+  modifyRoll?(roll: string): string;
+  get accBonus(): number;
   get rollPrecedence(): number; // higher numbers happen earlier
 }
 
@@ -38,19 +43,29 @@ declare interface Dehydrated {
   // the codec handles all serializable data,
   // but we might want to pick up data from the environment too
   // all perTarget codecs get the target as well
-  hydrate(data: DamageData, target?: DamageTarget);
+  hydrate(data: AccDiffData, target?: AccDiffTarget);
 }
 
-export type DamageHudPluginData = UIBehaviour & RollModifier & Dehydrated;
-export type DamageHudCheckboxPluginData = CheckboxUI & RollModifier & Dehydrated;
-export type DamageHudNoUIPluginData = NoUI & RollModifier & Dehydrated;
+export type AccDiffHudPluginData = UIBehaviour & RollModifier & Dehydrated;
+export type AccDiffHudCheckboxPluginData = CheckboxUI & RollModifier & Dehydrated;
+export type AccDiffHudNoUIPluginData = NoUI & RollModifier & Dehydrated;
 
-export type DamageHudPluginCodec<C extends DamageHudPluginData, O, I> = Codec<C, O, I>;
+export type AccDiffHudPluginCodec<C extends AccDiffHudPluginData, O, I> = Codec<C, O, I>;
 
-declare interface DamageHudPlugin<Data extends DamageHudPluginData> {
+declare interface AccDiffHudPlugin<Data extends AccDiffHudPluginData> {
   slug: string;
+  category: "acc" | "diff" | "talentWindow";
+  // Determines which window this talent will pop up in
+  kind: "hase" | "attack";
+  // lid and talentRank used to find talent in items
+  //Maybe should be an interface
+  lid?: string;
+  talentRank?: number;
+  // Text for reminding about the talent if it applies. Especially if it's not automated. See hunter.ts
+  talentEffect?: TalentEffect;
   // the codec lets us know how to persist whatever data you need for rerolls
-  codec: DamageHudPluginCodec<Data, O, I>;
+  codec: AccDiffHudPluginCodec<Data, O, I>;
+
   // these constructors handle creating the initial data for a plugin
   // the presence of these three constructors also indicates what scopes the plugin lives in
   // a "perRoll" plugin applies to all rolls, like weapon seeking
@@ -65,4 +80,4 @@ declare interface DamageHudPlugin<Data extends DamageHudPluginData> {
   // will be called twice on the same roll, so watch out for that
 }
 
-export type Data<T> = T extends DamageHudPlugin<infer D> ? D : never;
+export type Data<T> = T extends AccDiffHudPlugin<infer D> ? D : never;

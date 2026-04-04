@@ -221,6 +221,35 @@ export class LancerToken extends Token {
     // Make a clone so the cache can't be mutated
     return this._spaces.spaces.map(p => ({ ...p }));
   }
+
+  /**
+   * Given range and a filtering callback, returns whether certain targets
+   * are within that range.
+   */
+  areTargetsInRange(
+    maxRange: number,
+    callback: (o: QuadtreeObject<LancerToken>, distance: number) => boolean
+  ): boolean {
+    maxRange -= 1;
+    // Rough bounding box in which the hexes/squares will be searched
+    // From testing it seems that it goes to one hex further than necessary in the corners
+    // perhaps narrow it for performance
+    const aabb = new PIXI.Rectangle(
+      this.bounds.x - maxRange * canvas.grid!.sizeX,
+      this.bounds.y - maxRange * canvas.grid!.sizeY,
+      this.bounds.height + maxRange * 2 * canvas.grid!.sizeX,
+      this.bounds.width + maxRange * 2 * canvas.grid!.sizeY
+    );
+
+    const inRangeTargets: Set<LancerToken> = canvas.tokens!.quadtree!.getObjects(aabb, {
+      // @ts-expect-error Quadtree not set specific enough in types
+      collisionTest: (o: QuadtreeObject<LancerToken>) => {
+        // Callback is responsible for telling which targets are valid
+        return callback(o, o.t.document.computeRange(this.document));
+      },
+    }) as any;
+    return inRangeTargets.size >= 1;
+  }
 }
 
 export function extendTokenConfig(...[app, html, _data]: Parameters<Hooks.RenderApplication<TokenConfig>>) {

@@ -11,4 +11,4 @@ export type {
   DamageHudPluginCodec,
   DamageHudPlugin,
   Data as DamagePluginDataOf,
-} from "./plugin";
+} from "./plugins/plugin";

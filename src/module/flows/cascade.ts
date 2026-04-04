@@ -74,6 +74,7 @@ export async function initCascadeData(state: FlowState<LancerFlowState.CascadeRo
   return true;
 }
 
+//"I'm back again, ha ha."
 export async function cascadeRoll(state: FlowState<LancerFlowState.CascadeRollData>): Promise<boolean> {
   if (!state.data) throw new TypeError(`Cascade roll flow data missing!`);
 

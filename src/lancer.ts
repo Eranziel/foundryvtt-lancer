@@ -104,6 +104,7 @@ import { WeaponModModel } from "./module/models/items/weapon_mod";
 import { registerTours } from "./module/tours/register-tours";
 import { get_pack_id } from "./module/util/doc";
 import handleSocketMessage from "./module/socket";
+import { LancerCombatHistory } from "./module/combat/lancer-combat-history";
 
 const lp = LANCER.log_prefix;
 
@@ -359,6 +360,11 @@ Hooks.once("ready", async function () {
   Hooks.on("itemCreated", _updateIcons);
   Hooks.on("deleteItem", _updateIcons);
   Hooks.on("updateItem", _updateIcons);
+
+  //Init history if it's an existing combat without one
+  if (game.user!.isGM && !game.combat?.flags.lancer) {
+    game.combat?.update({ [`flags.${game.system.id}.history`]: new LancerCombatHistory() });
+  }
 });
 
 Hooks.once("ready", () => {

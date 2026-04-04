@@ -13,6 +13,7 @@
   import AccDiffHud from "../acc_diff/AccDiffHUD.svelte";
   import DamageHud from "../damage/DamageHUD.svelte";
   import StructStressHud from "../struct_stress/Form.svelte";
+  import TalentWindow from "./TalentWindow.svelte";
 
   let dispatch = createEventDispatcher();
 
@@ -100,9 +101,18 @@
     .sort((a, b) => huds[b].open! - huds[a].open!);
 </script>
 
-<div id="hudzone" class="window-app" class:faded={faded || $isDragging} style="bottom: 0; right: {$sidebarWidth}px">
+<!-- TalentWindow may dispatch "change" and if it does, update other huds -->
+<div
+  id="hudzone"
+  class="window-app"
+  class:faded={faded || $isDragging}
+  style="bottom: 0; right: {$sidebarWidth}px"
+  on:change={() => {
+    huds.attack.data = huds.attack.data; // Trigger a re-render for talent's sake
+  }}
+>
   {#each visibleHudsKeys as key (key + huds[key].data.title)}
-    <div class="component grid-enforcement" animate:flip transition:slide>
+    <div class="component grid-enforcement" transition:slide>
       <svelte:component
         this={dialogs[key]}
         bind:this={components[key]}
@@ -110,6 +120,14 @@
         {...huds[key].data}
         on:submit={() => forward(key, "submit", huds[key].data)}
         on:cancel={() => forward(key, "cancel")}
+      />
+    </div>
+    <div class="talent-component grid-enforcement" transition:slide>
+      <TalentWindow
+        targets={huds[key].data.targets}
+        base={huds[key].data.base}
+        weapon={huds[key].data.weapon}
+        kind={key}
       />
     </div>
   {/each}
@@ -134,6 +152,9 @@
     pointer-events: initial;
     flex: unset;
     filter: drop-shadow(0.4rem 0.4rem 0.6rem #333);
+  }
+  #hudzone > .talent-component {
+    padding-right: 3px;
   }
 
   #hudzone.faded {

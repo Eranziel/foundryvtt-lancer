@@ -40,6 +40,26 @@ import { BondQuestionData } from "./models/bits/question";
 import { FullBoundedNum, LIDRef, SourceData, SourceTemplates, UUIDRef } from "./source-template";
 import { AmmoData } from "./models/bits/ammo";
 
+export interface LancerStatusEffects {
+  dangerzone: boolean;
+  downandout: boolean;
+  engaged: boolean;
+  exposed: boolean;
+  invisible: boolean;
+  prone: boolean;
+  shutdown: boolean;
+  immobilized: boolean;
+  impaired: boolean;
+  jammed: boolean;
+  lockon: boolean;
+  shredded: boolean;
+  slowed: boolean;
+  stunned: boolean;
+  hidden: boolean;
+  grappled: boolean;
+  flying: boolean;
+}
+
 export namespace SystemTemplates {
   // We mimic these types, such that if we later decide to modify how they are hydrated, our job is easier
   export interface item_universal extends SourceTemplates.item_universal {
@@ -87,24 +107,8 @@ export namespace SystemTemplates {
     save: number;
     sensor_range: number;
     tech_attack: number;
-    statuses: {
-      // These can be set by active effects / right click statuses
-      dangerzone: boolean;
-      downandout: boolean;
-      engaged: boolean;
-      exposed: boolean;
-      invisible: boolean;
-      prone: boolean;
-      shutdown: boolean;
-      immobilized: boolean;
-      impaired: boolean;
-      jammed: boolean;
-      lockon: boolean;
-      shredded: boolean;
-      slowed: boolean;
-      stunned: boolean;
-      hidden: boolean;
-    };
+    // These can be set by active effects / right click statuses
+    statuses: LancerStatusEffects;
     resistances: {
       // These can be set by active effects
       kinetic: boolean;

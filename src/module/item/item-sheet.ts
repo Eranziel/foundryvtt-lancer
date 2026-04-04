@@ -184,7 +184,6 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet<Documen
     }
 
     if (this.item.is_organization()) {
-      // console.log(OrgType);
       data.org_types = OrgType;
     }
 
