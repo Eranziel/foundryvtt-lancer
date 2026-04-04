@@ -32,7 +32,7 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
     return this.range.type === RangeType.Burst;
   }
 
-  private actorSheet: FormApplication | undefined;
+  private actorSheet: foundry.appv1.api.Application.Any | foundry.applications.api.ApplicationV2.Any | null | undefined;
 
   /**
    * Creates a new WeaponRangeTemplate from a provided range object
@@ -71,14 +71,14 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
 
     const templateData = {
       t: shape,
-      user: game.user!.id,
+      user: game.user.id,
       distance: dist * grid_distance,
       width: grid_distance,
       direction: 0,
       x: 0,
       y: 0,
       angle: square ? 51 : 59,
-      fillColor: game.user!.color,
+      fillColor: game.user.color.css,
       flags: {
         [game.system.id]: {
           range: { type, val },
@@ -92,9 +92,9 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
     };
 
     const cls = getDocumentClass("MeasuredTemplate");
-    const template = new cls(templateData as any, { parent: canvas.scene ?? undefined });
+    const template = new cls(templateData, { parent: canvas.scene ?? undefined });
     const object = new this(template);
-    object.actorSheet = creator?.actor?.sheet ?? undefined;
+    object.actorSheet = creator?.actor?.sheet;
     return object;
   }
 
@@ -126,7 +126,9 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
     return this.activatePreviewListeners(initialLayer);
   }
 
-  private activatePreviewListeners(initialLayer: CanvasLayer | null): Promise<MeasuredTemplateDocument.Implementation> {
+  private activatePreviewListeners(
+    initialLayer: foundry.canvas.layers.InteractionLayer | null
+  ): Promise<MeasuredTemplateDocument.Implementation> {
     return new Promise<MeasuredTemplateDocument.Implementation>((resolve, reject) => {
       const handlers: any = {};
       let moveTime = 0;
