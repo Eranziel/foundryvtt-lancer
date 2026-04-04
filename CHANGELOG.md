@@ -1,3 +1,11 @@
+# 2.11.2 (2026-04-03)
+
+## Bug Fixes
+
+- #892 - Fix bug which cleared pilots' prototype token name when editing pilot sheets.
+- #913 - Add d3 to dice configuration settings.
+- #915 - Skip tokens that aren't visible when targeting using AOE templates.
+
 # 2.11.1 (2025-07-17)
 
 ## Bug Fixes
