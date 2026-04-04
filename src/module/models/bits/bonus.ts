@@ -22,7 +22,7 @@ import fields = foundry.data.fields;
 const defineBonusFieldSchema = () => {
   return {
     lid: new fields.StringField({ nullable: false }), // Don't really want an LID field here
-    val: new fields.StringField({ nullable: false }),
+    val: new fields.StringField({ nullable: false, required: true }),
     overwrite: new fields.BooleanField(),
     replace: new fields.BooleanField(),
     damage_types: new DamageTypeChecklistField(),

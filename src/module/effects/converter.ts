@@ -8,7 +8,9 @@ import {
   type LancerNPC_FEATURE,
   type LancerSTATUS,
 } from "../item/lancer-item";
+import type { MechModel } from "../models/actors/mech";
 import type { BonusData } from "../models/bits/bonus";
+import type { FrameModel } from "../models/items/frame";
 import type { SystemTemplates } from "../system-template";
 import { rollEvalSync } from "../util/misc";
 import { AE_MODE_APPEND_JSON, LancerActiveEffect, type LancerEffectTarget } from "./lancer-active-effect";
@@ -20,8 +22,8 @@ const EFFECT_STAT_PRIORITY = 40;
 const FEATURE_OVERRIDE_PRIORITY = 50;
 
 // Makes an active effect for a frame.
-type FrameStatKey = keyof Item.OfType<"frame">["stats"];
-type MechStatKey = keyof Actor.OfType<"mech">;
+type FrameStatKey = keyof FrameModel["stats"];
+type MechStatKey = keyof MechModel;
 export function frameInnateEffect(frame: LancerFRAME) {
   let keys: Array<FrameStatKey & MechStatKey> = [
     "armor",
@@ -408,6 +410,7 @@ function makeNpcBonus(
 export function npcClassInnateEffect(class_: LancerNPC_CLASS) {
   let tier = (class_?.actor as LancerNPC | undefined)?.system.tier ?? 1;
   let bs = class_.system.base_stats[tier - 1];
+  if (!bs) throw new Error("Could not get the base stats of an NPC class.", { cause: { class_ } });
 
   let changes = npc_keys.map(key =>
     makeNpcBonus(key, bs[key], CONST.ACTIVE_EFFECT_MODES.OVERRIDE, FRAME_STAT_PRIORITY)
@@ -761,7 +764,7 @@ export function bonusAffectsWeapon(weapon: LancerMECH_WEAPON, bonus: BonusData):
   // Now start checking
   if (bonus.weapon_sizes?.[weapon.system.size] === false) return false;
   if (bonus.weapon_types?.[sel_prof.type] === false) return false;
-  if (!sel_prof.damage.some(d => bonus.damage_types?.[d.type] === true)) return false;
+  if (!sel_prof.damage.some(d => d && bonus.damage_types?.[d.type] === true)) return false;
   if (!sel_prof.range.some(d => bonus.range_types?.[d.type] === true)) return false;
 
   // Passed the test
