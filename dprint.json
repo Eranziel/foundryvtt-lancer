@@ -7,7 +7,9 @@
     "arrowParentheses": "asNeeded",
     "trailingCommas": "es5"
   },
-  "malva": {},
+  "malva": {
+    "indentWidth": 2
+  },
   "markup": {
     "scriptFormatter": "biome",
     "scriptIndent": true,

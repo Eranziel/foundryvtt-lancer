@@ -29,7 +29,6 @@ import {
   handleRefSlotDropping,
   handleUsesInteraction,
 } from "../helpers/refs";
-import { attachTagTooltips } from "../helpers/tags";
 import { LancerItem } from "../item/lancer-item";
 import { lookupOwnedDeployables } from "../util/lid";
 import { LancerActor, type LancerActorType } from "./lancer-actor";
@@ -56,9 +55,6 @@ export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<Acto
    */
   activateListeners(html: JQuery) {
     super.activateListeners(html);
-
-    // Add tooltips to tags
-    attachTagTooltips(html);
 
     // Enable collapse triggers.
     initializeCollapses(html);

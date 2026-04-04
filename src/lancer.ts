@@ -32,7 +32,6 @@ import { richTextEdit } from "./module/apps/text-editor";
 
 // Import helpers
 import { LCPManager, addLCPManagerButton } from "./module/apps/lcp-manager/lcp-manager";
-import { attachTagTooltips } from "./module/helpers/tags";
 import { preloadTemplates } from "./module/preload-templates";
 import { registerSettings } from "./module/settings";
 import { applyTheme } from "./module/themes";
@@ -530,7 +529,6 @@ Hooks.on("renderChatMessageHTML", async (cm, el, data) => {
   // Reapply listeners.
   initializeCollapses(html);
   applyCollapseListeners(html);
-  attachTagTooltips(html);
 
   // Handle old macro buttons
   html.find(".chat-button").on("click", async ev => {
