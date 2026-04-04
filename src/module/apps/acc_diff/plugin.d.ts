@@ -1,13 +1,10 @@
-import type * as t from "io-ts";
 import { LancerItem } from "../../item/lancer-item";
 import { LancerActor } from "../../actor/lancer-actor";
-
-import type { AccDiffData } from "./index";
+import type { AccDiffHudBase, AccDiffHudData, AccDiffHudTarget, AccDiffHudWeapon } from "./data.svelte";
 
 // Implementing a plugin means implementing
 // * a data object that can compute its view behaviour,
-// * a codec to serialize it,
-// * and a bunch of freestanding constructors
+// * and a set of freestanding constructors to apply it to different contexts (per roll, per target, etc.)
 
 // You don't _have_ to make the data object a class with static methods for the constructors
 // but it's convenient
@@ -32,38 +29,45 @@ declare interface RollModifier {
   category: "acc" | "diff";
   modifyRoll(roll: string): string;
   get rollPrecedence(): number; // higher numbers happen earlier
+  hydrate?(data: AccDiffHudData, target?: AccDiffHudTarget): void;
 }
 
-declare interface Dehydrated {
-  // the codec handles all serializable data,
-  // but we might want to pick up data from the environment too
-  // all perTarget codecs get the target as well
-  hydrate(data: AccDiffData, target?: AccDiffTarget);
-}
+export type AccDiffHudPluginData = UIBehaviour & RollModifier;
+export type AccDiffHudCheckboxPluginData = CheckboxUI & RollModifier;
+export type AccDiffHudNoUIPluginData = NoUI & RollModifier;
 
-export type AccDiffHudPluginData = UIBehaviour & RollModifier & Dehydrated;
-export type AccDiffHudCheckboxPluginData = CheckboxUI & RollModifier & Dehydrated;
-export type AccDiffHudNoUIPluginData = NoUI & RollModifier & Dehydrated;
-
-export type AccDiffHudPluginCodec<C extends AccDiffHudPluginData, O, I> = Codec<C, O, I>;
-
+/**
+ * A plugin alters the baseline behaviour of a roll made using the AccDiffHud.
+ * Plugins should define either `perRoll` OR both of `perUnknownTarget` and `perTarget`. The presence of these
+ * functions determines which scopes the plugin's modifications are applied to.
+ *
+ * **Caution:** If `perRoll` AND either of `perUnknownTarget` and `perTarget` are defined, then `modifyRoll` will
+ * be called from both contexts - all rolls and per-target rolls.
+ */
 declare interface AccDiffHudPlugin<Data extends AccDiffHudPluginData> {
+  /**
+   * Unique identifier for a given plugin.
+   */
   slug: string;
+  /**
+   * Category specifies whether the plugin applies to the accuracy or difficulty calculation for a roll.
+   */
   category: "acc" | "diff";
-  // the codec lets us know how to persist whatever data you need for rerolls
-  codec: AccDiffHudPluginCodec<Data, O, I>;
-  // these constructors handle creating the initial data for a plugin
-  // the presence of these three constructors also indicates what scopes the plugin lives in
-  // a "perRoll" plugin applies to all rolls, like weapon seeking
-  // a "perTarget" plugin applies individually to every single target
-  // a "perUnknownTarget" applies whenever the user opens the roll dialog without a target
-  // so every roll has perRoll + exactly one of perTarget and perUnknownTarget
+  /**
+   * A "perRoll" plugin applies to all rolls (that is, all targets), like weapon seeking.
+   * @param item (Optional) The item or actor that is making the roll.
+   */
   perRoll?(item?: LancerItem | LancerActor): Data;
+  /**
+   * A "perUnknownTarget" applies whenever the user opens the roll dialog without a target.
+   */
   perUnknownTarget?(): Data;
-  perTarget?(item: Token.Implementation): Data;
-  // usually you want to implement either perRoll OR both of the other two
-  // if you implement perRoll AND either or both of the other two, `rollModifier`
-  // will be called twice on the same roll, so watch out for that
+  /**
+   * A "perTarget" plugin applies individually to every single target.
+   * @param token The token targeted by this roll.
+   */
+  perTarget?(token: Token.Implementation): Data;
 }
 
-export type Data<T> = T extends AccDiffHudPlugin<infer D> ? D : never;
+// TODO: is this type still needed, or could we export AccDiffHudPlugin instead?
+// export type Data<T> = T extends AccDiffHudPlugin<infer D> ? D : never;

@@ -72,11 +72,6 @@ function spotter(): AccDiffHudPluginData {
 const Spotter: AccDiffHudPlugin<AccDiffHudPluginData> = {
   slug: "spotter",
   category: "acc",
-  codec: stateless(
-    "Spotter",
-    (t: unknown): t is AccDiffHudPluginData => typeof t == "object" && (t as any)?.slug == "spotter",
-    spotter
-  ),
   perTarget(_t: Token.Implementation) {
     return spotter();
   },

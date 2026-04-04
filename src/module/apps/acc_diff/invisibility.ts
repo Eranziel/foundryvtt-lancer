@@ -1,7 +1,5 @@
-import * as t from "io-ts";
-import type { AccDiffHudPlugin, AccDiffHudCheckboxPluginData, AccDiffHudPluginCodec } from "./plugin";
+import type { AccDiffHudCheckboxPluginData } from "./plugin";
 import { AccDiffHudData, AccDiffHudTarget } from "./index";
-import { enclass } from "./serde";
 
 // you don't need to explicitly type the serialized data,
 // but if you do then io-ts codecs can do strong checks at runtime
@@ -28,11 +26,6 @@ export default class Invisibility implements AccDiffHudCheckboxPluginData {
     return this.data;
   }
 
-  // as you may have guessed, the codec just stores the enum
-  static get codec(): AccDiffHudPluginCodec<Invisibility, InvisibilityEnum, unknown> {
-    return enclass(t.union([t.literal(-1), t.literal(0), t.literal(1)]), Invisibility);
-  }
-
   // store a reference to the current token when rehydrated
   hydrate(_d: AccDiffHudData, t?: AccDiffHudTarget) {
     if (t) {
@@ -44,9 +37,9 @@ export default class Invisibility implements AccDiffHudCheckboxPluginData {
   static perUnknownTarget(): Invisibility {
     return new Invisibility(InvisibilityEnum.NoForce);
   }
-  static perTarget(item: Token.Implementation): Invisibility {
+  static perTarget(token: Token.Implementation): Invisibility {
     let ret = Invisibility.perUnknownTarget();
-    ret.token = item;
+    ret.token = token;
     return ret;
   }
 
@@ -93,7 +86,7 @@ export default class Invisibility implements AccDiffHudCheckboxPluginData {
   readonly disabled = false;
 
   // the effect to have on the roll
-  // 1d2even resolves to either 0 or 1 successes, so multiplying works great
+  // 1dc resolves to either 0 or 1 successes, so multiplying works great
   modifyRoll(roll: string): string {
     if (this.uiState) {
       return `{${roll}} * (1dc[👻 invisibility])`;
@@ -104,6 +97,3 @@ export default class Invisibility implements AccDiffHudCheckboxPluginData {
 
   readonly rollPrecedence = -9999; // after _everything_
 }
-
-// to check whether the static methods match the interface
-const _klass: AccDiffHudPlugin<Invisibility> = Invisibility;
