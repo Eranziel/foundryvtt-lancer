@@ -3,7 +3,7 @@ const lp = LANCER.log_prefix;
 import { LCPIndex } from "./apps/lcp-manager/lcp-manager";
 import { get_pack, get_pack_id } from "./util/doc";
 import type { LancerActor, LancerNPC } from "./actor/lancer-actor";
-import { LancerItem } from "./item/lancer-item";
+import { LancerItem, type LancerNPC_CLASS } from "./item/lancer-item";
 import { EntryType } from "./enums";
 import type {
   IContentPack,
@@ -217,7 +217,7 @@ export async function importCP(
     // Create each NPC and add its class item
     for (let npc of npcActors) {
       // Remove existing class
-      const existingClass = npc.items.find(i => i.type === EntryType.NPC_CLASS);
+      const existingClass = npc.items.find(i => i.type === EntryType.NPC_CLASS) as LancerNPC_CLASS | undefined;
       if (existingClass) {
         await npc.removeClassFeatures(existingClass);
         await npc.deleteEmbeddedDocuments("Item", [existingClass.id!]);
