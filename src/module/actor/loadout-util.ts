@@ -373,14 +373,15 @@ export class LoadoutHelper {
       // If frame has an integrated weapon, insert that (or those) as our first weapon(s)
       for (let integrated_lid of frame.system.core_system.integrated) {
         let corr_item = this.actor.items.find(x => x.system.lid == integrated_lid);
-        if (corr_item && corr_item.is_mech_weapon()) {
+        const i = corr_item; // HACK: The `is_mech_weapon()` type check only works when put in a constant for some reason.
+        if (corr_item && i?.is_mech_weapon()) {
           newMounts.push({
             bracing: false,
             slots: [
               {
                 mod: null,
                 size: FittingSize.Integrated,
-                weapon: corr_item.id!,
+                weapon: corr_item.id,
               },
             ],
             type: MountType.Integrated,
