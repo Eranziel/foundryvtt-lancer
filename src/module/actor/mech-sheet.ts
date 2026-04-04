@@ -69,10 +69,12 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
     // Take posession
     let [drop, is_new] = await this.quickOwnDrop(base_drop);
 
-    const actor = this.actor; // HACK: The `is_mech()` type check only works when put in a constant for some reason.
-    if (drop.type == "Item" && drop.document.is_frame() && actor.is_mech()) {
+    if (drop.type == "Item" && drop.document.is_frame()) {
       // Find and delete the old frame item, if it exists
-      const oldFrame = this.actor.items.find(i => i.is_frame() && i.id != drop.document.id);
+      const oldFrame = this.actor.items.find(item => {
+        const i = item; // HACK: The `is_frame()` type check only works when put in a constant for some reason.
+        return i.is_frame() && item.id != drop.document.id;
+      });
       if (oldFrame) {
         await this.actor.deleteEmbeddedDocuments("Item", [oldFrame.id!]);
       }
@@ -83,11 +85,9 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
         "system.loadout.frame": drop.document.id,
       });
       await this.actor.loadoutHelper.resetMounts();
-    } else if (is_new && drop.type == "Item" && drop.document.is_mech_weapon()) {
-      // If frame, weapon, put it in first available slot. Who cares if it fits
-      let currMounts: SourceData.Mech["loadout"]["weapon_mounts"] = foundry.utils.duplicate(
-        this.actor.system._source.loadout.weapon_mounts
-      );
+    } else if (is_new && drop.type == "Item" && drop.document.id && drop.document.is_mech_weapon()) {
+      // If weapon, put it in first available slot. Who cares if it fits
+      let currMounts = foundry.utils.duplicate(this.actor.system._source.loadout.weapon_mounts);
       let set = false;
       for (let mount of currMounts) {
         if (set) break;
