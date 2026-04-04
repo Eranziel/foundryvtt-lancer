@@ -261,6 +261,15 @@ Hooks.once("init", () => {
   // @ts-expect-error This is literally a subclass so idk why it's busted
   CONFIG.ui.combat = LancerCombatTracker;
 
+  // @ts-expect-error Missing from types
+  CONFIG.Dice.fulfillment.dice = {
+    // Disabled due to https://github.com/foundryvtt/foundryvtt/issues/13694
+    // dc : { icon: "<i class='fa-solid fa-coins'></i>", label: "dc" },
+    d3: { icon: "<i class='fa-solid fa-dice-d6'></i>", label: "d3" },
+    // @ts-expect-error Missing from types
+    ...CONFIG.Dice.fulfillment.dice,
+  };
+
   // Set up default system status icons
   // LancerActiveEffect.updateIcons() is called later, in the ready hook.
   LancerActiveEffect.initConfig();
