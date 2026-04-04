@@ -2,7 +2,17 @@ import { CombatTrackerAppearance } from "../settings";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
-export class LancerInitiativeConfigApp extends HandlebarsApplicationMixin(ApplicationV2) {
+interface RenderOptions extends foundry.applications.api.ApplicationV2.RenderOptions {
+  reset: boolean | null | undefined;
+}
+
+export class LancerInitiativeConfigApp extends HandlebarsApplicationMixin(
+  ApplicationV2<
+    foundry.applications.api.ApplicationV2.RenderContext,
+    foundry.applications.api.ApplicationV2.Configuration,
+    RenderOptions
+  >
+) {
   static PARTS = {
     form: { template: "systems/lancer/templates/combat/lancer-initiative-settings-v2.hbs" },
     footer: { template: "templates/generic/form-footer.hbs", classes: ["flexrow"] },
@@ -57,7 +67,7 @@ export class LancerInitiativeConfigApp extends HandlebarsApplicationMixin(Applic
     });
   }
 
-  static async #onReset() {
+  static async #onReset(this: LancerInitiativeConfigApp) {
     this.render({ reset: true });
   }
 
