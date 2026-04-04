@@ -121,10 +121,15 @@ export function friendly_entrytype_name(type: LancerItemType | LancerActorType, 
 
 // TODO: const MACRO_ICONS
 
-export function TypeIcon(type: EntryType, macro?: boolean): string {
-  const docType = ACTOR_TYPES.includes(type) ? "Actor" : "Item";
-  const img = getDocumentClass(docType).getDefaultArtwork({ type }).img;
-  return img;
+export function TypeIcon(
+  type: EntryType,
+  { macro, name }: { macro?: boolean | null | undefined; name?: string | null | undefined } = {}
+): string {
+  if (ACTOR_TYPES.includes(type as unknown as LancerActorType)) {
+    return Actor.implementation.getDefaultArtwork({ name: name ?? "", type: type as LancerActorType }).img;
+  }
+
+  return Item.implementation.getDefaultArtwork({ name: name ?? "", type: type as LancerItemType }).img;
 }
 
 // A substitution method that replaces the first argument IFF it is an img that we don't think should be preserved, and if the trimmed replacement string is truthy
