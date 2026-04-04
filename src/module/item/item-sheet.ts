@@ -29,6 +29,8 @@ const lp = LANCER.log_prefix;
  * @extends {ItemSheet}
  */
 export class LancerItemSheet<T extends LancerItemType> extends ItemSheet<ItemSheet.Options> {
+  declare object: Item.OfType<T>;
+
   constructor(document: LancerItem, options: Partial<ItemSheet.Options>) {
     super(document, options);
     if (this.item.is_mech_weapon()) {
