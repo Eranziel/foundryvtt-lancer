@@ -40,7 +40,7 @@ declare module "fvtt-types/configuration" {
  * Flow for managing secondary structure rolls and effects
  */
 export class CascadeFlow extends Flow<LancerFlowState.CascadeRollData> {
-  static steps = ["initCascadeData", "cascadeRoll", "cascadeUpdateItems", "printCascadeCards"];
+  static override steps = ["initCascadeData", "cascadeRoll", "cascadeUpdateItems", "printCascadeCards"];
 
   constructor(uuid: UUIDRef | LancerActor, data?: Partial<LancerFlowState.CascadeRollData>) {
     const initialData: LancerFlowState.CascadeRollData = {
@@ -52,6 +52,10 @@ export class CascadeFlow extends Flow<LancerFlowState.CascadeRollData> {
     };
 
     super(uuid, initialData);
+  }
+
+  override get steps(): string[] {
+    return CascadeFlow.steps;
   }
 
   override callAllPreFlowHooks(): void {

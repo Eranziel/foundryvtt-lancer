@@ -38,7 +38,7 @@ declare module "fvtt-types/configuration" {
  * StructureFlow manages all the steps necessary for the initial structure rolls and outcomes.
  */
 export class StructureFlow extends Flow<LancerFlowState.PrimaryStructureRollData> {
-  static steps = [
+  static override steps = [
     "preStructureRollChecks",
     "rollStructureTable",
     "noStructureRemaining",
@@ -62,6 +62,10 @@ export class StructureFlow extends Flow<LancerFlowState.PrimaryStructureRollData
     };
 
     super(uuid, initialData);
+  }
+
+  override get steps(): string[] {
+    return StructureFlow.steps;
   }
 
   override callAllPreFlowHooks(): void {
@@ -552,7 +556,7 @@ declare module "fvtt-types/configuration" {
  * Flow for managing secondary structure rolls and effects
  */
 export class SecondaryStructureFlow extends Flow<LancerFlowState.SecondaryStructureRollData> {
-  static steps = ["secondaryStructureRoll", "printSecondaryStructureCard"];
+  static override steps = ["secondaryStructureRoll", "printSecondaryStructureCard"];
 
   constructor(uuid: UUIDRef | LancerActor, data?: Partial<LancerFlowState.SecondaryStructureRollData>) {
     const initialData: LancerFlowState.SecondaryStructureRollData = {
@@ -563,6 +567,10 @@ export class SecondaryStructureFlow extends Flow<LancerFlowState.SecondaryStruct
     };
 
     super(uuid, initialData);
+  }
+
+  override get steps(): string[] {
+    return SecondaryStructureFlow.steps;
   }
 
   override callAllPreFlowHooks(): void {

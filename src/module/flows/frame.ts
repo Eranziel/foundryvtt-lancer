@@ -26,7 +26,7 @@ export class CoreActiveFlow extends ActivationFlow {
   // Same as ActivationFlow, except:
   //  - Add "checkCorePower" after "checkItemCharged"
   //  - Add "consumeCorePower" before "printActionUseCard"
-  static steps = [
+  static override steps = [
     "initActivationData",
     "checkItemDestroyed",
     "checkItemLimited",
@@ -41,6 +41,10 @@ export class CoreActiveFlow extends ActivationFlow {
 
   constructor(uuid: string | LancerItem | LancerActor, data?: Partial<LancerFlowState.ActionUseData>) {
     super(uuid, data);
+  }
+
+  override get steps(): string[] {
+    return CoreActiveFlow.steps;
   }
 
   override callAllPreFlowHooks(): void {

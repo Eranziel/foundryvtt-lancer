@@ -30,7 +30,7 @@ declare module "fvtt-types/configuration" {
  * OverheatFlow manages all the steps necessary for the initial overheat rolls and outcomes.
  */
 export class OverheatFlow extends Flow<LancerFlowState.OverheatRollData> {
-  static steps = [
+  static override steps = [
     "preOverheatRollChecks",
     "rollOverheatTable",
     "noStressRemaining",
@@ -52,6 +52,10 @@ export class OverheatFlow extends Flow<LancerFlowState.OverheatRollData> {
     };
 
     super(uuid, initialData);
+  }
+
+  override get steps(): string[] {
+    return OverheatFlow.steps;
   }
 
   override callAllPreFlowHooks(): void {

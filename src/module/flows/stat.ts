@@ -29,7 +29,7 @@ declare module "fvtt-types/configuration" {
 }
 
 export class StatRollFlow extends Flow<LancerFlowState.StatRollData> {
-  static steps = ["initStatRollData", "showStatRollHUD", "rollCheck", "printStatRollCard"];
+  static override steps = ["initStatRollData", "showStatRollHUD", "rollCheck", "printStatRollCard"];
 
   constructor(uuid: UUIDRef | LancerItem | LancerActor, data: Partial<LancerFlowState.StatRollData>) {
     const state: LancerFlowState.StatRollData = {
@@ -44,6 +44,10 @@ export class StatRollFlow extends Flow<LancerFlowState.StatRollData> {
     if (!state.title && uuid instanceof LancerItem) state.title = uuid.name!;
 
     super(uuid, state);
+  }
+
+  override get steps(): string[] {
+    return StatRollFlow.steps;
   }
 
   override callAllPreFlowHooks(): void {

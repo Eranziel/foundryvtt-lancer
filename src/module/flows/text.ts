@@ -24,7 +24,7 @@ declare module "fvtt-types/configuration" {
 }
 
 export class SimpleTextFlow extends Flow<LancerFlowState.TextRollData> {
-  static steps = ["printGenericCard"];
+  static override steps = ["printGenericCard"];
 
   constructor(uuid: UUIDRef | LancerItem | LancerActor, data: Partial<LancerFlowState.TextRollData>) {
     const state: LancerFlowState.TextRollData = {
@@ -35,6 +35,10 @@ export class SimpleTextFlow extends Flow<LancerFlowState.TextRollData> {
     if (!state.title && uuid instanceof LancerItem) state.title = uuid.name!;
 
     super(uuid, state);
+  }
+
+  override get steps(): string[] {
+    return SimpleTextFlow.steps;
   }
 
   override callAllPreFlowHooks(): void {
@@ -66,13 +70,17 @@ declare module "fvtt-types/configuration" {
 }
 
 export class SimpleHTMLFlow extends Flow<LancerFlowState.HTMLToChatData> {
-  static steps = ["printGenericHTML"];
+  static override steps = ["printGenericHTML"];
 
   constructor(uuid: UUIDRef | LancerItem | LancerActor, data: Partial<LancerFlowState.HTMLToChatData>) {
     const state: LancerFlowState.HTMLToChatData = {
       html: data?.html ?? "",
     };
     super(uuid, state);
+  }
+
+  override get steps(): string[] {
+    return SimpleHTMLFlow.steps;
   }
 
   override callAllPreFlowHooks(): void {

@@ -21,7 +21,7 @@ declare module "fvtt-types/configuration" {
 }
 
 export class NPCRechargeFlow extends Flow<LancerFlowState.RechargeRollData> {
-  static steps = ["findRechargeableSystems", "rollRecharge", "applyRecharge", "printRechargeCard"];
+  static override steps = ["findRechargeableSystems", "rollRecharge", "applyRecharge", "printRechargeCard"];
 
   constructor(uuid: LancerActor, data?: Partial<LancerFlowState.RechargeRollData>) {
     const initialData: LancerFlowState.RechargeRollData = {
@@ -33,6 +33,10 @@ export class NPCRechargeFlow extends Flow<LancerFlowState.RechargeRollData> {
     };
 
     super(uuid, initialData);
+  }
+
+  override get steps(): string[] {
+    return NPCRechargeFlow.steps;
   }
 
   override callAllPreFlowHooks(): void {

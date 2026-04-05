@@ -45,7 +45,7 @@ declare module "fvtt-types/configuration" {
  * Flow for rolling and applying damage to a token, typically from a weapon attack
  */
 export class DamageRollFlow extends Flow<LancerFlowState.DamageRollData> {
-  static steps = [
+  static override steps = [
     "initDamageData",
     "setDamageTags",
     "setDamageTargets",
@@ -81,6 +81,10 @@ export class DamageRollFlow extends Flow<LancerFlowState.DamageRollData> {
       targets: [],
     };
     super(uuid, initialData);
+  }
+
+  override get steps(): string[] {
+    return DamageRollFlow.steps;
   }
 
   override callAllPreFlowHooks(): void {

@@ -25,7 +25,7 @@ declare module "fvtt-types/configuration" {
 }
 
 export class BondPowerFlow extends Flow<LancerFlowState.BondPowerUseData> {
-  static steps = ["initPowerData", "updatePowerUses", "printPowerCard"];
+  static override steps = ["initPowerData", "updatePowerUses", "printPowerCard"];
 
   constructor(uuid: UUIDRef | LancerItem | LancerActor, data?: Partial<LancerFlowState.BondPowerUseData>) {
     // Can't just check !data?.powerIndex because it could be 0
@@ -44,6 +44,10 @@ export class BondPowerFlow extends Flow<LancerFlowState.BondPowerUseData> {
     };
 
     super(uuid, initialData);
+  }
+
+  override get steps(): string[] {
+    return BondPowerFlow.steps;
   }
 
   async begin(data?: LancerFlowState.BondPowerUseData): Promise<boolean> {

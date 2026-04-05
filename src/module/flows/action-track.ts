@@ -20,7 +20,7 @@ declare module "fvtt-types/configuration" {
 }
 
 export class ActionTrackFlow extends Flow<LancerFlowState.ActionTrackData> {
-  static steps = ["checkActions", "printActionTrackCard"];
+  static override steps = ["checkActions", "printActionTrackCard"];
 
   constructor(uuid: LancerActor, data?: Partial<LancerFlowState.ActionTrackData>) {
     const initialData: LancerFlowState.ActionTrackData = {
@@ -30,6 +30,10 @@ export class ActionTrackFlow extends Flow<LancerFlowState.ActionTrackData> {
     };
 
     super(uuid, initialData);
+  }
+
+  override get steps(): string[] {
+    return ActionTrackFlow.steps;
   }
 
   override callAllPreFlowHooks(): void {

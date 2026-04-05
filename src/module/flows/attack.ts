@@ -86,7 +86,7 @@ declare module "fvtt-types/configuration" {
 
 export class BasicAttackFlow extends Flow<LancerFlowState.AttackRollData> {
   name = "BasicAttackFlow";
-  static steps = [
+  static override steps = [
     "initAttackData",
     "setAttackTags",
     "setAttackEffects",
@@ -118,6 +118,10 @@ export class BasicAttackFlow extends Flow<LancerFlowState.AttackRollData> {
     super(uuid, initialData);
   }
 
+  override get steps(): string[] {
+    return BasicAttackFlow.steps;
+  }
+
   override callAllPreFlowHooks(): void {
     Hooks.callAll("lancer.preFlow.BasicAttackFlow", this);
   }
@@ -142,7 +146,7 @@ declare module "fvtt-types/configuration" {
  * Flow for rolling weapon attacks against one or more targets
  */
 export class WeaponAttackFlow extends Flow<LancerFlowState.WeaponRollData> {
-  static steps = [
+  static override steps = [
     "initAttackData",
     "checkItemDestroyed",
     "checkWeaponLoaded",
@@ -182,6 +186,10 @@ export class WeaponAttackFlow extends Flow<LancerFlowState.WeaponRollData> {
     if (!this.state.item) {
       throw new TypeError(`WeaponAttackFlow requires an Item, but none was provided`);
     }
+  }
+
+  override get steps(): string[] {
+    return WeaponAttackFlow.steps;
   }
 
   async begin(data?: LancerFlowState.WeaponRollData): Promise<boolean> {

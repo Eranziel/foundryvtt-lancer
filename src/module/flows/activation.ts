@@ -29,7 +29,7 @@ declare module "fvtt-types/configuration" {
 }
 
 export class ActivationFlow extends Flow<LancerFlowState.ActionUseData> {
-  static steps = [
+  static override steps = [
     // TODO: if a system or action is not provided, prompt the user to select one?
     // Or would it be better to have a separate UI for that before the flow starts?
     "initActivationData",
@@ -61,6 +61,10 @@ export class ActivationFlow extends Flow<LancerFlowState.ActionUseData> {
     };
 
     super(uuid, initialData);
+  }
+
+  override get steps(): string[] {
+    return ActivationFlow.steps;
   }
 
   override callAllPreFlowHooks(): void {

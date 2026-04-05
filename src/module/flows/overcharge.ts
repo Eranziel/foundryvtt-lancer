@@ -24,7 +24,7 @@ declare module "fvtt-types/configuration" {
 }
 
 export class OverchargeFlow extends Flow<LancerFlowState.OverchargeRollData> {
-  static steps = ["initOverchargeData", "rollOvercharge", "updateOverchargeActor", "printOverchargeCard"];
+  static override steps = ["initOverchargeData", "rollOvercharge", "updateOverchargeActor", "printOverchargeCard"];
 
   constructor(uuid: UUIDRef | LancerItem | LancerActor, data?: Partial<LancerFlowState.OverchargeRollData>) {
     // Initialize data if not provided
@@ -36,6 +36,10 @@ export class OverchargeFlow extends Flow<LancerFlowState.OverchargeRollData> {
     };
 
     super(uuid, initialData);
+  }
+
+  override get steps(): string[] {
+    return OverchargeFlow.steps;
   }
 
   override callAllPreFlowHooks(): void {

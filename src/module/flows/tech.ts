@@ -29,7 +29,7 @@ declare module "fvtt-types/configuration" {
 }
 
 export class TechAttackFlow extends Flow<LancerFlowState.TechAttackRollData> {
-  static steps = [
+  static override steps = [
     "initTechAttackData",
     "checkItemDestroyed",
     "checkItemLimited",
@@ -65,6 +65,10 @@ export class TechAttackFlow extends Flow<LancerFlowState.TechAttackRollData> {
     };
 
     super(uuid, initialData);
+  }
+
+  override get steps(): string[] {
+    return TechAttackFlow.steps;
   }
 
   override callAllPreFlowHooks(): void {

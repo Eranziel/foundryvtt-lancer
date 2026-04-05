@@ -26,7 +26,12 @@ declare module "fvtt-types/configuration" {
 }
 
 export class StabilizeFlow extends Flow<LancerFlowState.StabilizeData> {
-  static steps = ["initializeStabilize", "renderStabilizePrompt", "applyStabilizeUpdates", "printStabilizeResult"];
+  static override steps = [
+    "initializeStabilize",
+    "renderStabilizePrompt",
+    "applyStabilizeUpdates",
+    "printStabilizeResult",
+  ];
 
   constructor(uuid: UUIDRef | LancerActor, data?: Partial<LancerFlowState.StabilizeData>) {
     const initialData: LancerFlowState.StabilizeData = {
@@ -36,6 +41,10 @@ export class StabilizeFlow extends Flow<LancerFlowState.StabilizeData> {
       option2: data?.option2 || StabOptions2.Reload,
     };
     super(uuid, initialData);
+  }
+
+  override get steps(): string[] {
+    return StabilizeFlow.steps;
   }
 
   override callAllPreFlowHooks(): void {

@@ -159,6 +159,10 @@ export class Flow<StateData = unknown> {
     this.steps.splice(keyIndex, 1);
   }
 
+  get steps(): string[] {
+    return Flow.steps;
+  }
+
   /**
    * Start the flow. Each step is awaited in the order they were inserted to the map.
    * @param data Initial data for the specific flow to populate its state.data.
@@ -166,13 +170,13 @@ export class Flow<StateData = unknown> {
   async begin(data?: StateData): Promise<boolean> {
     this.state.data = data || this.state.data;
     this.callAllPreFlowHooks();
-    for (const key of this.constructor.steps) {
+    for (const key of this.steps) {
       console.log(`${lp} running flow step ${key}`);
       this.state.currentStep = key;
       const step = this.getStep(key);
       if (!step) {
         ui.notifications!.error(`Lancer flow error: ${key} is not a valid step`);
-        console.log(`${lp} Flow aborted when ${key} was not found. All steps in this flow:`, this.constructor.steps);
+        console.log(`${lp} Flow aborted when ${key} was not found. All steps in this flow:`, this.steps);
         return false;
       }
       if (step instanceof Flow) {

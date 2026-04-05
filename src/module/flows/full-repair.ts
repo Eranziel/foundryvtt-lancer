@@ -24,7 +24,7 @@ declare module "fvtt-types/configuration" {
 }
 
 export class FullRepairFlow extends Flow<LancerFlowState.TextRollData> {
-  static steps = ["displayFullRepairDialog", "executeFullRepair"];
+  static override steps = ["displayFullRepairDialog", "executeFullRepair"];
 
   constructor(uuid: UUIDRef | LancerItem | LancerActor, data?: Partial<LancerFlowState.TextRollData>) {
     // Initialize data if not provided
@@ -35,6 +35,10 @@ export class FullRepairFlow extends Flow<LancerFlowState.TextRollData> {
     };
 
     super(uuid, initialData);
+  }
+
+  override get steps(): string[] {
+    return FullRepairFlow.steps;
   }
 
   override callAllPreFlowHooks(): void {

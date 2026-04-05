@@ -21,7 +21,7 @@ declare module "fvtt-types/configuration" {
 }
 
 export class TalentFlow extends Flow<LancerFlowState.TalentUseData> {
-  static steps = ["printTalentCard"];
+  static override steps = ["printTalentCard"];
 
   constructor(uuid: string | LancerItem, data: Partial<LancerFlowState.TalentUseData>) {
     const state: LancerFlowState.TalentUseData = {
@@ -32,6 +32,10 @@ export class TalentFlow extends Flow<LancerFlowState.TalentUseData> {
     if (!state.title && uuid instanceof LancerItem) state.title = uuid.name!;
 
     super(uuid, state);
+  }
+
+  override get steps(): string[] {
+    return TalentFlow.steps;
   }
 
   override callAllPreFlowHooks(): void {

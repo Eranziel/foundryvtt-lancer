@@ -24,7 +24,7 @@ declare module "fvtt-types/configuration" {
 }
 
 export class BurnFlow extends DamageRollFlow {
-  static steps = ["initBurnCheckData", "rollBurnCheck", "checkBurnResult", "printDamageCard"];
+  static override steps = ["initBurnCheckData", "rollBurnCheck", "checkBurnResult", "printDamageCard"];
 
   constructor(uuid: UUIDRef | LancerItem | LancerActor, data: Partial<LancerFlowState.BurnCheckData>) {
     const state: LancerFlowState.BurnCheckData = {
@@ -52,6 +52,10 @@ export class BurnFlow extends DamageRollFlow {
     };
 
     super(uuid, state);
+  }
+
+  override get steps(): string[] {
+    return BurnFlow.steps;
   }
 
   override callAllPreFlowHooks(): void {

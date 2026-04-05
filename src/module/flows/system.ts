@@ -24,7 +24,7 @@ declare module "fvtt-types/configuration" {
 }
 
 export class SystemFlow extends Flow<LancerFlowState.SystemUseData> {
-  static steps = [
+  static override steps = [
     "initSystemUseData",
     "checkItemDestroyed",
     "checkItemLimited",
@@ -46,6 +46,10 @@ export class SystemFlow extends Flow<LancerFlowState.SystemUseData> {
     };
 
     super(uuid, initialData);
+  }
+
+  override get steps(): string[] {
+    return SystemFlow.steps;
   }
 
   override callAllPreFlowHooks(): void {
