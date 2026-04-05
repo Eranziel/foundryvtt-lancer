@@ -11,9 +11,9 @@ const definePowerFieldSchema = () => {
     frequency: new fields.StringField({ required: false, nullable: true }),
     uses: new fields.SchemaField(
       {
-        min: new fields.NumberField({ integer: true, initial: 0 }),
-        max: new fields.NumberField({ integer: true, initial: 0 }),
-        value: new fields.NumberField({ integer: true, initial: 0 }),
+        min: new fields.NumberField({ integer: true, initial: 0, nullable: false }),
+        max: new fields.NumberField({ integer: true, initial: 0, nullable: false }),
+        value: new fields.NumberField({ integer: true, initial: 0, nullable: false }),
       },
       { required: false, nullable: true }
     ),
@@ -72,11 +72,7 @@ export function fixupPowerUses(power: PowerData): PowerData {
   if (!fixed.uses) return fixed;
   try {
     const max = parseInt(parts[0]);
-    fixed.uses = {
-      min: fixed.uses.min ?? 0,
-      max,
-      value: fixed.uses.value ?? max,
-    };
+    fixed.uses = { ...fixed.uses, max };
   } catch (e) {}
   return fixed;
 }
