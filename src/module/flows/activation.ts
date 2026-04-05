@@ -71,7 +71,8 @@ export async function initActivationData(
       // First, find the action
       state.data.action = resolveDotpath<ActionData>(state.item, state.data.action_path);
       if (!state.data.action) throw new Error(`Failed to resolve action ${state.data.action_path}`);
-      state.data.title = state.data.action?.name;
+      if (!state.data.action.name) throw new Error(`Action has no name ${state.data.action_path}`);
+      state.data.title = state.data.action.name;
     }
     state.data.title =
       options?.title || state.data.title || state.data.action?.name || state.item.name || "UNKNOWN ACTION";
