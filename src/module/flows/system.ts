@@ -48,12 +48,12 @@ export class SystemFlow extends Flow<LancerFlowState.SystemUseData> {
     super(uuid, initialData);
   }
 
-  override callPreFlow(): void {
+  override callAllPreFlowHooks(): void {
     Hooks.callAll("lancer.preFlow.SystemFlow", this);
   }
 
-  override callPostFlow(done: boolean): void {
-    Hooks.callAll("lancer.postFlow.SystemFlow", this, done);
+  override callAllPostFlowHooks(success: boolean): void {
+    Hooks.callAll("lancer.postFlow.SystemFlow", this, success);
   }
 }
 

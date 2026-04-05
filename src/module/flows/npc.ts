@@ -35,12 +35,12 @@ export class NPCRechargeFlow extends Flow<LancerFlowState.RechargeRollData> {
     super(uuid, initialData);
   }
 
-  override callPreFlow(): void {
+  override callAllPreFlowHooks(): void {
     Hooks.callAll("lancer.preFlow.NPCRechargeFlow", this);
   }
 
-  override callPostFlow(done: boolean): void {
-    Hooks.callAll("lancer.postFlow.NPCRechargeFlow", this, done);
+  override callAllPostFlowHooks(success: boolean): void {
+    Hooks.callAll("lancer.postFlow.NPCRechargeFlow", this, success);
   }
 }
 

@@ -38,12 +38,12 @@ export class OverchargeFlow extends Flow<LancerFlowState.OverchargeRollData> {
     super(uuid, initialData);
   }
 
-  override callPreFlow(): void {
+  override callAllPreFlowHooks(): void {
     Hooks.callAll("lancer.preFlow.OverchargeFlow", this);
   }
 
-  override callPostFlow(done: boolean): void {
-    Hooks.callAll("lancer.postFlow.OverchargeFlow", this, done);
+  override callAllPostFlowHooks(success: boolean): void {
+    Hooks.callAll("lancer.postFlow.OverchargeFlow", this, success);
   }
 }
 

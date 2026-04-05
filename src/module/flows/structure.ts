@@ -64,12 +64,12 @@ export class StructureFlow extends Flow<LancerFlowState.PrimaryStructureRollData
     super(uuid, initialData);
   }
 
-  override callPreFlow(): void {
+  override callAllPreFlowHooks(): void {
     Hooks.callAll("lancer.preFlow.StructureFlow", this);
   }
 
-  override callPostFlow(done: boolean): void {
-    Hooks.callAll("lancer.postFlow.StructureFlow", this, done);
+  override callAllPostFlowHooks(success: boolean): void {
+    Hooks.callAll("lancer.postFlow.StructureFlow", this, success);
   }
 }
 
@@ -565,12 +565,12 @@ export class SecondaryStructureFlow extends Flow<LancerFlowState.SecondaryStruct
     super(uuid, initialData);
   }
 
-  override callPreFlow(): void {
+  override callAllPreFlowHooks(): void {
     Hooks.callAll("lancer.preFlow.SecondaryStructureFlow", this);
   }
 
-  override callPostFlow(done: boolean): void {
-    Hooks.callAll("lancer.postFlow.SecondaryStructureFlow", this, done);
+  override callAllPostFlowHooks(success: boolean): void {
+    Hooks.callAll("lancer.postFlow.SecondaryStructureFlow", this, success);
   }
 }
 

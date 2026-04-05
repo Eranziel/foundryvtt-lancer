@@ -37,12 +37,12 @@ export class SimpleTextFlow extends Flow<LancerFlowState.TextRollData> {
     super(uuid, state);
   }
 
-  override callPreFlow(): void {
+  override callAllPreFlowHooks(): void {
     Hooks.callAll("lancer.preFlow.SimpleTextFlow", this);
   }
 
-  override callPostFlow(done: boolean): void {
-    Hooks.callAll("lancer.postFlow.SimpleTextFlow", this, done);
+  override callAllPostFlowHooks(success: boolean): void {
+    Hooks.callAll("lancer.postFlow.SimpleTextFlow", this, success);
   }
 }
 
@@ -75,12 +75,12 @@ export class SimpleHTMLFlow extends Flow<LancerFlowState.HTMLToChatData> {
     super(uuid, state);
   }
 
-  override callPreFlow(): void {
+  override callAllPreFlowHooks(): void {
     Hooks.callAll("lancer.preFlow.SimpleHTMLFlow", this);
   }
 
-  override callPostFlow(done: boolean): void {
-    Hooks.callAll("lancer.postFlow.SimpleHTMLFlow", this, done);
+  override callAllPostFlowHooks(success: boolean): void {
+    Hooks.callAll("lancer.postFlow.SimpleHTMLFlow", this, success);
   }
 }
 

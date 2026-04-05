@@ -54,12 +54,12 @@ export class BurnFlow extends DamageRollFlow {
     super(uuid, state);
   }
 
-  override callPreFlow(): void {
+  override callAllPreFlowHooks(): void {
     Hooks.callAll("lancer.preFlow.BurnFlow", this);
   }
 
-  override callPostFlow(done: boolean): void {
-    Hooks.callAll("lancer.postFlow.BurnFlow", this, done);
+  override callAllPostFlowHooks(success: boolean): void {
+    Hooks.callAll("lancer.postFlow.BurnFlow", this, success);
   }
 }
 

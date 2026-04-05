@@ -38,12 +38,12 @@ export class StabilizeFlow extends Flow<LancerFlowState.StabilizeData> {
     super(uuid, initialData);
   }
 
-  override callPreFlow(): void {
+  override callAllPreFlowHooks(): void {
     Hooks.callAll("lancer.preFlow.StabilizeFlow", this);
   }
 
-  override callPostFlow(done: boolean): void {
-    Hooks.callAll("lancer.postFlow.StabilizeFlow", this, done);
+  override callAllPostFlowHooks(success: boolean): void {
+    Hooks.callAll("lancer.postFlow.StabilizeFlow", this, success);
   }
 }
 

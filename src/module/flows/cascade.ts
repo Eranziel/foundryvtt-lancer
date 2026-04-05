@@ -54,12 +54,12 @@ export class CascadeFlow extends Flow<LancerFlowState.CascadeRollData> {
     super(uuid, initialData);
   }
 
-  override callPreFlow(): void {
+  override callAllPreFlowHooks(): void {
     Hooks.callAll("lancer.preFlow.CascadeFlow", this);
   }
 
-  override callPostFlow(done: boolean): void {
-    Hooks.callAll("lancer.postFlow.CascadeFlow", this, done);
+  override callAllPostFlowHooks(success: boolean): void {
+    Hooks.callAll("lancer.postFlow.CascadeFlow", this, success);
   }
 }
 

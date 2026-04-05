@@ -37,12 +37,12 @@ export class FullRepairFlow extends Flow<LancerFlowState.TextRollData> {
     super(uuid, initialData);
   }
 
-  override callPreFlow(): void {
+  override callAllPreFlowHooks(): void {
     Hooks.callAll("lancer.preFlow.FullRepairFlow", this);
   }
 
-  override callPostFlow(done: boolean): void {
-    Hooks.callAll("lancer.postFlow.FullRepairFlow", this, done);
+  override callAllPostFlowHooks(success: boolean): void {
+    Hooks.callAll("lancer.postFlow.FullRepairFlow", this, success);
   }
 }
 

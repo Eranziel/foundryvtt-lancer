@@ -63,12 +63,12 @@ export class BondPowerFlow extends Flow<LancerFlowState.BondPowerUseData> {
     return await super.begin(data);
   }
 
-  override callPreFlow(): void {
+  override callAllPreFlowHooks(): void {
     Hooks.callAll("lancer.preFlow.BondPowerFlow", this);
   }
 
-  override callPostFlow(done: boolean): void {
-    Hooks.callAll("lancer.postFlow.BondPowerFlow", this, done);
+  override callAllPostFlowHooks(success: boolean): void {
+    Hooks.callAll("lancer.postFlow.BondPowerFlow", this, success);
   }
 }
 

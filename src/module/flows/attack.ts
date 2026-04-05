@@ -118,12 +118,12 @@ export class BasicAttackFlow extends Flow<LancerFlowState.AttackRollData> {
     super(uuid, initialData);
   }
 
-  override callPreFlow(): void {
+  override callAllPreFlowHooks(): void {
     Hooks.callAll("lancer.preFlow.BasicAttackFlow", this);
   }
 
-  override callPostFlow(done: boolean): void {
-    Hooks.callAll("lancer.postFlow.BasicAttackFlow", this, done);
+  override callAllPostFlowHooks(success: boolean): void {
+    Hooks.callAll("lancer.postFlow.BasicAttackFlow", this, success);
   }
 }
 
@@ -192,12 +192,12 @@ export class WeaponAttackFlow extends Flow<LancerFlowState.WeaponRollData> {
     return await super.begin(data);
   }
 
-  override callPreFlow(): void {
+  override callAllPreFlowHooks(): void {
     Hooks.callAll("lancer.preFlow.WeaponAttackFlow", this);
   }
 
-  override callPostFlow(done: boolean): void {
-    Hooks.callAll("lancer.postFlow.WeaponAttackFlow", this, done);
+  override callAllPostFlowHooks(success: boolean): void {
+    Hooks.callAll("lancer.postFlow.WeaponAttackFlow", this, success);
   }
 }
 

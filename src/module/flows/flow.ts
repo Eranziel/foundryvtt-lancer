@@ -26,7 +26,7 @@ export interface FlowState<T> {
 }
 
 export type PreFlowHook<F extends Flow> = (flow: F) => void;
-export type PostFlowHook<F extends Flow> = (flow: F, done: boolean) => void;
+export type PostFlowHook<F extends Flow> = (flow: F, success: boolean) => void;
 
 declare module "fvtt-types/configuration" {
   namespace Hooks {
@@ -165,7 +165,7 @@ export class Flow<StateData = unknown> {
    */
   async begin(data?: StateData): Promise<boolean> {
     this.state.data = data || this.state.data;
-    this.callPreFlow();
+    this.callAllPreFlowHooks();
     for (const key of this.constructor.steps) {
       console.log(`${lp} running flow step ${key}`);
       this.state.currentStep = key;
@@ -179,28 +179,28 @@ export class Flow<StateData = unknown> {
         // Start the sub-flow
         if ((await step.begin()) === false) {
           console.log(`${lp} flow aborted when ${key} returned false`);
-          this.callPostFlow(false);
+          this.callAllPostFlowHooks(false);
           return false;
         }
       } else {
         // Execute the step. The step function will modify the flow state as needed.
         if ((await step(this.state, data)) === false) {
           console.log(`${lp} flow aborted when ${key} returned false`);
-          this.callPostFlow(false);
+          this.callAllPostFlowHooks(false);
           return false;
         }
       }
     }
-    this.callPostFlow(true);
+    this.callAllPostFlowHooks(true);
     return true;
   }
 
-  callPreFlow(): void {
+  callAllPreFlowHooks(): void {
     Hooks.callAll("lancer.preFlow.Flow", this);
   }
 
-  callPostFlow(done: boolean): void {
-    Hooks.callAll("lancer.postFlow.Flow", this, done);
+  callAllPostFlowHooks(success: boolean): void {
+    Hooks.callAll("lancer.postFlow.Flow", this, success);
   }
 
   /**

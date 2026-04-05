@@ -67,12 +67,12 @@ export class TechAttackFlow extends Flow<LancerFlowState.TechAttackRollData> {
     super(uuid, initialData);
   }
 
-  override callPreFlow(): void {
+  override callAllPreFlowHooks(): void {
     Hooks.callAll("lancer.preFlow.TechAttackFlow", this);
   }
 
-  override callPostFlow(done: boolean): void {
-    Hooks.callAll("lancer.postFlow.TechAttackFlow", this, done);
+  override callAllPostFlowHooks(success: boolean): void {
+    Hooks.callAll("lancer.postFlow.TechAttackFlow", this, success);
   }
 }
 
