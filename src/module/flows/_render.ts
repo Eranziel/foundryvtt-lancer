@@ -9,7 +9,7 @@ import type { LancerActor } from "../actor/lancer-actor";
 export async function renderTemplateStep(actor: LancerActor, template: string, templateData: any, flags?: any) {
   templateData._uuid = nanoid();
 
-  const html = await renderTemplate(template, templateData);
+  const html = await foundry.applications.handlebars.renderTemplate(template, templateData);
 
   // Schlorp up all the rolls into a mega-roll so DSN sees the stuff to throw
   // on screen

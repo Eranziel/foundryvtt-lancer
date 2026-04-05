@@ -1,9 +1,8 @@
 import { LANCER } from "../config";
-import { SystemData, SystemDataType, SystemTemplates } from "../system-template";
-import { SourceDataType } from "../source-template";
+import type { SystemTemplates } from "../system-template";
 import { DamageType, EntryType, EntryTypeLidPrefix, NpcFeatureType, RangeType, WeaponType } from "../enums";
-import { ActionData } from "../models/bits/action";
-import { RangeData, Range } from "../models/bits/range";
+import type { ActionData } from "../models/bits/action";
+import { type RangeData, Range } from "../models/bits/range";
 import { Tag } from "../models/bits/tag";
 import { LancerActiveEffect } from "../effects/lancer-active-effect";
 import {
@@ -14,9 +13,9 @@ import {
   npcFeatureBonusEffects,
   npcFeatureOverrideEffects,
 } from "../effects/converter";
-import { BonusData } from "../models/bits/bonus";
-import { LancerMECH, LancerNPC, LancerPILOT } from "../actor/lancer-actor";
-import { Damage, DamageData } from "../models/bits/damage";
+import type { BonusData } from "../models/bits/bonus";
+import type { LancerMECH, LancerNPC, LancerPILOT } from "../actor/lancer-actor";
+import { Damage, type DamageData } from "../models/bits/damage";
 import { WeaponAttackFlow } from "../flows/attack";
 import { TechAttackFlow } from "../flows/tech";
 import { fixupPowerUses } from "../models/bits/power";
@@ -31,105 +30,32 @@ import { generateItemID } from "../util/lcps";
 
 const lp = LANCER.log_prefix;
 
-interface LancerItemDataSource<T extends LancerItemType> {
-  type: T;
-  system: SourceDataType<T>;
-}
-interface LancerItemDataProperties<T extends LancerItemType> {
-  type: T;
-  system: SystemDataType<T>;
-}
-
-/**
- * Union type for Item.data._source. Only really used in prepareData
- */
-type LancerItemSource =
-  | LancerItemDataSource<EntryType.CORE_BONUS>
-  | LancerItemDataSource<EntryType.FRAME>
-  | LancerItemDataSource<EntryType.LICENSE>
-  | LancerItemDataSource<EntryType.MECH_SYSTEM>
-  | LancerItemDataSource<EntryType.MECH_WEAPON>
-  | LancerItemDataSource<EntryType.NPC_CLASS>
-  | LancerItemDataSource<EntryType.NPC_FEATURE>
-  | LancerItemDataSource<EntryType.NPC_TEMPLATE>
-  | LancerItemDataSource<EntryType.ORGANIZATION>
-  | LancerItemDataSource<EntryType.PILOT_ARMOR>
-  | LancerItemDataSource<EntryType.PILOT_GEAR>
-  | LancerItemDataSource<EntryType.PILOT_WEAPON>
-  | LancerItemDataSource<EntryType.RESERVE>
-  | LancerItemDataSource<EntryType.SKILL>
-  | LancerItemDataSource<EntryType.STATUS>
-  | LancerItemDataSource<EntryType.TALENT>
-  | LancerItemDataSource<EntryType.BOND>
-  | LancerItemDataSource<EntryType.WEAPON_MOD>;
-
-/**
- * Union type for Item.data
- * Can be discriminated by testing Item.data.type
- */
-type LancerItemProperties =
-  | LancerItemDataProperties<EntryType.CORE_BONUS>
-  | LancerItemDataProperties<EntryType.FRAME>
-  | LancerItemDataProperties<EntryType.LICENSE>
-  | LancerItemDataProperties<EntryType.MECH_SYSTEM>
-  | LancerItemDataProperties<EntryType.MECH_WEAPON>
-  | LancerItemDataProperties<EntryType.NPC_CLASS>
-  | LancerItemDataProperties<EntryType.NPC_FEATURE>
-  | LancerItemDataProperties<EntryType.NPC_TEMPLATE>
-  | LancerItemDataProperties<EntryType.ORGANIZATION>
-  | LancerItemDataProperties<EntryType.PILOT_ARMOR>
-  | LancerItemDataProperties<EntryType.PILOT_GEAR>
-  | LancerItemDataProperties<EntryType.PILOT_WEAPON>
-  | LancerItemDataProperties<EntryType.RESERVE>
-  | LancerItemDataProperties<EntryType.SKILL>
-  | LancerItemDataProperties<EntryType.STATUS>
-  | LancerItemDataProperties<EntryType.TALENT>
-  | LancerItemDataProperties<EntryType.BOND>
-  | LancerItemDataProperties<EntryType.WEAPON_MOD>;
-
-declare global {
-  interface SourceConfig {
-    Item: LancerItemSource;
-  }
-  interface DataConfig {
-    Item: LancerItemProperties;
-  }
+declare module "fvtt-types/configuration" {
   interface DocumentClassConfig {
-    Item: typeof LancerItem;
+    Item: typeof LancerItem<Item.SubType>;
+  }
+
+  interface ConfiguredItem<SubType extends Item.SubType> {
+    document: LancerItem<SubType>;
   }
 }
 
-export class LancerItem extends Item {
-  // @ts-expect-error - Foundry initializes this.
-  system:
-    | SystemData.CoreBonus
-    | SystemData.Frame
-    | SystemData.License
-    | SystemData.MechSystem
-    | SystemData.MechWeapon
-    | SystemData.WeaponMod
-    | SystemData.NpcClass
-    | SystemData.NpcFeature
-    | SystemData.NpcTemplate
-    | SystemData.Organization
-    | SystemData.PilotArmor
-    | SystemData.PilotGear
-    | SystemData.PilotWeapon
-    | SystemData.Reserve
-    | SystemData.Skill
-    | SystemData.Status
-    | SystemData.Talent
-    | SystemData.Bond;
+interface CurrentProfile {
+  range: RangeData[];
+  damage?: DamageData[];
+  accuracy?: number | null;
+  attack?: number | null;
+}
 
+export class LancerItem<out SubType extends Item.SubType = Item.SubType> extends Item<SubType> {
   static DEFAULT_ICON = "systems/lancer/assets/icons/generic_item.svg";
   static override getDefaultArtwork(
     itemData: Parameters<typeof Item.getDefaultArtwork>[0]
   ): ReturnType<typeof Item.getDefaultArtwork> {
-    const model: typeof foundry.abstract.DataModel<any, any> | undefined =
-      CONFIG.Item.dataModels[itemData?.type ?? "base"];
-    // @ts-expect-error This is fine
+    const model = CONFIG.Item.dataModels[itemData?.type ?? "base"] as unknown as
+      | typeof foundry.documents.BaseItem
+      | undefined;
     if (model?.getDefaultArtwork instanceof Function) return model.getDefaultArtwork(itemData);
-    // @ts-expect-error This is fine
     const img: string = model?.DEFAULT_ICON ?? this.DEFAULT_ICON;
     return { img };
   }
@@ -138,30 +64,27 @@ export class LancerItem extends Item {
    * Returns all ranges for the item that match the provided range types
    */
   rangesFor(types: Set<RangeType> | RangeType[]): RangeData[] {
-    const i = null as unknown as Item; // TODO remove
+    // TODO(LukeAbby): Ideally this wouldn't be required.
+    // The issue at hand is that `this` is generic-like and causing issues.
+    const self = this as Item.OfType<Item.SubType>;
 
     const filter = new Set(types);
-    switch (this.type) {
+    switch (self.type) {
       case EntryType.MECH_WEAPON:
-        // @ts-expect-error Should be fixed with v10 types
-        const p = this.system.selected_profile_index;
-        // @ts-expect-error Should be fixed with v10 types
-        return this.system.profiles[p].range.filter(r => filter.has(r.type));
+        const p = self.system.selected_profile_index;
+        return self.system.profiles[p].range.filter(r => filter.has(r.type));
       case EntryType.PILOT_WEAPON:
-        // @ts-expect-error Should be fixed with v10 types
-        return this.system.range.filter(r => filter.has(r.type));
+        return self.system.range.filter(r => filter.has(r.type));
       case EntryType.NPC_FEATURE:
-        // @ts-expect-error Should be fixed with v10 types
-        if (this.system.type !== NpcFeatureType.Weapon) return [];
-        // @ts-expect-error Should be fixed with v10 types
-        return this.system.range.filter(r => filter.has(r.type));
+        if (self.system.type !== NpcFeatureType.Weapon) return [];
+        return self.system.range.filter(r => filter.has(r.type));
       default:
         return [];
     }
   }
 
-  currentProfile(): { range: RangeData[]; damage?: DamageData[]; accuracy?: number; attack?: number } {
-    const result: { range: RangeData[]; damage?: DamageData[]; accuracy?: number; attack?: number } = {
+  currentProfile(): CurrentProfile {
+    const result: CurrentProfile = {
       range: [],
     };
     if (this.is_mech_weapon()) {
@@ -217,11 +140,9 @@ export class LancerItem extends Item {
       case EntryType.PILOT_GEAR:
       case EntryType.PILOT_ARMOR:
       case EntryType.PILOT_WEAPON:
-        // @ts-expect-error
         this.system.equipped = false;
         break;
       default:
-        // @ts-expect-error
         this.system.equipped = true;
         break;
     }
@@ -236,8 +157,7 @@ export class LancerItem extends Item {
   prepareBaseData() {
     super.prepareBaseData();
     // Some modules create items with type "base", or potentially others we don't care about
-    //@ts-expect-error V12 typing in progress
-    if (!ITEM_TYPES.includes(this.type)) return;
+    if (!(ITEM_TYPES as string[]).includes(this.type)) return;
 
     // Collect all tags on mech weapons
     if (this.is_mech_weapon()) {
@@ -360,7 +280,6 @@ export class LancerItem extends Item {
    * Want to preserve our arrays
    */
   async update(data: any, options = {}) {
-    // @ts-expect-error
     data = this.system.full_update_data(data);
     return super.update(data, options);
   }
@@ -451,7 +370,6 @@ export class LancerItem extends Item {
     if (data?._stats?.createdTime) return;
 
     // If base item has data, then we are probably importing. Skip 90% of our import procedures
-    // @ts-expect-error Should be fixed with v10 types
     if (data.system?.lid) {
       console.log(`${lp} New ${this.type} has data provided from an import, skipping default init.`);
       return;
@@ -706,7 +624,6 @@ export class LancerItem extends Item {
   async beginActivationFlow(path?: string) {
     if (!path) {
       // If no path is provided, default to the first action
-      // @ts-expect-error We know it doesn't exist on all types, that's why we're checking
       if (!this.system.actions || this.system.actions.length < 1) {
         ui.notifications!.error(`Item ${this.id} has no actions, how did you even get here?`);
         return;
@@ -789,24 +706,24 @@ export class LancerItem extends Item {
   }
 }
 
-export type LancerCORE_BONUS = LancerItem & { system: SystemData.CoreBonus };
-export type LancerFRAME = LancerItem & { system: SystemData.Frame };
-export type LancerLICENSE = LancerItem & { system: SystemData.License };
-export type LancerMECH_SYSTEM = LancerItem & { system: SystemData.MechSystem };
-export type LancerMECH_WEAPON = LancerItem & { system: SystemData.MechWeapon };
-export type LancerNPC_CLASS = LancerItem & { system: SystemData.NpcClass };
-export type LancerNPC_FEATURE = LancerItem & { system: SystemData.NpcFeature };
-export type LancerNPC_TEMPLATE = LancerItem & { system: SystemData.NpcTemplate };
-export type LancerORGANIZATION = LancerItem & { system: SystemData.Organization };
-export type LancerPILOT_ARMOR = LancerItem & { system: SystemData.PilotArmor };
-export type LancerPILOT_GEAR = LancerItem & { system: SystemData.PilotGear };
-export type LancerPILOT_WEAPON = LancerItem & { system: SystemData.PilotWeapon };
-export type LancerRESERVE = LancerItem & { system: SystemData.Reserve };
-export type LancerSKILL = LancerItem & { system: SystemData.Skill };
-export type LancerSTATUS = LancerItem & { system: SystemData.Status };
-export type LancerTALENT = LancerItem & { system: SystemData.Talent };
-export type LancerBOND = LancerItem & { system: SystemData.Bond };
-export type LancerWEAPON_MOD = LancerItem & { system: SystemData.WeaponMod };
+export type LancerCORE_BONUS = LancerItem<EntryType.CORE_BONUS>;
+export type LancerFRAME = LancerItem<EntryType.FRAME>;
+export type LancerLICENSE = LancerItem<EntryType.LICENSE>;
+export type LancerMECH_SYSTEM = LancerItem<EntryType.MECH_SYSTEM>;
+export type LancerMECH_WEAPON = LancerItem<EntryType.MECH_WEAPON>;
+export type LancerNPC_CLASS = LancerItem<EntryType.NPC_CLASS>;
+export type LancerNPC_FEATURE = LancerItem<EntryType.NPC_FEATURE>;
+export type LancerNPC_TEMPLATE = LancerItem<EntryType.NPC_TEMPLATE>;
+export type LancerORGANIZATION = LancerItem<EntryType.ORGANIZATION>;
+export type LancerPILOT_ARMOR = LancerItem<EntryType.PILOT_ARMOR>;
+export type LancerPILOT_GEAR = LancerItem<EntryType.PILOT_GEAR>;
+export type LancerPILOT_WEAPON = LancerItem<EntryType.PILOT_WEAPON>;
+export type LancerRESERVE = LancerItem<EntryType.RESERVE>;
+export type LancerSKILL = LancerItem<EntryType.SKILL>;
+export type LancerSTATUS = LancerItem<EntryType.STATUS>;
+export type LancerTALENT = LancerItem<EntryType.TALENT>;
+export type LancerBOND = LancerItem<EntryType.BOND>;
+export type LancerWEAPON_MOD = LancerItem<EntryType.WEAPON_MOD>;
 
 // This seems like it could be removed eventually
 export type LancerItemType =

@@ -1,0 +1,196 @@
+@layer lancer.components {
+  .labeled-input {
+    flex-grow: unset;
+  }
+
+  .labeled-input > span {
+    text-align: center;
+    color: var(--light-text);
+    background-color: var(--primary-color, fuchsia);
+    max-height: 1.5em;
+  }
+
+  .lancer .lancer-invisible-input {
+    background: transparent;
+    border: none;
+    color: inherit;
+    text-align: center;
+  }
+
+  // TODO: quite sure these should be cleaned up
+  /* Re-allow clicking in these damn things */
+  .lancer input,
+  .lancer .input,
+  .lancer textarea {
+    -webkit-user-select: auto;
+    -moz-user-select: auto;
+    -ms-user-select: auto;
+    user-select: auto;
+
+    /* Also make them not insist on being so obnoxiously large */
+    min-width: 30px;
+
+    color: var(--dark-text);
+  }
+
+  // TODO: quite sure this should be cleaned up
+  /* Some text area sizes */
+  .lancer textarea {
+    min-height: 200px;
+  }
+
+  .compact-stat {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 0 5px;
+    i {
+      display: flex;
+    }
+  }
+
+  .big-editor {
+    background-color: #dbdbdb;
+    min-height: 15em;
+    text-align: left;
+  }
+
+  .lancer-stat {
+    margin: 0em 0.2em;
+  }
+
+  .effect-stat,
+  input[type="number"].lancer-stat {
+    align-self: center;
+    text-align: center;
+    max-width: 40px;
+    min-width: 25px;
+  }
+
+  .lancer-input {
+    border-top: none;
+    border-right: none;
+    border-left: 2px solid var(--darken-2);
+    border-bottom: 1px solid var(--darken-2);
+    background-color: var(--darken-1);
+    transition: (filter, background) 0.2s ease-in;
+
+    &:hover {
+      background: var(--hover-bright);
+      filter: drop-shadow(0 0 5px var(--primary-highlight));
+    }
+  }
+
+  .lancer-text-field,
+  input[type="text"].lancer-input {
+    align-self: center;
+    text-align: left;
+    width: calc(100% - 20px);
+    margin: 5px;
+  }
+
+  .arrow-input-container {
+    align-self: center;
+    max-width: fit-content;
+    flex-wrap: nowrap;
+  }
+
+  .clicker-plus-button {
+    clip-path: polygon(75% 0%, 100% 50%, 75% 100%, 0% 100%, 20% 50%, 0% 0%);
+  }
+
+  .clicker-minus-button {
+    clip-path: polygon(100% 0%, 80% 50%, 100% 100%, 25% 100%, 0% 50%, 25% 0%);
+  }
+
+  /* Several of these styles require !important to override the standard button styling */
+  .clicker-minus-button,
+  .clicker-plus-button {
+    cursor: pointer;
+    width: 30px;
+    min-width: 30px;
+    height: 30px;
+    font-weight: bold;
+    background-color: var(--secondary-color) !important;
+    color: var(--secondary-text) !important;
+    /* The box shadow and border styling for buttons looks bad with the clip path */
+    box-shadow: none !important;
+    border: none !important;
+    /* Don't ask me why, but this aligns it vertically nicely */
+    line-height: 1px;
+
+    &:hover {
+      box-shadow: var(--hover-bright) !important;
+    }
+  }
+
+  input.core-power-toggle {
+    display: block;
+    width: 30px;
+    height: 30px;
+    -webkit-appearance: none;
+    appearance: textfield;
+    outline: 0;
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: contain;
+    font: normal normal normal 24px/1 "Material Design Icons";
+    -webkit-filter: none !important;
+    filter: none !important;
+  }
+
+  input.core-power-toggle:checked::before {
+    content: "\F0079";
+    color: green;
+  }
+  input.core-power-toggle:not(:checked)::before {
+    content: "\F007A";
+    color: grey;
+  }
+
+  .overcharge-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    align-items: center;
+
+    .lancer-flow-button {
+      justify-self: center;
+    }
+
+    .overcharge-text {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      line-height: 0.8em;
+    }
+  }
+
+  .uses-hex,
+  .power-uses-hex,
+  .counter-hex,
+  .loaded-hex,
+  .charged-hex {
+    cursor: pointer;
+    font-size: 2em;
+    color: var(--light-text);
+  }
+
+  .counter-hex[data-available="true"] {
+    color: var(--primary-color);
+    filter: brightness(1.25);
+  }
+
+  .lancer-hud-body input:not([type="checkbox"]),
+  .lancer-hud-body select {
+    border-top: none;
+    border-right: none;
+    border-left: 2px solid var(--darken-2);
+    border-bottom: 1px solid var(--darken-2);
+    transition: (filter, background) 0.2s ease-in;
+
+    &:hover {
+      background: var(--hover-bright);
+      filter: drop-shadow(0 0 5px var(--primary-highlight));
+    }
+  }
+}

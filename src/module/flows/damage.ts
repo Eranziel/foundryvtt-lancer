@@ -4,11 +4,11 @@ import { DamageHudData, HitQuality } from "../apps/damage";
 import { openSlidingHud } from "../apps/slidinghud";
 import { DamageType } from "../enums";
 import { LancerItem } from "../item/lancer-item";
-import { Damage, DamageData } from "../models/bits/damage";
-import { UUIDRef } from "../source-template";
+import { Damage, type DamageData } from "../models/bits/damage";
+import type { UUIDRef } from "../source-template";
 import { LancerToken, LancerTokenDocument } from "../token";
 import { renderTemplateStep } from "./_render";
-import { Flow, FlowState, Step } from "./flow";
+import { Flow, type FlowState, type Step } from "./flow";
 import { LancerFlowState } from "./interfaces";
 
 export type DamageFlag = {
@@ -202,8 +202,10 @@ async function showDamageHUD(state: FlowState<LancerFlowState.DamageRollData>): 
     if (state.data.reliable) {
       state.data.reliable_val = state.data.damage_hud_data.weapon?.reliableValue ?? 0;
     }
-  } catch (_e) {
-    // User hit cancel, abort the flow.
+  } catch (err) {
+    // Log any error
+    if (err) console.warn(err);
+    // User hit cancel or an error occurred, abort the flow.
     return false;
   }
   return true;
@@ -233,7 +235,6 @@ async function _rollDamage(
   }
 
   await damageRoll.evaluate();
-  // @ts-expect-error DSN options aren't typed
   damageRoll.dice.forEach(d => (d.options.rollOrder = 2));
   const tooltip = await damageRoll.getTooltip();
 
@@ -262,7 +263,7 @@ function _collectBonusDamage(state: FlowState<LancerFlowState.DamageRollData>): 
     type: DamageType;
     val: string;
     target?: LancerToken;
-  }[] = duplicate(state.data.bonus_damage);
+  }[] = foundry.utils.duplicate(state.data.bonus_damage);
   // Find all the target-specific bonus damage rolls and add them to the base rolls
   // so they can be rolled together.
   for (const hudTarget of state.data.damage_hud_data.targets) {
@@ -442,7 +443,6 @@ export async function rollCritDamage(state: FlowState<LancerFlowState.DamageRoll
           }
 
           const c_roll = await getCritRoll(result.roll);
-          // @ts-expect-error DSN options aren't typed
           c_roll.dice.forEach(d => (d.options.rollOrder = 2));
           const tt = await c_roll.getTooltip();
           return {
@@ -611,7 +611,6 @@ export async function getCritRoll(normal: Roll) {
     } else if (t instanceof foundry.dice.terms.OperatorTerm) {
       // As of v12, Roll.fromTerms throws an error if some terms are not evaluated already.
       // It's safe to mark OperatorTerms as evaluated, as they don't have any results.
-      // @ts-expect-error we must override this or Roll.fromTerms throws an error.
       t._evaluated = true;
       return t;
     } else {
@@ -663,7 +662,6 @@ export async function rollDamageCallback(event: JQuery.ClickEvent) {
   const hit_results: LancerFlowState.HitResult[] = [];
   for (const t of attackData.targets) {
     const target = (await fromUuid(t.uuid)) as LancerToken | null;
-    // @ts-expect-error v11 types
     if (!target || target.documentName !== "Token") {
       ui.notifications?.error("Invalid target for damage roll");
       continue;
@@ -672,7 +670,6 @@ export async function rollDamageCallback(event: JQuery.ClickEvent) {
     // Determine whether lock on was used
     let usedLockOn = false;
     if (t.setConditions) {
-      // @ts-expect-error v10 types
       usedLockOn = t.setConditions.lockOn === false ? true : false;
     }
 

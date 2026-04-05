@@ -1,35 +1,40 @@
-import type { DeepPartial } from "@league-of-foundry-developers/foundry-vtt-types/src/types/utils.mjs";
 import { EntryType, ReserveType } from "../../enums";
 import { restrict_enum } from "../../helpers/commons";
-import { SourceData } from "../../source-template";
-import { PackedReserveData } from "../../util/unpacking/packed-types";
+import type { BaseData } from "../../base-data";
+import type { PackedReserveData } from "../../util/unpacking/packed-types";
 import { unpackDeployable } from "../actors/deployable";
 import { unpackAction } from "../bits/action";
 import { unpackBonus } from "../bits/bonus";
 import { unpackCounter } from "../bits/counter";
 import { unpackSynergy } from "../bits/synergy";
-import { LancerDataModel, UnpackContext } from "../shared";
+import { LancerDataModel, type UnpackContext } from "../shared";
 import { template_bascdt, template_universal_item } from "./shared";
 
-const fields = foundry.data.fields;
+import fields = foundry.data.fields;
 
-export class ReserveModel extends LancerDataModel<DataSchema, Item> {
+const defineReserveModelSchema = () => {
+  return {
+    consumable: new fields.BooleanField(),
+    label: new fields.StringField(),
+    // resource_name, resource_note, and resource_cost are in the lancer-data spec but not used currently
+    // resource_name: new fields.StringField(),
+    // resource_note: new fields.StringField(),
+    // resource_cost: new fields.StringField(),
+    // type: new fields.StringField({ choices: Object.values(ReserveType), initial: ReserveType.Tactical }),
+    type: new fields.StringField({ initial: ReserveType.Tactical }), // ^ Strictness here isn't really super useful
+    used: new fields.BooleanField(),
+    description: new fields.HTMLField(),
+    ...template_universal_item(),
+    ...template_bascdt(),
+  };
+};
+
+type ReserveModelSchema = ReturnType<typeof defineReserveModelSchema>;
+
+export class ReserveModel extends LancerDataModel<ReserveModelSchema, Item.Implementation, BaseData.Reserve> {
   static DEFAULT_ICON = "systems/lancer/assets/icons/reserve_tac.svg";
   static defineSchema() {
-    return {
-      consumable: new fields.BooleanField(),
-      label: new fields.StringField(),
-      // resource_name, resource_note, and resource_cost are in the lancer-data spec but not used currently
-      // resource_name: new fields.StringField(),
-      // resource_note: new fields.StringField(),
-      // resource_cost: new fields.StringField(),
-      // type: new fields.StringField({ choices: Object.values(ReserveType), initial: ReserveType.Tactical }),
-      type: new fields.StringField({ initial: ReserveType.Tactical }), // ^ Strictness here isn't really super useful
-      used: new fields.BooleanField(),
-      description: new fields.HTMLField(),
-      ...template_universal_item(),
-      ...template_bascdt(),
-    };
+    return defineReserveModelSchema();
   }
 }
 
@@ -40,7 +45,8 @@ export function unpackReserve(
 ): {
   name: string;
   type: EntryType.RESERVE;
-  system: DeepPartial<SourceData.Reserve>;
+  // TODO(LukeAbby): Should specifically be reserve's `CreateData`.
+  system: Item.CreateData;
 } {
   return {
     name: data.name ?? data.label ?? "Unnamed Reserve",

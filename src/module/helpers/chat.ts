@@ -1,7 +1,7 @@
 import type { HelperOptions } from "handlebars";
 import { LancerFlowState } from "../flows/interfaces";
-import { DamageData } from "../models/bits/damage";
-import { RangeData } from "../models/bits/range";
+import type { DamageData } from "../models/bits/damage";
+import type { RangeData } from "../models/bits/range";
 import { lancerDiceRoll } from "./commons";
 
 export function miniProfile(
@@ -63,11 +63,11 @@ export function attackTarget(hit: LancerFlowState.HitResultWithRoll, options: He
   const hitChip = hit.crit
     ? `<span class="card clipped lancer-hit-chip crit">${game.i18n.format("lancer.chat-card.attack.crit")}</span>`
     : hit.hit
-    ? `<span class="card clipped lancer-hit-chip hit">${game.i18n.format("lancer.chat-card.attack.hit")}</span>`
-    : `<span class="card clipped lancer-hit-chip miss">${game.i18n.format("lancer.chat-card.attack.miss")}</span>`;
+      ? `<span class="card clipped lancer-hit-chip hit">${game.i18n.format("lancer.chat-card.attack.hit")}</span>`
+      : `<span class="card clipped lancer-hit-chip miss">${game.i18n.format("lancer.chat-card.attack.miss")}</span>`;
   const img = hit.target.actor?.img;
   const uuid = hit.target.document.uuid;
-  const icon = hit.crit ? "fas fa-explosion i--s" : hit.hit ? "fas fa-crosshairs i--s" : "mdi mdi-call-missed i--sm";
+  const icon = hit.crit ? "fas fa-explosion i--2" : hit.hit ? "fas fa-crosshairs i--2" : "mdi mdi-call-missed i--3";
   return `
     <div class="lancer-hit-target" data-uuid=${uuid}>
       <img class="lancer-hit-thumb" src="${img}" />
@@ -115,7 +115,7 @@ export function damageTarget(
       .map(d => d.d_type.toLowerCase())
   );
   const damageIcons = Array.from(damageTypes)
-    .map(d => `<i class="cci cci-${d} i--s damage--${d}"></i>`)
+    .map(d => `<i class="cci cci-${d} i--2 damage--${d}"></i>`)
     .join("");
 
   const bonusDamage: LancerFlowState.DamageResult[] = damageResults.filter(
@@ -127,7 +127,7 @@ export function damageTarget(
       `<div class="flexrow"><span class="lancer-damage-tag" style="flex-grow: 0" data-tooltip="This row is bonus damage">BONUS</span>${lancerDiceRoll(
         bd.roll,
         bd.tt as string,
-        `cci cci-${bd.d_type.toLowerCase()} damage--${bd.d_type.toLowerCase()} i--m`
+        `cci cci-${bd.d_type.toLowerCase()} damage--${bd.d_type.toLowerCase()} i--4`
       )}</div>`
   );
 
@@ -135,26 +135,26 @@ export function damageTarget(
   for (const [type, resist] of Object.entries(resists)) {
     if (resist) {
       damageTags.push(
-        `<span class="lancer-damage-tag" data-tooltip="Resist ${type.capitalize()}"><i class="mdi mdi-shield-half-full i--xs"></i></span>`
+        `<span class="lancer-damage-tag" data-tooltip="Resist ${type.capitalize()}"><i class="mdi mdi-shield-half-full i--1"></i></span>`
       );
     }
   }
   if (exposed) {
     damageTags.push(
-      `<span class="lancer-damage-tag" data-tooltip="Exposed"><i class="cci cci-status-exposed i--xs"></i></span>`
+      `<span class="lancer-damage-tag" data-tooltip="Exposed"><i class="cci cci-status-exposed i--1"></i></span>`
     );
   }
   if ((context.ap && !context.paracausal) || (target.ap && !(target.paracausal || context.paracausal)))
     damageTags.push(
-      `<span class="lancer-damage-tag" data-tooltip="Armor Piercing"><i class="mdi mdi-shield-off-outline i--xs"></i></span>`
+      `<span class="lancer-damage-tag" data-tooltip="Armor Piercing"><i class="mdi mdi-shield-off-outline i--1"></i></span>`
     );
   if (context.paracausal || target.paracausal)
     damageTags.push(
-      `<span class="lancer-damage-tag" data-tooltip="Cannot Be Reduced"><i class="cci cci-large-beam i--xs"></i></span>`
+      `<span class="lancer-damage-tag" data-tooltip="Cannot Be Reduced"><i class="cci cci-large-beam i--1"></i></span>`
     );
   if (context.half_damage || target.half_damage)
     damageTags.push(
-      `<span class="lancer-damage-tag" data-tooltip="Half Damage"><i class="mdi mdi-fraction-one-half i--xs"></i></span>`
+      `<span class="lancer-damage-tag" data-tooltip="Half Damage"><i class="mdi mdi-fraction-one-half i--1"></i></span>`
     );
   const damageTagsDisplay = damageTags.length ? `<div class="lancer-damage-tags">${damageTags.join("")}</div>` : "";
   const img = target.target.actor?.img;

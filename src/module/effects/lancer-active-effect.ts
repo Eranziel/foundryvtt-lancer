@@ -1,9 +1,7 @@
-import type { EffectChangeData } from "@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/documents/_types.mjs";
 import { LancerActor } from "../actor/lancer-actor";
 import { LANCER } from "../config";
 import { DeployableType, EntryType } from "../enums";
-import { LancerItem, LancerSTATUS } from "../item/lancer-item";
-import { StatusIconConfigOptions } from "../settings";
+import { LancerItem, type LancerSTATUS } from "../item/lancer-item";
 import {
   baselineStatuses,
   cancerConditionsStatus,
@@ -29,7 +27,15 @@ export type LancerEffectTarget =
   | "only_deployable"
   | "mech_and_npc";
 
-export class LancerActiveEffect extends ActiveEffect {
+interface StatusEffect {
+  id: string;
+  name: string;
+  img: string;
+}
+
+export class LancerActiveEffect<
+  SubType extends ActiveEffect.SubType = ActiveEffect.SubType,
+> extends ActiveEffect<SubType> {
   /**
    * Determine whether this Active Effect is suppressed or not.
    */
@@ -154,10 +160,8 @@ export class LancerActiveEffect extends ActiveEffect {
      * @returns The statuses set with the icons swapped, and any missing statuses added.
      */
     function _backfillIcons(
-      // @ts-expect-error v10 types
       statuses: StatusEffect[],
       newStatuses: { id: string; name: string; img: string }[]
-      // @ts-expect-error v10 types
     ): StatusEffect[] {
       for (let icon of newStatuses) {
         let status = statuses.find(s => s.id === icon.id);
@@ -172,7 +176,6 @@ export class LancerActiveEffect extends ActiveEffect {
       return statuses;
     }
 
-    // @ts-expect-error v10 types
     let configStatuses: StatusEffect[] = [];
     // Pull the default statuses from the compendium if it exists
     if (statusIconConfig.defaultConditionsStatus) {
@@ -208,9 +211,7 @@ export class LancerActiveEffect extends ActiveEffect {
     // Use downandout to mark units as defeated
     CONFIG.specialStatusEffects.DEFEATED = "downandout";
     // Disable the vision mechanics Foundry applies to certain status names
-    // @ts-expect-error null to disable is valid
     CONFIG.specialStatusEffects.INVISIBLE = null;
-    // @ts-expect-error null to disable is valid
     CONFIG.specialStatusEffects.BLIND = null;
 
     Hooks.callAll("lancer.statusInitComplete");
@@ -254,21 +255,17 @@ export class LancerActiveEffect extends ActiveEffect {
       if (!existingStatus) {
         const effects = [...status.effects];
         const changes = effects.reduce((all, e) => {
-          // @ts-expect-error TS is dumb about reduce
           return all.concat(e.changes || []);
         }, []);
         CONFIG.statusEffects.push({
           id: status.system.lid,
           name: status.name,
-          // @ts-expect-error v12 property renamed
           img: status.img,
           description: status.system.effects,
           changes,
         });
       } else {
-        // @ts-expect-error v12 property renamed
         existingStatus.img = existingStatus.img || existingStatus.icon;
-        // @ts-expect-error v12 property renamed
         existingStatus.img = overwrite ? status.img || existingStatus.img : existingStatus.img || status.img;
         existingStatus.name = overwrite ? status.name || existingStatus.name : existingStatus.name || status.name;
         if (status.system.effects) {
@@ -279,7 +276,6 @@ export class LancerActiveEffect extends ActiveEffect {
           const changes = existingStatus.changes || [];
           status.effects.forEach(e => {
             if (e.changes && e.changes.length > 0) {
-              // @ts-expect-error ??
               changes.push(...e.changes);
             }
           });
@@ -289,7 +285,6 @@ export class LancerActiveEffect extends ActiveEffect {
         else if (!existingStatus.changes && status.effects.size) {
           const effects = [...status.effects];
           const changes = effects.reduce((all, e) => {
-            // @ts-expect-error TS is dumb about reduce
             return all.concat(e.changes || []);
           }, []);
           existingStatus.changes = changes;
@@ -300,35 +295,39 @@ export class LancerActiveEffect extends ActiveEffect {
 }
 
 // To support more effects, we add several effect types.
-export const AE_MODE_SET_JSON = 11 as any;
-export const AE_MODE_APPEND_JSON = 12 as any;
+export const AE_MODE_SET_JSON = 11 as CONST.ACTIVE_EFFECT_MODES;
+export const AE_MODE_APPEND_JSON = 12 as CONST.ACTIVE_EFFECT_MODES;
+
 const _json_cache = {} as Record<string, any>;
-Hooks.on(
-  "applyActiveEffect",
-  function (actor: LancerActor, change: EffectChangeData, _current: any, _delta: any, _changes: any) {
-    if (change.mode == AE_MODE_SET_JSON || change.mode == AE_MODE_APPEND_JSON) {
-      try {
-        let parsed_delta = _json_cache[change.value] ?? JSON.parse(change.value);
-        _json_cache[change.value] = parsed_delta;
-        // Ok, now set it to wherever it was labeled
-        if (change.mode == AE_MODE_SET_JSON) {
-          foundry.utils.setProperty(actor, change.key, parsed_delta);
-        } else if (change.mode == AE_MODE_APPEND_JSON) {
-          foundry.utils.getProperty(actor, change.key).push(parsed_delta);
-        }
-      } catch (e) {
-        // Nothing to do really, except log it
-        console.warn(e);
-        console.warn(`JSON effect parse failed, ${change.value}`);
+Hooks.on("applyActiveEffect", function (actor, change) {
+  if (change.mode == AE_MODE_SET_JSON || change.mode == AE_MODE_APPEND_JSON) {
+    try {
+      let parsed_delta = _json_cache[change.value] ?? JSON.parse(change.value);
+      _json_cache[change.value] = parsed_delta;
+      // Ok, now set it to wherever it was labeled
+      if (change.mode == AE_MODE_SET_JSON) {
+        foundry.utils.setProperty(actor, change.key, parsed_delta);
+      } else if (change.mode == AE_MODE_APPEND_JSON) {
+        const items = foundry.utils.getProperty(actor, change.key) as unknown[];
+        items.push(parsed_delta);
       }
+    } catch (e) {
+      // Nothing to do really, except log it
+      console.warn(e);
+      console.warn(`JSON effect parse failed, ${change.value}`);
     }
   }
-);
+});
 
-declare global {
+declare module "fvtt-types/configuration" {
   interface DocumentClassConfig {
-    ActiveEffect: typeof LancerActiveEffect;
+    ActiveEffect: typeof LancerActiveEffect<ActiveEffect.SubType>;
   }
+
+  interface ConfiguredActiveEffect<SubType extends ActiveEffect.SubType> {
+    document: LancerActiveEffect<SubType>;
+  }
+
   interface FlagConfig {
     ActiveEffect: {
       lancer: {

@@ -2,9 +2,9 @@
 import { LancerActor } from "../actor/lancer-actor";
 import { LANCER } from "../config";
 import { LancerItem } from "../item/lancer-item";
-import { UUIDRef } from "../source-template";
+import type { UUIDRef } from "../source-template";
 import { renderTemplateStep } from "./_render";
-import { Flow, FlowState } from "./flow";
+import { Flow, type FlowState } from "./flow";
 import { LancerFlowState } from "./interfaces";
 
 export function registerOverchargeSteps(flowSteps: Map<string, any>) {

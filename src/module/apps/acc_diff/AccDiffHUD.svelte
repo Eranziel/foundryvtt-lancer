@@ -1,7 +1,7 @@
 <svelte:options accessors={true} />
 
 <script lang="ts">
-  import { AccDiffHudWeapon, AccDiffHudBase, AccDiffHudTarget, AccDiffHudPluginData } from "./index";
+  import { AccDiffHudWeapon, AccDiffHudBase, AccDiffHudTarget } from "./index";
 
   import { slide } from "svelte/transition";
   import { flip } from "svelte/animate";
@@ -21,7 +21,7 @@
   import HudCheckbox from "../components/HudCheckbox.svelte";
   import { LancerToken } from "../../token";
   import AccDiffInput from "./AccDiffInput.svelte";
-  import { SystemTemplates } from "../../system-template";
+  import type { SystemTemplates } from "../../system-template";
 
   export let weapon: AccDiffHudWeapon;
   export let base: AccDiffHudBase;
@@ -213,12 +213,12 @@
     <div class="lancer-header {isTech() ? 'lancer-tech' : 'lancer-weapon'} medium">
       {#if kind == "attack"}
         {#if isTech()}
-          <i class="cci cci-tech-quick i--m i--light" />
+          <i class="cci cci-tech-quick i--4 i--light" />
         {:else}
-          <i class="cci cci-weapon i--m i--light" />
+          <i class="cci cci-weapon i--4 i--light" />
         {/if}
       {:else if kind == "hase"}
-        <i class="fas fa-dice-d20 i--m i--light" />
+        <i class="fas fa-dice-d20 i--4 i--light" />
       {/if}
       <span>{title}{rollerName}</span>
     </div>
@@ -226,7 +226,7 @@
   {#if profile}
     <MiniProfile {profile} />
   {/if}
-  <div id="{kind}-accdiff-dialog" style="padding:0.3em">
+  <div id="{kind}-accdiff-dialog" class="lancer-hud-body">
     <!-- Flat attack bonus -->
     {#if isAttack()}
       <label class="flexrow accdiff-weight lancer-border-primary" for="accdiff-flat-bonus"> Flat Modifier </label>
@@ -234,15 +234,15 @@
         <div class="accdiff-other-grid">
           <span><b>{gritLabel()}:</b> {flatSign(base.grit)}{base.grit}</span>
         </div>
-        <div class="accdiff-other-grid accdiff-flat-mod" style="position: relative;">
+        <div class="accdiff-other-grid accdiff-flat-mod" style="position: relative">
           <!-- <PlusMinusInput bind:value={base.flatBonus} id="accdiff-flat-mod" /> -->
           <input class="accdiff-flat-mod__input" type="number" bind:value={base.flatBonus} />
-          <button class="accdiff-flat-mod__plus" type="button" on:click={() => (base.flatBonus = base.flatBonus + 1)}
-            ><i class="fas fa-plus" /></button
-          >
-          <button class="accdiff-flat-mod__minus" type="button" on:click={() => (base.flatBonus = base.flatBonus - 1)}
-            ><i class="fas fa-minus" /></button
-          >
+          <button class="accdiff-flat-mod__plus" type="button" on:click={() => (base.flatBonus = base.flatBonus + 1)}>
+            <i class="fas fa-plus" />
+          </button>
+          <button class="accdiff-flat-mod__minus" type="button" on:click={() => (base.flatBonus = base.flatBonus - 1)}>
+            <i class="fas fa-minus" />
+          </button>
         </div>
         <div class="accdiff-other-grid">
           <span><b>Total:</b> {flatSign(flatTotal)}{flatTotal}</span>
@@ -254,14 +254,14 @@
       <!-- Column Headers -->
       <div class="accdiff-grid__column">
         <h4 class="lancer-border-primary">
-          <i class="cci cci-accuracy i--m" style="vertical-align:middle;border:none" />
-          <strong>Accuracy</strong>
+          <i class="cci cci-accuracy i--4" style="vertical-align: middle; border: none" />
+          <span>Accuracy</span>
         </h4>
       </div>
       <div class="accdiff-grid__column">
         <h4 class="lancer-border-primary">
-          <i class="cci cci-difficulty i--m" style="vertical-align:middle;border:none" />
-          <strong>Difficulty</strong>
+          <i class="cci cci-difficulty i--4" style="vertical-align: middle; border: none" />
+          <span>Difficulty</span>
         </h4>
       </div>
     </div>
@@ -292,14 +292,14 @@
     </div>
 
     {#if kind == "attack" && (Object.values(weapon.plugins).length > 0 || targets.length == 1)}
-      <div transition:slide class="accdiff-grid accdiff-grid__section" style="width:100%;">
+      <div transition:slide|global class="accdiff-grid accdiff-grid__section" style="width: 100%">
         <!-- Target-related Accuracy -->
         <div class="accdiff-grid__column">
           {#if targets.length == 1}
-            <HudCheckbox style="grid-area: prone;" label="Prone (+1)" bind:value={targets[0].prone} disabled />
+            <HudCheckbox style="grid-area: prone" label="Prone (+1)" bind:value={targets[0].prone} disabled />
             <HudCheckbox label="Stunned (EVA=5)" bind:value={targets[0].stunned} disabled />
             <HudCheckbox
-              style="grid-area: lock-on;"
+              style="grid-area: lock-on"
               label="Lock On (+1)"
               checked={!!targets[0].usingLockOn}
               bind:value={targets[0].consumeLockOn}
@@ -320,14 +320,14 @@
           {#if !isTech()}
             <div class="grid-enforcement">
               {#if targets.length == 0}
-                <div transition:slide|local>
+                <div transition:slide>
                   <Cover bind:cover={base.cover} class="accdiff-base-cover flexcol" disabled={weapon.seeking} />
                 </div>
               {:else if targets.length == 1}
                 <div
-                  transition:slide|local
-                  on:mouseenter={ev => targetHoverIn(ev, targets[0].target)}
-                  on:mouseleave={ev => targetHoverOut(ev, targets[0].target)}
+                  transition:slide
+                  on:mouseenter={ev => targetHoverIn(ev, targets[0].token)}
+                  on:mouseleave={ev => targetHoverOut(ev, targets[0].token)}
                 >
                   <Cover bind:cover={targets[0].cover} class="accdiff-base-cover flexcol" disabled={weapon.seeking} />
                 </div>
@@ -340,7 +340,7 @@
 
     <!-- Total accuracy / Targets -->
     <div class="flexcol accdiff-grid">
-      <div class="flexrow accdiff-grid__section" style="justify-content: space-evenly;">
+      <div class="flexrow accdiff-grid__section" style="justify-content: space-evenly">
         <AccDiffInput bind:value={base.accuracy} id="accdiff-manual-adjust" />
       </div>
       {#if ranges && ranges.length > 0}
@@ -349,7 +349,7 @@
           <div class="accdiff-ranges flexrow">
             {#each ranges as range}
               <button class="range-button" type="button" on:click={() => deployTemplate(range)}>
-                <i class="cci cci-{range.type.toLowerCase()} i--m i--light" />
+                <i class="cci cci-{range.type.toLowerCase()} i--4 i--light" />
                 {ranges.length && ranges.length < 3 ? range.type.toUpperCase() : ""}
                 {range.val}
               </button>
@@ -363,13 +363,15 @@
         {#if targets.length < 2}
           {#key targets.length}
             <div class="flexrow flex-center">
-              <label transition:slide class="accdiff-weight total-label lancer-mini-header" for="total-display-0">
-                🞂 <span
-                  >Total
+              <label
+                transition:slide|global
+                class="accdiff-weight total-label lancer-mini-header"
+                for="total-display-0"
+              >
+                🞂 <span>Total
                   {#if targets.length > 0}
-                    vs {targets[0].target.name}
-                  {/if}</span
-                > 🞀
+                    vs {targets[0].token.name}
+                  {/if}</span> 🞀
               </label>
             </div>
           {/key}
@@ -382,24 +384,24 @@
           {:else if targets.length == 1}
             <div
               class="flexrow flex-center accdiff-total"
-              on:mouseenter={ev => targetHoverIn(ev, targets[0].target)}
-              on:mouseleave={ev => targetHoverOut(ev, targets[0].target)}
+              on:mouseenter={ev => targetHoverIn(ev, targets[0].token)}
+              on:mouseleave={ev => targetHoverOut(ev, targets[0].token)}
             >
               <Total bind:target={targets[0]} id="total-display-0" onlyTarget={true} />
             </div>
           {:else}
             <div class="accdiff-weight accdiff-target-row">
-              {#each targets as data, i (data.target.id)}
+              {#each targets as data, i (data.token.id)}
                 <div
-                  in:slide={{ delay: 100, duration: 300 }}
-                  out:slide={{ duration: 100 }}
+                  in:slide|global={{ delay: 100, duration: 300 }}
+                  out:slide|global={{ duration: 100 }}
                   animate:flip={{ duration: 200 }}
                   class="flexcol card accdiff-target"
-                  on:mouseenter={ev => targetHoverIn(ev, data.target)}
-                  on:mouseleave={ev => targetHoverOut(ev, data.target)}
+                  on:mouseenter={ev => targetHoverIn(ev, data.token)}
+                  on:mouseleave={ev => targetHoverOut(ev, data.token)}
                 >
-                  <label class="target-name flexrow lancer-mini-header" for={data.target.id}>
-                    🞂<span>{data.target.document.name}</span>🞀
+                  <label class="target-name flexrow lancer-mini-header" for={data.token.id}>
+                    🞂<span>{data.token.document.name}</span>🞀
                   </label>
                   <div class="accdiff-target-body">
                     <div class="flexrow accdiff-total">
@@ -407,11 +409,11 @@
                     </div>
                     <div class="flexrow">
                       <button
-                        class="i--m no-grow accdiff-button"
+                        class="i--4 no-grow accdiff-button"
                         type="button"
                         on:click={() => (data.accuracy = data.accuracy + 1)}
                       >
-                        <i class="cci cci-accuracy i--m" style="border:none" />
+                        <i class="cci cci-accuracy i--4" style="border: none" />
                       </button>
                       <input style="display: none" type="number" bind:value={data.accuracy} min="0" />
                       {#if !isTech()}
@@ -419,18 +421,18 @@
                           bind:cover={data.cover}
                           disabled={weapon.seeking}
                           class="accdiff-targeted-cover flexrow flex-center"
-                          labelClass="i--s"
+                          labelClass="i--2"
                         />
                       {:else}
                         <div />
                       {/if}
                       <input style="display: none" type="number" bind:value={data.difficulty} min="0" />
                       <button
-                        class="i--m no-grow accdiff-button"
+                        class="i--4 no-grow accdiff-button"
                         type="button"
                         on:click={() => (data.difficulty = data.difficulty + 1)}
                       >
-                        <i class="cci cci-difficulty i--m" style="border:none" />
+                        <i class="cci cci-difficulty i--4" style="border: none" />
                       </button>
                     </div>
                   </div>
@@ -442,7 +444,7 @@
       </div>
     </div>
   </div>
-  <div class="dialog-buttons flexrow">
+  <div class="lancer-hud-buttons flexrow">
     <button
       class="lancer-button lancer-secondary dialog-button submit default"
       data-button="submit"
@@ -468,232 +470,237 @@
 </form>
 
 <style lang="scss">
-  #accdiff :global(.accdiff-grid) {
-    display: flex;
-    justify-content: space-between;
-  }
-
-  .accdiff-flat-bonus {
-    padding-bottom: 0.3em;
-    border-bottom: 1px solid var(--primary-color);
-  }
-
-  .accdiff-flat-mod {
-    // text-align: center;
-    width: 100%;
-    height: 1.8em;
-    border: 1px solid var(--color-border-light-tertiary);
-    border-radius: 3px;
-    background: rgba(0, 0, 0, 0.05);
-    padding: 0;
-    display: flex;
-    flex-direction: row;
-
-    & .accdiff-flat-mod__input {
-      flex-grow: 2;
-      height: 1.35em;
-      border: none;
-      background: transparent;
-      text-align: center;
-      padding: 0;
-      margin: 0;
-      color: var(--color-text-dark-primary);
-    }
-  }
-
-  .accdiff-flat-mod__plus,
-  .accdiff-flat-mod__minus {
-    // position: absolute;
-    width: 1.75em;
-    height: 1.35em;
-    border: none;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-right: 0.15em;
-    margin-bottom: 0.1em;
-
-    & i {
-      margin: 0;
-    }
-  }
-
-  .accdiff-other-grid {
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-
-    & + .accdiff-other-grid {
-      margin-left: 0.5em;
-    }
-  }
-  :global(.accdiff-weight) {
-    justify-content: center;
-    font-weight: bold;
-  }
-  .accdiff-footer {
-    padding-top: 0.3em;
-    padding-bottom: 0.3em;
-    border-top-width: 1px;
-    border-top-style: solid;
-  }
-
-  .accdiff-grid {
-    h4 {
-      border: none;
-      margin-bottom: 0;
-    }
-
-    &__section {
-      padding: 0.3em 0;
-      border-top: 1px solid var(--primary-color);
-    }
-
-    &__column {
-      width: 100%;
-      min-width: 160px;
-      padding-left: 1em;
-
-      &:has(.container) {
-        // Indent checkbox containers slightly more
-        padding-left: 1.3em;
+  @layer lancer {
+    @layer applications {
+      #accdiff :global(.accdiff-grid) {
+        display: flex;
+        justify-content: space-between;
       }
 
-      &:has(+ .accdiff-grid__column) {
-        border-right: 1px dashed var(--primary-color);
+      .accdiff-flat-bonus {
+        padding-bottom: 0.3em;
+        border-bottom: 1px solid var(--primary-color);
       }
-    }
-  }
 
-  .accdiff-grid :global(.accdiff-base-cover) {
-    margin-top: 0.5em;
-    font-size: 0.85em;
-    cursor: pointer;
-  }
-  .accdiff-grid :global(.accdiff-base-cover i) {
-    vertical-align: middle;
-  }
-
-  .accdiff-grid :global(.accdiff-base-cover span) {
-    vertical-align: middle;
-  }
-
-  .accdiff-footer :global(.accdiff-targeted-cover span) {
-    opacity: 0;
-    position: fixed;
-    width: 0;
-    visibility: hidden;
-  }
-  .accdiff-footer :global(.accdiff-targeted-cover i) {
-    font-size: 16px;
-    vertical-align: top;
-  }
-
-  .accdiff-ranges {
-    justify-content: space-evenly;
-    .range-button {
-      cursor: pointer;
-      box-shadow: var(--button-shadow);
-      border: none;
-      flex: 1 0;
-      margin-left: 0.25em;
-      margin-right: 0.25em;
-      margin-top: 0.25em;
-      margin-bottom: 0.25em;
-      padding: 0;
-      max-width: 10em;
-      background-color: var(--primary-color);
-      color: var(--light-text);
-
-      &:hover,
-      &:focus {
-        box-shadow: var(--button-shadow);
-      }
-      &:hover {
-        background-color: var(--secondary-color);
-      }
-      &:active {
-        transform: translateX(2px) translateY(2px);
-        box-shadow: -1px -1px 1px 0.6px rgba(0, 0, 0, 0.7);
-      }
-      & i {
-        margin: 2px;
+      .accdiff-flat-mod {
+        // text-align: center;
+        width: 100%;
+        height: 1.8em;
+        border: 1px solid var(--color-border-light-tertiary);
+        border-radius: 3px;
+        background: rgba(0, 0, 0, 0.05);
         padding: 0;
+        display: flex;
+        flex-direction: row;
+
+        & .accdiff-flat-mod__input {
+          flex-grow: 2;
+          height: 1.35em;
+          border: none;
+          background: transparent;
+          text-align: center;
+          padding: 0;
+          margin: 0;
+          color: var(--color-text-dark-primary);
+        }
       }
-    }
-  }
 
-  /* there's a very specific EMU rule that adds some margin here
-     because it assumes all icons in buttons are followed by text, I think */
-  #accdiff .accdiff-target-row button > i,
-  #accdiff .mech-weapon button > i {
-    margin-inline-end: 0;
-  }
+      .accdiff-flat-mod__plus,
+      .accdiff-flat-mod__minus {
+        // position: absolute;
+        width: 1.75em;
+        height: 1.35em;
+        border: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 0.15em;
+        margin-bottom: 0.1em;
 
-  .accdiff-target-row {
-    display: grid;
-    grid-template-columns: auto auto auto;
-    grid-row-gap: 1em;
-    max-height: 320px;
-    overflow-y: scroll;
-  }
+        & i {
+          margin: 0;
+        }
+      }
 
-  .accdiff-target {
-    box-shadow: 1px 1px 2px;
-    max-width: 12em;
+      .accdiff-other-grid {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
 
-    .target-name {
-      justify-content: center;
-      padding: 0em 0.2em;
-    }
+        & + .accdiff-other-grid {
+          margin-left: 0.5em;
+        }
+      }
+      :global(.accdiff-weight) {
+        justify-content: center;
+        font-weight: bold;
+      }
+      .accdiff-footer {
+        padding-top: 0.3em;
+        padding-bottom: 0.3em;
+        border-top-width: 1px;
+        border-top-style: solid;
+      }
 
-    .accdiff-target-body {
-      padding: 0.2em;
-    }
-  }
+      .accdiff-grid {
+        h4 {
+          border: none;
+          margin-bottom: 0;
+          font-size: 1rem;
+        }
 
-  .accdiff-total {
-    flex-wrap: nowrap;
-    padding: 0.3em 0.7em 0.3em 0.7em;
-  }
+        &__section {
+          padding: 0.3em 0;
+          border-top: 1px solid var(--primary-color);
+        }
 
-  .total-label {
-    white-space: nowrap;
-    min-width: 16em;
-    max-width: 16em;
-    width: 16em;
-    padding: 0 0.2em;
-    justify-self: center;
-    text-align: center;
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
+        &__column {
+          width: 100%;
+          min-width: 160px;
+          padding-left: 1em;
 
-    span {
-      text-wrap: wrap;
-    }
-  }
+          &:has(.container) {
+            // Indent checkbox containers slightly more
+            padding-left: 1.3em;
+          }
 
-  #accdiff button {
-    transition: 100ms cubic-bezier(0.075, 0.82, 0.165, 1);
-  }
+          &:has(+ .accdiff-grid__column) {
+            border-right: 1px dashed var(--primary-color);
+          }
+        }
+      }
 
-  .accdiff-target-row {
-    .accdiff-button {
-      cursor: pointer;
-      align-items: center;
-      display: inline-flex;
-      justify-content: center;
-      margin: 0;
-    }
-  }
+      .accdiff-grid :global(.accdiff-base-cover) {
+        margin-top: 0.5em;
+        font-size: 0.85em;
+        cursor: pointer;
+      }
+      .accdiff-grid :global(.accdiff-base-cover i) {
+        vertical-align: middle;
+      }
 
-  #accdiff .lancer-weapon {
-    span {
-      margin-right: 1em;
-      margin-left: 1em;
+      .accdiff-grid :global(.accdiff-base-cover span) {
+        vertical-align: middle;
+      }
+
+      .accdiff-footer :global(.accdiff-targeted-cover span) {
+        opacity: 0;
+        position: fixed;
+        width: 0;
+        visibility: hidden;
+      }
+      .accdiff-footer :global(.accdiff-targeted-cover i) {
+        font-size: 16px;
+        vertical-align: top;
+      }
+
+      .accdiff-ranges {
+        justify-content: space-evenly;
+        .range-button {
+          cursor: pointer;
+          box-shadow: var(--button-shadow);
+          border: none;
+          flex: 1 0;
+          margin-left: 0.25em;
+          margin-right: 0.25em;
+          margin-top: 0.25em;
+          margin-bottom: 0.25em;
+          padding: 0;
+          max-width: 10em;
+          background-color: var(--primary-color);
+          color: var(--light-text);
+
+          &:hover,
+          &:focus {
+            box-shadow: var(--button-shadow);
+          }
+          &:hover {
+            background-color: var(--secondary-color);
+          }
+          &:active {
+            transform: translateX(2px) translateY(2px);
+            box-shadow: -1px -1px 1px 0.6px rgba(0, 0, 0, 0.7);
+          }
+          & i {
+            margin: 2px;
+            padding: 0;
+          }
+        }
+      }
+
+      /* there's a very specific EMU rule that adds some margin here
+      because it assumes all icons in buttons are followed by text, I think */
+      #accdiff .accdiff-target-row button > i,
+      #accdiff .mech-weapon button > i {
+        margin-inline-end: 0;
+      }
+
+      .accdiff-target-row {
+        display: grid;
+        grid-template-columns: auto auto auto;
+        grid-row-gap: 1em;
+        max-height: 320px;
+        overflow-y: scroll;
+      }
+
+      .accdiff-target {
+        box-shadow: 1px 1px 2px var(--darken-5);
+        max-width: 12em;
+
+        .target-name {
+          justify-content: center;
+          padding: 0em 0.2em;
+        }
+
+        .accdiff-target-body {
+          padding: 0.2em;
+        }
+      }
+
+      .accdiff-total {
+        flex-wrap: nowrap;
+        padding: 0.3em 0.7em 0.3em 0.7em;
+      }
+
+      .total-label {
+        white-space: nowrap;
+        min-width: 16em;
+        max-width: 16em;
+        width: 16em;
+        padding: 0 0.2em;
+        justify-self: center;
+        text-align: center;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+
+        span {
+          text-wrap: wrap;
+        }
+      }
+
+      #accdiff button {
+        transition: 100ms cubic-bezier(0.075, 0.82, 0.165, 1);
+      }
+
+      .accdiff-target-row {
+        .accdiff-button {
+          cursor: pointer;
+          align-items: center;
+          display: inline-flex;
+          justify-content: center;
+          margin: 0;
+        }
+      }
+
+      #accdiff .lancer-weapon {
+        span {
+          margin-right: 1em;
+          margin-left: 1em;
+        }
+      }
     }
   }
 </style>

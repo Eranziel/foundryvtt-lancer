@@ -1,30 +1,27 @@
 import { template_heat, template_statuses, template_universal_actor } from "./shared";
 
-import type { DeepPartial } from "@league-of-foundry-developers/foundry-vtt-types/src/types/utils.mjs";
+import type { DeepPartial } from "fvtt-types/utils";
 import { ActivationType, DeployableType, EntryType } from "../../enums";
 import { restrict_enum } from "../../helpers/commons";
-import { SourceData } from "../../source-template";
+import type { SourceData } from "../../source-template";
+import type { BaseData } from "../../base-data";
 import { slugify } from "../../util/lid";
 import { fixCCFormula } from "../../util/misc";
-import { PackedDeployableData } from "../../util/unpacking/packed-types";
+import type { PackedDeployableData } from "../../util/unpacking/packed-types";
 import { ActionField, unpackAction } from "../bits/action";
 import { unpackBonus } from "../bits/bonus";
 import { CounterField, unpackCounter } from "../bits/counter";
 import { SynergyField, unpackSynergy } from "../bits/synergy";
 import { TagField, unpackTag } from "../bits/tag";
-import { LancerDataModel, SyncUUIDRefField, UnpackContext } from "../shared";
+import { LancerDataModel, SyncUUIDRefField, type UnpackContext } from "../shared";
 
-const fields = foundry.data.fields;
+import fields = foundry.data.fields;
 
-const deployable_schema = {
-  // @ts-expect-error
+const defineDeployableSchema = () => ({
   actions: new fields.ArrayField(new ActionField()),
   // bonuses: new fields.ArrayField(new BonusField()),
-  // @ts-expect-error
   counters: new fields.ArrayField(new CounterField()),
-  // @ts-expect-error
   synergies: new fields.ArrayField(new SynergyField()),
-  // @ts-expect-error
   tags: new fields.ArrayField(new TagField()),
   activation: new fields.StringField({ choices: Object.values(ActivationType), initial: ActivationType.Quick }),
   stats: new fields.SchemaField({
@@ -56,13 +53,13 @@ const deployable_schema = {
   ...template_universal_actor(),
   ...template_heat(),
   ...template_statuses(),
-};
+});
 
-type DeployableSchema = typeof deployable_schema;
-export class DeployableModel extends LancerDataModel<DataSchema, Actor> {
+type DeployableSchema = ReturnType<typeof defineDeployableSchema>;
+export class DeployableModel extends LancerDataModel<DeployableSchema, Actor.Implementation, BaseData.Deployable> {
   static DEFAULT_ICON = "systems/lancer/assets/icons/deployable.svg";
   static defineSchema(): DeployableSchema {
-    return deployable_schema;
+    return defineDeployableSchema();
   }
 
   static migrateData(data: any) {

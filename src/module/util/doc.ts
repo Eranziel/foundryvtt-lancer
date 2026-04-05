@@ -1,13 +1,12 @@
 import {
   is_actor_type,
   LancerActor,
-  LancerActorType,
-  LancerDEPLOYABLE,
-  LancerMECH,
-  LancerNPC,
-  LancerPILOT,
+  type LancerActorType,
+  type LancerDEPLOYABLE,
+  type LancerMECH,
+  type LancerNPC,
+  type LancerPILOT,
 } from "../actor/lancer-actor";
-import { friendly_entrytype_name } from "../config";
 import { EntryType } from "../enums";
 import type {
   LancerBOND,
@@ -31,12 +30,14 @@ import type {
   LancerTALENT,
   LancerWEAPON_MOD,
 } from "../item/lancer-item";
-import { SystemTemplates } from "../system-template";
+import type { SystemTemplates } from "../system-template";
 import { fromLid, fromLidMany } from "../helpers/from-lid";
 import { lookupOwnedDeployables } from "./lid";
 import { maybeImportActor } from "./requests";
 
 const PACK_SCOPE = "world";
+
+import CompendiumCollection = foundry.documents.collections.CompendiumCollection;
 
 // Sort items. Moves moverand to dest, either before or after depending on third arg
 export async function resort_item(moverand: LancerItem, dest: LancerItem, sort_before = true) {
@@ -47,7 +48,7 @@ export async function resort_item(moverand: LancerItem, dest: LancerItem, sort_b
   }
 
   // Ok, now get siblings
-  let siblings: LancerItem[] = dest.collection.contents;
+  let siblings = dest.collection?.contents ?? [];
   siblings = siblings.filter(s => s.id != moverand.id);
 
   // Now resort
@@ -62,7 +63,7 @@ export async function resort_item(moverand: LancerItem, dest: LancerItem, sort_b
 // Helper for finding what license an item comes from. Checks by name, an inelegant solution but probably good enough
 export async function findLicenseFor(item: LancerItem, inActor?: LancerActor): Promise<LancerLICENSE | null> {
   // If the item does not have a license name, then we just bail
-  let licenseKey = ((item as any).system as SystemTemplates.licensed).license;
+  let licenseKey = item.system.license;
   if (!licenseKey) {
     return null;
   }
@@ -79,24 +80,24 @@ export async function findLicenseFor(item: LancerItem, inActor?: LancerActor): P
     // Check pilot inventory, in case they have a weird custom license
     if (pilot) {
       let found =
-        pilot.items.filter(i => i.is_license()).find(lic => (lic as LancerLICENSE).system.key === licenseKey) ||
+        pilot.items.filter(i => i.is_license()).find(lic => lic.system.key === licenseKey) ||
         // Fall back to matching the license name
-        pilot.items.filter(i => i.is_license()).find(lic => (lic as LancerLICENSE).name === licenseKey);
-      if (found) found as LancerLICENSE;
+        pilot.items.filter(i => i.is_license()).find(lic => lic.name === licenseKey);
+      if (found) found;
     }
   }
 
   // Actor was a bust. Try global.
-  const pack = game.packs.get(get_pack_id(EntryType.LICENSE));
+  const pack = game.packs.get(get_pack_id(EntryType.LICENSE)) as CompendiumCollection<"Item">;
   if (!pack) {
     console.error("License pack not found");
     return null;
   }
   await pack.getIndex();
   const entry =
-    pack.index.find((e: any) => e.system?.key == licenseKey) ||
+    pack.index.find((e) => e.system?.key == licenseKey) ||
     // Fall back to matching the license name
-    pack.index.find((e: any) => e.name == licenseKey);
+    pack.index.find((e) => e.name == licenseKey);
   if (!entry) {
     console.error(`License not found: ${licenseKey}`);
     return null;
@@ -187,9 +188,7 @@ export function get_pack_id(et: EntryType): string {
 
 // Retrieve a pack, or create it as necessary
 // async to handle the latter case
-export async function get_pack(
-  type: LancerItemType | LancerActorType
-): Promise<CompendiumCollection<CompendiumCollection.Metadata>> {
+export async function get_pack(type: LancerItemType | LancerActorType): Promise<CompendiumCollection.Any> {
   // Find existing world compendium
   const id = get_pack_id(type);
   let pack = game.packs.get(id);
@@ -204,7 +203,6 @@ export async function get_pack(
       name: basename,
       type: entity_type,
       label: `lancer.compendium.${basename}`,
-      // @ts-expect-error Banner data not in types
       banner: `./systems/lancer/assets/banners/${basename}.svg`,
       system: "lancer",
       // sort: PackSort[basename],
@@ -246,8 +244,7 @@ export async function insinuate(items: Array<LancerItem>, to: LancerActor): Prom
   }
 
   // Await and recombine
-  // @ts-expect-error
-  let actualNewItems: LancerItem[] = await to.createEmbeddedDocuments("Item", newItems);
+  let actualNewItems = await to.createEmbeddedDocuments("Item", newItems) ?? [];
 
   // Prompt for deployables if they don't yet exist
   for (let item of actualNewItems) {

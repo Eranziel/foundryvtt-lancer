@@ -1,7 +1,6 @@
 import { fittingsForMount, FittingSize, MountType, WeaponSize } from "../enums";
 import { LancerItem } from "../item/lancer-item";
-import { SourceData } from "../source-template";
-import { SystemData } from "../system-template";
+import type { SourceData } from "../source-template";
 import { LancerActor } from "./lancer-actor";
 
 /** Holds helper methods for loadout validation etc */
@@ -179,7 +178,6 @@ export class LoadoutHelper {
     // Bundled updates are theoretically rare, but if they ever were to occur its better than just first-instinct-updating 30 times
     let killedIds: string[] = [];
     if (this.actor.is_pilot()) {
-      // @ts-expect-error
       let cleanupLoadout = foundry.utils.duplicate(this.actor.system._source.loadout) as SourceData.Pilot["loadout"];
       let currLoadout = this.actor.system.loadout;
       // Fairly simple
@@ -214,7 +212,6 @@ export class LoadoutHelper {
         await this.actor.update({ system: { loadout: cleanupLoadout } });
       }
     } else if (this.actor.is_mech()) {
-      // @ts-expect-error
       let cleanupLoadout = foundry.utils.duplicate(this.actor.system._source.loadout) as SourceData.Mech["loadout"];
       let currLoadout = this.actor.system.loadout;
       // Frame is simple
@@ -262,7 +259,7 @@ export class LoadoutHelper {
    * Yields a simple error message on a misconfigured mount, or null if no issues detected.
    * @param mount Specific mount to validate
    */
-  validateMount(mount: SystemData.Mech["loadout"]["weapon_mounts"][0]): string | null {
+  validateMount(mount: Actor.OfType<"mech">["loadout"]["weapon_mounts"][0]): string | null {
     if (this.actor.is_mech()) {
       let loadout = this.actor.system.loadout;
       let hasBracing = loadout.weapon_mounts.some(m => m.bracing);

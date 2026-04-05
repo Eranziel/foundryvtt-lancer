@@ -3,8 +3,9 @@ import { regRefToUuid } from "../../util/migrations";
 import { CounterField } from "../bits/counter";
 import { EmbeddedRefField, FullBoundedNumberField, LancerDataModel, SyncUUIDRefField } from "../shared";
 import { template_action_tracking, template_statuses, template_universal_actor } from "./shared";
+import type { BaseData } from "../../base-data";
 
-const fields = foundry.data.fields;
+import fields = foundry.data.fields;
 
 const pilot_schema = {
   active_mech: new SyncUUIDRefField("Actor", { allowed_types: [EntryType.MECH] }),
@@ -41,11 +42,9 @@ const pilot_schema = {
       minor_ideal: new fields.BooleanField({ initial: false }),
       veteran_power: new fields.BooleanField({ initial: false }),
     }),
-    answers: new fields.ArrayField(new fields.StringField()),
+    answers: new fields.ArrayField(new fields.StringField({ required: true })),
     minor_ideal: new fields.StringField(),
-    // @ts-expect-error
     burdens: new fields.ArrayField(new CounterField()),
-    // @ts-expect-error
     clocks: new fields.ArrayField(new CounterField()),
   }),
 
@@ -56,7 +55,7 @@ const pilot_schema = {
 
 type PilotSchema = typeof pilot_schema;
 
-export class PilotModel extends LancerDataModel<DataSchema, Actor> {
+export class PilotModel extends LancerDataModel<PilotSchema, Actor.Implementation, BaseData.Pilot> {
   static DEFAULT_ICON = "systems/lancer/assets/icons/pilot.svg";
   static defineSchema(): PilotSchema {
     return pilot_schema;

@@ -1,0 +1,5 @@
+// Due to some SCSS weirdness with how the output gets built,
+// layers need to be defined in and imported from an scss file.
+@layer lancer {
+  @layer defaults, components, applications, module-overrides, overrides;
+}

@@ -22,7 +22,7 @@ export class TargetedEditForm<T> extends FormApplication {
   constructor(
     target: LancerItem | LancerActor,
     value_path: string,
-    options: Partial<FormApplicationOptions> = {},
+    options: Partial<FormApplication.Options> = {},
     resolve_func: () => any
   ) {
     super(

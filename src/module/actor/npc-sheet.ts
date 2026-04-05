@@ -1,6 +1,6 @@
 import { LANCER } from "../config";
 import { LancerActorSheet } from "./lancer-actor-sheet";
-import { ResolvedDropData } from "../helpers/dragdrop";
+import type { ResolvedDropData } from "../helpers/dragdrop";
 import { EntryType } from "../enums";
 const lp = LANCER.log_prefix;
 
@@ -141,7 +141,6 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
 
     // If this isn't a new item and it's an NPC feature, we need to update the sorting
     if (this.isEditable && !is_new && drop.type === "Item" && drop.document.is_npc_feature()) {
-      // @ts-expect-error v11 types
       this._onSortItem(event, drop.document.toObject());
     }
   }

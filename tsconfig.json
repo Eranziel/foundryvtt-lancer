@@ -2,26 +2,18 @@
   "extends": "@tsconfig/svelte/tsconfig.json",
   "compilerOptions": {
     "target": "esnext",
-    "experimentalDecorators": true,
-    "isolatedModules": false,
     "module": "esnext",
+    "moduleResolution": "bundler",
+    "experimentalDecorators": true,
     "sourceMap": true,
-    "lib": [
-      "DOM",
-      "ESNext"
-    ],
-    "types": [
-      "@league-of-foundry-developers/foundry-vtt-types",
-      "svelte"
-    ],
-    "moduleResolution": "node",
-    "strictNullChecks": true,
+    "types": ["fvtt-types", "svelte"],
+    "strict": true,
     "esModuleInterop": true,
     "noEmit": true,
-    "strict": true,
     "useDefineForClassFields": false,
-    "importsNotUsedAsValues": "remove",
-    "skipLibCheck": true,
+    "verbatimModuleSyntax": true,
+    // TODO
+    "skipLibCheck": false,
     "resolveJsonModule": true
   },
   "include": ["src/**/*.d.ts", "src/**/*.ts", "src/**/*.js", "src/**/*.svelte"]

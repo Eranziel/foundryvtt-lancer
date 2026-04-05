@@ -1,7 +1,7 @@
 <script lang="ts">
   import { createEventDispatcher } from "svelte";
   import { fade } from "svelte/transition";
-  import { ContentSummary } from "../../util/lcps";
+  import type { ContentSummary } from "../../util/lcps";
 
   const dispatch = createEventDispatcher();
 
@@ -30,7 +30,7 @@
   <div class="lancer-header lancer-primary major"><span class={`transition ${fadeDirection}`}>{title}</span></div>
   <!-- New LCP Manifest -->
   {#if oldContentSummary}
-    <div class="lcp-details__content" transition:fade>
+    <div class="lcp-details__content" transition:fade|global>
       {#if oldContentSummary.website}
         <a href={oldContentSummary.website} class={`medium transition ${fadeDirection}`} style="margin: 5px;"
           >by {oldContentSummary.author}</a
@@ -94,7 +94,7 @@
       </div>
       {#if !showImportButton && !oldContentSummary.aggregate}
         <button
-          transition:fade
+          transition:fade|global
           type="button"
           class="lcp-import"
           title="Import LCP"
@@ -102,7 +102,7 @@
           {disabled}
           on:click={() => dispatch("importLcp")}
         >
-          <i class="cci cci-content-manager i--m" />
+          <i class="cci cci-content-manager i--4" />
           Import LCP
         </button>
       {/if}
@@ -111,45 +111,49 @@
 </div>
 
 <style lang="scss">
-  .lcp-details.card {
-    margin-left: 0;
-    margin-right: 0;
-    margin-bottom: 0;
-    max-height: calc(100% - 5.5em);
-  }
-  .lcp-details__content {
-    display: inline-grid;
-    grid-template-rows: auto 1fr auto;
-    max-height: calc(100% - 3em);
-    overflow-y: hidden;
-    .lcp-description {
-      overflow-y: scroll;
-
-      & ul {
-        margin-top: 0.25em;
+  @layer lancer {
+    @layer components {
+      .lcp-details.card {
+        margin-left: 0;
+        margin-right: 0;
+        margin-bottom: 0;
+        max-height: calc(100% - 5.5em);
       }
-    }
-  }
+      .lcp-details__content {
+        display: inline-grid;
+        grid-template-rows: auto 1fr auto;
+        max-height: calc(100% - 3em);
+        overflow-y: hidden;
+        .lcp-description {
+          overflow-y: scroll;
 
-  .transition {
-    &.fade-in {
-      opacity: 1;
-      transition: opacity ease-in 0.333s;
-    }
-    &.fade-out {
-      opacity: 0;
-      transition: opacity ease-in 0.1s;
-    }
-  }
-  .manifest-image {
-    max-width: 400px;
-    max-height: 400px;
+          & ul {
+            margin-top: 0.25em;
+          }
+        }
+      }
 
-    .lcp-description & {
-      float: right;
-      margin-left: 10px;
-      margin-bottom: 10px;
-      max-width: 60%;
+      .transition {
+        &.fade-in {
+          opacity: 1;
+          transition: opacity ease-in 0.333s;
+        }
+        &.fade-out {
+          opacity: 0;
+          transition: opacity ease-in 0.1s;
+        }
+      }
+      .manifest-image {
+        max-width: 400px;
+        max-height: 400px;
+
+        .lcp-description & {
+          float: right;
+          margin-left: 10px;
+          margin-bottom: 10px;
+          max-width: 60%;
+        }
+      }
     }
   }
 </style>

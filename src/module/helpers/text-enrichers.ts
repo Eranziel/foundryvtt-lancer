@@ -63,7 +63,6 @@ export function addEnrichers() {
           data.classes.push("broken");
           data.icon = "fas fa-unlink";
         }
-        // @ts-expect-error Typo in types library
         return TextEditor.createAnchor(data);
       },
     },

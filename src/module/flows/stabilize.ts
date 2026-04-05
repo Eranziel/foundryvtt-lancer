@@ -3,9 +3,9 @@ import { LANCER } from "../config";
 import { StabOptions1, StabOptions2 } from "../enums";
 import { printGenericCard } from "./text";
 import { LancerActor } from "../actor/lancer-actor";
-import { Flow, FlowState, Step } from "./flow";
+import { Flow, type FlowState, type Step } from "./flow";
 import { LancerFlowState } from "./interfaces";
-import { UUIDRef } from "../source-template";
+import type { UUIDRef } from "../source-template";
 
 const lp = LANCER.log_prefix;
 

@@ -6,10 +6,10 @@ import { buildChipHTML } from "../helpers/item";
 import { ActivationType, AttackType } from "../enums";
 import { renderTemplateStep } from "./_render";
 import { resolveDotpath } from "../helpers/commons";
-import { ActionData } from "../models/bits/action";
+import type { ActionData } from "../models/bits/action";
 import { LancerFlowState } from "./interfaces";
-import { Flow, FlowState, Step } from "./flow";
-import { UUIDRef } from "../source-template";
+import { Flow, type FlowState, type Step } from "./flow";
+import type { UUIDRef } from "../source-template";
 import { TechAttackFlow } from "./tech";
 
 const lp = LANCER.log_prefix;
@@ -141,7 +141,7 @@ export async function printActionUseCard(
     description: state.data.detail,
     roll: state.data.self_heat_result?.roll,
     roll_tt: state.data.self_heat_result?.tt,
-    roll_icon: "cci cci-heat i--m damage--heat",
+    roll_icon: "cci cci-heat i--4 damage--heat",
     tags: state.data.tags,
   };
   await renderTemplateStep(state.actor, template, data, flags);

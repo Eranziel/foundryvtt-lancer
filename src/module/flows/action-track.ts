@@ -1,7 +1,7 @@
-import { ActionTrackingData } from "../action";
+import type { ActionTrackingData } from "../action";
 import { getActions } from "../action/action-tracker";
 import { LancerActor } from "../actor/lancer-actor";
-import { Flow, FlowState, Step } from "./flow";
+import { Flow, type FlowState, type Step } from "./flow";
 import { LancerFlowState } from "./interfaces";
 import { printGenericCard } from "./text";
 
@@ -69,7 +69,7 @@ function condensedActionBadgeHTML(actions: ActionTrackingData) {
 
     return `
     <button class="lancer-action-badge${active ? ` lancer-${action}` : ""}">
-      <i class="${mIcon} i--m white--text"></i>
+      <i class="${mIcon} i--4 white--text"></i>
     </button>`;
   }
 

@@ -1,0 +1,351 @@
+@use "../variables" as *;
+@use "../mixins";
+
+@layer lancer.components {
+  .header-name {
+    align-self: center;
+    //height: -webkit-fill-available;
+  }
+
+  .lancer.sheet .mount-header select {
+    color: var(--light-text);
+    outline: 0;
+    border: none;
+  }
+
+  .lancer.sheet .mount-header select option {
+    background-color: var(--primary-color, fuchsia);
+    color: var(--light-text);
+  }
+
+  .lancer.sheet header.sheet-header {
+    align-items: center;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 170px;
+    grid-template-rows: 2fr 1fr;
+    grid-template-areas:
+      "name name name img"
+      "detail1 detail2 detail3 img";
+    position: relative;
+    flex-direction: row;
+    justify-content: space-between;
+    background-color: var(--primary-color, fuchsia);
+    margin: 0 0 0.5em 0;
+    font-family: var(--header-font-family);
+    text-transform: uppercase;
+    color: var(--light-text);
+
+    &.inactive-mech {
+      background-color: var(--secondary-color, fuchsia);
+      color: var(--secondary-text);
+    }
+
+    h1,
+    h2,
+    h3,
+    h4 {
+      font-family: var(--header-font-family);
+      font-weight: bold;
+      color: var(--light-text);
+      border: none;
+    }
+
+    h1 input {
+      font-family: var(--header-font-family);
+      font-weight: bold;
+      color: var(--light-text);
+    }
+
+    .name {
+      grid-area: name;
+    }
+
+    .portrait-img-container {
+      &::before {
+        background-color: var(--background-color);
+        height: calc(100% - 4px);
+        width: 80px;
+        clip-path: polygon(0 100%, 40px 0, 100% 0, calc(100% - 40px) 100%);
+      }
+
+      grid-area: img;
+      background-color: var(--background-color);
+      height: calc(100% - 4px);
+      padding: 5% 20px 0 40px;
+      clip-path: polygon(0 100%, 40px 0, calc(100% - 3px) 0, calc(100% - 3px) calc(100% - 8px), calc(100% - 10px) 100%);
+    }
+
+    .header-detail-1 {
+      grid-area: detail1;
+    }
+
+    .header-detail-2 {
+      grid-area: detail2;
+    }
+
+    .header-detail-3 {
+      grid-area: detail3;
+    }
+
+    .header-details {
+      grid-area: detail1 / detail1 / detail1 / detail3;
+      display: flex;
+      flex-direction: row;
+      @include mixins.vert-mid();
+      @include mixins.horiz-mid();
+    }
+  }
+
+  .lancer.sheet.pilot header.sheet-header .name {
+    display: grid;
+    grid-template-rows: 1fr;
+    grid-template-columns: 4em 1fr 1fr 1fr;
+    grid-template-areas: "ll" "callsign" "name" "bg";
+
+    .details {
+      padding-left: 10px;
+      padding-top: 10px;
+
+      span {
+        flex-grow: 0;
+      }
+
+      h1,
+      h2,
+      h3,
+      h4 {
+        margin-bottom: 0;
+        font-weight: bold;
+      }
+
+      & + .details {
+        padding-right: 10px;
+      }
+
+      * {
+        vertical-align: top;
+      }
+    }
+  }
+
+  .lancer.sheet.npc header.sheet-header .name {
+    display: grid;
+    grid-template-columns: $tier-icon-size auto;
+    grid-template-rows: auto;
+  }
+
+  .header-icon {
+    display: flex;
+    float: left;
+  }
+
+  .pilot-stats {
+    clip-path: polygon(0 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
+    -webkit-clip-path: polygon(0 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
+    background-color: var(--pilot-stat-color);
+    padding-left: 5px;
+    padding-right: 5px;
+    align-items: flex-start;
+
+    .lancer-stat.minor {
+      color: var(--dark-text);
+    }
+  }
+
+  // TODO: refactor our header styles?
+  /* Consolidate all of our card header stuff stuff */
+  .lancer-header {
+    flex: 0 0 2em;
+
+    /* Generally uglier, inconsistent. Use when header needs other stuff in it, like with talents large icons etc */
+    &.stretch {
+      flex: 0 0 100%;
+    }
+
+    font-family: var(--header-font-family);
+    text-overflow: ellipsis;
+    font-weight: normal;
+    text-transform: uppercase;
+
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+    align-self: stretch;
+
+    /* For buttons/icons, we want them to not grow but also not just get squashed into nothing 
+  * If this unbalances things, add an equal # of balancers to the other side
+  */
+    a,
+    :not(a) i,
+    img {
+      flex: 0 0 auto;
+      padding-left: 5px;
+      padding-right: 5px;
+    }
+
+    div.balancer {
+      flex: 0 0 auto;
+      padding-left: 5px;
+      padding-right: 5px;
+    }
+
+    /* Spans are the main bodies of headers. We want them to grow! 
+  * Inputs too for those cases where the title is editable.
+  */
+    span,
+    input {
+      flex-grow: 1;
+      text-align: center;
+      font-size: inherit;
+      margin: 0 4px;
+    }
+
+    /* Sometimes want left align, using the "left" class */
+    span.left,
+    input.left {
+      text-align: left;
+      margin-left: 10px;
+    }
+
+    /* If we or our parent item is clipped, make sure we don't clip our contents */
+    .clipped > &,
+    .clipped-top > &,
+    &.clipped,
+    &.clipped-top {
+      padding-left: 10px;
+      padding-right: 10px;
+    }
+
+    // Legacy styling for old chat messages
+    #chat-log .bonus-list & {
+      background-color: var(--bonus-list-color, fuchsia);
+    }
+
+    // Legacy styling for old chat messages
+    #chat-log .bonus & {
+      background-color: var(--bonus-color, fuchsia);
+    }
+
+    // Legacy styling for old chat messages
+    #chat-log .mech-system &,
+    #chat-log .npc-system &,
+    #chat-log &.mech-system,
+    #chat-log &.npc-system {
+      background-color: var(--system-color);
+      color: var(--light-text);
+    }
+
+    // Legacy styling for old chat messages
+    #chat-log .mech_weapon &,
+    #chat-log .pilot_weapon &,
+    #chat-log &.mech_weapon,
+    #chat-log &.pilot_weapon {
+      background-color: var(--weapon-color);
+      color: var(--light-text);
+    }
+
+    &.struct-stress {
+      // legacy coloring for old chat messages
+      #chat-log & {
+        background-color: var(--primary-color);
+      }
+      color: var(--light-text);
+      padding-top: 1px;
+      display: flex;
+      flex-direction: row;
+
+      span.spacer {
+        flex: 0 0;
+      }
+      a {
+        flex: 0 0;
+      }
+    }
+
+    .mech_weapon:hover &,
+    .weapon_mod:hover &,
+    .npc-weapon:hover &,
+    .pilot_weapon:hover &,
+    .mech-system:hover &,
+    .mech-system-compact:hover &,
+    .npc-trait:hover &,
+    .npc-system:hover &,
+    .npc-tech:hover &,
+    .npc-reaction:hover &,
+    .pilot_gear:hover &,
+    .pilot_armor:hover &,
+    .reserve:hover & {
+      box-shadow: var(--hover-bright);
+    }
+
+    &.error {
+      background-color: var(--error-color);
+    }
+
+    /* Destroyed gear */
+    &.destroyed {
+      background-color: var(--weapon-color);
+
+      span {
+        text-decoration: line-through;
+        color: #fb3535;
+      }
+
+      .cci {
+        color: #ff6a23;
+      }
+      .mdi {
+        color: #ff6a23;
+        margin-bottom: -2px;
+      }
+      .mdi-cog {
+        font-size: 28px;
+      }
+    }
+
+    /* General font sizing options */
+    &.major {
+      font-size: 18px;
+      font-weight: bolder;
+    }
+
+    &.submajor {
+      font-size: 15px;
+      font-weight: bold;
+    }
+
+    &.minor {
+      font-size: 12px;
+      font-weight: lighter;
+    }
+
+    & span.minor {
+      margin: 0 16px;
+    }
+
+    .activation-chip {
+      overflow: unset;
+      margin-left: 0.1em;
+      padding: 0 0.5em 0 0.5em;
+      align-self: center;
+    }
+  }
+
+  .lancer-mini-header {
+    align-items: center;
+    color: var(--light-text) !important;
+    background-color: var(--primary-color, fuchsia);
+    max-height: fit-content;
+  }
+
+  .action-title,
+  .deployable-title,
+  .coresys-title,
+  .core-active-title,
+  .core-passive-title {
+    font-size: 16px;
+    margin-top: 3px;
+    margin: auto;
+  }
+}

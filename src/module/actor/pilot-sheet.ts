@@ -5,13 +5,13 @@ import type { HelperOptions } from "handlebars";
 import { buildCounterHeader, buildCounterHTML } from "../helpers/item";
 import { ref_params, resolve_ref_element } from "../helpers/refs";
 import { inc_if, resolveDotpath } from "../helpers/commons";
-import { LancerActor, LancerMECH, LancerPILOT } from "./lancer-actor";
+import { LancerActor, type LancerMECH, type LancerPILOT } from "./lancer-actor";
 import { fetchPilotViaCache, fetchPilotViaShareCode, pilotCache } from "../util/compcon";
-import { LancerFRAME, LancerItem, LancerItemType } from "../item/lancer-item";
+import type { LancerFRAME } from "../item/lancer-item";
 import { clicker_num_input } from "../helpers/actor";
-import { ResolvedDropData } from "../helpers/dragdrop";
+import type { ResolvedDropData } from "../helpers/dragdrop";
 import { EntryType } from "../enums";
-import { PackedPilotData } from "../util/unpacking/packed-types";
+import type { PackedPilotData } from "../util/unpacking/packed-types";
 import { importCC } from "./import";
 
 const shareCodeMatcher = /^[A-Z0-9\d]{6}$/g;
@@ -199,10 +199,13 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
         if (p1.name > p2.name) return 1;
         return 0;
       })
-      .reduce((acc, pilot) => {
-        acc[`${pilot.callsign} // ${pilot.name}`] = pilot.cloudID;
-        return acc;
-      }, {} as Record<string, string>);
+      .reduce(
+        (acc, pilot) => {
+          acc[`${pilot.callsign} // ${pilot.name}`] = pilot.cloudID;
+          return acc;
+        },
+        {} as Record<string, string>
+      );
 
     return data;
   }
@@ -299,7 +302,6 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
     //   drop.type === "Item" &&
     //   (drop.document.is_pilot_gear() || drop.document.is_pilot_weapon() || drop.document.is_reserve())
     // ) {
-    //   // @ts-expect-error v11 types
     //   this._onSortItem(event, drop.document.toObject());
     // }
   }
@@ -403,7 +405,7 @@ export function mech_preview(mech: LancerMECH, active: boolean, _options: Helper
     const builder = preview_stats_arr[i];
     stats_html = stats_html.concat(`
     <div class="mech-preview-stat-wrapper">
-      <i class="${builder.icon} i--m i--dark"> </i>
+      <i class="${builder.icon} i--4 i--dark"> </i>
       <span class="major">${builder.title}</span>
       <span class="major">${resolveDotpath(mech, builder.path, 0)}</span>
     </div>`);

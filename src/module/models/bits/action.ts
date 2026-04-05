@@ -1,50 +1,33 @@
 import { ActivationType, ActivePeriod } from "../../enums";
-import { PackedActionData } from "../../util/unpacking/packed-types";
+import type { PackedActionData } from "../../util/unpacking/packed-types";
 import { LIDField } from "../shared";
-import { DamageData, DamageField, unpackDamage } from "./damage";
-import { RangeData, RangeField, unpackRange } from "./range";
+import { DamageField, unpackDamage } from "./damage";
+import { RangeField, unpackRange } from "./range";
+import type { SimpleMerge } from "fvtt-types/utils";
 
-const fields: any = foundry.data.fields;
+import fields = foundry.data.fields;
 
-// Lightly trimmed
-export interface ActionData {
-  lid: string;
-  name: string;
-  activation: ActivationType;
-  cost: number;
-  frequency: string;
-  init: string;
-  trigger: string;
-  terse: string;
-  detail: string;
-  pilot: boolean;
-  mech: boolean;
-  tech_attack: boolean;
-  // hide_active: boolean;
-  // confirm: string[];
-  // available_mounted: boolean;
-  heat_cost: number;
-  synergy_locations: string[];
-  damage: DamageData[];
-  range: RangeData[];
-  // log: string;
-  // ignore_used: boolean;
-}
+const frequencyFieldDefaults = {
+  required: true,
+  blank: false,
+  nullable: true,
+  initial: null,
+  readonly: true,
+  validationError: "is not a properly formatted frequency",
+};
+
+type FrequencyFieldDefaults = SimpleMerge<fields.StringField.DefaultOptions, typeof frequencyFieldDefaults>;
+type ApplyFrequencyDefaults<T extends fields.StringField.Options> = SimpleMerge<FrequencyFieldDefaults, T>;
 
 /**
  * A subclass of StringField which deals with frequency data.
  */
-class FrequencyField extends fields.StringField {
+class FrequencyField<Options extends fields.StringField.Options = FrequencyFieldDefaults> extends fields.StringField<
+  ApplyFrequencyDefaults<Options>
+> {
   /** @inheritdoc */
   static get _defaults() {
-    return foundry.utils.mergeObject(super._defaults, {
-      required: true,
-      blank: false,
-      nullable: true,
-      initial: null,
-      readonly: true,
-      validationError: "is not a properly formatted frequency",
-    });
+    return foundry.utils.mergeObject(super._defaults, frequencyFieldDefaults);
   }
 
   /** @override */
@@ -86,35 +69,43 @@ class FrequencyField extends fields.StringField {
   }
 }
 
+const getActionFieldSchema = () => {
+  return {
+    lid: new LIDField(),
+    name: new fields.StringField(),
+    activation: new fields.StringField({ choices: Object.values(ActivationType), initial: ActivationType.Quick }),
+    cost: new fields.NumberField({ min: 0, integer: true, nullable: false }),
+    frequency: new FrequencyField(),
+    init: new fields.HTMLField(),
+    trigger: new fields.HTMLField(),
+    terse: new fields.HTMLField(),
+    detail: new fields.HTMLField(),
+    pilot: new fields.BooleanField(),
+    mech: new fields.BooleanField(),
+    tech_attack: new fields.BooleanField(),
+    // confirm: new fields.StringField(),
+    // available_mounted: new fields.BooleanField(),
+    heat_cost: new fields.NumberField({ min: 0, integer: true, nullable: false }),
+    // TODO: synergy_locations: make em more fancy or somethin
+    synergy_locations: new fields.ArrayField(new fields.StringField({ required: true })),
+    damage: new fields.ArrayField(new DamageField()),
+    range: new fields.ArrayField(new RangeField()),
+    // ignore_used?
+    // log: new fields.StringField(),
+  };
+};
+
+type ActionFieldSchema = ReturnType<typeof getActionFieldSchema>;
+
+export type ActionData = fields.SchemaField.InitializedData<ActionFieldSchema>;
+
 // Action field is frequent, but not exactly deserving of a custom class like damage or range. It still needs a custom field (frequency)
-export class ActionField extends fields.SchemaField {
-  constructor(options = {}) {
-    super(
-      {
-        lid: new LIDField(),
-        name: new fields.StringField(),
-        activation: new fields.StringField({ choices: Object.values(ActivationType), initial: ActivationType.Quick }),
-        cost: new fields.NumberField({ min: 0, integer: true, nullable: false }),
-        frequency: new FrequencyField(),
-        init: new fields.HTMLField(),
-        trigger: new fields.HTMLField(),
-        terse: new fields.HTMLField(),
-        detail: new fields.HTMLField(),
-        pilot: new fields.BooleanField(),
-        mech: new fields.BooleanField(),
-        tech_attack: new fields.BooleanField(),
-        // confirm: new fields.StringField(),
-        // available_mounted: new fields.BooleanField(),
-        heat_cost: new fields.NumberField({ min: 0, integer: true, nullable: false }),
-        // TODO: synergy_locations: make em more fancy or somethin
-        synergy_locations: new fields.ArrayField(new fields.StringField()),
-        damage: new fields.ArrayField(new DamageField()),
-        range: new fields.ArrayField(new RangeField()),
-        // ignore_used?
-        // log: new fields.StringField(),
-      },
-      options
-    );
+export class ActionField<Options extends fields.SchemaField.Options<ActionFieldSchema>> extends fields.SchemaField<
+  ActionFieldSchema,
+  Options
+> {
+  constructor(options?: Options) {
+    super(getActionFieldSchema(), options);
   }
 }
 

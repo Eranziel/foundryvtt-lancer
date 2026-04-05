@@ -1,28 +1,83 @@
-import type { DeepPartial } from "@league-of-foundry-developers/foundry-vtt-types/src/types/utils.mjs";
+import type { DeepPartial } from "fvtt-types/utils";
 import { EntryType, NpcFeatureType, NpcTechType } from "../../enums";
 import { restrict_enum } from "../../helpers/commons";
-import { SourceData, SourceTemplates } from "../../source-template";
+import type { SourceData, SourceTemplates } from "../../source-template";
+import type { BaseData } from "../../base-data";
 import { convertNpcStats } from "../../util/migrations";
-import {
+import type {
   PackedNpcReactionData,
   PackedNpcSystemData,
   PackedNpcTechData,
   PackedNpcTraitData,
   PackedNpcWeaponData,
 } from "../../util/unpacking/packed-types";
-import { DamageData, DamageField, unpackDamage } from "../bits/damage";
+import { type DamageData, DamageField, unpackDamage } from "../bits/damage";
 import { RangeField, unpackRange } from "../bits/range";
 import { TagField, unpackTag } from "../bits/tag";
-import { ControlledLengthArrayField, LancerDataModel, NpcStatBlockField, UnpackContext } from "../shared";
+import { LancerDataModel, NpcStatBlockField, type UnpackContext } from "../shared";
 import { template_destructible, template_universal_item, template_uses } from "./shared";
 
-const fields = foundry.data.fields;
+import fields = foundry.data.fields;
 
-export class NpcFeatureModel extends LancerDataModel<DataSchema, Item> {
+const defineNpcFeatureModelSchema = () => {
+  return {
+    effect: new fields.HTMLField(),
+    bonus: new NpcStatBlockField({ nullable: true }),
+    override: new NpcStatBlockField({ nullable: true }),
+    tags: new fields.ArrayField(new TagField()),
+    type: new fields.StringField({ choices: Object.values(NpcFeatureType), initial: NpcFeatureType.Trait }),
+
+    charged: new fields.BooleanField(),
+    loaded: new fields.BooleanField(),
+
+    tier_override: new fields.NumberField({ integer: true, min: 0, max: 3 }),
+
+    // Weapon
+    weapon_type: new fields.StringField(),
+    damage: new fields.ArrayField(new fields.ArrayField(new DamageField())),
+    range: new fields.ArrayField(new RangeField()),
+    on_hit: new fields.HTMLField(),
+    accuracy: new fields.ArrayField(new fields.NumberField({ integer: true, initial: 0 }), {
+      min: 3,
+      max: 3,
+      initial: [0, 0, 0],
+    }),
+    attack_bonus: new fields.ArrayField(new fields.NumberField({ integer: true, initial: 0 }), {
+      min: 3,
+      max: 3,
+      initial: [0, 0, 0],
+    }),
+
+    // Trait - N/A
+
+    // Reaction
+    trigger: new fields.StringField(),
+
+    // System - N/A
+
+    // Tech - mostly covered by weapon
+    tech_type: new fields.StringField({ choices: Object.values(NpcTechType), initial: NpcTechType.Quick }),
+    tech_attack: new fields.BooleanField({ nullable: true, initial: null }),
+
+    // Origin data - track where it came from
+    origin: new fields.SchemaField({
+      type: new fields.StringField(),
+      name: new fields.StringField(),
+      base: new fields.BooleanField(),
+    }),
+
+    // Templates
+    ...template_destructible(),
+    ...template_uses(),
+    ...template_universal_item(),
+  };
+};
+
+type NpcFeatureModelSchema = ReturnType<typeof defineNpcFeatureModelSchema>;
+
+export class NpcFeatureModel extends LancerDataModel<NpcFeatureModelSchema, Item.Implementation, BaseData.NpcFeature> {
   static DEFAULT_ICON = "systems/lancer/assets/icons/npc_feature.svg";
-  static getDefaultArtwork(
-    itemData?: Parameters<typeof Item.getDefaultArtwork>[0]
-  ): ReturnType<typeof Item.getDefaultArtwork> {
+  static getDefaultArtwork(itemData?: Item.CreateData): Item.GetDefaultArtworkReturn {
     let img = this.DEFAULT_ICON;
     switch (itemData?.system?.type) {
       case NpcFeatureType.Reaction:
@@ -45,62 +100,15 @@ export class NpcFeatureModel extends LancerDataModel<DataSchema, Item> {
   }
 
   static defineSchema() {
-    return {
-      effect: new fields.HTMLField(),
-      bonus: new NpcStatBlockField({ nullable: true }),
-      override: new NpcStatBlockField({ nullable: true }),
-      // @ts-expect-error
-      tags: new fields.ArrayField(new TagField()),
-      type: new fields.StringField({ choices: Object.values(NpcFeatureType), initial: NpcFeatureType.Trait }),
-
-      charged: new fields.BooleanField(),
-      loaded: new fields.BooleanField(),
-
-      tier_override: new fields.NumberField({ integer: true, min: 0, max: 3 }),
-
-      // Weapon
-      weapon_type: new fields.StringField(),
-      // @ts-expect-error
-      damage: new fields.ArrayField(new fields.ArrayField(new DamageField())),
-      // @ts-expect-error
-      range: new fields.ArrayField(new RangeField()),
-      on_hit: new fields.HTMLField(),
-      accuracy: new ControlledLengthArrayField(new fields.NumberField({ integer: true, initial: 0 }), { length: 3 }),
-      attack_bonus: new ControlledLengthArrayField(new fields.NumberField({ integer: true, initial: 0 }), {
-        length: 3,
-      }),
-
-      // Trait - N/A
-
-      // Reaction
-      trigger: new fields.StringField(),
-
-      // System - N/A
-
-      // Tech - mostly covered by weapon
-      tech_type: new fields.StringField({ choices: Object.values(NpcTechType), initial: NpcTechType.Quick }),
-      tech_attack: new fields.BooleanField({ nullable: true, initial: null }),
-
-      // Origin data - track where it came from
-      origin: new fields.SchemaField({
-        type: new fields.StringField(),
-        name: new fields.StringField(),
-        base: new fields.BooleanField(),
-      }),
-
-      // Templates
-      ...template_destructible(),
-      ...template_uses(),
-      ...template_universal_item(),
-    };
+    return defineNpcFeatureModelSchema();
   }
 
   static migrateData(data: any) {
     // Fix stats
-    if (typeof data.bonus == "object" && !Array.isArray(data.bonus)) {
+    if (data.bonus && typeof data.bonus == "object" && !Array.isArray(data.bonus)) {
       data.bonus = convertNpcStats(data.bonus)[0];
     }
-    if (typeof data.override == "object" && !Array.isArray(data.override)) {
+    if (data.override && typeof data.override == "object" && !Array.isArray(data.override)) {
       data.override = convertNpcStats(data.override)[0];
     }
     // Non-tech features should not have tech_attack
@@ -155,13 +163,13 @@ export function unpackNpcFeature(
   } else if (data.type == NpcFeatureType.Tech) {
     let bs = base.system as Partial<SourceTemplates.NPC.TechData>;
     bs.tech_type = restrict_enum(NpcTechType, NpcTechType.Quick, data.tech_type);
-    bs.accuracy = data.accuracy ?? [];
-    bs.attack_bonus = data.attack_bonus ?? [];
+    bs.accuracy = data.accuracy ?? [0, 0, 0];
+    bs.attack_bonus = data.attack_bonus ?? [0, 0, 0];
     bs.tech_attack = !!data.attack_bonus || !!data.accuracy;
   } else if (data.type == NpcFeatureType.Weapon) {
     let bs = base.system as Partial<SourceTemplates.NPC.WeaponData>;
-    bs.accuracy = data.accuracy ?? [];
-    bs.attack_bonus = data.attack_bonus ?? [];
+    bs.accuracy = data.accuracy ?? [0, 0, 0];
+    bs.attack_bonus = data.attack_bonus ?? [0, 0, 0];
     bs.weapon_type = data.weapon_type;
     bs.on_hit = data.on_hit;
 

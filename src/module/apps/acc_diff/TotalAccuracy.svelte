@@ -61,19 +61,19 @@
 
 {#if isTarget(target)}
   <div
-    in:send={{ key: `${id}-img`, delay: 100, duration: 200 }}
-    out:recv={{ key: `${id}-img`, duration: 200 }}
+    in:send|global={{ key: `${id}-img`, delay: 100, duration: 200 }}
+    out:recv|global={{ key: `${id}-img`, duration: 200 }}
     class="accdiff-grid lancer-hit-thumb accdiff-target-has-dropdown {pluginClasses}"
   >
     <img
       class:accdiff-target-prone={target.prone}
-      alt={target.target.name ?? undefined}
-      src={target.target.actor?.img}
+      alt={target.token.name ?? undefined}
+      src={target.token.actor?.img}
       bind:this={imgElement}
     />
     {#if target.stunned}
-      <label transition:blur for={stunnedId} class="stunned-label" title="Stunned">
-        <i class="cci cci-condition-stunned i--sm" />
+      <label transition:blur|global for={stunnedId} class="stunned-label" title="Stunned">
+        <i class="cci cci-condition-stunned i--3" />
       </label>
     {/if}
     <label
@@ -86,8 +86,8 @@
       <i
         class="cci cci-condition-lock-on"
         class:i--click={target.lockOnAvailable}
-        class:i--sm={!target.usingLockOn}
-        class:i--l={target.usingLockOn}
+        class:i--3={!target.usingLockOn}
+        class:i--5={target.usingLockOn}
         on:click={toggleLockOn}
         on:keypress={toggleLockOn}
       />
@@ -108,7 +108,7 @@
     </div>
   {/if}
 {/if}
-<div class="accdiff-grid accdiff-weight" in:send={{ key: id }} out:recv={{ key: id }}>
+<div class="accdiff-grid accdiff-weight" in:send|global={{ key: id }} out:recv|global={{ key: id }}>
   <div
     class="grid-enforcement total-container {pluginClasses}"
     class:accurate={target.total > 0}
@@ -116,14 +116,14 @@
   >
     <!-- #key blocks currently break |local, see https://github.com/sveltejs/svelte/issues/5950 -->
     {#each [target.total] as total (target.total)}
-      <div {id} transition:blur class="card clipped total">
-        <span in:fly|local={{ y: -50, duration: 400 }} out:fly|local={{ y: 50, duration: 200 }}>
+      <div {id} transition:blur|global class="card clipped total">
+        <span in:fly={{ y: -50, duration: 400 }} out:fly={{ y: 50, duration: 200 }}>
           {Math.abs(total)}
         </span>
         <i
-          in:fly|local={{ y: -50, duration: 200 }}
-          out:fly|local={{ y: 50, duration: 200 }}
-          class="cci i--m i--dark white--text middle"
+          in:fly={{ y: -50, duration: 200 }}
+          out:fly={{ y: 50, duration: 200 }}
+          class="cci i--4 i--dark white--text middle"
           class:cci-accuracy={total >= 0}
           class:cci-difficulty={total < 0}
         />
@@ -133,141 +133,145 @@
 </div>
 
 <style lang="scss">
-  i {
-    border: none;
-  }
+  @layer lancer {
+    @layer components {
+      i {
+        border: none;
+      }
 
-  .accdiff-grid {
-    position: relative;
-  }
+      .accdiff-grid {
+        position: relative;
+      }
 
-  .card.clipped {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    padding: 8px 8px 8px 16px;
-    color: white;
-    width: min-content;
-    background-color: var(--dark-gray-color);
-  }
-  .total-container {
-    filter: drop-shadow(1px 1px 0px);
-  }
-  .accurate > .card.total {
-    background-color: var(--accurate-color);
-  }
-  .total-container.accurate {
-    filter: drop-shadow(1px 1px 0px #013904);
-  }
-  .inaccurate > .card.total {
-    background-color: var(--difficult-color);
-  }
-  .total-container.inaccurate {
-    filter: drop-shadow(1px 1px 0px #5c0d0d);
-  }
-  .disabled {
-    opacity: 0.4;
-  }
-  .lancer-hit-thumb {
-    margin-right: 0px;
-    margin-left: 4px;
-    margin-bottom: 4px;
-    & img {
-      border: none;
-      transition: all 200ms ease-in-out;
+      .card.clipped {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        padding: 8px 8px 8px 16px;
+        color: white;
+        width: min-content;
+        background-color: var(--dark-gray-color);
+      }
+      .total-container {
+        filter: drop-shadow(1px 1px 0px var(--darken-5));
+      }
+      .accurate > .card.total {
+        background-color: var(--accurate-color);
+      }
+      .total-container.accurate {
+        filter: drop-shadow(1px 1px 0px #013904);
+      }
+      .inaccurate > .card.total {
+        background-color: var(--difficult-color);
+      }
+      .total-container.inaccurate {
+        filter: drop-shadow(1px 1px 0px #5c0d0d);
+      }
+      .disabled {
+        opacity: 0.4;
+      }
+      .lancer-hit-thumb {
+        margin-right: 0px;
+        margin-left: 4px;
+        margin-bottom: 4px;
+        & img {
+          border: none;
+          transition: all 200ms ease-in-out;
+        }
+      }
+
+      label {
+        position: absolute;
+
+        &.lockon-label {
+          right: -4px;
+          top: -4px;
+        }
+        &.stunned-label {
+          left: -4px;
+          top: -4px;
+        }
+      }
+
+      @keyframes lockon {
+        70% {
+          text-shadow: 0 0 5px #017934;
+        }
+        80% {
+          text-shadow: 0 0 5px color-mix(in srgb, #017934, white 35%);
+        }
+        90% {
+          text-shadow: 0 0 5px #017934;
+        }
+      }
+      .cci-condition-lock-on {
+        text-shadow: 0 0 3px white;
+        transition: font-size 200ms;
+      }
+      .cci-condition-lock-on.i--5 {
+        animation: lockon 800ms linear 1s infinite alternate;
+      }
+
+      .cci-condition-stunned {
+        text-shadow: 0 0 3px var(--primary-color);
+      }
+
+      .accdiff-target-dropdown {
+        display: none;
+      }
+
+      .accdiff-target-prone {
+        transform: rotate(90deg);
+      }
+
+      @keyframes blur {
+        30% {
+          filter: none;
+          opacity: 0.9;
+        }
+        35% {
+          filter: blur(1px);
+          opacity: 0.7;
+        }
+        40% {
+          filter: blur(2px);
+          opacity: 0.5;
+        }
+        43% {
+          filter: blur(1px);
+          opacity: 0.5;
+        }
+        50% {
+          filter: none;
+          opacity: 0.9;
+        }
+      }
+
+      :global(.accdiff-total-invisibility) img {
+        animation: blur 2s linear 1s infinite alternate;
+      }
+
+      :global(.tippy-content) .accdiff-target-dropdown {
+        display: block;
+      }
+
+      .accdiff-grid :global(.tippy-box) {
+        font-size: 0.8em;
+        padding-left: 0px;
+        padding-right: 0px;
+        padding-top: 0px;
+        padding-bottom: 4px;
+        transform: none;
+      }
+      .accdiff-grid :global(.tippy-box .tippy-content) {
+        transform: none;
+      }
+      .accdiff-grid :global(.tippy-box .tippy-content .container) {
+        margin: 0px;
+      }
+      .accdiff-grid :global(.tippy-box .tippy-content .checkmark) {
+        height: 12px;
+      }
     }
-  }
-
-  label {
-    position: absolute;
-
-    &.lockon-label {
-      right: -4px;
-      top: -4px;
-    }
-    &.stunned-label {
-      left: -4px;
-      top: -4px;
-    }
-  }
-
-  @keyframes lockon {
-    70% {
-      text-shadow: 0 0 5px #017934;
-    }
-    80% {
-      text-shadow: 0 0 5px color-mix(in srgb, #017934, white 35%);
-    }
-    90% {
-      text-shadow: 0 0 5px #017934;
-    }
-  }
-  .cci-condition-lock-on {
-    text-shadow: 0 0 3px white;
-    transition: font-size 200ms;
-  }
-  .cci-condition-lock-on.i--l {
-    animation: lockon 800ms linear 1s infinite alternate;
-  }
-
-  .cci-condition-stunned {
-    text-shadow: 0 0 3px var(--primary-color);
-  }
-
-  .accdiff-target-dropdown {
-    display: none;
-  }
-
-  .accdiff-target-prone {
-    transform: rotate(90deg);
-  }
-
-  @keyframes blur {
-    30% {
-      filter: none;
-      opacity: 0.9;
-    }
-    35% {
-      filter: blur(1px);
-      opacity: 0.7;
-    }
-    40% {
-      filter: blur(2px);
-      opacity: 0.5;
-    }
-    43% {
-      filter: blur(1px);
-      opacity: 0.5;
-    }
-    50% {
-      filter: none;
-      opacity: 0.9;
-    }
-  }
-
-  :global(.accdiff-total-invisibility) img {
-    animation: blur 2s linear 1s infinite alternate;
-  }
-
-  :global(.tippy-content) .accdiff-target-dropdown {
-    display: block;
-  }
-
-  .accdiff-grid :global(.tippy-box) {
-    font-size: 0.8em;
-    padding-left: 0px;
-    padding-right: 0px;
-    padding-top: 0px;
-    padding-bottom: 4px;
-    transform: none;
-  }
-  .accdiff-grid :global(.tippy-box .tippy-content) {
-    transform: none;
-  }
-  .accdiff-grid :global(.tippy-box .tippy-content .container) {
-    margin: 0px;
-  }
-  .accdiff-grid :global(.tippy-box .tippy-content .checkmark) {
-    height: 12px;
   }
 </style>

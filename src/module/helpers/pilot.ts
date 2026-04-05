@@ -1,6 +1,6 @@
 import type { HelperOptions } from "handlebars";
-import { LancerCORE_BONUS, LancerSKILL, LancerTALENT } from "../item/lancer-item";
-import { collapseButton, collapseParam, CollapseRegistry } from "./collapse";
+import type { LancerCORE_BONUS, LancerSKILL, LancerTALENT } from "../item/lancer-item";
+import { collapseButton, collapseParam, type CollapseRegistry } from "./collapse";
 import { effectBox, resolveHelperDotpath } from "./commons";
 import { buildActionArrayHTML } from "./item";
 import { ref_params } from "./refs";
@@ -11,7 +11,7 @@ export function talent_view(talent_path: string, options: HelperOptions) {
   if (!talent) return "";
   let retStr = `<li class="card clipped-top lancer-border-talent talent-compact ref set" ${ref_params(talent)}>
         <div class="lancer-header lancer-talent submajor" style="grid-area: 1/1/2/4">
-          <i class="cci cci-talent i--m"></i>
+          <i class="cci cci-talent i--4"></i>
           <div class="balancer"></div><div class="balancer"></div>
           <span class="major">${talent.name}</span>
           ${collapseButton(collapse, talent)}
@@ -33,7 +33,7 @@ export function talent_view(talent_path: string, options: HelperOptions) {
     let sepBorder = i < talent.system.curr_rank - 1 ? "lancer-border-talent talent-rank-sep-border" : "";
 
     retStr += `<li class="talent-rank-compact card clipped ${sepBorder}" style="padding: 5px;">
-        <i class="cci cci-rank-${i + 1} i--l i--dark" style="grid-area: rank; padding: 0;"></i>
+        <i class="cci cci-rank-${i + 1} i--5 i--dark" style="grid-area: rank; padding: 0;"></i>
         <a
           class="chat-flow-button lancer-button lancer-talent"
           data-uuid="${talent.uuid}"
@@ -62,7 +62,7 @@ export function skillView(skill_path: string, options: HelperOptions) {
   return `
       <li class="card clipped skill-compact ref set" ${ref_params(skill)}>
         <div class="lancer-header lancer-trait medium clipped-top" style="grid-area: 1/1/2/3">
-          <i class="cci cci-skill i--m i--dark"> </i>
+          <i class="cci cci-skill i--4 i--dark"> </i>
           <a class="chat-flow-button"><i class="mdi mdi-message"></i></a>
           <span class="major modifier-name">${skill.name}</span>
           <div class="ref-controls">
@@ -72,7 +72,7 @@ export function skillView(skill_path: string, options: HelperOptions) {
           </div>
         </div>
         <a class="flexrow skill-flow lancer-button" style="grid-area: 2/1/3/2;">
-          <i class="fas fa-dice-d20 i--sm i--dark"></i>
+          <i class="fas fa-dice-d20 i--3 i--dark"></i>
           <div class="major roll-modifier" style="align-self: center">+${skill.system.curr_rank * 2}</div>
         </a>
         <div class="desc-text" style="grid-area: 2/2/3/3">${skill.system.description}</div>
@@ -86,7 +86,7 @@ export function coreBonusView(item_path: string, options: HelperOptions) {
   return `
       <li class="card clipped-top lancer-border-bonus ref set" ${ref_params(coreBonus)}>
         <div class="lancer-header lancer-bonus medium" style="grid-area: 1/1/2/3">
-          <i class="cci cci-corebonus i--m i--dark"> </i>
+          <i class="cci cci-corebonus i--4 i--dark"> </i>
           <a class="chat-flow-button">
             <i class="mdi mdi-message"></i>
           </a>

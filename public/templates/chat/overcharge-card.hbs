@@ -1,21 +1,18 @@
 <div class="card clipped-bot" style="margin: 0px;">
-  <div class="lancer-stat-header clipped-top">// {{title}} //</div>
+  <div class="lancer-header lancer-primary clipped-top">// {{title}} //</div>
   {{! Overcharge roll result }}
-  <div class="dice-roll lancer-dice-roll">
+  <div class="dice-roll lancer-dice-roll" data-action="expandRoll">
     <div class="dice-result">
-      <div class="dice-formula lancer-dice-formula flexrow">
-        <span style="text-align: left; margin-left: 5px;">{{result.roll.formula}}</span>
-        {{! Show new overcharge level }}
-        <div class="overcharge-heat-wrapper flexrow">
-          {{#for level}}
-            <i class="cci cci-heat overcharge-heat"></i>
-          {{/for}}
-        </div>
-        <span class="dice-total lancer-dice-total major">{{result.roll.total}}</span>
+      <div class="dice-formula flexrow">
+        {{result.roll.formula}}
+        <span class="dice-total major">
+          <div class="overcharge-heat-wrapper flexrow">
+            {{result.roll.total}}
+            <i class="cci cci-heat damage--heat"></i>
+          </div>
+        </span>
       </div>
-      <div style="text-align: left;">
-        {{{result.tt}}}
-      </div>
+      {{{result.tt}}}
     </div>
   </div>
 </div>

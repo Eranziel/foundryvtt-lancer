@@ -1,26 +1,37 @@
-import type { DeepPartial } from "@league-of-foundry-developers/foundry-vtt-types/src/types/utils.mjs";
+import type { DeepPartial } from "fvtt-types/utils";
 import { frameToPath } from "../../actor/retrograde-map";
 import { EntryType } from "../../enums";
-import { SourceData } from "../../source-template";
+import type { SourceData } from "../../source-template";
+import type { BaseData } from "../../base-data";
 import { convertNpcStats, regRefToLid } from "../../util/migrations";
-import { PackedNpcClassData } from "../../util/unpacking/packed-types";
-import { ControlledLengthArrayField, LIDField, LancerDataModel, NpcStatBlockField, UnpackContext } from "../shared";
+import type { PackedNpcClassData } from "../../util/unpacking/packed-types";
+import { LIDField, LancerDataModel, NpcStatBlockField, type UnpackContext } from "../shared";
 import { template_universal_item } from "./shared";
 
-const fields = foundry.data.fields;
+import fields = foundry.data.fields;
 
-export class NpcClassModel extends LancerDataModel<DataSchema, Item> {
+const defineNpcClassModelSchema = () => {
+  return {
+    role: new fields.StringField(),
+    flavor: new fields.HTMLField(),
+    tactics: new fields.HTMLField(),
+    base_features: new fields.SetField(new LIDField()),
+    optional_features: new fields.SetField(new LIDField()),
+    base_stats: new fields.ArrayField(new NpcStatBlockField({ nullable: false }), {
+      min: 3,
+      max: 3,
+      initial: [{}, {}, {}],
+    }),
+    ...template_universal_item(),
+  };
+};
+
+type NpcClassModelSchema = ReturnType<typeof defineNpcClassModelSchema>;
+
+export class NpcClassModel extends LancerDataModel<NpcClassModelSchema, Item.Implementation, BaseData.NpcClass> {
   static DEFAULT_ICON = "systems/lancer/assets/icons/npc_class.svg";
   static defineSchema() {
-    return {
-      role: new fields.StringField(),
-      flavor: new fields.HTMLField(),
-      tactics: new fields.HTMLField(),
-      base_features: new fields.SetField(new LIDField()),
-      optional_features: new fields.SetField(new LIDField()),
-      base_stats: new ControlledLengthArrayField(new NpcStatBlockField({ nullable: false }), { length: 3 }),
-      ...template_universal_item(),
-    };
+    return defineNpcClassModelSchema();
   }
 
   static migrateData(data: any) {

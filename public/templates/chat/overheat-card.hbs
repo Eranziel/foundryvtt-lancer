@@ -1,6 +1,6 @@
 <div class="card clipped-top" style="margin: 0px;">
   <div class="lancer-header lancer-primary struct-stress clipped-top">
-    <i class="cci cci-reactor i--m"></i>
+    <i class="cci cci-reactor i--4"></i>
     {{#if reroll_data}}<span class="spacer"></span>{{/if}}
     <div class="flexcol">
       <span>{{localize "lancer.chat-card.title.overheating"}}</span>
@@ -13,17 +13,14 @@
   {{#with result}}
     {{#if roll}}
       {{! Not using the dice roll helper because `total` is a special case here }}
-      <div class="dice-roll lancer-dice-roll">
+      <div class="dice-roll lancer-dice-roll" data-action="expandRoll">
         <div class="dice-result">
-          <div class="dice-formula lancer-dice-formula flexrow">
-            <span style="text-align: left; margin-left: 5px;">{{roll.formula}}</span>
-            <span class="dice-total lancer-dice-total major">{{total}}</span>
-            <i class="cci cci-reactor i--m"></i>
+          <div class="dice-formula flexrow">
+            {{roll.formula}}
+            <span class="dice-total major">{{total}} <i class="cci cci-reactor i--4"></i></span>
           </div>
           {{#if tt}}
-            <div style="text-align: left;">
-              {{{tt}}}
-            </div>
+            {{{tt}}}
           {{/if}}
         </div>
       </div>

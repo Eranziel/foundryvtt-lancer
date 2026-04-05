@@ -1,41 +1,38 @@
-import { FullBoundedNum } from "../../source-template";
-import { PackedBondPowerData } from "../../util/unpacking/packed-types";
+import type { FullBoundedNum } from "../../source-template";
+import type { PackedBondPowerData } from "../../util/unpacking/packed-types";
 
-const fields: any = foundry.data.fields;
+import fields = foundry.data.fields;
 
-export interface PowerData {
-  name: string;
-  description: string;
-  unlocked: boolean;
-  frequency: string | null;
-  uses: FullBoundedNum | null;
-  veteran: boolean;
-  master: boolean;
-  prerequisite: string | null;
-}
-
-export class PowerField extends fields.SchemaField {
-  constructor(options = {}) {
-    super(
+const definePowerFieldSchema = () => {
+  return {
+    name: new fields.StringField({ nullable: false }),
+    description: new fields.StringField({ nullable: false }),
+    unlocked: new fields.BooleanField(),
+    frequency: new fields.StringField({ required: false, nullable: true }),
+    uses: new fields.SchemaField(
       {
-        name: new fields.StringField({ nullable: false }),
-        description: new fields.StringField({ nullable: false }),
-        unlocked: new fields.BooleanField(),
-        frequency: new fields.StringField({ required: false, nullable: true }),
-        uses: new fields.SchemaField(
-          {
-            min: new fields.NumberField({ integer: true, initial: 0 }),
-            max: new fields.NumberField({ integer: true, initial: 0 }),
-            value: new fields.NumberField({ integer: true, initial: 0 }),
-          },
-          { required: false, nullable: true }
-        ),
-        veteran: new fields.BooleanField(),
-        master: new fields.BooleanField(),
-        prerequisite: new fields.StringField({ required: false, nullable: true }),
+        min: new fields.NumberField({ integer: true, initial: 0 }),
+        max: new fields.NumberField({ integer: true, initial: 0 }),
+        value: new fields.NumberField({ integer: true, initial: 0 }),
       },
-      options
-    );
+      { required: false, nullable: true }
+    ),
+    veteran: new fields.BooleanField(),
+    master: new fields.BooleanField(),
+    prerequisite: new fields.StringField({ required: false, nullable: true }),
+  };
+};
+
+type PowerFieldSchema = ReturnType<typeof definePowerFieldSchema>;
+
+export type PowerData = fields.SchemaField.InitializedData<PowerFieldSchema>;
+
+export class PowerField<Options extends fields.SchemaField.Options<PowerFieldSchema>> extends fields.SchemaField<
+  PowerFieldSchema,
+  Options
+> {
+  constructor(options?: Options) {
+    super(definePowerFieldSchema(), options);
   }
 }
 

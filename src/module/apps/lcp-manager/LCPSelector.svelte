@@ -1,7 +1,7 @@
 <script lang="ts">
   import { createEventDispatcher } from "svelte";
-  import { parseContentPack, ContentSummary, generateLcpSummary, generateMultiLcpSummary } from "../../util/lcps";
-  import { IContentPack, IContentPackManifest } from "../../util/unpacking/packed-types";
+  import { parseContentPack, type ContentSummary, generateLcpSummary, generateMultiLcpSummary } from "../../util/lcps";
+  import type { IContentPack, IContentPackManifest } from "../../util/unpacking/packed-types";
 
   const dispatch = createEventDispatcher();
 
@@ -122,93 +122,101 @@
 </div>
 
 <style lang="scss">
-  .file-select-container {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-  }
-  .deselect-file {
-    margin: 0.25rem;
-    flex: 1 1;
-  }
-  // Custom file input styling
-  // Adapted from https://github.com/mdo/wtf-forms/, MIT License, Copyright (c) 2014 Mark Otto
-  .file {
-    position: relative;
-    display: inline-block;
-    cursor: pointer;
-    height: 2.5rem;
-    margin: 0.25rem;
-    flex: 4 1;
-    &:hover .file-custom {
-      border-color: var(--lighten-5);
-      transition: background-color 0.5s, border-color 0.5s;
-    }
-    &:hover .file-custom__button {
-      color: var(--light-text);
-      background-color: var(--primary-color);
-      filter: brightness(1.1);
-      box-shadow: inset 0 0 10em var(--lighten-1);
-      transition: background-color 0.5s, border-color 0.5s;
-    }
-  }
-  .file input {
-    width: 100%;
-    margin: 0;
-    // Hide the actual file input
-    opacity: 0;
+  @layer lancer {
+    @layer components {
+      .file-select-container {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+      }
+      .deselect-file {
+        margin: 0.25rem;
+        flex: 1 1;
+      }
+      // Custom file input styling
+      // Adapted from https://github.com/mdo/wtf-forms/, MIT License, Copyright (c) 2014 Mark Otto
+      .file {
+        position: relative;
+        display: inline-block;
+        cursor: pointer;
+        height: 2.5rem;
+        margin: 0.25rem;
+        flex: 4 1;
+        &:hover .file-custom {
+          border-color: var(--lighten-5);
+          transition:
+            background-color 0.5s,
+            border-color 0.5s;
+        }
+        &:hover .file-custom__button {
+          color: var(--light-text);
+          background-color: var(--primary-color);
+          filter: brightness(1.1);
+          box-shadow: inset 0 0 10em var(--lighten-1);
+          transition:
+            background-color 0.5s,
+            border-color 0.5s;
+        }
+      }
+      .file input {
+        width: 100%;
+        margin: 0;
+        // Hide the actual file input
+        opacity: 0;
 
-    &:disabled {
-      cursor: not-allowed;
-    }
-    &:disabled + .file-custom,
-    &:disabled + .file-custom__button {
-      cursor: not-allowed;
-      text-shadow: none;
-      box-shadow: none;
-      filter: brightness(0.7);
-    }
-  }
-  .file-custom {
-    position: absolute;
-    top: 0;
-    right: 0;
-    left: 0;
-    z-index: 5;
-    height: 2.5rem;
-    padding: 0.5rem 1em;
-    line-height: 1.6;
-    color: var(--dark-text);
-    background-color: var(--darken-1);
-    border: 0.075rem solid var(--darken-4);
-    border-radius: 0.25rem;
-    box-shadow: var(--button-shadow);
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
+        &:disabled {
+          cursor: not-allowed;
+        }
+        &:disabled + .file-custom,
+        &:disabled + .file-custom__button {
+          cursor: not-allowed;
+          text-shadow: none;
+          box-shadow: none;
+          filter: brightness(0.7);
+        }
+      }
+      .file-custom {
+        position: absolute;
+        top: 0;
+        right: 0;
+        left: 0;
+        z-index: 5;
+        height: 2.5rem;
+        padding: 0.5rem 1em;
+        line-height: 1.6;
+        color: var(--dark-text);
+        background-color: var(--darken-1);
+        border: 0.075rem solid var(--darken-4);
+        border-radius: 0.25rem;
+        box-shadow: var(--button-shadow);
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
 
-    .file-custom__filenames {
-      display: block;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      width: 80%;
+        .file-custom__filenames {
+          display: block;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          width: 80%;
+        }
+      }
+      .file-custom__button {
+        position: absolute;
+        right: 0;
+        top: 0;
+        z-index: 6;
+        display: block;
+        padding: 0.5rem 1rem;
+        line-height: 1.5;
+        width: 20%;
+        color: var(--dark-text);
+        background-color: var(--light-gray-color);
+        border-left: 1px solid var(--darken-4);
+        border-radius: 0 0.25rem 0.25rem 0;
+      }
     }
-  }
-  .file-custom__button {
-    position: absolute;
-    right: 0;
-    top: 0;
-    z-index: 6;
-    display: block;
-    padding: 0.5rem 1rem;
-    line-height: 1.5;
-    width: 20%;
-    color: var(--dark-text);
-    background-color: var(--light-gray-color);
-    border-left: 1px solid var(--darken-4);
-    border-radius: 0 0.25rem 0.25rem 0;
   }
 </style>

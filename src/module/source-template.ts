@@ -1,5 +1,5 @@
-import { ActionTrackingData } from "./action";
-import { InheritedEffectsState } from "./effects/effector";
+import type { ActionTrackingData } from "./action";
+import type { InheritedEffectsState } from "./effects/effector";
 import {
   ActivationType,
   DeployableType,
@@ -14,20 +14,20 @@ import {
   ReserveType,
   SystemType,
   WeaponSize,
-  WeaponSizeChecklist,
+  type WeaponSizeChecklist,
   WeaponType,
-  WeaponTypeChecklist,
+  type WeaponTypeChecklist,
 } from "./enums";
-import { ActionData } from "./models/bits/action";
-import { AmmoData } from "./models/bits/ammo";
-import { BonusData } from "./models/bits/bonus";
-import { CounterData } from "./models/bits/counter";
-import { DamageData } from "./models/bits/damage";
-import { PowerData } from "./models/bits/power";
-import { BondQuestionData } from "./models/bits/question";
-import { RangeData } from "./models/bits/range";
-import { SynergyData } from "./models/bits/synergy";
-import { TagData } from "./models/bits/tag";
+import type { ActionData } from "./models/bits/action";
+import type { AmmoData } from "./models/bits/ammo";
+import type { BonusData } from "./models/bits/bonus";
+import type { CounterData } from "./models/bits/counter";
+import type { DamageData } from "./models/bits/damage";
+import type { PowerData } from "./models/bits/power";
+import type { BondQuestionData } from "./models/bits/question";
+import type { RangeData } from "./models/bits/range";
+import type { SynergyData } from "./models/bits/synergy";
+import type { TagData } from "./models/bits/tag";
 
 export type DataTypeMap = { [key in EntryType]: object };
 

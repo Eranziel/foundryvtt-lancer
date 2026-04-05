@@ -1,23 +1,12 @@
 // TODO: This needs a complete once-over as a lot of the stuff in here appears broken
 import { nanoid } from "nanoid";
 import type { LancerActor } from "../actor/lancer-actor";
-import {
+import type {
   PackedMechData,
   PackedMechLoadoutData,
   PackedPilotData,
   PackedPilotLoadoutData,
 } from "../util/unpacking/packed-types";
-
-// GOODBYE LEGACY TYPES
-type LegacyLancerActor = {
-  name: string;
-  data: {
-    type: string;
-    data?: {
-      cc_ver?: string;
-    };
-  };
-};
 
 /**
  * LEGACY: Exports an actor into a compatible format for importing (faked C/C style).
@@ -25,7 +14,7 @@ type LegacyLancerActor = {
  * @param download whether to trigger an automatic download of the json file.
  * @returns the export in object form, or null if error occurred.
  */
-export function handleActorExport(actor: LegacyLancerActor | LancerActor, download = true) {
+export function handleActorExport(actor: LancerActor, download = true) {
   // TODO: replace check with version check and appropriate export handler.
   if (!validForExport(actor)) {
     // ui.notifications!.warn("Exporting for this version of actor is currently unsupported.");
@@ -33,17 +22,14 @@ export function handleActorExport(actor: LegacyLancerActor | LancerActor, downlo
   }
 
   let dump = null;
-  // @ts-expect-error Should be fixed with v10 types
   switch (actor.type) {
     case "pilot":
-      // @ts-expect-error I'm just going to assume all of this works but it probably doesn't
       dump = handlePilotExport(actor);
       break;
     case "mech":
       // dump = handlePilotExport(actor);
       break;
     case "npc":
-      // @ts-expect-error I'm just going to assume all of this works but it probably doesn't
       dump = handleNPCExport(actor);
       break;
   }
@@ -65,8 +51,7 @@ export function handleActorExport(actor: LegacyLancerActor | LancerActor, downlo
   return dump;
 }
 
-export function addExportButton(actor: LegacyLancerActor | LancerActor, html: JQuery) {
-  // @ts-expect-error I'm just going to assume all of this works but it probably doesn't
+export function addExportButton(actor: LancerActor, html: JQuery) {
   const id = actor._id;
   if (!document.getElementById(id) && validForExport(actor)) {
     // if (!document.getElementById(id)) {
@@ -133,13 +118,13 @@ type FakePackedNPC = {
 
 //
 // HANDLERS
-function handleNPCExport(actor: LegacyLancerActor) {
-  const data = actor as any;
+function handleNPCExport(actor: LancerActor) {
+  const data = actor;
   console.log(`Exporting NPC: ${data.name}`);
 
-  const items = (data as any).items;
+  const items = data.items;
   const mech = data.mech;
-  const cla = items.find((item: any) => item.type === "npc_class");
+  const cla = items.find(item => item.type === "npc_class");
   const stats: object = {
     activations: (data as any).activations,
     armor: mech.armor,
@@ -163,7 +148,7 @@ function handleNPCExport(actor: LegacyLancerActor) {
 
   const exportNPC: FakePackedNPC = {
     id: nanoid(),
-    class: cla ? cla.id : "",
+    class: cla?.id ?? "",
     tier: data.tier_num,
     name: data.name,
     labels: [],
@@ -196,14 +181,14 @@ function handleNPCExport(actor: LegacyLancerActor) {
   return exportNPC;
 }
 
-function handlePilotExport(actor: LegacyLancerActor) {
+function handlePilotExport(actor: LancerActor) {
   const data = actor as any;
   console.log(`Exporting Pilot: ${data.name}`);
   // const loadout = actor.system.loadout;
   // const frame = loadout.frame?.fallback_lid;
   // if (!frame) return; // Throw error in future?
 
-  const items: Collection<Item> = data.items;
+  const items: Collection<Item.Implementation> = data.items;
   const pilot = data.pilot;
   const mech = data.mech;
   const loadout = data.mech_loadout;
@@ -213,8 +198,8 @@ function handlePilotExport(actor: LegacyLancerActor) {
     id: nanoid(),
     name: "Primary",
     armor: items
-      .filter((item: Item) => item.type === "pilot_armor")
-      .map((item: any) => {
+      .filter((item): item is Item.OfType<"pilot_armor"> => item.type === "pilot_armor")
+      .map(item => {
         return {
           id: item.system.id,
           uses: item.system.uses ? item.system.uses : 0,
@@ -224,8 +209,8 @@ function handlePilotExport(actor: LegacyLancerActor) {
         };
       }),
     weapons: items
-      .filter((item: Item) => item.type === "pilot_weapon")
-      .map((item: any) => {
+      .filter(item => item.type === "pilot_weapon")
+      .map(item => {
         return {
           id: item.system.id,
           uses: item.system.uses ? item.system.uses : 0,
@@ -235,8 +220,8 @@ function handlePilotExport(actor: LegacyLancerActor) {
         };
       }),
     gear: items
-      .filter((item: Item) => item.type === "pilot_gear")
-      .map((item: any) => {
+      .filter(item => item.type === "pilot_gear")
+      .map(item => {
         return {
           id: item.system.id,
           uses: item.system.uses ? item.system.uses : 0,
@@ -252,8 +237,8 @@ function handlePilotExport(actor: LegacyLancerActor) {
     id: nanoid(),
     name: "Primary",
     systems: items
-      .filter((item: any) => item.type === "mech_system" && !item.integrated)
-      .map((item: any) => {
+      .filter(item => item.type === "mech_system" && !item.integrated)
+      .map(item => {
         return {
           id: item.system.id,
           uses: item.system.uses ? item.system.uses : 0,
@@ -263,8 +248,8 @@ function handlePilotExport(actor: LegacyLancerActor) {
         };
       }),
     integratedSystems: items
-      .filter((item: any) => item.type === "mech_system" && item.integrated)
-      .map((item: any) => {
+      .filter(item => item.type === "mech_system" && item.integrated)
+      .map(item => {
         return {
           id: item.system.id,
           uses: item.system.uses ? item.system.uses : 0,
@@ -273,10 +258,10 @@ function handlePilotExport(actor: LegacyLancerActor) {
           note: "",
         };
       }),
-    mounts: loadout.mounts.filter((mount: any) => mount.type !== "Integrated").map((mount: any) => mapMount(mount)),
+    mounts: loadout.mounts.filter(mount => mount.type !== "Integrated").map(mount => mapMount(mount)),
     integratedMounts: loadout.mounts
-      .filter((mount: any) => mount.type === "Integrated")
-      .map((mount: any) => {
+      .filter(mount => mount.type === "Integrated")
+      .map(mount => {
         return mapWeapon(mount.weapons[0]);
       }),
     improved_armament: { bonus_effects: [], extra: [], lock: false, mount_type: "Flex", slots: [] },
@@ -284,7 +269,7 @@ function handlePilotExport(actor: LegacyLancerActor) {
     superheavy_mounting: { bonus_effects: [], extra: [], lock: false, mount_type: "Superheavy", slots: [] },
   };
 
-  const frame = items.find((item: Item) => item.type === "frame");
+  const frame = items.find(item => item.type === "frame");
   const exportPilot: PackedPilotData = {
     id: nanoid(),
     name: pilot.name,
@@ -315,22 +300,21 @@ function handlePilotExport(actor: LegacyLancerActor) {
     licenses: [],
     sort_index: 0,
     skills: items
-      .filter((item: Item) => item.type === "skill")
-      .map((item: any) => {
+      .filter(item => item.type === "skill")
+      .map(item => {
         return { id: item.system.id, rank: item.system.rank };
       }),
     talents: items
-      .filter((item: Item) => item.type === "talent")
-      .map((item: any) => {
+      .filter(item => item.type === "talent")
+      .map(item => {
         return { id: item.system.id, rank: item.system.rank };
       }),
-    core_bonuses: items.filter((item: Item) => item.type === "core_bonus").map((item: any) => item.system.id),
+    core_bonuses: items.filter(item => item.type === "core_bonus").map(item => item.system.id),
     loadout: pilotLoadout,
     mechs: [
       {
         id: nanoid(),
         name: mech.name,
-        // @ts-expect-error
         frame: frame ? frame.system.id : undefined,
         active: true,
         current_structure: mech.structure.value,
@@ -361,7 +345,7 @@ function handlePilotExport(actor: LegacyLancerActor) {
         portrait: "",
         cloud_portrait: "",
         ejected: false,
-      } as PackedMechData,
+      } satisfies PackedMechData,
     ],
     counter_data: [],
     custom_counters: [],
@@ -414,7 +398,6 @@ function mapWeapon(weapon: any): FakePackedWeapon {
   };
 }
 
-export function validForExport(actor: LegacyLancerActor | LancerActor) {
-  // @ts-expect-error I'm just going to assume all of this works but it probably doesn't
+export function validForExport(actor: LancerActor) {
   return !actor.system?.cc_ver?.startsWith("MchMnd2");
 }

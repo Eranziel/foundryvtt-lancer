@@ -1,7 +1,7 @@
 import type { HelperOptions } from "handlebars";
 import { ActivationType, NpcFeatureType } from "../enums";
-import { LancerNPC_FEATURE } from "../item/lancer-item";
-import { SystemTemplates } from "../system-template";
+import type { LancerNPC_FEATURE } from "../item/lancer-item";
+import type { SystemTemplates } from "../system-template";
 import { slugify } from "../util/lid";
 import { effectBox, resolveHelperDotpath } from "./commons";
 import { actionTypeIcon, npcAccuracyView, npcAttackBonusView, damageArrayView, rangeArrayView } from "./item";
@@ -39,14 +39,14 @@ export function actionTypeSelector(a_type: string, data_target: string): string 
     <option value="${ActivationType.Full}" ${a === ActivationType.Full.toLowerCase() ? "selected" : ""}>FULL</option>
     <option value="${ActivationType.Quick}" ${a === ActivationType.Quick.toLowerCase() ? "selected" : ""}>QUICK</option>
     <option value="${ActivationType.Reaction}" ${
-    a === ActivationType.Reaction.toLowerCase() ? "selected" : ""
-  }>REACTION</option>
+      a === ActivationType.Reaction.toLowerCase() ? "selected" : ""
+    }>REACTION</option>
     <option value="${ActivationType.Protocol}" ${
-    a === ActivationType.Protocol.toLowerCase() ? "selected" : ""
-  }>PROTOCOL</option>
+      a === ActivationType.Protocol.toLowerCase() ? "selected" : ""
+    }>PROTOCOL</option>
     <option value="${ActivationType.Passive}" ${
-    a === ActivationType.Passive.toLowerCase() ? "selected" : ""
-  }>PASSIVE</option>
+      a === ActivationType.Passive.toLowerCase() ? "selected" : ""
+    }>PASSIVE</option>
     <option value="${ActivationType.Other}" ${a === ActivationType.Other.toLowerCase() ? "selected" : ""}>OTHER</option>
   </select>
   </div>`;
@@ -69,7 +69,7 @@ function npcFeatureScaffold(
   return `
   <div class="set ref card ${feature_class}" data-item-id="${npc_feature.id}" ${ref_params(npc_feature)}>
     <div class="flexrow lancer-header clipped-top ${npc_feature.system.destroyed ? "destroyed" : ""}">
-      <i class="${npc_feature.system.destroyed ? "mdi mdi-cog" : `cci ${icon} i--m i--light`}"> </i>
+      <i class="${npc_feature.system.destroyed ? "mdi mdi-cog" : `cci ${icon} i--4 i--light`}"> </i>
       ${macro_button}
       <span class="minor grow">${npc_feature.name}</span>
       <a class="lancer-context-menu" data-path="${path}" ${options.hash.isRef ? `data-uuid=${npc_feature.uuid}` : ""}>
@@ -129,13 +129,13 @@ export function npcTechView(path: string, options: HelperOptions) {
   // Get the tier (or default 1)
   let tierIndex: number = (options.hash["tier"] ?? 1) - 1;
 
-  let sep = `<hr class="vsep">`;
+  let sep = `<span class="vsep"></span>`;
   let subheaderItems = [];
   let subheader2Items = [];
   if (featureData.tech_attack) {
     subheaderItems.push(
       `<a class="roll-tech lancer-button" data-tooltip="Roll an attack with this system">
-        <i class="fas fa-dice-d20 i--m"></i>
+        <i class="fas fa-dice-d20 i--4"></i>
       </a>`
     );
   }
@@ -187,10 +187,10 @@ export function npcWeaponView(path: string, options: HelperOptions): string {
   // Get the tier (or default 1)
   let tierIndex: number = (options.hash["tier"] ?? 1) - 1;
 
-  let sep = `<hr class="vsep">`;
+  let sep = `<span class="vsep"></span>`;
   let subheaderItems = [
     `<a class="roll-attack lancer-button no-grow" data-tooltip="Roll an attack with this weapon">
-      <i class="fas fa-dice-d20 i--m i--dark"></i>
+      <i class="fas fa-dice-d20 i--4 i--dark"></i>
     </a>`,
   ];
   let subheader2Items = [];
@@ -233,8 +233,8 @@ export function npcWeaponView(path: string, options: HelperOptions): string {
       </div>
       <div>
         <span>${featureData.weapon_type} // ${npcFeature.system.origin.name} ${
-      npcFeature.system.origin.type
-    } Feature</span>
+          npcFeature.system.origin.type
+        } Feature</span>
       </div>
       ${effectBox("ON HIT", featureData.on_hit)}
       ${effectBox("EFFECT", featureData.effect)}

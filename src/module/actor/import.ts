@@ -2,32 +2,32 @@ import { LANCER } from "../config";
 import { replaceDefaultResource } from "../config";
 import { EntryType, FittingSize, MountType } from "../enums";
 import {
-  LancerBOND,
-  LancerCORE_BONUS,
-  LancerFRAME,
-  LancerItem,
-  LancerLICENSE,
-  LancerMECH_SYSTEM,
-  LancerMECH_WEAPON,
-  LancerPILOT_ARMOR,
-  LancerPILOT_GEAR,
-  LancerPILOT_WEAPON,
-  LancerSKILL,
-  LancerTALENT,
-  LancerWEAPON_MOD,
+  type LancerBOND,
+  type LancerCORE_BONUS,
+  type LancerFRAME,
+  type LancerItem,
+  type LancerLICENSE,
+  type LancerMECH_SYSTEM,
+  type LancerMECH_WEAPON,
+  type LancerPILOT_ARMOR,
+  type LancerPILOT_GEAR,
+  type LancerPILOT_WEAPON,
+  type LancerSKILL,
+  type LancerTALENT,
+  type LancerWEAPON_MOD,
 } from "../item/lancer-item";
-import { PowerData } from "../models/bits/power";
-import { SourceData } from "../source-template";
+import type { PowerData } from "../models/bits/power";
+import type { SourceData } from "../source-template";
 import { get_pack_id, insinuate } from "../util/doc";
 import { fromLid } from "../helpers/from-lid";
-import {
+import type {
   PackedEquipmentData,
   PackedMechWeaponSaveData,
   PackedMountData,
   PackedPilotData,
   PackedPilotEquipmentState,
 } from "../util/unpacking/packed-types";
-import { LancerActor, LancerMECH, LancerPILOT } from "./lancer-actor";
+import { LancerActor, type LancerMECH, type LancerPILOT } from "./lancer-actor";
 import { frameToPath } from "./retrograde-map";
 const lp = LANCER.log_prefix;
 
@@ -62,7 +62,7 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
 
     // Check whether players are allowed to create Actors
     const canCreate = game.user?.can("ACTOR_CREATE");
-    const gmsOnline = game.users?.some((u: User) => u.isGM && u.active);
+    const gmsOnline = game.users?.some(u => u.isGM && u.active);
     if (!canCreate && !gmsOnline) {
       new foundry.applications.api.DialogV2({
         window: { title: `Cannot Create Actors`, icon: "fas fa-triangle-exclamation" },
@@ -296,7 +296,6 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
       },
       prototypeToken: {
         name: data.name,
-        // @ts-expect-error
         "texture.src": replaceDefaultResource(pilot.prototypeToken?.texture?.src, data.cloud_portrait, pilot.img),
       },
     });
@@ -305,9 +304,7 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
     let activeMechUuid = "";
     for (const cloudMech of data.mechs) {
       // Find the existing mech, or create one as necessary
-      let mech = game.actors!.find(
-        (m: LancerActor) => m.is_mech() && m.system.lid == cloudMech.id
-      ) as unknown as LancerMECH | null;
+      let mech = game.actors!.find((m): m is LancerMECH => m.is_mech() && m.system.lid == cloudMech.id);
       if (!mech) {
         if (!game.user?.can("ACTOR_CREATE")) {
           ui.notifications!.warn(
@@ -318,7 +315,7 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
           continue;
         }
 
-        mech = (await LancerActor.create({
+        mech = await LancerActor.create({
           name: cloudMech.name,
           type: EntryType.MECH,
           folder: unitFolder?.id,
@@ -326,7 +323,7 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
           system: {
             pilot: pilot.uuid,
           },
-        })) as unknown as LancerMECH;
+        });
       }
       if (!mech.canUserModify(game.user!, "update")) {
         ui.notifications!.warn(
@@ -396,7 +393,7 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
       flatMounts.push(...loadout.mounts);
       let populatedMounts: SourceData.Mech["loadout"]["weapon_mounts"] = [];
       for (let mount of flatMounts) {
-        let populatedSlots: typeof populatedMounts[0]["slots"] = [];
+        let populatedSlots: (typeof populatedMounts)[0]["slots"] = [];
         for (const slot of mount.slots) {
           let weapon = slot.weapon ? ((await getMechItemByLid(slot.weapon.id)) as LancerMECH_WEAPON | null) : null;
           let mod =

@@ -1,21 +1,28 @@
-import type { DeepPartial } from "@league-of-foundry-developers/foundry-vtt-types/src/types/utils.mjs";
+import type { DeepPartial } from "fvtt-types/utils";
 import { EntryType } from "../../enums";
-import { SourceData } from "../../source-template";
-import { PackedSkillData } from "../../util/unpacking/packed-types";
-import { LancerDataModel, UnpackContext } from "../shared";
+import type { SourceData } from "../../source-template";
+import type { BaseData } from "../../base-data";
+import type { PackedSkillData } from "../../util/unpacking/packed-types";
+import { LancerDataModel, type UnpackContext } from "../shared";
 import { template_universal_item } from "./shared";
 
-const fields = foundry.data.fields;
+import fields = foundry.data.fields;
 
-export class SkillModel extends LancerDataModel<DataSchema, Item> {
+const defineSkillModelSchema = () => {
+  return {
+    description: new fields.HTMLField(),
+    detail: new fields.StringField(),
+    curr_rank: new fields.NumberField({ nullable: false, initial: 1, min: 1, max: 3 }),
+    ...template_universal_item(),
+  };
+};
+
+type SkillModelSchema = ReturnType<typeof defineSkillModelSchema>;
+
+export class SkillModel extends LancerDataModel<SkillModelSchema, Item.Implementation, BaseData.Skill> {
   static DEFAULT_ICON = "systems/lancer/assets/icons/skill.svg";
   static defineSchema() {
-    return {
-      description: new fields.HTMLField(),
-      detail: new fields.StringField(),
-      curr_rank: new fields.NumberField({ nullable: false, initial: 1, min: 1, max: 3 }),
-      ...template_universal_item(),
-    };
+    return defineSkillModelSchema();
   }
 
   static migrateData(data: any) {

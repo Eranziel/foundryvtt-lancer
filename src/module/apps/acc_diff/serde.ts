@@ -1,5 +1,5 @@
 import * as t from "io-ts";
-import { isLeft, right, Either, map } from "fp-ts/Either";
+import { isLeft, right, type Either, map } from "fp-ts/Either";
 
 function unwrap<E, A>(e: Either<E, A>): A {
   if (isLeft(e)) {

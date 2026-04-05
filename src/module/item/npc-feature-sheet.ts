@@ -1,7 +1,6 @@
 import { LANCER } from "../config";
 import { EntryType, NpcFeatureType } from "../enums";
-import { SystemTemplates } from "../system-template";
-import { DAMAGE } from "../util/unpacking/defaults";
+import type { SystemTemplates } from "../system-template";
 import { LancerItemSheet } from "./item-sheet";
 import * as defaults from "../util/unpacking/defaults";
 import { Damage } from "../models/bits/damage";

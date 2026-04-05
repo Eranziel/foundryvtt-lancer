@@ -1,63 +1,48 @@
+import { LANCER } from "../config.js";
 import type { CombatTrackerAppearance } from "../settings.js";
 import type { LancerCombat, LancerCombatant } from "./lancer-combat.js";
+
+import ContextMenu = foundry.applications.ux.ContextMenu;
 
 /**
  * Overrides the display of the combat and turn order tab to add activation
  * buttons and either move or remove the initiative button
  */
-export class LancerCombatTracker extends CombatTracker {
-  static override get defaultOptions(): ApplicationOptions {
-    return {
-      ...super.defaultOptions,
-      template: CONFIG.LancerInitiative.templatePath!,
-    };
-  }
+export class LancerCombatTracker extends foundry.applications.sidebar.tabs.CombatTracker {
+  static DEFAULT_OPTIONS = {
+    actions: {
+      activateCombatantTurn: LancerCombatTracker.#activateCombatantTurn,
+      deactivateCombatantTurn: LancerCombatTracker.#deactivateCombatantTurn,
+    },
+  };
+  static PARTS = foundry.utils.mergeObject(
+    foundry.applications.sidebar.tabs.CombatTracker.PARTS,
+    { tracker: { template: "systems/lancer/templates/combat/tracker.hbs" } },
+    { inplace: false }
+  );
 
-  override scrollToTurn(): void {
-    if (this.viewed?.turn == null || !(CONFIG.LancerInitiative?.sort ?? true)) return super.scrollToTurn();
-    this.element.find("ol#combat-tracker")[0].scrollTop = 0;
-  }
-
-  /**
-   * Intercepts the data being sent to the combat tracker window and
-   * optionally sorts the the turn data that gets displayed. This allows the
-   * units that have already gone to be moved to the bottom without the risk of
-   * updateCombat events being eaten.
-   */
-  override async getData(options?: Partial<ApplicationOptions>): Promise<object> {
-    const config = CONFIG.LancerInitiative;
-    const appearance = game.settings.get(game.system.id, "combat-tracker-appearance");
-    const data = (await super.getData(options)) as {
-      turns: {
-        id: string;
-        css: string;
-        pending: number;
-        finished: number;
-      }[];
-      [x: string]: unknown;
-    };
-    const sort = config.sort ?? true;
-    const disp: Record<number, string> = {
-      [-2]: "",
-      [-1]: "enemy",
-      [0]: "neutral",
-      [1]: "friendly",
-      [2]: "player",
-    };
-    data.turns = data.turns.map(t => {
-      const combatant: LancerCombatant | undefined = <LancerCombatant>(
-        (this.viewed!.getEmbeddedDocument("Combatant", t.id, {}) as unknown)
-      );
+  async _prepareTrackerContext(ctx: any, opts: any) {
+    const appearance = game.settings.get(game.system.id, LANCER.setting_combat_appearance);
+    const disp: Record<number, string> = { [-2]: "", [-1]: "enemy", [0]: "neutral", [1]: "friendly", [2]: "player" };
+    await super._prepareTrackerContext(ctx, opts);
+    ctx.turns = ctx.turns?.map((t: any) => {
+      const combatant: LancerCombatant = this.viewed?.getEmbeddedDocument("Combatant", t.id, {}) as any;
+      const buttons = Array.from(Array(combatant?.system.activations.value ?? 0), () => ({
+        icon: appearance.icon,
+        action: "activateCombatantTurn",
+      }));
+      if (combatant === this.viewed?.combatant)
+        buttons.push({ icon: appearance.deactivate, action: "deactivateCombatantTurn" });
       return {
         ...t,
-        css: t.css + " " + disp[combatant?.disposition ?? -2],
-        activations: combatant?.activations.max,
-        pending: combatant?.activations.value ?? 0,
-        finished: +(this.viewed!.combatant === combatant),
+        css: `${t.css} ${disp[combatant.disposition]}`.trim(),
+        buttons,
+        activations: combatant?.system.activations.max,
+        pending: combatant?.system.activations.value,
       };
     });
-    if (sort) {
-      data.turns.sort(function (a, b) {
+    if (game.settings.get(game.system.id, LANCER.setting_combat_sort) && ctx?.turns != null) {
+      ctx.turns.sort(function (a: any, b: any) {
         const aa = a.css.indexOf("active") !== -1 ? 1 : 0;
         const ba = b.css.indexOf("active") !== -1 ? 1 : 0;
         if (ba - aa !== 0) return ba - aa;
@@ -66,15 +51,20 @@ export class LancerCombatTracker extends CombatTracker {
         return ad - bd;
       });
     }
-    data.icon_class = appearance.icon;
-    data.deactivate_icon_class = appearance.deactivate;
-    data.enable_initiative = CONFIG.LancerInitiative.enable_initiative ?? false;
-    return data;
   }
 
-  override activateListeners(html: JQuery<HTMLElement>): void {
-    super.activateListeners(html);
-    html.find(".lancer-combat-control").on("click", this._onActivateCombatant.bind(this));
+  static async #activateCombatantTurn(this: LancerCombatTracker, ev: MouseEvent, target: HTMLElement) {
+    ev.stopPropagation();
+    ev.preventDefault();
+    const { combatantId } = target.closest<HTMLElement>("[data-combatant-id]")?.dataset ?? {};
+    this.viewed?.activateCombatant(combatantId!);
+  }
+
+  static async #deactivateCombatantTurn(this: LancerCombatTracker, ev: MouseEvent, target: HTMLElement) {
+    ev.stopPropagation();
+    ev.preventDefault();
+    const { combatantId } = target.closest<HTMLElement>("[data-combatant-id]")?.dataset ?? {};
+    this.viewed?.deactivateCombatant(combatantId!);
   }
 
   /**
@@ -119,25 +109,29 @@ export class LancerCombatTracker extends CombatTracker {
     await combatant.modifyCurrentActivations(1);
   }
 
-  protected override _getEntryContextOptions(): ContextMenuEntry[] {
-    const m: ContextMenuEntry[] = [
+  protected _getEntryContextOptions(): ContextMenu.Entry<HTMLElement>[] {
+    const getCombatant = (li: HTMLElement) => this.viewed?.combatants.get(li.dataset.combatantId!);
+    const m: ContextMenu.Entry<HTMLElement>[] = [
       {
         name: "LANCERINITIATIVE.AddActivation",
         icon: '<i class="fas fa-plus"></i>',
-        callback: this._onAddActivation.bind(this),
+        callback: (li: HTMLElement) => getCombatant(li)?.addActivations(1),
       },
       {
         name: "LANCERINITIATIVE.RemoveActivation",
         icon: '<i class="fas fa-minus"></i>',
-        callback: this._onRemoveActivation.bind(this),
+        callback: (li: HTMLElement) => getCombatant(li)?.addActivations(-1),
       },
       {
         name: "LANCERINITIATIVE.UndoActivation",
         icon: '<i class="fas fa-undo"></i>',
-        callback: this._onUndoActivation.bind(this),
+        callback: (li: HTMLElement) =>
+          this.viewed
+            ?.deactivateCombatant(li.dataset.combatantId!)
+            .then(() => getCombatant(li)?.modifyCurrentActivations(1)),
       },
     ];
-    m.push(...super._getEntryContextOptions().filter(i => i.name !== "COMBAT.CombatantReroll"));
+    m.push(...super._getEntryContextOptions().filter((i: any) => i.name !== "COMBAT.CombatantReroll"));
     return m;
   }
 }
@@ -158,12 +152,3 @@ export function setAppearance(val?: CombatTrackerAppearance): void {
   document.documentElement.style.setProperty("--lancer-initiative-done-color", val?.done_color?.toString() ?? null);
   game.combats?.render();
 }
-
-/**
- * Register the helper we use to print the icon the correnct number of times
- */
-Handlebars.registerHelper("lancerinitiative-repeat", function (n, block) {
-  let accum = "";
-  for (let i = 0; i < n; i++) accum += block.fn(i);
-  return accum;
-});

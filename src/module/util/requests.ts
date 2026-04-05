@@ -21,7 +21,7 @@ export async function maybeImportActor(compendiumActor: LancerActor, owner: Lanc
 
   ChatMessage.create({
     blind: true,
-    whisper: game.users?.filter((u: User) => u.isGM).map(u => u.id),
+    whisper: game.users?.filter(u => u.isGM).map(u => u.id),
     content,
   });
 }

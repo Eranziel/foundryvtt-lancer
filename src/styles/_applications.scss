@@ -1,0 +1,107 @@
+@use "variables" as *;
+
+// Can't do @use inside of @layer, so each of these source files also add styles to the layer.
+@use "applications/action-manager";
+@use "applications/actor-sheet";
+@use "applications/item-sheet";
+@use "applications/stabilize";
+@use "applications/rich-editor";
+
+@layer lancer.applications {
+  /* ===== RULES FOR LANCER APPLICATIONS ===== */
+  .application.lancer,
+  .lancer-text-editor,
+  .lancer-hud-zone {
+    .window-content {
+      width: 100%;
+      height: 100%;
+      background: unset;
+      background-color: var(--background-color);
+      color: var(--dark-text);
+      font-family: var(--main-font-family);
+
+      & .svelte-app-mount {
+        height: 100%;
+        width: 100%;
+      }
+    }
+
+    .lancer-header {
+      padding: 0.3em;
+    }
+
+    .lancer-hud-body {
+      padding: 0.3em;
+    }
+  }
+
+  // TODO: these should live somewhere else,
+  // and lancer-sheet probably doesn't get used?
+  .lancer.sheet,
+  .lancer-sheet {
+    .editor,
+    .editor-content {
+      height: -webkit-fill-available;
+      min-height: 30em;
+    }
+  }
+
+  .lancer-hud {
+    font-family: var(--main-font-family);
+    h1,
+    h2,
+    h3,
+    h4 {
+      font-family: var(--header-font-family);
+      color: var(--dark-text);
+    }
+  }
+
+  /* ===== RULES FOR ALL APPLICATIONS ===== */
+  .application:not(#chat-popout) .window-content {
+    h1,
+    h2,
+    h3,
+    h4 {
+      font-family: var(--header-font-family);
+      margin-top: 0.5em;
+      margin-bottom: 0;
+    }
+
+    // TODO: are there any other buttons that we *don't* want to apply this style to?
+    *:not(nav.tabs) {
+      & > button,
+      & > a.button {
+        &:hover {
+          background-color: var(--primary-color);
+          border-color: var(--lighten-5);
+        }
+      }
+    }
+
+    input[type="checkbox"]:checked,
+    input[type="radio"]:checked {
+      --checkbox-checked-color: var(--secondary-color);
+      --checkbox-disabled-color: var(--dark-gray-color);
+      --checkbox-background-color: var(--dark-gray-color);
+    }
+  }
+
+  .scroll-body {
+    overflow-y: auto;
+    margin-top: 8px;
+    height: calc(100% - 168px);
+  }
+
+  .monospace {
+    font-family: var(--monospace-font-family);
+  }
+
+  /* By default, edit*/
+  .locked {
+    /* Only show edit button if not locked*/
+    .popout-text-edit-button {
+      display: none;
+    }
+  }
+}

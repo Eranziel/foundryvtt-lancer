@@ -39,35 +39,37 @@ import {
   WeaponSize,
   WeaponType,
 } from "../enums";
-import { collapseButton, collapseParam, CollapseRegistry } from "./collapse";
+import { collapseButton, collapseParam, type CollapseRegistry } from "./collapse";
 import { promptText } from "../apps/simple-prompt";
 import { CounterEditForm } from "../apps/counter-editor";
 import { frameToPath } from "../actor/retrograde-map";
 import { Damage } from "../models/bits/damage";
 import { Range } from "../models/bits/range";
-import { BonusData } from "../models/bits/bonus";
+import type { BonusData } from "../models/bits/bonus";
 import {
-  LancerBOND,
-  LancerFRAME,
+  type LancerBOND,
+  type LancerFRAME,
   LancerItem,
-  LancerLICENSE,
-  LancerMECH_SYSTEM,
-  LancerMECH_WEAPON,
-  LancerNPC_CLASS,
-  LancerNPC_FEATURE,
-  LancerNPC_TEMPLATE,
-  LancerPILOT_ARMOR,
-  LancerPILOT_GEAR,
-  LancerPILOT_WEAPON,
-  LancerRESERVE,
-  LancerWEAPON_MOD,
+  type LancerLICENSE,
+  type LancerMECH_SYSTEM,
+  type LancerMECH_WEAPON,
+  type LancerNPC_CLASS,
+  type LancerNPC_FEATURE,
+  type LancerNPC_TEMPLATE,
+  type LancerPILOT_ARMOR,
+  type LancerPILOT_GEAR,
+  type LancerPILOT_WEAPON,
+  type LancerRESERVE,
+  type LancerWEAPON_MOD,
 } from "../item/lancer-item";
-import { ActionData } from "../models/bits/action";
-import { LancerActor, LancerDEPLOYABLE } from "../actor/lancer-actor";
-import { CounterData } from "../models/bits/counter";
+import type { ActionData } from "../models/bits/action";
+import { LancerActor, type LancerDEPLOYABLE } from "../actor/lancer-actor";
+import type { CounterData } from "../models/bits/counter";
 import { slugify } from "../util/lid";
 import { TagEditForm } from "../apps/tag-editor";
-import { FullBoundedNum } from "../source-template";
+import type { FullBoundedNum } from "../source-template";
+
+import ContextMenu = foundry.applications.ux.ContextMenu;
 
 /**
  * Handlebars helper for weapon size selector
@@ -99,8 +101,8 @@ export function rangeEditor(path: string, options: HelperOptions): string {
   let range = resolveHelperDotpath<Range>(options, path);
   if (!range) return "";
 
-  let icon_html = `<i class="cci ${range.icon} i--m i--dark"></i>`;
-  /* TODO: For a next iteration--would be really nifty to set it up to select images rather than text. 
+  let icon_html = `<i class="cci ${range.icon} i--4 i--dark"></i>`;
+  /* TODO: For a next iteration--would be really nifty to set it up to select images rather than text.
     But that seems like a non-trivial task...
     <img class="med-icon" src="../systems/${game.system.id}/assets/icons/range.svg">
     <img class="med-icon" src="../systems/${game.system.id}/assets/icons/aoe_blast.svg">
@@ -135,7 +137,7 @@ export function damageEditor(path: string, options: HelperOptions): string {
   let damage = resolveHelperDotpath<Damage>(options, path);
   if (!damage) return "";
 
-  let icon_html = `<i class="cci ${damage.icon} i--m"></i>`;
+  let icon_html = `<i class="cci ${damage.icon} i--4"></i>`;
 
   let type_options = extendHelper(options, { value: damage.type }, { default: DamageType.Kinetic });
   let damage_type_selector = std_enum_select(path + ".type", DamageType, type_options);
@@ -173,7 +175,7 @@ export function damageArrayView(damages: Damage[], options: HelperOptions & { ro
   const closeTag = options.rollable ? `</a>` : `</div>`;
   for (let damage of damages) {
     let damage_item = `<span class="compact-damage">
-      <i class="cci ${damage.icon} i--m i--dark damage--${damage.type.toLowerCase()}"></i>
+      <i class="cci ${damage.icon} i--4 i--dark damage--${damage.type.toLowerCase()}"></i>
       ${damage.val}</span>`;
     results.push(damage_item);
   }
@@ -190,7 +192,7 @@ export function rangeArrayView(ranges: Range[], options: HelperOptions): string 
   // Build out results
   let results: string[] = [];
   for (let range of ranges) {
-    let range_item = `<span class="compact-range" data-tooltip="${range.type}"><i class="cci ${range.icon} i--m i--dark"></i>${range.val}</span>`;
+    let range_item = `<span class="compact-range" data-tooltip="${range.type}"><i class="cci ${range.icon} i--4 i--dark"></i>${range.val}</span>`;
     results.push(range_item);
   }
   return `<div class="flexrow no-grow compact-range ${classes}">${results.join(" ")}</div>`;
@@ -202,7 +204,7 @@ export function rangeArrayView(ranges: Range[], options: HelperOptions): string 
  */
 export function npcAttackBonusView(atk: number, txt: string = "ATTACK") {
   return `<div class="compact-acc" data-tooltip="Flat attack bonus">
-    <i style="margin-right: 5px;" class="cci cci-reticule i--m"></i>
+    <i style="margin-right: 5px;" class="cci cci-reticule i--4"></i>
     <span class="medium"> ${atk < 0 ? "-" : "+"}${atk} ${txt}</span>
   </div>`;
 }
@@ -225,7 +227,7 @@ export function npcAccuracyView(acc: number) {
   }
 
   return `<div class="compact-acc" data-tooltip="Innate Accuracy/Difficulty">
-      <i style="margin-right: 5px" class="cci cci-${icon} i--m"></i>
+      <i style="margin-right: 5px" class="cci cci-${icon} i--4"></i>
       <span class="medium">${text}</span>
     </div>`;
 }
@@ -329,11 +331,11 @@ export function bondPower(bond_path: string, power_index: number, options: Helpe
   return `
     <div class="card clipped bond-power" data-uuid="${bond.uuid}" data-power-index="${power_index}">
       <div class="lancer-header lancer-primary medium clipped-top">
-        <i class="cci cci-trait i--m"></i>
+        <i class="cci cci-trait i--4"></i>
         <a class="bond-power-flow"><i class="mdi mdi-message"></i></a>
         <span>${power.name}</span>
-        ${power.veteran ? `<i class="mdi mdi-alpha-v-box i--sm"></i>` : ``}
-        ${power.master ? `<i class="mdi mdi-alpha-m-box i--sm"></i>` : ``}
+        ${power.veteran ? `<i class="mdi mdi-alpha-v-box i--3"></i>` : ``}
+        ${power.master ? `<i class="mdi mdi-alpha-m-box i--3"></i>` : ``}
       </div>
       ${
         power.uses
@@ -359,8 +361,8 @@ export function pilotArmorSlot(armor_path: string, options: HelperOptions): stri
   // Generate commons
   if (!armor) {
     // Make an empty ref. Note that it still has path stuff if we are going to be dropping things here
-    return `<div class="${EntryType.PILOT_ARMOR} ref drop-settable card" 
-                        data-path="${armor_path}" 
+    return `<div class="${EntryType.PILOT_ARMOR} ref drop-settable card"
+                        data-path="${armor_path}"
                         data-accept-types="${EntryType.PILOT_ARMOR}">
           <img class="ref-icon" src="${TypeIcon(EntryType.PILOT_ARMOR)}"></img>
           <span class="major">Equip armor</span>
@@ -382,12 +384,12 @@ export function pilotArmorSlot(armor_path: string, options: HelperOptions): stri
     actions = buildActionArrayHTML(armor, "system.actions");
   }
 
-  return `<div class="set ref drop-settable card clipped-top pilot-armor-compact item lancer-border-primary" 
-                ${ref_params(armor, armor_path)} 
+  return `<div class="set ref drop-settable card clipped-top pilot-armor-compact item lancer-border-primary"
+                ${ref_params(armor, armor_path)}
                 data-accept-types="${EntryType.PILOT_ARMOR}"
                 >
             <div class="lancer-header lancer-primary">
-              <i class="mdi mdi-shield-outline i--m i--light"> </i>
+              <i class="mdi mdi-shield-outline i--4 i--light"> </i>
               <span class="minor">${armor.name}</span>
               <a class="lancer-context-menu" data-path="${armor_path}"">
                 <i class="fas fa-ellipsis-v"></i>
@@ -395,23 +397,23 @@ export function pilotArmorSlot(armor_path: string, options: HelperOptions): stri
             </div>
             <div class="flexrow" style="align-items: center; padding: 5px">
               <div class="compact-stat">
-                <i class="mdi mdi-shield-outline i--s i--dark"></i>
+                <i class="mdi mdi-shield-outline i--2 i--dark"></i>
                 <span class="minor">${armor_val}</span>
               </div>
               <div class="compact-stat">
-                <i class="mdi mdi-heart i--s i--dark"></i>
+                <i class="mdi mdi-heart i--2 i--dark"></i>
                 <span class="minor">+${hp_val}</span>
               </div>
               <div class="compact-stat">
-                <i class="cci cci-edef i--s i--dark"></i>
+                <i class="cci cci-edef i--2 i--dark"></i>
                 <span class="minor">${edef_val}</span>
               </div>
               <div class="compact-stat">
-                <i class="cci cci-evasion i--s i--dark"></i>
+                <i class="cci cci-evasion i--2 i--dark"></i>
                 <span class="minor">${eva_val}</span>
               </div>
               <div class="compact-stat">
-                <i class="mdi mdi-arrow-right-bold-hexagon-outline i--s i--dark"></i>
+                <i class="mdi mdi-arrow-right-bold-hexagon-outline i--2 i--dark"></i>
                 <span class="minor">${speed_val}</span>
               </div>
             </div>
@@ -432,8 +434,8 @@ export function pilotWeaponRefview(weapon_path: string, options: HelperOptions):
   // Generate commons
   if (!weapon) {
     // Make an empty ref. Note that it still has path stuff if we are going to be dropping things here
-    return `<div class="${EntryType.PILOT_WEAPON} ref drop-settable card flexrow" 
-                        data-path="${weapon_path}" 
+    return `<div class="${EntryType.PILOT_WEAPON} ref drop-settable card flexrow"
+                        data-path="${weapon_path}"
                         data-accept-types="${EntryType.PILOT_WEAPON}">
           <img class="ref-icon" src="${TypeIcon(EntryType.PILOT_WEAPON)}"></img>
           <span class="major">Equip weapon</span>
@@ -461,11 +463,11 @@ export function pilotWeaponRefview(weapon_path: string, options: HelperOptions):
   return `<div class="set ${
     EntryType.PILOT_WEAPON
   } ref drop-settable card clipped-top pilot-weapon-compact item lancer-border-weapon"
-    ${ref_params(weapon, weapon_path)} 
+    ${ref_params(weapon, weapon_path)}
     data-accept-types="${EntryType.PILOT_WEAPON}"
   >
     <div class="lancer-header lancer-weapon">
-      <i class="cci cci-weapon i--m i--light"> </i>
+      <i class="cci cci-weapon i--4 i--light"> </i>
       <span class="minor">${weapon.name}</span>
               <a class="lancer-context-menu" data-path="${weapon_path}"">
                 <i class="fas fa-ellipsis-v"></i>
@@ -478,13 +480,13 @@ export function pilotWeaponRefview(weapon_path: string, options: HelperOptions):
           style="max-width: min-content;"
           data-tooltip="Roll an attack with this weapon"
         >
-          <i class="fas fa-dice-d20 i--sm i--dark"></i>
+          <i class="fas fa-dice-d20 i--3 i--dark"></i>
         </a>
         ${rangeArrayView(weapon.system.range, options)}
-        <hr class="vsep">
+        <span class="vsep"></span>
         ${damageArrayView(weapon.system.damage, { ...options, rollable: true })}
-        
-        ${inc_if(`<hr class="vsep"><div class="uses-wrapper">`, loading || limited)}
+
+        ${inc_if(`<span class="vsep"></span><div class="uses-wrapper">`, loading || limited)}
         ${loading}
         ${limited}
         ${inc_if(`</div>`, loading || limited)}
@@ -504,8 +506,8 @@ export function pilotGearRefview(gear_path: string, options: HelperOptions): str
 
   if (!gear) {
     // Make an empty ref. Note that it still has path stuff if we are going to be dropping things here
-    return `<div class="${EntryType.PILOT_GEAR} ref drop-settable card flexrow" 
-                        data-path="${gear_path}" 
+    return `<div class="${EntryType.PILOT_GEAR} ref drop-settable card flexrow"
+                        data-path="${gear_path}"
                         data-accept-types="${EntryType.PILOT_GEAR}">
           <img class="ref-icon" src="${TypeIcon(EntryType.PILOT_GEAR)}"></img>
           <span class="major">Equip gear</span>
@@ -524,11 +526,11 @@ export function pilotGearRefview(gear_path: string, options: HelperOptions): str
   }
 
   return `<div class="set ${EntryType.PILOT_GEAR} ref drop-settable card clipped-top item lancer-border-system"
-    ${ref_params(gear, gear_path)} 
+    ${ref_params(gear, gear_path)}
     data-accept-types="${EntryType.PILOT_GEAR}"
   >
     <div class="lancer-header lancer-system">
-      <i class="cci cci-generic-item i--m"> </i>
+      <i class="cci cci-generic-item i--4"> </i>
       <a class="chat-flow-button"><i class="mdi mdi-message"></i></a>
       <span class="minor">${gear.name!}</span>
       <a class="lancer-context-menu" data-path="${gear_path}"">
@@ -587,8 +589,8 @@ export function reserveRefView(reserve_path: string, options: HelperOptions): st
   let resType = resTypes.includes(reserve.system.type)
     ? reserve.system.type
     : resTypes.includes(reserve.system.label)
-    ? reserve.system.label
-    : reserve.system.type;
+      ? reserve.system.label
+      : reserve.system.type;
   switch (resType) {
     case "Bonus": // missing?
       icon = "cci cci-accuracy";
@@ -623,7 +625,7 @@ export function reserveRefView(reserve_path: string, options: HelperOptions): st
   return `<div class="set ${EntryType.RESERVE} ref drop-settable card clipped-top item lancer-border-trait"
                 ${ref_params(reserve, reserve_path)} >
     <div class="lancer-header lancer-trait">
-      <i class="${icon} i--m"> </i>
+      <i class="${icon} i--4"> </i>
       <a class="chat-flow-button"><i class="mdi mdi-message"></i></a>
       <span class="minor">${reserve.name}</span>
       <a class="lancer-context-menu" data-path="${reserve_path}"">
@@ -662,8 +664,8 @@ export function mechLoadoutWeaponSlot(
         : size
       : "any";
     return `
-      <div class="${EntryType.MECH_WEAPON} ref slot drop-settable card flexrow" 
-           data-path="${weapon_path}" 
+      <div class="${EntryType.MECH_WEAPON} ref slot drop-settable card flexrow"
+           data-path="${weapon_path}"
            data-accept-types="${EntryType.MECH_WEAPON}">
         <img class="ref-icon" src="${TypeIcon(EntryType.MECH_WEAPON)}"></img>
         <span class="major">Insert ${slotSize} weapon</span>
@@ -734,7 +736,7 @@ data-action="set" data-action-value="(int)${i}" data-path="${weapon_path}.system
                   data-accept-types="${EntryType.MECH_WEAPON}"
                   style="max-height: fit-content;">
       <div class="lancer-header lancer-weapon ${weapon.system.destroyed ? "destroyed" : ""}">
-        <i class="${weapon.system.destroyed ? "mdi mdi-cog" : "cci cci-weapon i--m i--light"}"> </i>
+        <i class="${weapon.system.destroyed ? "mdi mdi-cog" : "cci cci-weapon i--4 i--light"}"> </i>
         <a class="chat-flow-button"><i class="mdi mdi-message"></i></a>
         <span class="minor" >
           ${weapon.name} // ${weapon.system.size.toUpperCase()} ${profile.type.toUpperCase()}
@@ -743,27 +745,27 @@ data-action="set" data-action-value="(int)${i}" data-path="${weapon_path}.system
         <a class="lancer-context-menu" data-path="${weapon_path}">
           <i class="fas fa-ellipsis-v"></i>
         </a>
-      </div> 
+      </div>
       <div class="lancer-body collapse" ${collapseParam(collapse, weapon, true)}>
         ${weapon.system.sp ? sp : ""}
         ${profiles}
         <div class="flexrow" style="text-align: left; white-space: nowrap;">
           <a class="roll-attack lancer-button" data-tooltip="Roll an attack with this weapon">
-            <i class="fas fa-dice-d20 i--m i--dark"></i>
+            <i class="fas fa-dice-d20 i--4 i--dark"></i>
           </a>
-          <hr class="vsep">
+          <span class="vsep"></span>
           ${rangeArrayView(profile.all_range, options)}
-          <hr class="vsep">
+          <span class="vsep"></span>
           ${damageArrayView(profile.all_damage, { ...options, rollable: true })}
 
-          ${inc_if(`<hr class="vsep"><div class="uses-wrapper">`, loading || limited)}
+          ${inc_if(`<span class="vsep"></span><div class="uses-wrapper">`, loading || limited)}
           <!-- Loading toggle, if we are loading-->
           ${loading}
           <!-- Limited toggle if we are limited-->
           ${limited}
           ${inc_if(`</div>`, loading || limited)}
         </div>
-        
+
         <div class="flexcol">
           ${effect}
           ${on_attack}
@@ -786,7 +788,7 @@ export function weaponModView(mod_path: string, weapon_path: string | null, opti
     return `<div class="${EntryType.WEAPON_MOD} ref slot drop-settable card flexrow"
         data-path="${mod_path}"
         data-accept-types="${EntryType.WEAPON_MOD}">
-      <i class="cci cci-weaponmod i--m i--light"> </i>
+      <i class="cci cci-weaponmod i--4 i--light"> </i>
       <span>No Mod Installed</span>
     </div>`;
   }
@@ -832,7 +834,7 @@ export function weaponModView(mod_path: string, weapon_path: string | null, opti
     mod_path
   )} data-accept-types="${EntryType.WEAPON_MOD}">
     <div class="lancer-header lancer-mod">
-      <i class="cci cci-weaponmod i--m i--light"> </i>
+      <i class="cci cci-weaponmod i--4 i--light"> </i>
       <span class="minor">${mod.name}</span>
       <a class="lancer-context-menu" data-path="${mod_path}">
         <i class="fas fa-ellipsis-v"></i>
@@ -864,12 +866,12 @@ export function manufacturer_ref(source_path: string, options: HelperOptions): s
   // TODO? maybe do a little bit more here, aesthetically speaking
   if (cd) {
     let source = source_!;
-    return `<div class="set ${EntryType.MANUFACTURER} ref ref-card drop-settable" ${ref_params(cd.ref, source_path)}> 
+    return `<div class="set ${EntryType.MANUFACTURER} ref ref-card drop-settable" ${ref_params(cd.ref, source_path)}>
               <h3 class="mfr-name" style="color: ${source!.GetColor(false)};">
-                <i class="i--m cci ${source.Logo}"></i>
+                <i class="i--4 cci ${source.Logo}"></i>
                 ${source!.LID}
               </h3>
-                
+
             </div>
         `;
   } else {
@@ -889,7 +891,7 @@ export function licenseRefView(item_path: string, options: HelperOptions): strin
   return `
     <li class="card clipped ref set" ${ref_params(license)}>
       <div class="lancer-header ${mfr} medium clipped-top" style="grid-area: 1/1/2/3">
-        <i class="cci cci-license i--m i--dark"> </i>
+        <i class="cci cci-license i--4 i--dark"> </i>
         <div class="major modifier-name">${license.name} ${license.system.curr_rank}</div>
         <div class="ref-controls">
           <a class="lancer-context-menu" data-path="${item_path}"">
@@ -965,26 +967,26 @@ export function actionTypeIcon(a_type: string) {
   let html = "";
   switch (a) {
     case ActivationType.Full.toLowerCase():
-      html += `<i class="cci cci-activation-full i--m"></i>`;
+      html += `<i class="cci cci-activation-full i--4"></i>`;
       break;
     case ActivationType.Quick.toLowerCase():
-      html += `<i class="cci cci-activation-quick i--m"></i>`;
+      html += `<i class="cci cci-activation-quick i--4"></i>`;
       break;
     case ActivationType.Reaction.toLowerCase():
-      html += `<i class="cci cci-reaction i--m"></i>`;
+      html += `<i class="cci cci-reaction i--4"></i>`;
       break;
     case ActivationType.Protocol.toLowerCase():
-      html += `<i class="cci cci-protocol i--m"></i>`;
+      html += `<i class="cci cci-protocol i--4"></i>`;
       break;
     case ActivationType.Free.toLowerCase():
-      html += `<i class="cci cci-free-action i--m"></i>`;
+      html += `<i class="cci cci-free-action i--4"></i>`;
       break;
     case ActivationType.FullTech.toLowerCase():
-      html += `<i class="cci cci-tech-full i--m"></i>`;
+      html += `<i class="cci cci-tech-full i--4"></i>`;
       break;
     case ActivationType.QuickTech.toLowerCase():
     case ActivationType.Invade.toLowerCase():
-      html += `<i class="cci cci-tech-quick i--m"></i>`;
+      html += `<i class="cci cci-tech-quick i--4"></i>`;
       break;
   }
   return html;
@@ -1017,7 +1019,7 @@ export function buildActionHTML(
       { uuid: doc.uuid, path: path },
       { nonInteractive: options?.nonInteractive }
     );
-    chip = `<div class="action-flow-container">${chip}<hr class="vsep"></div>`;
+    chip = `<div class="action-flow-container">${chip}<span class="vsep"></span></div>`;
   } else {
     chip = "";
   }
@@ -1043,7 +1045,7 @@ export function buildActionHTML(
         <div>
           ${chip}
           <div>
-            <div class="overline">${game.i18n.localize("lancer.chat-card.label.trigger")}</div> 
+            <div class="overline">${game.i18n.localize("lancer.chat-card.label.trigger")}</div>
             ${action.trigger || defaultPlaceholder}
             <div class="overline">${game.i18n.localize("lancer.chat-card.label.effect")} ${editDetails}</div>
             ${action.detail || defaultPlaceholder}
@@ -1217,7 +1219,7 @@ export function buildDeployableHTML(
           ${chips.join(`</div>\n<div class="flexrow">`)}
         </div>
       </div>
-      ${options?.vertical ? "" : `<hr class="vsep">`}
+      ${options?.vertical ? "" : `<span class="vsep"></span>`}
     </div>
     <div style="grid-area: desc">${detailText ? detailText : ""}</div>
     ${
@@ -1261,7 +1263,7 @@ export function buildChipHTML(
     flowData?.label ? `${flowData.label.toUpperCase()} - ` : `${!options?.nonInteractive ? "USE " : ""}`
   }${activation.toUpperCase()}`;
   if (flowData && flowData.uuid && flowData.path !== undefined) {
-    if (!flowData.icon) flowData.icon = `<i class="${activationIcon(activation)} i--sm"></i>`;
+    if (!flowData.icon) flowData.icon = `<i class="${activationIcon(activation)} i--3"></i>`;
     let data = `data-uuid=${flowData.uuid} data-path="${flowData.path}"`;
     return `
     <a
@@ -1508,7 +1510,7 @@ function _handleContextMenus(
   const dd = (html: JQuery) => (path(html) ? drilldownDocument(doc, path(html)!) : null);
 
   // Renders the sheet for the document referenced at data-path
-  let edit: ContextMenuEntry = {
+  let edit: ContextMenu.Entry<JQuery> = {
     name: view_only ? "View" : "Edit",
     icon: view_only ? `<i class="fas fa-eye"></i>` : `<i class="fas fa-edit"></i>`,
     callback: html => {
@@ -1529,7 +1531,7 @@ function _handleContextMenus(
 
   // Special case for NPC class/template features. They only track the uuid
   // of the feature documents, so we need to handle them differently.
-  let editRefItem: ContextMenuEntry = {
+  let editRefItem: ContextMenu.Entry<JQuery> = {
     name: view_only ? "View" : "Edit",
     icon: view_only ? `<i class="fas fa-eye"></i>` : `<i class="fas fa-edit"></i>`,
     callback: html => {
@@ -1557,11 +1559,10 @@ function _handleContextMenus(
   };
 
   // Renders the editor for the effect referenced at data-path
-  let editEffect: ContextMenuEntry = {
+  let editEffect: ContextMenu.Entry<JQuery> = {
     name: view_only ? "View" : "Edit",
     icon: view_only ? `<i class="fas fa-eye"></i>` : `<i class="fas fa-edit"></i>`,
     callback: html => {
-      // @ts-expect-error
       let effects = [...doc.allApplicableEffects()];
       let index = parseInt(html[0].dataset.activeEffectIndex ?? "-1");
       if (effects[index]) {
@@ -1578,7 +1579,7 @@ function _handleContextMenus(
   };
 
   // Toggle destroyed status, for items that support it
-  let repairItem: ContextMenuEntry = {
+  let repairItem: ContextMenu.Entry<JQuery> = {
     name: "Mark Repaired",
     icon: `<i class="fas fa-fw fa-wrench"></i>`,
     callback: html => {
@@ -1610,7 +1611,7 @@ function _handleContextMenus(
   };
 
   // Toggle destroyed status, for items that support it
-  let destroyItem: ContextMenuEntry = {
+  let destroyItem: ContextMenu.Entry<JQuery> = {
     name: "Mark Destroyed",
     icon: `<i class="cci cci-eclipse"></i>`,
     callback: html => {
@@ -1642,7 +1643,7 @@ function _handleContextMenus(
   };
 
   // Fully delete a document
-  let deleteDocument: ContextMenuEntry = {
+  let deleteDocument: ContextMenu.Entry<JQuery> = {
     name: "Delete Document",
     icon: '<i class="fas fa-fw fa-trash"></i>',
     callback: async (html: JQuery) => {
@@ -1663,7 +1664,7 @@ function _handleContextMenus(
 
   // Sets a reference to null
   // Logic elsewhere will clean up the array item (if any) if said array item would be problematic left blank
-  let clearReference: ContextMenuEntry = {
+  let clearReference: ContextMenu.Entry<JQuery> = {
     name: "Unlink",
     icon: '<i class="fas fa-times"></i>',
     callback: async (html: JQuery) => {
@@ -1689,7 +1690,7 @@ function _handleContextMenus(
   };
 
   // Remove an array item (e.x. a counter, tag, or weapon profile)
-  let arrayRemove: ContextMenuEntry = {
+  let arrayRemove: ContextMenu.Entry<JQuery> = {
     name: "Remove",
     icon: '<i class="fas fa-fw fa-trash"></i>',
     callback: html => {
@@ -1718,7 +1719,7 @@ function _handleContextMenus(
   };
 
   // Summon counter editor dialogue
-  let editCounter: ContextMenuEntry = {
+  let editCounter: ContextMenu.Entry<JQuery> = {
     name: "Edit",
     icon: `<i class="fas fa-edit"></i>`,
     callback: html => {
@@ -1730,7 +1731,7 @@ function _handleContextMenus(
   };
 
   // Summon a tag editor dialog
-  let editTag: ContextMenuEntry = {
+  let editTag: ContextMenu.Entry<JQuery> = {
     name: "Edit",
     icon: '<i class="fas fa-edit"></i>',
     callback: html => {
@@ -1750,7 +1751,7 @@ function _handleContextMenus(
   };
 
   // If the "renameSubpath" appears in the dataset, allow simple-prompt to change the name
-  let rename: ContextMenuEntry = {
+  let rename: ContextMenu.Entry<JQuery> = {
     name: "Rename",
     icon: '<i class="fas fa-fw fa-edit"></i>',
     callback: async html => {

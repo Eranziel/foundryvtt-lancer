@@ -1,0 +1,86 @@
+:root {
+  --lancer-initiative-icon-size: 1rem;
+  --lancer-initiative-done-color: #000000;
+}
+
+@mixin combatant($disposition) {
+  &.#{$disposition} {
+    .token-initiative button {
+      color: var(--lancer-initiative-#{$disposition}-color);
+      background: unset;
+      filter: none;
+      &:hover {
+        background: var(--button-hover-background-color);
+        color: var(--button-hover-text-color);
+        transition:
+          background-color 0.5s,
+          border-color 0.5s;
+      }
+    }
+    border-left: 3px solid var(--lancer-initiative-#{$disposition}-color);
+    border-right: 3px solid var(--lancer-initiative-#{$disposition}-color);
+    &::before {
+      border-color: var(--lancer-initiative-#{$disposition}-color);
+    }
+  }
+  @at-root :root {
+    --lancer-initiative-#{$disposition}-color: #000000;
+  }
+}
+
+.combat-sidebar {
+  li.combatant {
+    .token-initiative {
+      flex-direction: row;
+      button {
+        font-size: var(--lancer-initiative-icon-size);
+      }
+    }
+    &.active .token-initiative button[data-action="deactivateCombatantTurn"] {
+      color: var(--lancer-initiative-done-color);
+    }
+    @each $disposition in player friendly neutral enemy secret {
+      @include combatant($disposition);
+    }
+    .combatant-controls span {
+      color: var(--color-text-subtle);
+    }
+    span.activations {
+      flex: 0 0 20px;
+      width: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      i {
+        color: var(--color-text-dark-5);
+        opacity: 0.25;
+        font-size: 20px;
+        position: relative;
+        left: 50%;
+      }
+      span {
+        flex: 0 0 20px;
+        text-align: center;
+        font-size: 14px;
+        position: relative;
+        left: -50%;
+        // opacity: 0.8;
+      }
+    }
+  }
+  .combat-controls .inline-control {
+    &[data-action="nextTurn"],
+    &[data-action="previousTurn"] {
+      display: none;
+    }
+  }
+}
+
+#combat,
+#combat-popout {
+  #combat-tracker li.combatant.turn-done {
+    // Furnace crap
+    color: inherit;
+    text-decoration: inherit;
+  }
+}

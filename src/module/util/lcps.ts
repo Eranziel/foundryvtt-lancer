@@ -1,7 +1,7 @@
-import JSZip, { JSZipObject } from "jszip";
+import JSZip, { type JSZipObject } from "jszip";
 import { LANCER } from "../config";
 import { LCPIndex } from "../apps/lcp-manager/lcp-manager";
-import {
+import type {
   AnyPackedNpcFeatureData,
   IContentPack,
   IContentPackManifest,
@@ -413,49 +413,41 @@ async function massifContentPacks(): Promise<{ id: string; manifest: IContentPac
     {
       id: "long-rim",
       manifest: await import("@massif/long-rim-data/lib/lcp_manifest.json"),
-      // @ts-expect-error Help welcome!
       cpData: (await import("@massif/long-rim-data")) as NpmLancerData,
     },
     {
       id: "wallflower",
       manifest: await import("@massif/wallflower-data/lib/lcp_manifest.json"),
-      // @ts-expect-error
       cpData: (await import("@massif/wallflower-data")) as NpmLancerData,
     },
     {
       id: "ktb",
       manifest: await import("@massif/ktb-data/lib/lcp_manifest.json"),
-      // @ts-expect-error
       cpData: (await import("@massif/ktb-data")) as NpmLancerData,
     },
     {
       id: "osr",
       manifest: await import("@massif/osr-data/lib/lcp_manifest.json"),
-      // @ts-expect-error
       cpData: (await import("@massif/osr-data")) as NpmLancerData,
     },
     {
       id: "dustgrave",
       manifest: await import("@massif/dustgrave-data/lib/lcp_manifest.json"),
-      // @ts-expect-error
       cpData: (await import("@massif/dustgrave-data")) as NpmLancerData,
     },
     {
       id: "ssmr",
       manifest: await import("@massif/ssmr-data/lib/lcp_manifest.json"),
-      // @ts-expect-error
       cpData: (await import("@massif/ssmr-data")) as NpmLancerData,
     },
     {
       id: "ows",
       manifest: await import("@massif/ows-data/lib/lcp_manifest.json"),
-      // @ts-expect-error
       cpData: (await import("@massif/ows-data")) as NpmLancerData,
     },
     {
       id: "sotw",
       manifest: await import("@massif/sotw-data/lib/lcp_manifest.json"),
-      // @ts-expect-error
       cpData: (await import("@massif/sotw-data")) as NpmLancerData,
     },
   ];

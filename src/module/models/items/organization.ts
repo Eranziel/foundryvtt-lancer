@@ -1,23 +1,34 @@
-import type { DeepPartial } from "@league-of-foundry-developers/foundry-vtt-types/src/types/utils.mjs";
+import type { DeepPartial } from "fvtt-types/utils";
 import { EntryType, OrgType } from "../../enums";
-import { SourceData } from "../../source-template";
-import { PackedOrganizationData } from "../../util/unpacking/packed-types";
-import { LancerDataModel, UnpackContext } from "../shared";
+import type { SourceData } from "../../source-template";
+import type { BaseData } from "../../base-data";
+import type { PackedOrganizationData } from "../../util/unpacking/packed-types";
+import { LancerDataModel, type UnpackContext } from "../shared";
 import { template_universal_item } from "./shared";
 
-const fields = foundry.data.fields;
+import fields = foundry.data.fields;
 
-export class OrganizationModel extends LancerDataModel<DataSchema, Item> {
+const defineOrganizationModelSchema = () => {
+  return {
+    description: new fields.HTMLField(),
+    actions: new fields.StringField(),
+    efficiency: new fields.NumberField({ integer: true, initial: 0, minimum: 0, maximum: 6 }),
+    influence: new fields.NumberField({ integer: true, initial: 0, minimum: 0, maximum: 6 }),
+    purpose: new fields.StringField({ initial: OrgType.Military }),
+    ...template_universal_item(),
+  };
+};
+
+type OrganizationModelSchema = ReturnType<typeof defineOrganizationModelSchema>;
+
+export class OrganizationModel extends LancerDataModel<
+  OrganizationModelSchema,
+  Item.Implementation,
+  BaseData.Organization
+> {
   static DEFAULT_ICON = "systems/lancer/assets/icons/encounter.svg";
   static defineSchema() {
-    return {
-      description: new fields.HTMLField(),
-      actions: new fields.StringField(),
-      efficiency: new fields.NumberField({ integer: true, initial: 0, minimum: 0, maximum: 6 }),
-      influence: new fields.NumberField({ integer: true, initial: 0, minimum: 0, maximum: 6 }),
-      purpose: new fields.StringField({ initial: OrgType.Military }),
-      ...template_universal_item(),
-    };
+    return defineOrganizationModelSchema();
   }
 }
 

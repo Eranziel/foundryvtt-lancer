@@ -10,12 +10,12 @@ import {
   std_enum_select,
   std_num_input,
 } from "./commons";
-import { LancerItem, LancerLICENSE } from "../item/lancer-item";
-import { ActionData } from "../models/bits/action";
-import { BonusData } from "../models/bits/bonus";
-import { SynergyData } from "../models/bits/synergy";
+import { LancerItem, type LancerLICENSE } from "../item/lancer-item";
+import type { ActionData } from "../models/bits/action";
+import type { BonusData } from "../models/bits/bonus";
+import type { SynergyData } from "../models/bits/synergy";
 import { ActivationType, EntryType, ReserveType, WeaponSize, WeaponType } from "../enums";
-import { RangeData } from "../models/bits/range";
+import type { RangeData } from "../models/bits/range";
 import { ref_params } from "./refs";
 
 export function item_edit_arrayed_actions(path: string, title: string, options: HelperOptions): string {
@@ -297,7 +297,7 @@ export function item_edit_license(options: HelperOptions): string {
     rankInfo = ``;
   } else {
     licenseInfo = `<div class="${EntryType.LICENSE} ref lancer-license medium" ${ref_params(license)}>
-      <i class="cci cci-license i--m i--dark"> </i>
+      <i class="cci cci-license i--4 i--dark"> </i>
       <span class="major modifier-name">${license.name}</span>
     </div>`;
     rankInfo = `<div class="flexrow rank-wrapper">
@@ -306,7 +306,7 @@ export function item_edit_license(options: HelperOptions): string {
 </div>`;
   }
 
-  return `      
+  return `
     <div class="flexrow edit-license-wrapper">
         ${licenseInfo}
         ${rankInfo}
@@ -338,7 +338,7 @@ export function item_edit_uses(cur_uses_path: string, max_uses_path: string, opt
   // If we don't have max uses, it's not already limited--so we should add the tag
   if (!max_uses) return ``;
 
-  return ` 
+  return `
     <div class="flexcol uses-editor clipped-top">
         <span class="major">Uses</span>
         <div class="flexrow flex-center no-wrap">

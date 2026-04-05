@@ -1,17 +1,16 @@
-import type { DeepPartial } from "@league-of-foundry-developers/foundry-vtt-types/src/types/utils.mjs";
+import type { DeepPartial } from "fvtt-types/utils";
 import { EntryType, WeaponSize, WeaponType } from "../../enums";
 import { restrict_enum } from "../../helpers/commons";
-import { SourceData } from "../../source-template";
-import { PackedMechWeaponData } from "../../util/unpacking/packed-types";
-import { unpackDeployable } from "../actors/deployable";
+import type { SourceData } from "../../source-template";
+import type { PackedMechWeaponData } from "../../util/unpacking/packed-types";
 import { ActionField, unpackAction } from "../bits/action";
 import { BonusField, unpackBonus } from "../bits/bonus";
 import { CounterField, unpackCounter } from "../bits/counter";
 import { DamageField, unpackDamage } from "../bits/damage";
 import { RangeField, unpackRange } from "../bits/range";
 import { SynergyField, unpackSynergy } from "../bits/synergy";
-import { TagData, TagField, unpackTag } from "../bits/tag";
-import { ControlledLengthArrayField, LIDField, LancerDataModel, UnpackContext } from "../shared";
+import { type TagData, TagField } from "../bits/tag";
+import { LIDField, LancerDataModel, type UnpackContext } from "../shared";
 import {
   addDeployableTags,
   migrateManufacturer,
@@ -20,63 +19,84 @@ import {
   template_universal_item,
   template_uses,
 } from "./shared";
+import type { BaseData } from "../../base-data";
 
-const fields = foundry.data.fields;
+import fields = foundry.data.fields;
 
-export class MechWeaponModel extends LancerDataModel<DataSchema, Item> {
+const defineProfileSchema = () => ({
+  name: new fields.StringField({ initial: "Base Profile" }),
+  type: new fields.StringField({ choices: Object.values(WeaponType), initial: WeaponType.Rifle }),
+  damage: new fields.ArrayField(new DamageField()),
+  range: new fields.ArrayField(new RangeField()),
+  tags: new fields.ArrayField(new TagField()),
+  description: new fields.StringField(),
+  effect: new fields.StringField(),
+  on_attack: new fields.StringField(),
+  on_hit: new fields.StringField(),
+  on_crit: new fields.StringField(),
+  cost: new fields.NumberField({ nullable: false, initial: 0 }),
+  skirmishable: new fields.BooleanField(),
+  barrageable: new fields.BooleanField(),
+  actions: new fields.ArrayField(new ActionField()),
+  bonuses: new fields.ArrayField(new BonusField()),
+  synergies: new fields.ArrayField(new SynergyField()),
+  counters: new fields.ArrayField(new CounterField()),
+});
+
+const defineMechWeaponModelSchema = () => {
+  return {
+    deployables: new fields.ArrayField(new LIDField()),
+    integrated: new fields.ArrayField(new LIDField()),
+    sp: new fields.NumberField({ nullable: false, initial: 0 }),
+    actions: new fields.ArrayField(new ActionField()),
+    profiles: new fields.ArrayField(
+      // TODO: Convert to EmbeddedDataField
+      new fields.SchemaField(defineProfileSchema()),
+      {
+        min: 1,
+        initial: [
+          {
+            damage: [{ val: "1d6", type: "Kinetic" }],
+            range: [{ type: "Range", val: 5 }],
+            tags: [],
+            skirmishable: true,
+            barrageable: true,
+            actions: [],
+            bonuses: [],
+            synergies: [],
+            counters: [],
+          },
+        ],
+      }
+    ),
+    loaded: new fields.BooleanField(),
+    selected_profile_index: new fields.NumberField({ nullable: false, initial: 0 }),
+    size: new fields.StringField({
+      choices: Object.values(WeaponSize).concat("Ship-class" as unknown as WeaponSize),
+      initial: WeaponSize.Main,
+    }),
+    no_core_bonuses: new fields.BooleanField(),
+    no_mods: new fields.BooleanField(),
+    no_bonuses: new fields.BooleanField(),
+    no_synergies: new fields.BooleanField(),
+    no_attack: new fields.BooleanField(),
+    ...template_universal_item(),
+    ...template_destructible(),
+    ...template_licensed(),
+    ...template_uses(),
+  };
+};
+
+type MechWeaponModelSchema = ReturnType<typeof defineMechWeaponModelSchema>;
+
+type ProfileSchema = ReturnType<typeof defineProfileSchema>;
+
+export type InitializedProfile = fields.SchemaField.InitializedData<ProfileSchema>;
+
+export class MechWeaponModel extends LancerDataModel<MechWeaponModelSchema, Item.Implementation, BaseData.MechWeapon> {
   static DEFAULT_ICON = "systems/lancer/assets/icons/mech_weapon.svg";
   static defineSchema() {
-    return {
-      deployables: new fields.ArrayField(new LIDField()),
-      integrated: new fields.ArrayField(new LIDField()),
-      sp: new fields.NumberField({ nullable: false, initial: 0 }),
-      // @ts-expect-error
-      actions: new fields.ArrayField(new ActionField()),
-      profiles: new ControlledLengthArrayField(
-        new fields.SchemaField({
-          name: new fields.StringField({ initial: "Base Profile" }),
-          type: new fields.StringField({ choices: Object.values(WeaponType), initial: WeaponType.Rifle }),
-          // @ts-expect-error
-          damage: new fields.ArrayField(new DamageField()),
-          // @ts-expect-error
-          range: new fields.ArrayField(new RangeField()),
-          // @ts-expect-error
-          tags: new fields.ArrayField(new TagField()),
-          description: new fields.StringField(),
-          effect: new fields.StringField(),
-          on_attack: new fields.StringField(),
-          on_hit: new fields.StringField(),
-          on_crit: new fields.StringField(),
-          cost: new fields.NumberField({ nullable: false, initial: 0 }),
-          skirmishable: new fields.BooleanField(),
-          barrageable: new fields.BooleanField(),
-          // @ts-expect-error
-          actions: new fields.ArrayField(new ActionField()),
-          // @ts-expect-error
-          bonuses: new fields.ArrayField(new BonusField()),
-          // @ts-expect-error
-          synergies: new fields.ArrayField(new SynergyField()),
-          // @ts-expect-error
-          counters: new fields.ArrayField(new CounterField()),
-        }),
-        { length: 1, overflow: true }
-      ),
-      loaded: new fields.BooleanField(),
-      selected_profile_index: new fields.NumberField({ nullable: false, initial: 0 }),
-      size: new fields.StringField({
-        choices: Object.values(WeaponSize).concat("Ship-class" as unknown as WeaponSize),
-        initial: WeaponSize.Main,
-      }),
-      no_core_bonuses: new fields.BooleanField(),
-      no_mods: new fields.BooleanField(),
-      no_bonuses: new fields.BooleanField(),
-      no_synergies: new fields.BooleanField(),
-      no_attack: new fields.BooleanField(),
-      ...template_universal_item(),
-      ...template_destructible(),
-      ...template_licensed(),
-      ...template_uses(),
-    };
+    return defineMechWeaponModelSchema();
   }
 
   static migrateData(data: any) {
@@ -93,7 +113,8 @@ export function unpackMechWeapon(
 ): {
   name: string;
   type: EntryType.MECH_WEAPON;
-  system: DeepPartial<SourceData.MechWeapon>;
+  // TODO(LukeAbby): Should specifically be mech weapon's `CreateData`.
+  system: Item.CreateData;
 } {
   let profiles: Array<Partial<SourceData.MechWeapon["profiles"][0]>> = [];
 

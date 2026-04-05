@@ -1,10 +1,11 @@
 import { LANCER } from "../../config";
-import { ContentSummary } from "../../util/lcps";
-import { IContentPackManifest } from "../../util/unpacking/packed-types";
-import type ApplicationV2 from "@league-of-foundry-developers/foundry-vtt-types/src/foundry/client-esm/applications/api/application.mjs";
-import { DeepPartial } from "@league-of-foundry-developers/foundry-vtt-types/src/types/utils.mjs";
+import type { ContentSummary } from "../../util/lcps";
+import type { IContentPackManifest } from "../../util/unpacking/packed-types";
+import type { DeepPartial } from "fvtt-types/utils";
+import { mount } from "svelte";
 
-const { ApplicationV2: AppV2, HandlebarsApplicationMixin } = foundry.applications.api;
+import ApplicationV2 = foundry.applications.api.ApplicationV2;
+import HandlebarsApplicationMixin = foundry.applications.api.HandlebarsApplicationMixin;
 
 const lp = LANCER.log_prefix;
 
@@ -14,7 +15,7 @@ async function mountLCPManager(target: HTMLElement, props: any) {
   if (!LCPManagerComponent) {
     LCPManagerComponent = (await import("./LCPManager.svelte")).default;
   }
-  return new LCPManagerComponent({
+  return mount(LCPManagerComponent, {
     target,
     props,
   });
@@ -22,28 +23,27 @@ async function mountLCPManager(target: HTMLElement, props: any) {
 
 /**
  * Insert a button into the compendium sidebar for opening the LCP Manager.
- * @param app Application to insert the button into. This should be the compendium sidebar!
+ * @param _app Application to insert the button into. This should be the compendium sidebar!
  * @param html The rendered HTML of the target application.
  */
-export function addLCPManagerButton(app: Application, html: any) {
-  if (app.options.id == "compendium") {
-    const buttons = $(html).find(".header-actions");
-    if (!buttons) {
-      ui.notifications!.error("Unable to add LCP Manager button - Compendium Tab buttons not found!", {
-        permanent: true,
-      });
-      console.log(`${lp} Unable to add LCP Manager button - Compendium Tab buttons not found!`, buttons);
-      return;
-    }
-    let button = document.createElement("button");
-    button.setAttribute("id", "lcp-manager-button");
-    button.setAttribute("style", "flex-basis: 100%;margin-top: 5px;");
-    button.innerHTML = "<i class='cci cci-content-manager i--s'></i> LANCER Compendium Manager";
-    buttons.append(button);
-    button.addEventListener("click", () => {
-      new LCPManager().render(true);
+export function addLCPManagerButton(_app: foundry.applications.api.ApplicationV2, html: HTMLElement) {
+  if (!game.user?.isGM) return;
+  const buttons = html.querySelector<HTMLDivElement>(".header-actions");
+  if (!buttons) {
+    ui.notifications!.error("Unable to add LCP Manager button - Compendium Tab buttons not found!", {
+      permanent: true,
     });
+    console.log(`${lp} Unable to add LCP Manager button - Compendium Tab buttons not found!`, buttons);
+    return;
   }
+  let button = document.createElement("button");
+  button.setAttribute("id", "lcp-manager-button");
+  button.setAttribute("style", "flex-basis: 100%;margin-top: 5px;");
+  button.innerHTML = "<i class='cci cci-content-manager i--2'></i> LANCER Compendium Manager";
+  buttons.append(button);
+  button.addEventListener("click", () => {
+    new LCPManager().render(true);
+  });
 }
 
 // TODO: deprecate and remove LCPIndex
@@ -74,7 +74,7 @@ export class LCPIndex {
   }
 }
 
-export class LCPManager extends HandlebarsApplicationMixin(AppV2) {
+export class LCPManager extends HandlebarsApplicationMixin(ApplicationV2) {
   component: any = null;
   renderPromise: Promise<void> | null = null;
 
@@ -86,7 +86,7 @@ export class LCPManager extends HandlebarsApplicationMixin(AppV2) {
     id: "lcp-manager",
     window: {
       title: "LANCER Compendium Manager",
-      icon: "cci cci-content-manager i--sm",
+      icon: "cci cci-content-manager i--3",
       resizable: false,
     },
     classes: ["lancer", "lcp-manager"],

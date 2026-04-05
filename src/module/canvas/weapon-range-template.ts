@@ -4,7 +4,7 @@
  */
 
 import { RangeType } from "../enums";
-import { RangeData } from "../models/bits/range";
+import type { RangeData } from "../models/bits/range";
 
 /**
  * MeasuredTemplate sublcass to create a placeable template on weapon attacks
@@ -43,11 +43,13 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
    *                     Used to deterimine the character sheet to close as well
    *                     as a default ignore target for Cones and Lines.
    */
-  static fromRange({ type, val }: WeaponRangeTemplate["range"], creator?: Token): WeaponRangeTemplate | null {
+  static fromRange(
+    { type, val }: WeaponRangeTemplate["range"],
+    creator?: Token.Implementation
+  ): WeaponRangeTemplate | null {
     if (!canvas.ready) return null;
     const dist = val;
     if (isNaN(dist)) return null;
-    // @ts-expect-error v12
     const square: boolean = canvas.grid?.isSquare;
     const grid_distance = (canvas.scene?.dimensions as Partial<Canvas.Dimensions> | undefined)?.distance ?? 1;
 
@@ -83,7 +85,7 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
           creator: creator?.id,
           ignore: {
             tokens: [RangeType.Blast, RangeType.Burst].includes(type) || !creator ? [] : [creator.id],
-            dispositions: <TokenDocument["disposition"][]>[],
+            dispositions: <TokenDocument.Implementation["disposition"][]>[],
           },
         },
       },
@@ -92,7 +94,6 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
     const cls = getDocumentClass("MeasuredTemplate");
     const template = new cls(templateData as any, { parent: canvas.scene ?? undefined });
     const object = new this(template);
-    // @ts-expect-error Appv2 can't go here be we use appv1 for now
     object.actorSheet = creator?.actor?.sheet ?? undefined;
     return object;
   }
@@ -112,7 +113,7 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
    * @returns A Promise that resolves to the final MeasuredTemplateDocument or
    * rejects when creation is canceled or fails.
    */
-  placeTemplate(): Promise<MeasuredTemplateDocument> {
+  placeTemplate(): Promise<MeasuredTemplateDocument.Implementation> {
     if (!canvas.ready) {
       ui.notifications?.error("Cannot create WeaponRangeTemplate. Canvas is not ready");
       throw new Error("Cannot create WeaponRangeTemplate. Canvas is not ready");
@@ -125,8 +126,8 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
     return this.activatePreviewListeners(initialLayer);
   }
 
-  private activatePreviewListeners(initialLayer: CanvasLayer | null): Promise<MeasuredTemplateDocument> {
-    return new Promise<MeasuredTemplateDocument>((resolve, reject) => {
+  private activatePreviewListeners(initialLayer: CanvasLayer | null): Promise<MeasuredTemplateDocument.Implementation> {
+    return new Promise<MeasuredTemplateDocument.Implementation>((resolve, reject) => {
       const handlers: any = {};
       let moveTime = 0;
 
@@ -152,9 +153,8 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
         this.layer.preview?.removeChildren().forEach(c => c.destroy());
         canvas.stage?.off("mousemove", handlers.mm);
         canvas.stage?.off("mousedown", handlers.lc);
-        (<HTMLCanvasElement>canvas.app!.view).oncontextmenu = null;
-        (<HTMLCanvasElement>canvas.app!.view).onwheel = null;
-        // @ts-expect-error Activate should be there but w/e
+        canvas.app!.view.oncontextmenu = null;
+        canvas.app!.view.onwheel = null;
         initialLayer?.activate();
         if (do_reject) reject(new Error("Template creation cancelled"));
       };
@@ -210,9 +210,7 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
       // Activate listeners
       canvas.stage!.on("mousemove", handlers.mm);
       canvas.stage!.on("mousedown", handlers.lc);
-      //@ts-expect-error
       canvas.app!.view.oncontextmenu = handlers.rc;
-      //@ts-expect-error
       canvas.app!.view.onwheel = handlers.mw;
     });
   }
@@ -242,7 +240,6 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
         if (
           r === null ||
           r === undefined ||
-          // @ts-expect-error v12
           canvas.grid!.measurePath([{ x, y }, t.center]) < canvas.grid!.measurePath([{ x, y }, r.center])
         )
           return t;
@@ -250,7 +247,6 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
       }, null);
     if (token) {
       this.document.updateSource({
-        // @ts-expect-error v10
         distance: this.getBurstDistance(token.document.width),
         [`flags.${game.system.id}.burstToken`]: token.id,
       });
@@ -269,14 +265,14 @@ export class WeaponRangeTemplate extends MeasuredTemplate {
   }
 }
 
-declare global {
+declare module "fvtt-types/configuration" {
   interface FlagConfig {
     MeasuredTemplate: {
       lancer: {
         range: RangeData;
         creator?: string;
         burstToken?: string;
-        ignore: { tokens: string[]; dispositions: TokenDocument["disposition"][] };
+        ignore: { tokens: string[]; dispositions: TokenDocument.Implementation["disposition"][] };
         isAttack?: boolean;
       };
     };

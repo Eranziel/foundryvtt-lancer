@@ -1,28 +1,22 @@
 <form class="{{cssClass}} lancer-sheet" autocomplete="off">
   {{! Sheet Header }}
   <header class="sheet-header card clipped-bot">
-    <div class="flexcol grow">
-      <h1 class="charname">
-        <input
-          class="header-field"
-          name="name"
-          type="text"
-          value="{{item.name}}"
-          placeholder="{{localize 'lancer.placeholder.name'}}"
-        />
-      </h1>
-      {{#if item.isOwned}}
-        <div class="flexrow flex-center">
-          <span style="max-width: fit-content;">
-            UNLOCKED RANK:
-          </span>
-          <div style="max-width: fit-content;">
-            {{{l-num-input "system.curr_rank"}}}
-          </div>
-        </div>
-      {{/if}}
-    </div>
+    <h1 class="name">
+      <input
+        class="lancer-input header-field"
+        name="name"
+        type="text"
+        value="{{item.name}}"
+        placeholder="{{localize 'lancer.placeholder.name'}}"
+      />
+    </h1>
     {{{ref-portrait-img item.img "img" item}}}
+    {{#if item.isOwned}}
+      <div class="header-details">
+        UNLOCKED RANK:
+        {{{l-num-input "system.curr_rank"}}}
+      </div>
+    {{/if}}
   </header>
   {{! Sheet Body }}
   <div class="flexcol">
@@ -38,7 +32,7 @@
     {{#each system.ranks as |rank index|}}
       <div class="talent-level card clipped-bot flexcol">
         <div class="lancer-header lancer-talent" style="flex-basis: auto;">
-          <i class="cci cci-rank-{{inc index}} i--xl i--dark"></i>
+          <i class="cci cci-rank-{{inc index}} i--6 i--dark"></i>
           <input
             class="lancer-invisible-input"
             name="system.ranks.{{index}}.name"

@@ -9,6 +9,8 @@ import { LancerActor } from "../actor/lancer-actor";
 import { LancerItem } from "../item/lancer-item";
 import { slugify } from "../util/lid";
 
+import ContextMenu = foundry.applications.ux.ContextMenu;
+
 export const defaultPlaceholder = "// MISSING ENTRY //";
 
 // A shorthand for only including the first string if the second value is truthy
@@ -19,13 +21,13 @@ export function inc_if(val: string, test: any) {
 // Generic template for dice roll results in chat
 export function lancerDiceRoll(roll: Roll, tooltip?: string, icon?: string): string {
   const iconHTML = icon ? `<i class="${icon}"></i>` : "";
-  const tooltipHTML = tooltip ? `<div style="text-align: left;">${tooltip}</div>` : "";
+  const tooltipHTML = tooltip || "";
   return `
-<div class="dice-roll lancer-dice-roll collapse">
+<div class="dice-roll lancer-dice-roll" data-action="expandRoll">
   <div class="dice-result">
-    <div class="dice-formula lancer-dice-formula flexrow">
-      <span style="text-align: left; margin-left: 5px;">${roll.formula}</span>
-      <span class="dice-total lancer-dice-total major">${roll.total}</span>${iconHTML}
+    <div class="dice-formula flexrow">
+      ${roll.formula}
+      <span class="dice-total major">${roll.total} ${iconHTML}</span>
     </div>
     ${tooltipHTML}
   </div>
@@ -174,7 +176,7 @@ export class IconFactory {
     dark?: boolean; // Force icon black
     size?: "xs" | "s" | "sm" | "m" | "l" | "xl";
     /*
-    This arg a bit fancy. 
+    This arg a bit fancy.
     - Can be left unset, in which case you'll invoke r with a fairly conventional r("cci cci-heat"), for example.
     - Can be set with the icon grouping, e.x. "cci", in which case one would only have to supply r("cci-heat")
     - Can be set with icon grouping and glyph prefix, e.x. "cci,cci" in which case it will automatically prefix any params to arg with the prefix. So, can do r("heat")
@@ -215,8 +217,8 @@ export function effectBox(title: string, text: string, options?: { add_classes?:
   if (text) {
     const flowButton = options?.flow
       ? `<div class="action-flow-container flexrow">
-        <a class="effect-flow lancer-button"><i class="cci cci-free-action i--sm"></i><span>USE</span></a>
-        <hr class="vsep">
+        <a class="effect-flow lancer-button"><i class="cci cci-free-action i--3"></i><span>USE</span></a>
+        <span class="vsep"></span>
       </div>`
       : "";
     return `
@@ -237,7 +239,7 @@ export function spDisplay(sp: number | string) {
   const sp_num = parseInt(sp.toString());
   if (isNaN(sp_num)) return "";
   let icons = "";
-  for (let i = 0; i < sp_num; i++) icons += `<i class="cci cci-system-point i--s"> </i>`;
+  for (let i = 0; i < sp_num; i++) icons += `<i class="cci cci-system-point i--2"> </i>`;
   return `<div class="sp-wrapper">
             ${icons}
             <span class="medium" style="padding: 5px;">${sp} SYSTEM POINTS</span>
@@ -720,7 +722,7 @@ function std_input(path: string, type: string, options: HelperOptions) {
   if (label) {
     return `
     <label class="flexrow no-wrap flex-center ${label_classes}">
-      <span class="no-grow" style="padding: 2px 5px;">${label}</span> 
+      <span class="no-grow" style="padding: 2px 5px;">${label}</span>
       ${input}
     </label>`;
   } else {
@@ -916,7 +918,7 @@ export function read_form(form_element: HTMLFormElement): Record<string, string 
  */
 export function createContextMenu(
   parent: JQuery<HTMLElement>,
-  options: ContextMenuEntry[],
+  options: ContextMenu.Entry<JQuery>[],
   onSelectAny?: () => void
 ): Element {
   let menu = $(`<div class="lancer-context-menu flexcol" />`);
@@ -937,7 +939,11 @@ export function createContextMenu(
  * @param event_types JQuery event types to trigger showing the context menu.
  * @param options Array of context menu items.
  */
-export function tippyContextMenu(targets: JQuery<HTMLElement>, event_types: string, options: ContextMenuEntry[]): void {
+export function tippyContextMenu(
+  targets: JQuery<HTMLElement>,
+  event_types: string,
+  options: ContextMenu.Entry<JQuery>[]
+): void {
   targets.each((_, _target) => {
     let target = $(_target);
 

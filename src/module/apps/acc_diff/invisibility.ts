@@ -1,6 +1,5 @@
 import * as t from "io-ts";
-import { LancerActor } from "../../actor/lancer-actor";
-import { AccDiffHudPlugin, AccDiffHudCheckboxPluginData, AccDiffHudPluginCodec } from "./plugin";
+import type { AccDiffHudPlugin, AccDiffHudCheckboxPluginData, AccDiffHudPluginCodec } from "./plugin";
 import { AccDiffHudData, AccDiffHudTarget } from "./index";
 import { enclass } from "./serde";
 
@@ -19,7 +18,7 @@ export enum InvisibilityEnum {
 
 export default class Invisibility implements AccDiffHudCheckboxPluginData {
   data: InvisibilityEnum;
-  token?: Token;
+  token?: Token.Implementation;
 
   // these methods are for easy class codecs via `enclass`
   constructor(ser: InvisibilityEnum) {
@@ -37,7 +36,7 @@ export default class Invisibility implements AccDiffHudCheckboxPluginData {
   // store a reference to the current token when rehydrated
   hydrate(_d: AccDiffHudData, t?: AccDiffHudTarget) {
     if (t) {
-      this.token = t.target;
+      this.token = t.token;
     }
   }
 
@@ -45,7 +44,7 @@ export default class Invisibility implements AccDiffHudCheckboxPluginData {
   static perUnknownTarget(): Invisibility {
     return new Invisibility(InvisibilityEnum.NoForce);
   }
-  static perTarget(item: Token): Invisibility {
+  static perTarget(item: Token.Implementation): Invisibility {
     let ret = Invisibility.perUnknownTarget();
     ret.token = item;
     return ret;

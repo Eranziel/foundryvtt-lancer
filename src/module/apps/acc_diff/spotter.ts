@@ -1,10 +1,8 @@
 import { stateless } from "./serde";
 import type { AccDiffHudPlugin, AccDiffHudPluginData } from "./plugin";
 import type { AccDiffHudData, AccDiffHudTarget } from "./index";
-import type { LancerActor, LancerMECH, LancerPILOT } from "../../actor/lancer-actor";
+import type { LancerActor } from "../../actor/lancer-actor";
 import type { LancerToken } from "../../token";
-import { LancerTALENT } from "../../item/lancer-item";
-import type BaseGrid from "@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/grid/base.mjs";
 
 // this is an example of a case implemented without defining a full class
 function adjacentSpotter(actor: LancerActor): boolean {
@@ -24,7 +22,6 @@ function adjacentSpotter(actor: LancerActor): boolean {
   );
 
   const spotters: Set<LancerToken> = canvas.tokens!.quadtree!.getObjects(aabb, {
-    // @ts-expect-error Quadtree not set specific enough in types
     collisionTest: (o: QuadtreeObject<LancerToken>) => {
       if (!o.t.actor?.is_mech() || o.t === token) return false;
       if (!o.t.actor.system.pilot?.value?.itemTypes.talent.some(t => t.system.lid === "t_spotter")) return false;
@@ -80,7 +77,7 @@ const Spotter: AccDiffHudPlugin<AccDiffHudPluginData> = {
     (t: unknown): t is AccDiffHudPluginData => typeof t == "object" && (t as any)?.slug == "spotter",
     spotter
   ),
-  perTarget(_t: Token) {
+  perTarget(_t: Token.Implementation) {
     return spotter();
   },
 };

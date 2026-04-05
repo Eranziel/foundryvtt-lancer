@@ -2,8 +2,9 @@ import { template_action_tracking, template_heat, template_struss, template_univ
 
 import { LancerDataModel, EmbeddedRefField, SyncUUIDRefField, FullBoundedNumberField } from "../shared";
 import { EntryType, FittingSize, MountType } from "../../enums";
+import type { BaseData } from "../../base-data";
 
-const fields = foundry.data.fields;
+import fields = foundry.data.fields;
 
 const mech_schema = {
   overcharge: new fields.NumberField({ min: 0, integer: true, nullable: false, initial: 0 }),
@@ -37,7 +38,7 @@ const mech_schema = {
 };
 
 type MechSchema = typeof mech_schema;
-export class MechModel extends LancerDataModel<DataSchema, Actor> {
+export class MechModel extends LancerDataModel<MechSchema, Actor.Implementation, BaseData.Mech> {
   static DEFAULT_ICON = "systems/lancer/assets/icons/mech.svg";
   static defineSchema(): MechSchema {
     return mech_schema;

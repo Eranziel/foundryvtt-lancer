@@ -6,9 +6,9 @@
   import Spinner from "../components/Spinner.svelte";
   import LcpDetails from "./LCPDetails.svelte";
   import LcpSelector from "./LCPSelector.svelte";
-  import { ContentSummary, getOfficialData, LCPData, mergeOfficialDataAndLcpIndex } from "../../util/lcps";
+  import { type ContentSummary, getOfficialData, type LCPData, mergeOfficialDataAndLcpIndex } from "../../util/lcps";
   import LCPTable from "./LCPTable.svelte";
-  import { IContentPack, IContentPackManifest } from "../../util/unpacking/packed-types";
+  import type { IContentPack, IContentPackManifest } from "../../util/unpacking/packed-types";
   import { clearCompendiumData, importCP } from "../../comp-builder";
   import { LCPIndex } from "./lcp-manager";
   const lp = LANCER.log_prefix;
@@ -106,15 +106,17 @@
     const manifest = cp.manifest;
     if (!cp || !manifest) return;
 
-    ui.notifications!.info(`Starting import of ${cp.manifest.name} v${cp.manifest.version}. Please wait.`);
+    const notificationLabel = `Importing ${cp.manifest.name} v${cp.manifest.version}`;
+    // @ts-expect-error v13 types
+    const notification = ui.notifications!.info(notificationLabel, { progress: true }) as Notification;
     importing = true;
     barWidth = 0;
     importingLcp = cp;
-    updateProgressBar(0, 1);
+    updateProgressBar(notification, 0, 1);
     console.log(`${lp} Starting import of ${cp.manifest.name} v${cp.manifest.version}.`);
     console.log(`${lp} Parsed content pack:`, cp);
-    await importCP(cp, (x, y) => updateProgressBar(x, y));
-    updateProgressBar(1, 1);
+    await importCP(cp, (x, y) => updateProgressBar(notification, x, y));
+    updateProgressBar(notification, 1, 1);
     console.log(`${lp} Import of ${cp.manifest.name} v${cp.manifest.version} complete.`);
     importing = false;
     setTimeout(() => {
@@ -140,19 +142,19 @@
     importingMany = false;
   }
 
-  function updateProgressBar(done: number, outOf: number) {
-    const percent = Math.min(Math.ceil((done / outOf) * 100), 100);
-    SceneNavigation.displayProgressBar({ label: "Importing...", pct: percent });
-    barWidth = percent;
+  function updateProgressBar(notification: Notification, done: number, outOf: number) {
+    const percent = Math.min(done / outOf, 1);
+    // @ts-expect-error v13 types
+    notification.update({ pct: percent });
+    barWidth = Math.floor(percent * 100);
   }
 
   async function clearCompendiums() {
     // Confirmation prompt
     const answer = await foundry.applications.api.DialogV2.confirm({
-      // @ts-expect-error This should expect a partial, not a complete window configuration.
       window: { title: "Clear Compendiums", icon: "fas fa-triangle-exclamation" },
       content: `<p>Are you sure you want to delete all actors and items from the Lancer compendiums?</p>
-        <p><i class="fas fa-triangle-exclamation i--m"></i> This action cannot be undone!</p>`,
+        <p><i class="fas fa-triangle-exclamation i--4"></i> This action cannot be undone!</p>`,
     });
     if (!answer) return;
     clearing = true;
@@ -167,11 +169,11 @@
 
 <div class="lcp-manager">
   {#if loading}
-    <div class="flexrow" style="margin: 5em;">
+    <div class="flexrow" style="margin: 5em">
       <Spinner><span class="monospace">Loading data, please wait…</span></Spinner>
     </div>
   {:else}
-    <div class="flexrow lcp-manager__main-content" style="flex: 1 1;">
+    <div class="flexrow lcp-manager__main-content" style="flex: 1 1">
       <LCPTable
         {lcpData}
         bind:disabled={busy}
@@ -189,13 +191,13 @@
     <div class="lcp-manager__progress-area">
       <div class="lcp-manager__progress">
         {#if importing || importingMany}
-          <span transition:fade class="monospace"
-            >{`${importingLcp?.manifest.name} v${importingLcp?.manifest.version}`} {barWidth}%</span
-          >
-          <div transition:fade class="lcp-manager__progress-bar" style="width: {barWidth}%" />
+          <span transition:fade|global class="monospace">{
+              `${importingLcp?.manifest.name} v${importingLcp?.manifest.version}`
+            } {barWidth}%</span>
+          <div transition:fade|global class="lcp-manager__progress-bar" style:width={`${barWidth}%`} />
         {/if}
         {#if importingMany}
-          <div transition:fade class="lcp-manager__progress-bar" style="width: {secondBarWidth}%" />
+          <div transition:fade|global class="lcp-manager__progress-bar" style:width={`${secondBarWidth}%`} />
         {/if}
       </div>
     </div>
@@ -203,56 +205,60 @@
 </div>
 
 <style lang="scss">
-  .lcp-manager {
-    position: relative;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-
-    .lcp-manager__main-content {
-      align-items: normal;
-      max-height: calc(100% - 50px);
-    }
-
-    .lcp-manager__detail-column {
-      padding-left: 10px;
-      padding-right: 10px;
-      max-height: 100%;
-    }
-
-    .lcp-manager__progress-area {
-      width: 100%;
-      height: 50px;
-      position: relative;
-      bottom: 0;
-      background-color: var(--background-color);
-    }
-    .lcp-manager__progress {
-      width: 100%;
-      height: 100%;
-      padding: 3px;
-      &:has(.lcp-manager__progress-bar) {
-        border: 1px solid var(--color-border-light-tertiary);
-        border-radius: 5px;
-        background-color: var(--darken-2);
-      }
-      & span {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-      }
-      .lcp-manager__progress-bar {
+  @layer lancer {
+    @layer applications {
+      .lcp-manager {
+        position: relative;
         height: 100%;
-        background-color: var(--primary-color);
-        border: 1px solid #333;
-        transition: width 0.2s;
-        /* If we're importing multiple LCPs, show two bars each half height */
-        &:not(:last-child) {
-          height: 50%;
+        display: flex;
+        flex-direction: column;
+
+        .lcp-manager__main-content {
+          align-items: normal;
+          max-height: calc(100% - 50px);
         }
-        & + .lcp-manager__progress-bar {
-          height: 50%;
+
+        .lcp-manager__detail-column {
+          padding-left: 10px;
+          padding-right: 10px;
+          max-height: 100%;
+        }
+
+        .lcp-manager__progress-area {
+          width: 100%;
+          height: 50px;
+          position: relative;
+          bottom: 0;
+          background-color: var(--background-color);
+        }
+        .lcp-manager__progress {
+          width: 100%;
+          height: 100%;
+          padding: 3px;
+          &:has(.lcp-manager__progress-bar) {
+            border: 1px solid var(--color-border-light-tertiary);
+            border-radius: 5px;
+            background-color: var(--darken-2);
+          }
+          & span {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+          }
+          .lcp-manager__progress-bar {
+            height: 100%;
+            background-color: var(--primary-color);
+            border: 1px solid #333;
+            transition: width 0.2s;
+            /* If we're importing multiple LCPs, show two bars each half height */
+            &:not(:last-child) {
+              height: 50%;
+            }
+            & + .lcp-manager__progress-bar {
+              height: 50%;
+            }
+          }
         }
       }
     }

@@ -1,8 +1,8 @@
-import { DamageType, DamageTypeChecklist } from "../../enums";
+import { DamageType, type DamageTypeChecklist } from "../../enums";
 import { restrict_enum } from "../../helpers/commons";
-import { PackedDamageData } from "../../util/unpacking/packed-types";
+import type { PackedDamageData } from "../../util/unpacking/packed-types";
 
-const fields: any = foundry.data.fields;
+import fields = foundry.data.fields;
 
 // Clone of RegDamageData
 export interface DamageData {
@@ -97,15 +97,12 @@ export class Damage implements Readonly<DamageData> {
             let added = false;
             for (let base_term of base_formula.terms) {
               // Combine like terms
-              //@ts-expect-error Appropriately narrow types are unavailable as of right now
               if (add_term.number && base_term.number && add_term.faces === base_term.faces) {
-                //@ts-expect-error Ditto
                 base_term.number += add_term.number;
                 added = true;
                 break;
               }
             }
-            //@ts-expect-error Ditto
             if (!added && !add_term.operator) {
               // Create a new roll by appending the formulae
               base_formula = new Roll(base_formula.formula + " + " + add_term.formula);
@@ -126,16 +123,22 @@ export class Damage implements Readonly<DamageData> {
   }
 }
 
+const defineDamageFieldSchema = () => {
+  return {
+    type: new fields.StringField({ choices: Object.values(DamageType), initial: DamageType.Kinetic }),
+    val: new fields.StringField({ initial: "1d6", nullable: false, required: true, trim: true }),
+  };
+};
+
+type DamageFieldSchema = ReturnType<typeof defineDamageFieldSchema>;
+
 // Maps DamageData to a damage class
-export class DamageField extends fields.SchemaField {
-  constructor(options = {}) {
-    super(
-      {
-        type: new fields.StringField({ choices: Object.values(DamageType), initial: DamageType.Kinetic }),
-        val: new fields.StringField({ initial: "1d6", nullable: false, required: true, trim: true }),
-      },
-      options
-    );
+export class DamageField<Options extends fields.SchemaField.Options<DamageFieldSchema>> extends fields.SchemaField<
+  DamageFieldSchema,
+  Options
+> {
+  constructor(options?: Options) {
+    super(defineDamageFieldSchema(), options);
   }
 
   /** @override */

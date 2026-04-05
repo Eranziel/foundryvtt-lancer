@@ -7,11 +7,12 @@ import {
   template_universal_actor,
 } from "./shared";
 
-import type { DeepPartial } from "@league-of-foundry-developers/foundry-vtt-types/src/types/utils.mjs";
-import { SourceData } from "../../source-template";
+import type { DeepPartial } from "fvtt-types/utils";
+import type { SourceData } from "../../source-template";
+import type { BaseData } from "../../base-data";
 import { LancerDataModel } from "../shared";
 
-const fields = foundry.data.fields;
+import fields = foundry.data.fields;
 
 const npc_schema = {
   destroyed: new fields.BooleanField({ initial: false }),
@@ -27,7 +28,7 @@ const npc_schema = {
 };
 
 type NpcSchema = typeof npc_schema;
-export class NpcModel extends LancerDataModel<DataSchema, Actor> {
+export class NpcModel extends LancerDataModel<NpcSchema, Actor.Implementation, BaseData.Npc> {
   static DEFAULT_ICON = "systems/lancer/assets/icons/npc_class.svg";
   static defineSchema(): NpcSchema {
     return npc_schema;

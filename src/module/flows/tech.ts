@@ -1,16 +1,16 @@
 // Import TypeScript modules
 import { LANCER } from "../config";
 import { LancerActor } from "../actor/lancer-actor";
-import { AccDiffHudData, AccDiffHudDataSerialized } from "../apps/acc_diff";
+import { AccDiffHudData, type AccDiffHudDataSerialized } from "../apps/acc_diff";
 import { renderTemplateStep } from "./_render";
-import { SystemTemplates } from "../system-template";
+import type { SystemTemplates } from "../system-template";
 import { LancerFlowState } from "./interfaces";
 import { LancerItem } from "../item/lancer-item";
 import { resolveDotpath } from "../helpers/commons";
 import { ActivationType, AttackType } from "../enums";
-import { Flow, FlowState, Step } from "./flow";
-import { UUIDRef } from "../source-template";
-import { AttackFlag } from "./attack";
+import { Flow, type FlowState, type Step } from "./flow";
+import type { UUIDRef } from "../source-template";
+import type { AttackFlag } from "./attack";
 
 const lp = LANCER.log_prefix;
 

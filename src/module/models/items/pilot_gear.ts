@@ -1,25 +1,32 @@
-import type { DeepPartial } from "@league-of-foundry-developers/foundry-vtt-types/src/types/utils.mjs";
+import type { DeepPartial } from "fvtt-types/utils";
 import { EntryType } from "../../enums";
-import { SourceData } from "../../source-template";
-import { PackedPilotGearData } from "../../util/unpacking/packed-types";
+import type { SourceData } from "../../source-template";
+import type { BaseData } from "../../base-data";
+import type { PackedPilotGearData } from "../../util/unpacking/packed-types";
 import { unpackAction } from "../bits/action";
 import { unpackBonus } from "../bits/bonus";
 import { unpackSynergy } from "../bits/synergy";
-import { LancerDataModel, UnpackContext } from "../shared";
+import { LancerDataModel, type UnpackContext } from "../shared";
 import { template_universal_item, template_bascdt, template_uses, addDeployableTags } from "./shared";
 
-const fields = foundry.data.fields;
+import fields = foundry.data.fields;
 
-export class PilotGearModel extends LancerDataModel<DataSchema, Item> {
+const definePilotGearModelSchema = () => {
+  return {
+    description: new fields.StringField({ nullable: true }),
+    effect: new fields.StringField(),
+    ...template_universal_item(),
+    ...template_uses(),
+    ...template_bascdt(),
+  };
+};
+
+type PilotGearModelSchema = ReturnType<typeof definePilotGearModelSchema>;
+
+export class PilotGearModel extends LancerDataModel<PilotGearModelSchema, Item.Implementation, BaseData.PilotGear> {
   static DEFAULT_ICON = "systems/lancer/assets/icons/generic_item.svg";
   static defineSchema() {
-    return {
-      description: new fields.StringField({ nullable: true }),
-      effect: new fields.StringField(),
-      ...template_universal_item(),
-      ...template_uses(),
-      ...template_bascdt(),
-    };
+    return definePilotGearModelSchema();
   }
 }
 

@@ -216,15 +216,15 @@ export type ResolvedDropData =
     }
   | {
       type: "JournalEntry";
-      document: JournalEntry;
+      document: JournalEntry.Implementation;
     }
   | {
       type: "Scene";
-      document: Scene;
+      document: Scene.Implementation;
     }
   | {
       type: "Macro";
-      document: Macro;
+      document: Macro.Implementation;
     };
 
 // Resolves a native foundry actor/item drop event datatransfer to the actual contained actor/item/journal
@@ -249,12 +249,12 @@ export async function resolveNativeDrop(drop: string | FoundryDropData): Promise
         type: "Item",
         document,
       };
-    } else if (document instanceof Macro) {
+    } else if (document instanceof Macro.implementation) {
       return {
         type: "Macro",
         document,
       };
-    } else if (document instanceof JournalEntry) {
+    } else if (document instanceof JournalEntry.implementation) {
       return {
         type: "JournalEntry",
         document,
@@ -279,7 +279,6 @@ export async function resolveNativeDrop(drop: string | FoundryDropData): Promise
           }
         : null;
     } else if (drop.type == "JournalEntry") {
-      // @ts-expect-error
       let document = await JournalEntry.fromDropData(drop);
       return document
         ? {
@@ -288,7 +287,6 @@ export async function resolveNativeDrop(drop: string | FoundryDropData): Promise
           }
         : null;
     } else if (drop.type == "Macro") {
-      // @ts-expect-error
       let document = await Macro.fromDropData(drop);
       return document
         ? {
@@ -331,12 +329,12 @@ function setGlobalDrag(to: LancerActor | LancerItem | Macro | Journal | Scene | 
       document: to,
       type: "Item",
     };
-  } else if (to instanceof Macro) {
+  } else if (to instanceof Macro.implementation) {
     GlobalDragPreview = {
       document: to,
       type: "Macro",
     };
-  } else if (to instanceof Scene) {
+  } else if (to instanceof Scene.implementation) {
     GlobalDragPreview = {
       document: to,
       type: "Scene",

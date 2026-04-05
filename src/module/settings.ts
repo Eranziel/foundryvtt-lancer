@@ -93,8 +93,7 @@ export const registerSettings = function () {
     name: "lancer.statusIconsConfig.menu-name",
     label: "lancer.statusIconsConfig.menu-label",
     hint: "lancer.statusIconsConfig.menu-hint",
-    icon: "cci cci-difficulty i--s",
-    // @ts-expect-error
+    icon: "cci cci-difficulty i--2",
     type: StatusIconConfig,
     restricted: true,
   });
@@ -114,7 +113,6 @@ export const registerSettings = function () {
     label: "lancer.automation.menu-label",
     hint: "lancer.automation.menu-hint",
     icon: "mdi mdi-state-machine",
-    // @ts-expect-error
     type: AutomationConfig,
     restricted: true,
   });
@@ -131,7 +129,6 @@ export const registerSettings = function () {
     label: "lancer.actionTracker.menu-label",
     hint: "lancer.actionTracker.menu-hint",
     icon: "mdi mdi-state-machine",
-    // @ts-expect-error
     type: ActionTrackerConfig,
     restricted: true,
   });
@@ -154,15 +151,14 @@ export const registerSettings = function () {
   CONFIG.LancerInitiative = {
     templatePath: `systems/${game.system.id}/templates/combat/combat-tracker.hbs`,
   };
-  game.settings.register(game.system.id, "combat-tracker-appearance", {
+  game.settings.register(game.system.id, LANCER.setting_combat_appearance, {
     scope: "client",
     config: false,
     type: CombatTrackerAppearance,
-    // @ts-expect-error
     onChange: setAppearance,
     default: new CombatTrackerAppearance(),
   });
-  game.settings.register(game.system.id, "combat-tracker-sort", {
+  game.settings.register(game.system.id, LANCER.setting_combat_sort, {
     scope: "world",
     config: false,
     type: Boolean,
@@ -177,16 +173,7 @@ export const registerSettings = function () {
 };
 
 // > GENERAL AUTOMATION
-/**
- * Retrieve the automation settings for the system. If automation is turned
- * off, all keys will be `false`.
- * @deprecated Get the setting directly instead.
- */
-export function getAutomationOptions(): AutomationOptions {
-  return game.settings.get(game.system.id, LANCER.setting_automation) ?? new AutomationOptions();
-}
-
-interface AutomationOptionsSchema extends DataSchema {
+interface AutomationOptionsSchema extends foundry.data.fields.DataSchema {
   /**
    * Master switch for automation
    * @defaultValue `true`
@@ -302,7 +289,7 @@ export class AutomationOptions extends foundry.abstract.DataModel<AutomationOpti
 /**
  * Object for the various automation settings in the system
  */
-interface ActionTrackerOptionsSchema extends DataSchema {
+interface ActionTrackerOptionsSchema extends foundry.data.fields.DataSchema {
   /**
    * Whether the hotbar should be displayed.
    * @defaultValue `true`
@@ -347,7 +334,7 @@ export class ActionTrackerOptions extends foundry.abstract.DataModel<ActionTrack
 
 //
 // > STATUS ICON CONFIGURATION
-interface StatusIconConfigOptionsSchema extends DataSchema {
+interface StatusIconConfigOptionsSchema extends foundry.data.fields.DataSchema {
   /**
    * Enable the default icon set for conditions & status
    * @defaultValue `true`
@@ -460,7 +447,7 @@ export class StatusIconConfigOptions extends foundry.abstract.DataModel<StatusIc
 // > LANCER INITIATIVE CONFIG
 //
 
-interface CombatTrackerAppearanceSchema extends DataSchema {
+interface CombatTrackerAppearanceSchema extends foundry.data.fields.DataSchema {
   /**
    * Css class to specify the icon
    * @default `cci cci-activate`
@@ -554,9 +541,17 @@ export class CombatTrackerAppearance extends foundry.abstract.DataModel<CombatTr
 
 //
 // > GLOBALS
-declare global {
+declare module "fvtt-types/configuration" {
   interface DocumentClassConfig {
-    Combat: typeof LancerCombat;
-    Combatant: typeof LancerCombatant;
+    Combat: typeof LancerCombat<Combat.SubType>;
+    Combatant: typeof LancerCombatant<Combatant.SubType>;
+  }
+
+  interface ConfiguredCombat<SubType extends Combat.SubType> {
+    document: LancerCombat<SubType>;
+  }
+
+  interface ConfiguredCombatant<SubType extends Combatant.SubType> {
+    document: LancerCombatant<SubType>;
   }
 }

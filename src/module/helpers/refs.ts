@@ -2,17 +2,17 @@ import type { HelperOptions } from "handlebars";
 import { TypeIcon } from "../config";
 import {
   LancerItem,
-  LancerItemType,
-  LancerMECH_SYSTEM,
-  LancerMECH_WEAPON,
-  LancerNPC_FEATURE,
-  LancerPILOT_GEAR,
-  LancerPILOT_WEAPON,
-  LancerWEAPON_MOD,
-  LancerRESERVE,
+  type LancerItemType,
+  type LancerMECH_SYSTEM,
+  type LancerMECH_WEAPON,
+  type LancerNPC_FEATURE,
+  type LancerPILOT_GEAR,
+  type LancerPILOT_WEAPON,
+  type LancerWEAPON_MOD,
+  type LancerRESERVE,
 } from "../item/lancer-item";
 import { array_path_edit_changes, drilldownDocument, extendHelper, hex_array, resolveHelperDotpath } from "./commons";
-import { FoundryDropData, handleDocDropping, handleDragging, ResolvedDropData } from "./dragdrop";
+import { type FoundryDropData, handleDocDropping, handleDragging, type ResolvedDropData } from "./dragdrop";
 import {
   framePreview,
   licenseRefView,
@@ -21,11 +21,11 @@ import {
   weaponModView,
 } from "./item";
 import { mechSystemViewHBS } from "./loadout";
-import { LancerDoc } from "../util/doc";
+import type { LancerDoc } from "../util/doc";
 import { EntryType } from "../enums";
 import { LancerActor } from "../actor/lancer-actor";
 import { coreBonusView, skillView, talent_view as talentView } from "./pilot";
-import { SourceData } from "../source-template";
+import type { SourceData } from "../source-template";
 import { LancerActiveEffect } from "../effects/lancer-active-effect";
 
 /*
@@ -76,7 +76,7 @@ export function simple_ref_slot(path: string = "", accept_types: string | EntryT
     let icons = (arr_types || ["dummy"]).filter(t => t).map(t => `<img class="ref-icon" src="${TypeIcon(t)}"></img>`);
 
     // Make an empty ref. Note that it still has path stuff if we are going to be dropping things here
-    return `<div class="ref ref-card slot" 
+    return `<div class="ref ref-card slot"
                  data-accept-types="${flat_types}"
                  data-path="${path}">
           ${icons.join(" ")}
@@ -86,7 +86,7 @@ export function simple_ref_slot(path: string = "", accept_types: string | EntryT
     return `<span>ASYNC not handled yet</span>`;
   } else {
     // The data-type
-    return `<div class="ref ref-card set click-open" 
+    return `<div class="ref ref-card set click-open"
                   data-accept-types="${flat_types}"
                   data-path="${path}"
                   ${ref_params(doc)}
@@ -155,9 +155,9 @@ export function refPortrait<T extends EntryType>(
   _options: HelperOptions
 ) {
   // Fetch the image
-  return `<img class="profile-img ref set" src="${img}" data-edit="${img_path}" ${ref_params(
+  return `<div class="portrait-img-container"><img class="portrait-img ref set" src="${img}" data-edit="${img_path}" ${ref_params(
     item
-  )} width="100" height="100" />`;
+  )} width="100" height="100" /></div>`;
 }
 
 // A helper suitable for showing a small preview of a ref (slot)
@@ -203,11 +203,11 @@ export function itemPreview<T extends LancerItemType>(
   } else {
     // Basically the same as the simple ref card, but with control added
     return `
-      <div class="ref set ref-card click-open" 
+      <div class="ref set ref-card click-open"
               ${ref_params(doc)}>
         <img class="ref-icon" src="${doc.img}"></img>
         <span class="major">${doc.name}</span>
-        <hr class="vsep"> 
+        <span class="vsep"></span>
         <div class="ref-controls">
           <a class="lancer-context-menu" data-path="${item_path}">
             <i class="fas fa-ellipsis-v"></i>
@@ -282,8 +282,8 @@ export function lidItemList(itemArrayPath: string, values: LancerItem[], allowed
     previews.push(`<div class="card clipped" style="justify-content: center;">DROP NPC FEATURES HERE</div>`);
   }
   return `
-    <div class="flexcol lid-list" 
-      data-path="${itemArrayPath}" 
+    <div class="flexcol lid-list"
+      data-path="${itemArrayPath}"
       data-accept-types="${allowedTypes}">
       ${dropIndicator(allowedTypes, options)}
       ${previews.join("")}

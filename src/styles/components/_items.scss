@@ -1,0 +1,744 @@
+@use "../variables" as *;
+
+@layer lancer.components {
+  /* ===== GENERIC ===== */
+
+  /* Used on some item cards to add a border and consistent spacing.
+ * Should be used on an inner div of a card.
+ */
+  .lancer-body {
+    min-height: 15px;
+    padding: 3px;
+    flex: 1 0;
+
+    text-align: left;
+    justify-content: flex-start;
+    display: flex;
+    flex-direction: column;
+
+    hyphens: auto;
+    word-break: break-word;
+
+    border-width: 2px;
+    border-style: solid;
+    border-top-style: none;
+
+    background-color: var(--darken-1);
+
+    .core-active-wrapper > &,
+    .core-passive-wrapper > & {
+      padding-top: 0;
+      margin-top: 0;
+    }
+
+    @each $theme-type in $theme-types {
+      .lancer-#{$theme-type} > &,
+      .lancer-#{$theme-type} ~ & {
+        border-color: var(--#{$theme-type}-color);
+      }
+    }
+
+    .mount > & {
+      min-height: 45px;
+    }
+  }
+
+  /* Put specifically on the rectangular card style of ref */
+  .ref-card {
+    border: 2px solid black;
+    margin: 3px;
+    display: flex;
+    align-items: center;
+    text-align: center;
+    max-height: 40px;
+
+    & .span {
+      padding-left: 5px;
+    }
+  }
+
+  .set.ref.ref-card {
+    background-color: var(--ref-color);
+    color: black;
+  }
+
+  .click-open {
+    cursor: pointer;
+
+    &:hover {
+      text-shadow: 0 0 8px var(--color-shadow-primary);
+    }
+  }
+
+  .ref-icon {
+    width: 35px;
+    height: 35px;
+    margin: 0px;
+    flex-grow: 0;
+  }
+
+  .ref-card .ref-icon {
+    border-width: 0;
+    border-right-width: 2px;
+  }
+
+  /* Control box in the right side of a ref card. Delete button, etc */
+  .ref-controls {
+    margin: 5px;
+    margin-left: auto;
+    max-width: 40px;
+  }
+
+  /*==================*/
+  /* ===== TAGS ===== */
+
+  .tags-container > div {
+    flex-grow: 0;
+  }
+
+  .tag-label {
+    flex-grow: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .compact-tag {
+    color: var(--light-text);
+    background-color: var(--primary-color, fuchsia);
+    max-height: 20px;
+    align-items: center;
+    align-content: center;
+    border-radius: 5px;
+    padding: 0px 5px;
+    margin: 3px 5px;
+    font-size: 12px;
+  }
+
+  .compact-tag-row {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    flex: 1;
+    margin: 3px;
+    min-height: 1em;
+  }
+
+  .large-tag {
+    color: var(--dark-text, fuchsia);
+    align-items: center;
+    border: 1px solid var(--primary-color, fuchsia);
+    border-radius: 5px;
+    margin: 3px 5px;
+    font-size: 1.1em;
+
+    .tag-header {
+      color: var(--light-text, fuchsia);
+      background-color: var(--primary-color, fuchsia);
+      text-align: left;
+
+      .tag-controls {
+        max-width: fit-content;
+        align-content: center;
+
+        a {
+          padding-right: 0.3em;
+        }
+      }
+    }
+
+    .tag-description {
+      margin: 0.2em 0.5em;
+      text-align: left;
+      font-size: 0.9em;
+      max-height: 14.15em;
+      overflow-y: scroll;
+    }
+  }
+
+  .large-tag-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: auto;
+    margin: 3px;
+    min-height: 1em;
+  }
+
+  /*=====================*/
+  /* ===== WEAPONS ===== */
+
+  .mini-weapon-profile {
+    align-items: center;
+    justify-content: space-evenly;
+    border: 1px solid var(--weapon-color);
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+    background-color: var(--darken-2);
+    font-size: 15px;
+    word-break: normal;
+
+    .message-content & {
+      margin-bottom: 0.2em;
+    }
+
+    .lancer-tech + & {
+      border-color: var(--tech-color);
+      background-color: color-mix(in srgb, var(--tech-color), #fff 85%);
+    }
+
+    .mini-weapon-profile-separator {
+      opacity: 0.6;
+      width: min-content;
+      max-width: min-content;
+    }
+
+    .mini-weapon-profile-accuracy,
+    .mini-weapon-profile-range,
+    .mini-weapon-profile-damage {
+      justify-content: center;
+
+      span {
+        max-width: min-content;
+        display: flex;
+        align-items: center;
+
+        & + span {
+          padding-left: 0.3em;
+        }
+      }
+    }
+  }
+
+  .weapon-profile {
+    color: var(--light-text);
+    background-color: var(--primary-color);
+    align-items: center;
+    min-height: 2em;
+    text-align: center;
+    padding: 0px 9px;
+    clip-path: polygon(9px 0, 100% 0, calc(100% - 8px) 100%, 0 100%);
+  }
+
+  .weapon-profile:hover {
+    box-shadow: var(--hover-bright);
+  }
+
+  .weapon-profile.selected-profile {
+    color: var(--primary-color);
+    background-color: var(--light-text);
+    /* font-weight: bold; */
+  }
+
+  .compact-range,
+  .compact-acc,
+  .compact-damage {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: nowrap;
+    white-space: nowrap;
+    margin: 5px 0;
+    max-width: min-content;
+    min-width: fit-content;
+
+    & > & {
+      margin: 0 5px;
+    }
+
+    &.lancer-button {
+      padding-left: 0;
+      padding-right: 0.5em;
+    }
+  }
+
+  /*====================*/
+  /* ===== FRAMES ===== */
+  /* Frame descriptor, probably-but-not-necessarily in mech-loadout */
+  .mech-frame {
+    .coresys-title {
+      width: 100%;
+      text-align: center;
+      font-weight: bold;
+      padding-top: 4px;
+      padding-bottom: 4px;
+    }
+
+    .frame-trait {
+      margin: 2px;
+      flex-grow: unset;
+    }
+
+    .frame-traits,
+    .core-wrapper {
+      width: 50%;
+      max-width: calc(50% - 6px);
+    }
+
+    .frame-active,
+    .frame-passive {
+      margin: 0 4px;
+    }
+  }
+
+  /*===========================*/
+  /* ===== ACTIVE EFFECT ===== */
+
+  .active-effect {
+    border-radius: 5px;
+    border: black solid 1px;
+    display: grid;
+    grid-template-columns: 1fr 30px;
+    justify-items: start;
+    margin: 3px;
+    padding: 3px;
+  }
+
+  /*=====================*/
+  /* ===== LICENSE ===== */
+
+  .license-desc {
+    display: flex;
+  }
+
+  .license-desc > input::-webkit-outer-spin-button,
+  .license-desc > input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  .license-desc > input[type="number"] {
+    appearance: textfield;
+    -moz-appearance: textfield; /* Firefox */
+    width: 3ch;
+  }
+
+  .license-desc > input,
+  .license-desc > span {
+    background: transparent;
+    border: none;
+    color: #828282;
+    width: 12ch;
+  }
+
+  .license-desc > span {
+    font-size: 13px;
+    margin-top: 2px;
+    width: 3ch;
+  }
+
+  .lancer-license {
+    flex: 1;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .edit-license-wrapper {
+    border: 1px solid var(--secondary-color);
+    border-radius: 5px;
+    width: min-content;
+    max-width: min-content;
+    flex-wrap: unset;
+    align-self: center;
+    gap: 1em;
+    text-wrap: nowrap;
+
+    span {
+      margin: 0 0.5em;
+    }
+
+    .rank-wrapper {
+      align-items: center;
+      justify-content: center;
+      flex-wrap: unset;
+
+      span {
+        font-size: 1.2em;
+        flex-grow: unset;
+      }
+
+      input {
+        max-width: 2em;
+      }
+    }
+  }
+
+  /*=============================*/
+  /* ===== TALENTS ===== */
+
+  .talent-rank-compact {
+    display: grid;
+    grid-template: auto 1fr / auto auto 1fr;
+    grid-template-areas:
+      "rank chat title"
+      "desc desc desc";
+  }
+
+  .card.lancer-border-talent.talent-rank-sep-border {
+    border-width: 1px;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+  }
+
+  /*=============================*/
+  /* ===== PILOT EQUIPMENT ===== */
+
+  .pilot-gear-body {
+    padding: 0 0.5em 0 0.5em;
+  }
+
+  /*===================*/
+  /* ===== BONDS ===== */
+
+  .bond-xp-item {
+    text-align: left;
+    padding: 0.2em 1em;
+  }
+
+  .bond-ideal-select,
+  .bond-question-select {
+    width: 100% !important;
+    flex-grow: 1;
+    text-wrap: wrap; // Firefox doesn't seem to have an equivalent, unfortunately
+  }
+
+  .bond-question-item {
+    padding: 0.5em 1em 0.5em 1em;
+
+    .bond-question-question {
+      width: 100%;
+      text-align: left;
+      font-weight: bold;
+    }
+  }
+
+  .gen-control.add-question {
+    float: left;
+    margin-left: 10px;
+    border: 1px solid var(--darken-5);
+    border-radius: 4px;
+    padding: 3px;
+  }
+
+  .bond-question {
+    .bond-question-row {
+      display: flex;
+      align-items: center;
+      margin-right: 1em;
+
+      a {
+        flex: 0 0 auto;
+        padding-left: 5px;
+        padding-right: 5px;
+      }
+    }
+
+    .bond-question-options {
+      margin-top: 0;
+      margin-bottom: 0.25em;
+
+      .bond-question-option-row {
+        display: flex;
+        align-items: center;
+        margin-right: 3em;
+
+        a {
+          flex: 0 0 auto;
+          padding-left: 5px;
+          padding-right: 5px;
+        }
+      }
+    }
+  }
+
+  .bond-ideal-row {
+    display: flex;
+    align-items: center;
+    margin-right: 1em;
+
+    .bond-ideal {
+      flex-grow: 1;
+    }
+
+    a {
+      flex: 0 0 auto;
+      padding-left: 5px;
+      padding-right: 5px;
+    }
+  }
+
+  /* ======================================================== */
+  /* ===== TO BE SORTED ===== */
+  .compact-frame,
+  .compact-class,
+  .compact-template,
+  .compact-deployer {
+    grid-area: 1/1/1/3;
+    align-items: center;
+    height: 8em;
+    max-height: 8em;
+    background-color: var(--primary-color);
+
+    .img-bar {
+      background-repeat: no-repeat;
+      background-size: 200px;
+      height: 100%;
+      min-width: 50%;
+    }
+  }
+  .compact-template {
+    height: 100%;
+  }
+  .compact-frame > .img-bar,
+  .compact-class > .img-bar {
+    background-position: left 50% top 40%;
+  }
+  .compact-template > .img-bar {
+    background-position: left 50% top 60%;
+    background-size: 35%;
+  }
+  .compact-deployer > .img-bar {
+    background-position: left 50% top 10%;
+  }
+
+  .compact-frame:hover,
+  .compact-class:hover,
+  .compact-deployer:hover {
+    box-shadow: var(--hover-bright);
+  }
+
+  .skill-compact {
+    display: grid;
+    grid-template: 2em 1fr / 100px 1fr;
+    align-items: center;
+    margin-right: 25px;
+    a.flexrow.skill-flow {
+      margin-inline: 1.2em;
+    }
+  }
+
+  ul.talent-ranks {
+    padding: 0;
+  }
+
+  .action-detail,
+  .deployable-detail,
+  .core-active-detail,
+  .core-passive-detail {
+    text-align: left;
+    margin-left: 0.5em;
+    margin-right: 0.5em;
+  }
+
+  .action-wrapper,
+  .deployable-wrapper,
+  .core-active-wrapper,
+  .core-passive-wrapper,
+  .core-wrapper {
+    border-radius: 10px;
+    background-color: var(--darken-1);
+    margin-top: 6px;
+    margin-bottom: 4px;
+    padding: 4px;
+
+    .title-wrapper {
+      text-align: left;
+
+      .activation-chip {
+        max-width: fit-content;
+      }
+    }
+  }
+
+  .action-flow-container {
+    float: left;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+
+    .activation-chip,
+    .lancer-button {
+      height: 100%;
+      margin: 0;
+
+      span {
+        padding-right: 0.2em;
+      }
+    }
+
+    span.vsep {
+      margin: 0.1em 0.7em;
+    }
+  }
+
+  // TODO: not all of this belongs in layout
+  .core-wrapper {
+    border-radius: 0px;
+    border-width: 2px;
+    border-style: solid;
+
+    .core-active-activate {
+      margin: 0 0.2em;
+      align-items: center;
+
+      .active-label {
+        flex-grow: 0;
+        min-width: fit-content;
+        margin-right: 0.5em;
+      }
+
+      .activation-chip {
+        width: 100%;
+        height: auto;
+        left: 0px;
+        right: 0px;
+        font-size: 1.1em;
+        justify-content: space-between;
+
+        .flexcol {
+          align-items: center;
+        }
+        b {
+          white-space: normal;
+          text-align: center;
+        }
+      }
+    }
+  }
+
+  .action-wrapper,
+  .core-active-wrapper,
+  .core-passive-wrapper {
+    display: flex;
+    flex-direction: column;
+  }
+
+  // TODO: not all of this belongs in layout
+  .deployable-wrapper {
+    display: grid;
+    grid-template-columns: 48px auto auto;
+    grid-template-rows: auto auto auto;
+    grid-template-areas:
+      "img title title"
+      "chip chip desc"
+      "action action action";
+
+    &.vertical {
+      grid-template-columns: 48px auto;
+      grid-template-rows: auto auto auto auto;
+      grid-template-areas:
+        "img title"
+        "chip chip"
+        "desc desc"
+        "action action";
+
+      .flexcol {
+        flex-grow: 1;
+      }
+
+      .deployable-activations {
+        margin-left: 0;
+      }
+
+      .activation-chip {
+        margin: 1px 2px;
+      }
+    }
+
+    img.deployable-thumbnail {
+      padding: 0.25em 0.5em;
+      grid-area: img;
+      border: none;
+      align-self: center;
+    }
+
+    .title-wrapper {
+      padding-left: 0.5em;
+    }
+
+    .deployable-activations {
+      grid-area: chip;
+      justify-content: flex-end;
+      display: flex;
+      flex-direction: row;
+      margin-left: 0.5em;
+
+      .activation-chip {
+        max-height: 20px;
+        display: flex;
+        justify-content: center;
+        margin-top: 0.1em;
+        margin-bottom: 0.1em;
+      }
+    }
+  }
+
+  .action-wrapper,
+  .deployable-wrapper {
+    border-color: var(--secondary-color);
+    border-width: 1px;
+    border-style: solid;
+  }
+
+  .stat-card {
+    display: grid;
+    grid-template: 1fr 1fr / 1fr;
+  }
+
+  .stat-flow-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+
+  .stat-container,
+  .stat-flow-container {
+    align-items: center;
+  }
+
+  .stat-flow-container > a {
+    margin: auto;
+  }
+
+  .loading-wrapper {
+    align-items: center;
+    margin-top: 0.75em;
+    max-width: fit-content;
+  }
+
+  .uses-wrapper {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    margin-right: 4px;
+    margin-top: 4px;
+  }
+
+  .sp-wrapper {
+    display: flex;
+    width: fit-content;
+    max-width: fit-content;
+    align-items: center;
+  }
+
+  .weapon-profile-wrapper {
+    padding: 8px 8px 0px 5px;
+    background-color: var(--primary-color);
+    clip-path: polygon(0 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
+  }
+
+  .mech-weapon-wrapper {
+    margin-bottom: 4px;
+  }
+
+  .sheet-weapon-mod {
+    margin-right: 1em;
+  }
+
+  .sheet-weapon-mod > .flexcol > * {
+    flex-grow: unset;
+    margin-bottom: 0.25em;
+  }
+}

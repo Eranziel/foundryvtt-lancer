@@ -1,4 +1,4 @@
-import type { DeepPartial } from "@league-of-foundry-developers/foundry-vtt-types/src/types/utils.mjs";
+import type { DeepPartial } from "fvtt-types/utils";
 import { LANCER } from "../config";
 import { ActionTrackerOptions } from "../settings";
 
@@ -17,14 +17,14 @@ interface Configuration extends foundry.applications.api.ApplicationV2.Configura
 export class ActionTrackerConfig extends HandlebarsApplicationMixin(ApplicationV2<{}, Configuration, RenderOptions>) {
   static PARTS = {
     form: { template: "systems/lancer/templates/settings/action-tracker-config.hbs" },
-    footer: { template: "templates/generic/form-footer.hbs", classes: ["flexrow"] },
+    footer: { template: "templates/generic/form-footer.hbs" },
   };
 
   static DEFAULT_OPTIONS = {
     id: "lancer-action-tracker-settings",
     tag: "form",
-    position: { width: 450 },
-    window: { title: "lancer.actionTracker.menu-label" },
+    position: { width: 550 },
+    window: { title: "lancer.actionTracker.menu-label", contentClasses: ["standard-form"] },
     form: {
       handler: this.#formHandler,
       submitOnChange: false,
@@ -33,7 +33,7 @@ export class ActionTrackerConfig extends HandlebarsApplicationMixin(ApplicationV
     actions: {
       onReset: this.#onReset,
     },
-  } as const;
+  };
 
   async _prepareContext(opts: DeepPartial<RenderOptions>): Promise<{}> {
     const config = game.settings.get(game.system.id, LANCER.setting_actionTracker);

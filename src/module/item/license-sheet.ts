@@ -14,7 +14,7 @@ export class LancerLicenseSheet extends LancerItemSheet<EntryType.LICENSE> {
    * @override
    * Extend and override the default options used by the generic Lancer item sheet
    */
-  static get defaultOptions(): DocumentSheetOptions<Item> {
+  static get defaultOptions(): ItemSheet.Options {
     return foundry.utils.mergeObject(super.defaultOptions, {
       width: 700,
       height: 750,
@@ -32,15 +32,12 @@ export class LancerLicenseSheet extends LancerItemSheet<EntryType.LICENSE> {
       let pack = game.packs.get(get_pack_id(et));
       if (pack) {
         let index = await pack.getIndex();
-        // @ts-expect-error
         let key = this.item.system.key;
         for (let [id, indexData] of index.entries()) {
-          // @ts-expect-error
           let itemLicense = indexData.system.license as string | undefined;
           if (itemLicense !== key) continue;
 
           let doc = (await pack.getDocument(id)) as unknown as LancerItem;
-          // @ts-expect-error
           let rank = doc.system.license_level as number;
           while (unlocks.length <= rank) {
             unlocks.push([]);
@@ -78,7 +75,7 @@ export class LancerLicenseSheet extends LancerItemSheet<EntryType.LICENSE> {
   /**
    * @override
    * Activate event listeners using the prepared sheet HTML
-   * @param html {JQuery}   The prepared HTML object ready to be rendered into the DOM
+   * @param html - The prepared HTML object ready to be rendered into the DOM
    */
   activateListeners(html: JQuery) {
     super.activateListeners(html);
@@ -88,9 +85,7 @@ export class LancerLicenseSheet extends LancerItemSheet<EntryType.LICENSE> {
       if (doc.type == "Item") {
         doc.document.update({
           system: {
-            // @ts-expect-error
             license: this.item.system.key,
-            // @ts-expect-error
             manufacturer: this.item.system.manufacturer,
           },
         });

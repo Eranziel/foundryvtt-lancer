@@ -1,0 +1,177 @@
+@layer lancer.components {
+  .lancer button,
+  .lancer-button {
+    border: 1px solid var(--darken-3);
+    border-radius: 5px;
+    padding: 0.25em;
+    background: var(--light-gray-color);
+    color: var(--dark-text);
+    box-shadow: var(--button-shadow);
+
+    &:hover {
+      box-shadow: var(--button-shadow), var(--hover-bright);
+    }
+
+    &.noninteractive {
+      cursor: default;
+      text-shadow: none;
+      box-shadow: none;
+    }
+
+    &:disabled {
+      cursor: not-allowed;
+      text-shadow: none;
+      box-shadow: none;
+      filter: brightness(0.7);
+    }
+
+    // TODO: make all chat buttons tighter. Needs alignment
+    // work in other styles/chat cards.
+    .chat-message .lancer-damage-button-group & {
+      width: fit-content;
+      display: flex;
+
+      & i {
+        margin: 0;
+
+        & ~ i {
+          margin-left: -0.4em;
+        }
+      }
+    }
+
+    & i.damage--kinetic {
+      color: var(--light-text);
+    }
+  }
+
+  .add-button {
+    width: 20px;
+    height: 20px;
+    background: #d7b6b9;
+    text-align: center;
+    border: solid var(--primary-color, fuchsia);
+    border-width: 1px;
+    border-radius: 4px;
+    font-weight: bold;
+    color: var(--primary-color, fuchsia);
+  }
+
+  .remove-button {
+    width: 20px;
+    height: 20px;
+    background: #bebebe;
+    border: solid #3e3e3e;
+    border-width: 1px;
+    border-radius: 4px;
+    text-align: center;
+    color: #8e8e8e;
+    padding-top: 2px;
+  }
+
+  .simple-button {
+    color: var(--light-text);
+    background-color: var(--primary-color, fuchsia);
+    max-width: max-content;
+    min-width: max-content;
+    align-items: center;
+    border-radius: 5px;
+    padding: 0px 5px;
+    margin: 3px 5px;
+    border: 2px;
+    font-size: 12px;
+  }
+
+  .tier-control {
+    min-width: 100%;
+    background-color: #991e2a;
+    color: var(--light-text);
+  }
+
+  .tier-control option {
+    background-color: #991e2a;
+    color: var(--light-text);
+  }
+
+  .roll-attack,
+  .roll-damage,
+  .roll-trigger,
+  .system-macro,
+  .gear-macro,
+  .cb-macro,
+  .item-macro,
+  .core-passive-macro,
+  .core-active-macro {
+    margin: 5px 10px;
+  }
+
+  .roll-attack,
+  .roll-tech,
+  .system-macro {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    flex-grow: 0;
+    margin: 3px 10px;
+    min-width: 3em;
+    height: 3em;
+    border: 1px solid var(--darken-2);
+    border-radius: 5px;
+    box-shadow: 1px 1px 1px 0.6px #000000b3;
+  }
+
+  .system-macro {
+    max-width: min-content;
+  }
+
+  .activation-chip,
+  .activation-chip.lancer-button {
+    align-self: flex-end;
+    margin-top: 5px;
+    font-size: 12px;
+    height: 24px;
+    color: var(--light-text);
+    border-radius: 4px !important;
+    align-items: center;
+    // cursor: default;
+    display: inline-flex;
+    line-height: 20px;
+    max-width: 100%;
+    outline: none;
+    overflow: hidden;
+    padding: 0 12px 0px 5px;
+    text-decoration: none;
+    transition-duration: 0.28s;
+    transition-property: box-shadow, opacity;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    vertical-align: middle;
+    white-space: nowrap;
+    margin-bottom: 5px;
+    margin-right: 5px;
+  }
+
+  a.activation-chip > i.fas,
+  a.activation-chip > i.cci,
+  a.activation-chip > i.mdi {
+    margin-right: 6px;
+  }
+
+  .lancer-flow-button-grid button,
+  .bond-xp-button,
+  .refresh-powers-button {
+    margin: 4px;
+    border-radius: 15px 0px;
+  }
+
+  .bond-xp-button {
+    margin-left: 1em;
+    margin-right: 1em;
+  }
+
+  .lancer-hud-buttons {
+    .dialog-button.submit {
+      background-color: var(--primary-color);
+    }
+  }
+}

@@ -1,38 +1,36 @@
 <form class="{{cssClass}} lancer-sheet" autocomplete="off">
   {{! Sheet Header }}
   <header class="sheet-header card clipped-bot">
-    <div class="header-fields">
-      <h1 class="charname">
-        <input
-          class="header-field"
-          name="name"
-          type="text"
-          value="{{item.name}}"
-          placeholder="{{localize 'lancer.placeholder.name'}}"
-        />
-      </h1>
-      <div class="origin_type">
-        <span class="medium">FEATURE TYPE: </span>
-        <select class="header-field" name="system.type" data-type="String">
-          {{#select system.type}}
-            <option class="i--dark" value="Reaction">
-              REACTION
-            </option>
-            <option class="i--dark" value="System">
-              SYSTEM
-            </option>
-            <option class="i--dark" value="Tech">
-              TECH
-            </option>
-            <option class="i--dark" value="Trait">
-              TRAIT
-            </option>
-            <option class="i--dark" value="Weapon">
-              WEAPON
-            </option>
-          {{/select}}
-        </select>
-      </div>
+    <h1 class="name">
+      <input
+        class="lancer-input header-field"
+        name="name"
+        type="text"
+        value="{{item.name}}"
+        placeholder="{{localize 'lancer.placeholder.name'}}"
+      />
+    </h1>
+    <div class="header-details origin_type">
+      <span class="medium">FEATURE TYPE: </span>
+      <select class="header-field" name="system.type" data-type="String">
+        {{#select system.type}}
+          <option class="i--dark" value="Reaction">
+            REACTION
+          </option>
+          <option class="i--dark" value="System">
+            SYSTEM
+          </option>
+          <option class="i--dark" value="Tech">
+            TECH
+          </option>
+          <option class="i--dark" value="Trait">
+            TRAIT
+          </option>
+          <option class="i--dark" value="Weapon">
+            WEAPON
+          </option>
+        {{/select}}
+      </select>
     </div>
     {{{ref-portrait-img item.img "img" item}}}
   </header>
@@ -173,7 +171,7 @@
         {{#each system.damage as |tier_damage_array tier_index|}}
           <div class="card clipped">
             <span class="lancer-header lancer-primary major">
-              <i class="cci cci-npc-tier-{{inc tier_index}} i--m i--dark"></i>
+              <i class="cci cci-npc-tier-{{inc tier_index}} i--4 i--dark"></i>
               T
               {{inc tier_index}}
               DAMAGE

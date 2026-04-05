@@ -1,13 +1,13 @@
 import {
-  DamageTypeChecklist,
+  type DamageTypeChecklist,
   makeWeaponSizeChecklist,
   makeWeaponTypeChecklist,
-  RangeTypeChecklist,
-  WeaponSizeChecklist,
-  WeaponTypeChecklist,
+  type RangeTypeChecklist,
+  type WeaponSizeChecklist,
+  type WeaponTypeChecklist,
 } from "../../enums";
 import { BONUS } from "../../util/unpacking/defaults";
-import { PackedBonusData } from "../../util/unpacking/packed-types";
+import type { PackedBonusData } from "../../util/unpacking/packed-types";
 import {
   DamageTypeChecklistField,
   RangeTypeChecklistField,
@@ -17,36 +17,31 @@ import {
 import { Damage } from "./damage";
 import { Range } from "./range";
 
-const fields: any = foundry.data.fields;
+import fields = foundry.data.fields;
 
-// Make all fields required, force val to string, and use checklists
-export interface BonusData {
-  lid: string;
-  val: string;
-  damage_types: DamageTypeChecklist | null;
-  range_types: RangeTypeChecklist | null;
-  weapon_types: WeaponTypeChecklist | null;
-  weapon_sizes: WeaponSizeChecklist | null;
+const defineBonusFieldSchema = () => {
+  return {
+    lid: new fields.StringField({ nullable: false }), // Don't really want an LID field here
+    val: new fields.StringField({ nullable: false }),
+    overwrite: new fields.BooleanField(),
+    replace: new fields.BooleanField(),
+    damage_types: new DamageTypeChecklistField(),
+    range_types: new RangeTypeChecklistField(),
+    weapon_types: new WeaponTypeChecklistField(),
+    weapon_sizes: new WeaponSizeChecklistField(),
+  };
+};
 
-  overwrite: boolean;
-  replace: boolean;
-}
+type BonusFieldSchema = ReturnType<typeof defineBonusFieldSchema>;
 
-export class BonusField extends fields.SchemaField {
-  constructor(options = {}) {
-    super(
-      {
-        lid: new fields.StringField({ nullable: false }), // Don't really want an LID field here
-        val: new fields.StringField({ nullable: false }),
-        overwrite: new fields.BooleanField(),
-        replace: new fields.BooleanField(),
-        damage_types: new DamageTypeChecklistField(),
-        range_types: new RangeTypeChecklistField(),
-        weapon_types: new WeaponTypeChecklistField(),
-        weapon_sizes: new WeaponSizeChecklistField(),
-      },
-      options
-    );
+export type BonusData = fields.SchemaField.InitializedData<BonusFieldSchema>;
+
+export class BonusField<Options extends fields.SchemaField.Options<BonusFieldSchema>> extends fields.SchemaField<
+  BonusFieldSchema,
+  Options
+> {
+  constructor(options?: Options) {
+    super(defineBonusFieldSchema(), options);
   }
 }
 

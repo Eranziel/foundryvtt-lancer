@@ -24,16 +24,16 @@ import { LancerDeployableSheet } from "./module/actor/deployable-sheet";
 import { LancerMechSheet } from "./module/actor/mech-sheet";
 import { LancerNPCSheet } from "./module/actor/npc-sheet";
 import { LancerPilotSheet } from "./module/actor/pilot-sheet";
+import { WeaponRangeTemplate } from "./module/canvas/weapon-range-template";
 import { LancerFrameSheet } from "./module/item/frame-sheet";
 import { LancerItemSheet } from "./module/item/item-sheet";
 import { LancerLicenseSheet } from "./module/item/license-sheet";
-import { WeaponRangeTemplate } from "./module/canvas/weapon-range-template";
+import { richTextEdit } from "./module/apps/text-editor";
 
 // Import helpers
 import { LCPManager, addLCPManagerButton } from "./module/apps/lcp-manager/lcp-manager";
-import { attachTagTooltips } from "./module/helpers/tags";
 import { preloadTemplates } from "./module/preload-templates";
-import { getAutomationOptions, registerSettings } from "./module/settings";
+import { registerSettings } from "./module/settings";
 import { applyTheme } from "./module/themes";
 import * as migrations from "./module/world_migration";
 
@@ -60,7 +60,7 @@ import { applyCollapseListeners, initializeCollapses } from "./module/helpers/co
 import CompconLoginForm from "./module/helpers/compcon-login-form";
 import { applyGlobalDragListeners } from "./module/helpers/dragdrop";
 // import { handleActorExport, validForExport } from "./module/helpers/io";
-import { extendCombatTrackerConfig, onCloseCombatTrackerConfig } from "./module/apps/lancer-initiative-config-form";
+import { extendCombatTrackerConfig } from "./module/apps/lancer-initiative-config-form";
 import { handleRefClickOpen } from "./module/helpers/refs";
 import { DeployableModel } from "./module/models/actors/deployable";
 import { MechModel } from "./module/models/actors/mech";
@@ -74,6 +74,7 @@ import { PilotArmorModel } from "./module/models/items/pilot_armor";
 import { PilotGearModel } from "./module/models/items/pilot_gear";
 import { PilotWeaponModel } from "./module/models/items/pilot_weapon";
 import { TalentModel } from "./module/models/items/talent";
+import { LancerTerrain } from "./module/terrain";
 import { LancerToken, LancerTokenDocument, extendTokenConfig } from "./module/token";
 import { lookupOwnedDeployables } from "./module/util/lid";
 import { fulfillImportActor } from "./module/util/requests";
@@ -91,6 +92,7 @@ import { fromLid, fromLidMany, fromLidSync } from "./module/helpers/from-lid";
 import { addEnrichers } from "./module/helpers/text-enrichers";
 import { LancerNPCClassSheet } from "./module/item/npc-class-sheet";
 import { LancerNPCFeatureSheet } from "./module/item/npc-feature-sheet";
+import { LancerCombatantModel } from "./module/models/combatant/base";
 import { BondModel } from "./module/models/items/bond";
 import { LicenseModel } from "./module/models/items/license";
 import { NpcClassModel } from "./module/models/items/npc_class";
@@ -104,8 +106,17 @@ import { WeaponModModel } from "./module/models/items/weapon_mod";
 import { registerTours } from "./module/tours/register-tours";
 import { get_pack_id } from "./module/util/doc";
 import handleSocketMessage from "./module/socket";
+import preloadHUDs from "./module/apps/slidinghud/preload";
 
 const lp = LANCER.log_prefix;
+
+declare module "fvtt-types/configuration" {
+  namespace Hooks {
+    interface ApplicationConfig {
+      CombatDock: Application.Any;
+    }
+  }
+}
 
 /* ------------------------------------ */
 /* Initialize system                    */
@@ -142,6 +153,8 @@ Hooks.once("init", () => {
   CONFIG.Actor.dataModels[EntryType.NPC] = NpcModel;
   CONFIG.Actor.dataModels[EntryType.DEPLOYABLE] = DeployableModel;
 
+  CONFIG.Combatant.dataModels["base"] = LancerCombatantModel;
+
   // Set up trackable resources for the various actor types
   const base = {
     bar: ["hp", "heat", "overshield"],
@@ -164,24 +177,19 @@ Hooks.once("init", () => {
     ],
   };
   CONFIG.Actor.trackableAttributes = {
-    // @ts-expect-error
     base,
-    // @ts-expect-error
     ["deployable"]: {
       bar: [...base.bar],
       value: [...base.value, "cost", "instances"],
     },
-    // @ts-expect-error
     ["mech"]: {
       bar: [...base.bar, "structure", "stress", "repairs"],
       value: [...base.value, "action_tracker.move", "core_energy", "grit", "meltdown_timer", "overcharge"],
     },
-    // @ts-expect-error
     ["npc"]: {
       bar: [...base.bar, "structure", "stress"],
       value: [...base.value, "meltdown_timer", "tier"],
     },
-    // @ts-expect-error
     ["pilot"]: {
       bar: [...base.bar, "bond_state.stress", "bond_state.xp"],
       value: [...base.value, "grit", "level"],
@@ -228,6 +236,7 @@ Hooks.once("init", () => {
     helpers: {
       gridDist,
       lookupOwnedDeployables,
+      richTextEdit,
     },
     flows,
     flowSteps,
@@ -236,15 +245,6 @@ Hooks.once("init", () => {
     importActor: fulfillImportActor,
     targetsFromTemplate,
     migrations: migrations,
-    getAutomationOptions: () => {
-      ui.notifications.warn(
-        "The getAutomationOptions helper is deprecated and will be removed i" +
-          'n Foundry v13. Use game.settings.get("lancer", "automationOptions' +
-          '") directly instead.',
-        { permanent: true }
-      );
-      return getAutomationOptions();
-    },
     fromLid: fromLid,
     fromLidMany: fromLidMany,
     fromLidSync: fromLidSync,
@@ -256,17 +256,67 @@ Hooks.once("init", () => {
   CONFIG.ActiveEffect.documentClass = LancerActiveEffect;
   CONFIG.Token.documentClass = LancerTokenDocument;
   CONFIG.Token.objectClass = LancerToken;
+  // @ts-expect-error ???
+  CONFIG.Token.movement.TerrainData = LancerTerrain;
+  CONFIG.Token.movement.actions = foundry.utils.mergeObject(CONFIG.Token.movement.actions, {
+    swim: { canSelect: () => false, deriveTerrainDifficulty: () => 1 },
+    burrow: { canSelect: () => false, deriveTerrainDifficulty: () => 1 },
+    crawl: {
+      // @ts-expect-error
+      getCostFunction: () => (cost, _f, _t, dist) => Math.max(cost, dist * 2),
+    },
+    climb: {
+      // @ts-expect-error
+      getCostFunction: () => (cost, _f, _t, dist) => Math.max(cost, dist * 2),
+    },
+    jump: {
+      // @ts-expect-error
+      getCostFunction: () => (cost, _f, _t, dist) => Math.max(cost, dist * 2),
+    },
+    teleport: {
+      label: "lancer.movement.actions.teleport",
+      icon: "fa-solid fa-person-rays",
+      order: 7,
+      teleport: true,
+      getCostFunction: () => () => 0,
+      getAnimationOptions: () => ({ duration: 0 }),
+      deriveTerrainDifficulty: () => 1,
+      // @ts-expect-error
+      canSelect: token => token.inCombat,
+    },
+    blink: {
+      label: "lancer.movement.actions.blink",
+      order: 8,
+    },
+    ignore: {
+      label: "lancer.movement.actions.ignore",
+      icon: "fa-solid fa-person-walking-dashed-line-arrow-right",
+      order: 9,
+      // @ts-expect-error
+      deriveTerrainDifficulty: d => Math.min(d.walk, 1),
+    },
+    forced: {
+      label: "lancer.movement.actions.forced",
+      icon: "fa-solid fa-people-pulling",
+      img: "icons/svg/hazard.svg",
+      order: 10,
+      teleport: true,
+      measure: false,
+      canSelect: () => game.user.isGM,
+      deriveTerrainDifficulty: () => 1,
+      getCostFunction: () => () => 0,
+    },
+    displace: { order: 11 },
+  });
   CONFIG.Combat.documentClass = LancerCombat;
+  CONFIG.Combat.fallbackTurnMarker = "systems/lancer/assets/turn-markers/mech-hud.svg";
   CONFIG.Combatant.documentClass = LancerCombatant;
-  // @ts-expect-error This is literally a subclass so idk why it's busted
   CONFIG.ui.combat = LancerCombatTracker;
 
-  // @ts-expect-error Missing from types
   CONFIG.Dice.fulfillment.dice = {
     // Disabled due to https://github.com/foundryvtt/foundryvtt/issues/13694
     // dc : { icon: "<i class='fa-solid fa-coins'></i>", label: "dc" },
     d3: { icon: "<i class='fa-solid fa-dice-d6'></i>", label: "d3" },
-    // @ts-expect-error Missing from types
     ...CONFIG.Dice.fulfillment.dice,
   };
 
@@ -287,18 +337,13 @@ Hooks.once("init", () => {
   // ------------------------------------------------------------------------
   // Sliding HUD Zone, including accuracy/difficulty window
   Hooks.on("renderHeadsUpDisplay", slidingHUD.attach);
+  preloadHUDs();
 
   // Combat tracker HUD modules integration
-  if (game.modules.get("combat-carousel")?.active) {
-    (async () => {
-      const { handleRenderCombatCarousel } = await import("./module/integrations/combat-carousel");
-      Hooks.on("renderCombatCarousel", handleRenderCombatCarousel);
-    })();
-  }
   if (game.modules!.get("combat-tracker-dock")?.active) {
     (async () => {
       game.lancer.combatTrackerDock = await import("./module/integrations/combat-tracker-dock");
-      Hooks.on("renderCombatDock", (...[_app, html]: Parameters<Hooks.RenderApplication>) => {
+      Hooks.on("renderCombatDock", (_app, html) => {
         html.find(".buttons-container [data-action='roll-all']").hide();
         html.find(".buttons-container [data-action='roll-npc']").hide();
         // html.find(".buttons-container [data-action='previous-turn']").hide();
@@ -309,6 +354,7 @@ Hooks.once("init", () => {
 
   // Extend TokenConfig for token size automation
   Hooks.on("renderTokenConfig", extendTokenConfig);
+  Hooks.on("renderPrototypeTokenConfig", extendTokenConfig);
 });
 
 Hooks.once("setup", () => {
@@ -317,9 +363,8 @@ Hooks.once("setup", () => {
   /////////////////////////////////
   // Change the default value of the grid based templates option
   // TODO Remove when we get https://github.com/foundryvtt/foundryvtt/issues/11477
-  if (game.settings.settings.get("core.gridTemplates"))
-    // @ts-expect-error This is hacky, but valid
-    game.settings.settings.get("core.gridTemplates")!.default = true;
+  const gridTemplates = game.settings.settings.get("core.gridTemplates");
+  if (gridTemplates) gridTemplates.default = true;
 });
 
 /* ------------------------------------ */
@@ -390,12 +435,12 @@ Hooks.once("ready", () => {
 Hooks.on("controlToken", () => {
   game.action_manager?.update();
 });
-Hooks.on("updateToken", (_scene: Scene, _token: Token, diff: any, _options: any, _idUser: any) => {
+Hooks.on("updateToken", (_token, diff) => {
   // If it's an X or Y change assume the token is just moving.
   if (diff.hasOwnProperty("y") || diff.hasOwnProperty("x")) return;
   game.action_manager?.update();
 });
-Hooks.on("updateActor", (...[_actor, changes]: Parameters<Hooks.UpdateDocument<typeof Actor>>): void => {
+Hooks.on("updateActor", (_actor, changes): void => {
   game.action_manager?.update();
   triggerStrussFlow(_actor, changes);
 });
@@ -405,13 +450,13 @@ Hooks.on("closeSettingsConfig", () => {
 Hooks.on("getSceneNavigationContext", async () => {
   game.action_manager && (await game.action_manager!.reset());
 });
-Hooks.on("createCombat", (_actor: Actor) => {
+Hooks.on("createCombat", _actor => {
   game.action_manager?.update();
 });
-Hooks.on("deleteCombat", (_actor: Actor) => {
+Hooks.on("deleteCombat", _actor => {
   game.action_manager?.update();
 });
-Hooks.on("updateCombat", (_combat: Combat, changes: object) => {
+Hooks.on("updateCombat", (_combat, changes) => {
   if (
     game.settings.get(game.system.id, LANCER.setting_automation).remove_templates &&
     "turn" in changes &&
@@ -423,7 +468,6 @@ Hooks.on("updateCombat", (_combat: Combat, changes: object) => {
   }
   // This can be removed in v10
   if (foundry.utils.hasProperty(changes, "turn")) {
-    // @ts-expect-error Just blindy try
     ui.combatCarousel?.render();
   }
 });
@@ -432,9 +476,7 @@ Hooks.on("updateCombat", (_combat: Combat, changes: object) => {
 Hooks.on("dropCanvasData", dropStatusToCanvas);
 
 // Create sidebar button to import LCP
-Hooks.on("renderSidebarTab", async (app: Application, html: HTMLElement) => {
-  addLCPManagerButton(app, html);
-});
+Hooks.on("renderCompendiumDirectory", addLCPManagerButton);
 
 // TODO: keep or remove?
 // This seems broken
@@ -448,7 +490,6 @@ Hooks.on("renderSidebarTab", async (app: Application, html: HTMLElement) => {
 //     },
 //     callback: (li: any) => {
 //       const actor = game.actors?.get(li.data("documentId"));
-//       // @ts-expect-error Migrations?
 //       const dump = handleActorExport(actor, false);
 //       if (dump && actor?.is_pilot()) importCC(actor, dump as any, true);
 //     },
@@ -463,7 +504,6 @@ Hooks.on("renderSidebarTab", async (app: Application, html: HTMLElement) => {
 //     },
 //     callback: (li: any) => {
 //       const actor = game.actors?.get(li.data("documentId"));
-//       // @ts-expect-error Migrations?
 //       handleActorExport(actor, true);
 //     },
 //   };
@@ -473,22 +513,22 @@ Hooks.on("renderSidebarTab", async (app: Application, html: HTMLElement) => {
 // });
 
 // For the settings tab
-Hooks.on("renderSettings", async (app: Application, html: HTMLElement) => {
+Hooks.on("renderSettings", async (app, html) => {
   addSettingsButtons(app, html);
 });
 Hooks.on("renderCombatTrackerConfig", extendCombatTrackerConfig);
-Hooks.on("closeCombatTrackerConfig", onCloseCombatTrackerConfig);
 
 // Disable token vision and fog exploration by default in scene config
-Hooks.on("preCreateScene", (scene: any) => {
+Hooks.on("preCreateScene", scene => {
   scene.updateSource({ tokenVision: false, "fog.exploration": false });
 });
 
-Hooks.on("renderChatMessage", async (cm: ChatMessage, html: JQuery, data: any) => {
+Hooks.on("renderChatMessageHTML", async (cm, el, data) => {
+  // TODO: get rid of JQuery?
+  const html = $(el);
   // Reapply listeners.
   initializeCollapses(html);
   applyCollapseListeners(html);
-  attachTagTooltips(html);
 
   // Handle old macro buttons
   html.find(".chat-button").on("click", async ev => {
@@ -584,10 +624,8 @@ Hooks.on("renderChatMessage", async (cm: ChatMessage, html: JQuery, data: any) =
     const token = (await fromUuid(targetId)) as LancerToken | null;
     if (!token) return;
     if (ev.type === "mouseover") {
-      // @ts-expect-error we're not supposed to call the private method, oops
       token.object._onHoverIn(ev);
     } else if (ev.type === "mouseout") {
-      // @ts-expect-error we're not supposed to call the private method, oops
       token.object._onHoverOut(ev);
     }
   };
@@ -605,7 +643,7 @@ Hooks.on("renderChatMessage", async (cm: ChatMessage, html: JQuery, data: any) =
   handleRefClickOpen(html);
 });
 
-Hooks.on("hotbarDrop", (_bar: any, data: any, slot: number) => {
+Hooks.on("hotbarDrop", (_bar, data, slot) => {
   onHotbarDrop(_bar, data, slot);
 });
 
@@ -622,7 +660,7 @@ async function promptInstallCoreData() {
   <p style="text-align: center;margin-bottom: 1em">THIS IS YOUR <span class="horus--very--subtle">FIRST</span> TIME LAUNCHING</p>
   <p style="text-align: center;margin-bottom: 1em">Use the LANCER Compendium Manager window to install the <span class="horus--very--subtle">LANCER DATA</span> you wish to use.</p>`;
   new foundry.applications.api.DialogV2({
-    window: { title: `Install Core Data`, icon: "cci cci-content-manager i--sm" },
+    window: { title: `Install Core Data`, icon: "cci cci-content-manager i--3" },
     position: {
       width: 700,
     },
@@ -637,16 +675,18 @@ async function promptInstallCoreData() {
 }
 
 function setupSheets() {
-  Actors.unregisterSheet("core", ActorSheet);
-  Actors.registerSheet("lancer", LancerPilotSheet, { types: [EntryType.PILOT], makeDefault: true });
-  Actors.registerSheet("lancer", LancerMechSheet, { types: [EntryType.MECH], makeDefault: true });
-  Actors.registerSheet("lancer", LancerNPCSheet, { types: [EntryType.NPC], makeDefault: true });
-  Actors.registerSheet("lancer", LancerDeployableSheet, {
+  const actors = foundry.documents.collections.Actors;
+  actors.unregisterSheet("core", foundry.appv1.sheets.ActorSheet);
+  actors.registerSheet("lancer", LancerPilotSheet, { types: [EntryType.PILOT], makeDefault: true });
+  actors.registerSheet("lancer", LancerMechSheet, { types: [EntryType.MECH], makeDefault: true });
+  actors.registerSheet("lancer", LancerNPCSheet, { types: [EntryType.NPC], makeDefault: true });
+  actors.registerSheet("lancer", LancerDeployableSheet, {
     types: [EntryType.DEPLOYABLE],
     makeDefault: true,
   });
-  Items.unregisterSheet("core", ItemSheet);
-  Items.registerSheet("lancer", LancerItemSheet, {
+  const items = foundry.documents.collections.Items;
+  items.unregisterSheet("core", foundry.appv1.sheets.ItemSheet);
+  items.registerSheet("lancer", LancerItemSheet, {
     types: [
       EntryType.SKILL,
       EntryType.TALENT,
@@ -665,13 +705,13 @@ function setupSheets() {
     ],
     makeDefault: true,
   });
-  Items.registerSheet("lancer", LancerFrameSheet, { types: [EntryType.FRAME], makeDefault: true });
-  Items.registerSheet("lancer", LancerLicenseSheet, { types: [EntryType.LICENSE], makeDefault: true });
-  Items.registerSheet("lancer", LancerNPCClassSheet, {
+  items.registerSheet("lancer", LancerFrameSheet, { types: [EntryType.FRAME], makeDefault: true });
+  items.registerSheet("lancer", LancerLicenseSheet, { types: [EntryType.LICENSE], makeDefault: true });
+  items.registerSheet("lancer", LancerNPCClassSheet, {
     types: [EntryType.NPC_CLASS, EntryType.NPC_TEMPLATE],
     makeDefault: true,
   });
-  Items.registerSheet("lancer", LancerNPCFeatureSheet, { types: [EntryType.NPC_FEATURE], makeDefault: true });
+  items.registerSheet("lancer", LancerNPCFeatureSheet, { types: [EntryType.NPC_FEATURE], makeDefault: true });
 }
 
 /**
@@ -698,7 +738,6 @@ async function versionCheck(): Promise<"first_run" | "yes" | "no" | "too_old"> {
 
 async function promptLCPManagerTour() {
   const showTour = await foundry.applications.api.DialogV2.confirm({
-    // @ts-expect-error This should expect a partial
     window: { title: "Compendium Manager Tour?" },
     content: "The LANCER Compendium Manager has had a major update. Would you like to get a tour?",
     rejectClose: false,
@@ -752,10 +791,6 @@ async function doMigration() {
   } else if (needsMigrate == "yes" && game.user!.isGM) {
     // Print the update message to chat
     printUpdateMessage();
-    ui.notifications!.info(
-      `Migrating to LANCER version ${game.system.version}. Please be patient and wait until migration completes.`,
-      { permanent: true }
-    );
     await migrations.migrateWorld();
     // Update the stored version number for next migration
     await game.settings.set(game.system.id, LANCER.setting_migration_version, game.system.version);
@@ -802,7 +837,7 @@ async function printUpdateMessage() {
   });
 }
 
-function addSettingsButtons(_app: Application, html: HTMLElement) {
+function addSettingsButtons(_app: foundry.applications.sidebar.tabs.Settings, html: HTMLElement) {
   const lancerHeader = $(`<h2>LANCER</h2>
             <div id="settings-lancer"></div>`);
 
@@ -824,7 +859,10 @@ function addSettingsButtons(_app: Application, html: HTMLElement) {
   });
 
   faqButton.on("click", async () => {
-    let helpContent = await renderTemplate(`systems/${game.system.id}/templates/window/lancerHelp.hbs`, {});
+    let helpContent = await foundry.applications.handlebars.renderTemplate(
+      `systems/${game.system.id}/templates/window/lancerHelp.hbs`,
+      {}
+    );
 
     new foundry.applications.api.DialogV2({
       window: {

@@ -1,12 +1,12 @@
-import { LancerActor, LancerDEPLOYABLE } from "../actor/lancer-actor";
+import { LancerActor, type LancerDEPLOYABLE } from "../actor/lancer-actor";
 
 // Lookup deployables that have the provided actor set as their owner, keyed by lid
 export function lookupOwnedDeployables(owner: LancerActor, filter?: string[]): Record<string, LancerDEPLOYABLE> {
   if (owner.is_deployable()) return {};
   if (owner.isToken) return {}; // This might be possible if we could recover the original actor somehow?
-  let foundDeployables = game.actors!.filter(a => !!(a.is_deployable() && a.system.owner?.id === owner.uuid));
+  let foundDeployables = game.actors!.filter(a => a.is_deployable() && a.system.owner?.id === owner.uuid);
   let result: Record<string, LancerDEPLOYABLE> = {};
-  for (let dep of foundDeployables as unknown as LancerDEPLOYABLE[]) {
+  for (let dep of foundDeployables) {
     if (!filter || filter.includes(dep.system.lid)) {
       result[dep.system.lid] = dep;
     }

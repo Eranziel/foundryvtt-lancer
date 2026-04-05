@@ -69,7 +69,6 @@ export function fromLidSync(lid: string, { source = "all" }: Partial<FromLidOpts
 
     document = databases
       .map(db => {
-        // @ts-expect-error v10
         const doc = db.index.find(i => i.system?.lid === lid);
         if (doc) (<any>doc).pack = db.collection;
         return doc;

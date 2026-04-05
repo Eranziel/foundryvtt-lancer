@@ -1,8 +1,9 @@
 import { LANCER } from "../../config";
-import { PackedTagData, PackedTagTemplateData } from "../../util/unpacking/packed-types";
+import type { PackedTagData, PackedTagTemplateData } from "../../util/unpacking/packed-types";
 import { LIDField } from "../shared";
+import type { SimpleMerge } from "fvtt-types/utils";
 
-const fields: any = foundry.data.fields;
+import fields = foundry.data.fields;
 
 // Stored on items
 export interface TagData {
@@ -185,16 +186,24 @@ export class Tag implements Readonly<TagData> {
   }
 }
 
+const defineTagFieldSchema = () => {
+  return {
+    lid: new LIDField(),
+    val: new fields.StringField({ nullable: false }),
+  };
+};
+
+type TagFieldSchema = ReturnType<typeof defineTagFieldSchema>;
+
 // Tag fields populate fuller metadata from the settings (or something? It's tbd), in spite of the field itself just being an lid value pair
-export class TagField extends fields.SchemaField {
-  constructor(options = {}) {
-    super(
-      {
-        lid: new LIDField(),
-        val: new fields.StringField({ nullable: false }),
-      },
-      options
-    );
+export class TagField<Options extends fields.SchemaField.Options<TagFieldSchema>> extends fields.SchemaField<
+  TagFieldSchema,
+  Options,
+  fields.SchemaField.Internal.AssignmentType<TagFieldSchema, SimpleMerge<Options, fields.SchemaField.DefaultOptions>>,
+  Tag
+> {
+  constructor(options?: Options) {
+    super(defineTagFieldSchema(), options);
   }
 
   /** @override */
@@ -208,6 +217,7 @@ export class TagField extends fields.SchemaField {
     if (value.num_val) {
       value["val"] = String(value.num_val);
     }
+    if (value instanceof Tag) return value;
     return super._cast(value);
   }
 

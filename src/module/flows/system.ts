@@ -1,9 +1,9 @@
 // Import TypeScript modules
 import { LANCER } from "../config";
 import { LancerItem } from "../item/lancer-item";
-import { UUIDRef } from "../source-template";
+import type { UUIDRef } from "../source-template";
 import { LancerFlowState } from "./interfaces";
-import { Flow, FlowState } from "./flow";
+import { Flow, type FlowState } from "./flow";
 import { renderTemplateStep } from "./_render";
 import { NpcFeatureType, SystemType } from "../enums";
 

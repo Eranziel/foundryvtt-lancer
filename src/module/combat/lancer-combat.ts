@@ -3,7 +3,7 @@
  * the standard ordered list of turns. {@link LancerCombat#activateCombatant}
  * is added to the interface.
  */
-export class LancerCombat extends Combat {
+export class LancerCombat<SubType extends Combat.SubType = Combat.SubType> extends Combat<SubType> {
   protected override _sortCombatants(a: LancerCombatant, b: LancerCombatant): number {
     // Sort by Players then Neutrals then Hostiles
     const dc = b.disposition - a.disposition;
@@ -18,25 +18,24 @@ export class LancerCombat extends Combat {
     return super._preCreate(data, options, user);
   }
 
-  async _manageTurnEvents(adjustedTurn: any) {
+  async _manageTurnEvents(...args: unknown[]) {
     // Avoid the Foundry bug where this is called on create, before this.previous is set.
     if (!this.previous) return;
-    super._manageTurnEvents(adjustedTurn);
+    super._manageTurnEvents(...args);
   }
 
   /**
    * Set all combatants to their max activations
    */
   async resetActivations(): Promise<LancerCombatant[]> {
-    const skipDefeated = "skipDefeated" in this.settings && this.settings.skipDefeated;
+    const skipDefeated = this.settings.skipDefeated;
     const updates = this.combatants.map(c => {
       return {
         _id: c.id,
-        [`flags.${game.system.id}.activations.value`]:
-          skipDefeated && c.isDefeated ? 0 : (<LancerCombatant>c).activations.max ?? 0,
+        "system.activations.value": skipDefeated && c.isDefeated ? 0 : (c.activations.max ?? 0),
       };
     });
-    return <Promise<LancerCombatant[]>>this.updateEmbeddedDocuments("Combatant", updates);
+    return this.updateEmbeddedDocuments("Combatant", updates);
   }
 
   override async startCombat(): Promise<this> {
@@ -118,14 +117,14 @@ export class LancerCombat extends Combat {
   async activateCombatant(id: string, override = false): Promise<this | undefined> {
     if (!(game.user?.isGM || (this.turn == null && this.combatants.get(id)?.isOwner) || override))
       return this.requestActivation(id);
-    const combatant = <LancerCombatant | undefined>this.getEmbeddedDocument("Combatant", id, {});
+    const combatant = this.getEmbeddedDocument("Combatant", id, {});
     if (!combatant?.activations.value) return this;
     await combatant?.modifyCurrentActivations(-1);
     const turn = this.turns.findIndex(t => t.id === id);
     const updateData = { turn };
-    const updateOptions = { advanceTime: CONFIG.time.turnTime, direction: 1 };
+    const updateOptions = { advanceTime: CONFIG.time.turnTime, direction: 1 as const };
     Hooks.callAll("combatTurn", this, updateData, updateOptions);
-    return this.update(updateData, updateOptions as any);
+    return this.update(updateData, updateOptions);
   }
 
   /**
@@ -149,26 +148,9 @@ export class LancerCombat extends Combat {
   }
 }
 
-export class LancerCombatant extends Combatant {
-  /**
-   * This just fixes a bug in foundry 0.8.x that prevents Combatants with no
-   * associated token or actor from being modified, even by the GM
-   */
-  override testUserPermission(...[user, permission, options]: Parameters<Combatant["testUserPermission"]>): boolean {
-    return this.actor?.testUserPermission(user, permission, options) ?? user.isGM;
-  }
-
+export class LancerCombatant<SubType extends Combatant.SubType = Combatant.SubType> extends Combatant<SubType> {
   override prepareBaseData(): void {
     super.prepareBaseData();
-    if (this.flags?.[game.system.id]?.activations?.max === undefined && canvas?.ready) {
-      const activations = foundry.utils.getProperty(this.actor?.getRollData() ?? {}, "activations") ?? 1;
-      this.updateSource({
-        [`flags.${game.system.id}.activations`]: {
-          max: activations,
-          value: (this.parent?.round ?? 0) > 0 ? activations : 0,
-        },
-      });
-    }
     this.initiative ??= 0;
   }
 
@@ -176,8 +158,7 @@ export class LancerCombatant extends Combatant {
    * The current activation data for the combatant.
    */
   get activations(): Activations {
-    // @ts-expect-error FlagConfig not working
-    return this.getFlag(game.system.id, "activations") ?? {};
+    return this.system.activations;
   }
 
   /**
@@ -187,11 +168,7 @@ export class LancerCombatant extends Combatant {
    */
   get disposition(): number {
     const disposition =
-      // @ts-expect-error FlagConfig not working
-      <number>this.getFlag(game.system.id, "disposition") ??
-      this.token?.disposition ??
-      this.actor?.prototypeToken.disposition ??
-      -2;
+      <number>this.system.disposition ?? this.token?.disposition ?? this.actor?.prototypeToken.disposition ?? -2;
     if (disposition === CONST.TOKEN_DISPOSITIONS.FRIENDLY && this.hasPlayerOwner) return 2;
     return disposition;
   }
@@ -203,7 +180,7 @@ export class LancerCombatant extends Combatant {
   async addActivations(num: number): Promise<this | undefined> {
     if (num === 0) return this;
     return this.update({
-      [`flags.${game.system.id}.activations`]: {
+      "system.activations": {
         max: Math.max((this.activations.max ?? 1) + num, 1),
         value: Math.max((this.activations.value ?? 0) + num, 0),
       },
@@ -217,7 +194,7 @@ export class LancerCombatant extends Combatant {
   async modifyCurrentActivations(num: number): Promise<this | undefined> {
     if (num === 0) return this;
     return this.update({
-      [`flags.${game.system.id}.activations`]: {
+      "system.activations": {
         value: Math.clamp((this.activations?.value ?? 0) + num, 0, this.activations?.max ?? 1),
       },
     });
@@ -232,7 +209,7 @@ interface Activations {
   value?: number;
 }
 
-declare global {
+declare module "fvtt-types/configuration" {
   interface FlagConfig {
     Combatant: {
       lancer: {

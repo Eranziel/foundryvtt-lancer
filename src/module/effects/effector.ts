@@ -1,5 +1,5 @@
 import { LANCER } from "../config";
-import { LancerActor, LancerMECH } from "../actor/lancer-actor";
+import { LancerActor, type LancerMECH } from "../actor/lancer-actor";
 import { EntryType } from "../enums";
 import { ChangeWatchHelper } from "../util/misc";
 import { LancerActiveEffect } from "./lancer-active-effect";
@@ -126,7 +126,6 @@ export class EffectHelper {
       console.debug(`Actor ${this.actor.name} propagating effects to ${target.name}`);
       // Add new from this pilot
       let changes = foundry.utils.duplicate(this._passdownEffectTracker.curr_value);
-      // @ts-expect-error
       changes.forEach(c => {
         c.flags[game.system.id] ??= {};
         c.flags[game.system.id].deep_origin = c.origin;
@@ -204,7 +203,6 @@ export class EffectHelper {
   }
 
   findEffect(effect: string): LancerActiveEffect | null {
-    // @ts-expect-error Should be fixed with v11 types
     return this.actor.effects.find(eff => eff.statuses.some((name: string) => name.includes(effect)));
   }
 }

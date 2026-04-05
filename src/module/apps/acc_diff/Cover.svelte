@@ -33,63 +33,72 @@
       {disabled}
     />
     <label for="{id}-{input.slug}" class="lancer-cover-radio-label {labelClass}">
-      <i class="mdi mdi-{input.icon} i--s" title={input.human} />
+      <i class="mdi mdi-{input.icon} i--2" title={input.human} />
       <span class="no-grow">{input.human}</span>
       {#if input.value == cover}
-        <div class="cover-arrow" in:send|local={{ key: id }} out:recv|local={{ key: id }} />
+        <div class="cover-arrow" in:send={{ key: id }} out:recv={{ key: id }} />
       {/if}
     </label>
   {/each}
 </div>
 
 <style lang="scss">
-  i {
-    border: none;
-  }
+  @layer lancer {
+    @layer components {
+      i {
+        border: none;
+      }
 
-  input {
-    opacity: 0;
-    position: fixed;
-    width: 0;
-  }
+      // The input itself takes is effectively invisible.
+      // The label handles display & interaction.
+      input {
+        opacity: 0;
+        position: fixed;
+        pointer-events: none;
+        width: 0;
+        min-width: 0;
+        margin: 0;
+      }
 
-  label {
-    display: inline-block;
-    position: relative;
-    .flexrow & {
-      padding: 0px;
+      label {
+        display: inline-block;
+        position: relative;
+        .flexrow & {
+          padding: 0px;
+        }
+        &:has(.cover-arrow) {
+          text-shadow: 0px 0px 5px var(--primary-color);
+        }
+      }
+
+      .cover-arrow,
+      :not(.disabled) label:hover::after {
+        content: "";
+        position: absolute;
+        right: 100%;
+        top: calc(50% - 4px);
+        background-color: var(--primary-color);
+        width: 8px;
+        height: 8px;
+        clip-path: polygon(0 0, 0 100%, 100% 50%);
+        :global(.card) & {
+          right: unset;
+          top: unset;
+          bottom: 90%;
+          left: calc(50% - 3px);
+          width: 6px;
+          height: 6px;
+          clip-path: polygon(0 0, 100% 0, 50% 100%);
+        }
+      }
+
+      :not(.disabled) label:hover::after {
+        opacity: 40%;
+      }
+
+      .disabled {
+        opacity: 0.4;
+      }
     }
-    &:has(.cover-arrow) {
-      text-shadow: 0px 0px 5px var(--primary-color);
-    }
-  }
-
-  .cover-arrow,
-  :not(.disabled) label:hover::after {
-    content: "";
-    position: absolute;
-    right: 100%;
-    top: calc(50% - 4px);
-    background-color: var(--primary-color);
-    width: 8px;
-    height: 8px;
-    clip-path: polygon(0 0, 0 100%, 100% 50%);
-    :global(.card) & {
-      right: unset;
-      top: unset;
-      bottom: 90%;
-      left: calc(50% - 3px);
-      width: 6px;
-      height: 6px;
-      clip-path: polygon(0 0, 100% 0, 50% 100%);
-    }
-  }
-
-  :not(.disabled) label:hover::after {
-    opacity: 40%;
-  }
-
-  .disabled {
-    opacity: 0.4;
   }
 </style>

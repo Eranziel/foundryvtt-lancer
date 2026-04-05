@@ -1,0 +1,102 @@
+{
+  "id": "lancer",
+  "title": "LANCER",
+  "description": "<p>A Foundry VTT game system for <a href=\"https://massif-press.itch.io/corebook-pdf\">Lancer</a> by <a href=\"https://massif-press.itch.io/\">Massif Press</a>, a mud-and-lasers tactical mech RPG.</p><p>\"Lancer for FoundryVTT\" is not an official <i>Lancer</i> product; it is a third party work, and is not affiliated with Massif Press. \"Lancer for FoundryVTT\" is published via the <i>Lancer</i> Third Party License.</p><p><i>Lancer</i> is copyright Massif Press.</p>",
+  "version": "2.11.2",
+  "compatibility": { "minimum": 13, "verified": 13, "maximum": 13 },
+  "authors": [
+    { "name": "Eranziel" },
+    { "name": "BoltsJ" },
+    { "name": "Whitespine" },
+    { "name": "Valkyrion" },
+    { "name": "Kuenaimaku" },
+    { "name": "dodgepong" },
+    { "name": "Grygon" },
+    { "name": "SohumB" }
+  ],
+  "esmodules": ["lancer.mjs"],
+  "styles": ["styles/lancer.css", "fonts/compcon/glyphs.css", "fonts/mdi.css", "fonts/orbitron/orbitron.css"],
+  "documentTypes": {
+    "Actor": {
+      "npc": { "htmlFields": ["notes"] },
+      "pilot": { "htmlFields": ["history", "notes", "text_appearance"] },
+      "mech": { "htmlFields": ["notes"] },
+      "deployable": { "htmlFields": ["detail", "action.init", "action.terse", "action.detail"] }
+    },
+    "Item": {
+      "core_bonus": { "htmlFields": ["description", "effect", "mounted_effect"] },
+      "frame": {
+        "htmlFields": [
+          "description",
+          "core_system.description",
+          "core_system.active_effect",
+          "core_system.passive_effect"
+        ]
+      },
+      "license": {},
+      "npc_class": { "htmlFields": ["flavor", "tactics"] },
+      "npc_template": { "htmlFields": ["description"] },
+      "npc_feature": { "htmlFields": ["effect", "on_hit"] },
+      "weapon_mod": { "htmlFields": ["effect", "description"] },
+      "mech_system": { "htmlFields": ["effect", "description"] },
+      "mech_weapon": { "htmlFields": [] },
+      "organization": { "htmlFields": ["description"] },
+      "pilot_armor": { "htmlFields": ["description"] },
+      "pilot_gear": { "htmlFields": ["description"] },
+      "pilot_weapon": { "htmlFields": ["description", "effect"] },
+      "reserve": { "htmlFields": ["description"] },
+      "status": { "htmlFields": ["effects"] },
+      "talent": { "htmlFields": ["description"] },
+      "skill": { "htmlFields": ["description"] },
+      "bond": { "htmlFields": [] }
+    }
+  },
+  "packs": [
+    {
+      "name": "core_macros",
+      "label": "lancer.compendium.core_macros",
+      "banner": "./systems/lancer/assets/banners/core_macros.svg",
+      "system": "lancer",
+      "path": "./packs/core_macros",
+      "type": "Macro"
+    },
+    {
+      "name": "lancer_info",
+      "label": "lancer.compendium.lancer_info",
+      "banner": "./systems/lancer/assets/banners/lancer_info.svg",
+      "system": "lancer",
+      "path": "./packs/lancer_info",
+      "type": "JournalEntry"
+    }
+  ],
+  "languages": [{ "lang": "en", "name": "English", "path": "lang/en.json" }],
+  "socket": true,
+  "grid": { "distance": 1, "units": "", "type": 2, "diagonals": 0 },
+  "primaryTokenAttribute": "hp",
+  "secondaryTokenAttribute": "heat",
+  "url": "https://github.com/Eranziel/foundryvtt-lancer",
+  "manifest": "https://github.com/Eranziel/foundryvtt-lancer/releases/latest/download/system.json",
+  "download": "https://github.com/Eranziel/foundryvtt-lancer/releases/download/v2.11.2/lancer-v2.11.2.zip",
+  "license": "GNU GPLv3",
+  "readme": "https://github.com/Eranziel/foundryvtt-lancer/blob/master/README.md",
+  "bugs": "https://github.com/Eranziel/foundryvtt-lancer/issues/new/choose",
+  "changelog": "https://github.com/Eranziel/foundryvtt-lancer/blob/master/CHANGELOG.md",
+  "media": [
+    {
+      "type": "cover",
+      "url": "https://raw.githubusercontent.com/Eranziel/foundryvtt-lancer/refs/heads/master/public/assets/banners/powered_by_Lancer-white-on-black-cover.svg",
+      "caption": "Powered by Lancer"
+    },
+    {
+      "type": "setup",
+      "url": "https://raw.githubusercontent.com/Eranziel/foundryvtt-lancer/refs/heads/master/public/assets/banners/powered_by_Lancer-white-on-black-setup.svg",
+      "caption": "Powered by Lancer"
+    },
+    {
+      "type": "icon",
+      "url": "https://raw.githubusercontent.com/Eranziel/foundryvtt-lancer/refs/heads/master/public/assets/banners/powered_by_Lancer-white-on-black-icon.svg",
+      "caption": "Powered by Lancer"
+    }
+  ],
+  "flags": { "hotReload": { "extensions": ["json", "hbs"], "paths": ["lang", "templates"] } }
+}

@@ -12,7 +12,7 @@
   import { userTargets } from "./user-targets";
   import AccDiffHud from "../acc_diff/AccDiffHUD.svelte";
   import DamageHud from "../damage/DamageHUD.svelte";
-  import StructStressHud from "../struct_stress/Form.svelte";
+  import StructStressHud from "../struct_stress/StructStressHUD.svelte";
 
   let dispatch = createEventDispatcher();
 
@@ -100,9 +100,14 @@
     .sort((a, b) => huds[b].open! - huds[a].open!);
 </script>
 
-<div id="hudzone" class="window-app" class:faded={faded || $isDragging} style="bottom: 0; right: {$sidebarWidth}px">
+<div
+  id="hudzone"
+  class="lancer-hud-zone"
+  class:faded={faded || $isDragging}
+  style="bottom: 0; right: {$sidebarWidth}px"
+>
   {#each visibleHudsKeys as key (key + huds[key].data.title)}
-    <div class="component grid-enforcement" animate:flip transition:slide>
+    <div class="component grid-enforcement" animate:flip transition:slide|global>
       <svelte:component
         this={dialogs[key]}
         bind:this={components[key]}
@@ -116,31 +121,37 @@
 </div>
 
 <style>
-  #hudzone {
-    position: absolute;
-    display: flex;
-    align-items: flex-end;
-    background-color: transparent;
-    border: none;
-    box-shadow: none;
-    flex-direction: row-reverse;
-    pointer-events: none;
-    transition: right 600ms, opacity 200ms;
-    z-index: 999;
-  }
+  @layer lancer {
+    @layer applications {
+      #hudzone {
+        position: absolute;
+        display: flex;
+        align-items: flex-end;
+        background-color: transparent;
+        border: none;
+        box-shadow: none;
+        flex-direction: row-reverse;
+        pointer-events: none;
+        transition:
+          right 600ms,
+          opacity 200ms;
+        z-index: 999;
+      }
 
-  #hudzone > .component {
-    padding-right: 12px;
-    pointer-events: initial;
-    flex: unset;
-    filter: drop-shadow(0.4rem 0.4rem 0.6rem #333);
-  }
+      #hudzone > .component {
+        padding-right: 12px;
+        pointer-events: initial;
+        flex: unset;
+        filter: drop-shadow(0.4rem 0.4rem 0.6rem #333);
+      }
 
-  #hudzone.faded {
-    opacity: 0.2;
-  }
+      #hudzone.faded {
+        opacity: 0.2;
+      }
 
-  #hudzone.faded > .component {
-    pointer-events: unset;
+      #hudzone.faded > .component {
+        pointer-events: unset;
+      }
+    }
   }
 </style>

@@ -1,0 +1,9 @@
+@layer lancer.applications {
+  .lancer.item.sheet {
+    font-family: var(--main-font-family);
+
+    header.sheet-header input {
+      text-align: center;
+    }
+  }
+}

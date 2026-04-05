@@ -1,0 +1,100 @@
+@use "../mixins";
+@use "../variables" as *;
+
+@layer lancer.components {
+  .i--click {
+    cursor: pointer;
+  }
+
+  // TODO: around v14, remove the non-numeric versions of these classes.
+  .i--xs,
+  .i--1 {
+    @include mixins.icon-size($icon-size-1);
+    @include mixins.vert-mid();
+    display: inline-flex;
+  }
+
+  .i--s,
+  .i--2 {
+    @include mixins.icon-size($icon-size-2);
+    @include mixins.vert-mid();
+    display: inline-flex;
+  }
+
+  .i--sm,
+  .i--3 {
+    @include mixins.icon-size($icon-size-3);
+    @include mixins.vert-mid();
+    display: inline-flex;
+  }
+
+  .i--m,
+  .i--4 {
+    @include mixins.icon-size($icon-size-4);
+    @include mixins.vert-mid();
+    display: inline-flex;
+  }
+
+  .i--l,
+  .i--5 {
+    @include mixins.icon-size($icon-size-5);
+    @include mixins.vert-mid();
+    display: inline-flex;
+  }
+
+  .i--xl,
+  .i--6 {
+    @include mixins.icon-size($icon-size-6);
+    @include mixins.vert-mid();
+    display: inline-flex;
+  }
+
+  .size-icon,
+  .tier-icon {
+    @include mixins.icon-size($tier-icon-size);
+    @include mixins.vert-mid();
+  }
+
+  .faded {
+    opacity: 75%;
+  }
+
+  .i--dark {
+    color: var(--dark-text);
+  }
+
+  .i--light {
+    color: var(--light-text);
+  }
+
+  .damage--kinetic {
+    color: #616161;
+  }
+
+  .damage--energy {
+    color: #2195ca;
+  }
+
+  .damage--explosive {
+    color: #fca017;
+  }
+
+  .damage--burn {
+    color: #ce871e;
+  }
+
+  .damage--heat {
+    color: #e74210;
+  }
+
+  .damage--variable {
+    color: #d500f9;
+  }
+
+  .size-icon {
+    color: var(--primary-color, fuchsia);
+  }
+  .tier-icon {
+    color: var(--light-text);
+  }
+}

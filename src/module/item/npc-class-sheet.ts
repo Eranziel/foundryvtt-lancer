@@ -1,6 +1,6 @@
 import { LANCER } from "../config";
 import { EntryType } from "../enums";
-import { LancerItemSheetData } from "../interfaces";
+import type { LancerItemSheetData } from "../interfaces";
 import { fromLid } from "../helpers/from-lid";
 import { LancerItemSheet } from "./item-sheet";
 import type { LancerItem, LancerNPC_CLASS, LancerNPC_TEMPLATE } from "./lancer-item";
@@ -15,7 +15,7 @@ export class LancerNPCClassSheet extends LancerItemSheet<EntryType.NPC_CLASS | E
    * @override
    * Extend and override the default options used by the generic Lancer item sheet
    */
-  static get defaultOptions(): DocumentSheetOptions<Item> {
+  static get defaultOptions(): ItemSheet.Options {
     return foundry.utils.mergeObject(super.defaultOptions, {
       width: 900,
       height: 750,

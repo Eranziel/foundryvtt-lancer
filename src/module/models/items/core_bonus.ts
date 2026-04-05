@@ -1,28 +1,35 @@
-import type { DeepPartial } from "@league-of-foundry-developers/foundry-vtt-types/src/types/utils.mjs";
+import type { DeepPartial } from "fvtt-types/utils";
 import { EntryType } from "../../enums";
-import { SourceData } from "../../source-template";
-import { PackedCoreBonusData } from "../../util/unpacking/packed-types";
+import type { SourceData } from "../../source-template";
+import type { PackedCoreBonusData } from "../../util/unpacking/packed-types";
 import { unpackDeployable } from "../actors/deployable";
 import { unpackAction } from "../bits/action";
 import { unpackBonus } from "../bits/bonus";
 import { unpackCounter } from "../bits/counter";
 import { unpackSynergy } from "../bits/synergy";
-import { LancerDataModel, UnpackContext } from "../shared";
+import { LancerDataModel, type UnpackContext } from "../shared";
 import { migrateManufacturer, template_bascdt, template_universal_item } from "./shared";
+import type { BaseData } from "../../base-data";
 
-const fields = foundry.data.fields;
+import fields = foundry.data.fields;
 
-export class CoreBonusModel extends LancerDataModel<DataSchema, Item> {
+const defineCoreBonusModelSchema = () => {
+  return {
+    description: new fields.StringField({ nullable: true }),
+    effect: new fields.StringField(),
+    mounted_effect: new fields.StringField(),
+    manufacturer: new fields.StringField(),
+    ...template_universal_item(),
+    ...template_bascdt(),
+  };
+};
+
+type CoreBonusModelSchema = ReturnType<typeof defineCoreBonusModelSchema>;
+
+export class CoreBonusModel extends LancerDataModel<CoreBonusModelSchema, Item.Implementation, BaseData.CoreBonus> {
   static DEFAULT_ICON = "systems/lancer/assets/icons/core_bonus.svg";
   static defineSchema() {
-    return {
-      description: new fields.StringField({ nullable: true }),
-      effect: new fields.StringField(),
-      mounted_effect: new fields.StringField(),
-      manufacturer: new fields.StringField(),
-      ...template_universal_item(),
-      ...template_bascdt(),
-    };
+    return defineCoreBonusModelSchema();
   }
 
   static migrateData(data: any) {

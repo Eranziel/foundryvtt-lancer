@@ -1,17 +1,17 @@
-import { LancerActor, LancerNPC } from "../actor/lancer-actor";
+import { LancerActor, type LancerNPC } from "../actor/lancer-actor";
 import { EntryType } from "../enums";
 import {
-  LancerFRAME,
+  type LancerFRAME,
   LancerItem,
-  LancerMECH_WEAPON,
-  LancerNPC_CLASS,
-  LancerNPC_FEATURE,
-  LancerSTATUS,
+  type LancerMECH_WEAPON,
+  type LancerNPC_CLASS,
+  type LancerNPC_FEATURE,
+  type LancerSTATUS,
 } from "../item/lancer-item";
-import { BonusData } from "../models/bits/bonus";
-import { SystemData, SystemTemplates } from "../system-template";
+import type { BonusData } from "../models/bits/bonus";
+import type { SystemTemplates } from "../system-template";
 import { rollEvalSync } from "../util/misc";
-import { AE_MODE_APPEND_JSON, LancerActiveEffect, LancerEffectTarget } from "./lancer-active-effect";
+import { AE_MODE_APPEND_JSON, LancerActiveEffect, type LancerEffectTarget } from "./lancer-active-effect";
 
 const FRAME_STAT_PRIORITY = 10; // Also handles npc classes
 const BONUS_STAT_PRIORITY = 20;
@@ -20,8 +20,8 @@ const EFFECT_STAT_PRIORITY = 40;
 const FEATURE_OVERRIDE_PRIORITY = 50;
 
 // Makes an active effect for a frame.
-type FrameStatKey = keyof SystemData.Frame["stats"];
-type MechStatKey = keyof SystemData.Mech;
+type FrameStatKey = keyof Item.OfType<"frame">["stats"];
+type MechStatKey = keyof Actor.OfType<"mech">;
 export function frameInnateEffect(frame: LancerFRAME) {
   let keys: Array<FrameStatKey & MechStatKey> = [
     "armor",
@@ -40,37 +40,37 @@ export function frameInnateEffect(frame: LancerFRAME) {
     value: frame.system.stats[key],
   }));
   // The weirder ones
-  changes!.push({
+  changes.push({
     key: "system.hp.max",
     mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
     priority: FRAME_STAT_PRIORITY,
     value: frame.system.stats.hp,
   });
-  changes!.push({
+  changes.push({
     key: "system.structure.max",
     mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
     priority: FRAME_STAT_PRIORITY,
     value: frame.system.stats.structure,
   });
-  changes!.push({
+  changes.push({
     key: "system.stress.max",
     mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
     priority: FRAME_STAT_PRIORITY,
     value: frame.system.stats.stress,
   });
-  changes!.push({
+  changes.push({
     key: "system.heat.max",
     mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
     priority: FRAME_STAT_PRIORITY,
     value: frame.system.stats.heatcap,
   });
-  changes!.push({
+  changes.push({
     key: "system.repairs.max",
     mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
     priority: FRAME_STAT_PRIORITY,
     value: frame.system.stats.repcap,
   });
-  changes!.push({
+  changes.push({
     key: "system.loadout.sp.max",
     mode: CONST.ACTIVE_EFFECT_MODES.OVERRIDE,
     priority: FRAME_STAT_PRIORITY,
@@ -79,7 +79,7 @@ export function frameInnateEffect(frame: LancerFRAME) {
 
   return {
     flags: { lancer: { ephemeral: true } },
-    name: frame.name!,
+    name: frame.name,
     img: frame.img,
     origin: frame.uuid,
     transfer: true,
@@ -197,7 +197,6 @@ export function pilotInnateEffects(pilot: LancerActor): LancerActiveEffect[] {
           value: pilot.system.level.toString(),
         },
       ],
-      // @ts-expect-error v12 property renamed
       img: pilot.img,
       origin: pilot.uuid,
       flags: {
@@ -230,7 +229,6 @@ export function pilotInnateEffects(pilot: LancerActor): LancerActiveEffect[] {
           value: pilot.system.level.toString(),
         },
       ],
-      // @ts-expect-error
       img: pilot.img,
       origin: pilot.uuid,
       flags: {
@@ -267,7 +265,6 @@ export function npcInnateEffects(npc: LancerActor): LancerActiveEffect[] {
           value: npc.system.tier.toString(),
         },
       ],
-      // @ts-expect-error v12 property renamed
       img: npc.img,
       origin: npc.uuid,
       flags: {
@@ -361,7 +358,12 @@ const npc_keys: Array<ClassStatKey> = [
 ];
 
 // Make a bonus appropriate to the provided stat key
-function makeNpcBonus(stat: ClassStatKey, value: number, mode: ActiveEffect["changes"][0]["mode"], priority: number) {
+function makeNpcBonus(
+  stat: ClassStatKey,
+  value: number,
+  mode: ActiveEffect.Implementation["changes"][0]["mode"],
+  priority: number
+) {
   switch (stat) {
     case "hp":
       return {
@@ -423,6 +425,7 @@ export function npcClassInnateEffect(class_: LancerNPC_CLASS) {
 
 // Converts the system.bonus of an npc feature into an array
 export function npcFeatureBonusEffects(feature: LancerNPC_FEATURE) {
+  if (!feature.system.bonus) return null; // No bonuses to convert
   let changes = [];
   for (let key of npc_keys) {
     let value = feature.system.bonus[key];
@@ -446,6 +449,7 @@ export function npcFeatureBonusEffects(feature: LancerNPC_FEATURE) {
 
 // Converts the system.override of an npc feature into an array
 export function npcFeatureOverrideEffects(feature: LancerNPC_FEATURE) {
+  if (!feature.system.override) return null; // No overrides to convert
   let changes = [];
   for (let key of npc_keys) {
     let value = feature.system.override[key];

@@ -28,6 +28,15 @@
     }
   },
   "lancer": {
+    "LancerPilotSheet": "Lancer System Pilot Sheet",
+    "LancerMechSheet": "Lancer System Mech Sheet",
+    "LancerDeployableSheet": "Lancer System Deployable Sheet",
+    "LancerNPCSheet": "Lancer System NPC Sheet",
+    "LancerItemSheet": "Lancer System Item Sheet",
+    "LancerFrameSheet": "Lancer System Frame Sheet",
+    "LancerLicenseSheet": "Lancer System License Sheet",
+    "LancerNPCClassSheet": "Lancer System NPC Class/Template Sheet",
+    "LancerNPCFeatureSheet": "Lancer System NPC Feature Sheet",
     "Actor": {
       "FIELDS": {
         "activations": { "label": "Activations" }
@@ -42,6 +51,9 @@
       }
     },
     "deployable-sheet": {
+      "header": {
+        "owner": "Owner"
+      },
       "tabs": {
         "status": "<STATUS>",
         "config": "<CONFIG>"
@@ -54,6 +66,9 @@
       }
     },
     "mech-sheet": {
+      "header": {
+        "inactive-warning": "Warning: Inactive Mech - Pilot bonuses not tracked"
+      },
       "tabs": {
         "stats": "<MECH//STATS>",
         "loadout": "<MECH//LOADOUT>",
@@ -75,7 +90,8 @@
     },
     "npc-sheet": {
       "header": {
-        "class": "CLASS:"
+        "class": "CLASS",
+        "templates": "TEMPLATES"
       },
       "class": {
         "label": "CLASS",
@@ -93,10 +109,10 @@
     },
     "pilot-sheet": {
       "header": {
-        "ll": "LICENSE LEVEL:",
-        "cs": "CALLSIGN:",
-        "name": "NAME:",
-        "bg": "BACKGROUND:"
+        "ll": "LL",
+        "cs": "CALLSIGN",
+        "name": "NAME",
+        "bg": "BACKGROUND"
       },
       "tabs": {
         "cloud": "<RM-4://SYNC>",
@@ -124,7 +140,8 @@
       },
       "dossier": {
         "cs": "CALLSIGN",
-        "name": "NAME"
+        "name": "NAME",
+        "background": "BACKGROUND"
       },
       "narrative": {
         "bond": "BOND OF {bondName}",
@@ -456,6 +473,14 @@
       "manual_token_size": {
         "label": "Manual Token Sizing",
         "hint": "Bypass system automation for determining token size"
+      }
+    },
+    "movement": {
+      "actions": {
+        "blink": "Teleport (Move)",
+        "forced": "Forced Move",
+        "ignore": "Ignore Terrain",
+        "teleport": "Teleport (Ability)"
       }
     }
   },

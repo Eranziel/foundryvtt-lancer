@@ -13,10 +13,9 @@ import {
 import { mechLoadoutWeaponSlot, buildDeployablesArrayHBS, buildDeployablesArray, buildActionArrayHTML } from "./item";
 import { limitedUsesIndicator, ref_params, simple_ref_slot } from "./refs";
 import { compactTagListHBS, compactTagList } from "./tags";
-import { LancerMECH, LancerPILOT } from "../actor/lancer-actor";
-import { SystemData } from "../system-template";
-import { LancerFRAME, LancerMECH_SYSTEM } from "../item/lancer-item";
-import { collapseButton, collapseParam, CollapseRegistry } from "./collapse";
+import type { LancerMECH, LancerPILOT } from "../actor/lancer-actor";
+import type { LancerFRAME, LancerMECH_SYSTEM } from "../item/lancer-item";
+import { collapseButton, collapseParam, type CollapseRegistry } from "./collapse";
 import { lookupOwnedDeployables, slugify } from "../util/lid";
 
 // Render the HTML for a mech system card.
@@ -47,12 +46,12 @@ export function mechSystemView(
   const icon_types = [SystemType.Deployable, SystemType.Drone, SystemType.Mod, SystemType.System, SystemType.Tech];
   if (icon_types.includes(doc.system.type)) {
     if (doc.system.type === SystemType.Tech) {
-      icon = `cci cci-${slugify(doc.system.type, "-")}-quick i--m`;
+      icon = `cci cci-${slugify(doc.system.type, "-")}-quick i--4`;
     } else {
-      icon = `cci cci-${slugify(doc.system.type, "-")} i--m`;
+      icon = `cci cci-${slugify(doc.system.type, "-")} i--4`;
     }
   } else {
-    icon = `cci cci-system i--m`;
+    icon = `cci cci-system i--4`;
   }
 
   sp = spDisplay(doc.system.sp ?? 0);
@@ -121,11 +120,11 @@ export function mechSystemView(
 // A drag-drop slot for a weapon mount. TODO: delete button, clear button
 function weaponMount(mount_path: string, options: HelperOptions): string {
   let mech = resolveHelperDotpath(options, "actor") as LancerMECH;
-  let mount = resolveHelperDotpath(options, mount_path) as SystemData.Mech["loadout"]["weapon_mounts"][0];
+  let mount = resolveHelperDotpath(options, mount_path) as LancerMECH["loadout"]["weapon_mounts"][0];
 
   // If bracing, override
   if (mount.bracing) {
-    return ` 
+    return `
     <div class="mount card" >
       <div class="lancer-header lancer-primary mount-type-ctx-root" data-path="${mount_path}">
         <span>${mount.type} Weapon Mount</span>
@@ -170,7 +169,7 @@ function weaponMount(mount_path: string, options: HelperOptions): string {
     }
   }
 
-  return ` 
+  return `
     <div class="mount card" >
       <div class="lancer-header lancer-primary mount-type-ctx-root" data-path="${mount_path}">
         <span>${mount.type} Weapon Mount</span>
@@ -186,14 +185,14 @@ function weaponMount(mount_path: string, options: HelperOptions): string {
 
 // Helper to display all weapon mounts on a mech loadout
 function allWeaponMountView(loadout_path: string, options: HelperOptions) {
-  let loadout = resolveHelperDotpath(options, loadout_path) as SystemData.Mech["loadout"];
+  let loadout = resolveHelperDotpath(options, loadout_path) as Actor.OfType<"mech">["loadout"];
   const weapon_mounts = loadout.weapon_mounts.map((_wep, index) =>
     weaponMount(`${loadout_path}.weapon_mounts.${index}`, options)
   );
 
   return `
     <div class="lancer-header lancer-dark-gray loadout-category submajor">
-      <i class="mdi mdi-unfold-less-horizontal collapse-trigger collapse-icon" data-collapse-id="weapons"></i>   
+      <i class="mdi mdi-unfold-less-horizontal collapse-trigger collapse-icon" data-collapse-id="weapons"></i>
       <span>MOUNTED WEAPONS</span>
       <a class="gen-control fas fa-plus" data-action="append" data-path="${loadout_path}.weapon_mounts" data-action-value="(struct)wep_mount"></a>
       <a class="reset-all-weapon-mounts-button fas fa-redo" data-path="${loadout_path}.weapon_mounts"></a>
@@ -215,10 +214,10 @@ function allMechSystemsView(loadout_path: string, options: HelperOptions) {
 
   return `
     <div class="lancer-header lancer-dark-gray loadout-category submajor">
-      <i class="mdi mdi-unfold-less-horizontal collapse-trigger collapse-icon" data-collapse-id="systems"></i>    
+      <i class="mdi mdi-unfold-less-horizontal collapse-trigger collapse-icon" data-collapse-id="systems"></i>
       <span>MOUNTED SYSTEMS</span>
       <span style="flex-grow: 0">
-        <i class="cci cci-system-point i--m"></i>
+        <i class="cci cci-system-point i--4"></i>
         ${loadout.sp.value} / ${loadout.sp.max} SP USED
       </span>
     </div>
@@ -255,8 +254,8 @@ export function pilotSlot(data_path: string, options: HelperOptions): string {
   }
 
   return `<div class="pilot-summary">
-    <img class="ref set pilot click-open" 
-         ${ref_params(pilot, data_path)} 
+    <img class="ref set pilot click-open"
+         ${ref_params(pilot, data_path)}
          data-accept-types="${EntryType.PILOT}"
          style="height: 100%" src="${pilot.img || "systems/lancer/assets/icons/pilot.svg"}"/>
     <div class="lancer-header lancer-primary license-level">
@@ -319,9 +318,9 @@ function buildCoreSysHTML(frame_path: string, core_energy: number, options: Help
   return `<div class="core-wrapper ${mfrBorder} frame-coresys card clipped-top" style="padding: 0;">
     <div class="lancer-header ${mfrStyle} coresys-title">
       <span>${core.name}</span><span> // </span><span>CORE</span>
-      <i 
-        class="mdi mdi-unfold-less-horizontal collapse-trigger collapse-icon" 
-        data-collapse-id="${frame.id}_core" > 
+      <i
+        class="mdi mdi-unfold-less-horizontal collapse-trigger collapse-icon"
+        data-collapse-id="${frame.id}_core" >
       </i>
     </div>
     <div class="collapse" data-collapse-id="${frame.id}_core">
@@ -390,9 +389,9 @@ function frameActive(frame_path: string, core_energy: number, options: HelperOpt
           class="activation-chip activation-flow lancer-button ${activationClass} ${activationThemeClass}"
           data-uuid="${frame.uuid}" data-path="system.core_system"
         >
-          <i class="cci cci-corebonus i--l"></i>
+          <i class="cci cci-corebonus i--5"></i>
           <b class="active-name">${activeName.toUpperCase()}</b>
-          <i class="${activationIcon(core.activation)} i--l"></i>
+          <i class="${activationIcon(core.activation)} i--5"></i>
         </a>
       </div>
     </div>

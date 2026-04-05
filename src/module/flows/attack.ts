@@ -1,15 +1,15 @@
 // Import TypeScript modules
 import { LancerActor } from "../actor/lancer-actor";
-import { AccDiffHudData, AccDiffHudDataSerialized, RollModifier } from "../apps/acc_diff";
+import { AccDiffHudData, type AccDiffHudDataSerialized, type RollModifier } from "../apps/acc_diff";
 import { openSlidingHud } from "../apps/slidinghud";
 import { LANCER } from "../config";
 import { AttackType, RangeType, WeaponType } from "../enums";
 import { checkForHit } from "../helpers/automation/targeting";
 import { LancerItem } from "../item/lancer-item";
-import { UUIDRef } from "../source-template";
-import { SystemTemplates } from "../system-template";
+import type { UUIDRef } from "../source-template";
+import type { SystemTemplates } from "../system-template";
 import { renderTemplateStep } from "./_render";
-import { Flow, FlowState, Step } from "./flow";
+import { Flow, type FlowState, type Step } from "./flow";
 import { LancerFlowState } from "./interfaces";
 
 const lp = LANCER.log_prefix;
@@ -38,7 +38,7 @@ export function attackRolls(flat_bonus: number, acc_diff: AccDiffHudData): Lance
     targeted: acc_diff.targets.map(tad => {
       let perTarget = perRoll.concat(Object.values(tad.plugins));
       return {
-        target: tad.target,
+        target: tad.token,
         roll: applyPluginsToRoll(rollStr(flat_bonus, tad.total), perTarget),
         usedLockOn: tad.usingLockOn,
       };
@@ -441,7 +441,6 @@ export async function rollAttacks(
         let actor = target.actor as LancerActor;
         // This is really async despit the warning
         let attack_roll = await new Roll(targetingData.roll).evaluate();
-        // @ts-expect-error DSN options aren't typed
         attack_roll.dice.forEach(d => (d.options.rollOrder = 1));
         const attack_tt = await attack_roll.getTooltip();
 
@@ -528,7 +527,7 @@ export async function printAttackCard(
 }
 
 // If user is GM, apply status changes to attacked tokens
-Hooks.on("createChatMessage", async (cm: ChatMessage, options: any, id: string) => {
+Hooks.on("createChatMessage", async (cm, options, id) => {
   // Consume lock-on if we are the primary GM
   if (!game.users?.activeGM?.isSelf) return;
   const atkData = cm.getFlag(game.system.id, "attackData");

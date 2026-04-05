@@ -1,22 +1,33 @@
-import type { DeepPartial } from "@league-of-foundry-developers/foundry-vtt-types/src/types/utils.mjs";
+import type { DeepPartial } from "fvtt-types/utils";
 import { EntryType } from "../../enums";
-import { SourceData } from "../../source-template";
+import type { SourceData } from "../../source-template";
+import type { BaseData } from "../../base-data";
 import { regRefToLid } from "../../util/migrations";
-import { PackedNpcTemplateData } from "../../util/unpacking/packed-types";
-import { LancerDataModel, LIDField, UnpackContext } from "../shared";
+import type { PackedNpcTemplateData } from "../../util/unpacking/packed-types";
+import { LancerDataModel, LIDField, type UnpackContext } from "../shared";
 import { template_universal_item } from "./shared";
 
-const fields = foundry.data.fields;
+import fields = foundry.data.fields;
 
-export class NpcTemplateModel extends LancerDataModel<DataSchema, Item> {
+const defineNpcTemplateModelSchema = () => {
+  return {
+    description: new fields.HTMLField(),
+    base_features: new fields.SetField(new LIDField()),
+    optional_features: new fields.SetField(new LIDField()),
+    ...template_universal_item(),
+  };
+};
+
+type NpcTemplateModelSchema = ReturnType<typeof defineNpcTemplateModelSchema>;
+
+export class NpcTemplateModel extends LancerDataModel<
+  NpcTemplateModelSchema,
+  Item.Implementation,
+  BaseData.NpcTemplate
+> {
   static DEFAULT_ICON = "systems/lancer/assets/icons/npc_template.svg";
   static defineSchema() {
-    return {
-      description: new fields.HTMLField(),
-      base_features: new fields.SetField(new LIDField()),
-      optional_features: new fields.SetField(new LIDField()),
-      ...template_universal_item(),
-    };
+    return defineNpcTemplateModelSchema();
   }
 
   static migrateData(data: any) {

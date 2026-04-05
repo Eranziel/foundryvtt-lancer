@@ -17,7 +17,7 @@ import { ActionEditDialog } from "../apps/action-editor";
 import { findLicenseFor, get_pack_id } from "../util/doc";
 import { lookupOwnedDeployables } from "../util/lid";
 import { EntryType, StatusConditionType } from "../enums";
-import { LancerDEPLOYABLE } from "../actor/lancer-actor";
+import type { LancerDEPLOYABLE } from "../actor/lancer-actor";
 import { BonusEditDialog } from "../apps/bonus-editor";
 import { OrgType } from "../enums";
 import { handleTagEditButtons } from "../helpers/tags";
@@ -28,11 +28,10 @@ const lp = LANCER.log_prefix;
  * Extend the basic ItemSheet with some very simple modifications
  * @extends {ItemSheet}
  */
-export class LancerItemSheet<T extends LancerItemType> extends ItemSheet<DocumentSheetOptions<Item>> {
-  constructor(document: LancerItem, options: Partial<DocumentSheetOptions<Item>>) {
+export class LancerItemSheet<T extends LancerItemType> extends ItemSheet<ItemSheet.Options> {
+  constructor(document: LancerItem, options: Partial<ItemSheet.Options>) {
     super(document, options);
     if (this.item.is_mech_weapon()) {
-      // @ts-expect-error IDK if this even does anything
       // TODO Figure out if this even does anything
       this.options.initial = `profile${this.item.system.selected_profile_index}`;
     }
@@ -45,7 +44,7 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet<Documen
    * @override
    * Extend and override the default options used by the Item Sheet
    */
-  static get defaultOptions(): DocumentSheetOptions<Item> {
+  static get defaultOptions(): ItemSheet.Options {
     return foundry.utils.mergeObject(super.defaultOptions, {
       classes: ["lancer", "sheet", "item"],
       width: 700,
@@ -156,7 +155,6 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet<Documen
    */
   async getData(): Promise<LancerItemSheetData<T>> {
     const data = super.getData() as LancerItemSheetData<T>; // Not fully populated yet!
-    // @ts-expect-error v10
     data.system = this.item.system; // Set our alias
     data.collapse = {};
 
@@ -169,8 +167,7 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet<Documen
       // Use compendium. This is probably overkill but, who well
       let deps =
         (await game.packs.get(get_pack_id(EntryType.DEPLOYABLE))?.getDocuments({ type: EntryType.DEPLOYABLE })) ?? [];
-      // @ts-expect-error
-      for (let d of deps as LancerDEPLOYABLE) {
+      for (let d of deps as LancerDEPLOYABLE[]) {
         data.deployables[d.system.lid] = d;
       }
     }
@@ -191,7 +188,6 @@ export class LancerItemSheet<T extends LancerItemType> extends ItemSheet<Documen
     if (this.item.is_status()) {
       data.status_types = StatusConditionType;
       if (!data.system.lid) {
-        // @ts-expect-error getData needs an overhaul for the new types
         data.system.lid = `status-${data.document.id}`;
       }
     }

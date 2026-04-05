@@ -1,10 +1,10 @@
 // Import TypeScript modules
 import { LancerActor } from "../actor/lancer-actor";
 import { LANCER } from "../config";
-import { UUIDRef } from "../source-template";
+import type { UUIDRef } from "../source-template";
 import { userOwnsActor } from "../util/misc";
 import { renderTemplateStep } from "./_render";
-import { Flow, FlowState, Step } from "./flow";
+import { Flow, type FlowState, type Step } from "./flow";
 import { LancerFlowState } from "./interfaces";
 import { DamageRollFlow } from "./damage";
 import { DamageType } from "../enums";
@@ -299,12 +299,10 @@ export async function checkStructureMultipleOnes(
 
   let roll = state.data.result?.roll;
   if (!roll) throw new TypeError(`Structure check hasn't been rolled yet!`);
-  // @ts-expect-error v10 types
   if (roll.terms[0].rolls?.length > 1) {
     // This was rolled multiple times - it should be an NPC with the legendary trait
     // Find the selected roll - the one which wasn't discarded - and check whether it has multiple ones.
     const chosenIndex = (roll.terms as foundry.dice.terms.Die[])[0].results.findIndex(r => !r.discarded);
-    // @ts-expect-error v10 types
     roll = (roll.terms as Die[])[0].rolls[chosenIndex] || roll;
   }
   if (!roll) throw new TypeError(`Structure check hasn't been rolled yet!`);
@@ -362,7 +360,7 @@ export async function structureInsertDismembermentButton(
     data-flow-type="dismembermentDamage"
     data-actor-id="${actor.uuid}"
   >
-    <i class="compcon-icon kinetic i--sm"></i> ROLL DAMAGE
+    <i class="compcon-icon kinetic i--3"></i> ROLL DAMAGE
   </a>`);
   return true;
 }
@@ -428,7 +426,7 @@ export async function structureInsertHullCheckButton(
       data-check-type="hull"
       data-actor-id="${actor.uuid}"
     >
-      <i class="fas fa-dice-d20 i--sm"></i> HULL
+      <i class="fas fa-dice-d20 i--3"></i> HULL
     </a>`);
   }
   return true;
@@ -461,7 +459,7 @@ export async function structureInsertSecondaryRollButton(
       data-flow-type="secondaryStructure"
       data-actor-id="${actor.uuid}"
     >
-      <i class="fas fa-dice-d6 i--sm"></i> TEAR OFF
+      <i class="fas fa-dice-d6 i--3"></i> TEAR OFF
     </a>`);
   }
   return true;
@@ -487,7 +485,7 @@ export async function structureInsertCascadeRollButton(
     data-flow-type="cascade"
     data-actor-id="${actor.uuid}"
   >
-    <i class="fas fa-dice-d20 i--sm"></i> <span class="horus--subtle">CASCADE CHECK</span>
+    <i class="fas fa-dice-d20 i--3"></i> <span class="horus--subtle">CASCADE CHECK</span>
   </a>`);
   return true;
 }

@@ -1,10 +1,10 @@
 <div class="card clipped-bot" {{#if item_uuid}} data-uuid="{{item_uuid}}" {{/if}} style="margin: 0px;">
   <div class="lancer-header lancer-weapon medium">
-    <i class="cci cci-weapon i--m i--light"> </i>
+    <i class="cci cci-weapon i--4 i--light"> </i>
     <span>{{ title }}</span>
     {{!-- TODO: refactor reroll button --}}
     <!-- <a class="flow-button roll-attack lancer-button lancer-macro" data-macro="{{rerollMacroData}}" title="Reroll this attack">
-      <i class="fas fa-dice-d20 i--m i--light"></i>
+      <i class="fas fa-dice-d20 i--4 i--light"></i>
     </a> -->
   </div>
   {{#if profile}}
@@ -17,7 +17,7 @@
       </div>
       <div class="collapse" data-collapse-id="{{_uuid}}-attacks">
         {{#each attack_results as |attack key|}}
-          {{{lancer-dice-roll attack.roll attack.tt "cci cci-reticule i--m"}}}
+          {{{lancer-dice-roll attack.roll attack.tt "cci cci-reticule i--4"}}}
         {{/each}}
       </div>
     </div>
@@ -38,7 +38,7 @@
         {{localize "lancer.chat-card.title.self-heat"}}
       </div>
       <div class="collapse" data-collapse-id="{{_uuid}}-self-heat">
-        {{{lancer-dice-roll self_heat_result.roll self_heat_result.tt "cci cci-heat i--m damage--heat"}}}
+        {{{lancer-dice-roll self_heat_result.roll self_heat_result.tt "cci cci-heat i--4 damage--heat"}}}
       </div>
     </div>
   {{/if}}
@@ -72,5 +72,5 @@
   <button
     class="lancer-button lancer-damage-flow lancer-secondary"
     label="lancer.chat-card.attack.roll-all-damage"
-  ><i class="mdi mdi-dice-multiple i--sm i--light"></i>&nbsp;{{localize "lancer.chat-card.attack.roll-all-damage"}}</button>
+  ><i class="mdi mdi-dice-multiple i--3 i--light"></i>&nbsp;{{localize "lancer.chat-card.attack.roll-all-damage"}}</button>
 </div>

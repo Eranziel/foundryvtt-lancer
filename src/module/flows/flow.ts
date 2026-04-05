@@ -1,6 +1,6 @@
 import { LancerActor } from "../actor/lancer-actor";
 import { LancerItem } from "../item/lancer-item";
-import { UUIDRef } from "../source-template";
+import type { UUIDRef } from "../source-template";
 import { LANCER } from "../config";
 
 const lp = LANCER.log_prefix;
@@ -154,14 +154,12 @@ export class Flow<StateData> {
   async begin(data?: StateData): Promise<boolean> {
     this.state.data = data || this.state.data;
     Hooks.callAll(`lancer.preFlow.${this.constructor.name}`, this);
-    // @ts-expect-error Static
     for (const key of this.constructor.steps) {
       console.log(`${lp} running flow step ${key}`);
       this.state.currentStep = key;
       const step = this.getStep(key);
       if (!step) {
         ui.notifications!.error(`Lancer flow error: ${key} is not a valid step`);
-        // @ts-expect-error Static
         console.log(`${lp} Flow aborted when ${key} was not found. All steps in this flow:`, this.constructor.steps);
         return false;
       }

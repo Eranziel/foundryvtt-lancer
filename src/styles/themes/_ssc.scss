@@ -1,0 +1,58 @@
+@layer lancer.defaults {
+  /* ===== MODIFY CORE FOUNDRY VARIABLES ===== */
+  body.game.theme-ssc .app {
+    --color-shadow-primary: #fbe2ac;
+  }
+  /* ===== END CORE FOUNDRY VARIABLES ===== */
+
+  /* ====================================== */
+
+  /* ===== SET LANCER-SPECIFIC VARIABLES ===== */
+  body.theme-ssc {
+    /* Sheet theme vars */
+    --primary-color: #d1920a;
+    --primary-highlight: color-mix(in srgb, var(--primary-color), #fff 55%);
+    --light-text: #efefef;
+    --dark-text: #000000;
+    --background-color: #eee8d5;
+    --secondary-color: #685d99;
+    --secondary-highlight: color-mix(in srgb, var(--secondary-color), #fff 55%);
+    --secondary-text: #ffffff;
+    --dark-gray-color: #5a4c3f;
+    --light-gray-color: #eadbcb;
+    --tooltip-background: #d6c9b0;
+    --tooltip-text: #000000;
+    --ref-color: color-mix(in srgb, var(--primary-color), #fff 90%);
+    --darken-color: 64, 64, 64;
+
+    /* Gear and type color vars */
+    --system-color: #89610b;
+    --weapon-color: #111111;
+    --trait-color: #0a7674;
+    --mod-color: var(--trait-color);
+    --bonus-color: #5d8673;
+    --bonus-list-color: #71a373;
+    --tech-color: #7d2477;
+    --talent-color: #b58900;
+    --pilot-stat-color: #eadbcb;
+
+    /* Action color vars */
+    --reaction-color: #892eb1;
+    --protocol-color: #c75a00;
+    --quick-color: #3949ab;
+    --full-color: #283593;
+    --free-color: #00695c;
+    --move-color: #cc0a0a;
+
+    /* Hit type color vars */
+    --crit-color: #9c5e35;
+    --hit-color: #337494;
+    --miss-color: #3c3c3c;
+    --error-color: #b4800e;
+
+    /* Accurate / difficult color vars */
+    --accurate-color: #0d689c;
+    --difficult-color: #9c0d0d;
+  }
+  /* ===== END LANCER-SPECIFIC VARIABLES ===== */
+}

@@ -1,8 +1,8 @@
-import type { DeepPartial } from "@league-of-foundry-developers/foundry-vtt-types/src/types/utils.mjs";
+import type { DeepPartial } from "fvtt-types/utils";
 import { LANCER, friendly_entrytype_name } from "../config";
 import { EntryType, NpcFeatureType } from "../enums";
-import { SourceData } from "../source-template";
-import { Flow, FlowState, Step } from "./flow";
+import type { SourceData } from "../source-template";
+import { Flow, type FlowState, type Step } from "./flow";
 import { LancerFlowState } from "./interfaces";
 
 export function registerItemUtilSteps(flowSteps: Map<string, Step<any, any> | Flow<any>>) {
@@ -145,7 +145,6 @@ export async function applySelfHeat(
     if (state.actor.is_mech() || state.actor.is_npc()) {
       // TODO: overkill heat to move to damage flow
       await state.actor.update({
-        // @ts-expect-error Missing overkill_heat
         "system.heat.value": state.actor.system.heat.value + (state.data.overkill_heat ?? 0) + self_heat,
       });
     }

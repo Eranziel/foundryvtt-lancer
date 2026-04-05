@@ -1,0 +1,19 @@
+@mixin icon-size($pixels) {
+  font-size: $pixels;
+  min-width: $pixels;
+  max-width: $pixels;
+  min-height: $pixels;
+  max-height: $pixels;
+}
+
+@mixin vert-mid() {
+  vertical-align: middle;
+  align-content: center;
+  align-items: center;
+}
+
+@mixin horiz-mid() {
+  justify-items: center;
+  justify-content: center;
+  text-align: center;
+}

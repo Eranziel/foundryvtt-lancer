@@ -18,8 +18,8 @@
     target.quality === HitQuality.Hit
       ? "target-hit"
       : target.quality === HitQuality.Crit
-      ? "target-crit"
-      : "target-miss";
+        ? "target-crit"
+        : "target-miss";
 
   function addBonusDamage() {
     target.bonusDamage = [...target.bonusDamage, { type: DamageType.Kinetic, val: "1d6" }];
@@ -47,8 +47,8 @@
 
 <div
   class={`damage-hud-target-card card ${hitQualityClass}`}
-  in:slide={{ delay: 100, duration: 300 }}
-  out:slide={{ duration: 100 }}
+  in:slide|global={{ delay: 100, duration: 300 }}
+  out:slide|global={{ duration: 100 }}
 >
   <span class="target-name flexrow lancer-mini-header">🞂<b>{target.target.name}</b>🞀</span>
   <div class="flexrow">
@@ -120,73 +120,77 @@
 </div>
 
 <style lang="scss">
-  .damage-hud-target-card {
-    background-color: var(--darken-1);
-    box-shadow: 1px 1px 2px;
-    margin: 0.3em 0.3em;
-    max-width: 100%;
-    height: calc(100% - 0.6em);
-    justify-content: space-between;
-    transition: all 0.3s ease;
+  @layer lancer {
+    @layer components {
+      .damage-hud-target-card {
+        background-color: var(--darken-1);
+        box-shadow: 1px 1px 2px;
+        margin: 0.3em 0.3em;
+        max-width: 100%;
+        height: calc(100% - 0.6em);
+        justify-content: space-between;
+        transition: all 0.3s ease;
 
-    &.target-miss {
-      opacity: 70%;
-    }
+        &.target-miss {
+          opacity: 70%;
+        }
 
-    .target-name {
-      justify-content: center;
-      padding: 0px 0.2em;
-    }
+        .target-name {
+          justify-content: center;
+          padding: 0px 0.2em;
+        }
 
-    .lancer-hit-thumb {
-      margin: 0.2em;
-      flex-grow: 0;
-      object-fit: contain;
-    }
+        .lancer-hit-thumb {
+          margin: 0.2em;
+          flex-grow: 0;
+          object-fit: contain;
+        }
 
-    .target-bonus-damage {
-      background-color: var(--darken-3);
-      align-content: center;
-      align-items: center;
-      padding: 0.3em;
+        .target-bonus-damage {
+          background-color: var(--darken-3);
+          align-content: center;
+          align-items: center;
+          padding: 0.3em;
 
-      .target-bonus-damage-title {
-        display: flex;
-        justify-content: center;
+          .target-bonus-damage-title {
+            display: flex;
+            justify-content: center;
+          }
+        }
+        .add-damage-type {
+          max-height: 2em;
+          max-width: 2em;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          i {
+            margin: 0;
+          }
+
+          &.small {
+            max-height: 1.5em;
+            max-width: 1.5em;
+            line-height: 1.5em;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+          }
+        }
+
+        .damage-target-config {
+          margin: 0 0.3em;
+        }
       }
-    }
-    .add-damage-type {
-      max-height: 2em;
-      max-width: 2em;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      i {
-        margin: 0;
+
+      .hit-quality {
+        margin-top: 0.4em;
+        justify-content: space-around;
+
+        :global(.damage-target-quality i) {
+          font-size: 16px;
+          vertical-align: top;
+        }
       }
-
-      &.small {
-        max-height: 1.5em;
-        max-width: 1.5em;
-        line-height: 1.5em;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-      }
-    }
-
-    .damage-target-config {
-      margin: 0 0.3em;
-    }
-  }
-
-  .hit-quality {
-    margin-top: 0.4em;
-    justify-content: space-around;
-
-    :global(.damage-target-quality i) {
-      font-size: 16px;
-      vertical-align: top;
     }
   }
 </style>

@@ -5,11 +5,11 @@ import { EntryType, NpcFeatureType } from "./enums";
 import type { LancerItemType } from "./item/lancer-item";
 
 const ASCII = `
-╭╮╱╱╭━━━┳━╮╱╭┳━━━┳━━━┳━━━╮ 
-┃┃╱╱┃╭━╮┃┃╰╮┃┃╭━╮┃╭━━┫╭━╮┃ 
-┃┃╱╱┃┃╱┃┃╭╮╰╯┃┃╱╰┫╰━━┫╰━╯┃ 
-┃┃╱╭┫╰━╯┃┃╰╮┃┃┃╱╭┫╭━━┫╭╮╭╯ 
-┃╰━╯┃╭━╮┃┃╱┃┃┃╰━╯┃╰━━┫┃┃╰╮ 
+╭╮╱╱╭━━━┳━╮╱╭┳━━━┳━━━┳━━━╮
+┃┃╱╱┃╭━╮┃┃╰╮┃┃╭━╮┃╭━━┫╭━╮┃
+┃┃╱╱┃┃╱┃┃╭╮╰╯┃┃╱╰┫╰━━┫╰━╯┃
+┃┃╱╭┫╰━╯┃┃╰╮┃┃┃╱╭┫╭━━┫╭╮╭╯
+┃╰━╯┃╭━╮┃┃╱┃┃┃╰━╯┃╰━━┫┃┃╰╮
 ╰━━━┻╯╱╰┻╯╱╰━┻━━━┻━━━┻╯╰━╯`;
 
 export function WELCOME(): string {
@@ -21,12 +21,12 @@ export function WELCOME(): string {
   </div>
 
   <p><a href="https://github.com/Eranziel/foundryvtt-lancer/blob/master/CHANGELOG.md">CHANGELOG</a></p>
-  
-  <p>Check out the project wiki for 
-  <a href="https://github.com/Eranziel/foundryvtt-lancer/wiki/FAQ">FAQ</a>, 
+
+  <p>Check out the project wiki for
+  <a href="https://github.com/Eranziel/foundryvtt-lancer/wiki/FAQ">FAQ</a>,
   <a href="https://github.com/Eranziel/foundryvtt-lancer/wiki/Resources">recommended modules</a>,
   and other information about how to use the system.</p>
-  
+
   <p>@UUID[Compendium.lancer.lancer_info.JournalEntry.JDfVPzoWPOLyhCCa.JournalEntryPage.LVsmG9EfKH9VpVJX]{Legal & Acknowlegements}</p>
   <p>@UUID[Compendium.lancer.lancer_info.JournalEntry.JDfVPzoWPOLyhCCa.JournalEntryPage.gotpldNfOwLxauXi]{Migrating from Earlier Versions}</p>
   `;
@@ -34,29 +34,31 @@ export function WELCOME(): string {
 
 export const LANCER = {
   ASCII,
-  log_prefix: "LANCER |" as const,
-  setting_migration_version: "systemMigrationVersion" as const,
-  setting_core_data: "coreDataVersion" as const,
-  setting_lcps: "installedLCPs" as const,
-  setting_stock_icons: "keepStockIcons" as const,
-  // setting_welcome: "hideWelcome" as const, // Deprecated as of v2.7.0
-  setting_floating_damage_numbers: "floatingNumbers" as const,
-  setting_ui_theme: "uiTheme" as const,
-  setting_compcon_login: "compconLogin" as const,
-  setting_status_icons: "statusIconConfig" as const,
-  setting_automation: "automationOptions" as const,
-  setting_automation_switch: "automationSwitch" as const,
-  setting_automation_attack: "attackSwitch" as const, // Deprecated
-  setting_actionTracker: "actionTracker" as const,
-  setting_pilot_oc_heat: "autoOCHeat" as const,
-  setting_overkill_heat: "autoOKillHeat" as const,
-  setting_auto_structure: "autoCalcStructure" as const,
-  setting_dsn_setup: "dsnSetup" as const,
-  setting_square_grid_diagonals: "squareGridDiagonals" as const,
-  setting_tag_config: "tagConfig" as const,
-  // setting_120: "warningFor120" as const, // Old setting, currently unused.
-  // setting_beta_warning: "warningForBeta" as const, // Old setting, currently unused.
-};
+  log_prefix: "LANCER |",
+  setting_migration_version: "systemMigrationVersion",
+  setting_core_data: "coreDataVersion",
+  setting_lcps: "installedLCPs",
+  setting_stock_icons: "keepStockIcons",
+  // setting_welcome: "hideWelcome", // Deprecated as of v2.7.0
+  setting_floating_damage_numbers: "floatingNumbers",
+  setting_ui_theme: "uiTheme",
+  setting_compcon_login: "compconLogin",
+  setting_status_icons: "statusIconConfig",
+  setting_automation: "automationOptions",
+  setting_automation_switch: "automationSwitch",
+  setting_automation_attack: "attackSwitch", // Deprecated
+  setting_actionTracker: "actionTracker",
+  setting_combat_appearance: "combat-tracker-appearance",
+  setting_combat_sort: "combat-tracker-sort",
+  setting_pilot_oc_heat: "autoOCHeat",
+  setting_overkill_heat: "autoOKillHeat",
+  setting_auto_structure: "autoCalcStructure",
+  setting_dsn_setup: "dsnSetup",
+  setting_square_grid_diagonals: "squareGridDiagonals",
+  setting_tag_config: "tagConfig",
+  // setting_120: "warningFor120", // Old setting, currently unused.
+  // setting_beta_warning: "warningForBeta", // Old setting, currently unused.
+} as const;
 
 // Convenience for mapping item/actor types to full names
 const FRIENDLY_DOCUMENT_NAMES_SINGULAR = {
@@ -120,8 +122,7 @@ export function friendly_entrytype_name(type: LancerItemType | LancerActorType, 
 // TODO: const MACRO_ICONS
 
 export function TypeIcon(type: EntryType, macro?: boolean): string {
-  const docType = ACTOR_TYPES.includes(type as any) ? "Actor" : "Item";
-  // @ts-expect-error `type` is fine here
+  const docType = ACTOR_TYPES.includes(type) ? "Actor" : "Item";
   const img = getDocumentClass(docType).getDefaultArtwork({ type }).img;
   return img;
 }

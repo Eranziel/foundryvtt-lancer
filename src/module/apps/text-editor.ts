@@ -2,6 +2,29 @@ import { LancerActor } from "../actor/lancer-actor";
 import { resolveDotpath } from "../helpers/commons";
 import { LancerItem } from "../item/lancer-item";
 
+export async function richTextEdit(doc: foundry.abstract.Document.Any, property: string): Promise<string | undefined> {
+  const originalText = foundry.utils.getProperty(doc, property);
+  if (typeof originalText !== "string") throw new Error(`Document property ${property} is not a string`);
+  const content = document.createElement("div");
+  content.appendChild(
+    // @ts-expect-error The missing stuff is definitely optional
+    foundry.applications.elements.HTMLProseMirrorElement.create({
+      name: "result",
+      toggled: false,
+      value: originalText,
+    })
+  );
+  const { result }: { result?: string } =
+    ((await foundry.applications.api.Dialog.input(<foundry.applications.api.Dialog.InputConfig>{
+      id: `richEditor-${doc.uuid}-${property}`,
+      content,
+      classes: ["lancer", "rich-editor"],
+      window: { resizable: true },
+      position: { width: 550, height: 400 },
+    })) as any) ?? {};
+  return result;
+}
+
 /**
  * A helper Dialog subclass for editing html descriptions, which will automatically fixup html written to it (so the user doesn't just nuke themselves)
  * @extends {Dialog}
@@ -35,7 +58,7 @@ export class HTMLEditDialog extends FormApplication {
   /* -------------------------------------------- */
 
   /** @override */
-  static get defaultOptions(): FormApplicationOptions {
+  static get defaultOptions(): FormApplication.Options {
     return foundry.utils.mergeObject(super.defaultOptions, {
       template: `systems/${game.system.id}/templates/window/html_editor.hbs`,
       width: 650,

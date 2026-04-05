@@ -1,5 +1,5 @@
 import type { CachedCloudPilot } from "../interfaces";
-import { PackedPilotData } from "./unpacking/packed-types";
+import type { PackedPilotData } from "./unpacking/packed-types";
 
 // we only cache the id, cloud ids, and name; we're going to fetch all other data on user input
 // the point of the cache is not have the pilot actor window to wait for network calls
@@ -23,7 +23,6 @@ export async function populatePilotCache(): Promise<CachedCloudPilot[]> {
   }
   const res = await Storage.list("pilot", {
     level: "protected",
-    // @ts-expect-error  Unclear if this still does anything
     cacheControl: "no-cache",
     // Filter out deleted pilots (tagged with "delete" or "s3-remove-flag"), we want "active"
   }).then(result => {

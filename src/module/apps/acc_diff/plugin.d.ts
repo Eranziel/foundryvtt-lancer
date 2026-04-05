@@ -13,17 +13,17 @@ import type { AccDiffData } from "./index";
 // but it's convenient
 
 declare interface CheckboxUI {
-  uiElement: "checkbox" = "checkbox";
+  uiElement: "checkbox"; // = "checkbox";
   slug: string;
   humanLabel: string;
   get uiState(): boolean;
-  set uiState(data: boolean): this;
+  set uiState(data: boolean); //: this;
   get disabled(): boolean;
   get visible(): boolean;
 }
 
 declare interface NoUI {
-  uiElement: "none" = "none";
+  uiElement: "none"; // = "none";
 }
 
 type UIBehaviour = CheckboxUI | NoUI;
@@ -60,7 +60,7 @@ declare interface AccDiffHudPlugin<Data extends AccDiffHudPluginData> {
   // so every roll has perRoll + exactly one of perTarget and perUnknownTarget
   perRoll?(item?: LancerItem | LancerActor): Data;
   perUnknownTarget?(): Data;
-  perTarget?(item: Token): Data;
+  perTarget?(item: Token.Implementation): Data;
   // usually you want to implement either perRoll OR both of the other two
   // if you implement perRoll AND either or both of the other two, `rollModifier`
   // will be called twice on the same roll, so watch out for that
