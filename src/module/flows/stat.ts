@@ -8,7 +8,7 @@ import { LancerItem } from "../item/lancer-item";
 import { AccDiffHudData, type AccDiffHudDataSerialized } from "../apps/acc_diff";
 import { openSlidingHud } from "../apps/slidinghud";
 import type { UUIDRef } from "../source-template";
-import { Flow, type FlowState, type Step } from "./flow";
+import { Flow, type FlowState, type PostFlowHook, type PreFlowHook, type Step } from "./flow";
 
 const lp = LANCER.log_prefix;
 
@@ -17,6 +17,15 @@ export function registerStatSteps(flowSteps: Map<string, Step<any, any> | Flow<a
   flowSteps.set("showStatRollHUD", showStatRollHUD);
   flowSteps.set("rollCheck", rollCheck);
   flowSteps.set("printStatRollCard", printStatRollCard);
+}
+
+declare module "fvtt-types/configuration" {
+  namespace Hooks {
+    interface HookConfig {
+      "lancer.preFlow.StatRollFlow": PreFlowHook<StatRollFlow>;
+      "lancer.postFlow.StatRollFlow": PostFlowHook<StatRollFlow>;
+    }
+  }
 }
 
 export class StatRollFlow extends Flow<LancerFlowState.StatRollData> {
@@ -35,6 +44,14 @@ export class StatRollFlow extends Flow<LancerFlowState.StatRollData> {
     if (!state.title && uuid instanceof LancerItem) state.title = uuid.name!;
 
     super(uuid, state);
+  }
+
+  override callPreFlow(): void {
+    Hooks.callAll("lancer.preFlow.StatRollFlow", this);
+  }
+
+  override callPostFlow(done: boolean): void {
+    Hooks.callAll("lancer.postFlow.StatRollFlow", this, done);
   }
 }
 

@@ -4,7 +4,7 @@ import { LANCER } from "../config";
 import type { UUIDRef } from "../source-template";
 import { userOwnsActor } from "../util/misc";
 import { renderTemplateStep } from "./_render";
-import { Flow, type FlowState, type Step } from "./flow";
+import { Flow, type FlowState, type PostFlowHook, type PreFlowHook, type Step } from "./flow";
 import { LancerFlowState } from "./interfaces";
 import { DamageRollFlow } from "./damage";
 import { DamageType } from "../enums";
@@ -23,6 +23,15 @@ export function registerStructureSteps(flowSteps: Map<string, Step<any, any> | F
   flowSteps.set("printStructureCard", printStructureCard);
   flowSteps.set("secondaryStructureRoll", secondaryStructureRoll);
   flowSteps.set("printSecondaryStructureCard", printSecondaryStructureCard);
+}
+
+declare module "fvtt-types/configuration" {
+  namespace Hooks {
+    interface HookConfig {
+      "lancer.preFlow.StructureFlow": PreFlowHook<StructureFlow>;
+      "lancer.postFlow.StructureFlow": PostFlowHook<StructureFlow>;
+    }
+  }
 }
 
 /**
@@ -53,6 +62,14 @@ export class StructureFlow extends Flow<LancerFlowState.PrimaryStructureRollData
     };
 
     super(uuid, initialData);
+  }
+
+  override callPreFlow(): void {
+    Hooks.callAll("lancer.preFlow.StructureFlow", this);
+  }
+
+  override callPostFlow(done: boolean): void {
+    Hooks.callAll("lancer.postFlow.StructureFlow", this, done);
   }
 }
 
@@ -522,6 +539,15 @@ export async function beginSecondaryStructureFlow(
   return await flow.begin();
 }
 
+declare module "fvtt-types/configuration" {
+  namespace Hooks {
+    interface HookConfig {
+      "lancer.preFlow.SecondaryStructureFlow": PreFlowHook<SecondaryStructureFlow>;
+      "lancer.postFlow.SecondaryStructureFlow": PostFlowHook<SecondaryStructureFlow>;
+    }
+  }
+}
+
 /**
  * Flow for managing secondary structure rolls and effects
  */
@@ -537,6 +563,14 @@ export class SecondaryStructureFlow extends Flow<LancerFlowState.SecondaryStruct
     };
 
     super(uuid, initialData);
+  }
+
+  override callPreFlow(): void {
+    Hooks.callAll("lancer.preFlow.SecondaryStructureFlow", this);
+  }
+
+  override callPostFlow(done: boolean): void {
+    Hooks.callAll("lancer.postFlow.SecondaryStructureFlow", this, done);
   }
 }
 

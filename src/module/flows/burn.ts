@@ -1,7 +1,7 @@
 import { LancerActor } from "../actor/lancer-actor";
 import { LancerItem } from "../item/lancer-item";
 import type { UUIDRef } from "../source-template";
-import { Flow, type FlowState, type Step } from "./flow";
+import { Flow, type FlowState, type PostFlowHook, type PreFlowHook, type Step } from "./flow";
 import { DamageRollFlow } from "./damage";
 import { StatRollFlow } from "./stat";
 import { LancerFlowState } from "./interfaces";
@@ -12,6 +12,15 @@ export function registerBurnSteps(flowSteps: Map<string, Step<any, any> | Flow<a
   flowSteps.set("initBurnCheckData", initBurnCheckData);
   flowSteps.set("rollBurnCheck", rollBurnCheck);
   flowSteps.set("checkBurnResult", checkBurnResult);
+}
+
+declare module "fvtt-types/configuration" {
+  namespace Hooks {
+    interface HookConfig {
+      "lancer.preFlow.BurnFlow": PreFlowHook<BurnFlow>;
+      "lancer.postFlow.BurnFlow": PostFlowHook<BurnFlow>;
+    }
+  }
 }
 
 export class BurnFlow extends DamageRollFlow {
@@ -43,6 +52,14 @@ export class BurnFlow extends DamageRollFlow {
     };
 
     super(uuid, state);
+  }
+
+  override callPreFlow(): void {
+    Hooks.callAll("lancer.preFlow.BurnFlow", this);
+  }
+
+  override callPostFlow(done: boolean): void {
+    Hooks.callAll("lancer.postFlow.BurnFlow", this, done);
   }
 }
 

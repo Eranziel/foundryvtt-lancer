@@ -1,13 +1,22 @@
 import type { ActionTrackingData } from "../action";
 import { getActions } from "../action/action-tracker";
 import { LancerActor } from "../actor/lancer-actor";
-import { Flow, type FlowState, type Step } from "./flow";
+import { Flow, type FlowState, type PostFlowHook, type PreFlowHook, type Step } from "./flow";
 import { LancerFlowState } from "./interfaces";
 import { printGenericCard } from "./text";
 
 export function registerActionTrackSteps(flowSteps: Map<string, Step<any, any> | Flow<any>>) {
   flowSteps.set("checkActions", checkActions);
   flowSteps.set("printActionTrackCard", printActionTrackCard);
+}
+
+declare module "fvtt-types/configuration" {
+  namespace Hooks {
+    interface HookConfig {
+      "lancer.preFlow.ActionTrackFlow": PreFlowHook<ActionTrackFlow>;
+      "lancer.postFlow.ActionTrackFlow": PostFlowHook<ActionTrackFlow>;
+    }
+  }
 }
 
 export class ActionTrackFlow extends Flow<LancerFlowState.ActionTrackData> {
@@ -21,6 +30,14 @@ export class ActionTrackFlow extends Flow<LancerFlowState.ActionTrackData> {
     };
 
     super(uuid, initialData);
+  }
+
+  override callPreFlow(): void {
+    Hooks.callAll("lancer.preFlow.ActionTrackFlow", this);
+  }
+
+  override callPostFlow(done: boolean): void {
+    Hooks.callAll("lancer.postFlow.ActionTrackFlow", this, done);
   }
 }
 

@@ -3,7 +3,7 @@ import { LANCER } from "../config";
 import { StabOptions1, StabOptions2 } from "../enums";
 import { printGenericCard } from "./text";
 import { LancerActor } from "../actor/lancer-actor";
-import { Flow, type FlowState, type Step } from "./flow";
+import { Flow, type FlowState, type PostFlowHook, type PreFlowHook, type Step } from "./flow";
 import { LancerFlowState } from "./interfaces";
 import type { UUIDRef } from "../source-template";
 
@@ -14,6 +14,15 @@ export function registerStabilizeSteps(flowSteps: Map<string, Step<any, any> | F
   flowSteps.set("renderStabilizePrompt", renderStabilizePrompt);
   flowSteps.set("applyStabilizeUpdates", applyStabilizeUpdates);
   flowSteps.set("printStabilizeResult", printStabilizeResult);
+}
+
+declare module "fvtt-types/configuration" {
+  namespace Hooks {
+    interface HookConfig {
+      "lancer.preFlow.StabilizeFlow": PreFlowHook<StabilizeFlow>;
+      "lancer.postFlow.StabilizeFlow": PostFlowHook<StabilizeFlow>;
+    }
+  }
 }
 
 export class StabilizeFlow extends Flow<LancerFlowState.StabilizeData> {
@@ -27,6 +36,14 @@ export class StabilizeFlow extends Flow<LancerFlowState.StabilizeData> {
       option2: data?.option2 || StabOptions2.Reload,
     };
     super(uuid, initialData);
+  }
+
+  override callPreFlow(): void {
+    Hooks.callAll("lancer.preFlow.StabilizeFlow", this);
+  }
+
+  override callPostFlow(done: boolean): void {
+    Hooks.callAll("lancer.postFlow.StabilizeFlow", this, done);
   }
 }
 

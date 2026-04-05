@@ -3,7 +3,7 @@ import { LANCER } from "../config";
 import { LancerItem } from "../item/lancer-item";
 import type { UUIDRef } from "../source-template";
 import { LancerFlowState } from "./interfaces";
-import { Flow, type FlowState } from "./flow";
+import { Flow, type FlowState, type PostFlowHook, type PreFlowHook } from "./flow";
 import { renderTemplateStep } from "./_render";
 import { NpcFeatureType, SystemType } from "../enums";
 
@@ -12,6 +12,15 @@ const lp = LANCER.log_prefix;
 export function registerSystemSteps(flowSteps: Map<string, any>) {
   flowSteps.set("initSystemUseData", initSystemUseData);
   flowSteps.set("printSystemCard", printSystemCard);
+}
+
+declare module "fvtt-types/configuration" {
+  namespace Hooks {
+    interface HookConfig {
+      "lancer.preFlow.SystemFlow": PreFlowHook<SystemFlow>;
+      "lancer.postFlow.SystemFlow": PostFlowHook<SystemFlow>;
+    }
+  }
 }
 
 export class SystemFlow extends Flow<LancerFlowState.SystemUseData> {
@@ -37,6 +46,14 @@ export class SystemFlow extends Flow<LancerFlowState.SystemUseData> {
     };
 
     super(uuid, initialData);
+  }
+
+  override callPreFlow(): void {
+    Hooks.callAll("lancer.preFlow.SystemFlow", this);
+  }
+
+  override callPostFlow(done: boolean): void {
+    Hooks.callAll("lancer.postFlow.SystemFlow", this, done);
   }
 }
 

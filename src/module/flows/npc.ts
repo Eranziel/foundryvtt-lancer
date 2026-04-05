@@ -2,13 +2,22 @@ import { LancerActor } from "../actor/lancer-actor";
 import { renderTemplateStep } from "./_render";
 import { LancerItem } from "../item/lancer-item";
 import { LancerFlowState } from "./interfaces";
-import { Flow, type FlowState, type Step } from "./flow";
+import { Flow, type FlowState, type PostFlowHook, type PreFlowHook, type Step } from "./flow";
 
 export function registerNPCSteps(flowSteps: Map<string, Step<any, any> | Flow<any>>) {
   flowSteps.set("findRechargeableSystems", findRechargeableSystems);
   flowSteps.set("rollRecharge", rollRecharge);
   flowSteps.set("applyRecharge", applyRecharge);
   flowSteps.set("printRechargeCard", printRechargeCard);
+}
+
+declare module "fvtt-types/configuration" {
+  namespace Hooks {
+    interface HookConfig {
+      "lancer.preFlow.NPCRechargeFlow": PreFlowHook<NPCRechargeFlow>;
+      "lancer.postFlow.NPCRechargeFlow": PostFlowHook<NPCRechargeFlow>;
+    }
+  }
 }
 
 export class NPCRechargeFlow extends Flow<LancerFlowState.RechargeRollData> {
@@ -24,6 +33,14 @@ export class NPCRechargeFlow extends Flow<LancerFlowState.RechargeRollData> {
     };
 
     super(uuid, initialData);
+  }
+
+  override callPreFlow(): void {
+    Hooks.callAll("lancer.preFlow.NPCRechargeFlow", this);
+  }
+
+  override callPostFlow(done: boolean): void {
+    Hooks.callAll("lancer.postFlow.NPCRechargeFlow", this, done);
   }
 }
 

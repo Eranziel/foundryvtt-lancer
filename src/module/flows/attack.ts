@@ -9,7 +9,7 @@ import { LancerItem } from "../item/lancer-item";
 import type { UUIDRef } from "../source-template";
 import type { SystemTemplates } from "../system-template";
 import { renderTemplateStep } from "./_render";
-import { Flow, type FlowState, type Step } from "./flow";
+import { Flow, type FlowState, type PostFlowHook, type PreFlowHook, type Step } from "./flow";
 import { LancerFlowState } from "./interfaces";
 
 const lp = LANCER.log_prefix;
@@ -75,6 +75,15 @@ export function registerAttackSteps(flowSteps: Map<string, Step<any, any> | Flow
   flowSteps.set("printAttackCard", printAttackCard);
 }
 
+declare module "fvtt-types/configuration" {
+  namespace Hooks {
+    interface HookConfig {
+      "lancer.preFlow.BasicAttackFlow": PreFlowHook<BasicAttackFlow>;
+      "lancer.postFlow.BasicAttackFlow": PostFlowHook<BasicAttackFlow>;
+    }
+  }
+}
+
 export class BasicAttackFlow extends Flow<LancerFlowState.AttackRollData> {
   name = "BasicAttackFlow";
   static steps = [
@@ -108,9 +117,26 @@ export class BasicAttackFlow extends Flow<LancerFlowState.AttackRollData> {
 
     super(uuid, initialData);
   }
+
+  override callPreFlow(): void {
+    Hooks.callAll("lancer.preFlow.BasicAttackFlow", this);
+  }
+
+  override callPostFlow(done: boolean): void {
+    Hooks.callAll("lancer.postFlow.BasicAttackFlow", this, done);
+  }
 }
 
 // TODO: make a type for weapon attack flow state which narrows the type on item??
+
+declare module "fvtt-types/configuration" {
+  namespace Hooks {
+    interface HookConfig {
+      "lancer.preFlow.WeaponAttackFlow": PreFlowHook<WeaponAttackFlow>;
+      "lancer.postFlow.WeaponAttackFlow": PostFlowHook<WeaponAttackFlow>;
+    }
+  }
+}
 
 /**
  * Flow for rolling weapon attacks against one or more targets
@@ -164,6 +190,14 @@ export class WeaponAttackFlow extends Flow<LancerFlowState.WeaponRollData> {
       return false;
     }
     return await super.begin(data);
+  }
+
+  override callPreFlow(): void {
+    Hooks.callAll("lancer.preFlow.WeaponAttackFlow", this);
+  }
+
+  override callPostFlow(done: boolean): void {
+    Hooks.callAll("lancer.postFlow.WeaponAttackFlow", this, done);
   }
 }
 

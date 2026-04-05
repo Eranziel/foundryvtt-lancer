@@ -1,7 +1,7 @@
 // Import TypeScript modules
 import { LANCER } from "../config";
 import { LancerItem } from "../item/lancer-item";
-import { Flow, type FlowState, type Step } from "./flow";
+import { Flow, type FlowState, type PostFlowHook, type PreFlowHook, type Step } from "./flow";
 import { LancerFlowState } from "./interfaces";
 import { printGenericCard } from "./text";
 
@@ -9,6 +9,15 @@ const lp = LANCER.log_prefix;
 
 export function registerTalentSteps(flowSteps: Map<string, Step<any, any> | Flow<any>>) {
   flowSteps.set("printTalentCard", printTalentCard);
+}
+
+declare module "fvtt-types/configuration" {
+  namespace Hooks {
+    interface HookConfig {
+      "lancer.preFlow.TalentFlow": PreFlowHook<TalentFlow>;
+      "lancer.postFlow.TalentFlow": PostFlowHook<TalentFlow>;
+    }
+  }
 }
 
 export class TalentFlow extends Flow<LancerFlowState.TalentUseData> {
@@ -23,6 +32,14 @@ export class TalentFlow extends Flow<LancerFlowState.TalentUseData> {
     if (!state.title && uuid instanceof LancerItem) state.title = uuid.name!;
 
     super(uuid, state);
+  }
+
+  override callPreFlow(): void {
+    Hooks.callAll("lancer.preFlow.TalentFlow", this);
+  }
+
+  override callPostFlow(done: boolean): void {
+    Hooks.callAll("lancer.postFlow.TalentFlow", this, done);
   }
 }
 

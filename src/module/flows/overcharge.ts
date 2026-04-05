@@ -4,7 +4,7 @@ import { LANCER } from "../config";
 import { LancerItem } from "../item/lancer-item";
 import type { UUIDRef } from "../source-template";
 import { renderTemplateStep } from "./_render";
-import { Flow, type FlowState } from "./flow";
+import { Flow, type FlowState, type PostFlowHook, type PreFlowHook } from "./flow";
 import { LancerFlowState } from "./interfaces";
 
 export function registerOverchargeSteps(flowSteps: Map<string, any>) {
@@ -12,6 +12,15 @@ export function registerOverchargeSteps(flowSteps: Map<string, any>) {
   flowSteps.set("rollOvercharge", rollOvercharge);
   flowSteps.set("updateOverchargeActor", updateOverchargeActor);
   flowSteps.set("printOverchargeCard", printOverchargeCard);
+}
+
+declare module "fvtt-types/configuration" {
+  namespace Hooks {
+    interface HookConfig {
+      "lancer.preFlow.OverchargeFlow": PreFlowHook<OverchargeFlow>;
+      "lancer.postFlow.OverchargeFlow": PostFlowHook<OverchargeFlow>;
+    }
+  }
 }
 
 export class OverchargeFlow extends Flow<LancerFlowState.OverchargeRollData> {
@@ -27,6 +36,14 @@ export class OverchargeFlow extends Flow<LancerFlowState.OverchargeRollData> {
     };
 
     super(uuid, initialData);
+  }
+
+  override callPreFlow(): void {
+    Hooks.callAll("lancer.preFlow.OverchargeFlow", this);
+  }
+
+  override callPostFlow(done: boolean): void {
+    Hooks.callAll("lancer.postFlow.OverchargeFlow", this, done);
   }
 }
 

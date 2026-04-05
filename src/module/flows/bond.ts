@@ -4,7 +4,7 @@ import { LancerItem } from "../item/lancer-item";
 import type { PowerData } from "../models/bits/power";
 import type { UUIDRef } from "../source-template";
 import { renderTemplateStep } from "./_render";
-import { Flow, type FlowState, type Step } from "./flow";
+import { Flow, type FlowState, type PostFlowHook, type PreFlowHook, type Step } from "./flow";
 import { LancerFlowState } from "./interfaces";
 
 const lp = LANCER.log_prefix;
@@ -13,6 +13,15 @@ export function registerBondPowerSteps(flowSteps: Map<string, Step<any, any> | F
   flowSteps.set("initPowerData", initPowerData);
   flowSteps.set("updatePowerUses", updatePowerUses);
   flowSteps.set("printPowerCard", printPowerCard);
+}
+
+declare module "fvtt-types/configuration" {
+  namespace Hooks {
+    interface HookConfig {
+      "lancer.preFlow.BondPowerFlow": PreFlowHook<BondPowerFlow>;
+      "lancer.postFlow.BondPowerFlow": PostFlowHook<BondPowerFlow>;
+    }
+  }
 }
 
 export class BondPowerFlow extends Flow<LancerFlowState.BondPowerUseData> {
@@ -52,6 +61,14 @@ export class BondPowerFlow extends Flow<LancerFlowState.BondPowerUseData> {
       return false;
     }
     return await super.begin(data);
+  }
+
+  override callPreFlow(): void {
+    Hooks.callAll("lancer.preFlow.BondPowerFlow", this);
+  }
+
+  override callPostFlow(done: boolean): void {
+    Hooks.callAll("lancer.postFlow.BondPowerFlow", this, done);
   }
 }
 

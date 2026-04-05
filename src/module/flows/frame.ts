@@ -3,7 +3,7 @@ import { LANCER } from "../config";
 import { LancerActor } from "../actor/lancer-actor";
 import { LancerFlowState } from "./interfaces";
 import { ActivationFlow } from "./activation";
-import type { FlowState } from "./flow";
+import type { FlowState, PostFlowHook, PreFlowHook } from "./flow";
 import { LancerItem } from "../item/lancer-item";
 
 const lp = LANCER.log_prefix;
@@ -11,6 +11,15 @@ const lp = LANCER.log_prefix;
 export function registerCoreActiveSteps(flowSteps: Map<string, any>) {
   flowSteps.set("checkCorePower", checkCorePower);
   flowSteps.set("consumeCorePower", consumeCorePower);
+}
+
+declare module "fvtt-types/configuration" {
+  namespace Hooks {
+    interface HookConfig {
+      "lancer.preFlow.CoreActiveFlow": PreFlowHook<CoreActiveFlow>;
+      "lancer.postFlow.CoreActiveFlow": PostFlowHook<CoreActiveFlow>;
+    }
+  }
 }
 
 export class CoreActiveFlow extends ActivationFlow {
@@ -32,6 +41,14 @@ export class CoreActiveFlow extends ActivationFlow {
 
   constructor(uuid: string | LancerItem | LancerActor, data?: Partial<LancerFlowState.ActionUseData>) {
     super(uuid, data);
+  }
+
+  override callPreFlow(): void {
+    Hooks.callAll("lancer.preFlow.CoreActiveFlow", this);
+  }
+
+  override callPostFlow(done: boolean): void {
+    Hooks.callAll("lancer.postFlow.CoreActiveFlow", this, done);
   }
 }
 

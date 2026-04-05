@@ -3,7 +3,7 @@ import { LancerActor } from "../actor/lancer-actor";
 import { LANCER } from "../config";
 import type { UUIDRef } from "../source-template";
 import { renderTemplateStep } from "./_render";
-import { Flow, type FlowState, type Step } from "./flow";
+import { Flow, type FlowState, type PostFlowHook, type PreFlowHook, type Step } from "./flow";
 import { LancerFlowState } from "./interfaces";
 
 const lp = LANCER.log_prefix;
@@ -15,6 +15,15 @@ export function registerOverheatSteps(flowSteps: Map<string, Step<any, any> | Fl
   flowSteps.set("checkOverheatMultipleOnes", checkOverheatMultipleOnes);
   flowSteps.set("overheatInsertEngCheckButton", overheatInsertEngCheckButton);
   flowSteps.set("printOverheatCard", printOverheatCard);
+}
+
+declare module "fvtt-types/configuration" {
+  namespace Hooks {
+    interface HookConfig {
+      "lancer.preFlow.OverheatFlow": PreFlowHook<OverheatFlow>;
+      "lancer.postFlow.OverheatFlow": PostFlowHook<OverheatFlow>;
+    }
+  }
 }
 
 /**
@@ -43,6 +52,14 @@ export class OverheatFlow extends Flow<LancerFlowState.OverheatRollData> {
     };
 
     super(uuid, initialData);
+  }
+
+  override callPreFlow(): void {
+    Hooks.callAll("lancer.preFlow.OverheatFlow", this);
+  }
+
+  override callPostFlow(done: boolean): void {
+    Hooks.callAll("lancer.postFlow.OverheatFlow", this, done);
   }
 }
 

@@ -8,7 +8,7 @@ import { Damage, type DamageData } from "../models/bits/damage";
 import type { UUIDRef } from "../source-template";
 import { LancerToken, LancerTokenDocument } from "../token";
 import { renderTemplateStep } from "./_render";
-import { Flow, type FlowState, type Step } from "./flow";
+import { Flow, type FlowState, type PostFlowHook, type PreFlowHook, type Step } from "./flow";
 import { LancerFlowState } from "./interfaces";
 
 export type DamageFlag = {
@@ -30,6 +30,15 @@ export function registerDamageSteps(flowSteps: Map<string, Step<any, any> | Flow
   flowSteps.set("rollCritDamage", rollCritDamage);
   flowSteps.set("applyOverkillHeat", applyOverkillHeat);
   flowSteps.set("printDamageCard", printDamageCard);
+}
+
+declare module "fvtt-types/configuration" {
+  namespace Hooks {
+    interface HookConfig {
+      "lancer.preFlow.DamageRollFlow": PreFlowHook<DamageRollFlow>;
+      "lancer.postFlow.DamageRollFlow": PostFlowHook<DamageRollFlow>;
+    }
+  }
 }
 
 /**
@@ -72,6 +81,14 @@ export class DamageRollFlow extends Flow<LancerFlowState.DamageRollData> {
       targets: [],
     };
     super(uuid, initialData);
+  }
+
+  override callPreFlow(): void {
+    Hooks.callAll("lancer.preFlow.DamageRollFlow", this);
+  }
+
+  override callPostFlow(done: boolean): void {
+    Hooks.callAll("lancer.postFlow.DamageRollFlow", this, done);
   }
 }
 

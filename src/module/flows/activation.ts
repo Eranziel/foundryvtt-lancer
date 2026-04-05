@@ -8,7 +8,7 @@ import { renderTemplateStep } from "./_render";
 import { resolveDotpath } from "../helpers/commons";
 import type { ActionData } from "../models/bits/action";
 import { LancerFlowState } from "./interfaces";
-import { Flow, type FlowState, type Step } from "./flow";
+import { Flow, type FlowState, type PostFlowHook, type PreFlowHook, type Step } from "./flow";
 import type { UUIDRef } from "../source-template";
 import { TechAttackFlow } from "./tech";
 
@@ -17,6 +17,15 @@ const lp = LANCER.log_prefix;
 export function registerActivationSteps(flowSteps: Map<string, Step<any, any> | Flow<any>>) {
   flowSteps.set("initActivationData", initActivationData);
   flowSteps.set("printActionUseCard", printActionUseCard);
+}
+
+declare module "fvtt-types/configuration" {
+  namespace Hooks {
+    interface HookConfig {
+      "lancer.preFlow.ActivationFlow": PreFlowHook<ActivationFlow>;
+      "lancer.postFlow.ActivationFlow": PostFlowHook<ActivationFlow>;
+    }
+  }
 }
 
 export class ActivationFlow extends Flow<LancerFlowState.ActionUseData> {
@@ -52,6 +61,14 @@ export class ActivationFlow extends Flow<LancerFlowState.ActionUseData> {
     };
 
     super(uuid, initialData);
+  }
+
+  override callPreFlow(): void {
+    Hooks.callAll("lancer.preFlow.ActivationFlow", this);
+  }
+
+  override callPostFlow(done: boolean): void {
+    Hooks.callAll("lancer.postFlow.ActivationFlow", this, done);
   }
 }
 

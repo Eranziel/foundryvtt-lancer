@@ -25,6 +25,18 @@ export interface FlowState<T> {
   data?: T;
 }
 
+export type PreFlowHook<F extends Flow> = (flow: F) => void;
+export type PostFlowHook<F extends Flow> = (flow: F, done: boolean) => void;
+
+declare module "fvtt-types/configuration" {
+  namespace Hooks {
+    interface HookConfig {
+      "lancer.preFlow.Flow": PreFlowHook<Flow>;
+      "lancer.postFlow.Flow": PostFlowHook<Flow>;
+    }
+  }
+}
+
 /**
  * A Flow is a game process composed of one or more Steps. Flows can be triggered
  * by either automation (e.g. structure/stress rolls) or by user interaction
@@ -38,7 +50,7 @@ export interface FlowState<T> {
  * the chat card), or buttons which can trigger other flows (e.g. damage
  * application).
  */
-export class Flow<StateData> {
+export class Flow<StateData = unknown> {
   // The Steps involved in this flow, signified by key name in game.lancer.flowSteps.
   // Steps are fetched from the registry and resolved in the order they appear in the array.
   static steps: Array<string> = ["emptyStep"];
@@ -153,7 +165,7 @@ export class Flow<StateData> {
    */
   async begin(data?: StateData): Promise<boolean> {
     this.state.data = data || this.state.data;
-    Hooks.callAll(`lancer.preFlow.${this.constructor.name}`, this);
+    this.callPreFlow();
     for (const key of this.constructor.steps) {
       console.log(`${lp} running flow step ${key}`);
       this.state.currentStep = key;
@@ -167,20 +179,28 @@ export class Flow<StateData> {
         // Start the sub-flow
         if ((await step.begin()) === false) {
           console.log(`${lp} flow aborted when ${key} returned false`);
-          Hooks.callAll(`lancer.postFlow.${this.constructor.name}`, this, false);
+          this.callPostFlow(false);
           return false;
         }
       } else {
         // Execute the step. The step function will modify the flow state as needed.
         if ((await step(this.state, data)) === false) {
           console.log(`${lp} flow aborted when ${key} returned false`);
-          Hooks.callAll(`lancer.postFlow.${this.constructor.name}`, this, false);
+          this.callPostFlow(false);
           return false;
         }
       }
     }
-    Hooks.callAll(`lancer.postFlow.${this.constructor.name}`, this, true);
+    this.callPostFlow(true);
     return true;
+  }
+
+  callPreFlow(): void {
+    Hooks.callAll("lancer.preFlow.Flow", this);
+  }
+
+  callPostFlow(done: boolean): void {
+    Hooks.callAll("lancer.postFlow.Flow", this, done);
   }
 
   /**

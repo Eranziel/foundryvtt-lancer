@@ -8,7 +8,7 @@ import { LancerFlowState } from "./interfaces";
 import { LancerItem } from "../item/lancer-item";
 import { resolveDotpath } from "../helpers/commons";
 import { ActivationType, AttackType } from "../enums";
-import { Flow, type FlowState, type Step } from "./flow";
+import { Flow, type FlowState, type PostFlowHook, type PreFlowHook, type Step } from "./flow";
 import type { UUIDRef } from "../source-template";
 import type { AttackFlag } from "./attack";
 
@@ -17,6 +17,15 @@ const lp = LANCER.log_prefix;
 export function registerTechAttackSteps(flowSteps: Map<string, Step<any, any> | Flow<any>>) {
   flowSteps.set("initTechAttackData", initTechAttackData);
   flowSteps.set("printTechAttackCard", printTechAttackCard);
+}
+
+declare module "fvtt-types/configuration" {
+  namespace Hooks {
+    interface HookConfig {
+      "lancer.preFlow.TechAttackFlow": PreFlowHook<TechAttackFlow>;
+      "lancer.postFlow.TechAttackFlow": PostFlowHook<TechAttackFlow>;
+    }
+  }
 }
 
 export class TechAttackFlow extends Flow<LancerFlowState.TechAttackRollData> {
@@ -56,6 +65,14 @@ export class TechAttackFlow extends Flow<LancerFlowState.TechAttackRollData> {
     };
 
     super(uuid, initialData);
+  }
+
+  override callPreFlow(): void {
+    Hooks.callAll("lancer.preFlow.TechAttackFlow", this);
+  }
+
+  override callPostFlow(done: boolean): void {
+    Hooks.callAll("lancer.postFlow.TechAttackFlow", this, done);
   }
 }
 

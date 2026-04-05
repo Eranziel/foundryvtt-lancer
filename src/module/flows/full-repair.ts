@@ -4,7 +4,7 @@ import { LancerItem } from "../item/lancer-item";
 import type { LancerActor } from "../actor/lancer-actor";
 import { renderTemplateStep } from "./_render";
 import { LancerFlowState } from "./interfaces";
-import { Flow, type FlowState, type Step } from "./flow";
+import { Flow, type FlowState, type PostFlowHook, type PreFlowHook, type Step } from "./flow";
 import type { UUIDRef } from "../source-template";
 
 const lp = LANCER.log_prefix;
@@ -12,6 +12,15 @@ const lp = LANCER.log_prefix;
 export function registerFullRepairSteps(flowSteps: Map<string, Step<any, any> | Flow<any>>) {
   flowSteps.set("displayFullRepairDialog", displayFullRepairDialog);
   flowSteps.set("executeFullRepair", executeFullRepair);
+}
+
+declare module "fvtt-types/configuration" {
+  namespace Hooks {
+    interface HookConfig {
+      "lancer.preFlow.FullRepairFlow": PreFlowHook<FullRepairFlow>;
+      "lancer.postFlow.FullRepairFlow": PostFlowHook<FullRepairFlow>;
+    }
+  }
 }
 
 export class FullRepairFlow extends Flow<LancerFlowState.TextRollData> {
@@ -26,6 +35,14 @@ export class FullRepairFlow extends Flow<LancerFlowState.TextRollData> {
     };
 
     super(uuid, initialData);
+  }
+
+  override callPreFlow(): void {
+    Hooks.callAll("lancer.preFlow.FullRepairFlow", this);
+  }
+
+  override callPostFlow(done: boolean): void {
+    Hooks.callAll("lancer.postFlow.FullRepairFlow", this, done);
   }
 }
 

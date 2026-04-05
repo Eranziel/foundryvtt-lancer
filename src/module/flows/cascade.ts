@@ -2,7 +2,7 @@
 import { LANCER } from "../config";
 import type { UUIDRef } from "../source-template";
 import { LancerFlowState } from "./interfaces";
-import { Flow, type FlowState, type Step } from "./flow";
+import { Flow, type FlowState, type PostFlowHook, type PreFlowHook, type Step } from "./flow";
 import { LancerActor } from "../actor/lancer-actor";
 import { renderTemplateStep } from "./_render";
 
@@ -27,6 +27,15 @@ export async function beginCascadeFlow(actorUuid: UUIDRef, flowArgs?: Partial<La
   return await flow.begin();
 }
 
+declare module "fvtt-types/configuration" {
+  namespace Hooks {
+    interface HookConfig {
+      "lancer.preFlow.CascadeFlow": PreFlowHook<CascadeFlow>;
+      "lancer.postFlow.CascadeFlow": PostFlowHook<CascadeFlow>;
+    }
+  }
+}
+
 /**
  * Flow for managing secondary structure rolls and effects
  */
@@ -43,6 +52,14 @@ export class CascadeFlow extends Flow<LancerFlowState.CascadeRollData> {
     };
 
     super(uuid, initialData);
+  }
+
+  override callPreFlow(): void {
+    Hooks.callAll("lancer.preFlow.CascadeFlow", this);
+  }
+
+  override callPostFlow(done: boolean): void {
+    Hooks.callAll("lancer.postFlow.CascadeFlow", this, done);
   }
 }
 

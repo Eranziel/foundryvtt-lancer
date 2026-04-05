@@ -4,7 +4,7 @@ import { LANCER } from "../config";
 import { LancerItem } from "../item/lancer-item";
 import type { UUIDRef } from "../source-template";
 import { createChatMessageStep, renderTemplateStep } from "./_render";
-import { Flow, type FlowState, type Step } from "./flow";
+import { Flow, type FlowState, type PostFlowHook, type PreFlowHook, type Step } from "./flow";
 import { LancerFlowState } from "./interfaces";
 
 const lp = LANCER.log_prefix;
@@ -12,6 +12,15 @@ const lp = LANCER.log_prefix;
 export function registerTextSteps(flowSteps: Map<string, Step<any, any> | Flow<any>>) {
   flowSteps.set("printGenericCard", printGenericCard);
   flowSteps.set("printGenericHTML", printGenericHTML);
+}
+
+declare module "fvtt-types/configuration" {
+  namespace Hooks {
+    interface HookConfig {
+      "lancer.preFlow.SimpleTextFlow": PreFlowHook<SimpleTextFlow>;
+      "lancer.postFlow.SimpleTextFlow": PostFlowHook<SimpleTextFlow>;
+    }
+  }
 }
 
 export class SimpleTextFlow extends Flow<LancerFlowState.TextRollData> {
@@ -27,6 +36,14 @@ export class SimpleTextFlow extends Flow<LancerFlowState.TextRollData> {
 
     super(uuid, state);
   }
+
+  override callPreFlow(): void {
+    Hooks.callAll("lancer.preFlow.SimpleTextFlow", this);
+  }
+
+  override callPostFlow(done: boolean): void {
+    Hooks.callAll("lancer.postFlow.SimpleTextFlow", this, done);
+  }
 }
 
 export async function printGenericCard(state: FlowState<any>, options?: { template?: string }): Promise<boolean> {
@@ -39,6 +56,15 @@ export async function printGenericCard(state: FlowState<any>, options?: { templa
   return true;
 }
 
+declare module "fvtt-types/configuration" {
+  namespace Hooks {
+    interface HookConfig {
+      "lancer.preFlow.SimpleHTMLFlow": PreFlowHook<SimpleHTMLFlow>;
+      "lancer.postFlow.SimpleHTMLFlow": PostFlowHook<SimpleHTMLFlow>;
+    }
+  }
+}
+
 export class SimpleHTMLFlow extends Flow<LancerFlowState.HTMLToChatData> {
   static steps = ["printGenericHTML"];
 
@@ -47,6 +73,14 @@ export class SimpleHTMLFlow extends Flow<LancerFlowState.HTMLToChatData> {
       html: data?.html ?? "",
     };
     super(uuid, state);
+  }
+
+  override callPreFlow(): void {
+    Hooks.callAll("lancer.preFlow.SimpleHTMLFlow", this);
+  }
+
+  override callPostFlow(done: boolean): void {
+    Hooks.callAll("lancer.postFlow.SimpleHTMLFlow", this, done);
   }
 }
 
