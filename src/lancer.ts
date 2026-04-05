@@ -28,6 +28,7 @@ import { WeaponRangeTemplate } from "./module/canvas/weapon-range-template";
 import { LancerFrameSheet } from "./module/item/frame-sheet";
 import { LancerItemSheet } from "./module/item/item-sheet";
 import { LancerLicenseSheet } from "./module/item/license-sheet";
+import { richTextEdit } from "./module/apps/text-editor";
 
 // Import helpers
 import { LCPManager, addLCPManagerButton } from "./module/apps/lcp-manager/lcp-manager";
@@ -236,6 +237,7 @@ Hooks.once("init", () => {
     helpers: {
       gridDist,
       lookupOwnedDeployables,
+      richTextEdit,
     },
     flows,
     flowSteps,

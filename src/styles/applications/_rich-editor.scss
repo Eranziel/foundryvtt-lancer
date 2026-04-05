@@ -1,0 +1,15 @@
+@layer lancer.applications {
+  .lancer.dialog.rich-editor {
+    min-width: 450px;
+    min-height: 275px;
+    form {
+      flex: 1;
+      .dialog-content {
+        flex: 1;
+        prose-mirror {
+          flex: 1;
+        }
+      }
+    }
+  }
+}
