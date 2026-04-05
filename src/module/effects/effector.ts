@@ -158,7 +158,7 @@ export class EffectHelper {
       let pilot = this.actor.system.pilot?.value ?? null;
       // Find our controlled deployables
       let ownedDeployables = game.actors.filter(actor => {
-        const a = actor; // HACK: The `is_deployable()` type check only works when put in a constant for some reason.
+        const a = actor; // HACK: The type guards only work when put in a constant for some reason.
         return (
           a.is_deployable() &&
           !!actor.system.owner &&
@@ -171,7 +171,7 @@ export class EffectHelper {
     } else if (this.actor.is_npc()) {
       // Find our controlled deployables. Simpler here
       let ownedDeployables = game.actors.filter(actor => {
-        const a = actor; // HACK: The `is_deployable()` type check only works when put in a constant for some reason.
+        const a = actor; // HACK: The type guards only work when put in a constant for some reason.
         return a.is_deployable() && actor.system.owner?.value == this.actor;
       });
       for (let dep of ownedDeployables) {

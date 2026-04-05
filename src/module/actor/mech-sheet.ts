@@ -72,7 +72,7 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
     if (drop.type == "Item" && drop.document.is_frame()) {
       // Find and delete the old frame item, if it exists
       const oldFrame = this.actor.items.find(item => {
-        const i = item; // HACK: The `is_frame()` type check only works when put in a constant for some reason.
+        const i = item; // HACK: The type guards only work when put in a constant for some reason.
         return i.is_frame() && item.id != drop.document.id;
       });
       if (oldFrame) {
@@ -130,7 +130,7 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
     let overchargeText = html.find(".overcharge-text");
 
     overchargeText.on("click", ev => {
-      const actor = this.actor; // HACK: The `is_mech()` type check only works when put in a constant for some reason.
+      const actor = this.actor; // HACK: The type guards only work when put in a constant for some reason.
       if (!actor.is_mech()) return;
       this._setOverchargeLevel(ev, Math.min(this.actor.system.overcharge ?? 0 + 1, 3));
     });

@@ -61,11 +61,12 @@ export async function initCascadeData(state: FlowState<LancerFlowState.CascadeRo
   // Find all the AI systems, filter out exceptions, and store the IDs in state.data
   state.data.ai_systems.push(
     ...state.actor.items
-      .filter(i => {
+      .filter(item => {
+        const i = item; // HACK: The type guards only work when put in a constant for some reason.
         if (!i.is_mech_system() && !i.is_mech_weapon() && !i.is_weapon_mod()) return false;
-        if (!i.isAI()) return false;
+        if (!item.isAI()) return false;
         // Check for special exceptions - GMS comp/Con, UNCLE, some exotic gear
-        if (cascadeExceptions.includes(i.system.lid)) return false;
+        if (cascadeExceptions.includes(item.system.lid)) return false;
         return true;
       })
       .map(i => i.id!)

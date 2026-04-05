@@ -46,7 +46,7 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
   if (clearFirst) {
     await pilot.deleteEmbeddedDocuments("Item", Array.from(pilot.items.keys()));
     const existing_mechs = game.actors.filter(actor => {
-      const a = actor; // HACK: The `is_mech()` type check only works when put in a constant for some reason.
+      const a = actor; // HACK: The type guards only work when put in a constant for some reason.
       return a.is_mech() && actor.system.pilot?.value == pilot;
     });
     for (let m of existing_mechs) {
@@ -312,7 +312,7 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
     for (const cloudMech of data.mechs) {
       // Find the existing mech, or create one as necessary
       let mech = game.actors.find(actor => {
-        const a = actor; // HACK: The `is_mech()` type check only works when put in a constant for some reason.
+        const a = actor; // HACK: The type guards only work when put in a constant for some reason.
         return a.is_mech() && actor.system.lid == cloudMech.id;
       }) as LancerMECH | undefined;
       if (!mech) {

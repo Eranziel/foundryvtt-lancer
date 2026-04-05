@@ -592,7 +592,7 @@ export class LancerActor<SubType extends Actor.SubType = Actor.SubType> extends 
     let changing_active_mech = (changed as any).system?.active_mech !== undefined;
     if (changing_active_mech) {
       const owned_mechs = game.actors.filter(actor => {
-        const a = actor; // HACK: The `is_mech()` type check only works when put in a constant for some reason.
+        const a = actor; // HACK: The type guards only work when put in a constant for some reason.
         return a.is_mech() && actor.system.pilot?.value == this;
       });
       owned_mechs.forEach(m => m.render());
@@ -666,7 +666,7 @@ export class LancerActor<SubType extends Actor.SubType = Actor.SubType> extends 
     let itemDocs = documents.filter(d => d.documentName === "Item") as LancerItem[];
     if (this.is_npc() && itemDocs.some(d => d.is_npc_class())) {
       oldClass = this.items.find(item => {
-        const i = item; // HACK: The `is_npc_class()` type check only works when put in a constant for some reason.
+        const i = item; // HACK: The type guards only work when put in a constant for some reason.
         return i.is_npc_class() && !itemDocs.find(doc => item._id === doc._id);
       }) as LancerNPC_CLASS | undefined;
     }

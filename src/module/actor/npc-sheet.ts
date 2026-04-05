@@ -110,7 +110,7 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
   // Take ownership of appropriate items. Already filtered by can_drop_entry
   async onRootDrop(base_drop: ResolvedDropData, event: JQuery.DropEvent, _dest: JQuery<HTMLElement>): Promise<void> {
     // Type guard
-    const actor = this.actor; // HACK: The `is_npc()` type check only works when put in a constant for some reason.
+    const actor = this.actor; // HACK: The type guards only work when put in a constant for some reason.
     if (!actor.is_npc()) return;
 
     // Take posession
