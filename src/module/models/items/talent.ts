@@ -21,7 +21,7 @@ const defineTalentModelSchema = () => {
 
     ranks: new fields.ArrayField(
       new fields.SchemaField({
-        name: new fields.StringField(),
+        name: new fields.StringField({ required: true }),
         description: new fields.HTMLField(),
         exclusive: new fields.BooleanField({ initial: false }),
         actions: new fields.ArrayField(new ActionField()),
@@ -69,7 +69,7 @@ export function unpackTalent(
         deployables: r.deployables?.map(d => unpackDeployable(d, context)) ?? [],
         description: r.description,
         exclusive: r.exclusive,
-        integrated: r.integrated!,
+        integrated: r.integrated,
         name: r.name,
         synergies: r.synergies?.map(unpackSynergy) ?? [],
       })),
