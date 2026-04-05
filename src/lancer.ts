@@ -28,10 +28,10 @@ import { WeaponRangeTemplate } from "./module/canvas/weapon-range-template";
 import { LancerFrameSheet } from "./module/item/frame-sheet";
 import { LancerItemSheet } from "./module/item/item-sheet";
 import { LancerLicenseSheet } from "./module/item/license-sheet";
+import { richTextEdit } from "./module/apps/text-editor";
 
 // Import helpers
 import { LCPManager, addLCPManagerButton } from "./module/apps/lcp-manager/lcp-manager";
-import { attachTagTooltips } from "./module/helpers/tags";
 import { preloadTemplates } from "./module/preload-templates";
 import { registerSettings } from "./module/settings";
 import { applyTheme } from "./module/themes";
@@ -236,6 +236,7 @@ Hooks.once("init", () => {
     helpers: {
       gridDist,
       lookupOwnedDeployables,
+      richTextEdit,
     },
     flows,
     flowSteps,
@@ -526,7 +527,6 @@ Hooks.on("renderChatMessageHTML", async (cm, el, data) => {
   // Reapply listeners.
   initializeCollapses(html);
   applyCollapseListeners(html);
-  attachTagTooltips(html);
 
   // Handle old macro buttons
   html.find(".chat-button").on("click", async ev => {

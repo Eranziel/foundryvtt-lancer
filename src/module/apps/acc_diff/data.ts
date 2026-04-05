@@ -156,7 +156,7 @@ export class AccDiffHudBase {
 // and that + io-ts I think has the variance wrong
 // so if you extend AccDiffBase it's trying to assign AccDiffBase to AccDiffTarget
 export class AccDiffHudTarget {
-  target: LancerToken;
+  token: LancerToken;
   accuracy: number;
   difficulty: number;
   cover: Cover;
@@ -196,7 +196,7 @@ export class AccDiffHudTarget {
       throw new Error("Token not found");
     }
 
-    this.target = target.object! as LancerToken;
+    this.token = target.object! as LancerToken;
     this.accuracy = obj.accuracy;
     this.difficulty = obj.difficulty;
     this.cover = obj.cover;
@@ -208,7 +208,7 @@ export class AccDiffHudTarget {
 
   get raw() {
     return {
-      target_id: this.target.id,
+      target_id: this.token.id,
       accuracy: this.accuracy,
       difficulty: this.difficulty,
       cover: this.cover,
@@ -255,7 +255,7 @@ export class AccDiffHudTarget {
   }
 
   get lockOnAvailable(): null | boolean {
-    return !!this.target.actor?.system.statuses.lockon;
+    return !!this.token.actor?.system.statuses.lockon;
   }
 
   get total() {
@@ -317,13 +317,13 @@ export class AccDiffHudData {
     }
   }
 
-  replaceTargets(ts: Token.Implementation[]): AccDiffHudData {
+  replaceTargets(newTargets: Token.Implementation[]): AccDiffHudData {
     let oldTargets: { [key: string]: AccDiffHudTarget } = {};
-    for (let data of this.targets) {
-      oldTargets[data.target.id] = data;
+    for (let target of this.targets) {
+      oldTargets[target.token.id] = target;
     }
 
-    this.targets = ts.map(t => {
+    this.targets = newTargets.map(t => {
       const oldTarget = oldTargets[t.id];
       const newTarget = AccDiffHudTarget.fromParams(t);
       if (oldTargets[t.id]) {

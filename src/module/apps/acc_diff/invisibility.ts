@@ -36,7 +36,7 @@ export default class Invisibility implements AccDiffHudCheckboxPluginData {
   // store a reference to the current token when rehydrated
   hydrate(_d: AccDiffHudData, t?: AccDiffHudTarget) {
     if (t) {
-      this.token = t.target;
+      this.token = t.token;
     }
   }
 

@@ -328,8 +328,8 @@
               {:else if targets.length == 1}
                 <div
                   transition:slide
-                  on:mouseenter={ev => targetHoverIn(ev, targets[0].target)}
-                  on:mouseleave={ev => targetHoverOut(ev, targets[0].target)}
+                  on:mouseenter={ev => targetHoverIn(ev, targets[0].token)}
+                  on:mouseleave={ev => targetHoverOut(ev, targets[0].token)}
                 >
                   <Cover bind:cover={targets[0].cover} class="accdiff-base-cover flexcol" disabled={weapon.seeking} />
                 </div>
@@ -372,7 +372,7 @@
               >
                 🞂 <span>Total
                   {#if targets.length > 0}
-                    vs {targets[0].target.name}
+                    vs {targets[0].token.name}
                   {/if}</span> 🞀
               </label>
             </div>
@@ -386,24 +386,24 @@
           {:else if targets.length == 1}
             <div
               class="flexrow flex-center accdiff-total"
-              on:mouseenter={ev => targetHoverIn(ev, targets[0].target)}
-              on:mouseleave={ev => targetHoverOut(ev, targets[0].target)}
+              on:mouseenter={ev => targetHoverIn(ev, targets[0].token)}
+              on:mouseleave={ev => targetHoverOut(ev, targets[0].token)}
             >
               <Total bind:target={targets[0]} id="total-display-0" onlyTarget={true} />
             </div>
           {:else}
             <div class="accdiff-weight accdiff-target-row">
-              {#each targets as data, i (data.target.id)}
+              {#each targets as data, i (data.token.id)}
                 <div
                   in:slide|global={{ delay: 100, duration: 300 }}
                   out:slide|global={{ duration: 100 }}
                   animate:flip={{ duration: 200 }}
                   class="flexcol card accdiff-target"
-                  on:mouseenter={ev => targetHoverIn(ev, data.target)}
-                  on:mouseleave={ev => targetHoverOut(ev, data.target)}
+                  on:mouseenter={ev => targetHoverIn(ev, data.token)}
+                  on:mouseleave={ev => targetHoverOut(ev, data.token)}
                 >
-                  <label class="target-name flexrow lancer-mini-header" for={data.target.id}>
-                    🞂<span>{data.target.document.name}</span>🞀
+                  <label class="target-name flexrow lancer-mini-header" for={data.token.id}>
+                    🞂<span>{data.token.document.name}</span>🞀
                   </label>
                   <div class="accdiff-target-body">
                     <div class="flexrow accdiff-total">

@@ -1,18 +1,8 @@
 import type { HelperOptions } from "handlebars";
 import { Tag } from "../models/bits/tag";
 import { inc_if, resolveHelperDotpath } from "./commons";
-import tippy from "tippy.js";
 import { TagEditForm } from "../apps/tag-editor";
 import { LancerItem } from "../item/lancer-item";
-
-export function attachTagTooltips(html: JQuery) {
-  html.find(".compact-tag").each((_, el) => {
-    tippy(el, {
-      placement: "top",
-      theme: "lancer-large",
-    });
-  });
-}
 
 export function handleTagEditButtons(html: JQuery, doc: LancerItem) {
   const elements = html.find(".tag-edit-button");
@@ -44,7 +34,7 @@ function tagView(tagPath: string, tag: Tag, compact: boolean = true, editable: b
   return `<div
     class="${editable ? "editable-tag-instance" : ""} ${compact ? "compact-tag flexrow" : "large-tag"}"
     ${editable ? `data-path="${tagPath}"` : ""}
-    ${compact ? `data-tippy-content="${interpolatedDescription}"` : ""}
+    ${compact ? `data-tooltip="${interpolatedDescription}"` : ""}
   >
     ${
       compact

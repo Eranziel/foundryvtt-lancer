@@ -67,8 +67,8 @@
   >
     <img
       class:accdiff-target-prone={target.prone}
-      alt={target.target.name ?? undefined}
-      src={target.target.actor?.img}
+      alt={target.token.name ?? undefined}
+      src={target.token.actor?.img}
       bind:this={imgElement}
     />
     {#if target.stunned}

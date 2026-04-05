@@ -234,6 +234,12 @@
     }
   }
 
+  // Override base Foundry tooltip styling
+  #tooltip.active {
+    border: 1px solid var(--primary-color);
+    font-family: var(--main-font-family);
+  }
+
   // TIPPY
   // TODO: Migrate from Tippy to Foundry's context menus and tooltips. Adjust styling if needed.
   .tippy-box[data-theme~="lancer-small"] {
