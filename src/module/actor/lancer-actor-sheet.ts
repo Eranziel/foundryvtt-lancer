@@ -37,7 +37,7 @@ const lp = LANCER.log_prefix;
 /**
  * Extend the basic ActorSheet
  */
-export class LancerActorSheet<T extends LancerActorType> extends ActorSheet<ActorSheet.Options> {
+export class LancerActorSheet<T extends LancerActorType> extends foundry.appv1.sheets.ActorSheet<ActorSheet.Options> {
   // Tracks collapse state between renders
   protected collapse_handler = new CollapseHandler();
 

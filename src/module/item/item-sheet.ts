@@ -28,7 +28,7 @@ const lp = LANCER.log_prefix;
  * Extend the basic ItemSheet with some very simple modifications
  * @extends {ItemSheet}
  */
-export class LancerItemSheet<T extends LancerItemType> extends ItemSheet<ItemSheet.Options> {
+export class LancerItemSheet<T extends LancerItemType> extends foundry.appv1.sheets.ItemSheet<ItemSheet.Options> {
   constructor(document: LancerItem, options: Partial<ItemSheet.Options>) {
     super(document, options);
     if (this.item.is_mech_weapon()) {
