@@ -611,7 +611,7 @@ export async function getCritRoll(normal: Roll) {
     } else if (t instanceof foundry.dice.terms.OperatorTerm) {
       // As of v12, Roll.fromTerms throws an error if some terms are not evaluated already.
       // It's safe to mark OperatorTerms as evaluated, as they don't have any results.
-      t._evaluated = true;
+      t["_evaluated"] = true;
       return t;
     } else {
       return t;
@@ -662,7 +662,7 @@ export async function rollDamageCallback(event: JQuery.ClickEvent) {
   const hit_results: LancerFlowState.HitResult[] = [];
   for (const t of attackData.targets) {
     const target = (await fromUuid(t.uuid)) as LancerToken | null;
-    if (!target || target.documentName !== "Token") {
+    if (!(target instanceof LancerToken)) {
       ui.notifications?.error("Invalid target for damage roll");
       continue;
     }
