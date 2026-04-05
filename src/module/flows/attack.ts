@@ -263,7 +263,7 @@ export async function initAttackData(
       }
       let tier_index = (state.item.system.tier_override || state.actor.system.tier) - 1;
 
-      let asWeapon = state.item.system as SystemTemplates.NPC.WeaponData;
+      let asWeapon = state.item.system;
       state.data.attack_type = asWeapon.weapon_type === WeaponType.Melee ? AttackType.Melee : AttackType.Ranged;
       state.data.grit = asWeapon.attack_bonus[tier_index] ?? 0;
       state.data.acc_diff = options?.acc_diff
@@ -377,7 +377,7 @@ export async function setAttackEffects(
     state.data.effect = state.data.action?.detail ?? state.item.system.core_system.active_effect;
     return true;
   } else if (state.item.is_npc_feature()) {
-    let asWeapon = state.item.system as SystemTemplates.NPC.WeaponData;
+    let asWeapon = state.item.system;
     state.data.effect = asWeapon.effect;
     state.data.on_hit = asWeapon.on_hit;
     return true;
