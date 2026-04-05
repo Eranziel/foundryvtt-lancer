@@ -254,9 +254,12 @@ export class LancerActiveEffect<
       const existingStatus = CONFIG.statusEffects.find(s => s.id === status.system.lid);
       if (!existingStatus) {
         const effects = [...status.effects];
-        const changes = effects.reduce((all, e) => {
-          return all.concat(e.changes || []);
-        }, []);
+        const changes = effects.reduce(
+          (all, e) => {
+            return all.concat(e.changes || []);
+          },
+          [] as ActiveEffect.Implementation["changes"]
+        );
         CONFIG.statusEffects.push({
           id: status.system.lid,
           name: status.name,
@@ -273,7 +276,7 @@ export class LancerActiveEffect<
         }
         // If overwrite is on, replace the effect's changes with those from the item.
         if (overwrite && [...status.effects].length > 0) {
-          const changes = existingStatus.changes || [];
+          const changes: ActiveEffect.Implementation["changes"] = Object.values(existingStatus.changes ?? []);
           status.effects.forEach(e => {
             if (e.changes && e.changes.length > 0) {
               changes.push(...e.changes);
@@ -284,9 +287,12 @@ export class LancerActiveEffect<
         // If not overwriting, insert the changes if the existing status doesn't have any changes.
         else if (!existingStatus.changes && status.effects.size) {
           const effects = [...status.effects];
-          const changes = effects.reduce((all, e) => {
-            return all.concat(e.changes || []);
-          }, []);
+          const changes = effects.reduce(
+            (all, e) => {
+              return all.concat(e.changes || []);
+            },
+            [] as ActiveEffect.Implementation["changes"]
+          );
           existingStatus.changes = changes;
         }
       }
@@ -347,5 +353,16 @@ declare module "fvtt-types/configuration" {
         status_type?: "status" | "effect" | "condition";
       };
     };
+  }
+
+  namespace CONFIG {
+    interface SpecialStatusEffects {
+      DEFEATED: string;
+      INVISIBLE: string | null;
+      BLIND: string | null;
+      BURROW: string;
+      HOVER: string;
+      FLY: string;
+    }
   }
 }
