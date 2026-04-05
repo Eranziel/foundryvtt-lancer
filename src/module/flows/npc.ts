@@ -55,7 +55,8 @@ async function findRechargeableSystems(state: FlowState<LancerFlowState.Recharge
   // Skip this step if recharging_uuids was provided already, since this is a reroll etc...
   if (state.data.recharging_uuids.length >= 1) return true;
   for (let item of actor.items) {
-    if (!item.is_npc_feature()) continue;
+    const i = item; // HACK: The type guards only work when put in a constant for some reason.
+    if (!i.is_npc_feature()) continue;
     if (item.system.charged) continue;
     if (item.isRecharge()) state.data.recharging_uuids.push(item.uuid);
   }
