@@ -1,6 +1,6 @@
 // TODO: This needs a complete once-over as a lot of the stuff in here appears broken
 import { nanoid } from "nanoid";
-import type { LancerActor } from "../actor/lancer-actor";
+import type { LancerActor, LancerNPC } from "../actor/lancer-actor";
 import type {
   PackedMechData,
   PackedMechLoadoutData,
@@ -30,7 +30,7 @@ export function handleActorExport(actor: LancerActor, download = true) {
       // dump = handlePilotExport(actor);
       break;
     case "npc":
-      dump = handleNPCExport(actor);
+      dump = handleNPCExport(actor as LancerNPC);
       break;
   }
 
@@ -53,7 +53,7 @@ export function handleActorExport(actor: LancerActor, download = true) {
 
 export function addExportButton(actor: LancerActor, html: JQuery) {
   const id = actor._id;
-  if (!document.getElementById(id) && validForExport(actor)) {
+  if (id && !document.getElementById(id) && validForExport(actor)) {
     // if (!document.getElementById(id)) {
 
     // Don't create a second link on re-renders;
@@ -93,23 +93,43 @@ type FakePackedMount = {
   bonus_effects: string[];
 };
 
-//
+interface FakePackedNPCStats {
+  activations: number;
+  armor: number;
+  structure: number;
+  stress: number;
+  hp: number;
+  evade: number;
+  edef: number;
+  heatcap: number;
+  speed: number;
+  sensor: number;
+  save: number;
+  hull: number;
+  agility: number;
+  systems: number;
+  engineering: number;
+  sizes: number[];
+  size: number;
+  reactions: "Overwatch"[];
+}
+
 // NPC
 type FakePackedNPC = {
   id: string;
   class: string;
   tier: number;
   name: string;
-  labels: [];
+  labels: string[];
   templates: string[];
   items: { itemID: string; tier: number; destroyed: false; charged: boolean; uses: number }[];
-  stats: object;
-  currentStats: object;
-  note: "";
+  stats: FakePackedNPCStats;
+  currentStats: FakePackedNPCStats;
+  note: string;
   side: "Enemy";
-  statuses: [];
-  conditions: [];
-  resistances: [];
+  statuses: unknown[];
+  conditions: unknown[];
+  resistances: unknown[];
   burn: number;
   overshield: number;
   destroyed: false;
@@ -118,63 +138,58 @@ type FakePackedNPC = {
 
 //
 // HANDLERS
-function handleNPCExport(actor: LancerActor) {
-  const data = actor;
-  console.log(`Exporting NPC: ${data.name}`);
+function handleNPCExport(actor: LancerNPC): FakePackedNPC {
+  console.log(`Exporting NPC: ${actor.name}`);
 
-  const items = data.items;
-  const mech = data.mech;
-  const cla = items.find(item => item.type === "npc_class");
-  const stats: object = {
-    activations: (data as any).activations,
-    armor: mech.armor,
-    structure: mech.structure.max,
-    stress: mech.stress.max,
-    hp: mech.hp.max,
-    evade: mech.evasion,
-    edef: mech.edef,
-    heatcap: mech.heat.max,
-    speed: mech.speed,
-    sensor: mech.sensors,
-    save: mech.save,
-    hull: mech.hull,
-    agility: mech.agility,
-    systems: mech.systems,
-    engineering: mech.engineering,
-    sizes: [mech.size],
-    size: mech.size,
+  const cla = actor.items.find(item => item.type === "npc_class");
+  const stats: FakePackedNPCStats = {
+    activations: actor.system.activations,
+    armor: actor.system.armor,
+    structure: actor.system.structure.max,
+    stress: actor.system.stress.max,
+    hp: actor.system.hp.max,
+    evade: actor.system.evasion,
+    edef: actor.system.edef,
+    heatcap: actor.system.heat.max,
+    speed: actor.system.speed,
+    sensor: actor.system.sensor_range,
+    save: actor.system.save,
+    hull: actor.system.hull,
+    agility: actor.system.agi,
+    systems: actor.system.sys,
+    engineering: actor.system.eng,
+    sizes: [actor.system.size],
+    size: actor.system.size,
     reactions: ["Overwatch"],
   };
 
-  const exportNPC: FakePackedNPC = {
+  const exportNPC = {
     id: nanoid(),
     class: cla?.id ?? "",
-    tier: data.tier_num,
-    name: data.name,
+    tier: actor.system.tier,
+    name: actor.name,
     labels: [],
-    templates: items.filter((item: any) => item.type === "npc_template").map((item: any) => item.id),
-    items: items
-      .filter((item: any) => item.type === "npc_feature")
-      .map((item: any) => {
-        return {
-          itemID: item.id,
-          tier: data.tier_num,
-          destroyed: false,
-          charged: item.charged,
-          uses: item.uses,
-        };
-      }),
+    templates: actor.items.filter(item => item.type === "npc_template").map(item => item.id),
+    items: actor.items
+      .filter(item => item.type === "npc_feature")
+      .map(item => ({
+        itemID: item.id,
+        tier: actor.system.tier,
+        destroyed: false as const,
+        charged: item.system.charged,
+        uses: item.system.uses.max,
+      })),
     stats: stats,
     currentStats: { ...stats },
     note: "",
-    side: "Enemy",
+    side: "Enemy" as const,
     statuses: [],
     conditions: [],
     resistances: [],
     burn: 0,
     overshield: 0,
-    destroyed: false,
-    actions: (data as any).activations,
+    destroyed: false as const,
+    actions: actor.system.activations,
   };
 
   console.debug(exportNPC);
