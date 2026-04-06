@@ -33,14 +33,14 @@ export async function attach() {
     hud = mount(HUDZone, {
       target: document.body,
       events,
-      props: { faded: false, components: [] },
+      props: { faded: false },
     });
   }
   return hud;
 }
 
 export async function openSlidingHud<T extends keyof HUDData>(key: T, data: HUDData[T]): Promise<HUDData[T]> {
-  let hud = await attach();
+  hud = await attach();
 
   // open the hud, cancelling existing listeners
   hud.open(key, data);

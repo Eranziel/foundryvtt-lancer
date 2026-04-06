@@ -11,14 +11,12 @@
   import AccDiffHud from "../acc_diff/AccDiffHUD.svelte";
   import DamageHud from "../damage/DamageHUD.svelte";
   import StructStressHud from "../struct_stress/StructStressHUD.svelte";
+  import { AccDiffHudData } from "../acc_diff";
 
-  // let {open, close, refresh, data, isOpen, faded, fade, components}: {
   let {
     faded,
-    components,
   }: {
     faded: boolean;
-    components: { [key: string]: SvelteComponent };
   } = $props();
 
   let dispatch = createEventDispatcher();
@@ -43,19 +41,6 @@
     damage: { open: null },
     struct: { open: null },
     stress: { open: null },
-  });
-
-  const attackData = $derived(huds.attack.data);
-  const damageData = $derived(huds.damage.data);
-
-  userTargets.subscribe(newTargets => {
-    if (attackData) {
-      attackData.replaceTargets(newTargets);
-    }
-    console.log(attackData);
-    if (damageData) {
-      damageData.replaceTargets(newTargets);
-    }
   });
 
   export function open(key: string, data: any) {
@@ -113,7 +98,8 @@
     <div class="component grid-enforcement" animate:flip transition:slide|global>
       <Dialog
         kind={key}
-        {...huds[key].data}
+        // {...huds[key].data}
+        initialData={huds[key].data}
         on:submit={() => forward(key, "submit", huds[key].data)}
         on:cancel={() => forward(key, "cancel")}
       />

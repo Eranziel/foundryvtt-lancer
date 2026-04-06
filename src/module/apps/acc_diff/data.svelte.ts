@@ -4,7 +4,6 @@ import { LancerItem } from "../../item/lancer-item";
 
 import Invisibility from "./invisibility";
 import Spotter from "./spotter";
-import { LancerToken } from "../../token";
 import { Tag } from "../../models/bits/tag";
 
 export enum Cover {
@@ -128,14 +127,14 @@ export class AccDiffHudBase {
 }
 
 export interface AccDiffHudTargetParams extends AccDiffHudBaseParams {
-  target_id: string;
+  targetId: string;
   consumeLockOn: boolean;
   prone: boolean;
   stunned: boolean;
 }
 
 export class AccDiffHudTarget extends AccDiffHudBase {
-  token: LancerToken;
+  tokenId: string;
   consumeLockOn: boolean;
   prone: boolean;
   stunned: boolean;
@@ -146,13 +145,12 @@ export class AccDiffHudTarget extends AccDiffHudBase {
 
   constructor(obj: AccDiffHudTargetParams) {
     super(obj);
-    let target = canvas!.scene!.tokens.get(obj.target_id);
-    if (!target) {
+    if (obj.targetId && !canvas!.scene!.tokens.get(obj.targetId)) {
       ui.notifications!.error("Trying to access tokens from a different scene!");
       throw new Error("Token not found");
     }
 
-    this.token = target.object! as LancerToken;
+    this.tokenId = obj.targetId;
     this.consumeLockOn = obj.consumeLockOn;
     this.prone = obj.prone;
     this.stunned = obj.stunned;
@@ -162,7 +160,7 @@ export class AccDiffHudTarget extends AccDiffHudBase {
     const base = super.raw;
     return {
       ...base,
-      target_id: this.token.id,
+      targetId: this.tokenId,
       consumeLockOn: this.consumeLockOn,
       prone: this.prone,
       stunned: this.stunned,
@@ -177,8 +175,8 @@ export class AccDiffHudTarget extends AccDiffHudBase {
     } else if (t.actor?.statuses.has("cover_soft")) {
       cover = Cover.Soft;
     }
-    let ret = {
-      target_id: t.id,
+    let ret: AccDiffHudTargetParams = {
+      targetId: t.id,
       // TODO: grit and flatBonus should get provided by base
       grit: 0,
       flatBonus: 0,
@@ -188,7 +186,7 @@ export class AccDiffHudTarget extends AccDiffHudBase {
       consumeLockOn: true,
       prone: t.actor?.system.statuses.prone || false,
       stunned: t.actor?.system.statuses.stunned || false,
-      plugins: {} as { [k: string]: any },
+      plugins: {},
     };
     for (let plugin of AccDiffHudData.targetedPlugins) {
       ret.plugins[plugin.slug] = plugin.perTarget!(t);
@@ -209,7 +207,8 @@ export class AccDiffHudTarget extends AccDiffHudBase {
   }
 
   get lockOnAvailable(): null | boolean {
-    return !!this.token.actor?.system.statuses.lockon;
+    const token = canvas!.scene!.tokens.get(this.tokenId);
+    return !!token?.actor?.system.statuses.lockon;
   }
 
   get total() {
@@ -243,7 +242,7 @@ export class AccDiffHudData {
     this.title = obj.title;
     this.weapon = new AccDiffHudWeapon(obj.weapon);
     this.base = new AccDiffHudBase(obj.base);
-    this.targets = obj.targets.map(t => new AccDiffHudTarget(t));
+    this.targets = $state(obj.targets.map(t => new AccDiffHudTarget(t)));
     this.hydrate(obj.runtimeData ? fromUuidSync(obj.runtimeData) : null);
   }
 
@@ -262,32 +261,26 @@ export class AccDiffHudData {
     }
   }
 
-  replaceTargets(newTargets: Token.Implementation[]): AccDiffHudData {
+  replaceTargets(newTargets: string[]): AccDiffHudData {
     console.log("replaceTargets", newTargets);
-    let oldTargets: { [key: string]: AccDiffHudTarget } = {};
+    const oldTargets: { [key: string]: AccDiffHudTarget } = {};
     for (let target of this.targets) {
-      oldTargets[target.token.id] = target;
+      oldTargets[target.tokenId] = target;
     }
 
     // Delete targets which have been untargeted
     for (let i = this.targets.length - 1; i >= 0; i--) {
       if (i < 0) break;
       const target = this.targets[i];
-      if (!newTargets.some(t => t.id === target.token.id)) {
+      if (!newTargets.some(t => t === target.tokenId)) {
         this.targets.splice(i, 1);
       }
     }
     // Either update-in-place or push new targets into the array
     for (const target of newTargets) {
-      const oldTarget = oldTargets[target.id];
-      const newTarget = AccDiffHudTarget.fromParams(target);
-      if (oldTarget) {
-        newTarget.accuracy = oldTarget.accuracy;
-        newTarget.difficulty = oldTarget.difficulty;
-        newTarget.consumeLockOn = oldTarget.consumeLockOn;
-        newTarget.plugins = oldTarget.plugins;
-      } else {
-        this.targets.push(newTarget);
+      const token = canvas.scene?.tokens.get(target)?.object;
+      if (token && !this.targets.find(t => t.tokenId === target)) {
+        this.targets.push(AccDiffHudTarget.fromParams(token));
       }
     }
 
@@ -390,7 +383,7 @@ export class AccDiffHudData {
           cover = Cover.Soft;
         }
         let ret: AccDiffHudTargetParams = {
-          target_id: t.id,
+          targetId: t.id,
           grit: base.grit,
           flatBonus: base.flatBonus,
           accuracy: 0,
