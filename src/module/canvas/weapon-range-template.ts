@@ -23,7 +23,7 @@ import type { RangeData } from "../models/bits/range";
  * });
  * ```
  */
-export class WeaponRangeTemplate extends MeasuredTemplate {
+export class WeaponRangeTemplate extends foundry.canvas.placeables.MeasuredTemplate {
   get range() {
     return this.document.getFlag(game.system.id, "range");
   }

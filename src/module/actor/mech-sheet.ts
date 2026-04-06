@@ -246,7 +246,7 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
       },
     });
 
-    new ContextMenu(html, ".mount-type-ctx-root", mount_options);
+    new foundry.applications.ux.ContextMenu.implementation(html, ".mount-type-ctx-root", mount_options);
   }
 
   // Save ourselves repeat work by handling most events clicks actual operations here

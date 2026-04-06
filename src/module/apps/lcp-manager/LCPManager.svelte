@@ -107,16 +107,14 @@
     if (!cp || !manifest) return;
 
     const notificationLabel = `Importing ${cp.manifest.name} v${cp.manifest.version}`;
-    // @ts-expect-error v13 types
-    const notification = ui.notifications!.info(notificationLabel, { progress: true }) as Notification;
     importing = true;
     barWidth = 0;
     importingLcp = cp;
-    updateProgressBar(notification, 0, 1);
+    updateProgressBar(0, 1);
     console.log(`${lp} Starting import of ${cp.manifest.name} v${cp.manifest.version}.`);
     console.log(`${lp} Parsed content pack:`, cp);
-    await importCP(cp, (x, y) => updateProgressBar(notification, x, y));
-    updateProgressBar(notification, 1, 1);
+    await importCP(cp, (x, y) => updateProgressBar(x, y));
+    updateProgressBar(1, 1);
     console.log(`${lp} Import of ${cp.manifest.name} v${cp.manifest.version} complete.`);
     importing = false;
     setTimeout(() => {
@@ -142,10 +140,8 @@
     importingMany = false;
   }
 
-  function updateProgressBar(notification: Notification, done: number, outOf: number) {
+  function updateProgressBar(done: number, outOf: number) {
     const percent = Math.min(done / outOf, 1);
-    // @ts-expect-error v13 types
-    notification.update({ pct: percent });
     barWidth = Math.floor(percent * 100);
   }
 

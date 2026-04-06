@@ -110,10 +110,8 @@
         on:change={filesSelected}
       />
 
-      <span class="file-custom"
-        ><div class="file-custom__button">Browse</div>
-        <span class="file-custom__filenames">{filenames || "Choose file..."}</span></span
-      >
+      <span class="file-custom"><div class="file-custom__button">Browse</div>
+        <span class="file-custom__filenames">{filenames || "Choose file..."}</span></span>
     </label>
     <button class="lancer-button deselect-file" {disabled} on:click={deselect}>
       <i class="fas fa-broom" /> Unselect File
@@ -133,6 +131,7 @@
       .deselect-file {
         margin: 0.25rem;
         flex: 1 1;
+        height: 2.5rem;
       }
       // Custom file input styling
       // Adapted from https://github.com/mdo/wtf-forms/, MIT License, Copyright (c) 2014 Mark Otto
@@ -145,18 +144,14 @@
         flex: 4 1;
         &:hover .file-custom {
           border-color: var(--lighten-5);
-          transition:
-            background-color 0.5s,
-            border-color 0.5s;
+          transition: background-color 0.5s, border-color 0.5s;
         }
         &:hover .file-custom__button {
           color: var(--light-text);
           background-color: var(--primary-color);
           filter: brightness(1.1);
           box-shadow: inset 0 0 10em var(--lighten-1);
-          transition:
-            background-color 0.5s,
-            border-color 0.5s;
+          transition: background-color 0.5s, border-color 0.5s;
         }
       }
       .file input {
