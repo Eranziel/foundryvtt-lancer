@@ -764,7 +764,7 @@ export function bonusAffectsWeapon(weapon: LancerMECH_WEAPON, bonus: BonusData):
   // Now start checking
   if (bonus.weapon_sizes?.[weapon.system.size] === false) return false;
   if (bonus.weapon_types?.[sel_prof.type] === false) return false;
-  if (!sel_prof.damage.some(d => d && bonus.damage_types?.[d.type] === true)) return false;
+  if (!sel_prof.damage.some(d => bonus.damage_types?.[d.type] === true)) return false;
   if (!sel_prof.range.some(d => bonus.range_types?.[d.type] === true)) return false;
 
   // Passed the test

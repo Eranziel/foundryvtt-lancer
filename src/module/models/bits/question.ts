@@ -1,10 +1,5 @@
 import fields = foundry.data.fields;
 
-export interface BondQuestionData {
-  question: string;
-  options: Array<string>;
-}
-
 const defineBondQuestionFieldSchema = () => {
   return {
     question: new fields.StringField({ nullable: false }),
@@ -14,10 +9,11 @@ const defineBondQuestionFieldSchema = () => {
 
 type BondQuestionFieldSchema = ReturnType<typeof defineBondQuestionFieldSchema>;
 
-export class BondQuestionField<Options extends fields.SchemaField<BondQuestionFieldSchema>> extends fields.SchemaField<
-  BondQuestionFieldSchema,
-  Options
-> {
+export type BondQuestionData = fields.SchemaField.InitializedData<BondQuestionFieldSchema>;
+
+export class BondQuestionField<
+  Options extends fields.SchemaField.Options<BondQuestionFieldSchema> = fields.SchemaField.DefaultOptions,
+> extends fields.SchemaField<BondQuestionFieldSchema, Options> {
   constructor(options?: Options) {
     super(defineBondQuestionFieldSchema(), options);
   }

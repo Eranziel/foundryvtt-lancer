@@ -15,9 +15,7 @@ const defineBondModelSchema = () => {
     major_ideals: new fields.ArrayField(new fields.StringField()),
     minor_ideals: new fields.ArrayField(new fields.StringField()),
     questions: new fields.ArrayField(new BondQuestionField()),
-    // FIXME: Passing an initial value to the PowerField constructor hints at a deeper bug. This should not be
-    // necessary.
-    powers: new fields.ArrayField(new PowerField({ initial: {} })),
+    powers: new fields.ArrayField(new PowerField()),
     ...template_universal_item(),
   };
 };

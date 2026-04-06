@@ -27,10 +27,9 @@ type PowerFieldSchema = ReturnType<typeof definePowerFieldSchema>;
 
 export type PowerData = fields.SchemaField.InitializedData<PowerFieldSchema>;
 
-export class PowerField<Options extends fields.SchemaField.Options<PowerFieldSchema>> extends fields.SchemaField<
-  PowerFieldSchema,
-  Options
-> {
+export class PowerField<
+  Options extends fields.SchemaField.Options<PowerFieldSchema> = fields.SchemaField.DefaultOptions,
+> extends fields.SchemaField<PowerFieldSchema, Options> {
   constructor(options?: Options) {
     super(definePowerFieldSchema(), options);
   }

@@ -36,10 +36,9 @@ type BonusFieldSchema = ReturnType<typeof defineBonusFieldSchema>;
 
 export type BonusData = fields.SchemaField.InitializedData<BonusFieldSchema>;
 
-export class BonusField<Options extends fields.SchemaField.Options<BonusFieldSchema>> extends fields.SchemaField<
-  BonusFieldSchema,
-  Options
-> {
+export class BonusField<
+  Options extends fields.SchemaField.Options<BonusFieldSchema> = fields.SchemaField.DefaultOptions,
+> extends fields.SchemaField<BonusFieldSchema, Options> {
   constructor(options?: Options) {
     super(defineBonusFieldSchema(), options);
   }

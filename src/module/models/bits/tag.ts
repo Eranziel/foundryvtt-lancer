@@ -196,7 +196,9 @@ const defineTagFieldSchema = () => {
 type TagFieldSchema = ReturnType<typeof defineTagFieldSchema>;
 
 // Tag fields populate fuller metadata from the settings (or something? It's tbd), in spite of the field itself just being an lid value pair
-export class TagField<Options extends fields.SchemaField.Options<TagFieldSchema>> extends fields.SchemaField<
+export class TagField<
+  Options extends fields.SchemaField.Options<TagFieldSchema> = fields.SchemaField.DefaultOptions,
+> extends fields.SchemaField<
   TagFieldSchema,
   Options,
   fields.SchemaField.Internal.AssignmentType<TagFieldSchema, SimpleMerge<Options, fields.SchemaField.DefaultOptions>>,

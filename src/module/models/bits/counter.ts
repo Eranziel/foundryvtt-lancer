@@ -19,10 +19,9 @@ const defineCounterFieldSchema = () => {
 type CounterFieldSchema = ReturnType<typeof defineCounterFieldSchema>;
 
 // A single <type, value> pairing for damage. mimics RegCounterData
-export class CounterField<Options extends fields.SchemaField.Options<CounterFieldSchema>> extends fields.SchemaField<
-  CounterFieldSchema,
-  Options
-> {
+export class CounterField<
+  Options extends fields.SchemaField.Options<CounterFieldSchema> = fields.SchemaField.DefaultOptions,
+> extends fields.SchemaField<CounterFieldSchema, Options> {
   constructor(options?: Options) {
     super(defineCounterFieldSchema(), options);
   }

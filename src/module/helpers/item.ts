@@ -484,7 +484,7 @@ export function pilotWeaponRefview(weapon_path: string, options: HelperOptions):
         </a>
         ${rangeArrayView(weapon.system.range, options)}
         <span class="vsep"></span>
-        ${damageArrayView(weapon.system.damage as Damage[], { ...options, rollable: true })}
+        ${damageArrayView(weapon.system.damage, { ...options, rollable: true })}
 
         ${inc_if(`<span class="vsep"></span><div class="uses-wrapper">`, loading || limited)}
         ${loading}
@@ -808,7 +808,7 @@ export function weaponModView(mod_path: string, weapon_path: string | null, opti
     added_damage = `
       <div class="effect-box">
         <div class="effect-title clipped-bot">ADDED DAMAGE</div>
-        ${damageArrayView(mod.system.added_damage as Damage[], options)}
+        ${damageArrayView(mod.system.added_damage, options)}
       </div>`;
   }
   let effect = mod.system.effect ? effectBox("Effect", mod.system.effect, { flow: true }) : "";

@@ -100,10 +100,9 @@ type ActionFieldSchema = ReturnType<typeof getActionFieldSchema>;
 export type ActionData = fields.SchemaField.InitializedData<ActionFieldSchema>;
 
 // Action field is frequent, but not exactly deserving of a custom class like damage or range. It still needs a custom field (frequency)
-export class ActionField<Options extends fields.SchemaField.Options<ActionFieldSchema>> extends fields.SchemaField<
-  ActionFieldSchema,
-  Options
-> {
+export class ActionField<
+  Options extends fields.SchemaField.Options<ActionFieldSchema> = fields.SchemaField.DefaultOptions,
+> extends fields.SchemaField<ActionFieldSchema, Options> {
   constructor(options?: Options) {
     super(getActionFieldSchema(), options);
   }

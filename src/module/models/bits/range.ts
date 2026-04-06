@@ -110,7 +110,9 @@ const defineRangeFieldSchema = () => {
 type RangeFieldSchema = ReturnType<typeof defineRangeFieldSchema>;
 
 // Maps RangeData to a Range class
-export class RangeField<Options extends fields.SchemaField.Options<RangeFieldSchema>> extends fields.SchemaField<
+export class RangeField<
+  Options extends fields.SchemaField.Options<RangeFieldSchema> = fields.SchemaField.DefaultOptions,
+> extends fields.SchemaField<
   RangeFieldSchema,
   Options,
   fields.SchemaField.Internal.AssignmentType<RangeFieldSchema, SimpleMerge<Options, fields.SchemaField.DefaultOptions>>,
