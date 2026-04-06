@@ -38,7 +38,7 @@ export function attackRolls(flat_bonus: number, acc_diff: AccDiffHudData): Lance
     targeted: acc_diff.targets.map(tad => {
       let perTarget = perRoll.concat(Object.values(tad.plugins));
       return {
-        target: tad.token,
+        targetUuid: tad.tokenUuid,
         roll: applyPluginsToRoll(rollStr(flat_bonus, tad.total), perTarget),
         usedLockOn: tad.usingLockOn,
       };
@@ -437,15 +437,17 @@ export async function rollAttacks(
   ) {
     let data = await Promise.all(
       state.data.attack_rolls.targeted.map(async targetingData => {
-        let target = targetingData.target;
-        let actor = target.actor as LancerActor;
-        // This is really async despit the warning
+        // @ts-expect-error Out of date typing
+        let target: Token.Implementation | null = fromUuidSync(targetingData.targetUuid, { strict: true })?.object;
+        let actor = target?.actor as LancerActor | undefined;
+        if (!actor || !target) throw new Error("Target could be not obtained from uuid " + targetingData.targetUuid);
+        // This is really async despite the warning
         let attack_roll = await new Roll(targetingData.roll).evaluate();
         attack_roll.dice.forEach(d => (d.options.rollOrder = 1));
         const attack_tt = await attack_roll.getTooltip();
 
         if (targetingData.usedLockOn && game.user!.isGM) {
-          targetingData.target.actor?.effectHelper.removeActiveEffect("lockon");
+          actor?.effectHelper.removeActiveEffect("lockon");
         }
 
         return {

@@ -41,7 +41,7 @@ export namespace LancerFlowState {
   export type AttackRolls = {
     roll: string;
     targeted: {
-      target: LancerToken;
+      targetUuid: string;
       roll: string;
       usedLockOn: boolean | null;
     }[];
