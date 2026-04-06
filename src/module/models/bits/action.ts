@@ -72,7 +72,7 @@ class FrequencyField<Options extends fields.StringField.Options = FrequencyField
 const getActionFieldSchema = () => {
   return {
     lid: new LIDField(),
-    name: new fields.StringField(),
+    name: new fields.StringField({ required: true }),
     activation: new fields.StringField({ choices: Object.values(ActivationType), initial: ActivationType.Quick }),
     cost: new fields.NumberField({ min: 0, integer: true, nullable: false }),
     frequency: new FrequencyField(),
