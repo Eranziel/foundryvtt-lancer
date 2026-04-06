@@ -337,7 +337,7 @@ export function pilotCounters(pilot: LancerPILOT, _options: HelperOptions): stri
   for (let i = 0; i < counter_arr.length; i++) {
     // Only allow deletion if the Pilot is the source
     const counter = counter_arr[i];
-    if (counter.max != null) {
+    if (counter && counter.max != null) {
       if (counter.max <= COUNTER_MAX) {
         counter_detail = counter_detail.concat(
           buildCounterHTML(counter, `system.custom_counters.${i}`, { canDelete: true })
