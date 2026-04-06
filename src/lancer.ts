@@ -59,7 +59,6 @@ import { gridDist } from "./module/helpers/automation/targeting";
 import { applyCollapseListeners, initializeCollapses } from "./module/helpers/collapse";
 import CompconLoginForm from "./module/helpers/compcon-login-form";
 import { applyGlobalDragListeners } from "./module/helpers/dragdrop";
-// import { handleActorExport, validForExport } from "./module/helpers/io";
 import { extendCombatTrackerConfig } from "./module/apps/lancer-initiative-config-form";
 import { handleRefClickOpen } from "./module/helpers/refs";
 import { DeployableModel } from "./module/models/actors/deployable";
@@ -475,40 +474,6 @@ Hooks.on("dropCanvasData", dropStatusToCanvas);
 
 // Create sidebar button to import LCP
 Hooks.on("renderCompendiumDirectory", addLCPManagerButton);
-
-// TODO: keep or remove?
-// This seems broken
-// Hooks.on("getActorDirectoryEntryContext", (_html: JQuery<HTMLElement>, ctxOptions: ContextMenuEntry[]) => {
-//   const editMigratePilot: ContextMenuEntry = {
-//     name: "Migrate Pilot",
-//     icon: '<i class="fas fa-user-circle"></i>',
-//     condition: (li: any) => {
-//       const actor = game.actors?.get(li.data("documentId"));
-//       return actor?.type === "pilot" && validForExport(actor);
-//     },
-//     callback: (li: any) => {
-//       const actor = game.actors?.get(li.data("documentId"));
-//       const dump = handleActorExport(actor, false);
-//       if (dump && actor?.is_pilot()) importCC(actor, dump as any, true);
-//     },
-//   };
-
-//   const editExportPilot: ContextMenuEntry = {
-//     name: "Export Pilot",
-//     icon: '<i class="fas fa-user-circle"></i>',
-//     condition: (li: any) => {
-//       const actor = game.actors?.get(li.data("documentId"));
-//       return actor?.type === "pilot" && validForExport(actor);
-//     },
-//     callback: (li: any) => {
-//       const actor = game.actors?.get(li.data("documentId"));
-//       handleActorExport(actor, true);
-//     },
-//   };
-
-//   ctxOptions.unshift(editMigratePilot);
-//   ctxOptions.unshift(editExportPilot);
-// });
 
 // For the settings tab
 Hooks.on("renderSettings", async (app, html) => {

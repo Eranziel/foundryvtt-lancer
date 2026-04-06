@@ -14,7 +14,6 @@ import {
   type ResolvedDropData,
   handleDocDropping,
 } from "../helpers/dragdrop";
-// import { addExportButton } from "../helpers/io";
 import {
   handleContextMenus,
   handleCounterInteraction,
@@ -112,9 +111,6 @@ export class LancerActorSheet<T extends LancerActorType> extends foundry.appv1.s
 
     // Enable popout editors
     handlePopoutTextEditor(html, this.actor);
-
-    // Add export button.
-    // addExportButton(this.object, html);
 
     // Add root dropping
     handleDocDropping(
