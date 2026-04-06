@@ -212,7 +212,7 @@ export class LancerItem<out SubType extends Item.SubType = Item.SubType> extends
       // Add mod bonuses to all profiles
       for (let profile of this.system.profiles) {
         if (this.system.mod) {
-          profile.bonus_damage.push(...this.system.mod.system.added_damage);
+          profile.bonus_damage.push(...this.system.mod.system.added_damage.map(dd => new Damage(dd)));
           profile.bonus_range.push(...this.system.mod.system.added_range);
           profile.bonus_tags.push(...this.system.mod.system.added_tags);
         }
@@ -252,7 +252,10 @@ export class LancerItem<out SubType extends Item.SubType = Item.SubType> extends
         profile.bonus_range = Range.CombineLists([], profile.bonus_range);
 
         // Finally, form combined damages/ranges/tags for the profile
-        profile.all_damage = Damage.CombineLists(profile.damage, profile.bonus_damage);
+        profile.all_damage = Damage.CombineLists(
+          profile.damage.map(dd => new Damage(dd)),
+          profile.bonus_damage
+        );
         profile.all_range = Range.CombineLists(profile.range, profile.bonus_range);
         profile.all_tags = Tag.MergeTags(profile.tags, profile.bonus_tags);
 
@@ -353,7 +356,7 @@ export class LancerItem<out SubType extends Item.SubType = Item.SubType> extends
         .filter(b => b)
     );
 
-    return effects.map(e => new LancerActiveEffect(e as object, { parent: this }));
+    return effects.map(e => new LancerActiveEffect(e as ActiveEffect.CreateData, { parent: this }));
   }
 
   /** @inheritdoc */
@@ -624,7 +627,7 @@ export class LancerItem<out SubType extends Item.SubType = Item.SubType> extends
   async beginActivationFlow(path?: string) {
     if (!path) {
       // If no path is provided, default to the first action
-      if (!this.system.actions || this.system.actions.length < 1) {
+      if (!("actions" in this.system) || !this.system.actions || this.system.actions.length < 1) {
         ui.notifications!.error(`Item ${this.id} has no actions, how did you even get here?`);
         return;
       }
