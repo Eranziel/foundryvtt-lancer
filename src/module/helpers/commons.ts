@@ -213,7 +213,11 @@ export class IconFactory {
 }
 
 // Common to many feature/weapon/system previews. Auto-omits on empty body
-export function effectBox(title: string, text: string, options?: { add_classes?: string; flow?: boolean }): string {
+export function effectBox(
+  title: string,
+  text: string | null | undefined,
+  options?: { add_classes?: string; flow?: boolean }
+): string {
   if (text) {
     const flowButton = options?.flow
       ? `<div class="action-flow-container flexrow">
