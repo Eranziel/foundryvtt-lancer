@@ -1,6 +1,6 @@
 import { CounterField } from "../bits/counter";
 import { FullBoundedNumberField, LIDField } from "../shared";
-const fields: any = foundry.data.fields;
+const fields = foundry.data.fields;
 
 /**
  * Tracks core statuses, and allows for active effects to easily and non-exclusively apply impaired.
