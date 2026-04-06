@@ -3,7 +3,6 @@ import { writable } from "svelte/store";
 export const userTargets = writable([] as string[]);
 
 function updateData() {
-  console.log("Updating targets");
   userTargets.set(Array.from(game!.user!.targets).map(t => t.id));
 }
 

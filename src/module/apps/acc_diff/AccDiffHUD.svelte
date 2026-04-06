@@ -1,8 +1,4 @@
-<svelte:options accessors={true} />
-
 <script lang="ts">
-  import { AccDiffHudWeapon, AccDiffHudBase, AccDiffHudTarget } from "./index";
-
   import { slide } from "svelte/transition";
   import { flip } from "svelte/animate";
   import { createEventDispatcher } from "svelte";
@@ -13,68 +9,101 @@
   import MiniProfile from "../components/MiniProfile.svelte";
   import { fade } from "../slidinghud";
 
-  import type { LancerItem, LancerMECH_WEAPON, LancerNPC_FEATURE, LancerPILOT_WEAPON } from "../../item/lancer-item";
   import { NpcFeatureType, RangeType } from "../../enums";
   import { WeaponRangeTemplate } from "../../canvas/weapon-range-template";
   import { targetsFromTemplate } from "../../flows/_template";
-  import type { LancerActor } from "../../actor/lancer-actor";
   import HudCheckbox from "../components/HudCheckbox.svelte";
   import { LancerToken } from "../../token";
   import AccDiffInput from "./AccDiffInput.svelte";
-  import type { SystemTemplates } from "../../system-template";
+  import { onMount } from "svelte";
+  import type { AccDiffHudData } from "./data.svelte";
+  import { userTargets } from "../slidinghud/user-targets";
 
-  export let weapon: AccDiffHudWeapon;
-  export let base: AccDiffHudBase;
-  export let targets: AccDiffHudTarget[];
-  export let title: string;
-  export let lancerItem: LancerItem | null;
-  export let lancerActor: LancerActor | null;
+  /* ===== PROPS ===== */
 
-  export let kind: "hase" | "attack";
+  let {
+    data,
+    kind,
+    // TODO: remove event dispatcher, use callback props instead
+    // cancel,
+    // submit,
+  }: {
+    data: AccDiffHudData;
+    title: string;
+    kind: "hase" | "attack";
+    // cancel: Function;
+    // submit: Function;
+  } = $props();
 
-  // tell svelte of externally computed dependency arrows
-  // @ts-expect-error i.e., base depends on weapon
-  $: base = (weapon, base);
-  // @ts-expect-error i.e., targets depend on weapon and base
-  $: targets = (weapon, base, targets);
-  $: profile = lancerItem ? findProfile() : null;
-  $: ranges = lancerItem ? findRanges() : null;
-  $: flatTotal = kind === "attack" ? base.grit + base.flatBonus : 0;
-
-  $: accWeaponPlugins = Object.values(weapon.plugins).filter(plugin => plugin.category === "acc");
-  $: diffWeaponPlugins = Object.values(weapon.plugins).filter(plugin => plugin.category === "diff");
-  $: accTargetPlugins =
-    targets.length === 1 ? Object.values(targets[0].plugins).filter(plugin => plugin.category === "acc") : [];
-  $: diffTargetPlugins =
-    targets.length === 1 ? Object.values(targets[0].plugins).filter(plugin => plugin.category === "diff") : [];
+  /* ===== STATE ===== */
 
   const dispatch = createEventDispatcher();
-  let submitted = false;
+  let submitted = $state(false);
 
-  let rollerName = lancerActor ? ` -- ${lancerActor.token?.name || lancerActor.name}` : "";
+  /* ===== DERIVED VALUES ===== */
 
-  // Initialize engaged
-  if (kind === "attack" && lancerItem && !isTech()) {
-    let ranges: RangeType[] = [];
-    if (
-      lancerItem.is_pilot_weapon() ||
-      (lancerItem.is_npc_feature() && lancerItem.system.type === NpcFeatureType.Weapon)
-    ) {
-      ranges = (lancerItem.system as SystemTemplates.NPC.WeaponData).range.map(r => r.type);
-    } else if (lancerItem.is_mech_weapon()) {
-      ranges = (lancerItem.system.active_profile?.range || []).map(r => r.type);
+  const title = $derived(data.title);
+  const lancerItem = $derived(data.lancerItem);
+  const lancerActor = $derived(data.lancerActor);
+  const base = $derived(data.base);
+  const weapon = $derived(data.weapon);
+  const targets = $derived(data.targets);
+
+  const rollerName = $derived(lancerActor ? ` -- ${lancerActor.token?.name || lancerActor.name}` : "");
+  const profile = $derived(lancerItem ? findProfile() : null);
+  const ranges = $derived(lancerItem ? findRanges() : null);
+  const flatTotal = $derived(kind === "attack" ? base.grit + base.flatBonus : 0);
+
+  const enrichedTargets = $derived(
+    targets.map(t => ({
+      ...t,
+      target: canvas.scene?.tokens.get(t.tokenId)?.object || null,
+    }))
+  );
+  const accWeaponPlugins = $derived(Object.values(weapon.plugins).filter(plugin => plugin.category === "acc"));
+  const diffWeaponPlugins = $derived(Object.values(weapon.plugins).filter(plugin => plugin.category === "diff"));
+  const accTargetPlugins = $derived(
+    targets.length === 1 ? Object.values(targets[0].plugins).filter(plugin => plugin.category === "acc") : []
+  );
+  const diffTargetPlugins = $derived(
+    targets.length === 1 ? Object.values(targets[0].plugins).filter(plugin => plugin.category === "diff") : []
+  );
+
+  userTargets.subscribe(newTargets => {
+    if (data) {
+      data.replaceTargets(newTargets);
     }
-    // If the weapon has any range type other than Threat or Thrown, it is affected by engaged.
-    if (ranges.some(r => ![RangeType.Threat, RangeType.Thrown].includes(r))) {
-      weapon.engaged = !!weapon.engagedStatus;
+  });
+
+  /* ===== FUNCTIONS ===== */
+
+  onMount(() => {
+    data.hydrate(data.lancerItem || data.lancerActor);
+
+    // Initialize engaged
+    if (kind === "attack" && lancerItem && !isTech()) {
+      let ranges: RangeType[] = [];
+      if (
+        lancerItem.is_pilot_weapon() ||
+        (lancerItem.is_npc_feature() && lancerItem.system.type === NpcFeatureType.Weapon)
+      ) {
+        ranges = lancerItem.system.range.map(r => r.type);
+      } else if (lancerItem.is_mech_weapon()) {
+        ranges = (lancerItem.system.active_profile?.range || []).map(r => r.type);
+      }
+      // If the weapon has any range type other than Threat or Thrown, it is affected by engaged.
+      if (ranges.some(r => ![RangeType.Threat, RangeType.Thrown].includes(r))) {
+        weapon.engaged = !!weapon.engagedStatus;
+      }
     }
-  }
+  });
 
   function focus(el: HTMLElement) {
     el.focus();
   }
 
-  function targetHoverIn(event: MouseEvent, target: LancerToken) {
+  function targetHoverIn(event: MouseEvent, target: LancerToken | null) {
+    if (!target) return;
     // Ignore target hovering after the form has been submitted, to avoid flickering when
     // the UI slides down.
     if (submitted) return;
@@ -87,7 +116,8 @@
     }
   }
 
-  function targetHoverOut(event: MouseEvent, target: LancerToken) {
+  function targetHoverOut(event: MouseEvent, target: LancerToken | null) {
+    if (!target) return;
     const thtModule = game.modules.get("terrain-height-tools");
     if (!thtModule?.active || foundry.utils.isNewerVersion("0.3.3", thtModule.version)) {
       // @ts-expect-error not supposed to use a private method
@@ -183,7 +213,7 @@
 
   function deployTemplate(range: WeaponRangeTemplate["range"]) {
     const creator = lancerItem?.parent;
-    const token = (creator?.token?.object ?? creator?.getActiveTokens().shift() ?? undefined) as Token | undefined;
+    const token = (creator?.token?.object ?? creator?.getActiveTokens().shift() ?? undefined) as LancerToken | undefined;
     const t = WeaponRangeTemplate.fromRange(range, token);
     if (!t) return;
     fade("out");
@@ -204,7 +234,8 @@
   id="accdiff"
   class="lancer lancer-hud accdiff window-content"
   use:escToCancel
-  on:submit|preventDefault={() => {
+  onsubmit={event => {
+    event.preventDefault();
     submitted = true;
     dispatch("submit");
   }}
@@ -213,12 +244,12 @@
     <div class="lancer-header {isTech() ? 'lancer-tech' : 'lancer-weapon'} medium">
       {#if kind == "attack"}
         {#if isTech()}
-          <i class="cci cci-tech-quick i--4 i--light" />
+          <i class="cci cci-tech-quick i--4 i--light"></i>
         {:else}
-          <i class="cci cci-weapon i--4 i--light" />
+          <i class="cci cci-weapon i--4 i--light"></i>
         {/if}
       {:else if kind == "hase"}
-        <i class="fas fa-dice-d20 i--4 i--light" />
+        <i class="fas fa-dice-d20 i--4 i--light"></i>
       {/if}
       <span>{title}{rollerName}</span>
     </div>
@@ -237,11 +268,21 @@
         <div class="accdiff-other-grid accdiff-flat-mod" style="position: relative">
           <!-- <PlusMinusInput bind:value={base.flatBonus} id="accdiff-flat-mod" /> -->
           <input class="accdiff-flat-mod__input" type="number" bind:value={base.flatBonus} />
-          <button class="accdiff-flat-mod__plus" type="button" on:click={() => (base.flatBonus = base.flatBonus + 1)}>
-            <i class="fas fa-plus" />
+          <button
+            class="accdiff-flat-mod__plus"
+            type="button"
+            aria-label="Increase flat bonus"
+            onclick={() => (base.flatBonus = base.flatBonus + 1)}
+          >
+            <i class="fas fa-plus"></i>
           </button>
-          <button class="accdiff-flat-mod__minus" type="button" on:click={() => (base.flatBonus = base.flatBonus - 1)}>
-            <i class="fas fa-minus" />
+          <button
+            class="accdiff-flat-mod__minus"
+            type="button"
+            aria-label="Decrease flat bonus"
+            onclick={() => (base.flatBonus = base.flatBonus - 1)}
+          >
+            <i class="fas fa-minus"></i>
           </button>
         </div>
         <div class="accdiff-other-grid">
@@ -254,13 +295,13 @@
       <!-- Column Headers -->
       <div class="accdiff-grid__column">
         <h4 class="lancer-border-primary">
-          <i class="cci cci-accuracy i--4" style="vertical-align: middle; border: none" />
+          <i class="cci cci-accuracy i--4" style="vertical-align: middle; border: none"></i>
           <span>Accuracy</span>
         </h4>
       </div>
       <div class="accdiff-grid__column">
         <h4 class="lancer-border-primary">
-          <i class="cci cci-difficulty i--4" style="vertical-align: middle; border: none" />
+          <i class="cci cci-difficulty i--4" style="vertical-align: middle; border: none"></i>
           <span>Difficulty</span>
         </h4>
       </div>
@@ -321,15 +362,25 @@
             <div class="grid-enforcement">
               {#if targets.length == 0}
                 <div transition:slide>
-                  <Cover bind:cover={base.cover} class="accdiff-base-cover flexcol" disabled={weapon.seeking} />
+                  <Cover
+                    bind:cover={base.cover}
+                    class="accdiff-base-cover flexcol"
+                    disabled={weapon.seeking}
+                  />
                 </div>
               {:else if targets.length == 1}
                 <div
+                  role="radiogroup"
+                  tabindex="0"
                   transition:slide
-                  on:mouseenter={ev => targetHoverIn(ev, targets[0].token)}
-                  on:mouseleave={ev => targetHoverOut(ev, targets[0].token)}
+                  onmouseenter={ev => targetHoverIn(ev, enrichedTargets[0].target)}
+                  onmouseleave={ev => targetHoverOut(ev, enrichedTargets[0].target)}
                 >
-                  <Cover bind:cover={targets[0].cover} class="accdiff-base-cover flexcol" disabled={weapon.seeking} />
+                  <Cover
+                    bind:cover={targets[0].cover}
+                    class="accdiff-base-cover flexcol"
+                    disabled={weapon.seeking}
+                  />
                 </div>
               {/if}
             </div>
@@ -348,8 +399,8 @@
           <span class="accdiff-weight flex-center flexrow">Targeting</span>
           <div class="accdiff-ranges flexrow">
             {#each ranges as range}
-              <button class="range-button" type="button" on:click={() => deployTemplate(range)}>
-                <i class="cci cci-{range.type.toLowerCase()} i--4 i--light" />
+              <button class="range-button" type="button" onclick={() => deployTemplate(range)}>
+                <i class="cci cci-{range.type.toLowerCase()} i--4 i--light"></i>
                 {ranges.length && ranges.length < 3 ? range.type.toUpperCase() : ""}
                 {range.val}
               </button>
@@ -369,8 +420,8 @@
                 for="total-display-0"
               >
                 🞂 <span>Total
-                  {#if targets.length > 0}
-                    vs {targets[0].token.name}
+                  {#if targets.length > 0 && enrichedTargets[0].target}
+                    vs {enrichedTargets[0].target.name}
                   {/if}</span> 🞀
               </label>
             </div>
@@ -383,37 +434,40 @@
             </div>
           {:else if targets.length == 1}
             <div
+              role="presentation"
               class="flexrow flex-center accdiff-total"
-              on:mouseenter={ev => targetHoverIn(ev, targets[0].token)}
-              on:mouseleave={ev => targetHoverOut(ev, targets[0].token)}
+              onmouseenter={ev => targetHoverIn(ev, enrichedTargets[0].target)}
+              onmouseleave={ev => targetHoverOut(ev, enrichedTargets[0].target)}
             >
               <Total bind:target={targets[0]} id="total-display-0" onlyTarget={true} />
             </div>
           {:else}
             <div class="accdiff-weight accdiff-target-row">
-              {#each targets as data, i (data.token.id)}
+              {#each targets as data, i (data.tokenId)}
                 <div
+                  role="presentation"
                   in:slide|global={{ delay: 100, duration: 300 }}
                   out:slide|global={{ duration: 100 }}
                   animate:flip={{ duration: 200 }}
                   class="flexcol card accdiff-target"
-                  on:mouseenter={ev => targetHoverIn(ev, data.token)}
-                  on:mouseleave={ev => targetHoverOut(ev, data.token)}
+                  onmouseenter={ev => targetHoverIn(ev, enrichedTargets[i].target)}
+                  onmouseleave={ev => targetHoverOut(ev, enrichedTargets[i].target)}
                 >
-                  <label class="target-name flexrow lancer-mini-header" for={data.token.id}>
-                    🞂<span>{data.token.document.name}</span>🞀
+                  <label class="target-name flexrow lancer-mini-header" for={data.tokenId}>
+                    🞂<span>{enrichedTargets[i].target?.document.name}</span>🞀
                   </label>
                   <div class="accdiff-target-body">
                     <div class="flexrow accdiff-total">
-                      <Total bind:target={data} id={`total-display-${i}`} />
+                      <Total bind:target={targets[i]} id={`total-display-${i}`} />
                     </div>
                     <div class="flexrow">
                       <button
+                        aria-label="Increase accuracy"
                         class="i--4 no-grow accdiff-button"
                         type="button"
-                        on:click={() => (data.accuracy = data.accuracy + 1)}
+                        onclick={() => (data.accuracy = data.accuracy + 1)}
                       >
-                        <i class="cci cci-accuracy i--4" style="border: none" />
+                        <i class="cci cci-accuracy i--4" style="border: none"></i>
                       </button>
                       <input style="display: none" type="number" bind:value={data.accuracy} min="0" />
                       {#if !isTech()}
@@ -424,15 +478,16 @@
                           labelClass="i--2"
                         />
                       {:else}
-                        <div />
+                        <div></div>
                       {/if}
                       <input style="display: none" type="number" bind:value={data.difficulty} min="0" />
                       <button
+                        aria-label="Increase difficulty"
                         class="i--4 no-grow accdiff-button"
                         type="button"
-                        on:click={() => (data.difficulty = data.difficulty + 1)}
+                        onclick={() => (data.difficulty = data.difficulty + 1)}
                       >
-                        <i class="cci cci-difficulty i--4" style="border: none" />
+                        <i class="cci cci-difficulty i--4" style="border: none"></i>
                       </button>
                     </div>
                   </div>
@@ -451,19 +506,19 @@
       type="submit"
       use:focus
     >
-      <i class="fas fa-check" />
+      <i class="fas fa-check"></i>
       Roll
     </button>
     <button
       class="dialog-button cancel"
       data-button="cancel"
       type="button"
-      on:click={() => {
+      onclick={() => {
         submitted = true;
         dispatch("cancel");
       }}
     >
-      <i class="fas fa-times" />
+      <i class="fas fa-times"></i>
       Cancel
     </button>
   </div>

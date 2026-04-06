@@ -31,11 +31,11 @@ export class AccDiffHudWeapon {
   static plugins: { [k: string]: AccDiffHudPlugin<any> } = {};
 
   constructor(obj: AccDiffHudWeaponParams) {
-    this.accurate = obj.accurate;
-    this.inaccurate = obj.inaccurate;
-    this.seeking = obj.seeking;
-    this.engaged = obj.engaged;
-    this.plugins = obj.plugins;
+    this.accurate = $state(obj.accurate);
+    this.inaccurate = $state(obj.inaccurate);
+    this.seeking = $state(obj.seeking);
+    this.engaged = $state(obj.engaged);
+    this.plugins = $state(obj.plugins);
   }
 
   get raw() {
@@ -95,12 +95,12 @@ export class AccDiffHudBase {
   static plugins: { [k: string]: AccDiffHudPlugin<any> } = {};
 
   constructor(obj: AccDiffHudBaseParams) {
-    this.grit = obj.grit;
-    this.flatBonus = obj.flatBonus;
-    this.accuracy = obj.accuracy;
-    this.difficulty = obj.difficulty;
-    this.cover = obj.cover;
-    this.plugins = obj.plugins;
+    this.grit = $state(obj.grit);
+    this.flatBonus = $state(obj.flatBonus);
+    this.accuracy = $state(obj.accuracy);
+    this.difficulty = $state(obj.difficulty);
+    this.cover = $state(obj.cover);
+    this.plugins = $state(obj.plugins);
   }
 
   get raw() {
@@ -150,13 +150,13 @@ export class AccDiffHudTarget extends AccDiffHudBase {
       throw new Error("Token not found");
     }
 
-    this.tokenId = obj.targetId;
-    this.consumeLockOn = obj.consumeLockOn;
-    this.prone = obj.prone;
-    this.stunned = obj.stunned;
+    this.tokenId = $state(obj.targetId);
+    this.consumeLockOn = $state(obj.consumeLockOn);
+    this.prone = $state(obj.prone);
+    this.stunned = $state(obj.stunned);
   }
 
-  get raw() {
+  get raw(): AccDiffHudTargetParams {
     const base = super.raw;
     return {
       ...base,
@@ -239,9 +239,9 @@ export class AccDiffHudData {
   lancerActor?: LancerActor; // not persisted, needs to be hydrated
 
   constructor(obj: AccDiffHudDataParams) {
-    this.title = obj.title;
-    this.weapon = new AccDiffHudWeapon(obj.weapon);
-    this.base = new AccDiffHudBase(obj.base);
+    this.title = $state(obj.title);
+    this.weapon = $state(new AccDiffHudWeapon(obj.weapon));
+    this.base = $state(new AccDiffHudBase(obj.base));
     this.targets = $state(obj.targets.map(t => new AccDiffHudTarget(t)));
     this.hydrate(obj.runtimeData ? fromUuidSync(obj.runtimeData) : null);
   }
@@ -262,7 +262,6 @@ export class AccDiffHudData {
   }
 
   replaceTargets(newTargets: string[]): AccDiffHudData {
-    console.log("replaceTargets", newTargets);
     const oldTargets: { [key: string]: AccDiffHudTarget } = {};
     for (let target of this.targets) {
       oldTargets[target.tokenId] = target;
@@ -287,7 +286,6 @@ export class AccDiffHudData {
     for (let target of this.targets) {
       target.hydrate(this);
     }
-    console.log("new set of targets:", this.targets);
     return this;
   }
 

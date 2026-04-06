@@ -7,11 +7,9 @@
 
   import { sidebarWidth } from "./sidebar-width";
   import { isDragging } from "./is-dragging";
-  import { userTargets } from "./user-targets";
   import AccDiffHud from "../acc_diff/AccDiffHUD.svelte";
   import DamageHud from "../damage/DamageHUD.svelte";
   import StructStressHud from "../struct_stress/StructStressHUD.svelte";
-  import { AccDiffHudData } from "../acc_diff";
 
   let {
     faded,
@@ -99,7 +97,7 @@
       <Dialog
         kind={key}
         // {...huds[key].data}
-        initialData={huds[key].data}
+        data={huds[key].data}
         on:submit={() => forward(key, "submit", huds[key].data)}
         on:cancel={() => forward(key, "cancel")}
       />
