@@ -1,17 +1,18 @@
-declare module "fvtt-types/configuration" {
-  // Extend tourstep
-  interface TourStep {
-    click?: boolean;
-    sidebarTab?: string;
-    inApp?: boolean;
-  }
-}
-
 import { LancerActor } from "../actor/lancer-actor";
 import { LCPManager } from "../apps/lcp-manager/lcp-manager";
 import { LancerCombat } from "../combat/lancer-combat";
 import { EntryType } from "../enums";
 import type { ContentSummary } from "../util/lcps";
+
+declare global {
+  namespace foundry.nue.Tour {
+    interface Step {
+      click?: boolean;
+      sidebarTab?: string;
+      inApp?: boolean;
+    }
+  }
+}
 
 /**
  * LANCER Extensions to the foundry Tour class. Adds sidebarTab and click as
