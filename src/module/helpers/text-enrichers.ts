@@ -1,7 +1,7 @@
 import { EntryType } from "../enums";
 import { fromLidSync } from "./from-lid";
 
-const icon_mapping = {
+const icon_mapping: Record<string, string | undefined> = {
   [EntryType.BOND]: "mdi mdi-vector-link",
   [EntryType.CORE_BONUS]: "cci cci-corebonus",
   [EntryType.DEPLOYABLE]: "cci cci-deployable",
@@ -25,7 +25,7 @@ const icon_mapping = {
   [EntryType.TALENT]: "cci cci-talent",
   [EntryType.WEAPON_MOD]: "cci cci-weaponmod",
   base: undefined,
-} as const;
+};
 
 export function addEnrichers() {
   CONFIG.TextEditor.enrichers = CONFIG.TextEditor.enrichers.concat([
