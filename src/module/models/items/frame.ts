@@ -52,9 +52,9 @@ const defineFrameSchema = () => {
       })
     ),
     core_system: new fields.SchemaField({
-      name: new fields.StringField(),
+      name: new fields.StringField({ required: true }),
       description: new fields.HTMLField(),
-      activation: new fields.StringField({ nullable: false, choices: Object.values(ActivationType) }),
+      activation: new fields.StringField({ nullable: false, choices: Object.values(ActivationType), required: true }),
       deactivation: new fields.StringField({ nullable: true, choices: Object.values(ActivationType), initial: null }),
       // use: new fields.StringField({ nullable: true, choices: Object.values(FrameEffectUse), initial: null }),
       use: new fields.StringField({ nullable: true, initial: null }), // ^ Core data does not adhere to this schema
