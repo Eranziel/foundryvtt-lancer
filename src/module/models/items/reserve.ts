@@ -15,7 +15,7 @@ import fields = foundry.data.fields;
 const defineReserveModelSchema = () => {
   return {
     consumable: new fields.BooleanField(),
-    label: new fields.StringField(),
+    label: new fields.StringField({ required: true }),
     // resource_name, resource_note, and resource_cost are in the lancer-data spec but not used currently
     // resource_name: new fields.StringField(),
     // resource_note: new fields.StringField(),
