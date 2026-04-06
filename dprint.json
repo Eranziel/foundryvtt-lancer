@@ -13,7 +13,9 @@
   "markup": {
     "scriptFormatter": "biome",
     "scriptIndent": true,
-    "styleIndent": true
+    "styleIndent": true,
+    "html.normal.selfClosing": false,
+    "html.void.selfClosing": false
   },
   "excludes": [
     "**/*-lock.json",
