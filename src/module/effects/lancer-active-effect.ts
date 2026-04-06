@@ -334,6 +334,13 @@ declare module "fvtt-types/configuration" {
     document: LancerActiveEffect<SubType>;
   }
 
+  namespace Hooks {
+    interface HookConfig {
+      "lancer.statusesReady": () => boolean | void;
+      "lancer.statusInitComplete": () => boolean | void;
+    }
+  }
+
   interface FlagConfig {
     ActiveEffect: {
       lancer: {

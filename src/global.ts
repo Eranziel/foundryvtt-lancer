@@ -128,13 +128,6 @@ declare module "fvtt-types/configuration" {
     };
   }
 
-  namespace Hooks {
-    interface HookConfig {
-      "lancer.statusesReady": () => boolean | void;
-      "lancer.statusInitComplete": () => boolean | void;
-    }
-  }
-
   interface SettingConfig {
     "lancer.actionManager": boolean;
     "lancer.actionManagerPlayersUse": boolean;
