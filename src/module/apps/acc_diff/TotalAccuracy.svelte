@@ -23,7 +23,7 @@
   export let onlyTarget: boolean = false;
 
   function isTarget(v: any): v is AccDiffHudTarget {
-    return v?.target;
+    return v?.tokenUuid;
   }
 
   export let id = `accdiff-total-display-${counter++}`;
@@ -67,13 +67,13 @@
   >
     <img
       class:accdiff-target-prone={target.prone}
-      alt={target.token.name ?? undefined}
-      src={target.token.actor?.img}
+      alt={fromUuidSync(target.tokenUuid, { strict: true })?.name ?? undefined}
+      src={fromUuidSync(target.tokenUuid, { strict: true })?.actor?.img}
       bind:this={imgElement}
-    />
+    >
     {#if target.stunned}
       <label transition:blur|global for={stunnedId} class="stunned-label" title="Stunned">
-        <i class="cci cci-condition-stunned i--3" />
+        <i class="cci cci-condition-stunned i--3"></i>
       </label>
     {/if}
     <label
@@ -90,7 +90,7 @@
         class:i--5={target.usingLockOn}
         on:click={toggleLockOn}
         on:keypress={toggleLockOn}
-      />
+      ></i>
       <HudCheckbox
         label="Consume Lock On (+1)"
         checked={!!target.usingLockOn}
@@ -126,7 +126,7 @@
           class="cci i--4 i--dark white--text middle"
           class:cci-accuracy={total >= 0}
           class:cci-difficulty={total < 0}
-        />
+        ></i>
       </div>
     {/each}
   </div>
