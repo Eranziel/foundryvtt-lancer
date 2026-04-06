@@ -128,6 +128,7 @@ export class AccDiffHudBase {
 
 export interface AccDiffHudTargetParams extends AccDiffHudBaseParams {
   targetId: string;
+  targetUuid: string;
   consumeLockOn: boolean;
   prone: boolean;
   stunned: boolean;
@@ -135,6 +136,7 @@ export interface AccDiffHudTargetParams extends AccDiffHudBaseParams {
 
 export class AccDiffHudTarget extends AccDiffHudBase {
   tokenId: string;
+  tokenUuid: string;
   consumeLockOn: boolean;
   prone: boolean;
   stunned: boolean;
@@ -151,6 +153,7 @@ export class AccDiffHudTarget extends AccDiffHudBase {
     }
 
     this.tokenId = $state(obj.targetId);
+    this.tokenUuid = $state(obj.targetUuid);
     this.consumeLockOn = $state(obj.consumeLockOn);
     this.prone = $state(obj.prone);
     this.stunned = $state(obj.stunned);
@@ -161,6 +164,7 @@ export class AccDiffHudTarget extends AccDiffHudBase {
     return {
       ...base,
       targetId: this.tokenId,
+      targetUuid: this.tokenUuid,
       consumeLockOn: this.consumeLockOn,
       prone: this.prone,
       stunned: this.stunned,
@@ -177,6 +181,7 @@ export class AccDiffHudTarget extends AccDiffHudBase {
     }
     let ret: AccDiffHudTargetParams = {
       targetId: t.id,
+      targetUuid: t.document.uuid,
       // TODO: grit and flatBonus should get provided by base
       grit: 0,
       flatBonus: 0,
@@ -264,21 +269,22 @@ export class AccDiffHudData {
   replaceTargets(newTargets: string[]): AccDiffHudData {
     const oldTargets: { [key: string]: AccDiffHudTarget } = {};
     for (let target of this.targets) {
-      oldTargets[target.tokenId] = target;
+      oldTargets[target.tokenUuid] = target;
     }
 
     // Delete targets which have been untargeted
     for (let i = this.targets.length - 1; i >= 0; i--) {
       if (i < 0) break;
       const target = this.targets[i];
-      if (!newTargets.some(t => t === target.tokenId)) {
+      if (!newTargets.some(t => t === target.tokenUuid)) {
         this.targets.splice(i, 1);
       }
     }
     // Either update-in-place or push new targets into the array
     for (const target of newTargets) {
-      const token = canvas.scene?.tokens.get(target)?.object;
-      if (token && !this.targets.find(t => t.tokenId === target)) {
+      // @ts-expect-error Out of date definition for fromUuidSync
+      const token: Token.Implementation | null = fromUuidSync(target, { strict: true })?.object;
+      if (token && !this.targets.find(t => t.tokenUuid === target)) {
         this.targets.push(AccDiffHudTarget.fromParams(token));
       }
     }
@@ -382,6 +388,7 @@ export class AccDiffHudData {
         }
         let ret: AccDiffHudTargetParams = {
           targetId: t.id,
+          targetUuid: t.document.uuid,
           grit: base.grit,
           flatBonus: base.flatBonus,
           accuracy: 0,

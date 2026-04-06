@@ -3,7 +3,7 @@ import { writable } from "svelte/store";
 export const userTargets = writable([] as string[]);
 
 function updateData() {
-  userTargets.set(Array.from(game!.user!.targets).map(t => t.id));
+  userTargets.set(Array.from(game!.user!.targets).map(t => t.document.uuid));
 }
 
 Hooks.on("targetToken", (user, _token, _isNewTarget) => {

@@ -15,7 +15,6 @@
   import HudCheckbox from "../components/HudCheckbox.svelte";
   import { LancerToken } from "../../token";
   import AccDiffInput from "./AccDiffInput.svelte";
-  import { onMount } from "svelte";
   import type { AccDiffHudData } from "./data.svelte";
   import { userTargets } from "../slidinghud/user-targets";
 
@@ -77,7 +76,7 @@
 
   /* ===== FUNCTIONS ===== */
 
-  onMount(() => {
+  $effect(() => {
     data.hydrate(data.lancerItem || data.lancerActor);
 
     // Initialize engaged
