@@ -8,7 +8,7 @@ declare global {
   namespace foundry.nue.Tour {
     interface Step {
       click?: boolean;
-      sidebarTab?: string;
+      sidebarTab?: keyof typeof ui;
       inApp?: boolean;
     }
   }
