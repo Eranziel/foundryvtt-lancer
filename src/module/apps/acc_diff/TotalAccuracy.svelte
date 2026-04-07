@@ -23,7 +23,7 @@
   export let onlyTarget: boolean = false;
 
   function isTarget(v: any): v is AccDiffHudTarget {
-    return v?.tokenUuid;
+    return v?.targetUuid;
   }
 
   export let id = `accdiff-total-display-${counter++}`;
@@ -67,8 +67,8 @@
   >
     <img
       class:accdiff-target-prone={target.prone}
-      alt={fromUuidSync(target.tokenUuid, { strict: true })?.name ?? undefined}
-      src={fromUuidSync(target.tokenUuid, { strict: true })?.actor?.img}
+      alt={target.targetName}
+      src={target.targetImg}
       bind:this={imgElement}
     >
     {#if target.stunned}
@@ -84,6 +84,8 @@
       title="Consume Lock On (+1)"
     >
       <i
+        role="button"
+        tabindex="0"
         class="cci cci-condition-lock-on"
         class:i--click={target.lockOnAvailable}
         class:i--3={!target.usingLockOn}

@@ -38,7 +38,7 @@ export function attackRolls(flat_bonus: number, acc_diff: AccDiffHudData): Lance
     targeted: acc_diff.targets.map(tad => {
       let perTarget = perRoll.concat(Object.values(tad.plugins));
       return {
-        targetUuid: tad.tokenUuid,
+        targetUuid: tad.targetUuid,
         roll: applyPluginsToRoll(rollStr(flat_bonus, tad.total), perTarget),
         usedLockOn: tad.usingLockOn,
       };

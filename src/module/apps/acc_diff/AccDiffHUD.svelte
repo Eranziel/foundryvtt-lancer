@@ -15,7 +15,7 @@
   import HudCheckbox from "../components/HudCheckbox.svelte";
   import { LancerToken } from "../../token";
   import AccDiffInput from "./AccDiffInput.svelte";
-  import type { AccDiffHudData } from "./data.svelte";
+  import { tokenDocFromUuidSync, type AccDiffHudData } from "./data.svelte";
   import { userTargets } from "../slidinghud/user-targets";
 
   /* ===== PROPS ===== */
@@ -53,12 +53,6 @@
   const ranges = $derived(lancerItem ? findRanges() : null);
   const flatTotal = $derived(kind === "attack" ? base.grit + base.flatBonus : 0);
 
-  const enrichedTargets = $derived(
-    targets.map(t => ({
-      ...t,
-      target: canvas.scene?.tokens.get(t.tokenId)?.object || null,
-    }))
-  );
   const accWeaponPlugins = $derived(Object.values(weapon.plugins).filter(plugin => plugin.category === "acc"));
   const diffWeaponPlugins = $derived(Object.values(weapon.plugins).filter(plugin => plugin.category === "diff"));
   const accTargetPlugins = $derived(
@@ -101,7 +95,8 @@
     el.focus();
   }
 
-  function targetHoverIn(event: MouseEvent, target: LancerToken | null) {
+  function targetHoverIn(event: MouseEvent, targetUuid: string) {
+    const target = tokenDocFromUuidSync(targetUuid, { strict: true })?.object;
     if (!target) return;
     // Ignore target hovering after the form has been submitted, to avoid flickering when
     // the UI slides down.
@@ -115,7 +110,8 @@
     }
   }
 
-  function targetHoverOut(event: MouseEvent, target: LancerToken | null) {
+  function targetHoverOut(event: MouseEvent, targetUuid: string) {
+    const target = tokenDocFromUuidSync(targetUuid, { strict: true })?.object;
     if (!target) return;
     const thtModule = game.modules.get("terrain-height-tools");
     if (!thtModule?.active || foundry.utils.isNewerVersion("0.3.3", thtModule.version)) {
@@ -266,7 +262,7 @@
         </div>
         <div class="accdiff-other-grid accdiff-flat-mod" style="position: relative">
           <!-- <PlusMinusInput bind:value={base.flatBonus} id="accdiff-flat-mod" /> -->
-          <input class="accdiff-flat-mod__input" type="number" bind:value={base.flatBonus} />
+          <input class="accdiff-flat-mod__input" type="number" bind:value={base.flatBonus}>
           <button
             class="accdiff-flat-mod__plus"
             type="button"
@@ -372,8 +368,8 @@
                   role="radiogroup"
                   tabindex="0"
                   transition:slide
-                  onmouseenter={ev => targetHoverIn(ev, enrichedTargets[0].target)}
-                  onmouseleave={ev => targetHoverOut(ev, enrichedTargets[0].target)}
+                  onmouseenter={ev => targetHoverIn(ev, targets[0].targetUuid)}
+                  onmouseleave={ev => targetHoverOut(ev, targets[0].targetUuid)}
                 >
                   <Cover
                     bind:cover={targets[0].cover}
@@ -419,8 +415,8 @@
                 for="total-display-0"
               >
                 🞂 <span>Total
-                  {#if targets.length > 0 && enrichedTargets[0].target}
-                    vs {enrichedTargets[0].target.name}
+                  {#if targets.length > 0}
+                    vs {targets[0].targetName}
                   {/if}</span> 🞀
               </label>
             </div>
@@ -435,25 +431,25 @@
             <div
               role="presentation"
               class="flexrow flex-center accdiff-total"
-              onmouseenter={ev => targetHoverIn(ev, enrichedTargets[0].target)}
-              onmouseleave={ev => targetHoverOut(ev, enrichedTargets[0].target)}
+              onmouseenter={ev => targetHoverIn(ev, targets[0].targetUuid)}
+              onmouseleave={ev => targetHoverOut(ev, targets[0].targetUuid)}
             >
               <Total bind:target={targets[0]} id="total-display-0" onlyTarget={true} />
             </div>
           {:else}
             <div class="accdiff-weight accdiff-target-row">
-              {#each targets as data, i (data.tokenId)}
+              {#each targets as data, i (data.targetUuid)}
                 <div
                   role="presentation"
                   in:slide|global={{ delay: 100, duration: 300 }}
                   out:slide|global={{ duration: 100 }}
                   animate:flip={{ duration: 200 }}
                   class="flexcol card accdiff-target"
-                  onmouseenter={ev => targetHoverIn(ev, enrichedTargets[i].target)}
-                  onmouseleave={ev => targetHoverOut(ev, enrichedTargets[i].target)}
+                  onmouseenter={ev => targetHoverIn(ev, targets[i].targetUuid)}
+                  onmouseleave={ev => targetHoverOut(ev, targets[i].targetUuid)}
                 >
-                  <label class="target-name flexrow lancer-mini-header" for={data.tokenId}>
-                    🞂<span>{enrichedTargets[i].target?.document.name}</span>🞀
+                  <label class="target-name flexrow lancer-mini-header" for={data.targetUuid}>
+                    🞂<span>{targets[i].targetName}</span>🞀
                   </label>
                   <div class="accdiff-target-body">
                     <div class="flexrow accdiff-total">
@@ -468,7 +464,7 @@
                       >
                         <i class="cci cci-accuracy i--4" style="border: none"></i>
                       </button>
-                      <input style="display: none" type="number" bind:value={data.accuracy} min="0" />
+                      <input style="display: none" type="number" bind:value={data.accuracy} min="0">
                       {#if !isTech()}
                         <Cover
                           bind:cover={data.cover}
@@ -479,7 +475,7 @@
                       {:else}
                         <div></div>
                       {/if}
-                      <input style="display: none" type="number" bind:value={data.difficulty} min="0" />
+                      <input style="display: none" type="number" bind:value={data.difficulty} min="0">
                       <button
                         aria-label="Increase difficulty"
                         class="i--4 no-grow accdiff-button"

@@ -12,6 +12,16 @@ export enum Cover {
   Hard = 2,
 }
 
+export function tokenDocFromUuidSync(
+  uuid: string,
+  options?: { strict?: boolean }
+): TokenDocument.Implementation | null {
+  // @ts-expect-error out of date type for fromUuidSync
+  const token = fromUuidSync(uuid, options);
+  if (!(token instanceof TokenDocument.implementation)) return null;
+  return token;
+}
+
 export type AccDiffHudWeaponParams = {
   accurate: boolean;
   inaccurate: boolean;
@@ -127,7 +137,6 @@ export class AccDiffHudBase {
 }
 
 export interface AccDiffHudTargetParams extends AccDiffHudBaseParams {
-  targetId: string;
   targetUuid: string;
   consumeLockOn: boolean;
   prone: boolean;
@@ -135,8 +144,9 @@ export interface AccDiffHudTargetParams extends AccDiffHudBaseParams {
 }
 
 export class AccDiffHudTarget extends AccDiffHudBase {
-  tokenId: string;
-  tokenUuid: string;
+  targetUuid: string;
+  targetName: string;
+  targetImg: string;
   consumeLockOn: boolean;
   prone: boolean;
   stunned: boolean;
@@ -147,13 +157,14 @@ export class AccDiffHudTarget extends AccDiffHudBase {
 
   constructor(obj: AccDiffHudTargetParams) {
     super(obj);
-    if (obj.targetId && !canvas!.scene!.tokens.get(obj.targetId)) {
+    if (obj.targetUuid && !canvas!.scene!.tokens.find(t => t.uuid === obj.targetUuid)) {
       ui.notifications!.error("Trying to access tokens from a different scene!");
       throw new Error("Token not found");
     }
 
-    this.tokenId = $state(obj.targetId);
-    this.tokenUuid = $state(obj.targetUuid);
+    this.targetUuid = $state(obj.targetUuid);
+    this.targetName = $derived(tokenDocFromUuidSync(this.targetUuid, { strict: true })?.name || "");
+    this.targetImg = $derived(tokenDocFromUuidSync(this.targetUuid, { strict: true })?.actor?.img || "");
     this.consumeLockOn = $state(obj.consumeLockOn);
     this.prone = $state(obj.prone);
     this.stunned = $state(obj.stunned);
@@ -163,8 +174,7 @@ export class AccDiffHudTarget extends AccDiffHudBase {
     const base = super.raw;
     return {
       ...base,
-      targetId: this.tokenId,
-      targetUuid: this.tokenUuid,
+      targetUuid: this.targetUuid,
       consumeLockOn: this.consumeLockOn,
       prone: this.prone,
       stunned: this.stunned,
@@ -180,7 +190,6 @@ export class AccDiffHudTarget extends AccDiffHudBase {
       cover = Cover.Soft;
     }
     let ret: AccDiffHudTargetParams = {
-      targetId: t.id,
       targetUuid: t.document.uuid,
       // TODO: grit and flatBonus should get provided by base
       grit: 0,
@@ -212,7 +221,7 @@ export class AccDiffHudTarget extends AccDiffHudBase {
   }
 
   get lockOnAvailable(): null | boolean {
-    const token = canvas!.scene!.tokens.get(this.tokenId);
+    const token = tokenDocFromUuidSync(this.targetUuid, { strict: true })?.object;
     return !!token?.actor?.system.statuses.lockon;
   }
 
@@ -269,22 +278,21 @@ export class AccDiffHudData {
   replaceTargets(newTargets: string[]): AccDiffHudData {
     const oldTargets: { [key: string]: AccDiffHudTarget } = {};
     for (let target of this.targets) {
-      oldTargets[target.tokenUuid] = target;
+      oldTargets[target.targetUuid] = target;
     }
 
     // Delete targets which have been untargeted
     for (let i = this.targets.length - 1; i >= 0; i--) {
       if (i < 0) break;
       const target = this.targets[i];
-      if (!newTargets.some(t => t === target.tokenUuid)) {
+      if (!newTargets.some(t => t === target.targetUuid)) {
         this.targets.splice(i, 1);
       }
     }
     // Either update-in-place or push new targets into the array
     for (const target of newTargets) {
-      // @ts-expect-error Out of date definition for fromUuidSync
-      const token: Token.Implementation | null = fromUuidSync(target, { strict: true })?.object;
-      if (token && !this.targets.find(t => t.tokenUuid === target)) {
+      const token: Token.Implementation | null = tokenDocFromUuidSync(target, { strict: true })?.object || null;
+      if (token && !this.targets.find(t => t.targetUuid === target)) {
         this.targets.push(AccDiffHudTarget.fromParams(token));
       }
     }
@@ -387,7 +395,6 @@ export class AccDiffHudData {
           cover = Cover.Soft;
         }
         let ret: AccDiffHudTargetParams = {
-          targetId: t.id,
           targetUuid: t.document.uuid,
           grit: base.grit,
           flatBonus: base.flatBonus,
