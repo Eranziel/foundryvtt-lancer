@@ -122,6 +122,7 @@ export async function checkItemCharged(
 export async function applySelfHeat(
   state: FlowState<
     | LancerFlowState.AttackRollData
+    | LancerFlowState.DamageRollData
     | LancerFlowState.WeaponRollData
     | LancerFlowState.TechAttackRollData
     | LancerFlowState.ActionUseData
@@ -132,7 +133,7 @@ export async function applySelfHeat(
   if (!state.data) throw new TypeError(`Flow state missing!`);
   let self_heat = 0;
 
-  if (state.data.self_heat) {
+  if ("self_heat" in state.data && state.data.self_heat) {
     const roll = await new Roll(state.data.self_heat).evaluate();
     self_heat = roll.total!;
     state.data.self_heat_result = {
@@ -142,7 +143,7 @@ export async function applySelfHeat(
   }
 
   if (game.settings.get(game.system.id, LANCER.setting_automation).attack_self_heat) {
-    if (state.actor.is_mech() || state.actor.is_npc()) {
+    if ((state.actor.is_mech() || state.actor.is_npc()) && state.data.type === "damage") {
       // TODO: overkill heat to move to damage flow
       await state.actor.update({
         "system.heat.value": state.actor.system.heat.value + (state.data.overkill_heat ?? 0) + self_heat,
