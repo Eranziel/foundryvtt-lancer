@@ -2,7 +2,7 @@ import { LancerActor } from "../actor/lancer-actor";
 import { renderTemplateStep } from "./_render";
 import { LancerItem } from "../item/lancer-item";
 import { LancerFlowState } from "./interfaces";
-import { Flow, type FlowState, type Step } from "./flow";
+import { Flow, type FlowState, type PostFlowHook, type PreFlowHook, type Step } from "./flow";
 
 export function registerNPCSteps(flowSteps: Map<string, Step<any, any> | Flow<any>>) {
   flowSteps.set("findRechargeableSystems", findRechargeableSystems);
@@ -11,8 +11,17 @@ export function registerNPCSteps(flowSteps: Map<string, Step<any, any> | Flow<an
   flowSteps.set("printRechargeCard", printRechargeCard);
 }
 
+declare module "fvtt-types/configuration" {
+  namespace Hooks {
+    interface HookConfig {
+      "lancer.preFlow.NPCRechargeFlow": PreFlowHook<NPCRechargeFlow>;
+      "lancer.postFlow.NPCRechargeFlow": PostFlowHook<NPCRechargeFlow>;
+    }
+  }
+}
+
 export class NPCRechargeFlow extends Flow<LancerFlowState.RechargeRollData> {
-  static steps = ["findRechargeableSystems", "rollRecharge", "applyRecharge", "printRechargeCard"];
+  static override steps = ["findRechargeableSystems", "rollRecharge", "applyRecharge", "printRechargeCard"];
 
   constructor(uuid: LancerActor, data?: Partial<LancerFlowState.RechargeRollData>) {
     const initialData: LancerFlowState.RechargeRollData = {
@@ -25,6 +34,18 @@ export class NPCRechargeFlow extends Flow<LancerFlowState.RechargeRollData> {
 
     super(uuid, initialData);
   }
+
+  override get steps(): string[] {
+    return NPCRechargeFlow.steps;
+  }
+
+  override callAllPreFlowHooks(): void {
+    Hooks.callAll("lancer.preFlow.NPCRechargeFlow", this);
+  }
+
+  override callAllPostFlowHooks(success: boolean): void {
+    Hooks.callAll("lancer.postFlow.NPCRechargeFlow", this, success);
+  }
 }
 
 async function findRechargeableSystems(state: FlowState<LancerFlowState.RechargeRollData>): Promise<boolean> {
@@ -34,7 +55,8 @@ async function findRechargeableSystems(state: FlowState<LancerFlowState.Recharge
   // Skip this step if recharging_uuids was provided already, since this is a reroll etc...
   if (state.data.recharging_uuids.length >= 1) return true;
   for (let item of actor.items) {
-    if (!item.is_npc_feature()) continue;
+    const i = item; // HACK: The type guards only work when put in a constant for some reason.
+    if (!i.is_npc_feature()) continue;
     if (item.system.charged) continue;
     if (item.isRecharge()) state.data.recharging_uuids.push(item.uuid);
   }

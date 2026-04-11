@@ -97,8 +97,8 @@ export function targetsFromTemplate(templateId: string): void {
   let ignore = canvas.templates!.get(templateId)!.document.getFlag(game.system.id, "ignore");
 
   // Test if each token occupies a targeted space and target it if true
-  const targets = canvas
-    .tokens!.quadtree!.getObjects(template.object.bounds, {
+  const targets = canvas.tokens?.quadtree
+    ?.getObjects(template.object.bounds, {
       collisionTest: o => {
         const t = o.t as any as LancerToken;
         let skip = (ignore?.tokens.includes(t.id) || ignore?.dispositions.includes(t.document.disposition)) ?? false;
@@ -106,7 +106,7 @@ export function targetsFromTemplate(templateId: string): void {
       },
     })
     .map(t => t.id);
-  canvas.tokens!.setTargets(targets);
+  if (targets) canvas.tokens?.setTargets(targets);
 }
 
 /// Math Zone

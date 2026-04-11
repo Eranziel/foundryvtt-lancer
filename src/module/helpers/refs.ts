@@ -12,7 +12,13 @@ import {
   type LancerRESERVE,
 } from "../item/lancer-item";
 import { array_path_edit_changes, drilldownDocument, extendHelper, hex_array, resolveHelperDotpath } from "./commons";
-import { type FoundryDropData, handleDocDropping, handleDragging, type ResolvedDropData } from "./dragdrop";
+import {
+  handleDocDropping,
+  handleDragging,
+  type LancerActorDragData,
+  type LancerItemDragData,
+  type ResolvedDropData,
+} from "./dragdrop";
 import {
   framePreview,
   licenseRefView,
@@ -427,7 +433,7 @@ export function handleRefDragging(html: JQuery) {
       console.error("Unable to properly drag ref", source, evt.currentTarget);
       throw new Error("Drag error");
     }
-    let result: FoundryDropData = {
+    let result: LancerActorDragData | LancerItemDragData = {
       type: uuid.includes("Item.") ? "Item" : "Actor",
       uuid,
     };

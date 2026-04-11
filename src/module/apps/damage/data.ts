@@ -434,9 +434,9 @@ export class DamageHudData {
     return encode(this, DamageHudData.codec);
   }
 
-  static plugins: DamageHudPlugin<DamageHudPluginData>[] = [];
-  static targetedPlugins: DamageHudPlugin<DamageHudPluginData>[] = [];
-  static registerPlugin<D extends DamageHudPluginData, P extends DamageHudPlugin<D>>(plugin: P) {
+  static plugins: DamageHudPlugin<DamageHudPluginData, unknown>[] = [];
+  static targetedPlugins: DamageHudPlugin<DamageHudPluginData, unknown>[] = [];
+  static registerPlugin(plugin: DamageHudPlugin<DamageHudPluginData, unknown>) {
     if (plugin.perRoll) {
       DamageHudWeapon.pluginSchema[plugin.slug] = plugin.codec;
     }
@@ -514,7 +514,7 @@ export class DamageHudData {
         weapon.bonusDamage = profile.bonus_damage;
       } else if (runtimeData.is_npc_feature() && runtimeData.system.type === NpcFeatureType.Weapon) {
         const actor = runtimeData.actor as LancerNPC | null;
-        const tier = (actor?.system.tier || 1) - 1;
+        const tier = (actor?.system.tier ?? 1) - 1;
         weapon.damage = runtimeData.system.damage[tier];
       } else if (runtimeData.is_pilot_weapon()) {
         weapon.damage = runtimeData.system.damage;

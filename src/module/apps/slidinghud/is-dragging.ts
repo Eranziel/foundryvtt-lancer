@@ -2,7 +2,7 @@ import { derived, readable } from "svelte/store";
 
 export const dataTransfer = readable(null as DataTransfer | null, update => {
   function updateData(e: DragEvent) {
-    update(e.defaultPrevented ? null : e.dataTransfer ?? null);
+    update(e.defaultPrevented ? null : (e.dataTransfer ?? null));
   }
 
   document.addEventListener(

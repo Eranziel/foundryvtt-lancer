@@ -2,7 +2,7 @@
 import { LANCER } from "../config";
 import type { UUIDRef } from "../source-template";
 import { LancerFlowState } from "./interfaces";
-import { Flow, type FlowState, type Step } from "./flow";
+import { Flow, type FlowState, type PostFlowHook, type PreFlowHook, type Step } from "./flow";
 import { LancerActor } from "../actor/lancer-actor";
 import { renderTemplateStep } from "./_render";
 
@@ -27,11 +27,20 @@ export async function beginCascadeFlow(actorUuid: UUIDRef, flowArgs?: Partial<La
   return await flow.begin();
 }
 
+declare module "fvtt-types/configuration" {
+  namespace Hooks {
+    interface HookConfig {
+      "lancer.preFlow.CascadeFlow": PreFlowHook<CascadeFlow>;
+      "lancer.postFlow.CascadeFlow": PostFlowHook<CascadeFlow>;
+    }
+  }
+}
+
 /**
  * Flow for managing secondary structure rolls and effects
  */
 export class CascadeFlow extends Flow<LancerFlowState.CascadeRollData> {
-  static steps = ["initCascadeData", "cascadeRoll", "cascadeUpdateItems", "printCascadeCards"];
+  static override steps = ["initCascadeData", "cascadeRoll", "cascadeUpdateItems", "printCascadeCards"];
 
   constructor(uuid: UUIDRef | LancerActor, data?: Partial<LancerFlowState.CascadeRollData>) {
     const initialData: LancerFlowState.CascadeRollData = {
@@ -43,6 +52,18 @@ export class CascadeFlow extends Flow<LancerFlowState.CascadeRollData> {
     };
 
     super(uuid, initialData);
+  }
+
+  override get steps(): string[] {
+    return CascadeFlow.steps;
+  }
+
+  override callAllPreFlowHooks(): void {
+    Hooks.callAll("lancer.preFlow.CascadeFlow", this);
+  }
+
+  override callAllPostFlowHooks(success: boolean): void {
+    Hooks.callAll("lancer.postFlow.CascadeFlow", this, success);
   }
 }
 
@@ -61,11 +82,12 @@ export async function initCascadeData(state: FlowState<LancerFlowState.CascadeRo
   // Find all the AI systems, filter out exceptions, and store the IDs in state.data
   state.data.ai_systems.push(
     ...state.actor.items
-      .filter(i => {
+      .filter(item => {
+        const i = item; // HACK: The type guards only work when put in a constant for some reason.
         if (!i.is_mech_system() && !i.is_mech_weapon() && !i.is_weapon_mod()) return false;
-        if (!i.isAI()) return false;
+        if (!item.isAI()) return false;
         // Check for special exceptions - GMS comp/Con, UNCLE, some exotic gear
-        if (cascadeExceptions.includes(i.system.lid)) return false;
+        if (cascadeExceptions.includes(item.system.lid)) return false;
         return true;
       })
       .map(i => i.id!)

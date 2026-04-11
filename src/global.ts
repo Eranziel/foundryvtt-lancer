@@ -30,6 +30,7 @@ import type {
   CombatTrackerAppearance,
   StatusIconConfigOptions,
 } from "./module/settings";
+import type { IContentPackManifest } from "./module/util/unpacking/packed-types";
 import type { TerrainHeightToolsAPI } from "./types/terrain-height-tools";
 
 interface LancerInitiativeConfig<T extends string = string> {
@@ -127,13 +128,6 @@ declare module "fvtt-types/configuration" {
     };
   }
 
-  namespace Hooks {
-    interface HookConfig {
-        "lancer.statusesReady": () => boolean | void;
-        "lancer.statusInitComplete": () => boolean | void;
-    }
-  }
-
   interface SettingConfig {
     "lancer.actionManager": boolean;
     "lancer.actionManagerPlayersUse": boolean;
@@ -146,7 +140,7 @@ declare module "fvtt-types/configuration" {
     "lancer.automationSwitch": boolean;
     "lancer.combat-tracker-appearance": typeof CombatTrackerAppearance;
     "lancer.combat-tracker-sort": boolean;
-    "lancer.combatTrackerConfig": { sortTracker: boolean } | ClientSettings.Values["lancer.combatTrackerConfig"];
+    "lancer.combatTrackerConfig": { sortTracker: boolean };
     "lancer.coreDataVersion": string;
     "lancer.dsnSetup": boolean;
     "lancer.floatingNumbers": boolean;
@@ -183,10 +177,4 @@ declare module "fvtt-types/configuration" {
     "lancer-conditions.hayleyUtility": boolean;
     "lancer-conditions.tommyConditionsStatus": boolean;
   }
-
-  /**
-   * Terrain Height Tools API.
-   * Make sure to guard usage with a check for the module being active
-   */
-  const terrainHeightTools: TerrainHeightToolsAPI | undefined;
 }

@@ -371,11 +371,11 @@ export function pilotArmorSlot(armor_path: string, options: HelperOptions): stri
 
   // Need to look in bonuses to find what we need
   let bonuses = armor.system.bonuses;
-  let armor_val = bonuses.find(b => b.lid == "pilot_armor")?.val ?? "0";
-  let speed_val = bonuses.find(b => b.lid == "pilot_speed")?.val ?? "0";
-  let edef_val = bonuses.find(b => b.lid == "pilot_edef")?.val ?? "0";
-  let eva_val = bonuses.find(b => b.lid == "pilot_evasion")?.val ?? "0";
-  let hp_val = bonuses.find(b => b.lid == "pilot_hp")?.val ?? "0";
+  let armor_val = bonuses.find(b => b?.lid === "pilot_armor")?.val ?? "0";
+  let speed_val = bonuses.find(b => b?.lid === "pilot_speed")?.val ?? "0";
+  let edef_val = bonuses.find(b => b?.lid === "pilot_edef")?.val ?? "0";
+  let eva_val = bonuses.find(b => b?.lid === "pilot_evasion")?.val ?? "0";
+  let hp_val = bonuses.find(b => b?.lid === "pilot_hp")?.val ?? "0";
 
   const description = armor.system.description || "";
   let effect = armor.system.effect ? effectBox("Effect", armor.system.effect) : "";
@@ -1175,25 +1175,27 @@ export function buildDeployableHTML(
       ${dep.system.detail}
     </div>`;
 
-  let standardActions = [
+  [
     { label: "ACTIVATE", action: dep.system.activation },
     { label: "DEACTIVATE", action: dep.system.deactivation },
     { label: "RECALL", action: dep.system.recall },
     { label: "REDEPLOY", action: dep.system.redeploy },
-  ].filter(a => !!a.action);
-  standardActions.forEach(a => {
-    chips.push(
-      buildChipHTML(
-        a.action,
-        {
-          label: a.label,
-          uuid: source ? source.item.uuid : undefined,
-          // path: a.path,
-        },
-        options
-      )
-    );
-  });
+  ]
+    .filter((a): a is { label: string; action: ActivationType } => !!a.action)
+    .forEach(a => {
+      chips.push(
+        buildChipHTML(
+          a.action,
+          {
+            label: a.label,
+            uuid: source ? source.item.uuid : undefined,
+            // path: a.path,
+          },
+          options
+        )
+      );
+    });
+
   if (dep.system.actions.length) {
     actionText = `<hr class="hsep">`;
     dep.system.actions.forEach((_, i) => {
@@ -1563,6 +1565,8 @@ function _handleContextMenus(
     name: view_only ? "View" : "Edit",
     icon: view_only ? `<i class="fas fa-eye"></i>` : `<i class="fas fa-edit"></i>`,
     callback: html => {
+      if (!(doc instanceof LancerActor)) return;
+
       let effects = [...doc.allApplicableEffects()];
       let index = parseInt(html[0].dataset.activeEffectIndex ?? "-1");
       if (effects[index]) {

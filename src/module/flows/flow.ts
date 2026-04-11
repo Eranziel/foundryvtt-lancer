@@ -25,6 +25,18 @@ export interface FlowState<T> {
   data?: T;
 }
 
+export type PreFlowHook<F extends Flow> = (flow: F) => void;
+export type PostFlowHook<F extends Flow> = (flow: F, success: boolean) => void;
+
+declare module "fvtt-types/configuration" {
+  namespace Hooks {
+    interface HookConfig {
+      "lancer.preFlow.Flow": PreFlowHook<Flow>;
+      "lancer.postFlow.Flow": PostFlowHook<Flow>;
+    }
+  }
+}
+
 /**
  * A Flow is a game process composed of one or more Steps. Flows can be triggered
  * by either automation (e.g. structure/stress rolls) or by user interaction
@@ -38,7 +50,7 @@ export interface FlowState<T> {
  * the chat card), or buttons which can trigger other flows (e.g. damage
  * application).
  */
-export class Flow<StateData> {
+export class Flow<StateData = unknown> {
   // The Steps involved in this flow, signified by key name in game.lancer.flowSteps.
   // Steps are fetched from the registry and resolved in the order they appear in the array.
   static steps: Array<string> = ["emptyStep"];
@@ -147,40 +159,52 @@ export class Flow<StateData> {
     this.steps.splice(keyIndex, 1);
   }
 
+  get steps(): string[] {
+    return Flow.steps;
+  }
+
   /**
    * Start the flow. Each step is awaited in the order they were inserted to the map.
    * @param data Initial data for the specific flow to populate its state.data.
    */
   async begin(data?: StateData): Promise<boolean> {
     this.state.data = data || this.state.data;
-    Hooks.callAll(`lancer.preFlow.${this.constructor.name}`, this);
-    for (const key of this.constructor.steps) {
+    this.callAllPreFlowHooks();
+    for (const key of this.steps) {
       console.log(`${lp} running flow step ${key}`);
       this.state.currentStep = key;
       const step = this.getStep(key);
       if (!step) {
         ui.notifications!.error(`Lancer flow error: ${key} is not a valid step`);
-        console.log(`${lp} Flow aborted when ${key} was not found. All steps in this flow:`, this.constructor.steps);
+        console.log(`${lp} Flow aborted when ${key} was not found. All steps in this flow:`, this.steps);
         return false;
       }
       if (step instanceof Flow) {
         // Start the sub-flow
         if ((await step.begin()) === false) {
           console.log(`${lp} flow aborted when ${key} returned false`);
-          Hooks.callAll(`lancer.postFlow.${this.constructor.name}`, this, false);
+          this.callAllPostFlowHooks(false);
           return false;
         }
       } else {
         // Execute the step. The step function will modify the flow state as needed.
         if ((await step(this.state, data)) === false) {
           console.log(`${lp} flow aborted when ${key} returned false`);
-          Hooks.callAll(`lancer.postFlow.${this.constructor.name}`, this, false);
+          this.callAllPostFlowHooks(false);
           return false;
         }
       }
     }
-    Hooks.callAll(`lancer.postFlow.${this.constructor.name}`, this, true);
+    this.callAllPostFlowHooks(true);
     return true;
+  }
+
+  callAllPreFlowHooks(): void {
+    Hooks.callAll("lancer.preFlow.Flow", this);
+  }
+
+  callAllPostFlowHooks(success: boolean): void {
+    Hooks.callAll("lancer.postFlow.Flow", this, success);
   }
 
   /**

@@ -9,7 +9,7 @@ import { LancerItem } from "../item/lancer-item";
 import type { UUIDRef } from "../source-template";
 import type { SystemTemplates } from "../system-template";
 import { renderTemplateStep } from "./_render";
-import { Flow, type FlowState, type Step } from "./flow";
+import { Flow, type FlowState, type PostFlowHook, type PreFlowHook, type Step } from "./flow";
 import { LancerFlowState } from "./interfaces";
 
 const lp = LANCER.log_prefix;
@@ -53,7 +53,10 @@ export type AttackFlag = {
   invade?: boolean;
   targets: {
     uuid: string;
-    setConditions?: object; // keys are statusEffect ids, values are boolean to indicate whether to apply or remove
+
+    /** keys are statusEffect ids, values are boolean to indicate whether to apply or remove */
+    setConditions?: Record<string, boolean>;
+
     total: string;
     hit: boolean;
     crit: boolean;
@@ -72,9 +75,18 @@ export function registerAttackSteps(flowSteps: Map<string, Step<any, any> | Flow
   flowSteps.set("printAttackCard", printAttackCard);
 }
 
+declare module "fvtt-types/configuration" {
+  namespace Hooks {
+    interface HookConfig {
+      "lancer.preFlow.BasicAttackFlow": PreFlowHook<BasicAttackFlow>;
+      "lancer.postFlow.BasicAttackFlow": PostFlowHook<BasicAttackFlow>;
+    }
+  }
+}
+
 export class BasicAttackFlow extends Flow<LancerFlowState.AttackRollData> {
   name = "BasicAttackFlow";
-  static steps = [
+  static override steps = [
     "initAttackData",
     "setAttackTags",
     "setAttackEffects",
@@ -105,15 +117,36 @@ export class BasicAttackFlow extends Flow<LancerFlowState.AttackRollData> {
 
     super(uuid, initialData);
   }
+
+  override get steps(): string[] {
+    return BasicAttackFlow.steps;
+  }
+
+  override callAllPreFlowHooks(): void {
+    Hooks.callAll("lancer.preFlow.BasicAttackFlow", this);
+  }
+
+  override callAllPostFlowHooks(success: boolean): void {
+    Hooks.callAll("lancer.postFlow.BasicAttackFlow", this, success);
+  }
 }
 
 // TODO: make a type for weapon attack flow state which narrows the type on item??
+
+declare module "fvtt-types/configuration" {
+  namespace Hooks {
+    interface HookConfig {
+      "lancer.preFlow.WeaponAttackFlow": PreFlowHook<WeaponAttackFlow>;
+      "lancer.postFlow.WeaponAttackFlow": PostFlowHook<WeaponAttackFlow>;
+    }
+  }
+}
 
 /**
  * Flow for rolling weapon attacks against one or more targets
  */
 export class WeaponAttackFlow extends Flow<LancerFlowState.WeaponRollData> {
-  static steps = [
+  static override steps = [
     "initAttackData",
     "checkItemDestroyed",
     "checkWeaponLoaded",
@@ -155,12 +188,24 @@ export class WeaponAttackFlow extends Flow<LancerFlowState.WeaponRollData> {
     }
   }
 
+  override get steps(): string[] {
+    return WeaponAttackFlow.steps;
+  }
+
   async begin(data?: LancerFlowState.WeaponRollData): Promise<boolean> {
     if (!this.state.item || !this.state.item.is_weapon()) {
       console.log(`${lp} WeaponAttackFlow aborted - no weapon provided!`);
       return false;
     }
     return await super.begin(data);
+  }
+
+  override callAllPreFlowHooks(): void {
+    Hooks.callAll("lancer.preFlow.WeaponAttackFlow", this);
+  }
+
+  override callAllPostFlowHooks(success: boolean): void {
+    Hooks.callAll("lancer.postFlow.WeaponAttackFlow", this, success);
   }
 }
 
@@ -263,7 +308,7 @@ export async function initAttackData(
       }
       let tier_index = (state.item.system.tier_override || state.actor.system.tier) - 1;
 
-      let asWeapon = state.item.system as SystemTemplates.NPC.WeaponData;
+      let asWeapon = state.item.system;
       state.data.attack_type = asWeapon.weapon_type === WeaponType.Melee ? AttackType.Melee : AttackType.Ranged;
       state.data.grit = asWeapon.attack_bonus[tier_index] ?? 0;
       state.data.acc_diff = options?.acc_diff
@@ -377,7 +422,7 @@ export async function setAttackEffects(
     state.data.effect = state.data.action?.detail ?? state.item.system.core_system.active_effect;
     return true;
   } else if (state.item.is_npc_feature()) {
-    let asWeapon = state.item.system as SystemTemplates.NPC.WeaponData;
+    let asWeapon = state.item.system;
     state.data.effect = asWeapon.effect;
     state.data.on_hit = asWeapon.on_hit;
     return true;

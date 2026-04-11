@@ -32,11 +32,11 @@
   {#if oldContentSummary}
     <div class="lcp-details__content" transition:fade|global>
       {#if oldContentSummary.website}
-        <a href={oldContentSummary.website} class={`medium transition ${fadeDirection}`} style="margin: 5px;"
-          >by {oldContentSummary.author}</a
-        >
+        <a href={oldContentSummary.website} class={`medium transition ${fadeDirection}`} style="margin: 5px">by {
+            oldContentSummary.author
+          }</a>
       {:else}
-        <div class={`medium transition ${fadeDirection}`} style="margin: 10px;">by {oldContentSummary.author}</div>
+        <div class={`medium transition ${fadeDirection}`} style="margin: 10px">by {oldContentSummary.author}</div>
       {/if}
       <div class="lcp-description minor desc-text">
         <div class={`transition ${fadeDirection}`}>

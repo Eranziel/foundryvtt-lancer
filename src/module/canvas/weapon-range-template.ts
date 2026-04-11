@@ -32,7 +32,7 @@ export class WeaponRangeTemplate extends foundry.canvas.placeables.MeasuredTempl
     return this.range.type === RangeType.Burst;
   }
 
-  private actorSheet: FormApplication | undefined;
+  private actorSheet: foundry.appv1.api.Application.Any | foundry.applications.api.ApplicationV2.Any | null | undefined;
 
   /**
    * Creates a new WeaponRangeTemplate from a provided range object
@@ -50,7 +50,7 @@ export class WeaponRangeTemplate extends foundry.canvas.placeables.MeasuredTempl
     if (!canvas.ready) return null;
     const dist = val;
     if (isNaN(dist)) return null;
-    const square: boolean = canvas.grid?.isSquare;
+    const square = canvas.grid?.isSquare;
     const grid_distance = (canvas.scene?.dimensions as Partial<Canvas.Dimensions> | undefined)?.distance ?? 1;
 
     let shape: "cone" | "ray" | "circle";
@@ -71,14 +71,14 @@ export class WeaponRangeTemplate extends foundry.canvas.placeables.MeasuredTempl
 
     const templateData = {
       t: shape,
-      user: game.user!.id,
+      user: game.user.id,
       distance: dist * grid_distance,
       width: grid_distance,
       direction: 0,
       x: 0,
       y: 0,
       angle: square ? 51 : 59,
-      fillColor: game.user!.color,
+      fillColor: game.user.color.css,
       flags: {
         [game.system.id]: {
           range: { type, val },
@@ -92,9 +92,9 @@ export class WeaponRangeTemplate extends foundry.canvas.placeables.MeasuredTempl
     };
 
     const cls = getDocumentClass("MeasuredTemplate");
-    const template = new cls(templateData as any, { parent: canvas.scene ?? undefined });
+    const template = new cls(templateData, { parent: canvas.scene ?? undefined });
     const object = new this(template);
-    object.actorSheet = creator?.actor?.sheet ?? undefined;
+    object.actorSheet = creator?.actor?.sheet;
     return object;
   }
 
@@ -126,7 +126,9 @@ export class WeaponRangeTemplate extends foundry.canvas.placeables.MeasuredTempl
     return this.activatePreviewListeners(initialLayer);
   }
 
-  private activatePreviewListeners(initialLayer: CanvasLayer | null): Promise<MeasuredTemplateDocument.Implementation> {
+  private activatePreviewListeners(
+    initialLayer: foundry.canvas.layers.InteractionLayer | null
+  ): Promise<MeasuredTemplateDocument.Implementation> {
     return new Promise<MeasuredTemplateDocument.Implementation>((resolve, reject) => {
       const handlers: any = {};
       let moveTime = 0;
@@ -165,9 +167,9 @@ export class WeaponRangeTemplate extends foundry.canvas.placeables.MeasuredTempl
         let destination = this.snapToCenter(event.getLocalPosition(this.layer));
         if (this.isBurst) {
           destination = this.snapToToken(event.getLocalPosition(this.layer));
-          const token = this.document.flags[game.system.id].burstToken;
+          const token = this.document.flags[game.system.id]?.burstToken;
           if (token) {
-            const ignore = this.document.flags[game.system.id].ignore.tokens;
+            const ignore = this.document.flags[game.system.id]?.ignore?.tokens ?? [];
             ignore.push(token);
             this.document.updateSource({
               [`flags.${game.system.id}.ignore.tokens`]: ignore,

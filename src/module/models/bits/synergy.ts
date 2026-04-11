@@ -38,10 +38,9 @@ type SynergyFieldSchema = ReturnType<typeof defineSynergyFieldSchema>;
 
 export type SynergyData = fields.SchemaField.InitializedData<SynergyFieldSchema>;
 
-export class SynergyField<Options extends fields.SchemaField.Options<SynergyFieldSchema>> extends fields.SchemaField<
-  SynergyFieldSchema,
-  Options
-> {
+export class SynergyField<
+  Options extends fields.SchemaField.Options<SynergyFieldSchema> = fields.SchemaField.DefaultOptions,
+> extends fields.SchemaField<SynergyFieldSchema, Options> {
   constructor(options?: Options) {
     super(defineSynergyFieldSchema(), options);
   }

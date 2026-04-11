@@ -4,7 +4,7 @@ import { LANCER } from "../config";
 import { LancerItem } from "../item/lancer-item";
 import type { UUIDRef } from "../source-template";
 import { createChatMessageStep, renderTemplateStep } from "./_render";
-import { Flow, type FlowState, type Step } from "./flow";
+import { Flow, type FlowState, type PostFlowHook, type PreFlowHook, type Step } from "./flow";
 import { LancerFlowState } from "./interfaces";
 
 const lp = LANCER.log_prefix;
@@ -14,8 +14,17 @@ export function registerTextSteps(flowSteps: Map<string, Step<any, any> | Flow<a
   flowSteps.set("printGenericHTML", printGenericHTML);
 }
 
+declare module "fvtt-types/configuration" {
+  namespace Hooks {
+    interface HookConfig {
+      "lancer.preFlow.SimpleTextFlow": PreFlowHook<SimpleTextFlow>;
+      "lancer.postFlow.SimpleTextFlow": PostFlowHook<SimpleTextFlow>;
+    }
+  }
+}
+
 export class SimpleTextFlow extends Flow<LancerFlowState.TextRollData> {
-  static steps = ["printGenericCard"];
+  static override steps = ["printGenericCard"];
 
   constructor(uuid: UUIDRef | LancerItem | LancerActor, data: Partial<LancerFlowState.TextRollData>) {
     const state: LancerFlowState.TextRollData = {
@@ -26,6 +35,18 @@ export class SimpleTextFlow extends Flow<LancerFlowState.TextRollData> {
     if (!state.title && uuid instanceof LancerItem) state.title = uuid.name!;
 
     super(uuid, state);
+  }
+
+  override get steps(): string[] {
+    return SimpleTextFlow.steps;
+  }
+
+  override callAllPreFlowHooks(): void {
+    Hooks.callAll("lancer.preFlow.SimpleTextFlow", this);
+  }
+
+  override callAllPostFlowHooks(success: boolean): void {
+    Hooks.callAll("lancer.postFlow.SimpleTextFlow", this, success);
   }
 }
 
@@ -39,14 +60,35 @@ export async function printGenericCard(state: FlowState<any>, options?: { templa
   return true;
 }
 
+declare module "fvtt-types/configuration" {
+  namespace Hooks {
+    interface HookConfig {
+      "lancer.preFlow.SimpleHTMLFlow": PreFlowHook<SimpleHTMLFlow>;
+      "lancer.postFlow.SimpleHTMLFlow": PostFlowHook<SimpleHTMLFlow>;
+    }
+  }
+}
+
 export class SimpleHTMLFlow extends Flow<LancerFlowState.HTMLToChatData> {
-  static steps = ["printGenericHTML"];
+  static override steps = ["printGenericHTML"];
 
   constructor(uuid: UUIDRef | LancerItem | LancerActor, data: Partial<LancerFlowState.HTMLToChatData>) {
     const state: LancerFlowState.HTMLToChatData = {
       html: data?.html ?? "",
     };
     super(uuid, state);
+  }
+
+  override get steps(): string[] {
+    return SimpleHTMLFlow.steps;
+  }
+
+  override callAllPreFlowHooks(): void {
+    Hooks.callAll("lancer.preFlow.SimpleHTMLFlow", this);
+  }
+
+  override callAllPostFlowHooks(success: boolean): void {
+    Hooks.callAll("lancer.postFlow.SimpleHTMLFlow", this, success);
   }
 }
 

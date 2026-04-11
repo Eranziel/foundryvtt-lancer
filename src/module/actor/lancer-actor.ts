@@ -32,6 +32,7 @@ import { rollEvalSync, tokenScrollText, type TokenScrollTextOptions } from "../u
 import { BurnFlow } from "../flows/burn";
 import { createChatMessageStep } from "../flows/_render";
 import { DamageRollFlow } from "../flows/damage";
+import { isStored } from "../type-guards";
 
 const lp = LANCER.log_prefix;
 
@@ -135,9 +136,13 @@ export class LancerActor<SubType extends Actor.SubType = Actor.SubType> extends 
      */
     if (!paracausal && !this.system.statuses.shredded) {
       const defenseFavor = true; // getAutomationOptions().defenderArmor
-      const resistArmorDamage = armoredDamageTypes.filter(t => resistAll || this.system.resistances[t.toLowerCase()]);
+      const resistArmorDamage = armoredDamageTypes.filter(
+        t => resistAll || this.system.resistances[t.toLowerCase() as Lowercase<typeof t>]
+      );
       const normalArmorDamage = armoredDamageTypes.filter(t => !resistArmorDamage.includes(t));
-      const resistApDamage = apDamageTypes.filter(t => resistAll || this.system.resistances[t.toLowerCase()]);
+      const resistApDamage = apDamageTypes.filter(
+        t => resistAll || this.system.resistances[t.toLowerCase() as Lowercase<typeof t>]
+      );
       let armor = ap ? 0 : this.system.armor;
       let leftoverArmor: number; // Temp 'storage' variable for tracking used armor
 
@@ -416,7 +421,9 @@ export class LancerActor<SubType extends Actor.SubType = Actor.SubType> extends 
   _markStatuses() {
     if (!this.statuses) return;
     for (const status of this.statuses.keys()) {
-      this.system.statuses[status] = true;
+      if (!(status in this.system.statuses)) return;
+
+      this.system.statuses[status as keyof typeof this.system.statuses] = true;
       // Mark resistances based on statuses
       switch (status) {
         case "resistance_burn":
@@ -514,6 +521,11 @@ export class LancerActor<SubType extends Actor.SubType = Actor.SubType> extends 
 
     let updates;
     if (isBar) {
+      if (typeof current !== "object" || current === null || !("value" in current)) {
+        console.error("LancerActor#modifyTokenAttribute | 'current' was not a bar object:", current);
+        return;
+      }
+
       if (isDelta) value = Number(current.value) + value;
       updates = { [`system.${attribute}.value`]: value };
     } else {
@@ -580,8 +592,11 @@ export class LancerActor<SubType extends Actor.SubType = Actor.SubType> extends 
     // If changing active mech, all mechs need to render to recompute if they are the active mech
     let changing_active_mech = (changed as any).system?.active_mech !== undefined;
     if (changing_active_mech) {
-      let owned_mechs = game.actors!.filter(a => a.is_mech() && a.system.pilot?.value == this);
-      owned_mechs?.forEach(m => m.render());
+      const owned_mechs = game.actors.filter(actor => {
+        const a = actor; // HACK: The type guards only work when put in a constant for some reason.
+        return a.is_mech() && actor.system.pilot?.value == this;
+      });
+      owned_mechs.forEach(m => m.render());
     }
 
     // All other changes we want to only be handled by this user who actually triggered the effect
@@ -648,15 +663,13 @@ export class LancerActor<SubType extends Actor.SubType = Actor.SubType> extends 
     const [parent, collection, documents, changes, options, userId] = args;
 
     // When adding an NPC class, find the old class if one exists.
-    let oldClass: LancerNPC_CLASS | null = null;
-    // What janky types! If someone has ideas to clean this up, be my guest.
-    let itemDocs: LancerItem[] = (documents as (LancerItem | LancerActiveEffect)[]).filter(
-      d => d.documentName === "Item"
-    ) as LancerItem[];
+    let oldClass: LancerNPC_CLASS | undefined;
+    let itemDocs = documents.filter(d => d.documentName === "Item") as LancerItem[];
     if (this.is_npc() && itemDocs.some(d => d.is_npc_class())) {
-      oldClass = this.items.find(
-        item => item.is_npc_class() && !itemDocs.find(doc => item._id === doc._id)
-      ) as LancerNPC_CLASS;
+      oldClass = this.items.find(item => {
+        const i = item; // HACK: The type guards only work when put in a constant for some reason.
+        return i.is_npc_class() && !itemDocs.find(doc => item._id === doc._id);
+      }) as LancerNPC_CLASS | undefined;
     }
 
     super._onCreateDescendantDocuments(...args);
@@ -724,10 +737,10 @@ export class LancerActor<SubType extends Actor.SubType = Actor.SubType> extends 
    * Delete a descendant document without worrying if its been deleted before.
    * There is still technically an _exceedingly_ narrow window in which we can get duplicate deletion of effects, but this mitigates it
    */
-  async _safeDeleteDescendant(
-    collection: "Item" | "ActiveEffect",
-    effects: ActiveEffect.Implementation[] | LancerItem[],
-    options?: ActiveEffect.Database.DeleteOptions
+  async _safeDeleteDescendant<EmbeddedName extends foundry.documents.BaseActor.Embedded.Name>(
+    collection: EmbeddedName,
+    effects: { uuid?: string | null | undefined; id: string }[],
+    options?: foundry.abstract.Document.Database.DeleteOperationForName<EmbeddedName>
   ): Promise<any> {
     if (!effects.length) return;
     let toDelete = [];
@@ -735,7 +748,7 @@ export class LancerActor<SubType extends Actor.SubType = Actor.SubType> extends 
       let u = e.uuid ?? "";
       if (!deleteIdCache.has(u)) {
         deleteIdCache.add(u);
-        toDelete.push(e.id!);
+        toDelete.push(e.id);
       }
     }
     deleteIdCacheCleanup();
@@ -765,10 +778,7 @@ export class LancerActor<SubType extends Actor.SubType = Actor.SubType> extends 
     if (!this.is_npc() || (!item.is_npc_class() && !item.is_npc_template())) return;
     const targetFeatures = [...item.system.base_features, ...item.system.optional_features];
     let matches = this.itemTypes.npc_feature.filter(feat => targetFeatures.includes(feat.system.lid));
-    await this._safeDeleteDescendant(
-      "Item",
-      matches.filter(x => x != null)
-    );
+    await this._safeDeleteDescendant("Item", matches.filter(isStored));
   }
 
   /**
@@ -803,8 +813,8 @@ export class LancerActor<SubType extends Actor.SubType = Actor.SubType> extends 
     if (newFrame.is_frame() && this.is_mech()) {
       new_size = Math.max(1, newFrame.system.stats.size ?? 0);
     } else if (newFrame.is_npc_class() && this.is_npc()) {
-      const tier = this.system.tier || 1;
-      new_size = Math.max(1, newFrame.system.base_stats[tier - 1].size);
+      const tier = this.system.tier;
+      new_size = Math.max(1, newFrame.system.base_stats[tier - 1]?.size ?? 1);
     }
     if (!new_size) return;
     await this.prototypeToken.update({ height: new_size, width: new_size });
@@ -831,7 +841,10 @@ export class LancerActor<SubType extends Actor.SubType = Actor.SubType> extends 
    * @param oldClass The old class which is being removed
    * @param newClass The new class which is being added
    */
-  async _swapNpcClass(oldClass: LancerNPC_CLASS | null, newClass: LancerNPC_CLASS | LancerNPC_TEMPLATE): Promise<void> {
+  async _swapNpcClass(
+    oldClass: LancerNPC_CLASS | null | undefined,
+    newClass: LancerNPC_CLASS | LancerNPC_TEMPLATE
+  ): Promise<void> {
     if (!game.users.activeGM?.isSelf || !this.is_npc() || (!newClass.is_npc_class() && !newClass.is_npc_template()))
       return;
     // Flag to know if we need to reset stats
@@ -846,7 +859,7 @@ export class LancerActor<SubType extends Actor.SubType = Actor.SubType> extends 
       ]);
       if (classFeatures.length) {
         // Delete the old class and its features
-        await this._safeDeleteDescendant("Item", [oldClass, ...classFeatures]);
+        await this._safeDeleteDescendant("Item", [oldClass, ...classFeatures].filter(isStored));
         needsRefresh = true;
       }
     }

@@ -14,7 +14,6 @@ import {
   type ResolvedDropData,
   handleDocDropping,
 } from "../helpers/dragdrop";
-// import { addExportButton } from "../helpers/io";
 import {
   handleContextMenus,
   handleCounterInteraction,
@@ -38,6 +37,8 @@ const lp = LANCER.log_prefix;
  * Extend the basic ActorSheet
  */
 export class LancerActorSheet<T extends LancerActorType> extends foundry.appv1.sheets.ActorSheet<ActorSheet.Options> {
+  declare object: Actor.OfType<T>;
+
   // Tracks collapse state between renders
   protected collapse_handler = new CollapseHandler();
 
@@ -110,9 +111,6 @@ export class LancerActorSheet<T extends LancerActorType> extends foundry.appv1.s
 
     // Enable popout editors
     handlePopoutTextEditor(html, this.actor);
-
-    // Add export button.
-    // addExportButton(this.object, html);
 
     // Add root dropping
     handleDocDropping(
@@ -577,7 +575,7 @@ export class LancerActorSheet<T extends LancerActorType> extends foundry.appv1.s
    * Prepare data for rendering the Actor sheet
    * The prepared data object contains both the actor data as well as additional sheet options
    */
-  async getData(): Promise<object> {
+  async getData(): Promise<Record<string, unknown>> {
     const data: any = await super.getData(); // Not fully populated yet!
     data.collapse = {};
     data.system = this.actor.system; // Alias

@@ -72,7 +72,7 @@ class FrequencyField<Options extends fields.StringField.Options = FrequencyField
 const getActionFieldSchema = () => {
   return {
     lid: new LIDField(),
-    name: new fields.StringField(),
+    name: new fields.StringField({ required: true }),
     activation: new fields.StringField({ choices: Object.values(ActivationType), initial: ActivationType.Quick }),
     cost: new fields.NumberField({ min: 0, integer: true, nullable: false }),
     frequency: new FrequencyField(),
@@ -100,10 +100,9 @@ type ActionFieldSchema = ReturnType<typeof getActionFieldSchema>;
 export type ActionData = fields.SchemaField.InitializedData<ActionFieldSchema>;
 
 // Action field is frequent, but not exactly deserving of a custom class like damage or range. It still needs a custom field (frequency)
-export class ActionField<Options extends fields.SchemaField.Options<ActionFieldSchema>> extends fields.SchemaField<
-  ActionFieldSchema,
-  Options
-> {
+export class ActionField<
+  Options extends fields.SchemaField.Options<ActionFieldSchema> = fields.SchemaField.DefaultOptions,
+> extends fields.SchemaField<ActionFieldSchema, Options> {
   constructor(options?: Options) {
     super(getActionFieldSchema(), options);
   }

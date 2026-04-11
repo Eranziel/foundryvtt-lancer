@@ -10,7 +10,7 @@ import fields = foundry.data.fields;
 const defineLicenseModelSchema = () => {
   return {
     key: new fields.StringField(),
-    manufacturer: new fields.StringField(),
+    manufacturer: new fields.StringField({ required: true }),
     curr_rank: new fields.NumberField({ nullable: false, initial: 1, min: 1, max: 3 }),
     ...template_universal_item(),
   };

@@ -5,8 +5,8 @@ export type LancerCombatantModelSchema = ReturnType<typeof defineLancerCombatant
 const defineLancerCombatantModelSchema = () => {
   return {
     activations: new fields.SchemaField({
-      value: new fields.NumberField({ integer: true }),
-      max: new fields.NumberField({ integer: true }),
+      value: new fields.NumberField({ integer: true, nullable: false }),
+      max: new fields.NumberField({ integer: true, nullable: false }),
     }),
     disposition: new fields.NumberField(),
   };

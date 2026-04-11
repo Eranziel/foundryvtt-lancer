@@ -28,7 +28,7 @@
     on:change={() => dispatch("change", value)}
   />
   {#if icon}<i class="{icon} i--2" />{/if}
-  <span style="text-wrap: nowrap;">{label}</span>
+  <span style="text-wrap: nowrap">{label}</span>
 </label>
 
 <style lang="scss">

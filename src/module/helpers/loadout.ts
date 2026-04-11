@@ -44,7 +44,7 @@ export function mechSystemView(
   let eff: string | undefined;
 
   const icon_types = [SystemType.Deployable, SystemType.Drone, SystemType.Mod, SystemType.System, SystemType.Tech];
-  if (icon_types.includes(doc.system.type)) {
+  if (doc.system.type && icon_types.includes(doc.system.type as SystemType)) {
     if (doc.system.type === SystemType.Tech) {
       icon = `cci cci-${slugify(doc.system.type, "-")}-quick i--4`;
     } else {
@@ -120,7 +120,7 @@ export function mechSystemView(
 // A drag-drop slot for a weapon mount. TODO: delete button, clear button
 function weaponMount(mount_path: string, options: HelperOptions): string {
   let mech = resolveHelperDotpath(options, "actor") as LancerMECH;
-  let mount = resolveHelperDotpath(options, mount_path) as LancerMECH["loadout"]["weapon_mounts"][0];
+  let mount = resolveHelperDotpath(options, mount_path) as LancerMECH["system"]["loadout"]["weapon_mounts"][number];
 
   // If bracing, override
   if (mount.bracing) {
@@ -185,7 +185,7 @@ function weaponMount(mount_path: string, options: HelperOptions): string {
 
 // Helper to display all weapon mounts on a mech loadout
 function allWeaponMountView(loadout_path: string, options: HelperOptions) {
-  let loadout = resolveHelperDotpath(options, loadout_path) as Actor.OfType<"mech">["loadout"];
+  let loadout = resolveHelperDotpath(options, loadout_path) as LancerMECH["system"]["loadout"];
   const weapon_mounts = loadout.weapon_mounts.map((_wep, index) =>
     weaponMount(`${loadout_path}.weapon_mounts.${index}`, options)
   );
@@ -259,7 +259,7 @@ export function pilotSlot(data_path: string, options: HelperOptions): string {
          data-accept-types="${EntryType.PILOT}"
          style="height: 100%" src="${pilot.img || "systems/lancer/assets/icons/pilot.svg"}"/>
     <div class="lancer-header lancer-primary license-level">
-      <span>LL${pilot.system?.level || `[--]`}</span>
+      <span>LL${pilot.system.level}</span>
     </div>
 </div>`;
 }
@@ -360,7 +360,8 @@ function frameTraits(frame_path: string, options: HelperOptions): string {
 function frameActive(frame_path: string, core_energy: number, options: HelperOptions): string {
   const frame = resolveHelperDotpath<LancerFRAME>(options, frame_path)!;
   const core = frame.system.core_system;
-  const activeName = core.active_actions.length ? core.active_actions[0].name : core.name;
+  const firstActiveAction = core.active_actions[0];
+  const activeName = firstActiveAction?.name ?? core.name;
   const actionHTML = buildActionArrayHTML(frame, `system.core_system.active_actions`, {
     hideChip: core.active_actions.length <= 1,
   });

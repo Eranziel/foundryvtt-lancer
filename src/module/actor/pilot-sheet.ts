@@ -70,7 +70,7 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
 
           // Fetch data to sync
           let raw_pilot_data = null;
-          if (pilot.system.cloud_id.match(shareCodeMatcher)) {
+          if (pilot.system.cloud_id?.match(shareCodeMatcher)) {
             // pilot share codes
             ui.notifications!.info("Importing character from share code...");
             console.log(`Attempting import with share code: ${pilot.system.cloud_id}`);
@@ -188,7 +188,7 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
     });
   }
 
-  async getData(): Promise<object> {
+  async getData(): Promise<Record<string, unknown>> {
     const data: any = await super.getData(); // Not fully populated yet!
 
     data.compConPilotList = pilotCache()
@@ -314,7 +314,8 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
    * @private
    */
   async _updateObject(event: Event, formData: any) {
-    if (!this.actor.is_pilot()) return;
+    const actor = this.actor; // HACK: The type guards only work when put in a constant for some reason.
+    if (!actor.is_pilot()) return;
     // Do some pre-processing
     // Do these only if the callsign updated
     if (formData["system.callsign"] && this.actor.system.callsign !== formData["system.callsign"]) {
@@ -336,7 +337,7 @@ export function pilotCounters(pilot: LancerPILOT, _options: HelperOptions): stri
   for (let i = 0; i < counter_arr.length; i++) {
     // Only allow deletion if the Pilot is the source
     const counter = counter_arr[i];
-    if (counter.max != null) {
+    if (counter && counter.max != null) {
       if (counter.max <= COUNTER_MAX) {
         counter_detail = counter_detail.concat(
           buildCounterHTML(counter, `system.custom_counters.${i}`, { canDelete: true })
