@@ -158,7 +158,7 @@ export class LoadoutHelper {
    * Check our items for any that aren't equipped, and delete them
    */
   async deleteUnequippedItems() {
-    let deletables: LancerItem[] = [];
+    let deletables: foundry.abstract.Document.StoredForName<"Item">[] = [];
 
     // Flag all unequipped mech equipment
     for (let item of this.actor.items.contents) {
