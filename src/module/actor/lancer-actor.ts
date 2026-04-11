@@ -736,10 +736,10 @@ export class LancerActor<SubType extends Actor.SubType = Actor.SubType> extends 
    * Delete a descendant document without worrying if its been deleted before.
    * There is still technically an _exceedingly_ narrow window in which we can get duplicate deletion of effects, but this mitigates it
    */
-  async _safeDeleteDescendant(
-    collection: "Item" | "ActiveEffect",
-    effects: ActiveEffect.Implementation[] | LancerItem[],
-    options?: ActiveEffect.Database.DeleteOptions
+  async _safeDeleteDescendant<EmbeddedName extends foundry.documents.BaseActor.Embedded.Name>(
+    collection: EmbeddedName,
+    effects: foundry.abstract.Document.StoredForName<EmbeddedName>[],
+    options?: foundry.abstract.Document.Database.DeleteOperationForName<EmbeddedName>
   ): Promise<any> {
     if (!effects.length) return;
     let toDelete = [];
