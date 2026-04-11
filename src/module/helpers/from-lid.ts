@@ -69,8 +69,10 @@ export function fromLidSync(lid: string, { source = "all" }: Partial<FromLidOpts
 
     document = databases
       .map(db => {
-        const doc = db.index.find(i => i.system?.lid === lid);
-        if (doc) (<any>doc).pack = db.collection;
+        const doc: (ReturnType<typeof db.index.find> & { pack?: string }) | undefined = db.index.find(
+          i => "system" in i && !!i.system && "lid" in i.system && i.system.lid === lid
+        );
+        if (doc) doc.pack = db.collection;
         return doc;
       })
       .find(e => e !== undefined);
