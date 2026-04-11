@@ -74,7 +74,7 @@ export class LancerSubscription {
 
 // Given the number of things that can trigger a hook, we debounce to make sure we're only really sending out one signal per set of updates (including user mashing + on a sheet, etc)
 const debounce_timings = new Map<string, number>();
-function debounce_trigger(hook_id: string, doc: foundry.abstract.Document<any, any>) {
+function debounce_trigger(hook_id: string, doc: foundry.abstract.Document.Any) {
   // Check for pending. Cancel if one exists
   let pending = debounce_timings.get(hook_id);
   if (pending) {
