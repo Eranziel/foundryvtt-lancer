@@ -32,6 +32,7 @@ import { rollEvalSync, tokenScrollText, type TokenScrollTextOptions } from "../u
 import { BurnFlow } from "../flows/burn";
 import { createChatMessageStep } from "../flows/_render";
 import { DamageRollFlow } from "../flows/damage";
+import { isStored } from "../type-guards";
 
 const lp = LANCER.log_prefix;
 
@@ -738,7 +739,7 @@ export class LancerActor<SubType extends Actor.SubType = Actor.SubType> extends 
    */
   async _safeDeleteDescendant<EmbeddedName extends foundry.documents.BaseActor.Embedded.Name>(
     collection: EmbeddedName,
-    effects: foundry.abstract.Document.StoredForName<EmbeddedName>[],
+    effects: { uuid?: string | null | undefined; id: string }[],
     options?: foundry.abstract.Document.Database.DeleteOperationForName<EmbeddedName>
   ): Promise<any> {
     if (!effects.length) return;
@@ -747,7 +748,7 @@ export class LancerActor<SubType extends Actor.SubType = Actor.SubType> extends 
       let u = e.uuid ?? "";
       if (!deleteIdCache.has(u)) {
         deleteIdCache.add(u);
-        toDelete.push(e.id!);
+        toDelete.push(e.id);
       }
     }
     deleteIdCacheCleanup();
@@ -777,10 +778,7 @@ export class LancerActor<SubType extends Actor.SubType = Actor.SubType> extends 
     if (!this.is_npc() || (!item.is_npc_class() && !item.is_npc_template())) return;
     const targetFeatures = [...item.system.base_features, ...item.system.optional_features];
     let matches = this.itemTypes.npc_feature.filter(feat => targetFeatures.includes(feat.system.lid));
-    await this._safeDeleteDescendant(
-      "Item",
-      matches.filter(x => x != null)
-    );
+    await this._safeDeleteDescendant("Item", matches.filter(isStored));
   }
 
   /**
@@ -861,7 +859,7 @@ export class LancerActor<SubType extends Actor.SubType = Actor.SubType> extends 
       ]);
       if (classFeatures.length) {
         // Delete the old class and its features
-        await this._safeDeleteDescendant("Item", [oldClass, ...classFeatures]);
+        await this._safeDeleteDescendant("Item", [oldClass, ...classFeatures].filter(isStored));
         needsRefresh = true;
       }
     }
