@@ -18,6 +18,10 @@ interface MinimalPassdownEffect {
   origin: string | null | undefined;
 }
 
+function isMinimalActiveEffectCreateData(arg: Record<string, unknown>): arg is { name: string } {
+  return "name" in arg && typeof arg.name === "string";
+}
+
 /**
  * A helper class purposed with managing inherited ("ephemeral") active effects on a particular actor.
  * These effects never live on the DB, and are instead instantiated ad-hoc from the system.inherited_effects + item inherited effects
@@ -57,7 +61,7 @@ export class EffectHelper {
   // Clear the expected effects for a given uuid
   // Kick off an update if update == true
   async clearEphemeralEffects() {
-    let curr = this.actor.system.inherited_effects as InheritedEffectsState | null;
+    let curr = this.actor.system.inherited_effects;
     if (curr) {
       await this.actor.update(
         {
@@ -76,7 +80,9 @@ export class EffectHelper {
     let inherited_effects = (this.actor as LancerMECH).system.inherited_effects;
     if (inherited_effects) {
       for (let effect of inherited_effects.data) {
-        results.push(new LancerActiveEffect(effect, { parent: this.actor }));
+        if (isMinimalActiveEffectCreateData(effect)) {
+          results.push(new LancerActiveEffect(effect, { parent: this.actor }));
+        }
       }
     }
     return results;
