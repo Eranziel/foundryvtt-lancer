@@ -118,7 +118,7 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
 
     // If this isn't a new item and it's an NPC feature, we need to update the sorting
     if (this.isEditable && !is_new && drop.type === "Item" && drop.document.is_mech_system()) {
-      this._onSortItem(event, drop.document.toObject());
+      if (event.originalEvent) this._onSortItem(event.originalEvent, drop.document.toObject());
     }
   }
 
