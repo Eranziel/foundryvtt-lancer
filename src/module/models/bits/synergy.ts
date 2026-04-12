@@ -59,7 +59,7 @@ export class SynergyField<
   }
 }
 
-export function unpackSynergy(data: PackedSynergyData) {
+export function unpackSynergy(data: PackedSynergyData): SynergyData {
   // Have to do a lot of annoying fixup
   let raw_locations = data.locations ?? [];
   if (!Array.isArray(raw_locations)) raw_locations = [raw_locations];
