@@ -102,7 +102,7 @@ export class LancerItem<out SubType extends Item.SubType = Item.SubType> extends
     ) {
       let tier = 0;
       if (this.actor) {
-        tier = ((this.actor as LancerNPC).system.tier ?? 1) - 1;
+        tier = (this.actor as LancerNPC).system.tier - 1;
       }
       if (this.system.type === NpcFeatureType.Weapon) {
         // Weapons have range and damage
@@ -353,7 +353,7 @@ export class LancerItem<out SubType extends Item.SubType = Item.SubType> extends
         .filter(b => b)
     );
 
-    return effects.map(e => new LancerActiveEffect(e as object, { parent: this }));
+    return effects.map(e => new LancerActiveEffect(e as ActiveEffect.CreateData, { parent: this }));
   }
 
   /** @inheritdoc */
@@ -624,7 +624,7 @@ export class LancerItem<out SubType extends Item.SubType = Item.SubType> extends
   async beginActivationFlow(path?: string) {
     if (!path) {
       // If no path is provided, default to the first action
-      if (!this.system.actions || this.system.actions.length < 1) {
+      if (!("actions" in this.system) || !this.system.actions || this.system.actions.length < 1) {
         ui.notifications!.error(`Item ${this.id} has no actions, how did you even get here?`);
         return;
       }

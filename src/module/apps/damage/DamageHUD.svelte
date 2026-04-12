@@ -208,9 +208,9 @@
       <div class="base-damage lancer-border-primary">
         <h4 class="damage-hud-section lancer-border-primary flexrow">
           Base Damage
-          <button class="add-damage-type" type="button" on:click={addBaseDamage}
-            ><i class="mdi mdi-plus-thick" data-tooltip="Add a base damage type" /></button
-          >
+          <button class="add-damage-type" type="button" on:click={addBaseDamage}>
+            <i class="mdi mdi-plus-thick" data-tooltip="Add a base damage type" />
+          </button>
         </h4>
         {#each weaponDamage as damage, i (i)}
           <div>
@@ -226,9 +226,9 @@
       <div class="bonus-damage">
         <h4 class="damage-hud-section lancer-border-primary flexrow">
           Bonus Damage
-          <button class="add-damage-type" type="button" on:click={addBonusDamage}
-            ><i class="mdi mdi-plus-thick" data-tooltip="Add a bonus damage type" /></button
-          >
+          <button class="add-damage-type" type="button" on:click={addBonusDamage}>
+            <i class="mdi mdi-plus-thick" data-tooltip="Add a bonus damage type" />
+          </button>
         </h4>
         {#each weaponBonusDamage as damage, i (i)}
           <div>
@@ -244,7 +244,7 @@
     </div>
     <!-- Checkboxes - AP etc... -->
     <div class="damage-hud-options-grid">
-      <h4 class="damage-hud-section lancer-border-primary" style="justify-content: center; grid-area: title;">
+      <h4 class="damage-hud-section lancer-border-primary" style="justify-content: center; grid-area: title">
         Configuration
       </h4>
       <HudCheckbox
@@ -275,11 +275,11 @@
         tooltip="For effects which cause the attacker to deal half damage in addition to resistance, like Heavy Gunner"
         style="grid-area: halfdamage"
       />
-      <div class="flexrow" style="grid-area: reliable; align-items: center;">
+      <div class="flexrow" style="grid-area: reliable; align-items: center">
         <HudCheckbox
           label="Reliable"
           bind:value={weapon.reliable}
-          style="grid-area: reliable; max-width: fit-content; padding-right: 0.5em;"
+          style="grid-area: reliable; max-width: fit-content; padding-right: 0.5em"
         />
         {#if weapon.reliable}
           <i

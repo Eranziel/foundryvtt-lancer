@@ -245,27 +245,38 @@ export class EmbeddedRefField<const Options extends EmbeddedRefField.Options> ex
 }
 
 declare namespace SyncUUIDRefField {
-  interface Options extends fields.StringField.Options {
-    allowed_types?: EntryType[];
+  type AllowedSubType<T extends "Actor" | "Item"> = T extends "Actor" ? Actor.SubType : Item.SubType;
+
+  interface Options<S extends Actor.SubType | Item.SubType> extends fields.StringField.Options {
+    allowed_types?: S[];
   }
+
+  type ResolvedType<
+    T extends "Actor" | "Item",
+    S extends SyncUUIDRefField.AllowedSubType<T>,
+    // FIXME: The type constraint of S does not agree with the type constraints of LancerActor and LancerItem.
+  > = SystemTemplates.ResolvedSyncUuidRef<T extends "Actor" ? LancerActor<S> : LancerItem<S>>;
 }
 
 // Similar to the foreignDocumentField, except untyped and supports uuids
 // Supports only sync lookup
-export class SyncUUIDRefField extends fields.StringField<
-  SyncUUIDRefField.Options,
-  fields.StringField.AssignmentType<SyncUUIDRefField.Options>,
-  SystemTemplates.ResolvedSyncUuidRef<any> | null
+export class SyncUUIDRefField<
+  T extends "Actor" | "Item",
+  S extends SyncUUIDRefField.AllowedSubType<T>,
+> extends fields.StringField<
+  SyncUUIDRefField.Options<S>,
+  fields.StringField.AssignmentType<SyncUUIDRefField.Options<S>>,
+  SyncUUIDRefField.ResolvedType<T, S> | null
 > {
   // The acceptable document.type's for this to resolve to. Null is any
-  allowed_types: string[] | null;
+  allowed_types: S[] | null;
 
   /**
    * @param {StringFieldOptions} options  Options which configure the behavior of the field
    */
   constructor(
-    readonly document_type: "Actor" | "Item",
-    options: SyncUUIDRefField.Options = {}
+    readonly document_type: T,
+    options: SyncUUIDRefField.Options<S> = {}
   ) {
     super(options);
     this.allowed_types = options.allowed_types ?? null;
@@ -308,13 +319,13 @@ export class SyncUUIDRefField extends fields.StringField<
   }
 
   /** @inheritdoc */
-  initialize(value: string, model: any): null | SystemTemplates.ResolvedSyncUuidRef<any> {
+  initialize(value: string, model: any): null | SyncUUIDRefField.ResolvedType<T, S> {
     if (!value) return null;
 
     // Create shell
     const shell = {
       id: value,
-    } as SystemTemplates.ResolvedSyncUuidRef<any>;
+    } as SyncUUIDRefField.ResolvedType<T, S>;
 
     // Create job
     model.add_pre_finalize_task(() => {
@@ -323,7 +334,7 @@ export class SyncUUIDRefField extends fields.StringField<
         console.error(`Failed to resolve uuid ref: Not found ${value}`, model, value);
         shell.status = "missing";
         shell.value = null;
-      } else if (this.allowed_types && !this.allowed_types.includes(syncRes.type)) {
+      } else if (this.allowed_types && !this.allowed_types.includes(syncRes.type as S)) {
         console.error(
           `Failed to resolve uuid ref: Wrong type ${syncRes.type} not in ${this.allowed_types.join("|")}`,
           model,

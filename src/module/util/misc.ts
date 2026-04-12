@@ -4,13 +4,13 @@ import { LANCER } from "../config";
 /**
  * Watches for exact changes in its payload, detected by monitoring changes int its payload is stringified to JSON
  */
-export class ChangeWatchHelper {
+export class ChangeWatchHelper<T = unknown> {
   // The previous value, and it stringified
-  prior_value: any = null;
+  prior_value: T | null = null;
   prior_string = "";
 
   // The current value, and it stringified
-  curr_value: any = null;
+  curr_value: T | null = null;
   curr_string = "";
 
   // Whether a call to setValue changed the value.
@@ -26,7 +26,7 @@ export class ChangeWatchHelper {
    * Initial call will never mark dirty bit
    * @param to
    */
-  public setValue(to: any): boolean {
+  public setValue(to: T): boolean {
     // Propagate if not first, flag otherwise
     let first = false;
     if (!this.curr_string) {
@@ -128,6 +128,6 @@ export async function tokenScrollText(
   const token = canvas.tokens?.get(tokenId);
   if (!token) return;
   // If this client does not have floating numbers enabled, don't show them.
-  if (!(game.settings.get(game.system.id, LANCER.setting_floating_damage_numbers))) return;
+  if (!game.settings.get(game.system.id, LANCER.setting_floating_damage_numbers)) return;
   await canvas.interface?.createScrollingText(token.center, content, style);
 }

@@ -15,11 +15,7 @@
   let imgElement: HTMLElement;
 
   $: hitQualityClass =
-    target.quality === HitQuality.Hit
-      ? "target-hit"
-      : target.quality === HitQuality.Crit
-        ? "target-crit"
-        : "target-miss";
+    target.quality === HitQuality.Hit ? "target-hit" : target.quality === HitQuality.Crit ? "target-crit" : "target-miss";
 
   function addBonusDamage() {
     target.bonusDamage = [...target.bonusDamage, { type: DamageType.Kinetic, val: "1d6" }];
@@ -108,7 +104,7 @@
       bind:value={target.paracausal}
       on:change={toggleParacausal}
       tooltip="For 'cannot be reduced' effects like the Paracausal mod"
-      style="margin: 0 0.3em;"
+      style="margin: 0 0.3em"
     />
     <HudCheckbox
       icon="mdi mdi-fraction-one-half"

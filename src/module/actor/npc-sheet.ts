@@ -110,7 +110,8 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
   // Take ownership of appropriate items. Already filtered by can_drop_entry
   async onRootDrop(base_drop: ResolvedDropData, event: JQuery.DropEvent, _dest: JQuery<HTMLElement>): Promise<void> {
     // Type guard
-    if (!this.actor.is_npc()) return;
+    const actor = this.actor; // HACK: The type guards only work when put in a constant for some reason.
+    if (!actor.is_npc()) return;
 
     // Take posession
     let [drop, is_new] = await this.quickOwnDrop(base_drop);
@@ -134,14 +135,15 @@ export class LancerNPCSheet extends LancerActorSheet<EntryType.NPC> {
       // Update this, to re-populate arrays etc to reflect new item
       await this.actor.update({
         "system.hp.value": this.actor.system.hp.max,
-        "system.stress.value": this.actor.system.stress.max,
-        "system.structure.value": this.actor.system.structure.max,
+        // TODO: remove the non-null assertion, once FullBoundedNumberField is replaced.
+        "system.stress.value": this.actor.system.stress!.max,
+        "system.structure.value": this.actor.system.structure!.max,
       });
     }
 
     // If this isn't a new item and it's an NPC feature, we need to update the sorting
     if (this.isEditable && !is_new && drop.type === "Item" && drop.document.is_npc_feature()) {
-      this._onSortItem(event, drop.document.toObject());
+      if (event.originalEvent) this._onSortItem(event.originalEvent, drop.document.toObject());
     }
   }
 }

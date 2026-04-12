@@ -59,7 +59,6 @@ import { gridDist } from "./module/helpers/automation/targeting";
 import { applyCollapseListeners, initializeCollapses } from "./module/helpers/collapse";
 import CompconLoginForm from "./module/helpers/compcon-login-form";
 import { applyGlobalDragListeners } from "./module/helpers/dragdrop";
-// import { handleActorExport, validForExport } from "./module/helpers/io";
 import { extendCombatTrackerConfig } from "./module/apps/lancer-initiative-config-form";
 import { handleRefClickOpen } from "./module/helpers/refs";
 import { DeployableModel } from "./module/models/actors/deployable";
@@ -336,7 +335,7 @@ Hooks.once("init", () => {
 
   // ------------------------------------------------------------------------
   // Sliding HUD Zone, including accuracy/difficulty window
-  Hooks.on("renderHeadsUpDisplay", slidingHUD.attach);
+  Hooks.on("renderHeadsUpDisplayContainer", slidingHUD.attach);
   preloadHUDs();
 
   // Combat tracker HUD modules integration
@@ -401,7 +400,7 @@ Hooks.once("ready", async function () {
     if (!item.is_status()) return;
     await LancerActiveEffect.updateIcons();
   };
-  Hooks.on("itemCreated", _updateIcons);
+  Hooks.on("createItem", _updateIcons);
   Hooks.on("deleteItem", _updateIcons);
   Hooks.on("updateItem", _updateIcons);
 });
@@ -447,8 +446,10 @@ Hooks.on("updateActor", (_actor, changes): void => {
 Hooks.on("closeSettingsConfig", () => {
   game.action_manager?.updateConfig();
 });
-Hooks.on("getSceneNavigationContext", async () => {
-  game.action_manager && (await game.action_manager!.reset());
+Hooks.on("ready", () => {
+  // FIXME: This was on the removed "getSceneNavigationContext" hook before. As discussed with Bolts, this is now moved
+  // to the "ready" hook, to figure out if it's still needed.
+  game.action_manager?.reset();
 });
 Hooks.on("createCombat", _actor => {
   game.action_manager?.update();
@@ -466,10 +467,6 @@ Hooks.on("updateCombat", (_combat, changes) => {
       if (t.document.getFlag("lancer", "isAttack")) t.document.delete();
     });
   }
-  // This can be removed in v10
-  if (foundry.utils.hasProperty(changes, "turn")) {
-    ui.combatCarousel?.render();
-  }
 });
 
 // Handle dropping statuses on tokens
@@ -477,40 +474,6 @@ Hooks.on("dropCanvasData", dropStatusToCanvas);
 
 // Create sidebar button to import LCP
 Hooks.on("renderCompendiumDirectory", addLCPManagerButton);
-
-// TODO: keep or remove?
-// This seems broken
-// Hooks.on("getActorDirectoryEntryContext", (_html: JQuery<HTMLElement>, ctxOptions: ContextMenuEntry[]) => {
-//   const editMigratePilot: ContextMenuEntry = {
-//     name: "Migrate Pilot",
-//     icon: '<i class="fas fa-user-circle"></i>',
-//     condition: (li: any) => {
-//       const actor = game.actors?.get(li.data("documentId"));
-//       return actor?.type === "pilot" && validForExport(actor);
-//     },
-//     callback: (li: any) => {
-//       const actor = game.actors?.get(li.data("documentId"));
-//       const dump = handleActorExport(actor, false);
-//       if (dump && actor?.is_pilot()) importCC(actor, dump as any, true);
-//     },
-//   };
-
-//   const editExportPilot: ContextMenuEntry = {
-//     name: "Export Pilot",
-//     icon: '<i class="fas fa-user-circle"></i>',
-//     condition: (li: any) => {
-//       const actor = game.actors?.get(li.data("documentId"));
-//       return actor?.type === "pilot" && validForExport(actor);
-//     },
-//     callback: (li: any) => {
-//       const actor = game.actors?.get(li.data("documentId"));
-//       handleActorExport(actor, true);
-//     },
-//   };
-
-//   ctxOptions.unshift(editMigratePilot);
-//   ctxOptions.unshift(editExportPilot);
-// });
 
 // For the settings tab
 Hooks.on("renderSettings", async (app, html) => {
@@ -520,7 +483,7 @@ Hooks.on("renderCombatTrackerConfig", extendCombatTrackerConfig);
 
 // Disable token vision and fog exploration by default in scene config
 Hooks.on("preCreateScene", scene => {
-  scene.updateSource({ tokenVision: false, "fog.exploration": false });
+  scene.updateSource({ tokenVision: false, fog: { exploration: false } });
 });
 
 Hooks.on("renderChatMessageHTML", async (cm, el, data) => {
@@ -621,12 +584,12 @@ Hooks.on("renderChatMessageHTML", async (cm, el, data) => {
     if (!canvas.ready) return;
     const targetId = $(ev.target).closest("[data-uuid]").data("uuid");
     if (!targetId) return;
-    const token = (await fromUuid(targetId)) as LancerToken | null;
+    const token = (await fromUuid(targetId)) as LancerTokenDocument | null;
     if (!token) return;
     if (ev.type === "mouseover") {
-      token.object._onHoverIn(ev);
+      token.object?.["_onHoverIn"](ev as unknown as MouseEvent);
     } else if (ev.type === "mouseout") {
-      token.object._onHoverOut(ev);
+      token.object?.["_onHoverOut"]();
     }
   };
   const atkDmgTargets = html.find(".lancer-hit-target, .lancer-damage-target");

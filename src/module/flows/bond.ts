@@ -4,7 +4,7 @@ import { LancerItem } from "../item/lancer-item";
 import type { PowerData } from "../models/bits/power";
 import type { UUIDRef } from "../source-template";
 import { renderTemplateStep } from "./_render";
-import { Flow, type FlowState, type Step } from "./flow";
+import { Flow, type FlowState, type PostFlowHook, type PreFlowHook, type Step } from "./flow";
 import { LancerFlowState } from "./interfaces";
 
 const lp = LANCER.log_prefix;
@@ -15,8 +15,17 @@ export function registerBondPowerSteps(flowSteps: Map<string, Step<any, any> | F
   flowSteps.set("printPowerCard", printPowerCard);
 }
 
+declare module "fvtt-types/configuration" {
+  namespace Hooks {
+    interface HookConfig {
+      "lancer.preFlow.BondPowerFlow": PreFlowHook<BondPowerFlow>;
+      "lancer.postFlow.BondPowerFlow": PostFlowHook<BondPowerFlow>;
+    }
+  }
+}
+
 export class BondPowerFlow extends Flow<LancerFlowState.BondPowerUseData> {
-  static steps = ["initPowerData", "updatePowerUses", "printPowerCard"];
+  static override steps = ["initPowerData", "updatePowerUses", "printPowerCard"];
 
   constructor(uuid: UUIDRef | LancerItem | LancerActor, data?: Partial<LancerFlowState.BondPowerUseData>) {
     // Can't just check !data?.powerIndex because it could be 0
@@ -37,6 +46,10 @@ export class BondPowerFlow extends Flow<LancerFlowState.BondPowerUseData> {
     super(uuid, initialData);
   }
 
+  override get steps(): string[] {
+    return BondPowerFlow.steps;
+  }
+
   async begin(data?: LancerFlowState.BondPowerUseData): Promise<boolean> {
     if (!this.state.item || !this.state.item.is_bond()) {
       console.log(`${lp} BondPowerFlow aborted - no bond item provided!`);
@@ -52,6 +65,14 @@ export class BondPowerFlow extends Flow<LancerFlowState.BondPowerUseData> {
       return false;
     }
     return await super.begin(data);
+  }
+
+  override callAllPreFlowHooks(): void {
+    Hooks.callAll("lancer.preFlow.BondPowerFlow", this);
+  }
+
+  override callAllPostFlowHooks(success: boolean): void {
+    Hooks.callAll("lancer.postFlow.BondPowerFlow", this, success);
   }
 }
 

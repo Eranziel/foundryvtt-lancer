@@ -20,7 +20,11 @@ export interface InventoryDialogData {
  * @extends {Dialog}
  */
 export class InventoryDialog extends Dialog {
-  constructor(readonly actor: LancerActor, dialogData: Dialog.Data, options: Partial<Dialog.Options> = {}) {
+  constructor(
+    readonly actor: LancerActor,
+    dialogData: Dialog.Data<JQuery | HTMLElement>,
+    options: Partial<Dialog.Options> = {}
+  ) {
     super(dialogData, options);
     this.actor = actor;
   }

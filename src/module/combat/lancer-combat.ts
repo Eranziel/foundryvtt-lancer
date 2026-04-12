@@ -18,10 +18,10 @@ export class LancerCombat<SubType extends Combat.SubType = Combat.SubType> exten
     return super._preCreate(data, options, user);
   }
 
-  async _manageTurnEvents(...args: unknown[]) {
+  async _manageTurnEvents() {
     // Avoid the Foundry bug where this is called on create, before this.previous is set.
     if (!this.previous) return;
-    super._manageTurnEvents(...args);
+    super._manageTurnEvents();
   }
 
   /**
@@ -52,9 +52,9 @@ export class LancerCombat<SubType extends Combat.SubType = Combat.SubType> exten
     const updateData = { round: this.round + 1, turn: null };
     let advanceTime = Math.max(this.turns.length - (this.turn || 0), 0) * CONFIG.time.turnTime;
     advanceTime += CONFIG.time.roundTime;
-    const updateOptions = { advanceTime, direction: 1 };
+    const updateOptions = { advanceTime, direction: 1 } as const;
     Hooks.callAll("combatRound", this, updateData, updateOptions);
-    await this.update(updateData, updateOptions as any);
+    await this.update(updateData, updateOptions);
     return this;
   }
 
@@ -63,9 +63,9 @@ export class LancerCombat<SubType extends Combat.SubType = Combat.SubType> exten
    */
   override async nextTurn(): Promise<this> {
     const updateData = { turn: null };
-    const updateOptions = { advanceTime: 0, direction: 0 };
+    const updateOptions = { advanceTime: 0, direction: 0 } as const;
     Hooks.callAll("combatTurn", this, updateData, updateOptions);
-    await this.update(updateData, updateOptions as any);
+    await this.update(updateData, updateOptions as unknown as Combat.Database.UpdateOperation);
     return this;
   }
 
@@ -75,9 +75,9 @@ export class LancerCombat<SubType extends Combat.SubType = Combat.SubType> exten
     let advanceTime = 0;
     if (round > 0) advanceTime -= CONFIG.time.roundTime;
     const updateData = { round, turn: null };
-    const updateOptions = { advanceTime, direction: -1 };
+    const updateOptions = { advanceTime, direction: -1 } as const;
     Hooks.callAll("combatRound", this, updateData, updateOptions);
-    await this.update(updateData, updateOptions as any);
+    await this.update(updateData, updateOptions);
     return this;
   }
 
@@ -90,7 +90,7 @@ export class LancerCombat<SubType extends Combat.SubType = Combat.SubType> exten
     const updateOptions = { advanceTime: -CONFIG.time.turnTime, direction: -1 };
     await this.combatant?.modifyCurrentActivations(1);
     Hooks.callAll("combatTurn", this, updateData, updateOptions);
-    await this.update(updateData, updateOptions as any);
+    await this.update(updateData, updateOptions as unknown as Combat.Database.UpdateOperation);
     return this;
   }
 
@@ -180,9 +180,11 @@ export class LancerCombatant<SubType extends Combatant.SubType = Combatant.SubTy
   async addActivations(num: number): Promise<this | undefined> {
     if (num === 0) return this;
     return this.update({
-      "system.activations": {
-        max: Math.max((this.activations.max ?? 1) + num, 1),
-        value: Math.max((this.activations.value ?? 0) + num, 0),
+      system: {
+        activations: {
+          max: Math.max((this.activations.max ?? 1) + num, 1),
+          value: Math.max((this.activations.value ?? 0) + num, 0),
+        },
       },
     });
   }
@@ -194,8 +196,10 @@ export class LancerCombatant<SubType extends Combatant.SubType = Combatant.SubTy
   async modifyCurrentActivations(num: number): Promise<this | undefined> {
     if (num === 0) return this;
     return this.update({
-      "system.activations": {
-        value: Math.clamp((this.activations?.value ?? 0) + num, 0, this.activations?.max ?? 1),
+      system: {
+        activations: {
+          value: Math.clamp((this.activations?.value ?? 0) + num, 0, this.activations?.max ?? 1),
+        },
       },
     });
   }
@@ -210,6 +214,53 @@ interface Activations {
 }
 
 declare module "fvtt-types/configuration" {
+  namespace Hooks {
+    interface HookConfig {
+      /**
+       * A hook event that fires when a Combat encounter is started.
+       * This event fires on the initiating client before any database update occurs.
+       * @param combat     - The Combat encounter which is starting
+       * @param updateData - An object which contains Combat properties that will be updated. Can be mutated.
+       */
+      combatStart: (
+        combat: Combat.Implementation,
+        updateData: {
+          /** The initial round */
+          round: number;
+          /** The initial turn */
+          turn: number | null;
+        }
+      ) => void;
+
+      /**
+       * A hook event that fires when the turn of the Combat encounter changes.
+       * This event fires on the initiating client before any database update occurs.
+       * @param combat        - The Combat encounter which is advancing or rewinding its turn
+       * @param updateData    - An object which contains Combat properties that will be updated. Can be mutated.
+       * @param updateOptions - An object which contains options provided to the update method. Can be mutated.
+       */
+      combatTurn: (
+        combat: Combat.Implementation,
+        updateData: {
+          /** The current round of combat */
+          round?: number;
+
+          /** The new turn number */
+          turn: number | null;
+        },
+        updateOptions: {
+          /** The amount of time in seconds that time is being advanced */
+          advanceTime: number;
+
+          /** A signed integer for whether the turn order is advancing or rewinding */
+          direction: number;
+        }
+      ) => void;
+
+      LancerCombatRequestActivate: (combat: Combat.Implementation, id: string) => void;
+    }
+  }
+
   interface FlagConfig {
     Combatant: {
       lancer: {

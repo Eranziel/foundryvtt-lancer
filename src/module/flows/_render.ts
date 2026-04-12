@@ -36,17 +36,17 @@ export async function renderTemplateStep(actor: LancerActor, template: string, t
 
 export async function createChatMessageStep(
   actor: LancerActor,
-  html: HTMLElement | string,
+  html: string,
   rolls?: Roll | Roll[],
   flags?: any
-) {
+): Promise<void> {
   if (rolls && !Array.isArray(rolls)) rolls = [rolls];
   let chat_data = {
-    type: CONST.CHAT_MESSAGE_STYLES.IC,
+    style: CONST.CHAT_MESSAGE_STYLES.IC,
     rolls,
     speaker: {
-      actor: actor,
-      token: actor?.token,
+      actor: actor.id,
+      token: actor?.token?.id,
       alias: !!actor?.token ? actor.token.name : null,
     },
     content: html,

@@ -7,7 +7,6 @@ export async function richTextEdit(doc: foundry.abstract.Document.Any, property:
   if (typeof originalText !== "string") throw new Error(`Document property ${property} is not a string`);
   const content = document.createElement("div");
   content.appendChild(
-    // @ts-expect-error The missing stuff is definitely optional
     foundry.applications.elements.HTMLProseMirrorElement.create({
       name: "result",
       toggled: false,

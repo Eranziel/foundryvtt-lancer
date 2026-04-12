@@ -1,6 +1,6 @@
+import type * as t from "io-ts";
 import { LancerItem } from "../../item/lancer-item";
 import { LancerActor } from "../../actor/lancer-actor";
-
 import type { DamageData } from "../../models/bits/damage";
 import type DamageTarget from "./DamageTarget.svelte";
 
@@ -13,7 +13,7 @@ import type DamageTarget from "./DamageTarget.svelte";
 // but it's convenient
 
 // TODO: move CheckboxUI through RollModifier to a common file
-declare interface CheckboxUI {
+export declare interface CheckboxUI {
   uiElement: "checkbox";
   slug: string;
   humanLabel: string;
@@ -23,34 +23,32 @@ declare interface CheckboxUI {
   get visible(): boolean;
 }
 
-declare interface NoUI {
+export declare interface NoUI {
   uiElement: "none";
 }
 
-type UIBehaviour = CheckboxUI | NoUI;
-
-declare interface RollModifier {
+export declare interface RollModifier {
   modifyRoll(roll: string): string;
   get rollPrecedence(): number; // higher numbers happen earlier
 }
 
-declare interface Dehydrated {
+export declare interface Dehydrated {
   // the codec handles all serializable data,
   // but we might want to pick up data from the environment too
   // all perTarget codecs get the target as well
   hydrate(data: DamageData, target?: DamageTarget): void;
 }
 
-export type DamageHudPluginData = UIBehaviour & RollModifier & Dehydrated;
 export type DamageHudCheckboxPluginData = CheckboxUI & RollModifier & Dehydrated;
 export type DamageHudNoUIPluginData = NoUI & RollModifier & Dehydrated;
+export type DamageHudPluginData = DamageHudCheckboxPluginData | DamageHudNoUIPluginData;
 
-export type DamageHudPluginCodec<C extends DamageHudPluginData, O, I> = Codec<C, O, I>;
+export type DamageHudPluginCodec<Data extends DamageHudPluginData, Out, In> = t.Type<Data, Out, In>;
 
-export interface DamageHudPlugin<Data extends DamageHudPluginData> {
+export interface DamageHudPlugin<Data extends DamageHudPluginData, Out = Data, In = unknown> {
   slug: string;
   // the codec lets us know how to persist whatever data you need for rerolls
-  codec: DamageHudPluginCodec<Data, O, I>;
+  codec: DamageHudPluginCodec<Data, Out, In>;
   // these constructors handle creating the initial data for a plugin
   // the presence of these three constructors also indicates what scopes the plugin lives in
   // a "perRoll" plugin applies to all rolls, like weapon seeking

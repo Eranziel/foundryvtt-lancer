@@ -2,7 +2,17 @@ import { CombatTrackerAppearance } from "../settings";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
-export class LancerInitiativeConfigApp extends HandlebarsApplicationMixin(ApplicationV2) {
+interface RenderOptions extends foundry.applications.api.ApplicationV2.RenderOptions {
+  reset: boolean | null | undefined;
+}
+
+export class LancerInitiativeConfigApp extends HandlebarsApplicationMixin(
+  ApplicationV2<
+    foundry.applications.api.ApplicationV2.RenderContext,
+    foundry.applications.api.ApplicationV2.Configuration,
+    RenderOptions
+  >
+) {
   static PARTS = {
     form: { template: "systems/lancer/templates/combat/lancer-initiative-settings-v2.hbs" },
     footer: { template: "templates/generic/form-footer.hbs", classes: ["flexrow"] },
@@ -35,7 +45,7 @@ export class LancerInitiativeConfigApp extends HandlebarsApplicationMixin(Applic
     return ctx;
   }
 
-  _onRender() {
+  async _onRender(): Promise<void> {
     const element: HTMLElement = this.element;
     const icon = element.querySelector<HTMLAnchorElement>("a.preview");
     const fake_combatant = element.querySelector<HTMLDivElement>("div.fake-combatant");
@@ -57,7 +67,7 @@ export class LancerInitiativeConfigApp extends HandlebarsApplicationMixin(Applic
     });
   }
 
-  static async #onReset() {
+  static async #onReset(this: LancerInitiativeConfigApp) {
     this.render({ reset: true });
   }
 
@@ -66,7 +76,7 @@ export class LancerInitiativeConfigApp extends HandlebarsApplicationMixin(Applic
   }
 }
 
-export function extendCombatTrackerConfig(app: foundry.applications.api.ApplicationV2, html: HTMLElement) {
+export function extendCombatTrackerConfig(app: foundry.applications.apps.CombatTrackerConfig.Any, html: HTMLElement) {
   const button = document.createElement("button");
   button.type = "button";
   button.innerHTML = game.i18n.localize("LANCERINITIATIVE.IconSettingsMenu");

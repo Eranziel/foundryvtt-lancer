@@ -175,11 +175,23 @@ export function handleDragging(
   });
 }
 
-export type FoundryDropData = {
-  // TODO - update to league type, when those typings work
-  type: "Actor" | "Item" | "JournalEntry" | "Macro" | "Scene"; // TODO: Scenes, sounds
-  uuid: string;
-};
+// TODO: Update these to the league types, when those work and are configurable.
+
+export interface LancerActorDragData extends Actor.DropData {
+  type: "Actor";
+}
+
+export interface LancerItemDragData extends Item.DropData {
+  type: "Item";
+}
+
+interface LancerItemDropData extends LancerItemDragData, Partial<Canvas.DropPosition> {}
+
+interface LancerMacroDropData extends Macro.DropData {
+  type?: "Macro";
+}
+
+export type FoundryDropData = Hooks.DropData | LancerItemDropData | LancerMacroDropData | Scene.DropData;
 
 export type LancerFlowDropData = {
   uuid: string;
@@ -230,13 +242,14 @@ export type ResolvedDropData =
 // Resolves a native foundry actor/item drop event datatransfer to the actual contained actor/item/journal
 // This can be annoying, so we made it a dedicated method
 // Input is either a stringified JSON dropData or a uuid
-export async function resolveNativeDrop(drop: string | FoundryDropData): Promise<ResolvedDropData | null> {
+export async function resolveNativeDrop(drop: string | FoundryDropData | null): Promise<ResolvedDropData | null> {
   // Get dropped data
-  if (typeof drop == "string") {
-    drop = safe_json_parse(drop) as FoundryDropData;
+  if (typeof drop === "string") {
+    drop = safe_json_parse(drop) as FoundryDropData | null;
   }
   if (!drop) {
     // Attempt uuid route
+    // FIXME: By definition, `drop` is now falsy.
     let document = await fromUuid(drop);
     if (!document) return null;
     if (document instanceof LancerActor) {
@@ -260,9 +273,9 @@ export async function resolveNativeDrop(drop: string | FoundryDropData): Promise
         document,
       };
     }
-  } else {
+  } else if ("type" in drop) {
     // We presume it to be a normal dropData.
-    if (drop.type == "Actor") {
+    if (drop.type === "Actor") {
       let document = await LancerActor.fromUuid(drop.uuid);
       return document
         ? {
@@ -270,7 +283,7 @@ export async function resolveNativeDrop(drop: string | FoundryDropData): Promise
             document,
           }
         : null;
-    } else if (drop.type == "Item") {
+    } else if (drop.type === "Item" && drop.uuid) {
       let document = await LancerItem.fromUuid(drop.uuid);
       return document
         ? {
@@ -278,7 +291,7 @@ export async function resolveNativeDrop(drop: string | FoundryDropData): Promise
             document,
           }
         : null;
-    } else if (drop.type == "JournalEntry") {
+    } else if (drop.type === "JournalEntry") {
       let document = await JournalEntry.fromDropData(drop);
       return document
         ? {
@@ -286,7 +299,7 @@ export async function resolveNativeDrop(drop: string | FoundryDropData): Promise
             document,
           }
         : null;
-    } else if (drop.type == "Macro") {
+    } else if (drop.type === "Macro") {
       let document = await Macro.fromDropData(drop);
       return document
         ? {

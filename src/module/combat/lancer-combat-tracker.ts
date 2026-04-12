@@ -115,20 +115,20 @@ export class LancerCombatTracker extends foundry.applications.sidebar.tabs.Comba
       {
         name: "LANCERINITIATIVE.AddActivation",
         icon: '<i class="fas fa-plus"></i>',
-        callback: (li: HTMLElement) => getCombatant(li)?.addActivations(1),
+        callback: li => void getCombatant(li)?.addActivations(1),
       },
       {
         name: "LANCERINITIATIVE.RemoveActivation",
         icon: '<i class="fas fa-minus"></i>',
-        callback: (li: HTMLElement) => getCombatant(li)?.addActivations(-1),
+        callback: li => void getCombatant(li)?.addActivations(-1),
       },
       {
         name: "LANCERINITIATIVE.UndoActivation",
         icon: '<i class="fas fa-undo"></i>',
-        callback: (li: HTMLElement) =>
+        callback: li =>
           this.viewed
             ?.deactivateCombatant(li.dataset.combatantId!)
-            .then(() => getCombatant(li)?.modifyCurrentActivations(1)),
+            .then(() => void getCombatant(li)?.modifyCurrentActivations(1)),
       },
     ];
     m.push(...super._getEntryContextOptions().filter((i: any) => i.name !== "COMBAT.CombatantReroll"));

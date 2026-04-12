@@ -133,9 +133,14 @@ const defineDamageFieldSchema = () => {
 type DamageFieldSchema = ReturnType<typeof defineDamageFieldSchema>;
 
 // Maps DamageData to a damage class
-export class DamageField<Options extends fields.SchemaField.Options<DamageFieldSchema>> extends fields.SchemaField<
+export class DamageField<
+  Options extends fields.SchemaField.Options<DamageFieldSchema> = fields.SchemaField.DefaultOptions,
+> extends fields.SchemaField<
   DamageFieldSchema,
-  Options
+  Options,
+  fields.SchemaField.Internal.AssignmentType<DamageFieldSchema, Options>,
+  Damage,
+  fields.SchemaField.Internal.PersistedType<DamageFieldSchema, Options>
 > {
   constructor(options?: Options) {
     super(defineDamageFieldSchema(), options);

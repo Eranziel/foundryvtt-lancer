@@ -20,9 +20,13 @@ import { registerTalentSteps, TalentFlow } from "./talent";
 import { registerTechAttackSteps, TechAttackFlow } from "./tech";
 import { registerTextSteps, SimpleHTMLFlow, SimpleTextFlow } from "./text";
 
+// HACK: Ideally these would be `unknown`, not `any`, but we'll keep it like this to avoid breakage for now.
+type Flows = Map<string, typeof Flow<any>>;
+type FlowSteps = Map<string, Step<any, any> | Flow>;
+
 export function registerFlows() {
-  const flows = new Map<string, typeof Flow<any>>();
-  const flowSteps = new Map<string, Step<any, any> | Flow<any>>();
+  const flows: Flows = new Map();
+  const flowSteps: FlowSteps = new Map();
 
   flows.set(ActionTrackFlow.name, ActionTrackFlow);
   flows.set(ActivationFlow.name, ActivationFlow);
@@ -71,4 +75,12 @@ export function registerFlows() {
 
   Hooks.callAll("lancer.registerFlows", flowSteps, flows);
   return { flows, flowSteps };
+}
+
+declare module "fvtt-types/configuration" {
+  namespace Hooks {
+    interface HookConfig {
+      "lancer.registerFlows": (flowSteps: FlowSteps, flows: Flows) => boolean | void;
+    }
+  }
 }

@@ -3,13 +3,20 @@ import { LancerItem } from "../item/lancer-item";
 import { TalentFlow } from "./talent";
 import { SimpleHTMLFlow, SimpleTextFlow } from "./text";
 
+interface ItemChatFlowData {
+  index?: number | null | undefined;
+  path?: string | null | undefined;
+  rank?: number | null | undefined;
+  type?: string | null | undefined;
+}
+
 /**
  * Select and begin a chat flow for the given item.
  * @param item The item to print to chat
  * @param data Additional data required by some flows
  * @returns Promise<boolean> Whether the flow completed successfully
  */
-export async function beginItemChatFlow(item: LancerItem, data: any) {
+export async function beginItemChatFlow(item: LancerItem, data: ItemChatFlowData) {
   if (item.is_skill()) {
     const flow = new SimpleHTMLFlow(item, {});
     return await flow.begin();
@@ -24,7 +31,7 @@ export async function beginItemChatFlow(item: LancerItem, data: any) {
   } else if (item.is_talent()) {
     const lvl = data.rank ?? item.system.curr_rank;
     const flow = new TalentFlow(item, {
-      title: item.name!,
+      title: item.name,
       rank: item.system.ranks[lvl],
       lvl,
     });
@@ -47,13 +54,13 @@ export async function beginItemChatFlow(item: LancerItem, data: any) {
     throw new TypeError(`Invalid path provided for frame flow!`);
   } else if (item.is_pilot_gear()) {
     const flow = new SimpleTextFlow(item, {
-      title: item.name!,
-      description: item.system.description,
+      title: item.name,
+      description: item.system.description ?? undefined,
       tags: item.system.tags,
     });
     return await flow.begin();
   } else if (item.is_core_bonus()) {
-    const flow = new SimpleTextFlow(item, { title: item.name!, description: item.system.effect });
+    const flow = new SimpleTextFlow(item, { title: item.name, description: item.system.effect });
     return await flow.begin();
   } else if (item.is_reserve()) {
     const flow = new SimpleTextFlow(item, {
@@ -63,14 +70,14 @@ export async function beginItemChatFlow(item: LancerItem, data: any) {
     return await flow.begin();
   } else if (item.is_npc_feature()) {
     const flow = new SimpleTextFlow(item, {
-      title: item.name!,
+      title: item.name,
       description: item.system.effect,
       tags: item.system.tags,
     });
     return await flow.begin();
   } else {
     console.log("No macro exists for that item type");
-    ui.notifications!.error(`Error - No macro exists for item type "${item.type}"`);
+    ui.notifications.error(`Error - No macro exists for item type "${item.type}"`);
     return false;
   }
 }

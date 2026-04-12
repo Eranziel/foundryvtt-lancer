@@ -22,7 +22,7 @@ function adjacentSpotter(actor: LancerActor): boolean {
   );
 
   const spotters: Set<LancerToken> = canvas.tokens!.quadtree!.getObjects(aabb, {
-    collisionTest: (o: QuadtreeObject<LancerToken>) => {
+    collisionTest: o => {
       if (!o.t.actor?.is_mech() || o.t === token) return false;
       if (!o.t.actor.system.pilot?.value?.itemTypes.talent.some(t => t.system.lid === "t_spotter")) return false;
       const house_guard: boolean =
@@ -38,9 +38,9 @@ function spotter(): AccDiffHudPluginData {
   let sp = {
     actor: null as LancerActor | null,
     target: null as AccDiffHudTarget | null,
-    uiElement: "checkbox" as "checkbox",
+    uiElement: "checkbox" as const,
     slug: "spotter",
-    category: "acc" as "acc",
+    category: "acc" as const,
     humanLabel: "Spotter (*)",
     get uiState() {
       return !!(this.actor && this.target?.usingLockOn && adjacentSpotter(this.actor));
@@ -69,7 +69,7 @@ function spotter(): AccDiffHudPluginData {
   return sp;
 }
 
-const Spotter: AccDiffHudPlugin<AccDiffHudPluginData> = {
+const Spotter: AccDiffHudPlugin<AccDiffHudPluginData, null> = {
   slug: "spotter",
   category: "acc",
   codec: stateless(

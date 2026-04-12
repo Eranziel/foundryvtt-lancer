@@ -8,7 +8,7 @@ import { Damage, type DamageData } from "../models/bits/damage";
 import type { UUIDRef } from "../source-template";
 import { LancerToken, LancerTokenDocument } from "../token";
 import { renderTemplateStep } from "./_render";
-import { Flow, type FlowState, type Step } from "./flow";
+import { Flow, type FlowState, type PostFlowHook, type PreFlowHook, type Step } from "./flow";
 import { LancerFlowState } from "./interfaces";
 
 export type DamageFlag = {
@@ -32,11 +32,20 @@ export function registerDamageSteps(flowSteps: Map<string, Step<any, any> | Flow
   flowSteps.set("printDamageCard", printDamageCard);
 }
 
+declare module "fvtt-types/configuration" {
+  namespace Hooks {
+    interface HookConfig {
+      "lancer.preFlow.DamageRollFlow": PreFlowHook<DamageRollFlow>;
+      "lancer.postFlow.DamageRollFlow": PostFlowHook<DamageRollFlow>;
+    }
+  }
+}
+
 /**
  * Flow for rolling and applying damage to a token, typically from a weapon attack
  */
 export class DamageRollFlow extends Flow<LancerFlowState.DamageRollData> {
-  static steps = [
+  static override steps = [
     "initDamageData",
     "setDamageTags",
     "setDamageTargets",
@@ -72,6 +81,18 @@ export class DamageRollFlow extends Flow<LancerFlowState.DamageRollData> {
       targets: [],
     };
     super(uuid, initialData);
+  }
+
+  override get steps(): string[] {
+    return DamageRollFlow.steps;
+  }
+
+  override callAllPreFlowHooks(): void {
+    Hooks.callAll("lancer.preFlow.DamageRollFlow", this);
+  }
+
+  override callAllPostFlowHooks(success: boolean): void {
+    Hooks.callAll("lancer.postFlow.DamageRollFlow", this, success);
   }
 }
 
@@ -611,7 +632,7 @@ export async function getCritRoll(normal: Roll) {
     } else if (t instanceof foundry.dice.terms.OperatorTerm) {
       // As of v12, Roll.fromTerms throws an error if some terms are not evaluated already.
       // It's safe to mark OperatorTerms as evaluated, as they don't have any results.
-      t._evaluated = true;
+      t["_evaluated"] = true;
       return t;
     } else {
       return t;
@@ -662,7 +683,7 @@ export async function rollDamageCallback(event: JQuery.ClickEvent) {
   const hit_results: LancerFlowState.HitResult[] = [];
   for (const t of attackData.targets) {
     const target = (await fromUuid(t.uuid)) as LancerToken | null;
-    if (!target || target.documentName !== "Token") {
+    if (!(target instanceof LancerToken)) {
       ui.notifications?.error("Invalid target for damage roll");
       continue;
     }

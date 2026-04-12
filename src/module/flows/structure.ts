@@ -4,7 +4,7 @@ import { LANCER } from "../config";
 import type { UUIDRef } from "../source-template";
 import { userOwnsActor } from "../util/misc";
 import { renderTemplateStep } from "./_render";
-import { Flow, type FlowState, type Step } from "./flow";
+import { Flow, type FlowState, type PostFlowHook, type PreFlowHook, type Step } from "./flow";
 import { LancerFlowState } from "./interfaces";
 import { DamageRollFlow } from "./damage";
 import { DamageType } from "../enums";
@@ -25,11 +25,20 @@ export function registerStructureSteps(flowSteps: Map<string, Step<any, any> | F
   flowSteps.set("printSecondaryStructureCard", printSecondaryStructureCard);
 }
 
+declare module "fvtt-types/configuration" {
+  namespace Hooks {
+    interface HookConfig {
+      "lancer.preFlow.StructureFlow": PreFlowHook<StructureFlow>;
+      "lancer.postFlow.StructureFlow": PostFlowHook<StructureFlow>;
+    }
+  }
+}
+
 /**
  * StructureFlow manages all the steps necessary for the initial structure rolls and outcomes.
  */
 export class StructureFlow extends Flow<LancerFlowState.PrimaryStructureRollData> {
-  static steps = [
+  static override steps = [
     "preStructureRollChecks",
     "rollStructureTable",
     "noStructureRemaining",
@@ -53,6 +62,18 @@ export class StructureFlow extends Flow<LancerFlowState.PrimaryStructureRollData
     };
 
     super(uuid, initialData);
+  }
+
+  override get steps(): string[] {
+    return StructureFlow.steps;
+  }
+
+  override callAllPreFlowHooks(): void {
+    Hooks.callAll("lancer.preFlow.StructureFlow", this);
+  }
+
+  override callAllPostFlowHooks(success: boolean): void {
+    Hooks.callAll("lancer.postFlow.StructureFlow", this, success);
   }
 }
 
@@ -299,11 +320,12 @@ export async function checkStructureMultipleOnes(
 
   let roll = state.data.result?.roll;
   if (!roll) throw new TypeError(`Structure check hasn't been rolled yet!`);
-  if (roll.terms[0].rolls?.length > 1) {
+  const firstTerm = roll.terms[0];
+  if (firstTerm instanceof foundry.dice.terms.PoolTerm && firstTerm.rolls.length > 1) {
     // This was rolled multiple times - it should be an NPC with the legendary trait
     // Find the selected roll - the one which wasn't discarded - and check whether it has multiple ones.
-    const chosenIndex = (roll.terms as foundry.dice.terms.Die[])[0].results.findIndex(r => !r.discarded);
-    roll = (roll.terms as Die[])[0].rolls[chosenIndex] || roll;
+    const chosenIndex = firstTerm.results.findIndex(r => !r.discarded);
+    roll = firstTerm.rolls[chosenIndex] || roll;
   }
   if (!roll) throw new TypeError(`Structure check hasn't been rolled yet!`);
 
@@ -522,11 +544,20 @@ export async function beginSecondaryStructureFlow(
   return await flow.begin();
 }
 
+declare module "fvtt-types/configuration" {
+  namespace Hooks {
+    interface HookConfig {
+      "lancer.preFlow.SecondaryStructureFlow": PreFlowHook<SecondaryStructureFlow>;
+      "lancer.postFlow.SecondaryStructureFlow": PostFlowHook<SecondaryStructureFlow>;
+    }
+  }
+}
+
 /**
  * Flow for managing secondary structure rolls and effects
  */
 export class SecondaryStructureFlow extends Flow<LancerFlowState.SecondaryStructureRollData> {
-  static steps = ["secondaryStructureRoll", "printSecondaryStructureCard"];
+  static override steps = ["secondaryStructureRoll", "printSecondaryStructureCard"];
 
   constructor(uuid: UUIDRef | LancerActor, data?: Partial<LancerFlowState.SecondaryStructureRollData>) {
     const initialData: LancerFlowState.SecondaryStructureRollData = {
@@ -537,6 +568,18 @@ export class SecondaryStructureFlow extends Flow<LancerFlowState.SecondaryStruct
     };
 
     super(uuid, initialData);
+  }
+
+  override get steps(): string[] {
+    return SecondaryStructureFlow.steps;
+  }
+
+  override callAllPreFlowHooks(): void {
+    Hooks.callAll("lancer.preFlow.SecondaryStructureFlow", this);
+  }
+
+  override callAllPostFlowHooks(success: boolean): void {
+    Hooks.callAll("lancer.postFlow.SecondaryStructureFlow", this, success);
   }
 }
 

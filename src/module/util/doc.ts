@@ -95,9 +95,9 @@ export async function findLicenseFor(item: LancerItem, inActor?: LancerActor): P
   }
   await pack.getIndex();
   const entry =
-    pack.index.find((e) => e.system?.key == licenseKey) ||
+    pack.index.find(e => e.system?.key == licenseKey) ||
     // Fall back to matching the license name
-    pack.index.find((e) => e.name == licenseKey);
+    pack.index.find(e => e.name == licenseKey);
   if (!entry) {
     console.error(`License not found: ${licenseKey}`);
     return null;
@@ -244,7 +244,7 @@ export async function insinuate(items: Array<LancerItem>, to: LancerActor): Prom
   }
 
   // Await and recombine
-  let actualNewItems = await to.createEmbeddedDocuments("Item", newItems) ?? [];
+  let actualNewItems = (await to.createEmbeddedDocuments("Item", newItems)) ?? [];
 
   // Prompt for deployables if they don't yet exist
   for (let item of actualNewItems) {

@@ -1,6 +1,6 @@
 import { CounterField } from "../bits/counter";
 import { FullBoundedNumberField, LIDField } from "../shared";
-const fields: any = foundry.data.fields;
+const fields = foundry.data.fields;
 
 /**
  * Tracks core statuses, and allows for active effects to easily and non-exclusively apply impaired.
@@ -72,8 +72,8 @@ export function template_heat() {
 
 export function template_struss() {
   return {
-    stress: new FullBoundedNumberField({ initialValue: 0, max: 1 }),
-    structure: new FullBoundedNumberField({ initialValue: 0, max: 1 }),
+    stress: new FullBoundedNumberField({ initialValue: 0, max: 1 }), // TODO: Refactor this to a non-custom data field
+    structure: new FullBoundedNumberField({ initialValue: 0, max: 1 }), // TODO: Refactor this to a non-custom data field
   };
 }
 

@@ -7,8 +7,19 @@ const lp = LANCER.log_prefix;
 
 export interface InheritedEffectsState {
   from_uuid: string; // Who's giving it? We only inherit one at a time
-  data: object[]; // The effect constructor data
+  data: unknown[]; // The effect constructor data
   visible: boolean; // Whether creation/deletion/update of this effect should cause a render
+}
+
+interface MinimalPassdownEffect {
+  flags: {
+    [game.system.id]?: { deep_origin?: string | null | undefined } | null | undefined;
+  };
+  origin: string | null | undefined;
+}
+
+function isMinimalActiveEffectCreateData(arg: Record<string, unknown>): arg is { name: string } {
+  return "name" in arg && typeof arg.name === "string";
 }
 
 /**
@@ -23,7 +34,7 @@ export class EffectHelper {
    * Doing this passdown can be expensive - it's a lot of updates possibly!
    * This ChangeWatchHelper makes it so we only push down our ephemerals if we really need to
    */
-  _passdownEffectTracker = new ChangeWatchHelper();
+  _passdownEffectTracker = new ChangeWatchHelper<MinimalPassdownEffect[]>();
 
   // Track our parent actor
   constructor(private readonly actor: LancerActor) {}
@@ -31,7 +42,7 @@ export class EffectHelper {
   // Set the expected effects from a given uuid
   // Kick off an update if update == true
   // If render, then the update will require redraw.
-  async setEphemeralEffects(source_uuid: string, data: [], visible: boolean = true) {
+  async setEphemeralEffects(source_uuid: string, data: unknown[], visible: boolean = true) {
     let es: InheritedEffectsState = {
       from_uuid: source_uuid,
       data,
@@ -50,7 +61,7 @@ export class EffectHelper {
   // Clear the expected effects for a given uuid
   // Kick off an update if update == true
   async clearEphemeralEffects() {
-    let curr = this.actor.system.inherited_effects as InheritedEffectsState | null;
+    let curr = this.actor.system.inherited_effects;
     if (curr) {
       await this.actor.update(
         {
@@ -69,7 +80,9 @@ export class EffectHelper {
     let inherited_effects = (this.actor as LancerMECH).system.inherited_effects;
     if (inherited_effects) {
       for (let effect of inherited_effects.data) {
-        results.push(new LancerActiveEffect(effect, { parent: this.actor }));
+        if (isMinimalActiveEffectCreateData(effect)) {
+          results.push(new LancerActiveEffect(effect, { parent: this.actor }));
+        }
       }
     }
     return results;
@@ -79,7 +92,7 @@ export class EffectHelper {
    * Collect from our current effects (and pilot/mech innate effects) any that should be passed down to descendants.
    * as well as from any innate features (pilot grit, mech save target, etc)
    */
-  collectPassdownEffects() {
+  collectPassdownEffects(): MinimalPassdownEffect[] {
     if (this.actor.is_deployable()) return [];
 
     // Start with all of them
@@ -126,9 +139,10 @@ export class EffectHelper {
       console.debug(`Actor ${this.actor.name} propagating effects to ${target.name}`);
       // Add new from this pilot
       let changes = foundry.utils.duplicate(this._passdownEffectTracker.curr_value);
+      if (!changes) return;
+
       changes.forEach(c => {
-        c.flags[game.system.id] ??= {};
-        c.flags[game.system.id].deep_origin = c.origin;
+        c.flags[game.system.id] = { ...c.flags[game.system.id], deep_origin: c.origin };
         c.origin = this.actor.uuid;
       });
       await target.effectHelper.setEphemeralEffects(this.actor.uuid, changes);
@@ -149,18 +163,23 @@ export class EffectHelper {
     else if (this.actor.is_mech()) {
       let pilot = this.actor.system.pilot?.value ?? null;
       // Find our controlled deployables
-      let ownedDeployables = game.actors!.filter(
-        a =>
+      let ownedDeployables = game.actors.filter(actor => {
+        const a = actor; // HACK: The type guards only work when put in a constant for some reason.
+        return (
           a.is_deployable() &&
-          a.system.owner !== null &&
-          (a.system.owner.value == this.actor || a.system.owner.value == pilot)
-      );
+          !!actor.system.owner &&
+          (actor.system.owner.value == this.actor || actor.system.owner.value == pilot)
+        );
+      });
       for (let dep of ownedDeployables) {
         await propagateTo(dep); // TODO - look for active tokens instead?
       }
     } else if (this.actor.is_npc()) {
       // Find our controlled deployables. Simpler here
-      let ownedDeployables = game.actors!.filter(a => a.is_deployable() && a.system.owner?.value == this.actor);
+      let ownedDeployables = game.actors.filter(actor => {
+        const a = actor; // HACK: The type guards only work when put in a constant for some reason.
+        return a.is_deployable() && actor.system.owner?.value == this.actor;
+      });
       for (let dep of ownedDeployables) {
         await propagateTo(dep); // TODO - look for active tokens instead?
       }
@@ -202,7 +221,7 @@ export class EffectHelper {
     );
   }
 
-  findEffect(effect: string): LancerActiveEffect | null {
+  findEffect(effect: string): LancerActiveEffect | undefined {
     return this.actor.effects.find(eff => eff.statuses.some((name: string) => name.includes(effect)));
   }
 }

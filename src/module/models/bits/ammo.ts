@@ -25,10 +25,9 @@ type AmmoFieldSchema = ReturnType<typeof defineAmmoFieldSchema>;
 
 export type AmmoData = fields.SchemaField.InitializedData<AmmoFieldSchema>;
 
-export class AmmoField<Options extends fields.SchemaField.Options<AmmoFieldSchema>> extends fields.SchemaField<
-  AmmoFieldSchema,
-  Options
-> {
+export class AmmoField<
+  Options extends fields.SchemaField.Options<AmmoFieldSchema> = fields.SchemaField.DefaultOptions,
+> extends fields.SchemaField<AmmoFieldSchema, Options> {
   constructor(options?: Options) {
     super(defineAmmoFieldSchema(), options);
   }

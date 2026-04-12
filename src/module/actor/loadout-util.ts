@@ -158,7 +158,7 @@ export class LoadoutHelper {
    * Check our items for any that aren't equipped, and delete them
    */
   async deleteUnequippedItems() {
-    let deletables: LancerItem[] = [];
+    let deletables: foundry.abstract.Document.StoredForName<"Item">[] = [];
 
     // Flag all unequipped mech equipment
     for (let item of this.actor.items.contents) {
@@ -259,7 +259,7 @@ export class LoadoutHelper {
    * Yields a simple error message on a misconfigured mount, or null if no issues detected.
    * @param mount Specific mount to validate
    */
-  validateMount(mount: Actor.OfType<"mech">["loadout"]["weapon_mounts"][0]): string | null {
+  validateMount(mount: Actor.OfType<"mech">["system"]["loadout"]["weapon_mounts"][number]): string | null {
     if (this.actor.is_mech()) {
       let loadout = this.actor.system.loadout;
       let hasBracing = loadout.weapon_mounts.some(m => m.bracing);
@@ -373,14 +373,15 @@ export class LoadoutHelper {
       // If frame has an integrated weapon, insert that (or those) as our first weapon(s)
       for (let integrated_lid of frame.system.core_system.integrated) {
         let corr_item = this.actor.items.find(x => x.system.lid == integrated_lid);
-        if (corr_item && corr_item.is_mech_weapon()) {
+        const i = corr_item; // HACK: The type guards only work when put in a constant for some reason.
+        if (corr_item && i?.is_mech_weapon()) {
           newMounts.push({
             bracing: false,
             slots: [
               {
                 mod: null,
                 size: FittingSize.Integrated,
-                weapon: corr_item.id!,
+                weapon: corr_item.id,
               },
             ],
             type: MountType.Integrated,
@@ -390,6 +391,8 @@ export class LoadoutHelper {
 
       // Generate rest of our mounts
       for (let mt of baseMounts) {
+        if (!mt) continue;
+
         newMounts.push(gen_mount(mt));
       }
     }

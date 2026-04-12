@@ -8,7 +8,7 @@ import { renderTemplateStep } from "./_render";
 import { resolveDotpath } from "../helpers/commons";
 import type { ActionData } from "../models/bits/action";
 import { LancerFlowState } from "./interfaces";
-import { Flow, type FlowState, type Step } from "./flow";
+import { Flow, type FlowState, type PostFlowHook, type PreFlowHook, type Step } from "./flow";
 import type { UUIDRef } from "../source-template";
 import { TechAttackFlow } from "./tech";
 
@@ -19,8 +19,17 @@ export function registerActivationSteps(flowSteps: Map<string, Step<any, any> | 
   flowSteps.set("printActionUseCard", printActionUseCard);
 }
 
+declare module "fvtt-types/configuration" {
+  namespace Hooks {
+    interface HookConfig {
+      "lancer.preFlow.ActivationFlow": PreFlowHook<ActivationFlow>;
+      "lancer.postFlow.ActivationFlow": PostFlowHook<ActivationFlow>;
+    }
+  }
+}
+
 export class ActivationFlow extends Flow<LancerFlowState.ActionUseData> {
-  static steps = [
+  static override steps = [
     // TODO: if a system or action is not provided, prompt the user to select one?
     // Or would it be better to have a separate UI for that before the flow starts?
     "initActivationData",
@@ -53,6 +62,18 @@ export class ActivationFlow extends Flow<LancerFlowState.ActionUseData> {
 
     super(uuid, initialData);
   }
+
+  override get steps(): string[] {
+    return ActivationFlow.steps;
+  }
+
+  override callAllPreFlowHooks(): void {
+    Hooks.callAll("lancer.preFlow.ActivationFlow", this);
+  }
+
+  override callAllPostFlowHooks(success: boolean): void {
+    Hooks.callAll("lancer.postFlow.ActivationFlow", this, success);
+  }
 }
 
 export async function initActivationData(
@@ -71,7 +92,8 @@ export async function initActivationData(
       // First, find the action
       state.data.action = resolveDotpath<ActionData>(state.item, state.data.action_path);
       if (!state.data.action) throw new Error(`Failed to resolve action ${state.data.action_path}`);
-      state.data.title = state.data.action?.name;
+      if (!state.data.action.name) throw new Error(`Action has no name ${state.data.action_path}`);
+      state.data.title = state.data.action.name;
     }
     state.data.title =
       options?.title || state.data.title || state.data.action?.name || state.item.name || "UNKNOWN ACTION";

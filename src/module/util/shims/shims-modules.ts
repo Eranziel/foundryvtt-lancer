@@ -24,6 +24,3 @@ declare module "@massif/lancer-data" {
   const talents: any;
   const weapons: any;
 }
-
-// TODO: remove this when v10 types
-declare function fromUuidSync(uuid: string): foundry.abstract.Document<any, any> | null;

@@ -22,7 +22,7 @@ import fields = foundry.data.fields;
 const defineBonusFieldSchema = () => {
   return {
     lid: new fields.StringField({ nullable: false }), // Don't really want an LID field here
-    val: new fields.StringField({ nullable: false }),
+    val: new fields.StringField({ nullable: false, required: true }),
     overwrite: new fields.BooleanField(),
     replace: new fields.BooleanField(),
     damage_types: new DamageTypeChecklistField(),
@@ -36,10 +36,9 @@ type BonusFieldSchema = ReturnType<typeof defineBonusFieldSchema>;
 
 export type BonusData = fields.SchemaField.InitializedData<BonusFieldSchema>;
 
-export class BonusField<Options extends fields.SchemaField.Options<BonusFieldSchema>> extends fields.SchemaField<
-  BonusFieldSchema,
-  Options
-> {
+export class BonusField<
+  Options extends fields.SchemaField.Options<BonusFieldSchema> = fields.SchemaField.DefaultOptions,
+> extends fields.SchemaField<BonusFieldSchema, Options> {
   constructor(options?: Options) {
     super(defineBonusFieldSchema(), options);
   }
