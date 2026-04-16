@@ -116,18 +116,17 @@
     class:accurate={target.total > 0}
     class:inaccurate={target.total < 0}
   >
-    <!-- #key blocks currently break |local, see https://github.com/sveltejs/svelte/issues/5950 -->
-    {#each [target.total] as total (target.total)}
+    {#each [target.total] as _total (target.total)}
       <div {id} transition:blur|global class="card clipped total">
         <span in:fly={{ y: -50, duration: 400 }} out:fly={{ y: 50, duration: 200 }}>
-          {Math.abs(total)}
+          {Math.abs(target.total)}
         </span>
         <i
           in:fly={{ y: -50, duration: 200 }}
           out:fly={{ y: 50, duration: 200 }}
           class="cci i--4 i--dark white--text middle"
-          class:cci-accuracy={total >= 0}
-          class:cci-difficulty={total < 0}
+          class:cci-accuracy={target.total >= 0}
+          class:cci-difficulty={target.total < 0}
         ></i>
       </div>
     {/each}

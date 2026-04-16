@@ -104,6 +104,9 @@ export class AccDiffHudBase {
 
   static plugins: { [k: string]: AccDiffHudPlugin<any> } = {};
 
+  // Derived properties
+  total: number;
+
   constructor(obj: AccDiffHudBaseParams) {
     this.grit = $state(obj.grit);
     this.flatBonus = $state(obj.flatBonus);
@@ -111,6 +114,8 @@ export class AccDiffHudBase {
     this.difficulty = $state(obj.difficulty);
     this.cover = $state(obj.cover);
     this.plugins = $state(obj.plugins);
+
+    this.total = $derived(this._total());
   }
 
   get raw() {
@@ -131,7 +136,7 @@ export class AccDiffHudBase {
     }
   }
 
-  get total() {
+  _total() {
     return this.accuracy - this.difficulty + this.#weapon.total(this.cover);
   }
 }
@@ -225,7 +230,7 @@ export class AccDiffHudTarget extends AccDiffHudBase {
     return !!token?.actor?.system.statuses.lockon;
   }
 
-  get total() {
+  _total() {
     let base = this.accuracy - this.difficulty + this.#weapon.total(this.cover);
     // the only thing we actually use base for is the untyped bonuses
     let raw = base + this.#base.accuracy - this.#base.difficulty;

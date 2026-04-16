@@ -1,7 +1,7 @@
 <script lang="ts">
   import { slide } from "svelte/transition";
   import { flip } from "svelte/animate";
-  import { createEventDispatcher } from "svelte";
+  import { createEventDispatcher, onDestroy, onMount } from "svelte";
 
   import Plugin from "./Plugin.svelte";
   import Cover from "./Cover.svelte";
@@ -16,7 +16,6 @@
   import { LancerToken } from "../../token";
   import AccDiffInput from "./AccDiffInput.svelte";
   import { tokenDocFromUuidSync, type AccDiffHudData } from "./data.svelte";
-  import { userTargets } from "../slidinghud/user-targets";
 
   /* ===== PROPS ===== */
 
@@ -38,6 +37,7 @@
 
   const dispatch = createEventDispatcher();
   let submitted = $state(false);
+  const hookCallbacks: Record<string, number> = {};
 
   /* ===== DERIVED VALUES ===== */
 
@@ -62,13 +62,32 @@
     targets.length === 1 ? Object.values(targets[0].plugins).filter(plugin => plugin.category === "diff") : []
   );
 
-  userTargets.subscribe(newTargets => {
-    if (data) {
-      data.replaceTargets(newTargets);
-    }
+  /* ===== FUNCTIONS ===== */
+
+  onMount(() => {
+    // Register hook callbacks for updating targeted tokens
+    hookCallbacks.targetToken = Hooks.on("targetToken", (user, _token, _isNewTarget) => {
+      if (user.isSelf) {
+        updateTargets();
+      }
+    });
+    hookCallbacks.createActiveEffect = Hooks.on("createActiveEffect", updateTargets);
+    hookCallbacks.deleteActiveEffect = Hooks.on("deleteActiveEffect", updateTargets);
+    // updateToken triggers on things like token movement (spotter) and probably a lot of other things
+    hookCallbacks.updateToken = Hooks.on("updateToken", token => {
+      // If there's an animation, update when it finishes, otherwise just update
+      foundry.canvas.animation.CanvasAnimation.getAnimation(token.object?.animationName!)?.promise.then(() =>
+        updateTargets()
+      ) ?? updateTargets();
+    });
   });
 
-  /* ===== FUNCTIONS ===== */
+  onDestroy(() => {
+    // Unregister hook callbacks
+    for (const key in hookCallbacks) {
+      Hooks.off(key, hookCallbacks[key]);
+    }
+  });
 
   $effect(() => {
     data.hydrate(data.lancerItem || data.lancerActor);
@@ -93,6 +112,11 @@
 
   function focus(el: HTMLElement) {
     el.focus();
+  }
+
+  function updateTargets() {
+    if (!data) return;
+    data.replaceTargets(Array.from(game!.user!.targets).map(t => t.document.uuid));
   }
 
   function targetHoverIn(event: MouseEvent, targetUuid: string) {
