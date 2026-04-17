@@ -204,7 +204,7 @@ export class LancerTokenDocument extends TokenDocument {
    * @param other   Target to check against
    * @returns The range in grid units.
    */
-  computeRange(other: LancerTokenDocument, data: unknown = null, otherData: unknown = null): number {
+  computeRange(other: LancerTokenDocument, data: unknown = {}, otherData: unknown = {}): number {
     const grid = this.parent?.grid ?? canvas.grid;
     if (!grid || !canvas.ready) throw new Error("Canvas not ready");
     if (!this.object || !other.object) throw new Error("Tokens not drawn to canvas");

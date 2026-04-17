@@ -158,6 +158,10 @@ export class AccDiffHudTarget extends AccDiffHudBase {
   #weapon!: AccDiffHudWeapon; // never use this class before calling hydrate
   #base!: AccDiffHudBase; // never use this class before calling hydrate
 
+  // Derived properties
+  usingLockOn: boolean | null;
+  lockOnAvailable: boolean | null;
+
   static plugins: { [k: string]: AccDiffHudPlugin<any> } = {};
 
   constructor(obj: AccDiffHudTargetParams) {
@@ -173,6 +177,9 @@ export class AccDiffHudTarget extends AccDiffHudBase {
     this.consumeLockOn = $state(obj.consumeLockOn);
     this.prone = $state(obj.prone);
     this.stunned = $state(obj.stunned);
+
+    this.lockOnAvailable = $derived(this._lockOnAvailable());
+    this.usingLockOn = $derived((this.consumeLockOn && this.lockOnAvailable) || null);
   }
 
   get raw(): AccDiffHudTargetParams {
@@ -217,15 +224,11 @@ export class AccDiffHudTarget extends AccDiffHudBase {
     this.#weapon = d.weapon;
     this.#base = d.base;
     for (let key of Object.keys(this.plugins)) {
-      if (this.plugins[key].hydrate) this.plugins[key].hydrate(d);
+      if (this.plugins[key].hydrate) this.plugins[key].hydrate(d, this);
     }
   }
 
-  get usingLockOn(): null | boolean {
-    return (this.consumeLockOn && this.lockOnAvailable) || null;
-  }
-
-  get lockOnAvailable(): null | boolean {
+  _lockOnAvailable(): null | boolean {
     const token = tokenDocFromUuidSync(this.targetUuid, { strict: true })?.object;
     return !!token?.actor?.system.statuses.lockon;
   }
