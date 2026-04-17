@@ -172,13 +172,13 @@ export class AccDiffHudTarget extends AccDiffHudBase {
     }
 
     this.targetUuid = $state(obj.targetUuid);
-    this.targetName = $derived(tokenDocFromUuidSync(this.targetUuid, { strict: true })?.name || "");
-    this.targetImg = $derived(tokenDocFromUuidSync(this.targetUuid, { strict: true })?.actor?.img || "");
+    const token = tokenDocFromUuidSync(this.targetUuid, { strict: true });
+    this.targetName = $derived(token?.name || "");
+    this.targetImg = $derived(token?.actor?.img || "");
     this.consumeLockOn = $state(obj.consumeLockOn);
     this.prone = $state(obj.prone);
     this.stunned = $state(obj.stunned);
-
-    this.lockOnAvailable = $derived(this._lockOnAvailable());
+    this.lockOnAvailable = $state(token?.actor?.system.statuses.lockon || null);
     this.usingLockOn = $derived((this.consumeLockOn && this.lockOnAvailable) || null);
   }
 
@@ -226,11 +226,6 @@ export class AccDiffHudTarget extends AccDiffHudBase {
     for (let key of Object.keys(this.plugins)) {
       if (this.plugins[key].hydrate) this.plugins[key].hydrate(d, this);
     }
-  }
-
-  _lockOnAvailable(): null | boolean {
-    const token = tokenDocFromUuidSync(this.targetUuid, { strict: true })?.object;
-    return !!token?.actor?.system.statuses.lockon;
   }
 
   _total() {
@@ -300,8 +295,16 @@ export class AccDiffHudData {
     // Either update-in-place or push new targets into the array
     for (const target of newTargets) {
       const token: Token.Implementation | null = tokenDocFromUuidSync(target, { strict: true })?.object || null;
-      if (token && !this.targets.find(t => t.targetUuid === target)) {
+      if (!token) continue;
+      const existingTarget = this.targets.find(t => t.targetUuid === target);
+      // New target, add to array
+      if (!existingTarget) {
         this.targets.push(AccDiffHudTarget.fromParams(token));
+      } else {
+        // Existing target, update state
+        existingTarget.prone = token.actor?.system.statuses.prone || false;
+        existingTarget.stunned = token.actor?.system.statuses.stunned || false;
+        existingTarget.lockOnAvailable = token.actor?.system.statuses.lockon || false;
       }
     }
 

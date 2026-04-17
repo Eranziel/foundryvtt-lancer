@@ -1,5 +1,6 @@
 import type { AccDiffHudCheckboxPluginData } from "./plugin";
 import { AccDiffHudData, AccDiffHudTarget } from "./index";
+import { tokenDocFromUuidSync } from "./data.svelte";
 
 // you don't need to explicitly type the serialized data,
 // but if you do then io-ts codecs can do strong checks at runtime
@@ -29,7 +30,7 @@ export default class Invisibility implements AccDiffHudCheckboxPluginData {
   // store a reference to the current token when rehydrated
   hydrate(_d: AccDiffHudData, t?: AccDiffHudTarget) {
     if (t) {
-      this.token = t.token;
+      this.token = tokenDocFromUuidSync(t.targetUuid)?.object || undefined;
     }
   }
 
