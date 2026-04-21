@@ -110,6 +110,14 @@ import preloadHUDs from "./module/apps/slidinghud/preload";
 
 const lp = LANCER.log_prefix;
 
+function asJQuery(html: HTMLElement | JQuery<HTMLElement>): JQuery<HTMLElement> {
+  return html instanceof HTMLElement ? $(html) : html;
+}
+
+function asHTMLElement(html: HTMLElement | JQuery<HTMLElement>): HTMLElement | null {
+  return html instanceof HTMLElement ? html : html[0] ?? null;
+}
+
 declare module "fvtt-types/configuration" {
   namespace Hooks {
     interface ApplicationConfig {
@@ -344,10 +352,11 @@ Hooks.once("init", () => {
     (async () => {
       game.lancer.combatTrackerDock = await import("./module/integrations/combat-tracker-dock");
       Hooks.on("renderCombatDock", (_app, html) => {
-        html.find(".buttons-container [data-action='roll-all']").hide();
-        html.find(".buttons-container [data-action='roll-npc']").hide();
+        const $html = asJQuery(html);
+        $html.find(".buttons-container [data-action='roll-all']").hide();
+        $html.find(".buttons-container [data-action='roll-npc']").hide();
         // html.find(".buttons-container [data-action='previous-turn']").hide();
-        html.find(".buttons-container [data-action='next-turn']").hide();
+        $html.find(".buttons-container [data-action='next-turn']").hide();
       });
     })();
   }
@@ -401,7 +410,7 @@ Hooks.once("ready", async function () {
     if (!item.is_status()) return;
     await LancerActiveEffect.updateIcons();
   };
-  Hooks.on("itemCreated", _updateIcons);
+  Hooks.on("createItem", _updateIcons);
   Hooks.on("deleteItem", _updateIcons);
   Hooks.on("updateItem", _updateIcons);
 });
@@ -514,7 +523,9 @@ Hooks.on("renderCompendiumDirectory", addLCPManagerButton);
 
 // For the settings tab
 Hooks.on("renderSettings", async (app, html) => {
-  addSettingsButtons(app, html);
+  const settingsHtml = asHTMLElement(html);
+  if (!settingsHtml) return;
+  addSettingsButtons(app, settingsHtml);
 });
 Hooks.on("renderCombatTrackerConfig", extendCombatTrackerConfig);
 

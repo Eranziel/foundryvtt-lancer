@@ -226,7 +226,7 @@ export class TagField<Options extends fields.SchemaField.Options<TagFieldSchema>
     if (typeof fieldData?.tag == "object") {
       fieldData.lid = fieldData.tag.fallback_lid;
     }
-    return super.migrateSource(sourceData, fieldData);
+    return fieldData;
   }
 }
 

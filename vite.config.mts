@@ -26,6 +26,7 @@ export default defineConfig({
     include: ["@massif/lancer-data"],
   },
   build: {
+    outDir: "F:/FoundryVTT/Data/systems/lancer",
     emptyOutDir: false,
     sourcemap: true,
     lib: {

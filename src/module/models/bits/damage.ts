@@ -152,7 +152,7 @@ export class DamageField<Options extends fields.SchemaField.Options<DamageFieldS
       fieldData.type = restrict_enum(DamageType, DamageType.Kinetic, fieldData.type);
     }
 
-    return super.migrateSource(sourceData, fieldData);
+    return fieldData;
   }
 
   /** @override */

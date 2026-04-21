@@ -288,6 +288,8 @@ export function item_edit_arrayed_integrated(path: string, title: string, option
  */
 export function item_edit_license(options: HelperOptions): string {
   let license: LancerLICENSE | null = options.data.root?.license || null;
+  const licenseLevel =
+    options.data.root?.system?.license_level ?? options.data.root?.data?.system?.license_level ?? 0;
   let licenseInfo: string;
   let rankInfo: string;
   if (!license) {
@@ -302,7 +304,7 @@ export function item_edit_license(options: HelperOptions): string {
     </div>`;
     rankInfo = `<div class="flexrow rank-wrapper">
     <span>Rank</span>
-    <input name="system.license_level" value="${options.data.root.data.system.license_level}" type="number" data-dtype="Number" />
+    <input name="system.license_level" value="${licenseLevel}" type="number" data-dtype="Number" />
 </div>`;
   }
 

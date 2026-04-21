@@ -134,7 +134,7 @@ export class RangeField<Options extends fields.SchemaField.Options<RangeFieldSch
       fieldData.type = restrict_enum(RangeType, RangeType.Range, fieldData.type);
     }
 
-    return super.migrateSource(sourceData, fieldData);
+    return fieldData;
   }
 
   /** @override */

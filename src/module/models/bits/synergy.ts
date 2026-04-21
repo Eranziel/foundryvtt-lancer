@@ -56,7 +56,7 @@ export class SynergyField<Options extends fields.SchemaField.Options<SynergyFiel
       fieldData.locations = fieldData.locations.map((l: string) => l.toLowerCase());
     }
 
-    return super.migrateSource(sourceData, fieldData);
+    return fieldData;
   }
 }
 

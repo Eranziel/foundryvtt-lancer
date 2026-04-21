@@ -87,17 +87,21 @@ export async function importCP(
     totalItems += cp.data.npcClasses?.length ?? 0;
     totalItems += cp.data.npcClasses?.reduce((acc, nc) => acc + (nc.base_features?.length ?? 0), 0) ?? 0;
 
-    // Iterate over everything in core, collecting all lids into a map of LID -> document
-    let existingLids: Map<string, LancerItem | LancerActor> = new Map();
+    // Iterate over everything in managed packs, collecting lids by entry type.
+    // Keeping these scoped per entry type prevents cross-pack lid collisions from
+    // turning intended creates into invalid updates.
+    const existingLidsByType = new Map<EntryType, Map<string, LancerItem | LancerActor>>();
     for (let et of packTypes) {
       let pack = await get_pack(et);
       // Get them all
       // TODO: Use the index to improve performance
       let docs = await pack.getDocuments();
+      const existingLids = new Map<string, LancerItem | LancerActor>();
       // Get their ids
       docs.forEach(d => {
         existingLids.set((d as LancerActor | LancerItem).system.lid || d.name, d as LancerActor | LancerItem);
       });
+      existingLidsByType.set(et, existingLids);
     }
 
     // Import data to the actual foundry reg
@@ -156,6 +160,7 @@ export async function importCP(
 
     // Get creating, or updating if the lid is already created. Typing is extremely fuzzy here, sorry, I just didn't really want to fight it
     const createOrUpdateDocs = async (doc_class: any, item_data: Array<any>, et: EntryType) => {
+      const existingLids = existingLidsByType.get(et) ?? new Map<string, LancerItem | LancerActor>();
       let existingUpdates = [];
       let newCreates = [];
       let pack = await get_pack(et);
@@ -189,6 +194,13 @@ export async function importCP(
       }
       results.push(...(await doc_class.createDocuments(newCreates, { pack: get_pack_id(et) })));
       results.push(...(await doc_class.updateDocuments(existingUpdates, { pack: get_pack_id(et) })));
+      // Keep cache in sync in case follow-up operations query this type again.
+      for (const created of results) {
+        if (!created) continue;
+        const lid = (created as LancerActor | LancerItem).system?.lid || created.name;
+        if (lid) existingLids.set(lid, created as LancerActor | LancerItem);
+      }
+      existingLidsByType.set(et, existingLids);
       return results;
     };
 
@@ -255,6 +267,7 @@ export async function importCP(
     progress_callback(transmitCount, totalItems);
   } catch (err) {
     console.error(err);
+    ui.notifications?.error("LCP import failed. Check the browser console for error details.");
   }
   await setAllLock(true);
 }
