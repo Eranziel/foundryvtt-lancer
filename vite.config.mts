@@ -4,8 +4,13 @@ import { visualizer } from "rollup-plugin-visualizer";
 import { sveltePreprocess } from "svelte-preprocess";
 import foundryvtt from "vite-plugin-foundryvtt";
 import checker from "vite-plugin-checker";
+import fs from "node:fs/promises";
+import path from "node:path";
 
 import systemJson from "./src/system.json";
+
+const DIST_DIR = "dist";
+const FOUNDRY_SYSTEM_DIR = "F:/FoundryVTT/Data/systems/lancer";
 
 export default defineConfig({
   base: "/systems/lancer/",
@@ -26,7 +31,7 @@ export default defineConfig({
     include: ["@massif/lancer-data"],
   },
   build: {
-    outDir: "F:/FoundryVTT/Data/systems/lancer",
+    outDir: DIST_DIR,
     emptyOutDir: false,
     sourcemap: true,
     lib: {
@@ -50,6 +55,16 @@ export default defineConfig({
       transform(code, id) {
         // Define window.global for use by an aws dependency
         if (id === "\0virtual:entrypoint") return "window.global = window;\n" + code;
+      },
+    },
+    {
+      name: "mirror-build-to-foundry-system",
+      apply: "build",
+      async closeBundle() {
+        const sourceDir = path.resolve(DIST_DIR);
+        const targetDir = path.resolve(FOUNDRY_SYSTEM_DIR);
+        await fs.mkdir(targetDir, { recursive: true });
+        await fs.cp(sourceDir, targetDir, { recursive: true, force: true });
       },
     },
     visualizer({ gzipSize: true, template: "treemap" }),
