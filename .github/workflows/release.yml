@@ -8,6 +8,9 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      # Required for ncipollo/release-action to create/update GitHub Releases
+      contents: write
 
     steps:
       - uses: actions/checkout@v4
