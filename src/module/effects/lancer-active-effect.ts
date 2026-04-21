@@ -294,20 +294,29 @@ export class LancerActiveEffect<
   }
 }
 
-// To support more effects, we add several effect types.
-export const AE_MODE_SET_JSON = 11 as CONST.ACTIVE_EFFECT_MODES;
-export const AE_MODE_APPEND_JSON = 12 as CONST.ACTIVE_EFFECT_MODES;
+// Custom ActiveEffect change types (Foundry v14+ uses string `type` instead of numeric `mode`).
+export const AE_TYPE_SET_JSON = "lancer.setJson";
+export const AE_TYPE_APPEND_JSON = "lancer.appendJson";
+/** @deprecated Foundry v13 numeric modes; use {@link AE_TYPE_SET_JSON} / {@link AE_TYPE_APPEND_JSON} */
+export const AE_MODE_SET_JSON = AE_TYPE_SET_JSON;
+/** @deprecated Foundry v13 numeric modes; use {@link AE_TYPE_SET_JSON} / {@link AE_TYPE_APPEND_JSON} */
+export const AE_MODE_APPEND_JSON = AE_TYPE_APPEND_JSON;
 
 const _json_cache = {} as Record<string, any>;
 Hooks.on("applyActiveEffect", function (actor, change) {
-  if (change.mode == AE_MODE_SET_JSON || change.mode == AE_MODE_APPEND_JSON) {
+  const raw = change as { type?: string; mode?: number };
+  const t = raw.type ?? raw.mode;
+  // Legacy worlds may still have numeric modes 11/12 from older Lancer builds.
+  const isSetJson = t === AE_TYPE_SET_JSON || t === 11;
+  const isAppendJson = t === AE_TYPE_APPEND_JSON || t === 12;
+  if (isSetJson || isAppendJson) {
     try {
       let parsed_delta = _json_cache[change.value] ?? JSON.parse(change.value);
       _json_cache[change.value] = parsed_delta;
       // Ok, now set it to wherever it was labeled
-      if (change.mode == AE_MODE_SET_JSON) {
+      if (isSetJson) {
         foundry.utils.setProperty(actor, change.key, parsed_delta);
-      } else if (change.mode == AE_MODE_APPEND_JSON) {
+      } else if (isAppendJson) {
         const items = foundry.utils.getProperty(actor, change.key) as unknown[];
         items.push(parsed_delta);
       }

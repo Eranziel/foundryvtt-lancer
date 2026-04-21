@@ -263,6 +263,9 @@ export class LancerActor<SubType extends Actor.SubType = Actor.SubType> extends 
       console.log("Actor is not a LancerActor:", this);
       return super.prepareBaseData();
     }
+    // Required for Foundry v14+ active effect application (phase buckets, etc.). Omitting this caused
+    // TypeError: Cannot set properties of undefined (setting 'initial') during applyActiveEffects.
+    super.prepareBaseData();
     // TODO: Move these to the datamodels themselves
     // 1. First, finalize our system tasks. Items should be (minimally) prepared by now, so we can resolve embedded items
     // this.system.finalize_tasks();

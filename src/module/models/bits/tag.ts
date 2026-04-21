@@ -221,12 +221,17 @@ export class TagField<Options extends fields.SchemaField.Options<TagFieldSchema>
     return super._cast(value);
   }
 
-  migrateSource(sourceData: any, fieldData: any) {
-    // Convert old style tags
-    if (typeof fieldData?.tag == "object") {
-      fieldData.lid = fieldData.tag.fallback_lid;
+  /** @override */
+  protected override _migrate(
+    value: any,
+    options?: Readonly<foundry.data.types.DataModelCleaningOptions>,
+    _state?: foundry.data.types.DataModelUpdateState
+  ): any {
+    // Convert old style tags (read before super; `tag` is not part of the current schema)
+    if (value && typeof value === "object" && typeof (value as { tag?: unknown }).tag === "object") {
+      (value as { lid?: string }).lid = (value as { tag: { fallback_lid: string } }).tag.fallback_lid;
     }
-    return fieldData;
+    return super._migrate(value, options, _state);
   }
 }
 

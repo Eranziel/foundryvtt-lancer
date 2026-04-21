@@ -12,6 +12,49 @@ import systemJson from "./src/system.json";
 const DIST_DIR = "dist";
 const FOUNDRY_SYSTEM_DIR = "F:/FoundryVTT/Data/systems/lancer";
 
+/** Remove prior JS chunks at the system root so old bundles cannot coexist with the new lancer.mjs. */
+async function removeRootMjsArtifacts(systemDir: string) {
+  let names: string[];
+  try {
+    names = await fs.readdir(systemDir);
+  } catch {
+    return;
+  }
+  await Promise.all(
+    names.map(async (name) => {
+      if (!name.endsWith(".mjs") && !name.endsWith(".mjs.map")) return;
+      const p = path.join(systemDir, name);
+      const st = await fs.stat(p).catch(() => null);
+      if (st?.isFile()) await fs.unlink(p);
+    }),
+  );
+}
+
+/** Copy build output; packs may be locked while Foundry is running (LevelDB). */
+async function mirrorDistToFoundrySystem(sourceDir: string, targetDir: string) {
+  const entries = await fs.readdir(sourceDir, { withFileTypes: true });
+  for (const e of entries) {
+    const src = path.join(sourceDir, e.name);
+    const dest = path.join(targetDir, e.name);
+    if (e.isDirectory() && e.name === "packs") {
+      try {
+        await fs.cp(src, dest, { recursive: true, force: true });
+      } catch (err) {
+        const code = err && typeof err === "object" && "code" in err ? (err as NodeJS.ErrnoException).code : undefined;
+        if (code === "EBUSY" || code === "EPERM") {
+          console.warn(
+            "[mirror-build-to-foundry-system] Skipped packs/ (files in use). Close Foundry VTT and run `npm run build` again to update compendium packs.",
+          );
+        } else {
+          throw err;
+        }
+      }
+      continue;
+    }
+    await fs.cp(src, dest, { recursive: true, force: true });
+  }
+}
+
 export default defineConfig({
   base: "/systems/lancer/",
   server: {
@@ -32,7 +75,7 @@ export default defineConfig({
   },
   build: {
     outDir: DIST_DIR,
-    emptyOutDir: false,
+    emptyOutDir: true,
     sourcemap: true,
     lib: {
       name: "lancer",
@@ -64,7 +107,8 @@ export default defineConfig({
         const sourceDir = path.resolve(DIST_DIR);
         const targetDir = path.resolve(FOUNDRY_SYSTEM_DIR);
         await fs.mkdir(targetDir, { recursive: true });
-        await fs.cp(sourceDir, targetDir, { recursive: true, force: true });
+        await removeRootMjsArtifacts(targetDir);
+        await mirrorDistToFoundrySystem(sourceDir, targetDir);
       },
     },
     visualizer({ gzipSize: true, template: "treemap" }),

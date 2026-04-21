@@ -5,6 +5,8 @@ import type { ResolvedDropData } from "../helpers/dragdrop";
 import { EntryType, fittingsForMount, MountType } from "../enums";
 import type { SourceData } from "../source-template";
 
+import ContextMenu = foundry.applications.ux.ContextMenu;
+
 /**
  * Extend the basic ActorSheet
  */
@@ -171,16 +173,16 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
   }
 
   // Allows user to change mount size via right click ctx
-  _activateMountContextMenus(html: any) {
-    let mount_options: any[] = [];
+  _activateMountContextMenus(html: JQuery<HTMLElement>) {
+    const mount_options: ContextMenu.Entry<HTMLElement>[] = [];
 
     // Handle generic mount type
     for (let selection of Object.values(MountType)) {
       mount_options.push({
         name: selection,
         icon: "",
-        callback: async (html: JQuery) => {
-          let mountPath = html[0].dataset.path ?? "";
+        callback: async (target: HTMLElement) => {
+          let mountPath = target.dataset.path ?? "";
 
           // Get the current mount
           let mount = resolveDotpath(this.actor, mountPath) as Actor.OfType<"mech">["loadout"]["weapon_mounts"][0];
@@ -222,9 +224,9 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
     mount_options.push({
       name: "Superheavy Bracing",
       icon: "",
-      callback: async (html: JQuery) => {
+      callback: async (target: HTMLElement) => {
         let cd = await this.getData();
-        let mountPath = html[0].dataset.path ?? "";
+        let mountPath = target.dataset.path ?? "";
 
         // Get the current mount
         let mount = resolveDotpath(cd, mountPath) as Actor.OfType<"mech">["loadout"]["weapon_mounts"][0];
@@ -241,7 +243,10 @@ export class LancerMechSheet extends LancerActorSheet<EntryType.MECH> {
       },
     });
 
-    new foundry.applications.ux.ContextMenu.implementation(html, ".mount-type-ctx-root", mount_options);
+    const root = html[0];
+    if (root) {
+      new ContextMenu.implementation(root, ".mount-type-ctx-root", mount_options, { jQuery: false });
+    }
   }
 
   // Save ourselves repeat work by handling most events clicks actual operations here

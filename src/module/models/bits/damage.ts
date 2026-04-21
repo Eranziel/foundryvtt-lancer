@@ -147,12 +147,17 @@ export class DamageField<Options extends fields.SchemaField.Options<DamageFieldS
     return new Damage(value);
   }
 
-  migrateSource(sourceData: any, fieldData: any) {
-    if (fieldData.type) {
-      fieldData.type = restrict_enum(DamageType, DamageType.Kinetic, fieldData.type);
+  /** @override */
+  protected override _migrate(
+    value: any,
+    options?: Readonly<foundry.data.types.DataModelCleaningOptions>,
+    _state?: foundry.data.types.DataModelUpdateState
+  ): any {
+    value = super._migrate(value, options, _state);
+    if (value && typeof value === "object" && value.type) {
+      value.type = restrict_enum(DamageType, DamageType.Kinetic, value.type);
     }
-
-    return fieldData;
+    return value;
   }
 
   /** @override */

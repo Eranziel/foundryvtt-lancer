@@ -46,17 +46,24 @@ export class SynergyField<Options extends fields.SchemaField.Options<SynergyFiel
     super(defineSynergyFieldSchema(), options);
   }
 
-  migrateSource(sourceData: any, fieldData: any) {
-    // In some old imports we never properly separated synergy locations
-    if (fieldData.locations?.some((s: string) => s.includes(","))) {
-      fieldData.locations = fieldData.locations.flatMap((s: string) => s.split(",").map(s2 => s2.trim()));
+  /** @override */
+  protected override _migrate(
+    value: any,
+    options?: Readonly<foundry.data.types.DataModelCleaningOptions>,
+    _state?: foundry.data.types.DataModelUpdateState
+  ): any {
+    value = super._migrate(value, options, _state);
+    if (value && typeof value === "object") {
+      // In some old imports we never properly separated synergy locations
+      if (value.locations?.some((s: string) => s.includes(","))) {
+        value.locations = value.locations.flatMap((s: string) => s.split(",").map(s2 => s2.trim()));
+      }
+      // Ensure all lowercase
+      if (value.locations) {
+        value.locations = value.locations.map((l: string) => l.toLowerCase());
+      }
     }
-    // Ensure all lowercase
-    if (fieldData.locations) {
-      fieldData.locations = fieldData.locations.map((l: string) => l.toLowerCase());
-    }
-
-    return fieldData;
+    return value;
   }
 }
 
