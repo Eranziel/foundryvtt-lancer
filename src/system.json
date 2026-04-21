@@ -74,27 +74,27 @@
   "grid": { "distance": 1, "units": "", "type": 2, "diagonals": 0 },
   "primaryTokenAttribute": "hp",
   "secondaryTokenAttribute": "heat",
-  "url": "https://github.com/Eranziel/foundryvtt-lancer",
-  "manifest": "https://github.com/Eranziel/foundryvtt-lancer/releases/latest/download/system.json",
-  "download": "https://github.com/Eranziel/foundryvtt-lancer/releases/download/v2.11.3/lancer-v2.11.3.zip",
+  "url": "https://github.com/VacantFanatic/foundryvtt-lancer",
+  "manifest": "https://github.com/VacantFanatic/foundryvtt-lancer/releases/latest/download/system.json",
+  "download": "https://github.com/VacantFanatic/foundryvtt-lancer/releases/download/v2.11.3/lancer-v2.11.3.zip",
   "license": "GNU GPLv3",
-  "readme": "https://github.com/Eranziel/foundryvtt-lancer/blob/master/README.md",
-  "bugs": "https://github.com/Eranziel/foundryvtt-lancer/issues/new/choose",
-  "changelog": "https://github.com/Eranziel/foundryvtt-lancer/blob/master/CHANGELOG.md",
+  "readme": "https://github.com/VacantFanatic/foundryvtt-lancer/blob/master/README.md",
+  "bugs": "https://github.com/VacantFanatic/foundryvtt-lancer/issues/new/choose",
+  "changelog": "https://github.com/VacantFanatic/foundryvtt-lancer/blob/master/CHANGELOG.md",
   "media": [
     {
       "type": "cover",
-      "url": "https://raw.githubusercontent.com/Eranziel/foundryvtt-lancer/refs/heads/master/public/assets/banners/powered_by_Lancer-white-on-black-cover.svg",
+      "url": "https://raw.githubusercontent.com/VacantFanatic/foundryvtt-lancer/refs/heads/master/public/assets/banners/powered_by_Lancer-white-on-black-cover.svg",
       "caption": "Powered by Lancer"
     },
     {
       "type": "setup",
-      "url": "https://raw.githubusercontent.com/Eranziel/foundryvtt-lancer/refs/heads/master/public/assets/banners/powered_by_Lancer-white-on-black-setup.svg",
+      "url": "https://raw.githubusercontent.com/VacantFanatic/foundryvtt-lancer/refs/heads/master/public/assets/banners/powered_by_Lancer-white-on-black-setup.svg",
       "caption": "Powered by Lancer"
     },
     {
       "type": "icon",
-      "url": "https://raw.githubusercontent.com/Eranziel/foundryvtt-lancer/refs/heads/master/public/assets/banners/powered_by_Lancer-white-on-black-icon.svg",
+      "url": "https://raw.githubusercontent.com/VacantFanatic/foundryvtt-lancer/refs/heads/master/public/assets/banners/powered_by_Lancer-white-on-black-icon.svg",
       "caption": "Powered by Lancer"
     }
   ],
