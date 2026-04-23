@@ -15,7 +15,8 @@
   import HudCheckbox from "../components/HudCheckbox.svelte";
   import { LancerToken } from "../../token";
   import AccDiffInput from "./AccDiffInput.svelte";
-  import { tokenDocFromUuidSync, type AccDiffHudData } from "./data.svelte";
+  import { type AccDiffHudData } from "./data.svelte";
+  import { tokenDocFromUuidSync } from "../../util/misc";
 
   /* ===== PROPS ===== */
 
@@ -27,7 +28,6 @@
     // submit,
   }: {
     data: AccDiffHudData;
-    title: string;
     kind: "hase" | "attack";
     // cancel: Function;
     // submit: Function;

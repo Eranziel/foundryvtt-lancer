@@ -5,21 +5,12 @@ import { LancerItem } from "../../item/lancer-item";
 import Invisibility from "./invisibility";
 import Spotter from "./spotter";
 import { Tag } from "../../models/bits/tag";
+import { tokenDocFromUuidSync } from "../../util/misc";
 
 export enum Cover {
   None = 0,
   Soft = 1,
   Hard = 2,
-}
-
-export function tokenDocFromUuidSync(
-  uuid: string,
-  options?: { strict?: boolean }
-): TokenDocument.Implementation | null {
-  // @ts-expect-error out of date type for fromUuidSync
-  const token = fromUuidSync(uuid, options);
-  if (!(token instanceof TokenDocument.implementation)) return null;
-  return token;
 }
 
 export type AccDiffHudWeaponParams = {

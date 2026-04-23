@@ -91,6 +91,22 @@ export type TokenScrollTextOptions = {
 };
 
 /**
+ * Utility function to look up a UUID and verify that the found document is a token.
+ * @param uuid Token UUID to look up
+ * @param options Options object passed along to fromUuidSync
+ * @returns The found TokenDocument or null
+ */
+export function tokenDocFromUuidSync(
+  uuid: string,
+  options?: { strict?: boolean }
+): TokenDocument.Implementation | null {
+  // @ts-expect-error out of date type for fromUuidSync
+  const token = fromUuidSync(uuid, options);
+  if (!(token instanceof TokenDocument.implementation)) return null;
+  return token;
+}
+
+/**
  * Utility function to check if the user owns an actor. for a GM this will only return true if there is no currently
  * connected player which has ownership of this actor. This is useful for determining if the GM should receive a prompt
  * for some action on behalf of that actor (structure, burn check, etc...).
@@ -128,6 +144,6 @@ export async function tokenScrollText(
   const token = canvas.tokens?.get(tokenId);
   if (!token) return;
   // If this client does not have floating numbers enabled, don't show them.
-  if (!(game.settings.get(game.system.id, LANCER.setting_floating_damage_numbers))) return;
+  if (!game.settings.get(game.system.id, LANCER.setting_floating_damage_numbers)) return;
   await canvas.interface?.createScrollingText(token.center, content, style);
 }

@@ -1,6 +1,6 @@
 import type { AccDiffHudCheckboxPluginData } from "./plugin";
 import { AccDiffHudData, AccDiffHudTarget } from "./index";
-import { tokenDocFromUuidSync } from "./data.svelte";
+import { tokenDocFromUuidSync } from "../../util/misc";
 
 // you don't need to explicitly type the serialized data,
 // but if you do then io-ts codecs can do strong checks at runtime
