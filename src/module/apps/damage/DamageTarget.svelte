@@ -3,7 +3,7 @@
   import { slide } from "svelte/transition";
 
   import HudCheckbox from "../components/HudCheckbox.svelte";
-  import { DamageHudTarget, HitQuality } from "./data";
+  import { DamageHudTarget, HitQuality } from "./data.svelte";
   import DamageInput from "./DamageInput.svelte";
   import { DamageType } from "../../enums";
   import HitRadio from "./HitRadio.svelte";
@@ -15,11 +15,7 @@
   let imgElement: HTMLElement;
 
   $: hitQualityClass =
-    target.quality === HitQuality.Hit
-      ? "target-hit"
-      : target.quality === HitQuality.Crit
-        ? "target-crit"
-        : "target-miss";
+    target.quality === HitQuality.Hit ? "target-hit" : target.quality === HitQuality.Crit ? "target-crit" : "target-miss";
 
   function addBonusDamage() {
     target.bonusDamage = [...target.bonusDamage, { type: DamageType.Kinetic, val: "1d6" }];
@@ -57,7 +53,7 @@
       alt={target.target.name ?? undefined}
       src={target.target.actor?.img}
       bind:this={imgElement}
-    />
+    >
     <!-- Add bonus damage for this target -->
     <div class="card clipped target-bonus-damage">
       <span class="flexrow" style="width: 100%">
@@ -69,7 +65,7 @@
             on:click={addBonusDamage}
             data-tooltip="Add a bonus damage type for only this target"
           >
-            <i class="mdi mdi-plus-thick" />
+            <i class="mdi mdi-plus-thick"></i>
           </button>
         {/if}
       </span>
@@ -85,7 +81,7 @@
           on:click={addBonusDamage}
           data-tooltip="Add a bonus damage type for only this target"
         >
-          <i class="mdi mdi-plus-thick" />
+          <i class="mdi mdi-plus-thick"></i>
         </button>
       {/if}
     </div>
@@ -108,7 +104,7 @@
       bind:value={target.paracausal}
       on:change={toggleParacausal}
       tooltip="For 'cannot be reduced' effects like the Paracausal mod"
-      style="margin: 0 0.3em;"
+      style="margin: 0 0.3em"
     />
     <HudCheckbox
       icon="mdi mdi-fraction-one-half"

@@ -2,7 +2,7 @@
 
 <script lang="ts">
   import { type DamageHudWeapon, type DamageHudBase, type DamageHudTarget } from "./index";
-  import { HitQuality } from "./data";
+  import { HitQuality } from "./data.svelte";
 
   import { fade } from "svelte/transition";
   import { flip } from "svelte/animate";
@@ -194,7 +194,7 @@
 >
   {#if title != ""}
     <div class="lancer-header lancer-weapon medium">
-      <i class="cci cci-large-beam i--4 i--light" />
+      <i class="cci cci-large-beam i--4 i--light"></i>
       <span>{title}{rollerName}</span>
     </div>
   {/if}
@@ -208,9 +208,9 @@
       <div class="base-damage lancer-border-primary">
         <h4 class="damage-hud-section lancer-border-primary flexrow">
           Base Damage
-          <button class="add-damage-type" type="button" on:click={addBaseDamage}
-            ><i class="mdi mdi-plus-thick" data-tooltip="Add a base damage type" /></button
-          >
+          <button class="add-damage-type" type="button" on:click={addBaseDamage}>
+            <i class="mdi mdi-plus-thick" data-tooltip="Add a base damage type"></i>
+          </button>
         </h4>
         {#each weaponDamage as damage, i (i)}
           <div>
@@ -226,9 +226,9 @@
       <div class="bonus-damage">
         <h4 class="damage-hud-section lancer-border-primary flexrow">
           Bonus Damage
-          <button class="add-damage-type" type="button" on:click={addBonusDamage}
-            ><i class="mdi mdi-plus-thick" data-tooltip="Add a bonus damage type" /></button
-          >
+          <button class="add-damage-type" type="button" on:click={addBonusDamage}>
+            <i class="mdi mdi-plus-thick" data-tooltip="Add a bonus damage type"></i>
+          </button>
         </h4>
         {#each weaponBonusDamage as damage, i (i)}
           <div>
@@ -244,7 +244,7 @@
     </div>
     <!-- Checkboxes - AP etc... -->
     <div class="damage-hud-options-grid">
-      <h4 class="damage-hud-section lancer-border-primary" style="justify-content: center; grid-area: title;">
+      <h4 class="damage-hud-section lancer-border-primary" style="justify-content: center; grid-area: title">
         Configuration
       </h4>
       <HudCheckbox
@@ -275,25 +275,25 @@
         tooltip="For effects which cause the attacker to deal half damage in addition to resistance, like Heavy Gunner"
         style="grid-area: halfdamage"
       />
-      <div class="flexrow" style="grid-area: reliable; align-items: center;">
+      <div class="flexrow" style="grid-area: reliable; align-items: center">
         <HudCheckbox
           label="Reliable"
           bind:value={weapon.reliable}
-          style="grid-area: reliable; max-width: fit-content; padding-right: 0.5em;"
+          style="grid-area: reliable; max-width: fit-content; padding-right: 0.5em"
         />
         {#if weapon.reliable}
           <i
             class="cci i--2 cci-{reliableType().toLowerCase()} damage--{reliableType().toLowerCase()}"
             data-tooltip={reliableType()}
             transition:fade|global
-          />
+          ></i>
           <input
             class="lancer-input reliable-value"
             type="text"
             data-dtype="string"
             bind:value={weapon.reliableValue}
             transition:fade|global
-          />
+          >
         {/if}
       </div>
     </div>
@@ -311,7 +311,7 @@
               class="lancer-hit-thumb accdiff-target-has-dropdown"
               alt={targets[0].target.name ?? undefined}
               src={targets[0].target.actor?.img}
-            />
+            >
             <HitRadio bind:quality={targets[0].quality} class="damage-target-quality flexcol" />
           </div>
         </div>
@@ -332,11 +332,11 @@
 
   <div class="lancer-hud-buttons flexrow">
     <button class="dialog-button submit default" data-button="submit" type="submit" use:focus>
-      <i class="fas fa-check" />
+      <i class="fas fa-check"></i>
       Roll
     </button>
     <button class="dialog-button cancel" data-button="cancel" type="button" on:click={() => dispatch("cancel")}>
-      <i class="fas fa-times" />
+      <i class="fas fa-times"></i>
       Cancel
     </button>
   </div>
