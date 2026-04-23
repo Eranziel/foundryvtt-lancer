@@ -31,7 +31,6 @@
     "dprint": "^0.53.1",
     "fvtt-types": "github:League-of-Foundry-Developers/foundry-vtt-types#main",
     "husky": "^8.0.1",
-    "io-ts": "^2.2.22",
     "lint-staged": "^13.0.3",
     "nanoid": "^3.1.31",
     "rollup-plugin-visualizer": "^5.9.2",

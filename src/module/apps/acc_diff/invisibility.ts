@@ -2,9 +2,6 @@ import type { AccDiffHudCheckboxPluginData } from "./plugin";
 import { AccDiffHudData, AccDiffHudTarget } from "./index";
 import { tokenDocFromUuidSync } from "../../util/misc";
 
-// you don't need to explicitly type the serialized data,
-// but if you do then io-ts codecs can do strong checks at runtime
-
 // so for invisibility: why not persist just a boolean?
 // we want to try and capture the intent for the reroll, not just the state
 // if the user clicks to force invisible, then clicks it again
