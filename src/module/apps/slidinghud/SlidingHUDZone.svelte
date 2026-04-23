@@ -96,7 +96,6 @@
     <div class="component grid-enforcement" animate:flip transition:slide|global>
       <Dialog
         kind={key}
-        // {...huds[key].data}
         data={huds[key].data}
         on:submit={() => forward(key, "submit", huds[key].data)}
         on:cancel={() => forward(key, "cancel")}

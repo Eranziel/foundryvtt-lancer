@@ -13,13 +13,13 @@ export enum Cover {
   Hard = 2,
 }
 
-export type AccDiffHudWeaponParams = {
+export interface AccDiffHudWeaponParams {
   accurate: boolean;
   inaccurate: boolean;
   seeking: boolean;
   engaged: boolean;
   plugins: { [k: string]: AccDiffHudPluginData };
-};
+}
 
 export class AccDiffHudWeapon {
   accurate: boolean;
@@ -93,10 +93,10 @@ export class AccDiffHudBase {
   plugins: { [k: string]: AccDiffHudPluginData };
   #weapon!: AccDiffHudWeapon; // never use this class before calling hydrate
 
-  static plugins: { [k: string]: AccDiffHudPlugin<any> } = {};
-
   // Derived properties
   total: number;
+
+  static plugins: { [k: string]: AccDiffHudPlugin<any> } = {};
 
   constructor(obj: AccDiffHudBaseParams) {
     this.grit = $state(obj.grit);
@@ -158,8 +158,8 @@ export class AccDiffHudTarget extends AccDiffHudBase {
   constructor(obj: AccDiffHudTargetParams) {
     super(obj);
     if (obj.targetUuid && !canvas!.scene!.tokens.find(t => t.uuid === obj.targetUuid)) {
-      ui.notifications!.error("Trying to access tokens from a different scene!");
-      throw new Error("Token not found");
+      ui.notifications.error("Trying to access tokens from a different scene!");
+      throw new Error(`Token ${obj.targetUuid} not found in the active scene`);
     }
 
     this.targetUuid = $state(obj.targetUuid);
@@ -194,7 +194,7 @@ export class AccDiffHudTarget extends AccDiffHudBase {
     }
     let ret: AccDiffHudTargetParams = {
       targetUuid: t.document.uuid,
-      // TODO: grit and flatBonus should get provided by base
+      // TODO: grit and flatBonus should be provided by base
       grit: 0,
       flatBonus: 0,
       accuracy: 0,

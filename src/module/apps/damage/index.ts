@@ -1,5 +1,5 @@
-export type { DamageHudDataSerialized as DamageDataSerialized } from "./data";
-export { HitQuality, DamageHudWeapon, DamageHudBase, DamageHudTarget, DamageHudData } from "./data";
+export type { DamageHudDataParams as DamageDataSerialized } from "./data.svelte";
+export { HitQuality, DamageHudWeapon, DamageHudBase, DamageHudTarget, DamageHudData } from "./data.svelte";
 export type {
   CheckboxUI,
   NoUI,

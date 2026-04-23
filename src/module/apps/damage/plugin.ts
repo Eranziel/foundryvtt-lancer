@@ -1,12 +1,10 @@
 import { LancerItem } from "../../item/lancer-item";
 import { LancerActor } from "../../actor/lancer-actor";
 
-import type { DamageData } from "../../models/bits/damage";
-import type DamageTarget from "./DamageTarget.svelte";
+import type { DamageHudData, DamageHudTarget } from "./data.svelte";
 
 // Implementing a plugin means implementing
 // * a data object that can compute its view behaviour,
-// * a codec to serialize it,
 // * and a bunch of freestanding constructors
 
 // You don't _have_ to make the data object a class with static methods for the constructors
@@ -32,25 +30,15 @@ type UIBehaviour = CheckboxUI | NoUI;
 declare interface RollModifier {
   modifyRoll(roll: string): string;
   get rollPrecedence(): number; // higher numbers happen earlier
+  hydrate(data: DamageHudData, target?: DamageHudTarget): void;
 }
 
-declare interface Dehydrated {
-  // the codec handles all serializable data,
-  // but we might want to pick up data from the environment too
-  // all perTarget codecs get the target as well
-  hydrate(data: DamageData, target?: DamageTarget): void;
-}
-
-export type DamageHudPluginData = UIBehaviour & RollModifier & Dehydrated;
-export type DamageHudCheckboxPluginData = CheckboxUI & RollModifier & Dehydrated;
-export type DamageHudNoUIPluginData = NoUI & RollModifier & Dehydrated;
-
-export type DamageHudPluginCodec<C extends DamageHudPluginData, O, I> = Codec<C, O, I>;
+export type DamageHudPluginData = UIBehaviour & RollModifier;
+export type DamageHudCheckboxPluginData = CheckboxUI & RollModifier;
+export type DamageHudNoUIPluginData = NoUI & RollModifier;
 
 export interface DamageHudPlugin<Data extends DamageHudPluginData> {
   slug: string;
-  // the codec lets us know how to persist whatever data you need for rerolls
-  codec: DamageHudPluginCodec<Data, O, I>;
   // these constructors handle creating the initial data for a plugin
   // the presence of these three constructors also indicates what scopes the plugin lives in
   // a "perRoll" plugin applies to all rolls, like weapon seeking

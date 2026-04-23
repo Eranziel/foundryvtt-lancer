@@ -1,6 +1,6 @@
 // import type HUDZone from "./SlidingHUDZone.svelte";
 import type { AccDiffHudData } from "../acc_diff";
-import type { StructStressData } from "../struct_stress/data";
+import type { StructStressData } from "../struct_stress/data.svelte";
 import { DamageHudData } from "../damage";
 import { mount } from "svelte";
 

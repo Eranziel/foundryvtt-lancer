@@ -1,8 +1,5 @@
-import * as t from "io-ts";
-
 import { LancerActor, type LancerNPC } from "../../actor/lancer-actor";
-import type { DamageHudPlugin, DamageHudPluginCodec, DamageHudPluginData } from "./plugin";
-import { enclass, encode, decode } from "../acc_diff/serde";
+import type { DamageHudPlugin, DamageHudPluginData } from "./plugin";
 import { LancerItem } from "../../item/lancer-item";
 import { LancerToken } from "../../token";
 import { Tag } from "../../models/bits/tag";
@@ -10,12 +7,15 @@ import type { DamageData } from "../../models/bits/damage";
 import { DamageType, NpcFeatureType } from "../../enums";
 import { LancerFlowState } from "../../flows/interfaces";
 
+import { LANCER } from "../../config";
+import { tokenDocFromUuidSync } from "../../util/misc";
+const lp = LANCER.log_prefix;
+
 export enum HitQuality {
   Miss = 0,
   Hit = 1,
   Crit = 2,
 }
-let hitSchema = t.union([t.literal(0), t.literal(1), t.literal(2)]);
 
 /**
  * Utility function to ensure that raw data conforms to the DamageData spec
@@ -29,9 +29,14 @@ function ensureDamageType(d: { type: string; val: string }) {
   };
 }
 
-// so normally you wouldn't keep the codecs with the classes like this
-// the entire point of io-ts is that the co/dec logic is separable
-// but here we want plugins to actually modify the codecs, so, sigh
+export interface DamageHudWeaponParams {
+  damage: DamageData[];
+  bonusDamage: DamageData[];
+  reliable: boolean;
+  reliableValue: number;
+  overkill: boolean;
+  plugins: { [k: string]: DamageHudPluginData };
+}
 export class DamageHudWeapon {
   // These are the damage and bonus damage from the weapon+mod.
   // They are accumulated with whatever other damage is added to the base data
@@ -43,37 +48,17 @@ export class DamageHudWeapon {
   #data!: DamageHudData; // never use this class before calling hydrate
   plugins: { [k: string]: DamageHudPluginData };
 
-  static pluginSchema: { [k: string]: DamageHudPluginCodec<any, any, any> } = {};
+  static plugins: { [k: string]: DamageHudPlugin<any> } = {};
 
-  static get schema() {
-    return {
-      // TODO: how do you define an io-ts array schema using a TS type?
-      // `type` should be a DamageType
-      damage: t.array(t.type({ type: t.string, val: t.string })),
-      bonusDamage: t.array(t.type({ type: t.string, val: t.string })),
-      reliable: t.boolean,
-      reliableValue: t.number,
-      overkill: t.boolean,
-      plugins: t.type(this.pluginSchema),
-    };
-  }
-
-  static get schemaCodec() {
-    return t.type(this.schema);
-  }
-  static get codec() {
-    return enclass(this.schemaCodec, DamageHudWeapon);
-  }
-
-  constructor(obj: t.TypeOf<typeof DamageHudWeapon.schemaCodec>) {
+  constructor(obj: DamageHudWeaponParams) {
     const objectDamage = obj.damage.map(ensureDamageType);
     const objBonusDamage = obj.bonusDamage.map(ensureDamageType);
-    this.damage = objectDamage;
-    this.bonusDamage = objBonusDamage;
-    this.reliable = obj.reliable;
-    this.reliableValue = obj.reliableValue;
-    this.overkill = obj.overkill;
-    this.plugins = obj.plugins;
+    this.damage = $state(objectDamage);
+    this.bonusDamage = $state(objBonusDamage);
+    this.reliable = $state(obj.reliable);
+    this.reliableValue = $state(obj.reliableValue);
+    this.overkill = $state(obj.overkill);
+    this.plugins = $state(obj.plugins);
   }
 
   get raw() {
@@ -86,11 +71,6 @@ export class DamageHudWeapon {
       plugins: this.plugins,
     };
   }
-
-  // TODO: refactor to damage specs
-  // total(cover: number) {
-  //   return (this.accurate ? 1 : 0) - (this.inaccurate ? 1 : 0) - (this.seeking ? 0 : cover) - (this.impaired ? 1 : 0);
-  // }
 
   hydrate(d: DamageHudData) {
     for (let key of Object.keys(this.plugins)) {
@@ -110,9 +90,9 @@ export class DamageHudWeapon {
     let tier = 1;
     if (source) {
       if (source instanceof LancerItem && source.actor?.is_npc()) {
-        tier = source.actor.system.tier;
+        tier = source.actor.system.tier || 1;
       } else if (source instanceof LancerActor && source.is_npc()) {
-        tier = source.system.tier;
+        tier = source.system.tier || 1;
       }
     }
     // Get the tier value from the tag
@@ -124,6 +104,14 @@ export class DamageHudWeapon {
   }
 }
 
+export interface DamageHudBaseParams {
+  ap: boolean;
+  paracausal: boolean;
+  halfDamage: boolean;
+  damage: DamageData[];
+  bonusDamage: DamageData[];
+  plugins: { [k: string]: DamageHudPluginData };
+}
 export class DamageHudBase {
   ap: boolean;
   paracausal: boolean;
@@ -133,36 +121,22 @@ export class DamageHudBase {
   plugins: { [k: string]: DamageHudPluginData };
   #weapon?: DamageHudWeapon; // never use this class before calling hydrate
 
-  static pluginSchema: { [k: string]: DamageHudPluginCodec<any, any, any> } = {};
+  // Derived properties
+  total: { damage: DamageData[]; bonusDamage: DamageData[] };
 
-  static get schema() {
-    return {
-      ap: t.boolean,
-      paracausal: t.boolean,
-      halfDamage: t.boolean,
-      // TODO: how do you define an io-ts array schema using a TS type?
-      // `type` should be a DamageType
-      damage: t.array(t.type({ type: t.string, val: t.string })),
-      bonusDamage: t.array(t.type({ type: t.string, val: t.string })),
-      plugins: t.type(this.pluginSchema),
-    };
-  }
-  static get schemaCodec() {
-    return t.type(this.schema);
-  }
-  static get codec() {
-    return enclass(this.schemaCodec, DamageHudBase);
-  }
+  static plugins: { [k: string]: DamageHudPlugin<any> } = {};
 
-  constructor(obj: t.TypeOf<typeof DamageHudBase.schemaCodec>) {
+  constructor(obj: DamageHudBaseParams) {
     const objectDamage = obj.damage.map(ensureDamageType);
     const objBonusDamage = obj.bonusDamage.map(ensureDamageType);
-    this.ap = obj.ap;
-    this.paracausal = obj.paracausal;
-    this.halfDamage = obj.halfDamage;
-    this.damage = objectDamage;
-    this.bonusDamage = objBonusDamage;
-    this.plugins = obj.plugins;
+    this.ap = $state(obj.ap);
+    this.paracausal = $state(obj.paracausal);
+    this.halfDamage = $state(obj.halfDamage);
+    this.damage = $state(objectDamage);
+    this.bonusDamage = $state(objBonusDamage);
+    this.plugins = $state(obj.plugins);
+
+    this.total = $derived(this._total());
   }
 
   get raw() {
@@ -179,11 +153,11 @@ export class DamageHudBase {
   hydrate(d: DamageHudData) {
     this.#weapon = d.weapon;
     for (let key of Object.keys(this.plugins)) {
-      this.plugins[key].hydrate(d, this);
+      this.plugins[key].hydrate(d);
     }
   }
 
-  get total() {
+  _total() {
     const weaponTotal = this.#weapon?.total || { damage: [], bonusDamage: [] };
     return {
       damage: weaponTotal.damage.concat(this.damage),
@@ -192,65 +166,45 @@ export class DamageHudBase {
   }
 }
 
-// we _want_ to extend DamageBase
-// but ... typescript checks type compatibility between _static_ methods
-// and that + io-ts I think has the variance wrong
-// so if you extend DamageBase it's trying to assign DamageBase to DamageTarget
-export class DamageHudTarget {
-  target: LancerToken;
+export interface DamageHudTargetParams extends DamageHudBaseParams {
+  targetUuid: string;
   quality: HitQuality;
-  ap: boolean;
-  paracausal: boolean;
-  halfDamage: boolean;
-  bonusDamage: DamageData[];
-  plugins: { [k: string]: any };
+}
+export class DamageHudTarget extends DamageHudBase {
+  targetUuid: string;
+  targetName: string;
+  targetImg: string;
+  quality: HitQuality;
   #weapon?: DamageHudWeapon; // never use this class before calling hydrate
   #base!: DamageHudBase; // never use this class before calling hydrate
 
-  static pluginSchema: { [k: string]: DamageHudPluginCodec<any, any, any> } = {};
-
-  static get schema() {
-    return {
-      target_id: t.string,
-      quality: t.number,
-      ap: t.boolean,
-      paracausal: t.boolean,
-      halfDamage: t.boolean,
-      bonusDamage: t.array(t.type({ type: t.string, val: t.string })),
-      plugins: t.type(this.pluginSchema),
-    };
-  }
-
-  static get schemaCodec() {
-    return t.type(this.schema);
-  }
-  static get codec() {
-    return enclass(this.schemaCodec, DamageHudTarget);
-  }
-
-  constructor(obj: t.TypeOf<typeof DamageHudTarget.schemaCodec>) {
-    let target = canvas!.scene!.tokens.get(obj.target_id);
-    if (!target) {
-      ui.notifications!.error("Trying to access tokens from a different scene!");
-      throw new Error("Token not found");
+  constructor(obj: DamageHudTargetParams) {
+    if (obj.damage.length) {
+      console.warn(`${lp} Non-bonus damage was provided for damage target, but will be ignored.`);
     }
-    const objBonusDamage = obj.bonusDamage.map(ensureDamageType);
+    // We don't support target-specific non-bonus damage, so make sure it's cleared to avoid unintended effects.
+    obj.damage = [];
+    super(obj);
 
-    this.target = target.object! as LancerToken;
-    this.quality = obj.quality;
-    this.ap = obj.ap;
-    this.paracausal = obj.paracausal;
-    this.halfDamage = obj.halfDamage;
-    this.bonusDamage = objBonusDamage;
-    this.plugins = obj.plugins;
+    if (obj.targetUuid && !canvas!.scene!.tokens.find(t => t.uuid === obj.targetUuid)) {
+      ui.notifications.error("Trying to access tokens from a different scene!");
+      throw new Error(`Token ${obj.targetUuid} not found in the active scene`);
+    }
+
+    this.targetUuid = $state(obj.targetUuid);
+    const token = tokenDocFromUuidSync(this.targetUuid, { strict: true });
+    this.targetName = $derived(token?.name || "");
+    this.targetImg = $derived(token?.actor?.img || "");
+    this.quality = $state(obj.quality);
   }
 
   get raw() {
     return {
-      target_id: this.target.id,
+      targetUuid: this.targetUuid,
       quality: this.quality,
       ap: this.ap,
       paracausal: this.paracausal,
+      damage: [],
       halfDamage: this.halfDamage,
       bonusDamage: this.bonusDamage,
       plugins: this.plugins,
@@ -267,19 +221,20 @@ export class DamageHudTarget {
       bonusDamage?: DamageData[];
     }
   ): DamageHudTarget {
-    let ret = {
-      target_id: t.id,
+    let ret: DamageHudTargetParams = {
+      targetUuid: t.document.uuid,
       quality: data?.quality ?? HitQuality.Hit,
       ap: data?.ap || false,
       paracausal: data?.paracausal || false,
       halfDamage: data?.halfDamage || false,
+      damage: [],
       bonusDamage: data?.bonusDamage || [],
       plugins: {} as { [k: string]: any },
     };
     for (let plugin of DamageHudData.targetedPlugins) {
-      ret.plugins[plugin.slug] = encode(plugin.perTarget!(t), plugin.codec);
+      ret.plugins[plugin.slug] = plugin.perTarget!(t);
     }
-    return decode(ret, DamageHudTarget.codec);
+    return new DamageHudTarget(ret);
   }
 
   hydrate(d: DamageHudData) {
@@ -290,53 +245,45 @@ export class DamageHudTarget {
     }
   }
 
-  get total() {
+  _total() {
     const baseTotal = this.#base.total;
     return {
-      damage: baseTotal,
+      damage: baseTotal.damage,
       bonusDamage: this.bonusDamage.concat(baseTotal.bonusDamage),
     };
   }
 }
 
-// Simple class for storing the results of the attack roll which this damage roll is derived from.
-// Needs to match LancerFlowState.HitResult, other than target being a UUID string instead of a
-// hydrated token.
+export interface DamageHudHitResultParams {
+  targetUuid: string; // token UUID
+  total: string;
+  usedLockOn: boolean;
+  hit: boolean;
+  crit: boolean;
+}
+/**
+ * Simple class for storing the results of the attack roll which this damage roll is derived from.
+ * Needs to match LancerFlowState.HitResult, other than target being a UUID string instead of a
+ * hydrated token.
+ */
 class DamageHudHitResult {
-  target: string; // token UUID
+  targetUuid: string; // token UUID
   total: string;
   usedLockOn: boolean;
   hit: boolean;
   crit: boolean;
 
-  static get schema() {
+  constructor(obj: DamageHudHitResultParams) {
+    this.targetUuid = $state(obj.targetUuid);
+    this.total = $state(obj.total);
+    this.usedLockOn = $state(obj.usedLockOn);
+    this.hit = $state(obj.hit);
+    this.crit = $state(obj.crit);
+  }
+
+  get raw(): DamageHudHitResultParams {
     return {
-      target: t.string,
-      total: t.string,
-      usedLockOn: t.boolean,
-      hit: t.boolean,
-      crit: t.boolean,
-    };
-  }
-
-  static get schemaCodec() {
-    return t.type(this.schema);
-  }
-  static get codec() {
-    return enclass(this.schemaCodec, DamageHudHitResult);
-  }
-
-  constructor(obj: t.TypeOf<typeof DamageHudHitResult.schemaCodec>) {
-    this.target = obj.target;
-    this.total = obj.total;
-    this.usedLockOn = obj.usedLockOn;
-    this.hit = obj.hit;
-    this.crit = obj.crit;
-  }
-
-  get raw() {
-    return {
-      target: this.target,
+      targetUuid: this.targetUuid,
       total: this.total,
       usedLockOn: this.usedLockOn,
       hit: this.hit,
@@ -345,8 +292,14 @@ class DamageHudHitResult {
   }
 }
 
-export type DamageHudDataSerialized = t.OutputOf<typeof DamageHudData.schemaCodec>;
-// TODO: this guy needs a new name
+export interface DamageHudDataParams {
+  title: string;
+  weapon?: DamageHudWeaponParams;
+  base: DamageHudBaseParams;
+  hitResults: DamageHudHitResultParams[];
+  targets: DamageHudTargetParams[];
+  runtimeData?: string; // LancerActor or LancerItem uuid
+}
 export class DamageHudData {
   title: string;
   weapon: DamageHudWeapon | undefined;
@@ -356,37 +309,20 @@ export class DamageHudData {
   lancerItem?: LancerItem; // not persisted, needs to be hydrated
   lancerActor?: LancerActor; // not persisted, needs to be hydrated
 
-  static get schema() {
-    return {
-      title: t.string,
-      weapon: t.union([DamageHudWeapon.codec, t.undefined]),
-      base: DamageHudBase.codec,
-      hitResults: t.array(DamageHudHitResult.codec),
-      targets: t.array(DamageHudTarget.codec),
-    };
-  }
-
-  static get schemaCodec() {
-    return t.type(this.schema);
-  }
-  static get codec() {
-    return enclass(this.schemaCodec, DamageHudData);
-  }
-
-  constructor(obj: t.TypeOf<typeof DamageHudData.schemaCodec>) {
-    this.title = obj.title;
-    this.weapon = obj.weapon || undefined;
-    this.base = obj.base;
-    this.hitResults = obj.hitResults;
-    this.targets = obj.targets;
+  constructor(obj: DamageHudDataParams) {
+    this.title = $state(obj.title);
+    this.weapon = $state(obj.weapon ? new DamageHudWeapon(obj.weapon) : undefined);
+    this.base = $state(new DamageHudBase(obj.base));
+    this.hitResults = $state(obj.hitResults.map(hitResult => new DamageHudHitResult(hitResult)));
+    this.targets = $state(obj.targets.map(target => new DamageHudTarget(target)));
     this.hydrate();
   }
 
-  hydrate(runtimeData?: LancerItem | LancerActor) {
+  hydrate(runtimeData?: LancerItem | LancerActor | unknown) {
     if (runtimeData instanceof LancerItem) {
       this.lancerItem = runtimeData;
       this.lancerActor = runtimeData.actor ?? undefined;
-    } else {
+    } else if (runtimeData instanceof LancerActor) {
       this.lancerActor = runtimeData ?? undefined;
     }
 
@@ -397,15 +333,30 @@ export class DamageHudData {
     }
   }
 
-  replaceTargets(ts: Token.Implementation[]): DamageHudData {
-    let oldTargets: { [key: string]: DamageHudTarget } = {};
-    for (let data of this.targets) {
-      oldTargets[data.target.id] = data;
+  replaceTargets(newTargets: string[]): DamageHudData {
+    const oldTargets: { [key: string]: DamageHudTarget } = {};
+    for (let target of this.targets) {
+      oldTargets[target.targetUuid] = target;
     }
 
-    this.targets = ts.map(
-      t => oldTargets[t.id] ?? DamageHudTarget.fromParams(t, { quality: this.getHitQuality(t as LancerToken) })
-    );
+    // Delete targets which have been untargeted
+    for (let i = this.targets.length - 1; i >= 0; i--) {
+      if (i < 0) break;
+      const target = this.targets[i];
+      if (!newTargets.some(t => t === target.targetUuid)) {
+        this.targets.splice(i, 1);
+      }
+    }
+    // Either update-in-place or push new targets into the array
+    for (const target of newTargets) {
+      const token: Token.Implementation | null = tokenDocFromUuidSync(target, { strict: true })?.object || null;
+      if (!token) continue;
+      const existingTarget = this.targets.find(t => t.targetUuid === target);
+      // New target, add to array
+      if (!existingTarget) {
+        this.targets.push(DamageHudTarget.fromParams(token));
+      }
+    }
 
     for (let target of this.targets) {
       target.hydrate(this);
@@ -424,27 +375,23 @@ export class DamageHudData {
   }
 
   // Decode from a serialized object, optionally populating remaining data from an item
-  static fromObject(obj: DamageHudDataSerialized, runtimeData?: LancerItem | LancerActor): DamageHudData {
-    let ret = decode(obj, DamageHudData.codec);
+  static fromObject(obj: DamageHudDataParams, runtimeData?: LancerItem | LancerActor): DamageHudData {
+    let ret = new this(obj);
     ret.hydrate(runtimeData);
     return ret;
-  }
-
-  toObject(): t.OutputOf<typeof DamageHudData.codec> {
-    return encode(this, DamageHudData.codec);
   }
 
   static plugins: DamageHudPlugin<DamageHudPluginData>[] = [];
   static targetedPlugins: DamageHudPlugin<DamageHudPluginData>[] = [];
   static registerPlugin<D extends DamageHudPluginData, P extends DamageHudPlugin<D>>(plugin: P) {
     if (plugin.perRoll) {
-      DamageHudWeapon.pluginSchema[plugin.slug] = plugin.codec;
+      DamageHudWeapon.plugins[plugin.slug] = plugin;
     }
     if (plugin.perUnknownTarget) {
-      DamageHudBase.pluginSchema[plugin.slug] = plugin.codec;
+      DamageHudBase.plugins[plugin.slug] = plugin;
     }
     if (plugin.perTarget) {
-      DamageHudTarget.pluginSchema[plugin.slug] = plugin.codec;
+      DamageHudTarget.plugins[plugin.slug] = plugin;
       this.targetedPlugins.push(plugin);
     }
     this.plugins.push(plugin);
@@ -452,7 +399,7 @@ export class DamageHudData {
 
   static getHitQuality(t: LancerToken, hitResults: DamageHudHitResult[]) {
     if (!hitResults || !hitResults.length) return HitQuality.Hit;
-    const hit = (hitResults || []).find(hr => hr.target === t.document.uuid);
+    const hit = (hitResults || []).find(hr => hr.targetUuid === t.document.uuid);
     if (!hit) return HitQuality.Hit;
     // Pick the quality which matches the hit result's hit/crit flags
     if (hit.crit) return HitQuality.Crit;
@@ -522,26 +469,27 @@ export class DamageHudData {
     }
 
     const hitResults = (data?.hitResults || []).map(
-      hr => new DamageHudHitResult({ ...hr, target: hr.target.document.uuid })
+      hr => new DamageHudHitResult({ ...hr, targetUuid: hr.target.document.uuid })
     );
 
-    let obj: DamageHudDataSerialized = {
+    let obj: DamageHudDataParams = {
       title: data?.title ? data.title : "Damage Roll",
       weapon,
       base,
-      hitResults,
+      hitResults: hitResults.map(hr => hr.raw),
       targets: (data?.targets || []).map(t => {
         let ret = {
-          target_id: t.id,
+          targetUuid: t.id,
           quality: DamageHudData.getHitQuality(t, hitResults),
           ap: base.ap,
           paracausal: base.paracausal,
           halfDamage: base.halfDamage,
+          damage: [],
           bonusDamage: [],
           plugins: {} as { [k: string]: any },
         };
         for (let plugin of this.targetedPlugins) {
-          ret.plugins[plugin.slug] = encode(plugin.perTarget!(t), plugin.codec);
+          ret.plugins[plugin.slug] = plugin.perTarget!(t);
         }
         return ret;
       }),
@@ -549,10 +497,10 @@ export class DamageHudData {
 
     for (let plugin of this.plugins) {
       if (plugin.perRoll && obj.weapon) {
-        obj.weapon.plugins[plugin.slug] = encode(plugin.perRoll(runtimeData), plugin.codec);
+        obj.weapon.plugins[plugin.slug] = plugin.perRoll(runtimeData);
       }
       if (plugin.perUnknownTarget) {
-        obj.base.plugins[plugin.slug] = encode(plugin.perUnknownTarget(), plugin.codec);
+        obj.base.plugins[plugin.slug] = plugin.perUnknownTarget();
       }
     }
 
