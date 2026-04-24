@@ -250,7 +250,7 @@
 </script>
 
 <form
-  id="accdiff"
+  id="accdiff-hud"
   class="lancer lancer-hud accdiff window-content"
   use:escToCancel
   onsubmit={event => {
@@ -546,7 +546,7 @@
 <style lang="scss">
   @layer lancer {
     @layer applications {
-      #accdiff :global(.accdiff-grid) {
+      #accdiff-hud :global(.accdiff-grid) {
         display: flex;
         justify-content: space-between;
       }
@@ -706,8 +706,8 @@
 
       /* there's a very specific EMU rule that adds some margin here
       because it assumes all icons in buttons are followed by text, I think */
-      #accdiff .accdiff-target-row button > i,
-      #accdiff .mech-weapon button > i {
+      #accdiff-hud .accdiff-target-row button > i,
+      #accdiff-hud .mech-weapon button > i {
         margin-inline-end: 0;
       }
 
@@ -755,7 +755,7 @@
         }
       }
 
-      #accdiff button {
+      #accdiff-hud button {
         transition: 100ms cubic-bezier(0.075, 0.82, 0.165, 1);
       }
 
@@ -769,7 +769,7 @@
         }
       }
 
-      #accdiff .lancer-weapon {
+      #accdiff-hud .lancer-weapon {
         span {
           margin-right: 1em;
           margin-left: 1em;

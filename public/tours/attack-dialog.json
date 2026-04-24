@@ -6,31 +6,31 @@
   "steps": [
     {
       "id": "accuracy",
-      "selector": "#hudzone #accdiff .accdiff-grid div:nth-child(1)",
+      "selector": "#hudzone #accdiff-hud .accdiff-grid div:nth-child(1)",
       "title": "lancer.tour.attack-dialog.accuracy.title",
       "content": "lancer.tour.attack-dialog.accuracy.content"
     },
     {
       "id": "difficulty",
-      "selector": "#hudzone #accdiff .accdiff-grid div:nth-child(2)",
+      "selector": "#hudzone #accdiff-hud .accdiff-grid div:nth-child(2)",
       "title": "lancer.tour.attack-dialog.difficulty.title",
       "content": "lancer.tour.attack-dialog.difficulty.content"
     },
     {
       "id": "template",
-      "selector": "#hudzone #accdiff .lancer-header .range-button",
+      "selector": "#hudzone #accdiff-hud .lancer-header .range-button",
       "title": "lancer.tour.attack-dialog.template.title",
       "content": "lancer.tour.attack-dialog.template.content"
     },
     {
       "id": "targeting",
-      "selector": "#hudzone #accdiff div.accdiff-footer",
+      "selector": "#hudzone #accdiff-hud div.accdiff-footer",
       "title": "lancer.tour.attack-dialog.targeting.title",
       "content": "lancer.tour.attack-dialog.targeting.content"
     },
     {
       "id": "finish",
-      "selector": "#hudzone #accdiff .lancer-hud-buttons",
+      "selector": "#hudzone #accdiff-hud .lancer-hud-buttons",
       "title": "lancer.tour.attack-dialog.finish.title",
       "content": "lancer.tour.attack-dialog.finish.content"
     }
