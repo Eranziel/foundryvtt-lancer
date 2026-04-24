@@ -31,11 +31,12 @@
       bind:group={quality}
       value={input.value}
       {disabled}
-    />
+    >
     <label for="{id}-{input.slug}" class="lancer-hit-quality-radio-label {labelClass}" data-tooltip={input.human}>
-      <i class="{input.icon} i--2" /><span class="no-grow">{input.human}</span>
+      <i class="{input.icon} i--2"></i>
+      <span class="no-grow">{input.human}</span>
       {#if input.value == quality}
-        <div class="hit-quality-arrow" in:send={{ key: id }} out:recv={{ key: id }} />
+        <div class="hit-quality-arrow" in:send={{ key: id }} out:recv={{ key: id }}></div>
       {/if}
     </label>
   {/each}
@@ -48,10 +49,15 @@
         border: none;
       }
 
+      // The input itself takes is effectively invisible.
+      // The label handles display & interaction.
       input {
         opacity: 0;
         position: fixed;
+        pointer-events: none;
         width: 0;
+        min-width: 0;
+        margin: 0;
       }
 
       label {

@@ -46,12 +46,12 @@
   in:slide|global={{ delay: 100, duration: 300 }}
   out:slide|global={{ duration: 100 }}
 >
-  <span class="target-name flexrow lancer-mini-header">🞂<b>{target.target.name}</b>🞀</span>
+  <span class="target-name flexrow lancer-mini-header">🞂<b>{target.targetName}</b>🞀</span>
   <div class="flexrow">
     <img
       class="lancer-hit-thumb accdiff-target-has-dropdown"
-      alt={target.target.name ?? undefined}
-      src={target.target.actor?.img}
+      alt={target.targetName ?? undefined}
+      src={target.targetImg}
       bind:this={imgElement}
     >
     <!-- Add bonus damage for this target -->
@@ -60,6 +60,7 @@
         <b class="target-bonus-damage-title">Bonus</b>
         {#if target.bonusDamage.length}
           <button
+            aria-label="Add a bonus damage type for only this target"
             class="lancer-button add-damage-type small"
             type="button"
             on:click={addBonusDamage}
@@ -76,6 +77,7 @@
       {/each}
       {#if !target.bonusDamage.length}
         <button
+          aria-label="Add a bonus damage type for only this target"
           class="lancer-button add-damage-type"
           type="button"
           on:click={addBonusDamage}
