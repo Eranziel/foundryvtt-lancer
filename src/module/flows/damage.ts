@@ -7,6 +7,7 @@ import { LancerItem } from "../item/lancer-item";
 import { Damage, type DamageData } from "../models/bits/damage";
 import type { UUIDRef } from "../source-template";
 import { LancerToken, LancerTokenDocument } from "../token";
+import { tokenDocFromUuidSync } from "../util/misc";
 import { renderTemplateStep } from "./_render";
 import { Flow, type FlowState, type Step } from "./flow";
 import { LancerFlowState } from "./interfaces";
@@ -166,9 +167,9 @@ async function showDamageHUD(state: FlowState<LancerFlowState.DamageRollData>): 
 
     // Filter state.data.hit_results down to those targets present in the HUD data
     state.data.hit_results = state.data.hit_results
-      .filter(hr => state.data?.damage_hud_data?.targets.some(t => hr.target.id === t.target.id))
+      .filter(hr => state.data?.damage_hud_data?.targets.some(t => hr.target.document.uuid === t.targetUuid))
       .map(hr => {
-        const hudTarget = state.data?.damage_hud_data?.targets.find(t => hr.target.id === t.target.id)!;
+        const hudTarget = state.data?.damage_hud_data?.targets.find(t => hr.target.document.uuid === t.targetUuid)!;
         return {
           ...hr,
           hit: hudTarget.quality === HitQuality.Hit,
@@ -178,9 +179,11 @@ async function showDamageHUD(state: FlowState<LancerFlowState.DamageRollData>): 
 
     // Add hit results for any targets in HUD data which aren't in hit results already
     for (const t of state.data.damage_hud_data.targets) {
-      if (state.data.hit_results.some(hr => hr.target.id === t.target.id)) continue;
+      if (state.data.hit_results.some(hr => hr.target.document.uuid === t.targetUuid)) continue;
+      const targetToken = tokenDocFromUuidSync(t.targetUuid);
+      if (!targetToken || !targetToken.object) continue;
       state.data.hit_results.push({
-        target: t.target,
+        target: targetToken.object,
         total: "10",
         hit: t.quality === HitQuality.Hit,
         crit: t.quality === HitQuality.Crit,
@@ -267,9 +270,10 @@ function _collectBonusDamage(state: FlowState<LancerFlowState.DamageRollData>): 
   // Find all the target-specific bonus damage rolls and add them to the base rolls
   // so they can be rolled together.
   for (const hudTarget of state.data.damage_hud_data.targets) {
+    const hudTargetToken = tokenDocFromUuidSync(hudTarget.targetUuid);
     const hudTargetBonusDamage = hudTarget.bonusDamage.map(d => ({
       ...d,
-      target: hudTarget.target,
+      target: hudTargetToken?.object ?? undefined,
     }));
     total.push(...hudTargetBonusDamage);
   }
@@ -337,7 +341,7 @@ export async function rollReliable(state: FlowState<LancerFlowState.DamageRollDa
     // Populate all missed targets with reliable damage
     for (const hitTarget of state.data.hit_results) {
       if (!hitTarget.hit && !hitTarget.crit) {
-        const hudTarget = state.data.damage_hud_data.targets.find(t => t.target.id === hitTarget.target.id);
+        const hudTarget = state.data.damage_hud_data.targets.find(t => t.targetUuid === hitTarget.target.document.uuid);
         const halfDamage = hudTarget ? hudTarget.halfDamage : state.data.half_damage;
         const rolledDamage = state.data.reliable_results.map(dr => ({ type: dr.d_type, amount: dr.roll.total || 0 }));
         state.data.targets.push({
@@ -396,7 +400,7 @@ export async function rollNormalDamage(state: FlowState<LancerFlowState.DamageRo
             targetDamage.push({ type: dr.d_type, amount: dr.roll.total || 0 });
           }
         }
-        const hudTarget = state.data.damage_hud_data.targets.find(t => t.target.id === hitTarget.target.id);
+        const hudTarget = state.data.damage_hud_data.targets.find(t => t.targetUuid === hitTarget.target.document.uuid);
         const halfDamage = hudTarget ? hudTarget.halfDamage : state.data.half_damage;
         const actualDamage = _minReliable(
           targetDamage,
@@ -474,7 +478,7 @@ export async function rollCritDamage(state: FlowState<LancerFlowState.DamageRoll
           targetDamage.push({ type: dr.d_type, amount: dr.roll.total || 0 });
         }
       }
-      const hudTarget = state.data.damage_hud_data.targets.find(t => t.target.id === hitTarget.target.id);
+      const hudTarget = state.data.damage_hud_data.targets.find(t => t.targetUuid === hitTarget.target.document.uuid);
       const halfDamage = hudTarget ? hudTarget.halfDamage : state.data.half_damage;
       const actualDamage = _minReliable(
         targetDamage,
@@ -611,6 +615,7 @@ export async function getCritRoll(normal: Roll) {
     } else if (t instanceof foundry.dice.terms.OperatorTerm) {
       // As of v12, Roll.fromTerms throws an error if some terms are not evaluated already.
       // It's safe to mark OperatorTerms as evaluated, as they don't have any results.
+      // @ts-expect-error Not supposed to access private members, but we have to.
       t._evaluated = true;
       return t;
     } else {
@@ -661,8 +666,8 @@ export async function rollDamageCallback(event: JQuery.ClickEvent) {
   }
   const hit_results: LancerFlowState.HitResult[] = [];
   for (const t of attackData.targets) {
-    const target = (await fromUuid(t.uuid)) as LancerToken | null;
-    if (!target || target.documentName !== "Token") {
+    const target = tokenDocFromUuidSync(t.uuid);
+    if (!target || !target.object) {
       ui.notifications?.error("Invalid target for damage roll");
       continue;
     }
@@ -674,7 +679,7 @@ export async function rollDamageCallback(event: JQuery.ClickEvent) {
     }
 
     hit_results.push({
-      target: target,
+      target: target.object,
       total: t.total,
       usedLockOn,
       hit: t.hit,

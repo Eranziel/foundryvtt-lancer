@@ -53,7 +53,7 @@ export type AttackFlag = {
   invade?: boolean;
   targets: {
     uuid: string;
-    setConditions?: object; // keys are statusEffect ids, values are boolean to indicate whether to apply or remove
+    setConditions?: Record<string, boolean>; // keys are statusEffect ids, values are boolean to indicate whether to apply or remove
     total: string;
     hit: boolean;
     crit: boolean;

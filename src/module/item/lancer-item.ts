@@ -40,7 +40,7 @@ declare module "fvtt-types/configuration" {
   }
 }
 
-interface CurrentProfile {
+export interface CurrentProfile {
   range: RangeData[];
   damage?: DamageData[];
   accuracy?: number | null;

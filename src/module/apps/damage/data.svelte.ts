@@ -302,7 +302,7 @@ export interface DamageHudDataParams {
 }
 export class DamageHudData {
   title: string;
-  weapon: DamageHudWeapon | undefined;
+  weapon: DamageHudWeapon;
   base: DamageHudBase;
   hitResults: DamageHudHitResult[];
   targets: DamageHudTarget[];
@@ -311,7 +311,18 @@ export class DamageHudData {
 
   constructor(obj: DamageHudDataParams) {
     this.title = $state(obj.title);
-    this.weapon = $state(obj.weapon ? new DamageHudWeapon(obj.weapon) : undefined);
+    this.weapon = $state(
+      new DamageHudWeapon(
+        obj.weapon || {
+          overkill: false,
+          reliable: false,
+          reliableValue: 0,
+          damage: [],
+          bonusDamage: [],
+          plugins: {},
+        }
+      )
+    );
     this.base = $state(new DamageHudBase(obj.base));
     this.hitResults = $state(obj.hitResults.map(hitResult => new DamageHudHitResult(hitResult)));
     this.targets = $state(obj.targets.map(target => new DamageHudTarget(target)));
@@ -479,7 +490,7 @@ export class DamageHudData {
       hitResults: hitResults.map(hr => hr.raw),
       targets: (data?.targets || []).map(t => {
         let ret = {
-          targetUuid: t.id,
+          targetUuid: t.document.uuid,
           quality: DamageHudData.getHitQuality(t, hitResults),
           ap: base.ap,
           paracausal: base.paracausal,

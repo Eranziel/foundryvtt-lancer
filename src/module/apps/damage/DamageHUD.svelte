@@ -1,57 +1,101 @@
-<svelte:options accessors={true} />
-
 <script lang="ts">
-  import { type DamageHudWeapon, type DamageHudBase, type DamageHudTarget } from "./index";
-  import { HitQuality } from "./data.svelte";
-
   import { fade } from "svelte/transition";
   import { flip } from "svelte/animate";
-  import { createEventDispatcher } from "svelte";
+  import { createEventDispatcher, onMount, onDestroy } from "svelte";
 
   import DamageInput from "./DamageInput.svelte";
   import MiniProfile from "../components/MiniProfile.svelte";
   import HudCheckbox from "../components/HudCheckbox.svelte";
-
-  import type { LancerItem } from "../../item/lancer-item";
   import DamageTarget from "./DamageTarget.svelte";
-  import { DamageType } from "../../enums";
   import HitRadio from "./HitRadio.svelte";
-  import { LancerActor } from "../../actor/lancer-actor";
+
+  import { DamageHudData, HitQuality } from "./data.svelte";
+  import type { CurrentProfile } from "../../item/lancer-item";
+  import { DamageType } from "../../enums";
   import { LancerToken } from "../../token";
+  import { tokenDocFromUuidSync } from "../../util/misc";
 
-  export let title: string;
-  export let kind: "damage";
-  // The component itself doesn't use hitResults, but the data needs it
-  // for replaceTargets
-  export let hitResults: any;
-  export let weapon: DamageHudWeapon;
-  export let base: DamageHudBase;
-  export let targets: DamageHudTarget[];
-  export let lancerActor: LancerActor | null;
-  export let lancerItem: LancerItem | null;
+  /* ===== PROPS ===== */
 
-  $: baseDamage = base.damage;
-  $: baseBonusDamage = base.bonusDamage;
-  $: weaponDamage = weapon.damage;
-  $: weaponBonusDamage = weapon.bonusDamage;
-  $: profile = lancerItem ? findProfile() : null;
-  $: targetHitQualityClass =
+  let {
+    data,
+    kind,
+    // TODO: remove event dispatcher, use callback props instead
+    // cancel,
+    // submit,
+  }: {
+    data: DamageHudData;
+    kind: "hase" | "attack";
+    // cancel: Function;
+    // submit: Function;
+  } = $props();
+
+  /* ===== STATE ===== */
+
+  const dispatch = createEventDispatcher();
+  let submitted = $state(false);
+  let partialAP = $state(false);
+  let partialParacausal = $state(false);
+  let partialHalfDamage = $state(false);
+  const hookCallbacks: Record<string, number> = {};
+
+  /* ===== DERIVED VALUES ===== */
+
+  const title = $derived(data.title);
+  const lancerItem = $derived(data.lancerItem);
+  const lancerActor = $derived(data.lancerActor);
+  const base = $derived(data.base);
+  const weapon = $derived(data.weapon);
+  const targets = $derived(data.targets);
+
+  const rollerName = $derived(lancerActor ? ` -- ${lancerActor.token?.name || lancerActor.name}` : "");
+  const baseDamage = $derived(data.base.damage);
+  const baseBonusDamage = $derived(data.base.bonusDamage);
+  const weaponDamage = $derived(data.weapon.damage);
+  const weaponBonusDamage = $derived(data.weapon.bonusDamage);
+  const profile = $derived(lancerItem ? findProfile() : null);
+  const targetHitQualityClass = $derived(
     !targets.length || targets[0]?.quality === HitQuality.Hit
       ? "target-hit"
       : targets[0]?.quality === HitQuality.Crit
         ? "target-crit"
-        : "target-miss";
+        : "target-miss"
+  );
 
-  let rollerName = lancerActor ? ` -- ${lancerActor.token?.name || lancerActor.name}` : "";
+  /* ===== FUNCTIONS ===== */
 
-  let partialAP = false;
-  let partialParacausal = false;
-  let partialHalfDamage = false;
+  onMount(() => {
+    // Register hook callbacks for updating targeted tokens
+    hookCallbacks.targetToken = Hooks.on("targetToken", (user, _token, _isNewTarget) => {
+      if (user.isSelf) {
+        updateTargets();
+      }
+    });
+    hookCallbacks.createActiveEffect = Hooks.on("createActiveEffect", updateTargets);
+    hookCallbacks.deleteActiveEffect = Hooks.on("deleteActiveEffect", updateTargets);
+    // updateToken triggers on things like token movement (spotter) and probably a lot of other things
+    hookCallbacks.updateToken = Hooks.on("updateToken", token => {
+      // If there's an animation, update when it finishes, otherwise just update
+      foundry.canvas.animation.CanvasAnimation.getAnimation(token.object?.animationName!)?.promise.then(() =>
+        updateTargets()
+      ) ?? updateTargets();
+    });
+  });
 
-  const dispatch = createEventDispatcher();
+  onDestroy(() => {
+    // Unregister hook callbacks
+    for (const key in hookCallbacks) {
+      Hooks.off(key, hookCallbacks[key]);
+    }
+  });
 
   function focus(el: HTMLElement) {
     el.focus();
+  }
+
+  function updateTargets() {
+    if (!data) return;
+    data.replaceTargets(Array.from(game!.user!.targets).map(t => t.document.uuid));
   }
 
   function escToCancel(_el: HTMLElement) {
@@ -70,18 +114,18 @@
     };
   }
 
-  function findProfile() {
+  function findProfile(): CurrentProfile {
     return lancerItem?.currentProfile() ?? { range: [], damage: [] };
   }
 
   function reliableType(): DamageType {
     const allowedTypes = [DamageType.Kinetic, DamageType.Energy, DamageType.Explosive];
-    const preferred = weapon.damage.find(d => allowedTypes.includes(d.type));
+    const preferred = weapon?.damage.find(d => allowedTypes.includes(d.type));
     if (preferred) {
       return preferred.type;
     }
-    if (weapon.damage.length) {
-      return weapon.damage[0].type;
+    if (weapon?.damage.length) {
+      return weapon?.damage[0].type;
     }
     return DamageType.Kinetic;
   }
@@ -97,7 +141,7 @@
   function removeBaseDamage(idx: number, isBase = true) {
     if (isBase) {
       base.damage = base.damage.filter((_, i) => i !== idx);
-    } else {
+    } else if (weapon) {
       weapon.damage = weapon.damage.filter((_, i) => i !== idx);
     }
   }
@@ -105,7 +149,7 @@
   function removeBonusDamage(idx: number, isBase = true) {
     if (isBase) {
       base.bonusDamage = base.bonusDamage.filter((_, i) => i !== idx);
-    } else {
+    } else if (weapon) {
       weapon.bonusDamage = weapon.bonusDamage.filter((_, i) => i !== idx);
     }
   }
@@ -135,8 +179,7 @@
     }
   }
 
-  function updateTargets() {
-    targets = targets;
+  function updateTargetModifiers() {
     // Check for partial/all AP
     if (targets.every(t => t.ap)) {
       base.ap = true;
@@ -172,16 +215,21 @@
       base.halfDamage = false;
       partialHalfDamage = false;
     }
-
-    base = base;
   }
 
-  function targetHoverIn(event: any, target: LancerToken) {
-    // @ts-expect-error
+  function targetHoverIn(event: any, targetUuid: string) {
+    const target = tokenDocFromUuidSync(targetUuid, { strict: true })?.object;
+    if (!target) return;
+    // Ignore target hovering after the form has been submitted, to avoid flickering when
+    // the UI slides down.
+    if (submitted) return;
+    // @ts-expect-error not supposed to use a private method
     target._onHoverIn(event);
   }
-  function targetHoverOut(event: any, target: LancerToken) {
-    // @ts-expect-error
+  function targetHoverOut(event: any, targetUuid: string) {
+    const target = tokenDocFromUuidSync(targetUuid, { strict: true })?.object;
+    if (!target) return;
+    // @ts-expect-error not supposed to use a private method
     target._onHoverOut(event);
   }
 </script>
@@ -190,7 +238,11 @@
   id="damage-hud"
   class="lancer lancer-hud damage-hud window-content"
   use:escToCancel
-  on:submit|preventDefault={() => dispatch("submit")}
+  onsubmit={event => {
+    event.preventDefault();
+    submitted = true;
+    dispatch("submit");
+  }}
 >
   {#if title != ""}
     <div class="lancer-header lancer-weapon medium">
@@ -208,36 +260,36 @@
       <div class="base-damage lancer-border-primary">
         <h4 class="damage-hud-section lancer-border-primary flexrow">
           Base Damage
-          <button class="add-damage-type" type="button" on:click={addBaseDamage}>
+          <button class="add-damage-type" type="button" aria-label="Add new base damage type" onclick={addBaseDamage}>
             <i class="mdi mdi-plus-thick" data-tooltip="Add a base damage type"></i>
           </button>
         </h4>
-        {#each weaponDamage as damage, i (i)}
+        {#each weaponDamage as _damage, i}
           <div>
-            <DamageInput bind:damage on:delete={() => removeBaseDamage(i, false)} />
+            <DamageInput bind:damage={weaponDamage[i]} on:delete={() => removeBaseDamage(i, false)} />
           </div>
         {/each}
-        {#each baseDamage as damage, i (i)}
+        {#each baseDamage as _damage, i}
           <div>
-            <DamageInput bind:damage on:delete={() => removeBaseDamage(i)} />
+            <DamageInput bind:damage={baseDamage[i]} on:delete={() => removeBaseDamage(i)} />
           </div>
         {/each}
       </div>
       <div class="bonus-damage">
         <h4 class="damage-hud-section lancer-border-primary flexrow">
           Bonus Damage
-          <button class="add-damage-type" type="button" on:click={addBonusDamage}>
+          <button class="add-damage-type" type="button" aria-lable="Add new bonus damage type" onclick={addBonusDamage}>
             <i class="mdi mdi-plus-thick" data-tooltip="Add a bonus damage type"></i>
           </button>
         </h4>
-        {#each weaponBonusDamage as damage, i (i)}
+        {#each weaponBonusDamage as _damage, i}
           <div>
-            <DamageInput bind:damage on:delete={() => removeBonusDamage(i, false)} />
+            <DamageInput bind:damage={weaponBonusDamage[i]} on:delete={() => removeBonusDamage(i, false)} />
           </div>
         {/each}
-        {#each baseBonusDamage as damage, i (i)}
+        {#each baseBonusDamage as _damage, i}
           <div>
-            <DamageInput bind:damage on:delete={() => removeBonusDamage(i)} />
+            <DamageInput bind:damage={baseBonusDamage[i]} on:delete={() => removeBonusDamage(i)} />
           </div>
         {/each}
       </div>
@@ -301,29 +353,38 @@
     <div class="damage-hud-targets">
       {#if targets.length === 1}
         <div
+          role="radiogroup"
+          tabindex="0"
           class={`single-target-container ${targetHitQualityClass}`}
-          on:mouseenter={ev => targetHoverIn(ev, targets[0].target)}
-          on:mouseleave={ev => targetHoverOut(ev, targets[0].target)}
+          onmouseenter={ev => targetHoverIn(ev, targets[0].targetUuid)}
+          onmouseleave={ev => targetHoverOut(ev, targets[0].targetUuid)}
         >
-          <span class="target-name flexrow lancer-mini-header">🞂<b>{targets[0].target.name}</b>🞀</span>
+          <span class="target-name flexrow lancer-mini-header">🞂<b>{targets[0].targetName}</b>🞀</span>
           <div class="target-body flexrow">
             <img
               class="lancer-hit-thumb accdiff-target-has-dropdown"
-              alt={targets[0].target.name ?? undefined}
-              src={targets[0].target.actor?.img}
+              alt={targets[0].targetName}
+              src={targets[0].targetImg}
             >
             <HitRadio bind:quality={targets[0].quality} class="damage-target-quality flexcol" />
           </div>
         </div>
       {:else if targets.length > 1}
-        {#each targets as target (target.target.id)}
+        {#each targets as target (target.targetUuid)}
           <div
+            role="radiogroup"
+            tabindex="0"
             class="target-container {targets.length <= 1 ? 'solo' : ''}"
             animate:flip={{ duration: 200 }}
-            on:mouseenter={ev => targetHoverIn(ev, target.target)}
-            on:mouseleave={ev => targetHoverOut(ev, target.target)}
+            onmouseenter={ev => targetHoverIn(ev, target.targetUuid)}
+            onmouseleave={ev => targetHoverOut(ev, target.targetUuid)}
           >
-            <DamageTarget {target} on:ap={updateTargets} on:paracausal={updateTargets} on:halfDmg={updateTargets} />
+            <DamageTarget
+              {target}
+              on:ap={updateTargetModifiers}
+              on:paracausal={updateTargetModifiers}
+              on:halfDmg={updateTargetModifiers}
+            />
           </div>
         {/each}
       {/if}
@@ -335,7 +396,7 @@
       <i class="fas fa-check"></i>
       Roll
     </button>
-    <button class="dialog-button cancel" data-button="cancel" type="button" on:click={() => dispatch("cancel")}>
+    <button class="dialog-button cancel" data-button="cancel" type="button" onclick={() => dispatch("cancel")}>
       <i class="fas fa-times"></i>
       Cancel
     </button>
