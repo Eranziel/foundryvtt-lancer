@@ -49,7 +49,7 @@
         border: none;
       }
 
-      // The input itself takes is effectively invisible.
+      // The input itself should be effectively invisible.
       // The label handles display & interaction.
       input {
         opacity: 0;

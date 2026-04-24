@@ -31,12 +31,12 @@
       bind:group={cover}
       value={input.value}
       {disabled}
-    />
+    >
     <label for="{id}-{input.slug}" class="lancer-cover-radio-label {labelClass}">
-      <i class="mdi mdi-{input.icon} i--2" title={input.human} />
+      <i class="mdi mdi-{input.icon} i--2" title={input.human}></i>
       <span class="no-grow">{input.human}</span>
       {#if input.value == cover}
-        <div class="cover-arrow" in:send={{ key: id }} out:recv={{ key: id }} />
+        <div class="cover-arrow" in:send={{ key: id }} out:recv={{ key: id }}></div>
       {/if}
     </label>
   {/each}
@@ -49,7 +49,7 @@
         border: none;
       }
 
-      // The input itself takes is effectively invisible.
+      // The input itself should be effectively invisible.
       // The label handles display & interaction.
       input {
         opacity: 0;
