@@ -284,7 +284,7 @@ export async function overheatInsertEngCheckButton(
     state.data.embedButtons.push(`<a
       class="flow-button lancer-button"
       data-flow-type="check"
-      data-check-type="engineering"
+      data-check-type="eng"
       data-actor-id="${actor.uuid}"
     >
       <i class="fas fa-dice-d20 i--3"></i> ENGINEERING
