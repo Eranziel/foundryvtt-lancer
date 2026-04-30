@@ -577,18 +577,22 @@ Hooks.on("renderChatMessageHTML", async (cm, el, data) => {
           const actor = LancerActor.fromUuidSync(actorId ?? "", "Invalid actor ID on check prompt button.");
           const checkType = element.dataset.checkType;
           switch (checkType) {
+            case "hul":
             case "hull":
             default:
               actor.beginStatFlow("system.hull");
               break;
+            case "agi":
             case "agility":
               actor.beginStatFlow("system.agility");
               break;
+            case "sys":
             case "systems":
               actor.beginStatFlow("system.systems");
               break;
+            case "eng":
             case "engineering":
-              actor.beginStatFlow("system.engineering");
+              actor.beginStatFlow("system.eng");
               break;
           }
           break;
