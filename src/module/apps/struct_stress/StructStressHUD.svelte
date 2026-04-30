@@ -1,16 +1,33 @@
-<svelte:options accessors={true} />
-
 <script lang="ts">
   import { createEventDispatcher } from "svelte";
-  import type { LancerActor } from "../../actor/lancer-actor";
+  import { LancerActor } from "../../actor/lancer-actor";
+  import type { StructStressData } from "./data.svelte";
 
-  export let title: string;
-  export let stat: "structure" | "stress";
-  export let lancerActor: LancerActor | null;
+  let {
+    data,
+  }: {
+    data: StructStressData;
+  } = $props();
 
-  let rollerName = lancerActor ? ` -- ${lancerActor.token?.name || lancerActor.name}` : "";
+  const title = $derived(data.title);
+  const stat = $derived(data.stat);
+
+  const lancerActor = $derived(getActor(data.actorUuid));
+  const rollerName = $derived(lancerActor ? ` -- ${lancerActor.token?.name || lancerActor.name}` : "");
+  const icon = $derived(stat === "stress" ? ("reactor" as const) : stat);
+  const current = $derived(getCurrent(lancerActor));
+  const damage = $derived(getDamage(lancerActor));
 
   const dispatch = createEventDispatcher();
+
+  function getActor(uuid?: string) {
+    if (!uuid) return null;
+    try {
+      return LancerActor.fromUuidSync(uuid);
+    } catch {
+      return null;
+    }
+  }
 
   function focus(el: HTMLElement) {
     el.focus();
@@ -25,21 +42,18 @@
     if (!a || (!a.is_mech() && !a.is_npc())) return 0;
     return a.system[stat].max - getCurrent(a);
   }
-
-  $: icon = stat === "stress" ? ("reactor" as const) : stat;
-  $: current = getCurrent(lancerActor);
-  $: damage = getDamage(lancerActor);
 </script>
 
 <form
   id="structstress"
   class="lancer-hud structstress window-content"
-  on:submit|preventDefault={() => {
+  onsubmit={event => {
+    event.preventDefault();
     dispatch("submit");
   }}
 >
   <div class="lancer-header lancer-primary medium">
-    <i class="cci cci-{icon} i--4 i--light" />
+    <i class="cci cci-{icon} i--4 i--light"></i>
     <span>{title}{rollerName}</span>
   </div>
   {#if lancerActor && (lancerActor.is_mech() || lancerActor.is_npc())}
@@ -47,10 +61,10 @@
       <h4>{lancerActor?.name ?? "UNKNOWN MECH"} has taken {icon} damage!</h4>
       <div class="damage-preview">
         {#each { length: current } as _}
-          <i class="cci cci-{icon} i--4 damage-pip" />
+          <i class="cci cci-{icon} i--4 damage-pip"></i>
         {/each}
         {#each { length: damage } as _}
-          <i class="mdi mdi-hexagon-outline i--4 damage-pip damaged" />
+          <i class="mdi mdi-hexagon-outline i--4 damage-pip damaged"></i>
         {/each}
       </div>
       <p class="message">
@@ -60,11 +74,11 @@
   {/if}
   <div class="lancer-hud-buttons flexrow">
     <button class="dialog-button submit default" data-button="submit" type="submit" use:focus>
-      <i class="fas fa-check" />
+      <i class="fas fa-check"></i>
       Roll
     </button>
-    <button class="dialog-button cancel" data-button="cancel" type="button" on:click={() => dispatch("cancel")}>
-      <i class="fas fa-times" />
+    <button class="dialog-button cancel" data-button="cancel" type="button" onclick={() => dispatch("cancel")}>
+      <i class="fas fa-times"></i>
       Cancel
     </button>
   </div>

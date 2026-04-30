@@ -67,7 +67,7 @@ export async function preOverheatRollChecks(state: FlowState<LancerFlowState.Ove
     }
     const { openSlidingHud: open } = await import("../apps/slidinghud");
     try {
-      await open("stress", { stat: "stress", title: "Stress Damage", lancerActor: actor });
+      await open("stress", { stat: "stress", title: "Stress Damage", actorUuid: actor.uuid });
     } catch (_e) {
       // User hit cancel, abort the flow.
       return false;

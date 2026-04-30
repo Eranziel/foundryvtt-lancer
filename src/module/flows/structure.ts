@@ -79,7 +79,7 @@ export async function preStructureRollChecks(
     }
     const { openSlidingHud: open } = await import("../apps/slidinghud");
     try {
-      await open("struct", { stat: "structure", title: "Structure Damage", lancerActor: actor });
+      await open("struct", { stat: "structure", title: "Structure Damage", actorUuid: actor.uuid });
     } catch (_e) {
       // User hit cancel, abort the flow.
       return false;
