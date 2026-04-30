@@ -196,12 +196,30 @@
 
   /* ---------- */
 
-  #chat-log .message-content {
-    padding: 5px !important;
+  #chat,
+  #chat-popout,
+  #chat-notifications {
+    .chat-message.message {
+      padding: 0;
 
-    & .strikethrough {
-      text-decoration: line-through;
-      opacity: 0.5;
+      > .message-header {
+        padding: 0.5em;
+        color: var(--light-text);
+        background-color: var(--primary-color);
+      }
+
+      &.whisper > .message-header {
+        background: linear-gradient(60deg, var(--primary-color) 30%, var(--secondary-color));
+      }
+
+      > .message-content {
+        padding: 0.2em 0.4em 0.4em 0.4em;
+
+        & .strikethrough {
+          text-decoration: line-through;
+          opacity: 0.5;
+        }
+      }
     }
   }
 
