@@ -50,11 +50,24 @@ export async function createChatMessageStep(
       alias: !!actor?.token ? actor.token.name : null,
     },
     content: html,
+    flavor: "",
     flags: flags ? { lancer: flags } : undefined,
   };
 
+  const rollMode = game.settings.get("core", "rollMode");
+  switch (rollMode) {
+    case CONST.DICE_ROLL_MODES.BLIND:
+      chat_data.flavor = game.i18n.localize("CHAT.RollBlind");
+      break;
+    case CONST.DICE_ROLL_MODES.PRIVATE:
+      chat_data.flavor = game.i18n.localize("CHAT.RollPrivate");
+      break;
+    case CONST.DICE_ROLL_MODES.SELF:
+      chat_data.flavor = game.i18n.localize("CHAT.RollSelf");
+      break;
+  }
   // Respect the chat visibility setting
-  ChatMessage.applyRollMode(chat_data, game.settings.get("core", "rollMode"));
+  ChatMessage.applyRollMode(chat_data, rollMode);
 
   if (!rolls) delete chat_data.rolls;
   const cm = await ChatMessage.implementation.create(chat_data);
