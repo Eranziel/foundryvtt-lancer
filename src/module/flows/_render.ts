@@ -52,6 +52,10 @@ export async function createChatMessageStep(
     content: html,
     flags: flags ? { lancer: flags } : undefined,
   };
+
+  // Respect the chat visibility setting
+  ChatMessage.applyRollMode(chat_data, game.settings.get("core", "rollMode"));
+
   if (!rolls) delete chat_data.rolls;
   const cm = await ChatMessage.implementation.create(chat_data);
   cm?.render();
