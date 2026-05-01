@@ -17,7 +17,7 @@ jobs:
         id: manifest
         uses: zoexx/github-action-json-file-properties@release
         with:
-          file_path: "./public/system.json"
+          file_path: "./src/system.json"
 
       # Set up variables for future use
       - name: Set up variables
@@ -77,5 +77,5 @@ jobs:
           tag: ${{ steps.vars.outputs.tag_name }}
           # TODO: can we automatically extract the changelog for this release?
           body: |
-
+            
             [Full changelog](https://github.com/Eranziel/foundryvtt-lancer/blob/master/CHANGELOG.md)
