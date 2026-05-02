@@ -1,4 +1,4 @@
-<form class="{{cssClass}} lancer-sheet" autocomplete="off">
+<form class="{{cssClass}}" autocomplete="off">
   {{! Sheet Header }}
   <header class="sheet-header card clipped-bot">
     <h1 class="name">
@@ -8,10 +8,10 @@
         type="text"
         value="{{item.name}}"
         placeholder="{{localize 'lancer.placeholder.name'}}"
-      />
+      >
     </h1>
     {{{ref-portrait-img item.img "img" item}}}
-    <div class="header-details" style="padding-left: 1em; padding-right: 1em;">
+    <div class="header-details" style="padding-left: 1em; padding-right: 1em">
       {{{std-select "system.type" status_types label="TYPE"}}}
       {{{std-text-input "system.lid" label="LID"}}}
     </div>

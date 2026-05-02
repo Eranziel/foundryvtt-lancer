@@ -1,4 +1,4 @@
-<form class="{{cssClass}} lancer-sheet" autocomplete="off">
+<form class="{{cssClass}}" autocomplete="off">
   {{! Sheet Header }}
   <header class="sheet-header card clipped-bot">
     <h1 class="name">
@@ -8,7 +8,7 @@
         type="text"
         value="{{item.name}}"
         placeholder="{{localize 'lancer.placeholder.name'}}"
-      />
+      >
     </h1>
     {{{ref-portrait-img item.img "img" item}}}
     {{#if item.isOwned}}
@@ -26,12 +26,12 @@
       class="gen-control fas fa-plus"
       data-action="append"
       data-path="system.ranks"
-      style="align-self: flex-end;margin-right: 1em;"
+      style="align-self: flex-end; margin-right: 1em"
       data-action-value="(struct)talent_rank"
     ></a>
     {{#each system.ranks as |rank index|}}
       <div class="talent-level card clipped-bot flexcol">
-        <div class="lancer-header lancer-talent" style="flex-basis: auto;">
+        <div class="lancer-header lancer-talent" style="flex-basis: auto">
           <i class="cci cci-rank-{{inc index}} i--6 i--dark"></i>
           <input
             class="lancer-invisible-input"
@@ -39,7 +39,7 @@
             value="{{rank.name}}"
             data-dtype="String"
             style="color: white"
-          />
+          >
           <span class="minor">
             // RANK
             {{inc index}}

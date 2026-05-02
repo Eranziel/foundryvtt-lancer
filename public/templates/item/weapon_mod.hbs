@@ -1,4 +1,4 @@
-<form class="{{cssClass}} lancer-sheet" autocomplete="off">
+<form class="{{cssClass}}" autocomplete="off">
   {{! Sheet Header }}
   <header class="sheet-header card clipped-bot">
     <h1 class="name">
@@ -8,7 +8,7 @@
         type="text"
         value="{{item.name}}"
         placeholder="{{localize 'lancer.placeholder.name'}}"
-      />
+      >
     </h1>
     {{{ref-portrait-img item.img "img" item}}}
     <div class="header-details">
@@ -33,7 +33,7 @@
       {{{item-edit-arrayed-integrated "system.integrated" "INTEGRATED ITEMS"}}}
       {{{item-edit-arrayed-tags "system.tags" "TAGS"}}}
     </div>
-    <div class="flexcol" style="flex-basis: 33%;">
+    <div class="flexcol" style="flex-basis: 33%">
       {{{item-edit-sp "system.sp"}}}
       {{#if (is-limited item)}}
         {{{limited-uses-indicator item "item"}}}

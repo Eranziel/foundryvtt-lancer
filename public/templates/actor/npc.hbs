@@ -1,11 +1,17 @@
-<form class="{{cssClass}} lancer-sheet" autocomplete="off">
+<form class="{{cssClass}}" autocomplete="off">
   {{!-- Sheet Header --}}
   <header class="sheet-header card clipped-bot">
     <h1 class="name">
       <i class="cci cci-npc-tier-{{system.tier}} tier-icon theme--npc" data-tooltip="Tier {{system.tier}}"></i>
-      <input class="lancer-input" name="name" type="text" value="{{actor.name}}" placeholder="{{localize "lancer.placeholder.name"}}" />
+      <input
+        class="lancer-input"
+        name="name"
+        type="text"
+        value="{{actor.name}}"
+        placeholder='{{localize "lancer.placeholder.name"}}'
+      >
     </h1>
-    {{{ ref-portrait-img actor.img "img" actor }}}
+    {{{ref-portrait-img actor.img "img" actor}}}
     <div class="header-details flexcol monospace">
       <div>
         <span>{{localize "lancer.npc-sheet.header.class"}} :: </span>
@@ -16,7 +22,9 @@
             {{localize "lancer.npc-sheet.class.none"}}
           {{/if}}
         </span>
-        {{#if system.class.system.role}} <span> // {{system.class.system.role}}</span> {{/if}}
+        {{#if system.class.system.role}}
+          <span> // {{system.class.system.role}}</span>
+        {{/if}}
       </div>
     </div>
   </header>
@@ -26,49 +34,53 @@
     <div class="flexcol">
       {{!-- Stats --}}
       <div class="wraprow quintuple">
-        {{{clicker-stat-card "TIER" (concat "cci cci-npc-tier-" system.tier) "system.tier" true }}}
-        {{{stat-rollable-card "HULL" "" "system.hull" }}}
-        {{{stat-rollable-card "AGI" "" "system.agi" }}}
-        {{{stat-rollable-card "SYS" "" "system.sys" }}}
-        {{{stat-rollable-card "ENG" "" "system.eng" }}}
-        {{{stat-edit-max-card "HP" "mdi mdi-heart-outline" "system.hp.value" "system.hp.max" }}}
-        {{{stat-edit-max-card "HEAT" "cci cci-heat" "system.heat.value" "system.heat.max" }}}
-        {{{stat-view-card "ARMOR" "mdi mdi-shield-outline" "system.armor" }}}
-        {{{stat-edit-card "O.SHIELD" "mdi mdi-shield-star-outline" "system.overshield.value" }}}
-        {{{stat-edit-rollable-card "BURN" "cci cci-burn" "system.burn" }}}
-        {{{stat-view-card "SPEED" "mdi mdi-arrow-right-bold-hexagon-outline" "system.speed" }}}
-        {{{stat-view-card "EVASION" "cci cci-evasion" "system.evasion" }}}
-        {{{stat-view-card "E-DEF" "cci cci-edef" "system.edef" }}}
-        {{{stat-view-card "SENSORS" "cci cci-sensor" "system.sensor_range" }}}
-        {{{stat-view-card "SAVE" "cci cci-save" "system.save" }}}
+        {{{clicker-stat-card "TIER" (concat "cci cci-npc-tier-" system.tier) "system.tier" true}}}
+        {{{stat-rollable-card "HULL" "" "system.hull"}}}
+        {{{stat-rollable-card "AGI" "" "system.agi"}}}
+        {{{stat-rollable-card "SYS" "" "system.sys"}}}
+        {{{stat-rollable-card "ENG" "" "system.eng"}}}
+        {{{stat-edit-max-card "HP" "mdi mdi-heart-outline" "system.hp.value" "system.hp.max"}}}
+        {{{stat-edit-max-card "HEAT" "cci cci-heat" "system.heat.value" "system.heat.max"}}}
+        {{{stat-view-card "ARMOR" "mdi mdi-shield-outline" "system.armor"}}}
+        {{{stat-edit-card "O.SHIELD" "mdi mdi-shield-star-outline" "system.overshield.value"}}}
+        {{{stat-edit-rollable-card "BURN" "cci cci-burn" "system.burn"}}}
+        {{{stat-view-card "SPEED" "mdi mdi-arrow-right-bold-hexagon-outline" "system.speed"}}}
+        {{{stat-view-card "EVASION" "cci cci-evasion" "system.evasion"}}}
+        {{{stat-view-card "E-DEF" "cci cci-edef" "system.edef"}}}
+        {{{stat-view-card "SENSORS" "cci cci-sensor" "system.sensor_range"}}}
+        {{{stat-view-card "SAVE" "cci cci-save" "system.save"}}}
         {{#if (eq system.size 0.5)}}
-          {{{stat-view-card "SIZE" (concat "cci cci-size-half") "system.size" }}}
+          {{{stat-view-card "SIZE" (concat "cci cci-size-half") "system.size"}}}
         {{else}}
-          {{{stat-view-card "SIZE" (concat "cci cci-size-" system.size) "system.size" }}}
+          {{{stat-view-card "SIZE" (concat "cci cci-size-" system.size) "system.size"}}}
         {{/if}}
-        {{{stat-view-card "ACTIV." "cci cci-activate" "system.activations" }}}
-        {{{stat-edit-max-card "STRUCT" "cci cci-structure" "system.structure.value" "system.structure.max" }}}
+        {{{stat-view-card "ACTIV." "cci cci-activate" "system.activations"}}}
+        {{{stat-edit-max-card "STRUCT" "cci cci-structure" "system.structure.value" "system.structure.max"}}}
         {{{stat-edit-max-card "STRESS" "cci cci-reactor" "system.stress.value" "system.stress.max"}}}
         {{{tech-flow-card "TECH ATK" "cci cci-tech-full" "system.sys"}}}
       </div>
 
       {{!-- Class and templates --}}
       <div class="card clipped flexrow">
-        <div style="padding-right: 5px;">
-          <div class="lancer-header lancer-primary submajor" style="height: 30px;">{{localize "lancer.npc-sheet.class.label"}}</div>
+        <div style="padding-right: 5px">
+          <div class="lancer-header lancer-primary submajor" style="height: 30px">
+            {{localize "lancer.npc-sheet.class.label"}}
+          </div>
           <div class="flexcol">
             {{#if system.class}}
-              {{{ref-npc-class system.class "system.class" }}}
+              {{{ref-npc-class system.class "system.class"}}}
             {{else}}
               {{localize "lancer.npc-sheet.class.none"}}
             {{/if}}
           </div>
         </div>
 
-        <div class="flexcol" style="padding-left: 5px;">
-          <span class="lancer-header lancer-primary submajor clipped-top">{{localize "lancer.npc-sheet.templates.label"}}</span>
+        <div class="flexcol" style="padding-left: 5px">
+          <span class="lancer-header lancer-primary submajor clipped-top">{{
+              localize "lancer.npc-sheet.templates.label"
+            }}</span>
           {{#each itemTypes.npc_template as |template index|}}
-            {{{ref-npc-template template (concat "itemTypes.npc_template." index) }}}
+            {{{ref-npc-template template (concat "itemTypes.npc_template." index)}}}
           {{/each}}
         </div>
       </div>
@@ -77,24 +89,26 @@
       <div class="card clipped">
         <span class="lancer-header lancer-primary submajor">ATTACK UTILITIES</span>
         <div class="lancer-flow-button-grid">
-          {{{flow-button "MELEE/RANGED" "BasicAttack" }}}
-          {{{flow-button "DAMAGE" "Damage" }}}
-          {{{flow-button "TECH" "TechAttack" }}}
+          {{{flow-button "MELEE/RANGED" "BasicAttack"}}}
+          {{{flow-button "DAMAGE" "Damage"}}}
+          {{{flow-button "TECH" "TechAttack"}}}
         </div>
       </div>
 
       {{!-- Features --}}
       <div class="card clipped">
         <div class="lancer-header lancer-primary submajor">
-          <div style="width: 120px;"></div>
+          <div style="width: 120px"></div>
           <span>{{localize "lancer.npc-sheet.features.label"}}</span>
-          <div class="lancer-button charge-macro" style="margin-top: 2px; margin-bottom: 2px; font-size: 0.75rem;">
+          <div class="lancer-button charge-macro" style="margin-top: 2px; margin-bottom: 2px; font-size: 0.75rem">
             <i class="mdi mdi-refresh i--3"></i> Recharge
           </div>
         </div>
         <div class="wraprow double">
-          {{#each itemTypes.npc_feature as |feature index|}} {{{npc-feat-preview (concat "itemTypes.npc_feature." index)
-          tier=../system.tier }}} {{/each}}
+          {{#each itemTypes.npc_feature as |feature index|}}
+            {{{npc-feat-preview (concat "itemTypes.npc_feature." index)
+          tier=../system.tier}}}
+          {{/each}}
         </div>
       </div>
 
@@ -104,7 +118,7 @@
       {{!-- Active Effects --}}
       <div class="card clipped">
         <span class="lancer-header lancer-primary submajor">{{localize "lancer.npc-sheet.effects.label"}}</span>
-        {{{effect-categories-view actor effect_categories}}} 
+        {{{effect-categories-view actor effect_categories}}}
       </div>
     </div>
   </section>

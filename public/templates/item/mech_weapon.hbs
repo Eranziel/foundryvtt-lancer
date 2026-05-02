@@ -1,4 +1,4 @@
-<form class="{{cssClass}} lancer-sheet" autocomplete="off">
+<form class="{{cssClass}}" autocomplete="off">
   {{! Sheet Header }}
   <header class="sheet-header card clipped-bot">
     <h1 class="name">
@@ -8,7 +8,7 @@
         type="text"
         value="{{item.name}}"
         placeholder="{{localize 'lancer.placeholder.name'}}"
-      />
+      >
     </h1>
     {{{ref-portrait-img item.img "img" item}}}
     <div class="header-details">
@@ -50,7 +50,7 @@
       {{! Status }}
       <div class="card clipped">
         <div class="lancer-header lancer-primary major">STATUS</div>
-        <div class="flexrow" style="align-self: center;">
+        <div class="flexrow" style="align-self: center">
           {{#if (is-loading item)}}
             {{{loading-indicator item "item"}}}
           {{/if}}
@@ -63,7 +63,6 @@
       {{#each system.profiles as |profile prof_index|}}
         <div class="tab profile{{prof_index}} double" data-group="primary" data-tab="profile{{prof_index}}">
           <div class="wraprow quintuple">
-
             {{! Type }}
             <div class="card clipped">
               <span class="lancer-header lancer-primary submajor">TYPE</span>
@@ -92,7 +91,11 @@
             {{{textarea-card "ON CRIT" (concat "system.profiles." prof_index ".on_crit")}}}
 
             {{! Actions }}
-            {{{item-edit-arrayed-actions (concat "system.profiles." prof_index ".actions") "PROFILE ACTIONS"}}}
+            {{
+              {item-edit-arrayed-actions
+                            (concat "system.profiles." prof_index ".actions")
+                            "PROFILE ACTIONS"}
+            }}
 
             {{! Tags }}
             {{{item-edit-arrayed-tags (concat "system.profiles." prof_index ".tags") "TAGS"}}}
@@ -101,7 +104,6 @@
       {{/each}}
       {{! Actions }}
       {{{item-edit-arrayed-actions (concat "system.actions") "BASE ACTIONS"}}}
-
     </div>
   </section>
 </form>

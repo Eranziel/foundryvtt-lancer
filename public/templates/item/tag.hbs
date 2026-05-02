@@ -1,7 +1,7 @@
 {{! TODO: this template is unused, but might serve as a starting point for
   a tag setting editor }}
 
-<form class="{{cssClass}} lancer-sheet" autocomplete="off">
+<form class="{{cssClass}}" autocomplete="off">
   {{! Sheet Header }}
   <header class="sheet-header card clipped-bot">
     <h1 class="name">
@@ -11,7 +11,7 @@
         type="text"
         value="{{item.name}}"
         placeholder="{{localize 'lancer.placeholder.name'}}"
-      />
+      >
     </h1>
     {{{ref-portrait-img item.img "img" item}}}
   </header>

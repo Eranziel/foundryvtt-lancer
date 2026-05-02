@@ -35,10 +35,12 @@
     }
   }
 
-  // TODO: these should live somewhere else,
-  // and lancer-sheet probably doesn't get used?
-  .lancer.sheet,
-  .lancer-sheet {
+  .lancer.sheet {
+    .window-content {
+      padding: 0px;
+    }
+
+    // TODO: these should live somewhere else,
     .editor,
     .editor-content {
       height: -webkit-fill-available;

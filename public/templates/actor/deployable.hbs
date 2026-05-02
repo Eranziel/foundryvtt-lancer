@@ -1,4 +1,4 @@
-<form class="{{cssClass}} lancer-sheet" autocomplete="off">
+<form class="{{cssClass}}" autocomplete="off">
   {{! Sheet Header }}
   <header class="sheet-header card clipped-bot">
     <h1 class="name">
@@ -8,7 +8,7 @@
         type="text"
         value="{{actor.name}}"
         placeholder="{{localize 'lancer.placeholder.name'}}"
-      />
+      >
     </h1>
     {{{ref-portrait-img actor.img "img" actor}}}
     <div class="header-details monospace">
@@ -70,8 +70,9 @@
     {{! Config Tab }}
     <div class="tab manage flexcol" data-group="primary" data-tab="config">
       {{! Frame Stats }}
-      <div class="card clipped" style="text-align: left;">
-        <span class="lancer-header lancer-primary major" style="text-align: center;">{{localize
+      <div class="card clipped" style="text-align: left">
+        <span class="lancer-header lancer-primary major" style="text-align: center">{{
+            localize
             "lancer.deployable-sheet.stats.label"
           }}</span>
         <div class="card clipped wraprow quadruple">
@@ -82,7 +83,7 @@
                 <span class="major">MAX HP</span>
               </div>
               {{!-- prettier-ignore --}}
-              <input class="lancer-input major" {{{getset "system.stats.hp"}}} type="text" data-dtype="String" />
+              <input class="lancer-input major" {{{getset "system.stats.hp"}}} type="text" data-dtype="String">
             </div>
             {{{clicker-stat-card "ARMOR" "mdi mdi-shield-outline" "system.stats.armor" false}}}
             {{{clicker-stat-card "EVASION" "cci cci-evasion" "system.stats.evasion" false}}}

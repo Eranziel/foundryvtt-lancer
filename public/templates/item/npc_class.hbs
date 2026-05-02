@@ -1,10 +1,25 @@
-<form class="{{cssClass}} lancer-sheet" autocomplete="off">
+<form class="{{cssClass}}" autocomplete="off">
   {{!-- Sheet Header --}}
   <header class="sheet-header card clipped-bot">
-    <h1 class="name"><input class="lancer-input header-field" name="name" type="text" value="{{item.name}}" placeholder="{{localize "lancer.placeholder.name"}}"/></h1>
-    {{{ ref-portrait-img item.img "img" system.}}}
+    <h1 class="name">
+      <input
+        class="lancer-input header-field"
+        name="name"
+        type="text"
+        value="{{item.name}}"
+        placeholder='{{localize "lancer.placeholder.name"}}'
+      >
+    </h1>
+    {{{ref-portrait-img item.img "img" system.}}}
     <div class="header-details">
-      <input class="header-field" style="margin: 8px 2%; width: 96%;" name="system.role" type="text" value="{{item.system.role}}" placeholder="{{localize "lancer.placeholder.npc_class_role"}}"/>
+      <input
+        class="header-field"
+        style="margin: 8px 2%; width: 96%"
+        name="system.role"
+        type="text"
+        value="{{item.system.role}}"
+        placeholder='{{localize "lancer.placeholder.npc_class_role"}}'
+      >
     </div>
   </header>
 
@@ -34,7 +49,7 @@
     </div>
   </div>
 
-  <div class="flexcol card clipped-top lancer-border-primary" style="margin: 10px;">
+  <div class="flexcol card clipped-top lancer-border-primary" style="margin: 10px">
     <div class="lancer-header lancer-primary major">
       <span class="major">BASE FEATURES</span>
     </div>
@@ -42,12 +57,11 @@
     {{{lid-item-list "system.base_features" base_features "npc_feature"}}}
   </div>
 
-  <div class="flexcol card clipped-top lancer-border-primary" style="margin: 10px;">
+  <div class="flexcol card clipped-top lancer-border-primary" style="margin: 10px">
     <div class="lancer-header lancer-primary major">
       <span class="major">OPTIONAL FEATURES</span>
     </div>
 
     {{{lid-item-list "system.optional_features" optional_features "npc_feature"}}}
   </div>
-
 </form>

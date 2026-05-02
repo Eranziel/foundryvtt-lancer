@@ -1,4 +1,4 @@
-<form class="{{cssClass}} lancer-sheet" autocomplete="off">
+<form class="{{cssClass}}" autocomplete="off">
   {{! Sheet Header }}
   <header class="sheet-header card clipped-bot">
     <h1 class="name">
@@ -8,7 +8,7 @@
         type="text"
         value="{{item.name}}"
         placeholder="{{localize 'lancer.placeholder.name'}}"
-      />
+      >
     </h1>
     {{{ref-portrait-img item.img "img" item}}}
   </header>
@@ -22,9 +22,9 @@
         <div class="lancer-header lancer-primary">TYPE</div>
         {{{item-edit-enum "system.type" "ReserveType" label=""}}}
       </div>
-      <div class="card clipped" style="align-items: center;">
+      <div class="card clipped" style="align-items: center">
         <div class="lancer-header lancer-primary">CONSUMABLE</div>
-        <input type="checkbox" name="system.consumable" {{checked system.consumable}} />
+        <input type="checkbox" name="system.consumable" {{checked system.consumable}}>
       </div>
       {{#if system.consumable}}
         {{{reserve-used-indicator "system.used"}}}

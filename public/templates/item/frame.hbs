@@ -1,8 +1,16 @@
-<form class="{{cssClass}} lancer-sheet" autocomplete="off">
+<form class="{{cssClass}}" autocomplete="off">
   {{!-- Sheet Header --}}
   <header class="sheet-header card clipped-bot">
-    <h1 class="name"><input class="lancer-input header-field" name="name" type="text" value="{{item.name}}" placeholder="{{localize "lancer.placeholder.name"}}"/></h1>
-    {{{ ref-portrait-img item.img "img" item }}}
+    <h1 class="name">
+      <input
+        class="lancer-input header-field"
+        name="name"
+        type="text"
+        value="{{item.name}}"
+        placeholder='{{localize "lancer.placeholder.name"}}'
+      >
+    </h1>
+    {{{ref-portrait-img item.img "img" item}}}
     <div class="header-details">
       {{{item-edit-license}}}
     </div>
@@ -13,18 +21,18 @@
   {{!-- Frame Stats --}}
   <div class="card clipped wraprow quadruple">
     <div class="wraprow quadruple">
-      {{{clicker-stat-card "HP"          "mdi mdi-heart-outline"     "system.stats.hp" false }}}
-      {{{clicker-stat-card "ARMOR"       "mdi mdi-shield-outline"    "system.stats.armor" false }}}
-      {{{clicker-stat-card "REPAIRS"     "cci cci-repair"            "system.stats.repcap" false }}}
-      {{{clicker-stat-card "EVASION"     "cci cci-evasion"           "system.stats.evasion" false }}}
-      {{{clicker-stat-card "E-DEF"       "cci cci-edef"              "system.stats.edef" false }}}
-      {{{clicker-stat-card "HEAT CAP"    "cci cci-heatcap"           "system.stats.heatcap" false }}}
-      {{{clicker-stat-card "SPEED"       "mdi mdi-arrow-right-bold-hexagon-outline" "system.stats.speed" false }}}
-      {{{clicker-stat-card "TECH ATK"    "cci cci-tech-full"         "system.stats.tech_attack" false }}}
-      {{{clicker-stat-card "SENSORS"     "cci cci-sensor"            "system.stats.sensor_range" false }}}
-      {{{clicker-stat-card "SAVE"        "cci cci-save"              "system.stats.save" false }}}
-      {{{clicker-stat-card "SYS POINTS"  "cci cci-system"            "system.stats.sp" false }}}
-      {{{clicker-stat-card "SIZE"        "cci cci-hexagon"           "system.stats.size" false }}}
+      {{{clicker-stat-card "HP"          "mdi mdi-heart-outline"     "system.stats.hp" false}}}
+      {{{clicker-stat-card "ARMOR"       "mdi mdi-shield-outline"    "system.stats.armor" false}}}
+      {{{clicker-stat-card "REPAIRS"     "cci cci-repair"            "system.stats.repcap" false}}}
+      {{{clicker-stat-card "EVASION"     "cci cci-evasion"           "system.stats.evasion" false}}}
+      {{{clicker-stat-card "E-DEF"       "cci cci-edef"              "system.stats.edef" false}}}
+      {{{clicker-stat-card "HEAT CAP"    "cci cci-heatcap"           "system.stats.heatcap" false}}}
+      {{{clicker-stat-card "SPEED"       "mdi mdi-arrow-right-bold-hexagon-outline" "system.stats.speed" false}}}
+      {{{clicker-stat-card "TECH ATK"    "cci cci-tech-full"         "system.stats.tech_attack" false}}}
+      {{{clicker-stat-card "SENSORS"     "cci cci-sensor"            "system.stats.sensor_range" false}}}
+      {{{clicker-stat-card "SAVE"        "cci cci-save"              "system.stats.save" false}}}
+      {{{clicker-stat-card "SYS POINTS"  "cci cci-system"            "system.stats.sp" false}}}
+      {{{clicker-stat-card "SIZE"        "cci cci-hexagon"           "system.stats.size" false}}}
     </div>
   </div>
 
@@ -32,24 +40,30 @@
   <div class="flexcol">
     <div>
       <span class="minor" style="float: left">AVAILABLE WEAPON MOUNTS</span>
-      <a class="gen-control" data-action="append" data-path="system.mounts" data-action-value="(struct)mount_type" style="float: right">+</a>
+      <a
+        class="gen-control"
+        data-action="append"
+        data-path="system.mounts"
+        data-action-value="(struct)mount_type"
+        style="float: right"
+      >+</a>
     </div>
     <div class="flexrow">
       {{#each system.mounts as |mount key|}}
-      <div class="flexrow mount arrayed-item">
-        <select class="mount-selector" name="system.mounts.{{key}}" data-type="String" index="{{key}}">
-          {{#select mount}}
-          <option value="Aux/Aux">AUX/AUX</option>
-          <option value="Main">MAIN</option>
-          <option value="Main/Aux">MAIN/AUX</option>
-          <option value="Flex">FLEX</option>
-          <option value="Heavy">HEAVY</option>
-          <option value="Integrated">INTEGRATED</option>
-          <option value="Superheavy">SUPERHEAVY</option>
-          <option value="delete">DELETE</option>
-          {{/select}}
-        </select>
-      </div>
+        <div class="flexrow mount arrayed-item">
+          <select class="mount-selector" name="system.mounts.{{key}}" data-type="String" index="{{key}}">
+            {{#select mount}}
+              <option value="Aux/Aux">AUX/AUX</option>
+              <option value="Main">MAIN</option>
+              <option value="Main/Aux">MAIN/AUX</option>
+              <option value="Flex">FLEX</option>
+              <option value="Heavy">HEAVY</option>
+              <option value="Integrated">INTEGRATED</option>
+              <option value="Superheavy">SUPERHEAVY</option>
+              <option value="delete">DELETE</option>
+            {{/select}}
+          </select>
+        </div>
       {{/each}}
     </div>
   </div>
@@ -58,19 +72,31 @@
   <div class="card">
     <div class="lancer-header lancer-primary">
       <span class="major left">TRAITS</span>
-      <a class="gen-control" data-action="append" data-path="system.traits" data-action-value="(struct)frame_trait" style="float: right">+</a>
+      <a
+        class="gen-control"
+        data-action="append"
+        data-path="system.traits"
+        data-action-value="(struct)frame_trait"
+        style="float: right"
+      >+</a>
     </div>
     {{#each system.traits as |trait trait_index|}}
       <div class="card clipped lancer-trait">
         <div class="lancer-header lancer-trait major">
           <i class="cci cci-trait i--4 i--light header-icon"> </i>
-          <input class="lancer-invisible-input i--light" name="system.traits.{{trait_index}}.name" value="{{trait.name}}" type="text" data-dtype="String" />
-          {{{popout-editor-button (concat "system.traits." trait_index ".description") }}}
+          <input
+            class="lancer-invisible-input i--light"
+            name="system.traits.{{trait_index}}.name"
+            value="{{trait.name}}"
+            type="text"
+            data-dtype="String"
+          >
+          {{{popout-editor-button (concat "system.traits." trait_index ".description")}}}
           <a class="gen-control" data-action="splice" data-path="system.traits.{{trait_index}}">
             <i class="fas fa-trash"></i>
           </a>
         </div>
-        <div class="desc-text">{{{safe-html trait.description }}}</div>
+        <div class="desc-text">{{{safe-html trait.description}}}</div>
         {{{bonuses-view (concat "system.traits." trait_index ".bonuses") ../editable}}}
       </div>
     {{/each}}
@@ -81,24 +107,29 @@
     {{!-- General Description --}}
     <div class="lancer-header lancer-bonus frame_core medium">
       <i></i>
-      <input class="lancer-invisible-input major i--light" name="system.core_system.name" value="{{system.core_system.name}}" data-dtype="String" />
-      <div class="medium faded" style="justify-self: right;"> // CORE SYSTEM</div>
-      {{{popout-editor-button "system.core_system.description" }}}
+      <input
+        class="lancer-invisible-input major i--light"
+        name="system.core_system.name"
+        value="{{system.core_system.name}}"
+        data-dtype="String"
+      >
+      <div class="medium faded" style="justify-self: right">// CORE SYSTEM</div>
+      {{{popout-editor-button "system.core_system.description"}}}
     </div>
-    <div class="desc-text">{{{safe-html system.core_system.description }}}</div>
+    <div class="desc-text">{{{safe-html system.core_system.description}}}</div>
 
     {{!-- Integrated --}}
     <div class="integrated-wrapper card clipped flexcol">
       <div class="lancer-header lancer-primary">INTEGRATED GEAR</div>
       <ul>
-      {{#each system.core_system.integrated as |integrated index|}}
-        <li>
-          <code>
-            {{integrated}}
-          </code>
-        </li>
-      {{/each}}
-      {{{item-edit-arrayed-deployables "system.core_system.deployables" "DEPLOYABLES"}}}
+        {{#each system.core_system.integrated as |integrated index|}}
+          <li>
+            <code>
+              {{integrated}}
+            </code>
+          </li>
+        {{/each}}
+        {{{item-edit-arrayed-deployables "system.core_system.deployables" "DEPLOYABLES"}}}
       </ul>
     </div>
 
@@ -106,12 +137,17 @@
     <div class="card clipped-top frame_core lancer-border-bonus">
       <div class="lancer-header lancer-bonus">
         <i class="mdi mdi-circle-expand i--4 i--light"> </i>
-        <input class="lancer-invisible-input medium i--light" name="system.core_system.passive_name" value="{{system.core_system.passive_name}}" data-dtype="String" />
-        <div class="medium faded" style="justify-self: right;"> // PASSIVE</div>
-        {{{popout-editor-button "system.core_system.passive_effect" }}}
+        <input
+          class="lancer-invisible-input medium i--light"
+          name="system.core_system.passive_name"
+          value="{{system.core_system.passive_name}}"
+          data-dtype="String"
+        >
+        <div class="medium faded" style="justify-self: right">// PASSIVE</div>
+        {{{popout-editor-button "system.core_system.passive_effect"}}}
       </div>
-      <div class="desc-text">{{{safe-html system.core_system.passive_effect }}}</div>
-      {{{bonuses-view "system.core_system.passive_bonuses" editable }}} 
+      <div class="desc-text">{{{safe-html system.core_system.passive_effect}}}</div>
+      {{{bonuses-view "system.core_system.passive_bonuses" editable}}}
       {{#each system.core_system.passive_actions as |action index|}}
         todo action
       {{/each}}
@@ -121,11 +157,16 @@
     <div class="card clipped-top frame_core lancer-border-bonus">
       <div class="lancer-header lancer-bonus">
         <i class="cci cci-corebonus i--4 i--light"> </i>
-        <input class="lancer-invisible-input medium i--light" name="system.core_system.active_name" value="{{system.core_system.active_name}}" data-dtype="String" />
-        <div class="faded" style="justify-self: right;"> // ACTIVE</div>
-        {{{popout-editor-button "system.core_system.active_effect" }}}
+        <input
+          class="lancer-invisible-input medium i--light"
+          name="system.core_system.active_name"
+          value="{{system.core_system.active_name}}"
+          data-dtype="String"
+        >
+        <div class="faded" style="justify-self: right">// ACTIVE</div>
+        {{{popout-editor-button "system.core_system.active_effect"}}}
       </div>
-      <div class="desc-text">{{{safe-html system.core_system.active_effect }}}</div>
+      <div class="desc-text">{{{safe-html system.core_system.active_effect}}}</div>
       {{{bonuses-view "system.core_system.active_bonuses" editable}}}
       {{#each system.core_system.active_actions as |action index|}}
         todo action

@@ -1,5 +1,4 @@
-<form class="{{cssClass}} lancer-sheet" autocomplete="off">
-
+<form class="{{cssClass}}" autocomplete="off">
   {{! Sheet Header }}
   <header class="sheet-header card clipped-bot">
     <h1 class="name">
@@ -9,7 +8,7 @@
         type="text"
         value="{{item.name}}"
         placeholder="{{localize 'lancer.placeholder.name'}}"
-      />
+      >
     </h1>
     {{{ref-portrait-img item.img "img" item}}}
   </header>
@@ -17,7 +16,7 @@
     {{! Status }}
     <div class="card clipped">
       <div class="lancer-header lancer-primary major">STATUS</div>
-      <div class="flexrow" style="align-self: center;">
+      <div class="flexrow" style="align-self: center">
         {{#if (is-loading item)}}
           {{{loading-indicator item "item"}}}
         {{/if}}
@@ -49,5 +48,4 @@
     {{! Tags }}
     {{{item-edit-arrayed-tags "system.tags" "TAGS"}}}
   </div>
-
 </form>

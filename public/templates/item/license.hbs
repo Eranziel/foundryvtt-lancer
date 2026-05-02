@@ -1,4 +1,4 @@
-<form class="{{cssClass}} lancer-sheet" autocomplete="off">
+<form class="{{cssClass}}" autocomplete="off">
   {{! Sheet Header }}
   <header class="sheet-header card clipped-bot">
     <h1 class="name">
@@ -8,15 +8,15 @@
         type="text"
         value="{{item.name}}"
         placeholder="{{localize 'lancer.placeholder.name'}}"
-      />
+      >
     </h1>
     {{{ref-portrait-img item.img "img" item}}}
     {{#if item.isOwned}}
       <div class="header-details">
-        <span style="max-width: fit-content;">
+        <span style="max-width: fit-content">
           UNLOCKED RANK:
         </span>
-        <div style="max-width: fit-content;">
+        <div style="max-width: fit-content">
           {{{l-num-input "system.curr_rank"}}}
         </div>
       </div>

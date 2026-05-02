@@ -1,4 +1,4 @@
-<form class="{{cssClass}} lancer-sheet" autocomplete="off">
+<form class="{{cssClass}}" autocomplete="off">
   {{! Sheet Header }}
   <header class="sheet-header card clipped-bot">
     <h1 class="name">
@@ -8,7 +8,7 @@
         type="text"
         value="{{item.name}}"
         placeholder="{{localize 'lancer.placeholder.name'}}"
-      />
+      >
     </h1>
     <div class="header-details origin_type">
       <span class="medium">FEATURE TYPE: </span>
@@ -38,9 +38,14 @@
   <section class="sheet-body">
     <div class="effect-box">
       <div class="effect-title clipped-bot">SOURCE</div>
-      <div class="effect-text flexrow" style="padding: 0 0.5em 0.5em 0.5em; width: 100%;">
+      <div class="effect-text flexrow" style="padding: 0 0.5em 0.5em 0.5em; width: 100%">
         <div class="origin-name">
-          <input name="system.origin.name" type="text" value="{{system.origin.name}}" placeholder="Origin Name" />
+          <input
+            name="system.origin.name"
+            type="text"
+            value="{{system.origin.name}}"
+            placeholder="Origin Name"
+          >
         </div>
         <div class="origin-type flexrow">
           <select name="system.origin.type" data-type="text">
@@ -54,26 +59,32 @@
             {{/select}}
           </select>
         </div>
-        <div class="origin_base flexrow" style="align-items: center;">
-          <span class="medium" style="text-align: right;">
+        <div class="origin_base flexrow" style="align-items: center">
+          <span class="medium" style="text-align: right">
             {{#if system.origin.base}}
               BASE FEATURE
             {{else}}
               OPTIONAL FEATURE
             {{/if}}
           </span>
-          <input type="checkbox" name="system.origin.base" {{checked system.origin.base}} />
+          <input type="checkbox" name="system.origin.base" {{checked system.origin.base}}>
         </div>
       </div>
     </div>
     {{! Limited Uses Tracking }}
     {{#if (is-limited item)}}
-      <div class="flexrow stat-container" style="align-self: center; margin: 5px 30px; max-width: max-content;">
+      <div class="flexrow stat-container" style="align-self: center; margin: 5px 30px; max-width: max-content">
         <span class="medium">
           USES:
         </span>
-        <input class="lancer-stat major" type="number" name="system.uses" value="{{system.uses}}" data-dtype="Number" />
-        <span class="medium" style="max-width: min-content;">
+        <input
+          class="lancer-stat major"
+          type="number"
+          name="system.uses"
+          value="{{system.uses}}"
+          data-dtype="Number"
+        >
+        <span class="medium" style="max-width: min-content">
           /
         </span>
         <span class="lancer-stat major" type="number">
@@ -97,11 +108,11 @@
     {{#if (eq system.type "Tech")}}
       <div class="wraprow triple">
         <div class="flexcol">
-          <div class="flexrow" style="align-items: center;">
-            <span class="medium" style="text-align: right; max-width: fit-content; padding-right: 1em;">
+          <div class="flexrow" style="align-items: center">
+            <span class="medium" style="text-align: right; max-width: fit-content; padding-right: 1em">
               TECH
             </span>
-            <select name="system.techType" data-type="String" style="align-self: center;">
+            <select name="system.techType" data-type="String" style="align-self: center">
               {{#select system.techType}}
                 <option value="Quick">
                   QUICK
@@ -112,11 +123,11 @@
               {{/select}}
             </select>
           </div>
-          <div class="flexrow" style="align-items: center;">
-            <span class="medium" style="text-align: right; max-width: fit-content; padding-right: 1em;">
+          <div class="flexrow" style="align-items: center">
+            <span class="medium" style="text-align: right; max-width: fit-content; padding-right: 1em">
               TECH ATTACK?
             </span>
-            <input type="checkbox" name="system.tech_attack" {{checked system.tech_attack}} />
+            <input type="checkbox" name="system.tech_attack" {{checked system.tech_attack}}>
           </div>
         </div>
         {{#if system.tech_attack}}
@@ -142,7 +153,7 @@
             name="system.weapon_type"
             value="{{system.weapon_type}}"
             data-dtype="String"
-          />
+          >
         </div>
         <div class="double"></div>
         {{! Range }}
@@ -154,7 +165,7 @@
               data-action="append"
               data-path="system.range"
               data-action-value="(struct)range"
-              style="float: right;"
+              style="float: right"
             >
               +
             </a>
@@ -175,7 +186,7 @@
               T
               {{inc tier_index}}
               DAMAGE
-              <a class="npc-damage-append" style="float: right;">
+              <a class="npc-damage-append" style="float: right">
                 +
               </a>
             </span>
