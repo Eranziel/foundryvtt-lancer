@@ -11,12 +11,12 @@
   body.theme-ha {
     /* Sheet theme vars */
     --primary-color: #771675;
-    --primary-highlight: color-mix(in srgb, var(--primary-color), #fff 55%);
+    --primary-highlight: color-mix(in srgb, var(--primary-color), #fff 25%);
     --light-text: #ffffff;
     --dark-text: #b3b9ba;
     --background-color: #222222;
     --secondary-color: #cf4bdb;
-    --secondary-highlight: color-mix(in srgb, var(--secondary-color), #fff 55%);
+    --secondary-highlight: color-mix(in srgb, var(--secondary-color), #fff 25%);
     --secondary-text: #ffffff;
     --dark-gray-color: #4d4d4d;
     --light-gray-color: #555555;

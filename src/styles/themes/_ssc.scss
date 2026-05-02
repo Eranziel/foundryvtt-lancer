@@ -11,12 +11,12 @@
   body.theme-ssc {
     /* Sheet theme vars */
     --primary-color: #d1920a;
-    --primary-highlight: color-mix(in srgb, var(--primary-color), #fff 55%);
+    --primary-highlight: color-mix(in srgb, var(--primary-color), #fff 25%);
     --light-text: #efefef;
     --dark-text: #000000;
     --background-color: #eee8d5;
     --secondary-color: #685d99;
-    --secondary-highlight: color-mix(in srgb, var(--secondary-color), #fff 55%);
+    --secondary-highlight: color-mix(in srgb, var(--secondary-color), #fff 25%);
     --secondary-text: #ffffff;
     --dark-gray-color: #5a4c3f;
     --light-gray-color: #eadbcb;

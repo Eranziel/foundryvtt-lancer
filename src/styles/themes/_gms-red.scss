@@ -11,12 +11,12 @@
   body.theme-gms-red {
     /* Sheet theme vars */
     --primary-color: #991e2a;
-    --primary-highlight: color-mix(in srgb, var(--primary-color), #fff 55%);
+    --primary-highlight: color-mix(in srgb, var(--primary-color), #fff 25%);
     --light-text: #efefef;
     --dark-text: #000000;
     --background-color: #ededed;
     --secondary-color: #9e541f;
-    --secondary-highlight: color-mix(in srgb, var(--secondary-color), #fff 55%);
+    --secondary-highlight: color-mix(in srgb, var(--secondary-color), #fff 25%);
     --secondary-text: #ffffff;
     --dark-gray-color: #4d4d4d;
     --light-gray-color: #919a9b;

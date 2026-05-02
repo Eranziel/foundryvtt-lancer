@@ -11,12 +11,12 @@
   body.theme-galsim {
     /* Sheet theme vars */
     --primary-color: #e36600;
-    --primary-highlight: color-mix(in srgb, var(--primary-color), #fff 55%);
+    --primary-highlight: color-mix(in srgb, var(--primary-color), #fff 25%);
     --light-text: #ffffff;
     --dark-text: #c1c7c7;
     --background-color: #2b2b2b;
     --secondary-color: #3e6a94;
-    --secondary-highlight: color-mix(in srgb, var(--secondary-color), #fff 55%);
+    --secondary-highlight: color-mix(in srgb, var(--secondary-color), #fff 25%);
     --secondary-text: #ffffff;
     --dark-gray-color: #111111;
     --light-gray-color: #444444;

@@ -11,12 +11,12 @@
   body.theme-horus {
     /* Sheet theme vars */
     --primary-color: #126127;
-    --primary-highlight: color-mix(in srgb, var(--primary-color), #fff 55%);
+    --primary-highlight: color-mix(in srgb, var(--primary-color), #fff 25%);
     --light-text: #ffffff;
     --dark-text: #efefef;
     --background-color: #000000;
     --secondary-color: #084661;
-    --secondary-highlight: color-mix(in srgb, var(--secondary-color), #fff 55%);
+    --secondary-highlight: color-mix(in srgb, var(--secondary-color), #fff 25%);
     --secondary-text: #ffffff;
     --dark-gray-color: #3c443e;
     --light-gray-color: #657268;
