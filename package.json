@@ -41,7 +41,7 @@
     "svelte-preprocess": "^6.0.0",
     "tslib": "^1.14.1",
     "typescript": "^5.8.3",
-    "vite": "^6.4.1",
+    "vite": "^6.4.2",
     "vite-plugin-checker": "^0.12.0",
     "vite-plugin-foundryvtt": "^2.2.3"
   },
