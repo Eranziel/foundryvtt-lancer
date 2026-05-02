@@ -55,7 +55,7 @@
     "@massif/sotw-data": "^1.0.2",
     "@massif/ssmr-data": "^1.7.0",
     "@massif/wallflower-data": "^2.1.0",
-    "aws-amplify": "^5.3.21",
+    "aws-amplify": "^5.3.33",
     "jszip": "^3.10.1",
     "tippy.js": "^6.3.1"
   },
