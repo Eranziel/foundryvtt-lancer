@@ -485,6 +485,10 @@
     }
   },
   "LANCERINITIATIVE": {
+    "COMBAT": {
+      "activateCombatantTurn": "Start this combatant's turn",
+      "deactivateCombatantTurn": "End this combatant's turn"
+    },
     "IconSettingsMenu": "Icon Settings",
     "Icon": "Action Icon",
     "IconDesc": "CSS classes to define the activation icon.",
