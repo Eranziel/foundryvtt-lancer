@@ -104,51 +104,5 @@
 
   /* Elements Layer */
 
-  /* General-purpose theme color classes */
-  @each $theme-type in $theme-types {
-    /* Headers, buttons, and chips */
-    a.action.lancer-#{$theme-type},
-    .lancer-header.lancer-#{$theme-type},
-    .lancer-#{$theme-type} .lancer-header,
-    button.lancer-#{$theme-type},
-    .lancer-button.lancer-#{$theme-type},
-    .lancer-chip.lancer-#{$theme-type} {
-      background-color: var(--#{$theme-type}-color, fuschia);
-      color: var(--light-text, fuschia);
-    }
-
-    /* Text */
-    .lancer-#{$theme-type}-text {
-      color: var(--#{$theme-type}-color, fuschia);
-    }
-
-    /* Border */
-    .lancer-border-#{$theme-type} {
-      border-color: var(--#{$theme-type}-color, fuschia);
-
-      &.card {
-        border-width: 2px;
-        border-style: solid;
-      }
-    }
-
-    /* Foundry adds a bottom border to header elements. That's fine, but make it match. */
-    h1.lancer-#{$theme-type},
-    h2.lancer-#{$theme-type},
-    h3.lancer-#{$theme-type},
-    h4.lancer-#{$theme-type} {
-      border-color: var(--#{$theme-type}-color, fuschia);
-    }
-  }
-  /* Highlights */
-  .lancer-primary.highlight {
-    background-color: var(--primary-highlight, fuchsia);
-    color: var(--light-text, fuchsia);
-  }
-  .lancer-secondary.highlight {
-    background-color: var(--secondary-highlight, fuchsia);
-    color: var(--light-text, fuchsia);
-  }
-
   /* ---------- */
 }
