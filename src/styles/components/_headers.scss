@@ -22,14 +22,18 @@
     align-items: center;
     display: grid;
     grid-template-columns: 1fr 1fr 1fr 170px;
-    grid-template-rows: 2fr 1fr;
+    grid-template-rows: 2fr 1fr auto;
     grid-template-areas:
       "name name name img"
-      "detail1 detail2 detail3 img";
-    position: relative;
+      "detail1 detail2 detail3 img"
+      "tabs tabs tabs tabs";
+    position: sticky;
+    top: 0px;
+    z-index: 1;
     flex-direction: row;
     justify-content: space-between;
     background-color: var(--primary-color, fuchsia);
+    border-bottom: 1px solid var(--background-color);
     margin: 0 0 0.5em 0;
     font-family: var(--header-font-family);
     text-transform: uppercase;
@@ -93,6 +97,11 @@
       flex-direction: row;
       @include mixins.vert-mid();
       @include mixins.horiz-mid();
+    }
+
+    .lancer-tabs {
+      grid-area: tabs;
+      border-top: 1px solid var(--dark-gray-color);
     }
   }
 
@@ -174,8 +183,8 @@
     align-self: stretch;
 
     /* For buttons/icons, we want them to not grow but also not just get squashed into nothing 
-  * If this unbalances things, add an equal # of balancers to the other side
-  */
+     * If this unbalances things, add an equal # of balancers to the other side
+     */
     a,
     :not(a) i,
     img {
@@ -191,8 +200,8 @@
     }
 
     /* Spans are the main bodies of headers. We want them to grow! 
-  * Inputs too for those cases where the title is editable.
-  */
+     * Inputs too for those cases where the title is editable.
+     */
     span,
     input {
       flex-grow: 1;

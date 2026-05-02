@@ -1,21 +1,26 @@
-<form class="{{cssClass}} lancer-sheet" autocomplete="off">
+<form class="{{cssClass}}" autocomplete="off">
   {{! Sheet Header }}
-  <div>
-    <header class="sheet-header card clipped-bot {{#if (not is_active)}}inactive-mech{{/if}}">
-      <h1 class="name">
-        <input class="lancer-input" name="name" type="text" value="{{actor.name}}" placeholder="{{localize "
-          lancer.placeholder.name"}}" />
-      </h1>
-      {{{ref-portrait-img actor.img "img" actor}}}
-      <div class="header-details monospace">
-        {{#if (not is_active)}}
-          {{localize "lancer.mech-sheet.inactive-warning"}}
-        {{else}}
-          <span>{{localize "TYPES.Actor.pilot"}} :: {{pilot.system.callsign}}</br>
-          {{localize "TYPES.Item.frame"}} :: {{itemTypes.frame.0.system.manufacturer}} {{itemTypes.frame.0.name}}</span>
-        {{/if}}
-      </div>
-    </header>
+  <header class="sheet-header card clipped-bot {{#if (not is_active)}}inactive-mech{{/if}}">
+    <h1 class="name">
+      <input
+        class="lancer-input"
+        name="name"
+        type="text"
+        value="{{actor.name}}"
+        placeholder='{{localize "
+        lancer.placeholder.name"}}'
+      >
+    </h1>
+    {{{ref-portrait-img actor.img "img" actor}}}
+    <div class="header-details monospace">
+      {{#if (not is_active)}}
+        {{localize "lancer.mech-sheet.inactive-warning"}}
+      {{else}}
+        <span>{{localize "TYPES.Actor.pilot"}} :: {{pilot.system.callsign}}<br>
+          {{localize "TYPES.Item.frame"}} :: {{itemTypes.frame.0.system.manufacturer}}
+          {{itemTypes.frame.0.name}}</span>
+      {{/if}}
+    </div>
 
     {{!-- Sheet Tab Navigation --}}
     <nav class="lancer-tabs" data-group="primary">
@@ -24,10 +29,10 @@
       <a class="item lancer-tab medium" data-tab="talents">{{localize "lancer.mech-sheet.tabs.talents"}}</a>
       <a class="item lancer-tab medium" data-tab="effects">{{localize "lancer.common-sheet.tabs.effects"}}</a>
     </nav>
-  </div>
+  </header>
 
   {{!-- Sheet Body --}}
-  <section class="sheet-body scroll-body">
+  <section class="sheet-body">
     <div class="tab stats" data-group="primary" data-tab="stats">
       <div class="stat-grid">
         {{{stat-edit-max-card "HP" "mdi mdi-heart-outline" "system.hp.value" "system.hp.max"}}}
@@ -46,9 +51,9 @@
         {{{stat-edit-max-card "REPAIRS" "cci cci-repair" "system.repairs.value" "system.repairs.max"}}}
         <div class="size-card">
           {{#if (eq system.size 0.5)}}
-          <i class="cci cci-size-half size-icon theme--main"></i>
+            <i class="cci cci-size-half size-icon theme--main"></i>
           {{else}}
-          <i class="cci cci-size-{{system.size}} size-icon theme--main"></i>
+            <i class="cci cci-size-{{system.size}} size-icon theme--main"></i>
           {{/if}}
         </div>
         {{{overcharge-button actor "system.overcharge"}}}
@@ -59,8 +64,14 @@
             </span>
           </div>
           <div class="flexrow stat-container">
-            <input name="system.core_energy" class="core-power-toggle mdi mdi-battery" style="margin: auto;"
-              type="checkbox" data-dtype="Boolean" {{checked system.core_energy}} />
+            <input
+              name="system.core_energy"
+              class="core-power-toggle mdi mdi-battery"
+              style="margin: auto"
+              type="checkbox"
+              data-dtype="Boolean"
+              {{checked system.core_energy}}
+            >
           </div>
         </div>
         {{{stat-rollable-card "GRIT" "cci cci-armor" "system.grit"}}}
@@ -72,36 +83,36 @@
           {{{stat-rollable-card "SYS" "" "system.sys"}}}
           {{{stat-rollable-card "ENG" "" "system.eng"}}}
         </div>
-        <div class="inventory" style="flex: inherit;margin:3px 10px">
-          <button class="lancer-button" type="button" style="padding: 8px 16px"> View Inventory </button>
+        <div class="inventory" style="flex: inherit; margin: 3px 10px">
+          <button class="lancer-button" type="button" style="padding: 8px 16px">View Inventory</button>
         </div>
       </div>
       <div class="pilot-frame-wrapper flexrow">
         <div class="card">
           <span class="lancer-header lancer-primary submajor clipped-top">
-            {{localize "lancer.mech-sheet.macros.label" }}
+            {{localize "lancer.mech-sheet.macros.label"}}
           </span>
           <div class="lancer-flow-button-grid">
-            {{{flow-button "STABILIZE" "Stabilize" }}}
-            {{{flow-button "FULL REPAIR" "FullRepair" }}}
-            <div style="margin:0px 8px;border-left: 2px solid #a2a2a2;"></div>
-            {{{flow-button "STRUCTURE" "Structure" }}}
-            {{{flow-button "OVERHEAT" "Overheat" }}}
+            {{{flow-button "STABILIZE" "Stabilize"}}}
+            {{{flow-button "FULL REPAIR" "FullRepair"}}}
+            <div style="margin: 0px 8px; border-left: 2px solid #a2a2a2"></div>
+            {{{flow-button "STRUCTURE" "Structure"}}}
+            {{{flow-button "OVERHEAT" "Overheat"}}}
           </div>
         </div>
         {{#if (is-combatant actor)}}
-        <div style="min-width:560px" class="card">
-          <span class="lancer-header lancer-primary submajor clipped-top">
-            {{localize "lancer.mech-sheet.actions.label"}}
-          </span>
-          <div class="lancer-flow-button-grid">
-            {{{action-button "Protocol" "system.action_tracker.protocol" "protocol"}}}
-            {{{action-button "Movement" "system.action_tracker.move" "move"}}}
-            {{{action-button "Full Action" "system.action_tracker.full" "full"}}}
-            {{{action-button "Quick Action" "system.action_tracker.quick" "quick"}}}
-            {{{action-button "Reaction" "system.action_tracker.reaction" "reaction"}}}
+          <div style="min-width: 560px" class="card">
+            <span class="lancer-header lancer-primary submajor clipped-top">
+              {{localize "lancer.mech-sheet.actions.label"}}
+            </span>
+            <div class="lancer-flow-button-grid">
+              {{{action-button "Protocol" "system.action_tracker.protocol" "protocol"}}}
+              {{{action-button "Movement" "system.action_tracker.move" "move"}}}
+              {{{action-button "Full Action" "system.action_tracker.full" "full"}}}
+              {{{action-button "Quick Action" "system.action_tracker.quick" "quick"}}}
+              {{{action-button "Reaction" "system.action_tracker.reaction" "reaction"}}}
+            </div>
           </div>
-        </div>
         {{/if}}
       </div>
     </div>
@@ -111,19 +122,20 @@
       <div class="card clipped">
         <span class="lancer-header lancer-primary submajor">ATTACK UTILITIES</span>
         <div class="lancer-flow-button-grid">
-          {{{flow-button "MELEE/RANGED" "BasicAttack" }}}
-          {{{flow-button "DAMAGE" "Damage" }}}
-          {{{flow-button "TECH" "TechAttack" }}}
+          {{{flow-button "MELEE/RANGED" "BasicAttack"}}}
+          {{{flow-button "DAMAGE" "Damage"}}}
+          {{{flow-button "TECH" "TechAttack"}}}
         </div>
       </div>
       <div class="card">
         <div class="lancer-header lancer-primary major">
           <span>
-          {{{localize "lancer.mech-sheet.system.label"}}}
+            {{{localize "lancer.mech-sheet.system.label"}}}
           </span>
           <span style="flex-grow: 0">
             <i class="cci cci-system-point i--4"></i>
-            {{system.loadout.sp.value}} / {{system.loadout.sp.max}} {{localize "lancer.mech-sheet.system.sp-used"}}
+            {{system.loadout.sp.value}} / {{system.loadout.sp.max}}
+            {{localize "lancer.mech-sheet.system.sp-used"}}
           </span>
         </div>
         {{{mech-loadout}}}
@@ -133,17 +145,19 @@
     <div class="tab talents" data-group="primary" data-tab="talents">
       {{!-- Talents --}}
       {{#if system.pilot.value}}
-      <div class="card clipped">
-        <h2 class="lancer-header lancer-primary major clipped">{{localize "lancer.pilot-sheet.abilities.talents"}}</h2>
-        {{#each system.pilot.value.itemTypes.talent as |talent index|}}
-          {{{item-preview (concat "system.pilot.value.itemTypes.talent." index) null }}}
-        {{/each}}
-      </div>
+        <div class="card clipped">
+          <h2 class="lancer-header lancer-primary major clipped">
+            {{localize "lancer.pilot-sheet.abilities.talents"}}
+          </h2>
+          {{#each system.pilot.value.itemTypes.talent as |talent index|}}
+            {{{item-preview (concat "system.pilot.value.itemTypes.talent." index) null}}}
+          {{/each}}
+        </div>
       {{/if}}
     </div>
 
     <div class="tab effects" data-group="primary" data-tab="effects">
-      {{{effect-categories-view actor effect_categories}}} 
+      {{{effect-categories-view actor effect_categories}}}
     </div>
   </section>
 </form>
