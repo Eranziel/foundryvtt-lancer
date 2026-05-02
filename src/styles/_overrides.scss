@@ -57,18 +57,16 @@
     --lancer-light-app-bg: #e1e1e1;
   }
 
-  .theme-light .application:not(.lancer):not(.journal-sheet) {
-    // Light mode and non-lancer
-    /* Set default backgrounds to a futuristic gundam light grey instead of parchment */
-    --background: var(--lancer-light-app-bg);
-  }
+  .theme-light {
+    /* Light mode and non-lancer */
+    .application:not(.lancer):not(.journal-sheet) {
+      /* Set default backgrounds to a futuristic gundam light grey instead of parchment */
+      --background: var(--lancer-light-app-bg);
+    }
 
-  .theme-light .journal-entry-content {
-    --background: var(--lancer-light-app-bg);
-  }
-
-  .theme-light .sidebar-tab {
-    --sidebar-background: var(--lancer-light-app-bg);
+    .sidebar-tab {
+      --sidebar-background: var(--lancer-light-app-bg);
+    }
   }
 
   // ==============================================

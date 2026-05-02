@@ -59,7 +59,36 @@
     }
   }
 
+  /* ===== JOURNAL STYLING ===== */
+
+  .theme-light .journal-entry-content {
+    --background: var(--lancer-light-app-bg);
+  }
+
+  .theme-dark .journal-entry-content {
+    --background: var(--background-color);
+  }
+
+  .journal-entry-content {
+    font-family: var(--main-font-family);
+
+    h1, h2, h3, h4 {
+      border-color: var(--primary-color);
+    }
+
+    input.title {
+      border: none;
+      border-left: 2px solid var(--primary-color);
+      border-bottom: 2px solid var(--primary-color);
+    }
+
+    .content-link {
+      background: var(--darken-2);
+    }
+  }
+
   /* ===== RULES FOR ALL APPLICATIONS ===== */
+
   .application:not(#chat-popout) .window-content {
     h1,
     h2,
