@@ -95,6 +95,7 @@ export async function modAction(actor: LancerActor, spend: boolean, type?: Actio
           actions.quick = false;
         } else {
           actions.full = true;
+          actions.quick = true;
         }
         break;
       case "protocol":

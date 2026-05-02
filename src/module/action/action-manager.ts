@@ -146,7 +146,7 @@ export class LancerActionManager extends Application {
     });
 
     // Enable action toggles.
-    html.find("a.action[data-action]").on("click", e => {
+    html.find("button.action[data-action]").on("click", e => {
       e.preventDefault();
       if (this.canMod()) {
         const action = e.currentTarget.dataset.action;
@@ -155,9 +155,6 @@ export class LancerActionManager extends Application {
         console.log(`${game.user?.name} :: Users currently not allowed to toggle actions through action manager.`);
       }
     });
-
-    // Enable tooltips.
-    this.loadTooltips();
   }
 
   private loadUserPos() {
@@ -182,27 +179,6 @@ export class LancerActionManager extends Application {
         }
       }
       loop();
-    });
-  }
-
-  private loadTooltips() {
-    tippy('.action[data-action="protocol"]', {
-      content: "Protocol",
-    });
-    tippy('.action[data-action="full"]', {
-      content: "Full Action",
-    });
-    tippy('.action[data-action="quick"]', {
-      content: "Quick Action",
-    });
-    tippy('.action[data-action="move"]', {
-      content: "Movement Action",
-    });
-    tippy('.action[data-action="reaction"]', {
-      content: "Reaction",
-    });
-    tippy('.action[data-action="free"]', {
-      content: "Free Actions",
     });
   }
 

@@ -1,34 +1,41 @@
-<div id="action-manager"
+<div
+  id="action-manager"
   class="clipped card {{#unless actions}}hidden{{/unless}} {{#unless clickable}}noclick{{/unless}}"
-  style="width:{{position.width}}px; height:{{position.height}}px; top:{{position.top}}px; left:{{position.left}}px;">
+  style="width: {{position.width}}px; height: {{position.height}}px; top: {{position.top}}px; left: {{position.left}}px"
+>
   <div class="action-label">
     <div>{{name}}</div>
     {{#if clickable}}
-    <div style="right: 0px;position: absolute;"><a id="action-manager-reset" class="mdi mdi-restore"></a></div>
+      <div style="right: 0px; position: absolute"><a id="action-manager-reset" class="mdi mdi-restore"></a></div>
     {{/if}}
   </div>
-  <div style="display:inline-flex;">
+  <div style="display: inline-flex">
     <i id="action-manager-drag" class="mdi mdi-drag"></i>
     <div class="action-bar">
-      <a class="action {{#if actions.protocol}}lancer-protocol{{/if}}" data-action="protocol">
+      <button
+        class="action {{#if actions.protocol}}lancer-protocol{{/if}}"
+        data-action="protocol"
+        data-tooltip="Protocol"
+      >
         <i class="cci cci-protocol theme--dark white--text"></i>
-      </a>
-      <hr class="v-divide" role="separator" aria-orientation="undefined" />
-      <a class="action {{#if actions.move}}lancer-move{{/if}}" data-action="move">
+      </button>
+      <hr class="v-divide" role="separator" aria-orientation="undefined">
+      <button class="action {{#if actions.move}}lancer-move{{/if}}" data-action="move" data-tooltip="Standard Move">
         <i class="mdi mdi-arrow-right-bold-hexagon-outline theme--dark white--text"></i>
-      </a>
-      <a class="action {{#if actions.full}}lancer-full{{/if}}" data-action="full">
+      </button>
+      <button class="action {{#if actions.full}}lancer-full{{/if}}" data-action="full" data-tooltip="Full Action">
         <i class="mdi mdi-hexagon-slice-6 theme--dark white--text"></i>
-      </a>
-      <a class="action {{#if actions.quick}}lancer-quick{{/if}}" data-action="quick">
+      </button>
+      <button class="action {{#if actions.quick}}lancer-quick{{/if}}" data-action="quick" data-tooltip="Quick Action">
         <i class="mdi mdi-hexagon-slice-3 theme--dark white--text"></i>
-      </a>
-      <a class="action {{#if actions.reaction}}lancer-reaction{{/if}}" data-action="reaction">
+      </button>
+      <button
+        class="action {{#if actions.reaction}}lancer-reaction{{/if}}"
+        data-action="reaction"
+        data-tooltip="Reaction"
+      >
         <i class="cci cci-reaction theme--dark white--text"></i>
-      </a>
-      {{!-- <a class="action {{#if actions.free}}lancer-free{{/if}}" data-action="free">
-        <i class="cci cci-free-action theme--dark white--text"></i>
-      </a> --}}
+      </button>
     </div>
   </div>
 </div>
