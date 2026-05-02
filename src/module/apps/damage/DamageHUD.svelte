@@ -392,7 +392,12 @@
   </div>
 
   <div class="lancer-hud-buttons flexrow">
-    <button class="dialog-button submit default" data-button="submit" type="submit" use:focus>
+    <button
+      class="lancer-button lancer-secondary dialog-button submit default"
+      data-button="submit"
+      type="submit"
+      use:focus
+    >
       <i class="fas fa-check"></i>
       Roll
     </button>
