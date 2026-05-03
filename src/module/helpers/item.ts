@@ -907,7 +907,7 @@ export function framePreview(path: string, options: HelperOptions): string {
   if (!frame) {
     return "";
   } else {
-    let frame_img = encodeURI(frameToPath(frame.name) ?? "systems/lancer/assets/icons/frame.svg");
+    let frame_img = frameToPath(frame.name) ?? "systems/lancer/assets/icons/frame.svg";
     return `
     <li class="card clipped ref set click-open" ${ref_params(frame)}>
       <div class="compact-frame medium flexrow">
@@ -927,7 +927,7 @@ export function npcClassRefView(npc_class: LancerNPC_CLASS | null, item_path?: s
   if (!npc_class) {
     return "";
   } else {
-    let frame_img = encodeURI(npc_class.img ?? "systems/lancer/assets/icons/npc_class.svg");
+    let frame_img = npc_class.img ?? "systems/lancer/assets/icons/npc_class.svg";
     return `
     <div class="card clipped ref set click-open" ${ref_params(npc_class)}>
       <div class="compact-class medium flexrow">
@@ -1206,7 +1206,7 @@ export function buildDeployableHTML(
 
   return `
   <div class="deployable-wrapper ref set ${options?.vertical ? "vertical" : ""}" ${ref_params(dep)}>
-    <img class="deployable-thumbnail" src="${encodeURI(dep.img!)}">
+    <img class="deployable-thumbnail" src="${dep.img!}">
     <div style="grid-area: title" class="title-wrapper">
       <span class="deployable-title click-open">
         ${dep.name ? dep.name.toUpperCase() : ""}
