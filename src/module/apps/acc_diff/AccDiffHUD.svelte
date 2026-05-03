@@ -76,9 +76,8 @@
     // updateToken triggers on things like token movement (spotter) and probably a lot of other things
     hookCallbacks.updateToken = Hooks.on("updateToken", token => {
       // If there's an animation, update when it finishes, otherwise just update
-      foundry.canvas.animation.CanvasAnimation.getAnimation(token.object?.animationName!)?.promise.then(() =>
-        updateTargets()
-      ) ?? updateTargets();
+      // @ts-expect-error v13 types
+      token.object.movementAnimationPromise?.then(updateTargets);
     });
   });
 
