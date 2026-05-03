@@ -234,8 +234,8 @@ export class LancerActionManager extends Application {
           let xPos = elmnt.offsetLeft - pos1 > window.innerWidth ? window.innerWidth : elmnt.offsetLeft - pos1;
           let yPos =
             elmnt.offsetTop - pos2 > window.innerHeight - 20 ? window.innerHeight - 100 : elmnt.offsetTop - pos2;
-          xPos = xPos < 8 ? 0 : xPos - 8;
-          yPos = yPos < 8 ? 0 : yPos - 8;
+          xPos = xPos < 8 ? 0 : xPos - 10;
+          yPos = yPos < 8 ? 0 : yPos - 3;
           if (xPos != elmnt.offsetLeft - pos1 || yPos != elmnt.offsetTop - pos2) {
             elmnt.style.top = yPos + "px";
             elmnt.style.left = xPos + "px";
