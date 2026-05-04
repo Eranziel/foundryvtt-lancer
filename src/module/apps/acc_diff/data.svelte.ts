@@ -296,6 +296,8 @@ export class AccDiffHudData {
         existingTarget.prone = token.actor?.system.statuses.prone || false;
         existingTarget.stunned = token.actor?.system.statuses.stunned || false;
         existingTarget.lockOnAvailable = token.actor?.system.statuses.lockon || false;
+        if (token.actor?.system.statuses.cover_hard) existingTarget.cover = Cover.Hard;
+        else if (token.actor?.system.statuses.cover_soft) existingTarget.cover = Cover.Soft;
       }
     }
 

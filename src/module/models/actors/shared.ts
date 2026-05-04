@@ -2,31 +2,6 @@ import { CounterField } from "../bits/counter";
 import { FullBoundedNumberField, LIDField } from "../shared";
 const fields: any = foundry.data.fields;
 
-/**
- * Tracks core statuses, and allows for active effects to easily and non-exclusively apply impaired.
- * We use the names of keys from lancer-data, but with dashes removed
- */
-export interface StatConMap {
-  // wip
-  // statuses
-  dangerzone: boolean;
-  downandout: boolean;
-  engaged: boolean;
-  exposed: boolean;
-  invisible: boolean;
-  prone: boolean;
-  shutdown: boolean;
-
-  // conditions
-  immobilized: boolean;
-  impaired: boolean;
-  jammed: boolean;
-  lockon: boolean;
-  shredded: boolean;
-  slow: boolean;
-  stunned: boolean;
-}
-
 // We implement our templates here
 export function template_universal_actor() {
   return {

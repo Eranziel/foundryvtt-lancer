@@ -278,6 +278,8 @@ export class LancerActor<SubType extends Actor.SubType = Actor.SubType> extends 
     sys.sensor_range = 0;
     sys.tech_attack = 0;
     sys.statuses = {
+      cover_hard: false,
+      cover_soft: false,
       dangerzone: false,
       downandout: false,
       engaged: false,

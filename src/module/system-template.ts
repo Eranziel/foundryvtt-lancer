@@ -57,6 +57,8 @@ export namespace SystemTemplates {
     tech_attack: number;
     statuses: {
       // These can be set by active effects / right click statuses
+      cover_hard: boolean;
+      cover_soft: boolean;
       dangerzone: boolean;
       downandout: boolean;
       engaged: boolean;
