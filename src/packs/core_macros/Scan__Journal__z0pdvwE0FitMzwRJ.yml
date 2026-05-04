@@ -60,7 +60,7 @@ command: >-
   const updateExisting = true;
 
   //actorPermissionLevel - This sets the permission level for the parent actor
-  of a token (from CONST.DOCUMENT_PERMISSION_LEVELS, use NONE, LIMITED,
+  of a token (from CONST.DOCUMENT_OWNERSHIP_LEVELS, use NONE, LIMITED,
   OBSERVER, or OWNER). If set to `null`, no change is made.
 
   const actorPermissionLevel = null;
