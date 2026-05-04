@@ -119,6 +119,9 @@ export class Tag implements Readonly<TagData> {
   get is_seeking(): boolean {
     return this.lid === "tg_seeking";
   }
+  get is_thrown(): boolean {
+    return this.lid === "tg_thrown";
+  }
   get is_overkill(): boolean {
     return this.lid === "tg_overkill";
   }
