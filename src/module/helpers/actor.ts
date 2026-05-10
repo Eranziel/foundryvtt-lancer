@@ -1,6 +1,6 @@
 import type { HelperOptions } from "handlebars";
-import type { ActionType } from "../action";
-import { actionIcon } from "../action/action-tracker";
+import type { ActionType } from "../apps/action/actor-actions";
+import { actionIcon } from "../apps/action/actor-actions";
 import type { LancerActor, LancerMECH, LancerNPC, LancerPILOT } from "../actor/lancer-actor";
 import { LANCER } from "../config";
 import { EntryType } from "../enums";

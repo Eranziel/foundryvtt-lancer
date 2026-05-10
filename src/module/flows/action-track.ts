@@ -1,5 +1,5 @@
-import type { ActionTrackingData } from "../action";
-import { getActions } from "../action/action-tracker";
+import type { ActionTrackingData } from "../apps/action/actor-actions";
+import { getActions } from "../apps/action/actor-actions";
 import { LancerActor } from "../actor/lancer-actor";
 import { Flow, type FlowState, type Step } from "./flow";
 import { LancerFlowState } from "./interfaces";

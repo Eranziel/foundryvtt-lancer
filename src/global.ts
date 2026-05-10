@@ -1,4 +1,4 @@
-import type { LancerActionManager } from "./module/action/action-manager";
+import type { LancerActionManager } from "./module/apps/action/action-manager";
 import type { AttackFlag } from "./module/flows/attack";
 import type { DamageFlag } from "./module/flows/damage";
 import type { DeployableModel } from "./module/models/actors/deployable";
@@ -129,8 +129,8 @@ declare module "fvtt-types/configuration" {
 
   namespace Hooks {
     interface HookConfig {
-        "lancer.statusesReady": () => boolean | void;
-        "lancer.statusInitComplete": () => boolean | void;
+      "lancer.statusesReady": () => boolean | void;
+      "lancer.statusInitComplete": () => boolean | void;
     }
   }
 

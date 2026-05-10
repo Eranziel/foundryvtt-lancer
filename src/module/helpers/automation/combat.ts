@@ -1,4 +1,4 @@
-import { modAction } from "../../action/action-tracker";
+import { modAction } from "../../apps/action/actor-actions";
 import { LancerActor } from "../../actor/lancer-actor";
 import { LancerCombat } from "../../combat/lancer-combat";
 import { LANCER } from "../../config";

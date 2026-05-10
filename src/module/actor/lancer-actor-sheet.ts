@@ -1,5 +1,5 @@
-import type { ActionType } from "../action";
-import { modAction } from "../action/action-tracker";
+import type { ActionType } from "../apps/action/actor-actions";
+import { modAction } from "../apps/action/actor-actions";
 import { InventoryDialog } from "../apps/inventory";
 import { LANCER } from "../config";
 import { LancerActiveEffect } from "../effects/lancer-active-effect";
