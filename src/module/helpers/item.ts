@@ -327,7 +327,7 @@ export function bondPower(bond_path: string, power_index: number, options: Helpe
   let bond = resolveHelperDotpath<LancerBOND>(options, bond_path);
   let power = bond?.system.powers[power_index];
   if (!bond || !power) return "";
-  let body = `<span class="desc-text">${power.description}</span>`;
+  let body = `<span class="desc-text">${power.description ?? ""}</span>`;
   return `
     <div class="card clipped bond-power" data-uuid="${bond.uuid}" data-power-index="${power_index}">
       <div class="lancer-header lancer-primary medium clipped-top">
@@ -887,7 +887,7 @@ export function manufacturer_ref(source_path: string, options: HelperOptions): s
 // This if for display purposes and does not provide editable fields
 export function licenseRefView(item_path: string, options: HelperOptions): string {
   let license = resolveHelperDotpath(options, item_path) as LancerLICENSE;
-  const mfr = manufacturerStyle(license.system.manufacturer);
+  const mfr = license.system.manufacturer ? manufacturerStyle(license.system.manufacturer) : "gms";
   return `
     <li class="card clipped ref set" ${ref_params(license)}>
       <div class="lancer-header ${mfr} medium clipped-top" style="grid-area: 1/1/2/3">

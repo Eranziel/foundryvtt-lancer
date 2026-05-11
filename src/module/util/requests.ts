@@ -54,8 +54,8 @@ export function deployableName(baseName: string, owner: LancerActor | null): str
   let ownerName = owner.name;
   if (owner.is_pilot()) {
     ownerName = owner.system.callsign || owner.name;
-  } else if (owner.is_mech() && owner.system.pilot?.status == "resolved") {
-    ownerName = owner.system.pilot.value.system.callsign || owner.system.pilot.value.name;
+  } else if (owner.is_mech()) {
+    ownerName = owner.name;
   }
 
   return `${baseName} [${ownerName}]`;

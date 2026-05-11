@@ -6,7 +6,7 @@ import { buildCounterHeader, buildCounterHTML } from "../helpers/item";
 import { ref_params, resolve_ref_element } from "../helpers/refs";
 import { inc_if, resolveDotpath } from "../helpers/commons";
 import { LancerActor, type LancerMECH, type LancerPILOT } from "./lancer-actor";
-import { fetchPilotViaCache, fetchPilotViaShareCode, pilotCache } from "../util/compcon";
+import { fetchPilotViaCache, fetchV2PilotViaShareCode, fetchV3PilotViaShareCode, pilotCache } from "../util/compcon";
 import type { LancerFRAME } from "../item/lancer-item";
 import { clicker_num_input } from "../helpers/actor";
 import type { ResolvedDropData } from "../helpers/dragdrop";
@@ -14,7 +14,8 @@ import { EntryType } from "../enums";
 import type { PackedPilotData } from "../util/unpacking/packed-types";
 import { importCC } from "./import";
 
-const shareCodeMatcher = /^[A-Z0-9\d]{6}$/g;
+const shareCodeMatcherV2 = /^[A-Z0-9\d]{6}$/g;
+const shareCodeMatcherV3 = /^[A-Z0-9]{12}$/g;
 const COUNTER_MAX = 8;
 
 /**
@@ -70,15 +71,26 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
 
           // Fetch data to sync
           let raw_pilot_data = null;
-          if (pilot.system.cloud_id.match(shareCodeMatcher)) {
+          if (pilot.system.cloud_id.match(shareCodeMatcherV3)) {
             // pilot share codes
-            ui.notifications!.info("Importing character from share code...");
-            console.log(`Attempting import with share code: ${pilot.system.cloud_id}`);
+            ui.notifications!.info("Importing character from V3 share code...");
+            console.log(`Attempting import with V3 share code: ${pilot.system.cloud_id}`);
             try {
-              raw_pilot_data = await fetchPilotViaShareCode(pilot.system.cloud_id);
+              raw_pilot_data = await fetchV3PilotViaShareCode(pilot.system.cloud_id);
             } catch (error) {
-              ui.notifications!.error("Error importing from share code. Share code may need to be refreshed.");
-              console.error(`Failed import with share code ${pilot.system.cloud_id}, error:`, error);
+              ui.notifications!.error("Error importing from V3 share code.");
+              console.error(`Failed import with V3 share code ${pilot.system.cloud_id}, error:`, error);
+              return;
+            }
+          } else if (pilot.system.cloud_id.match(shareCodeMatcherV2)) {
+            // pilot share codes
+            ui.notifications!.info("Importing character from V2 share code...");
+            console.log(`Attempting import with V2 share code: ${pilot.system.cloud_id}`);
+            try {
+              raw_pilot_data = await fetchV2PilotViaShareCode(pilot.system.cloud_id);
+            } catch (error) {
+              ui.notifications!.error("Error importing from V2 share code. Share code may need to be refreshed.");
+              console.error(`Failed import with V2 share code ${pilot.system.cloud_id}, error:`, error);
               return;
             }
           } else if (pilot.system.cloud_id) {
