@@ -220,6 +220,22 @@
       "ipsn": "IPS-N Carina",
       "gal": "FORECAST/GALSIM"
     },
+    "pauseIcon": {
+      "name": "Pause Icon",
+      "hint": "The icon graphic to use on the Foundry pause overlay.",
+      "gms": "Union/GMS (default)",
+      "horus": "HORUS",
+      "ha": "Harrison Armory",
+      "ssc": "SSC",
+      "ips-n": "IPS-N",
+      "albatross": "Albatross",
+      "aun": "Aun Ascendancy",
+      "barony": "Karrakin Trade Baronies",
+      "horizon": "Horizon Collective",
+      "ra": "RA",
+      "sparri": "Sparri",
+      "voladores": "Voladores"
+    },
     "statusIconsConfig": {
       "menu-name": "Status Icons",
       "menu-label": "Status Icon Configuration",

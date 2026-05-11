@@ -44,6 +44,7 @@
   }
 
   /* ===== RULES FOR NON-LANCER APPLICATIONS ===== */
+
   .application:not(#chat-popout) .window-content {
     font-family: var(--main-font-family);
   }

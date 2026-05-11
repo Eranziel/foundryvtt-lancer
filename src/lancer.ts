@@ -107,6 +107,7 @@ import { registerTours } from "./module/tours/register-tours";
 import { get_pack_id } from "./module/util/doc";
 import handleSocketMessage from "./module/socket";
 import preloadHUDs from "./module/apps/slidinghud/preload";
+import { LancerGamePause } from "./module/apps/lancer-pause";
 
 const lp = LANCER.log_prefix;
 
@@ -312,6 +313,7 @@ Hooks.once("init", () => {
   CONFIG.Combat.fallbackTurnMarker = "systems/lancer/assets/turn-markers/mech-hud.svg";
   CONFIG.Combatant.documentClass = LancerCombatant;
   CONFIG.ui.combat = LancerCombatTracker;
+  CONFIG.ui.pause = LancerGamePause;
 
   CONFIG.Dice.fulfillment.dice = {
     // Disabled due to https://github.com/foundryvtt/foundryvtt/issues/13694

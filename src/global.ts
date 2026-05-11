@@ -169,6 +169,22 @@ declare module "fvtt-types/configuration" {
         gal: "lancer.uiTheme.gal";
       };
     }>;
+    "lancer.pauseIcon": foundry.data.fields.StringField<{
+      choices: {
+        gms: "lancer.pauseIcon.gms";
+        horus: "lancer.pauseIcon.horus";
+        ha: "lancer.pauseIcon.ha";
+        ssc: "lancer.pauseIcon.ssc";
+        "ips-n": "lancer.pauseIcon.ipsn";
+        albatross: "lancer.pauseIcon.albatross";
+        aun: "lancer.pauseIcon.aun";
+        barony: "lancer.pauseIcon.barony";
+        horizon: "lancer.pauseIcon.horizon";
+        ra: "lancer.pauseIcon.ra";
+        sparri: "lancer.pauseIcon.sparri";
+        voladores: "lancer.pauseIcon.voladores";
+      };
+    }>;
     // "lancer.warningFor120": boolean; // Old setting, currently unused.
     // "lancer.warningForBeta": boolean; // Old setting, currently unused.
 

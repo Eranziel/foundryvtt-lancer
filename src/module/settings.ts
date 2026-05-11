@@ -80,6 +80,32 @@ export const registerSettings = function () {
     },
   });
 
+  game.settings.register(game.system.id, LANCER.setting_pause_icon, {
+    name: "lancer.pauseIcon.name",
+    hint: "lancer.pauseIcon.hint",
+    scope: "world",
+    config: true,
+    type: new foundry.data.fields.StringField({
+      required: true,
+      choices: {
+        gms: "lancer.pauseIcon.gms",
+        horus: "lancer.pauseIcon.horus",
+        ha: "lancer.pauseIcon.ha",
+        ssc: "lancer.pauseIcon.ssc",
+        "ips-n": "lancer.pauseIcon.ips-n",
+        albatross: "lancer.pauseIcon.albatross",
+        aun: "lancer.pauseIcon.aun",
+        barony: "lancer.pauseIcon.barony",
+        horizon: "lancer.pauseIcon.horizon",
+        ra: "lancer.pauseIcon.ra",
+        sparri: "lancer.pauseIcon.sparri",
+        voladores: "lancer.pauseIcon.voladores",
+      },
+
+      initial: "gms",
+    }),
+  });
+
   game.settings.registerMenu(game.system.id, LANCER.setting_compcon_login, {
     name: "Comp/Con Login",
     label: "Log in to Comp/Con",

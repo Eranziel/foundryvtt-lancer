@@ -87,6 +87,35 @@
     }
   }
 
+  /* ===== PAUSE OVERLAY ===== */
+
+  #pause.lancer-pause {
+    &:before, &:after {
+      content: "";
+      display: block;
+      margin: -0.3rem;
+      min-height: 2px;
+      width: 100%;
+      background: linear-gradient(
+        to right,
+        transparent 0%,
+        var(--primary-color) 40%,
+        var(--primary-color) 60%,
+        transparent 100%
+      );
+    }
+
+    img {
+      filter: brightness(0) saturate(100%) invert(80%) sepia(49%) saturate(1%) hue-rotate(30deg) brightness(97%)
+        contrast(100%) drop-shadow(0 0 0.5rem var(--color-shadow-primary));
+    }
+    figcaption {
+      font-family: var(--header-font-family);
+      color: var(--light-text);
+      text-shadow: 0 0 0.5rem var(--color-shadow-primary);
+    }
+  }
+
   /* ===== RULES FOR ALL APPLICATIONS ===== */
 
   .application:not(#chat-popout) .window-content {
