@@ -76,7 +76,7 @@ export async function fetchV3PilotViaShareCodes(sharecodes: string[]): Promise<P
 
   return Promise.all(sources.map(source => fetch(`${CC_BUCKET_URI}/${source}`).then(res => res.json())));
 }
-a;
+
 /**
  * Wrapper for `fetchV3PilotViaShareCodes`
  * @param sharecode
