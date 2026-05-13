@@ -12,7 +12,7 @@ import {
   WeaponSize,
   WeaponType,
   HASE,
-  Target,
+  TargetDisposition,
   StatusConditionType,
   OtherEffectType,
   AttackType,
@@ -110,7 +110,7 @@ export interface PackedStatusEffectData {
   duration?: string;
   save?: HASE;
   aoe?: string | boolean;
-  target?: Target;
+  target?: TargetDisposition;
 }
 
 // New in CCv3:
@@ -119,7 +119,7 @@ export interface PackedResistanceData {
   immunity?: DamageType | StatusConditionType;
   resistance?: DamageType;
   vulnerability?: DamageType;
-  target?: Target;
+  target?: TargetDisposition;
 }
 
 // New in CCv3:
@@ -127,7 +127,7 @@ export interface PackedResistanceData {
 export interface PackedSpecialData {
   attribute: string;
   detail?: string;
-  target?: Target;
+  target?: TargetDisposition;
   duration?: string;
 }
 
@@ -136,7 +136,7 @@ export interface PackedSpecialData {
 export interface PackedOtherEffectData {
   type: OtherEffectType;
   val: any;
-  target?: Target;
+  target?: TargetDisposition;
   aoe: string | boolean;
 }
 
@@ -158,7 +158,7 @@ export interface PackedDamageData {
   save?: HASE | PackedSaveData;
   save_half?: string;
   ap?: boolean;
-  target?: Target;
+  target?: TargetDisposition;
 }
 
 export interface PackedRangeData {
