@@ -135,7 +135,7 @@ async function updatePilot(
 }
 
 /**
- * Updates the Pilot document, given COMP/CON data.
+ * Updates the Mech document, given COMP/CON data.
  * @param mech              - The mech actor
  * @param pilot             - The pilot actor
  * @param data              - `PackedMechData`
@@ -251,7 +251,11 @@ function hasCreatePermissions() {
         },
       ],
     }).render(true);
+
+    return false;
   }
+
+  return true;
 }
 
 /**
