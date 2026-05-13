@@ -74,23 +74,23 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
           if (pilot.system.cloud_id.match(shareCodeMatcherV3)) {
             // pilot share codes
             ui.notifications!.info("Importing character from V3 share code...");
-            console.log(`Attempting import with V3 share code: ${pilot.system.cloud_id}`);
+            console.log(`${lp} Attempting import with V3 share code: ${pilot.system.cloud_id}`);
             try {
               raw_pilot_data = await fetchV3PilotViaShareCode(pilot.system.cloud_id);
             } catch (error) {
               ui.notifications!.error("Error importing from V3 share code.");
-              console.error(`Failed import with V3 share code ${pilot.system.cloud_id}, error:`, error);
+              console.error(`${lp} Failed import with V3 share code ${pilot.system.cloud_id}, error:`, error);
               return;
             }
           } else if (pilot.system.cloud_id.match(shareCodeMatcherV2)) {
             // pilot share codes
             ui.notifications!.info("Importing character from V2 share code...");
-            console.log(`Attempting import with V2 share code: ${pilot.system.cloud_id}`);
+            console.log(`${lp} Attempting import with V2 share code: ${pilot.system.cloud_id}`);
             try {
               raw_pilot_data = await fetchV2PilotViaShareCode(pilot.system.cloud_id);
             } catch (error) {
               ui.notifications!.error("Error importing from V2 share code. Share code may need to be refreshed.");
-              console.error(`Failed import with V2 share code ${pilot.system.cloud_id}, error:`, error);
+              console.error(`${lp} Failed import with V2 share code ${pilot.system.cloud_id}, error:`, error);
               return;
             }
           } else if (pilot.system.cloud_id) {
@@ -104,14 +104,14 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
                 ui.notifications!.error(
                   "Failed to import from COMP/CON account. Try refreshing the page to reload pilot list."
                 );
-                console.error(`Failed to import vaultID ${pilot.system.cloud_id} via pilot list, error:`, error);
+                console.error(`${lp} Failed to import vaultID ${pilot.system.cloud_id} via pilot list, error:`, error);
                 return;
               }
             } else {
               ui.notifications!.error(
                 "Failed to import from COMP/CON account. Try refreshing the page to reload pilot list"
               );
-              console.error(`Failed to find pilot in cache, vaultID: ${pilot.system.cloud_id}`);
+              console.error(`${lp} Failed to find pilot in cache, vaultID: ${pilot.system.cloud_id}`);
               return;
             }
           } else {
