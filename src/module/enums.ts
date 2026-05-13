@@ -286,20 +286,36 @@ export enum SystemType {
 
 export type SystemTypeChecklist = { [key in SystemType]: boolean };
 
-// New in CCv3:
-// https://github.com/massif-press/lancer-data/wiki/active-effects#duration
-// If the effect does not expire or lasts the entire encounter, this field should be omitted.
-// Round durations should be string matched
+/**
+ * New in CCv3:
+ * https://github.com/massif-press/lancer-data/wiki/active-effects#duration
+ * If the effect does not expire or lasts the entire encounter, this field should be omitted.
+ * Round durations should be validated and gotten using the `roundDuration` function
+ */
 export enum Duration {
   NextTurnStartSelf = "next_turn_start_self",
   NextTurnEndSelf = "next_turn_end_self",
   NextTurnStartTarget = "next_turn_start_target",
   NextTurnEndTarget = "next_turn_end_target",
-  // RoundStart = "round_start_",
-  // RoundEnd = "round_end_"
+  RoundStart = "round_start_",
+  RoundEnd = "round_end_",
 }
 
-export enum Target {
+/**
+ * Validates the given round duration tag and returns its number
+ * @param tag A tag matching `round_start_X` or `round_end_X` where `X` is a number
+ * @returns The duration of the round, or null if it's not a round duration
+ */
+export function roundDuration(tag: string) {
+  const r = new RegExp(`^${Duration.RoundStart}|${Duration.RoundEnd}(\\d+)$`);
+  const match = tag.match(r);
+  if (match) {
+    return parseInt(match[1], 10);
+  }
+  return null;
+}
+
+export enum TargetDisposition {
   Self = "self",
   Ally = "ally",
   Enemy = "enemy",
