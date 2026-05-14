@@ -570,7 +570,7 @@ export async function importCCv3(pilot: LancerPILOT, importedData: PackedPilotWr
     }
 
     // Bonds
-    if (data.bond) {
+    if (data.bond?.bondId) {
       const item = data.bond;
       const bond = (await getActorItemByLid(item.bondId, pilot, pilotItemPool, _missingItems)) as LancerBOND | null;
       const id =
