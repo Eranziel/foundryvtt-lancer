@@ -32,6 +32,8 @@ import { rollEvalSync, tokenScrollText, type TokenScrollTextOptions } from "../u
 import { BurnFlow } from "../flows/burn";
 import { createChatMessageStep } from "../flows/_render";
 import { DamageRollFlow } from "../flows/damage";
+import { ScanFlow } from "../flows/scan";
+import type { LancerToken } from "../token";
 
 const lp = LANCER.log_prefix;
 
@@ -1100,6 +1102,11 @@ export class LancerActor<SubType extends Actor.SubType = Actor.SubType> extends 
       invade: true,
     };
     const flow = new TechAttackFlow(this, params);
+    return await flow.begin();
+  }
+
+  async beginScanFlow(target?: LancerToken): Promise<boolean> {
+    const flow = new ScanFlow(this, { target });
     return await flow.begin();
   }
 

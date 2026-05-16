@@ -2,6 +2,7 @@ import { AttackType, DamageType, NpcFeatureType, StabOptions1, StabOptions2, Sys
 import { AccDiffHudData } from "../apps/acc_diff";
 import type { ActionData } from "../models/bits/action";
 import type { DamageData } from "../models/bits/damage";
+import type { RangeData } from "../models/bits/range";
 import { Tag, type TagData } from "../models/bits/tag";
 import { LancerToken } from "../token";
 import { DamageHudData } from "../apps/damage";
@@ -197,6 +198,59 @@ export namespace LancerFlowState {
     tags: Tag[];
   }
 
+  interface ScanWeaponData {
+    name: string;
+    weapon_type: string;
+    attack_bonus?: (number | null | undefined)[];
+    accuracy?: (number | null | undefined)[];
+    range?: RangeData[];
+    damage?: DamageData[][];
+    effect?: string;
+    on_hit?: string;
+    tags?: Tag[];
+  }
+
+  interface ScanSystemData {
+    name: string;
+    type: NpcFeatureType;
+    effect: string;
+    tags: Tag[];
+    // Reactions
+    trigger?: string;
+    // Tech Actions
+    tech_type?: string;
+    // Tech Attacks
+    tech_attack?: boolean;
+    attack_bonus?: number[];
+    accuracy?: number[];
+    on_hit?: string;
+  }
+
+  export interface ScanData {
+    target: LancerToken | null;
+    name: string;
+    stats?: {
+      hull: number;
+      agi: number;
+      sys: number;
+      eng: number;
+      hp: number;
+      hpValue?: number;
+      heat?: number;
+      structure?: number;
+      stress?: number;
+      armor: number;
+      evasion: number;
+      edef: number;
+      speed: number;
+      size: number;
+      save: number;
+      sensor_range: number;
+    };
+    weapons?: ScanWeaponData[];
+    systems?: ScanSystemData[];
+  }
+
   export interface SystemUseData {
     title: string;
     type: SystemType.System | SystemType.Mod | NpcFeatureType | null;
@@ -362,5 +416,6 @@ export namespace LancerFlowState {
     BasicAttack = "BasicAttack",
     Damage = "Damage",
     TechAttack = "TechAttack",
+    Scan = "Scan",
   }
 }

@@ -6,6 +6,7 @@ import { LancerActiveEffect } from "../effects/lancer-active-effect";
 import { EntryType } from "../enums";
 import { LancerFlowState } from "../flows/interfaces";
 import { beginItemChatFlow } from "../flows/item";
+import { ScanFlow } from "../flows/scan";
 import { CollapseHandler, applyCollapseListeners, initializeCollapses } from "../helpers/collapse";
 import { handleGenControls, handlePopoutTextEditor } from "../helpers/commons";
 import {
@@ -338,6 +339,9 @@ export class LancerActorSheet<T extends LancerActorType> extends foundry.appv1.s
         case BasicFlowType.TechAttack:
           this.actor.beginBasicTechAttackFlow(flowArgs?.title ?? undefined);
           break;
+        case BasicFlowType.Scan:
+          const target = game.user.targets.first();
+          this.actor.beginScanFlow(target);
       }
     });
 

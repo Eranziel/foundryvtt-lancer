@@ -1,3 +1,5 @@
+@use "../mixins";
+
 @layer lancer.components {
   .card.lancer-charge-chip {
     color: var(--light-text);
@@ -298,6 +300,57 @@
   .chat-message .lancer-damage-applied {
     & i.cci {
       margin-right: -0.2em;
+    }
+  }
+
+  .chat-message .scan-result {
+    .scan-stat-grid {
+      display: grid;
+      grid-template: 1fr 1fr 1fr 1fr / 1fr 1fr 1fr 1fr;
+      grid-template-areas:
+        "hull agi sys eng"
+        "structure hp evasion armor"
+        "stress heat edef none"
+        "speed save sensor_range size";
+      gap: 0.2em;
+
+      &:has(+ .lancer-header) {
+        margin-bottom: 0.2em;
+      }
+
+      & > .scan-stat-item {
+        font-size: 1em;
+        font-weight: bold;
+        border: 1px solid var(--primary-color);
+        border-radius: 5px;
+        display: grid;
+        grid-template-columns: 2fr 1.5fr;
+        @include mixins.vert-mid();
+
+        h4 {
+          display: inline-block;
+          font-family: var(--header-font-family);
+          font-size: 1.5em;
+          font-weight: bold;
+          color: var(--light-text);
+          background-color: var(--primary-color);
+          margin-bottom: 0;
+          height: 101%; // There's a weird 1px gap at the top of some of them
+          clip-path:
+            polygon(0% 0%, 100% 0%, 85% 100%, 0% 100%),
+            ;
+        }
+      }
+    }
+
+    .scan-weapons-list {
+      display: flex;
+      flex-direction: column;
+
+      .scan-weapon-card {
+        display: flex;
+        flex-direction: column;
+      }
     }
   }
 }

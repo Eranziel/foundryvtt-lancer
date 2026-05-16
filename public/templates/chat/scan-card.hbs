@@ -1,0 +1,83 @@
+<div class="card clipped-bot" style="margin: 0px">
+  <div class="lancer-header lancer-primary">SCAN // 🞂 {{upper-case name}} 🞀</div>
+  <div class="scan-result" style="padding: 5px">
+    <div class="scan-stat-grid">
+      <div class="scan-stat-item" data-tooltip="Hull">
+        <h4><i class="mdi mdi-alpha-h-box-outline"></i></h4>
+        {{stats.hull}}
+      </div>
+      <div class="scan-stat-item" data-tooltip="Agility">
+        <h4><i class="mdi mdi-alpha-a-box-outline"></i></h4>
+        {{stats.agi}}
+      </div>
+      <div class="scan-stat-item" data-tooltip="Systems">
+        <h4><i class="mdi mdi-alpha-s-box-outline"></i></h4>
+        {{stats.sys}}
+      </div>
+      <div class="scan-stat-item" data-tooltip="Engineering">
+        <h4><i class="mdi mdi-alpha-e-box-outline"></i></h4>
+        {{stats.eng}}
+      </div>
+
+      <div class="scan-stat-item" data-tooltip="Structure">
+        <h4><i class="cci cci-structure"></i></h4>
+        {{stats.structure}}
+      </div>
+      <div class="scan-stat-item" data-tooltip="Max HP">
+        <h4><i class="mdi mdi-heart-outline"></i></h4>
+        {{stats.hp}}
+      </div>
+      <div class="scan-stat-item" data-tooltip="Evasion">
+        <h4><i class="cci cci-evasion"></i></h4>
+        {{stats.evasion}}
+      </div>
+      <div class="scan-stat-item" data-tooltip="Armor">
+        <h4><i class="mdi mdi-shield-outline"></i></h4>
+        {{stats.armor}}
+      </div>
+
+      <div class="scan-stat-item" data-tooltip="Stress">
+        <h4><i class="cci cci-reactor"></i></h4>
+        {{stats.stress}}
+      </div>
+      <div class="scan-stat-item" data-tooltip="Heat Cap">
+        <h4><i class="cci cci-heat"></i></h4>
+        {{stats.heat}}
+      </div>
+      <div class="scan-stat-item" data-tooltip="E-Defense">
+        <h4><i class="cci cci-edef"></i></h4>
+        {{stats.edef}}
+      </div>
+      <div>{{!-- EMPTY --}}</div>
+
+      <div class="scan-stat-item" data-tooltip="Speed">
+        <h4><i class="mdi mdi-arrow-right-bold-hexagon-outline"></i></h4>
+        {{stats.speed}}
+      </div>
+      <div class="scan-stat-item" data-tooltip="Save Target">
+        <h4><i class="cci cci-save"></i></h4>
+        {{stats.save}}
+      </div>
+      <div class="scan-stat-item" data-tooltip="Sensor Range">
+        <h4><i class="cci cci-sensor"></i></h4>
+        {{stats.sensor_range}}
+      </div>
+      <div class="scan-stat-item" data-tooltip="Size">
+        <h4>
+          {{#if (eq stats.size 0.5)}}
+            <i class="cci cci-size-half"></i>
+          {{else}}
+            <i class="cci cci-size-{{stats.size}}"></i>
+          {{/if}}
+        </h4>
+        {{stats.size}}
+      </div>
+    </div>
+    {{#if weapons}}
+      <div class="lancer-header lancer-secondary">WEAPONS</div>
+    {{/if}}
+    {{#if systems}}
+      <div class="lancer-header lancer-secondary">SYSTEMS</div>
+    {{/if}}
+  </div>
+</div>

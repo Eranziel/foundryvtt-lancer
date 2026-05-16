@@ -12,6 +12,7 @@ import { registerItemUtilSteps } from "./item-utils";
 import { NPCRechargeFlow, registerNPCSteps } from "./npc";
 import { OverchargeFlow, registerOverchargeSteps } from "./overcharge";
 import { OverheatFlow, registerOverheatSteps } from "./overheat";
+import { registerScanSteps, ScanFlow } from "./scan";
 import { registerStabilizeSteps, StabilizeFlow } from "./stabilize";
 import { registerStatSteps, StatRollFlow } from "./stat";
 import { registerStructureSteps, SecondaryStructureFlow, StructureFlow } from "./structure";
@@ -31,6 +32,7 @@ export function registerFlows() {
   flows.set(TechAttackFlow.name, TechAttackFlow);
   flows.set(WeaponAttackFlow.name, WeaponAttackFlow);
   flows.set(BurnFlow.name, BurnFlow);
+  flows.set(ScanFlow.name, ScanFlow);
   flows.set(BondPowerFlow.name, BondPowerFlow);
   flows.set(CascadeFlow.name, CascadeFlow);
   flows.set(CoreActiveFlow.name, CoreActiveFlow);
@@ -55,6 +57,7 @@ export function registerFlows() {
   registerTechAttackSteps(flowSteps);
   registerDamageSteps(flowSteps);
   registerBurnSteps(flowSteps);
+  registerScanSteps(flowSteps);
   registerActivationSteps(flowSteps);
   registerCoreActiveSteps(flowSteps);
   registerStatSteps(flowSteps);

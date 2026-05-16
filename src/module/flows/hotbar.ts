@@ -116,6 +116,11 @@ export function onHotbarDrop(_bar: any, data: any, slot: number) {
           title = `Overcharge - ${actor.name}`;
           flowInvocation = `actor.beginOverchargeFlow();`;
           break;
+        case BasicFlowType.Scan:
+          img = `systems/${game.system.id}/assets/icons/macro-icons/sensor.svg`;
+          title = `Scan - ${actor.name}`;
+          flowInvocation = `const target = game.user.targets.first();\nactor.beginScanFlow(target);`;
+          break;
         case BasicFlowType.BasicAttack:
           img = `systems/${game.system.id}/assets/icons/macro-icons/weapon.svg`;
           title = `Basic Attack - ${actor.name}`;

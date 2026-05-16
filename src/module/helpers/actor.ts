@@ -301,6 +301,9 @@ export function actor_flow_button(
     case BasicFlowType.TechAttack:
       mIcon = "cci-tech-quick";
       break;
+    case BasicFlowType.Scan:
+      mIcon = "cci cci-sensor";
+      break;
   }
 
   return `
