@@ -27,6 +27,7 @@ type UIBehaviour = CheckboxUI | NoUI;
 
 declare interface RollModifier {
   category: "acc" | "diff";
+  slug: string;
   modifyRoll(roll: string): string;
   get rollPrecedence(): number; // higher numbers happen earlier
   hydrate?(data: AccDiffHudData, target?: AccDiffHudTarget): void;
