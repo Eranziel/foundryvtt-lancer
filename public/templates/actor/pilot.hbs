@@ -110,8 +110,8 @@
     <div class="tab pilot flexcol" data-group="primary" data-tab="narrative">
       <div class="card clipped">
         <div class="flexrow">
-          {{{clicker-stat-card "LICENSE LEVEL" "mdi mdi-shield-outline" "system.level" false}}}
-          {{{stat-rollable-card "GRIT" "cci cci-armor" "system.grit"}}}
+          {{{clicker-stat-card "level" "mdi mdi-shield-outline" "system.level" false}}}
+          {{{stat-rollable-card "grit" "cci cci-armor" "system.grit"}}}
         </div>
       </div>
 
@@ -227,10 +227,12 @@
       </div>
 
       <div class="card clipped">
-        <span class="lancer-header lancer-primary submajor">ATTACK UTILITIES</span>
+        <span class="lancer-header lancer-primary submajor">{{
+            localize "lancer.common-sheet.headers.combatUtilities"
+          }}</span>
         <div class="lancer-flow-button-grid">
           {{{flow-button "BASIC ATTACK" "BasicAttack"}}}
-          {{{flow-button "DAMAGE" "Damage"}}}
+          {{{flow-button (localize "lancer.common-sheet.buttons.damage") "Damage"}}}
         </div>
       </div>
 
@@ -288,10 +290,10 @@
       </div>
 
       <div class="flexrow">
-        {{{clicker-stat-card "HUL" "" "system.hull" true}}}
-        {{{clicker-stat-card "AGI" "" "system.agi" true}}}
-        {{{clicker-stat-card "SYS" "" "system.sys" true}}}
-        {{{clicker-stat-card "ENG" "" "system.eng" true}}}
+        {{{clicker-stat-card "hull" "" "system.hull" true}}}
+        {{{clicker-stat-card "agi" "" "system.agi" true}}}
+        {{{clicker-stat-card "sys" "" "system.sys" true}}}
+        {{{clicker-stat-card "eng" "" "system.eng" true}}}
       </div>
 
       {{!-- Talents --}}

@@ -35,20 +35,21 @@
   <section class="sheet-body">
     <div class="tab stats" data-group="primary" data-tab="stats">
       <div class="stat-grid">
-        {{{stat-edit-max-card "HP" "mdi mdi-heart-outline" "system.hp.value" "system.hp.max"}}}
-        {{{stat-edit-max-card "HEAT" "cci cci-heat" "system.heat.value" "system.heat.max"}}}
-        {{{stat-view-card "EVASION" "cci cci-evasion" "system.evasion"}}}
-        {{{stat-view-card "ARMOR" "mdi mdi-shield-outline" "system.armor"}}}
-        {{{stat-edit-max-card "STRUCTURE" "cci cci-structure" "system.structure.value" "system.structure.max"}}}
-        {{{stat-edit-max-card "STRESS" "cci cci-reactor" "system.stress.value" "system.stress.max"}}}
-        {{{stat-view-card "E-DEF" "cci cci-edef" "system.edef"}}}
-        {{{stat-view-card "SPEED" "mdi mdi-arrow-right-bold-hexagon-outline" "system.speed"}}}
-        {{{stat-view-card "SAVE" "cci cci-save" "system.save"}}}
-        {{{stat-view-card "SENSORS" "cci cci-sensor" "system.sensor_range"}}}
-        {{{tech-flow-card "TECH ATK" "cci cci-tech-full" "system.tech_attack"}}}
-        {{{stat-edit-rollable-card "BURN" "cci cci-burn" "system.burn"}}}
-        {{{stat-edit-card "O.SHIELD" "mdi mdi-shield-star-outline" "system.overshield.value"}}}
-        {{{stat-edit-max-card "REPAIRS" "cci cci-repair" "system.repairs.value" "system.repairs.max"}}}
+        {{{stat-edit-max-card
+          "hp" "mdi mdi-heart-outline" "system.hp.value" "system.hp.max"}}}
+        {{{stat-edit-max-card "heat" "cci cci-heat" "system.heat.value" "system.heat.max"}}}
+        {{{stat-view-card "evasion" "cci cci-evasion" "system.evasion"}}}
+        {{{stat-view-card "armor" "mdi mdi-shield-outline" "system.armor"}}}
+        {{{stat-edit-max-card "structure" "cci cci-structure" "system.structure.value" "system.structure.max"}}}
+        {{{stat-edit-max-card "stress" "cci cci-reactor" "system.stress.value" "system.stress.max"}}}
+        {{{stat-view-card "edef" "cci cci-edef" "system.edef"}}}
+        {{{stat-view-card "speed" "mdi mdi-arrow-right-bold-hexagon-outline" "system.speed"}}}
+        {{{stat-view-card "save" "cci cci-save" "system.save"}}}
+        {{{stat-view-card "sensor_range" "cci cci-sensor" "system.sensor_range"}}}
+        {{{tech-flow-card "tech_attack" "cci cci-tech-full" "system.tech_attack"}}}
+        {{{stat-edit-rollable-card "burn" "cci cci-burn" "system.burn"}}}
+        {{{stat-edit-card "overshield" "mdi mdi-shield-star-outline" "system.overshield.value"}}}
+        {{{stat-edit-max-card "repairs" "cci cci-repair" "system.repairs.value" "system.repairs.max"}}}
         <div class="size-card">
           {{#if (eq system.size 0.5)}}
             <i class="cci cci-size-half size-icon theme--main"></i>
@@ -74,14 +75,14 @@
             >
           </div>
         </div>
-        {{{stat-rollable-card "GRIT" "cci cci-armor" "system.grit"}}}
+        {{{stat-rollable-card "grit" "cci cci-armor" "system.grit"}}}
         {{{pilot-slot "system.pilot" value=pilot}}}
 
         <div class="wraprow double hase">
-          {{{stat-rollable-card "HUL" "" "system.hull"}}}
-          {{{stat-rollable-card "AGI" "" "system.agi"}}}
-          {{{stat-rollable-card "SYS" "" "system.sys"}}}
-          {{{stat-rollable-card "ENG" "" "system.eng"}}}
+          {{{stat-rollable-card "hull" "" "system.hull"}}}
+          {{{stat-rollable-card "agi" "" "system.agi"}}}
+          {{{stat-rollable-card "sys" "" "system.sys"}}}
+          {{{stat-rollable-card "eng" "" "system.eng"}}}
         </div>
         <div class="inventory" style="flex: inherit; margin: 3px 10px">
           <button class="lancer-button" type="button" style="padding: 8px 16px">View Inventory</button>
@@ -93,11 +94,11 @@
             {{localize "lancer.mech-sheet.macros.label"}}
           </span>
           <div class="lancer-flow-button-grid">
-            {{{flow-button "STABILIZE" "Stabilize"}}}
-            {{{flow-button "FULL REPAIR" "FullRepair"}}}
+            {{{flow-button (localize "lancer.common-sheet.buttons.stabilize") "Stabilize"}}}
+            {{{flow-button (localize "lancer.common-sheet.buttons.fullRepair") "FullRepair"}}}
             <div style="margin: 0px 8px; border-left: 2px solid #a2a2a2"></div>
-            {{{flow-button "STRUCTURE" "Structure"}}}
-            {{{flow-button "OVERHEAT" "Overheat"}}}
+            {{{flow-button (localize "lancer.common-sheet.buttons.structure") "Structure"}}}
+            {{{flow-button (localize "lancer.common-sheet.buttons.overheat") "Overheat"}}}
           </div>
         </div>
         {{#if (is-combatant actor)}}
@@ -120,11 +121,14 @@
     <div class="tab loadout" data-group="primary" data-tab="loadout">
       {{{mech-frame "system.loadout.frame.value" system.core_energy}}}
       <div class="card clipped">
-        <span class="lancer-header lancer-primary submajor">ATTACK UTILITIES</span>
+        <span class="lancer-header lancer-primary submajor">{{
+            localize "lancer.common-sheet.headers.combatUtilities"
+          }}</span>
         <div class="lancer-flow-button-grid">
-          {{{flow-button "MELEE/RANGED" "BasicAttack"}}}
-          {{{flow-button "DAMAGE" "Damage"}}}
-          {{{flow-button "TECH" "TechAttack"}}}
+          {{{flow-button (localize "lancer.common-sheet.buttons.scan") "Scan"}}}
+          {{{flow-button (localize "lancer.common-sheet.buttons.basicAttack") "BasicAttack"}}}
+          {{{flow-button (localize "lancer.common-sheet.buttons.damage") "Damage"}}}
+          {{{flow-button (localize "lancer.common-sheet.buttons.tech") "TechAttack"}}}
         </div>
       </div>
       <div class="card">

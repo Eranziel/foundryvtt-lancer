@@ -48,6 +48,47 @@
     "common-sheet": {
       "tabs": {
         "effects": "<EFFECTS//ACTIVE>"
+      },
+      "headers": {
+        "combatUtilities": "COMBAT UTILITIES"
+      },
+      "buttons": {
+        "basicAttack": "MELEE/RANGED",
+        "damage": "DAMAGE",
+        "fullRepair": "FULL REPAIR",
+        "overheat": "OVERHEAT",
+        "scan": "SCAN",
+        "stabilize": "STABILIZE",
+        "structure": "STRUCTURE",
+        "tech": "TECH"
+      },
+      "shortStats": {
+        "hull": "HUL",
+        "agi": "AGI",
+        "sys": "SYS",
+        "eng": "ENG",
+        "level": "LICENSE LEVEL",
+        "grit": "GRIT",
+        "tier": "TIER",
+        "activations": "ACTIV",
+        "hp": "HP",
+        "evasion": "EVA",
+        "armor": "ARM",
+        "structure": "STRUCT",
+        "heat": "HEAT",
+        "heatcap": "HEAT CAP",
+        "edef": "EDEF",
+        "stress": "STRESS",
+        "speed": "SPD",
+        "save": "SAVE",
+        "sensor_range": "SENS",
+        "tech_attack": "T ATK",
+        "overcharge": "OVERCHARGE",
+        "burn": "BURN",
+        "overshield": "O.SHLD",
+        "repairs": "REP",
+        "size": "SZ",
+        "cost": "COST"
       }
     },
     "deployable-sheet": {
