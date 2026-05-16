@@ -297,7 +297,7 @@ async function promptLoadoutSelection(loadouts: string[]) {
  * @param missingItems  - Array appending an object holding the `actor` and `lid` of any failed lookups
  * @return The `LancerItem` if successful or `null`
  */
-async function getActorItemByLid(
+async function getOrCreateActorItemByLid(
   lid: string,
   actor: LancerPILOT | LancerMECH,
   itemPool: LancerItem[],
@@ -387,7 +387,7 @@ export async function importCCv3(pilot: LancerPILOT, importedData: PackedPilotWr
       flatData = (data.loadouts[selectedLoadout].gear ?? []).filter(a => a);
       for (const item of flatData) {
         if (!item) continue;
-        const compendiumItem = (await getActorItemByLid(
+        const compendiumItem = (await getOrCreateActorItemByLid(
           item.id,
           pilot,
           pilotItemPool,
@@ -412,7 +412,7 @@ export async function importCCv3(pilot: LancerPILOT, importedData: PackedPilotWr
       flatData = (data.loadouts[selectedLoadout].armor ?? []).filter(a => a);
       for (const item of flatData) {
         if (!item) continue;
-        const compendiumItem = (await getActorItemByLid(
+        const compendiumItem = (await getOrCreateActorItemByLid(
           item.id,
           pilot,
           pilotItemPool,
@@ -437,7 +437,7 @@ export async function importCCv3(pilot: LancerPILOT, importedData: PackedPilotWr
       flatData = (data.loadouts[selectedLoadout].weapons ?? []).filter(a => a);
       for (const item of flatData) {
         if (!item) continue;
-        const compendiumItem = (await getActorItemByLid(
+        const compendiumItem = (await getOrCreateActorItemByLid(
           item.id,
           pilot,
           pilotItemPool,
@@ -461,7 +461,7 @@ export async function importCCv3(pilot: LancerPILOT, importedData: PackedPilotWr
 
     // Core Bonuses
     for (const item of data.core_bonuses as PackedCoreBonusData[]) {
-      const compendiumItem = (await getActorItemByLid(
+      const compendiumItem = (await getOrCreateActorItemByLid(
         item.id,
         pilot,
         pilotItemPool,
@@ -492,7 +492,7 @@ export async function importCCv3(pilot: LancerPILOT, importedData: PackedPilotWr
           },
         ]);
       } else if ("data" in item) {
-        const compendiumItem = (await getActorItemByLid(
+        const compendiumItem = (await getOrCreateActorItemByLid(
           item.id,
           pilot,
           pilotItemPool,
@@ -523,7 +523,7 @@ export async function importCCv3(pilot: LancerPILOT, importedData: PackedPilotWr
 
     // Talents
     for (const item of data.talents) {
-      const compendiumItem = (await getActorItemByLid(
+      const compendiumItem = (await getOrCreateActorItemByLid(
         item.id,
         pilot,
         pilotItemPool,
@@ -554,7 +554,12 @@ export async function importCCv3(pilot: LancerPILOT, importedData: PackedPilotWr
     // Bonds
     if (data.bond?.bondId) {
       const item = data.bond;
-      const bond = (await getActorItemByLid(item.bondId, pilot, pilotItemPool, _missingItems)) as LancerBOND | null;
+      const bond = (await getOrCreateActorItemByLid(
+        item.bondId,
+        pilot,
+        pilotItemPool,
+        _missingItems
+      )) as LancerBOND | null;
       if (!bond) {
         await pilot.createEmbeddedDocuments("Item", [
           {
@@ -569,7 +574,7 @@ export async function importCCv3(pilot: LancerPILOT, importedData: PackedPilotWr
     // Licenses
     for (const item of data.licenses) {
       const lid = EntryTypeLidPrefix(EntryType.LICENSE) + item.id;
-      const compendiumItem = (await getActorItemByLid(
+      const compendiumItem = (await getOrCreateActorItemByLid(
         lid,
         pilot,
         pilotItemPool,
@@ -599,7 +604,7 @@ export async function importCCv3(pilot: LancerPILOT, importedData: PackedPilotWr
 
     // Reserves
     for (const item of data.reserves) {
-      const compendiumItem = (await getActorItemByLid(
+      const compendiumItem = (await getOrCreateActorItemByLid(
         item.id,
         pilot,
         pilotItemPool,
@@ -674,7 +679,7 @@ export async function importCCv3(pilot: LancerPILOT, importedData: PackedPilotWr
       const populatedSystems: string[] = [];
 
       // Mech Frame
-      const compendiumFrame = (await getActorItemByLid(
+      const compendiumFrame = (await getOrCreateActorItemByLid(
         importedMech.frame,
         mech,
         mechItemPool,
@@ -693,7 +698,7 @@ export async function importCCv3(pilot: LancerPILOT, importedData: PackedPilotWr
       // Mech Systems
       const flatSystems = [...loadout.integratedSystems, ...loadout.systems];
       for (const item of flatSystems) {
-        const compendiumItem = (await getActorItemByLid(
+        const compendiumItem = (await getOrCreateActorItemByLid(
           item.data.id,
           mech,
           mechItemPool,
@@ -750,7 +755,7 @@ export async function importCCv3(pilot: LancerPILOT, importedData: PackedPilotWr
         const populatedSlots: (typeof populatedMounts)[0]["slots"] = [];
         // Helper that creates a weapon and maybe its mod and attaches it to the mech
         const processMechWeapon = async (weaponSlot: PackedMechWeaponSaveData & PackedMechWeaponSaveWrapper) => {
-          const weapon = (await getActorItemByLid(
+          const weapon = (await getOrCreateActorItemByLid(
             weaponSlot.id,
             mech,
             mechItemPool,
@@ -783,7 +788,7 @@ export async function importCCv3(pilot: LancerPILOT, importedData: PackedPilotWr
           let mod: LancerWEAPON_MOD | null = null;
           let modId: string | null | undefined = null;
           if (weaponSlot.mod) {
-            mod = (await getActorItemByLid(
+            mod = (await getOrCreateActorItemByLid(
               weaponSlot.mod.id,
               mech,
               mechItemPool,
@@ -1076,7 +1081,12 @@ export async function importCCv2(pilot: LancerPILOT, data: PackedPilotData, clea
 
       // Do reserves
       for (let reserve of data.reserves) {
-        let _r = (await getActorItemByLid(reserve.id, pilot, pilotItemPool, missingItems)) as LancerRESERVE | null;
+        let _r = (await getOrCreateActorItemByLid(
+          reserve.id,
+          pilot,
+          pilotItemPool,
+          missingItems
+        )) as LancerRESERVE | null;
       }
 
       // Update all items
