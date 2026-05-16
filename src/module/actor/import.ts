@@ -398,6 +398,7 @@ export async function importCCv3(pilot: LancerPILOT, importedData: PackedPilotWr
           (
             await pilot.createEmbeddedDocuments("Item", [
               {
+                ...unpackPilotGear(item.data as PackedPilotGearData, _context),
                 type: EntryType.PILOT_GEAR,
                 name: item.data.name,
               },
@@ -405,12 +406,6 @@ export async function importCCv3(pilot: LancerPILOT, importedData: PackedPilotWr
           )[0].id;
 
         gears.push(id);
-
-        const ccData = unpackPilotGear(item.data as PackedPilotGearData, _context);
-        pilotItemUpdates.push({
-          ...ccData,
-          _id: id,
-        });
       }
 
       // Armor
@@ -422,12 +417,13 @@ export async function importCCv3(pilot: LancerPILOT, importedData: PackedPilotWr
           pilot,
           pilotItemPool,
           _missingItems
-        )) as LancerPILOT_GEAR | null;
+        )) as LancerPILOT_ARMOR | null;
         const id =
           compendiumItem?.id ??
           (
             await pilot.createEmbeddedDocuments("Item", [
               {
+                ...unpackPilotArmor(item.data as PackedPilotArmorData, _context),
                 type: EntryType.PILOT_ARMOR,
                 name: item.data.name,
               },
@@ -435,12 +431,6 @@ export async function importCCv3(pilot: LancerPILOT, importedData: PackedPilotWr
           )[0].id;
 
         armors.push(id);
-
-        const ccData = unpackPilotArmor(item.data as PackedPilotArmorData, _context);
-        pilotItemUpdates.push({
-          ...ccData,
-          _id: id,
-        });
       }
 
       // Weapons
@@ -452,12 +442,13 @@ export async function importCCv3(pilot: LancerPILOT, importedData: PackedPilotWr
           pilot,
           pilotItemPool,
           _missingItems
-        )) as LancerPILOT_GEAR | null;
+        )) as LancerPILOT_WEAPON | null;
         const id =
           compendiumItem?.id ??
           (
             await pilot.createEmbeddedDocuments("Item", [
               {
+                ...unpackPilotWeapon(item.data as PackedPilotWeaponData, _context),
                 type: EntryType.PILOT_WEAPON,
                 name: item.data.name,
               },
@@ -465,12 +456,6 @@ export async function importCCv3(pilot: LancerPILOT, importedData: PackedPilotWr
           )[0].id;
 
         weapons.push(id);
-
-        const ccData = unpackPilotWeapon(item.data as PackedPilotWeaponData, _context);
-        pilotItemUpdates.push({
-          ...ccData,
-          _id: id,
-        });
       }
     }
 
@@ -482,22 +467,15 @@ export async function importCCv3(pilot: LancerPILOT, importedData: PackedPilotWr
         pilotItemPool,
         _missingItems
       )) as LancerCORE_BONUS | null;
-      const id =
-        compendiumItem?.id ??
-        (
-          await pilot.createEmbeddedDocuments("Item", [
-            {
-              type: EntryType.CORE_BONUS,
-              name: item.name,
-            },
-          ])
-        )[0].id;
-
-      const ccData = unpackCoreBonus(item, _context);
-      pilotItemUpdates.push({
-        ...ccData,
-        _id: id,
-      });
+      if (!compendiumItem) {
+        await pilot.createEmbeddedDocuments("Item", [
+          {
+            ...unpackCoreBonus(item, _context),
+            type: EntryType.CORE_BONUS,
+            name: item.name,
+          },
+        ]);
+      }
     }
 
     // Skills
@@ -520,21 +498,25 @@ export async function importCCv3(pilot: LancerPILOT, importedData: PackedPilotWr
           pilotItemPool,
           _missingItems
         )) as LancerSKILL | null;
-        const id =
-          compendiumItem?.id ??
-          (
+        let id = compendiumItem?.id;
+        if (!compendiumItem) {
+          const ccData = unpackSkill(item.data, _context);
+          id = (
             await pilot.createEmbeddedDocuments("Item", [
               {
+                ...ccData,
                 type: EntryType.SKILL,
                 name: item.data.name,
               },
             ])
           )[0].id;
+        }
 
-        const ccData = unpackSkill(item.data, _context);
         pilotItemUpdates.push({
-          ...ccData,
           _id: id,
+          system: {
+            curr_rank: item.rank ?? 1,
+          },
         });
       }
     }
@@ -547,48 +529,41 @@ export async function importCCv3(pilot: LancerPILOT, importedData: PackedPilotWr
         pilotItemPool,
         _missingItems
       )) as LancerTALENT | null;
-      const id =
-        compendiumItem?.id ??
-        (
+      let id = compendiumItem?.id;
+      if (!compendiumItem) {
+        const ccData = unpackTalent(item.data, _context);
+        id = (
           await pilot.createEmbeddedDocuments("Item", [
             {
+              ...ccData,
               type: EntryType.TALENT,
               name: item.data.name,
             },
           ])
         )[0].id;
+      }
 
-      const ccData = unpackTalent(item.data, _context);
       pilotItemUpdates.push({
-        ...ccData,
         _id: id,
         system: {
-          ...ccData.system,
           curr_rank: item.rank,
         },
       });
     }
 
     // Bonds
-    if (data.bond) {
+    if (data.bond?.bondId) {
       const item = data.bond;
       const bond = (await getActorItemByLid(item.bondId, pilot, pilotItemPool, _missingItems)) as LancerBOND | null;
-      const id =
-        bond?.id ??
-        (
-          await pilot.createEmbeddedDocuments("Item", [
-            {
-              type: EntryType.BOND,
-              name: item.data.name,
-            },
-          ])
-        )[0].id;
-
-      const ccData = unpackBond(item.data);
-      pilotItemUpdates.push({
-        ...ccData,
-        _id: id,
-      });
+      if (!bond) {
+        await pilot.createEmbeddedDocuments("Item", [
+          {
+            ...unpackBond(item.data),
+            type: EntryType.BOND,
+            name: item.data.name,
+          },
+        ]);
+      }
     }
 
     // Licenses
@@ -600,21 +575,25 @@ export async function importCCv3(pilot: LancerPILOT, importedData: PackedPilotWr
         pilotItemPool,
         _missingItems
       )) as LancerLICENSE | null;
-      const id =
-        compendiumItem?.id ??
-        (
+      let id = compendiumItem?.id;
+      if (!compendiumItem) {
+        const ccData = unpackLicense(item.stub.name, lid, item.stub.source, _context);
+        id = (
           await pilot.createEmbeddedDocuments("Item", [
             {
+              ...ccData,
               type: EntryType.LICENSE,
               name: item.stub.name,
             },
           ])
         )[0].id;
+      }
 
-      const ccData = unpackLicense(item.stub.name, lid, item.stub.source, _context);
       pilotItemUpdates.push({
-        ...ccData,
         _id: id,
+        system: {
+          curr_rank: item.rank,
+        },
       });
     }
 
@@ -626,22 +605,15 @@ export async function importCCv3(pilot: LancerPILOT, importedData: PackedPilotWr
         pilotItemPool,
         _missingItems
       )) as LancerRESERVE | null;
-      const id =
-        compendiumItem?.id ??
-        (
-          await pilot.createEmbeddedDocuments("Item", [
-            {
-              type: EntryType.RESERVE,
-              name: item.name,
-            },
-          ])
-        )[0].id;
-
-      const ccData = unpackReserve(item, _context);
-      pilotItemUpdates.push({
-        ...ccData,
-        _id: id,
-      });
+      if (!compendiumItem) {
+        await pilot.createEmbeddedDocuments("Item", [
+          {
+            ...unpackReserve(item, _context),
+            type: EntryType.RESERVE,
+            name: item.name,
+          },
+        ]);
+      }
     }
 
     // Update all items
@@ -708,26 +680,18 @@ export async function importCCv3(pilot: LancerPILOT, importedData: PackedPilotWr
         mechItemPool,
         _missingItems
       )) as LancerFRAME | null;
-      const frameId =
-        compendiumFrame?.id ??
-        (
-          await mech.createEmbeddedDocuments("Item", [
-            {
-              type: EntryType.FRAME,
-              name: importedMech.frameData.name,
-            },
-          ])
-        )[0].id;
-
-      const ccData = unpackFrame(importedMech.frameData, _context);
-      mechItemUpdates.push({
-        ...ccData,
-        _id: frameId,
-      });
+      if (!compendiumFrame) {
+        await mech.createEmbeddedDocuments("Item", [
+          {
+            ...unpackFrame(importedMech.frameData, _context),
+            type: EntryType.FRAME,
+            name: importedMech.frameData.name,
+          },
+        ]);
+      }
 
       // Mech Systems
       const flatSystems = [...loadout.integratedSystems, ...loadout.systems];
-      // const assocSystemData = new Map<string, PackedMechEquipmentData>();
       for (const item of flatSystems) {
         const compendiumItem = (await getActorItemByLid(
           item.data.id,
@@ -735,26 +699,25 @@ export async function importCCv3(pilot: LancerPILOT, importedData: PackedPilotWr
           mechItemPool,
           _missingItems
         )) as LancerMECH_SYSTEM | null;
-        const id =
-          compendiumItem?.id ??
-          (
+        let id = compendiumItem?.id;
+        if (!compendiumItem || !id) {
+          const ccData = unpackMechSystem(item.data, _context);
+          id = (
             await mech.createEmbeddedDocuments("Item", [
               {
+                ...ccData,
                 type: EntryType.MECH_SYSTEM,
                 name: item.data.name,
-              },
+              } as LancerMECH_SYSTEM,
             ])
           )[0].id;
+        }
 
         populatedSystems.push(id);
-        // assocSystemData.set(id, item);
 
-        const ccData = unpackMechSystem(item.data, _context);
         mechItemUpdates.push({
-          ...ccData,
           _id: id,
           system: {
-            ...ccData.system,
             uses: {
               value: Math.max(0, (item.maxUses ?? 0) - (item.currentUses ?? 0)),
               max: item.maxUses,
@@ -763,7 +726,7 @@ export async function importCCv3(pilot: LancerPILOT, importedData: PackedPilotWr
         });
       }
 
-      // Mounts
+      // Mech Mounts
       const flatMounts: PackedMountData[] = [
         loadout.integratedWeapon,
         loadout.improved_armament,
@@ -782,7 +745,6 @@ export async function importCCv3(pilot: LancerPILOT, importedData: PackedPilotWr
         })),
         ...loadout.mounts,
       ].filter(m => m?.slots.some(x => x.weapon));
-      // const assocWeaponData = new Map<string, PackedMechWeaponSaveData>();
 
       for (const mount of flatMounts) {
         const populatedSlots: (typeof populatedMounts)[0]["slots"] = [];
@@ -794,23 +756,23 @@ export async function importCCv3(pilot: LancerPILOT, importedData: PackedPilotWr
             mechItemPool,
             _missingItems
           )) as LancerMECH_WEAPON | null;
-          const weaponId =
-            weapon?.id ??
-            (
+          let weaponId = weapon?.id;
+          if (!weapon) {
+            const ccData = unpackMechWeapon(weaponSlot.data, _context);
+            weaponId = (
               await mech.createEmbeddedDocuments("Item", [
                 {
+                  ...ccData,
                   type: EntryType.MECH_WEAPON,
                   name: weaponSlot.data.name,
                 },
               ])
             )[0].id;
+          }
 
-          const ccData = unpackMechWeapon(weaponSlot.data, _context);
           mechItemUpdates.push({
-            ...ccData,
             _id: weaponId,
             system: {
-              ...ccData.system,
               uses: {
                 value: Math.max(0, (weaponSlot.maxUses ?? 0) - (weaponSlot.currentUses ?? 0)),
                 max: weaponSlot.maxUses,
@@ -819,26 +781,31 @@ export async function importCCv3(pilot: LancerPILOT, importedData: PackedPilotWr
           });
 
           let mod: LancerWEAPON_MOD | null = null;
-          let modId: string | null = null;
+          let modId: string | null | undefined = null;
           if (weaponSlot.mod) {
-            mod = (await getActorItemByLid(weaponSlot.mod.id, mech, mechItemPool, _missingItems)) as LancerWEAPON_MOD;
-            modId =
-              mod?.id ??
-              (
+            mod = (await getActorItemByLid(
+              weaponSlot.mod.id,
+              mech,
+              mechItemPool,
+              _missingItems
+            )) as LancerWEAPON_MOD | null;
+            modId = mod?.id;
+            if (!mod) {
+              const ccData = unpackWeaponMod(weaponSlot.mod.data, _context);
+              modId = (
                 await mech.createEmbeddedDocuments("Item", [
                   {
+                    ...ccData,
                     type: EntryType.WEAPON_MOD,
                     name: weaponSlot.mod.data.name,
                   },
                 ])
               )[0].id;
+            }
 
-            const ccData = unpackWeaponMod(weaponSlot.mod.data, _context);
             mechItemUpdates.push({
-              ...ccData,
               _id: modId,
               system: {
-                ...ccData.system,
                 uses: {
                   value: Math.max(0, (weaponSlot.mod.maxUses ?? 0) - (weaponSlot.mod.currentUses ?? 0)),
                   max: weaponSlot.mod.maxUses,
@@ -852,20 +819,22 @@ export async function importCCv3(pilot: LancerPILOT, importedData: PackedPilotWr
 
         for (const slot of mount.slots) {
           if (!slot.weapon) continue;
-          const { weapon, weaponId, mod, modId } = await processMechWeapon(slot.weapon);
-          // assocWeaponData.set(weaponId, slot.weapon);
-          // if (slot.weapon.mod) assocSystemData.set(weaponId, slot.weapon.mod);
+          const { weaponId, modId } = await processMechWeapon(slot.weapon);
           populatedSlots.push({
-            mod: mod ? modId : null,
-            weapon: weapon ? weaponId : null,
+            mod: modId ?? null,
+            weapon: weaponId ?? null,
             size: slot.size,
           });
         }
 
         for (const extraSlot of mount.extra) {
           if (!extraSlot.weapon) continue;
-          const { weapon, weaponId, mod, modId } = await processMechWeapon(extraSlot.weapon);
-          populatedSlots.push({ mod: mod ? modId : null, weapon: weapon ? weaponId : null, size: extraSlot.size });
+          const { weaponId, modId } = await processMechWeapon(extraSlot.weapon);
+          populatedSlots.push({
+            mod: modId ?? null,
+            weapon: weaponId ?? null,
+            size: extraSlot.size,
+          });
         }
 
         populatedMounts.push({
