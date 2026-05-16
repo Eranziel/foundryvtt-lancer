@@ -1,34 +1,40 @@
-<script context="module">
-  import { blur, crossfade } from "svelte/transition";
-  let lockonCounter = 0;
-  let stunnedCounter = 0;
-  let counter = 0;
-
-  // @ts-expect-error the only issue is that crossfade can take a fn for duration and blur can't
-  let [send, recv] = crossfade({ fallback: blur });
-</script>
-
 <script lang="ts">
   import type { AccDiffHudBase, AccDiffHudTarget } from "./index";
 
   import { onMount } from "svelte";
-  import { fly } from "svelte/transition";
+  import { fly, blur, crossfade } from "svelte/transition";
 
   import tippy from "tippy.js";
 
   import Plugin from "./Plugin.svelte";
   import HudCheckbox from "../components/HudCheckbox.svelte";
 
-  export let target: AccDiffHudBase | AccDiffHudTarget;
-  export let onlyTarget: boolean = false;
+  let {
+    target = $bindable(),
+    onlyTarget,
+    id,
+  }: {
+    target: AccDiffHudBase | AccDiffHudTarget;
+    onlyTarget?: boolean;
+    id: string;
+  } = $props();
+
+  let lockonId = $state("");
+  let stunnedId = $state("");
+  let imgElement: HTMLElement | null = $state(null);
+  let dropdownElement: HTMLElement | null = $state(null);
+
+  // @ts-expect-error the only issue is that crossfade can take a fn for duration and blur can't
+  let [send, recv] = crossfade({ fallback: blur });
 
   function isTarget(v: any): v is AccDiffHudTarget {
     return v?.targetUuid;
   }
 
-  export let id = `accdiff-total-display-${counter++}`;
-  let lockonId = isTarget(target) ? `accdiff-total-display-consume-lockon-${lockonCounter++}` : "";
-  let stunnedId = isTarget(target) ? `accdiff-total-display-stunned-${stunnedCounter++}` : "";
+  $effect(() => {
+    lockonId = isTarget(target) ? `${id}-consume-lockon` : "";
+    stunnedId = isTarget(target) ? `${id}-stunned` : "";
+  });
 
   function toggleLockOn() {
     if (isTarget(target) && target.lockOnAvailable) {
@@ -42,9 +48,6 @@
     })
     .map(plugin => `accdiff-total-${plugin.slug}`)
     .join(" ");
-
-  let imgElement: HTMLElement;
-  let dropdownElement: HTMLElement;
 
   onMount(() => {
     if (imgElement && dropdownElement) {
@@ -90,8 +93,8 @@
         class:i--click={target.lockOnAvailable}
         class:i--3={!target.usingLockOn}
         class:i--5={target.usingLockOn}
-        on:click={toggleLockOn}
-        on:keypress={toggleLockOn}
+        onclick={toggleLockOn}
+        onkeypress={toggleLockOn}
       ></i>
       <HudCheckbox
         label="Consume Lock On (+1)"

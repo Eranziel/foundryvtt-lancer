@@ -190,7 +190,6 @@
   function isMelee() {
     if (!lancerItem || isTech()) return false;
     const result = lancerItem.currentProfile().type === WeaponType.Melee;
-    console.log("isMelee?", result);
     return result;
   }
 
