@@ -1,4 +1,3 @@
-import type { CachedCloudPilot } from "../interfaces";
 import type { PackedPilotData } from "./unpacking/packed-types";
 
 // we only cache the id, cloud ids, and name; we're going to fetch all other data on user input

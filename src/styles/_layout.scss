@@ -1,9 +1,11 @@
+@use "variables" as *;
+
 @layer lancer.defaults {
   /**
-  * Layout styles
-  *
-  * This file includes styles for flexbox layouts, grid layouts, and other layout-related styles.
-  */
+   * Layout styles
+   *
+   * This file includes styles for flexbox layouts, grid layouts, and other layout-related styles.
+   */
 
   .major {
     font-size: 18px;
@@ -127,6 +129,13 @@
 
     &.nested {
       margin: 0;
+    }
+
+    @each $theme-type in $theme-types {
+      &.lancer-border-#{$theme-type} {
+        border-width: 2px;
+        border-style: solid;
+      }
     }
   }
 

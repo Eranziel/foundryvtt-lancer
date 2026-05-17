@@ -5,7 +5,6 @@ import type { LancerCombat, LancerCombatant } from "./combat/lancer-combat";
 import { setAppearance } from "./combat/lancer-combat-tracker";
 import { LANCER } from "./config";
 import { LancerActiveEffect } from "./effects/lancer-active-effect";
-import CompconLoginForm from "./helpers/compcon-login-form";
 import { applyTheme } from "./themes";
 import fields = foundry.data.fields;
 
@@ -80,13 +79,30 @@ export const registerSettings = function () {
     },
   });
 
-  game.settings.registerMenu(game.system.id, LANCER.setting_compcon_login, {
-    name: "Comp/Con Login",
-    label: "Log in to Comp/Con",
-    hint: "Log in to Comp/Con to automatically load any pilots and mechs you have access to",
-    icon: "fas fa-bars",
-    type: CompconLoginForm,
-    restricted: false,
+  game.settings.register(game.system.id, LANCER.setting_pause_icon, {
+    name: "lancer.pauseIcon.name",
+    hint: "lancer.pauseIcon.hint",
+    scope: "world",
+    config: true,
+    type: new foundry.data.fields.StringField({
+      required: true,
+      choices: {
+        gms: "lancer.pauseIcon.gms",
+        horus: "lancer.pauseIcon.horus",
+        ha: "lancer.pauseIcon.ha",
+        ssc: "lancer.pauseIcon.ssc",
+        "ips-n": "lancer.pauseIcon.ips-n",
+        albatross: "lancer.pauseIcon.albatross",
+        aun: "lancer.pauseIcon.aun",
+        barony: "lancer.pauseIcon.barony",
+        horizon: "lancer.pauseIcon.horizon",
+        ra: "lancer.pauseIcon.ra",
+        sparri: "lancer.pauseIcon.sparri",
+        voladores: "lancer.pauseIcon.voladores",
+      },
+
+      initial: "gms",
+    }),
   });
 
   game.settings.registerMenu(game.system.id, LANCER.setting_status_icons, {

@@ -1,8 +1,7 @@
-import tippy from "tippy.js";
-import type { ActionTrackingData, ActionType } from ".";
-import type { LancerActor } from "../actor/lancer-actor";
-import { LANCER } from "../config";
-import { getActions, modAction, toggleAction } from "./action-tracker";
+import type { LancerActor } from "../../actor/lancer-actor";
+import type { ActionType, ActionTrackingData } from "./actor-actions";
+import { getActions, modAction, toggleAction } from "./actor-actions";
+import { LANCER } from "../../config";
 
 declare module "fvtt-types/configuration" {
   interface FlagConfig {

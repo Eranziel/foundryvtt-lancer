@@ -8,6 +8,7 @@ import { inc_if, resolveDotpath } from "../helpers/commons";
 import { LancerActor, type LancerMECH, type LancerPILOT } from "./lancer-actor";
 import { fetchPilotViaCache, fetchV2PilotViaShareCode, fetchV3PilotViaShareCode, pilotCache } from "../util/compcon";
 import type { LancerFRAME } from "../item/lancer-item";
+import { fetchPilotViaShareCode } from "../util/compcon";
 import { clicker_num_input } from "../helpers/actor";
 import type { ResolvedDropData } from "../helpers/dragdrop";
 import { EntryType } from "../enums";
@@ -115,9 +116,7 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
               return;
             }
           } else {
-            ui.notifications!.error(
-              "Could not find character to import! No pilot selected via dropdown and no share code entered."
-            );
+            ui.notifications!.error("Could not find character to import! No share code entered.");
             return;
           }
           await importCC(this.actor as LancerPILOT, raw_pilot_data);
@@ -128,15 +127,6 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
 
       // JSON Import
       html.find<HTMLInputElement>("input#pilot-json-import").on("change", ev => this._onPilotJsonUpload(ev));
-
-      // editing rawID clears vaultID
-      // (other way happens automatically because we prioritise vaultID in commit)
-      let rawInput = html.find('input[name="rawID"]');
-      rawInput.on("input", async ev => {
-        if ((ev.target as any).value != "") {
-          (html.find('select[name="vaultID"]')[0] as any).value = "";
-        }
-      });
 
       // Mech swapping
       let mechActivators = html.find(".activate-mech");
@@ -202,22 +192,6 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
 
   async getData(): Promise<object> {
     const data: any = await super.getData(); // Not fully populated yet!
-
-    data.compConPilotList = pilotCache()
-      .sort((p1, p2) => {
-        if (p1.callsign < p2.callsign) return -1;
-        if (p1.callsign > p2.callsign) return 1;
-        if (p1.name < p2.name) return -1;
-        if (p1.name > p2.name) return 1;
-        return 0;
-      })
-      .reduce(
-        (acc, pilot) => {
-          acc[`${pilot.callsign} // ${pilot.name}`] = pilot.cloudID;
-          return acc;
-        },
-        {} as Record<string, string>
-      );
 
     return data;
   }

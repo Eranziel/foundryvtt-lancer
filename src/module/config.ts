@@ -42,6 +42,7 @@ export const LANCER = {
   // setting_welcome: "hideWelcome", // Deprecated as of v2.7.0
   setting_floating_damage_numbers: "floatingNumbers",
   setting_ui_theme: "uiTheme",
+  setting_pause_icon: "pauseIcon",
   setting_compcon_login: "compconLogin",
   setting_status_icons: "statusIconConfig",
   setting_automation: "automationOptions",

@@ -124,8 +124,7 @@
       },
       "cloud-header": {
         "label": "RM-4://(OMNINET UPLINK ID)",
-        "vaultID": "Load from your Comp/Con account (if logged in)",
-        "raw-placeholder": "or enter a code manually"
+        "raw-placeholder": "Paste Pilot Share Code"
       },
       "cloud-download": {
         "label": "DOWNLOAD",
@@ -219,6 +218,22 @@
       "ssc": "SSC Constellar Congress",
       "ipsn": "IPS-N Carina",
       "gal": "FORECAST/GALSIM"
+    },
+    "pauseIcon": {
+      "name": "Pause Icon",
+      "hint": "The icon graphic to use on the Foundry pause overlay.",
+      "gms": "Union/GMS (default)",
+      "horus": "HORUS",
+      "ha": "Harrison Armory",
+      "ssc": "SSC",
+      "ips-n": "IPS-N",
+      "albatross": "Albatross",
+      "aun": "Aun Ascendancy",
+      "barony": "Karrakin Trade Baronies",
+      "horizon": "Horizon Collective",
+      "ra": "RA",
+      "sparri": "Sparri",
+      "voladores": "Voladores"
     },
     "statusIconsConfig": {
       "menu-name": "Status Icons",

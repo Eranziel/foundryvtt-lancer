@@ -23,11 +23,6 @@
     /* Border */
     .lancer-border-#{$theme-type} {
       border-color: var(--#{$theme-type}-color, fuschia);
-
-      &.card {
-        border-width: 2px;
-        border-style: solid;
-      }
     }
 
     /* Foundry adds a bottom border to header elements. That's fine, but make it match. */
@@ -49,6 +44,7 @@
   }
 
   /* ===== RULES FOR NON-LANCER APPLICATIONS ===== */
+
   .application:not(#chat-popout) .window-content {
     font-family: var(--main-font-family);
   }

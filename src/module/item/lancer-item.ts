@@ -41,6 +41,7 @@ declare module "fvtt-types/configuration" {
 }
 
 export interface CurrentProfile {
+  type: WeaponType | null;
   range: RangeData[];
   damage?: DamageData[];
   accuracy?: number | null;
@@ -85,13 +86,15 @@ export class LancerItem<out SubType extends Item.SubType = Item.SubType> extends
 
   currentProfile(): CurrentProfile {
     const result: CurrentProfile = {
+      type: null,
       range: [],
     };
     if (this.is_mech_weapon()) {
-      const p = this.system.selected_profile_index;
-      result.range.push(...this.system.profiles[p].range);
+      const profile = this.system.profiles[this.system.selected_profile_index];
+      result.type = profile.type || null;
+      result.range.push(...profile.range);
       result.damage = result.damage ?? [];
-      result.damage.push(...this.system.profiles[p].damage);
+      result.damage.push(...profile.damage);
     } else if (this.is_pilot_weapon()) {
       result.range.push(...this.system.range);
       result.damage = result.damage ?? [];
@@ -100,6 +103,7 @@ export class LancerItem<out SubType extends Item.SubType = Item.SubType> extends
       this.is_npc_feature() &&
       (this.system.type === NpcFeatureType.Weapon || this.system.type === NpcFeatureType.Tech)
     ) {
+      result.type = this.system.weapon_type?.includes(WeaponType.Melee) ? WeaponType.Melee : null;
       let tier = 0;
       if (this.actor) {
         tier = ((this.actor as LancerNPC).system.tier ?? 1) - 1;
@@ -537,6 +541,10 @@ export class LancerItem<out SubType extends Item.SubType = Item.SubType> extends
 
   isReliable(): boolean {
     return (this.getTags() ?? []).some(t => t.is_reliable);
+  }
+
+  isThrown(): boolean {
+    return (this.getTags() ?? []).some(t => t.is_thrown);
   }
 
   // Returns true & type information if this item has action data

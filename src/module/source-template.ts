@@ -1,4 +1,4 @@
-import type { ActionTrackingData } from "./action";
+import type { ActionTrackingData } from "./apps/action/actor-actions";
 import type { InheritedEffectsState } from "./effects/effector";
 import {
   ActivationType,
