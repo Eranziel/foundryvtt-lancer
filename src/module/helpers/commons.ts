@@ -224,7 +224,7 @@ export function effectBox(title: string, text: string, options?: { add_classes?:
     return `
       <div class="effect-box ${options?.add_classes || ""}">
         <span class="effect-title clipped-bot">${title}</span>
-        <span class="effect-text" style="padding: 0 0.5em 0.5em 0.5em;">
+        <span class="effect-text">
           ${flowButton}
           ${text}
         </span>

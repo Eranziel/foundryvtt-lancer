@@ -539,7 +539,7 @@ export function pilotGearRefview(gear_path: string, options: HelperOptions): str
     </div>
     <div class="pilot-gear-body flexcol">
       <div class="flexrow">
-        <div class="effect-text" style=" padding: 5px">
+        <div class="effect-text">
           ${gear.system.description || ""}
         </div>
         ${uses}
@@ -634,7 +634,7 @@ export function reserveRefView(reserve_path: string, options: HelperOptions): st
     </div>
     <div class="flexcol">
       <div class="flexrow">
-        <div class="effect-text" style=" padding: 5px">
+        <div class="effect-text">
           ${reserve.system.description}
         </div>
         ${actions}

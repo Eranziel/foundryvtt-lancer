@@ -4,8 +4,8 @@
   /* ===== GENERIC ===== */
 
   /* Used on some item cards to add a border and consistent spacing.
- * Should be used on an inner div of a card.
- */
+   * Should be used on an inner div of a card.
+   */
   .lancer-body {
     min-height: 15px;
     padding: 3px;
@@ -111,7 +111,6 @@
     align-content: center;
     border-radius: 5px;
     padding: 0px 5px;
-    margin: 3px 5px;
     font-size: 12px;
   }
 
@@ -123,6 +122,7 @@
     flex: 1;
     margin: 3px;
     min-height: 1em;
+    gap: 0.3em;
   }
 
   .large-tag {
