@@ -351,20 +351,25 @@
       }
     }
 
-    details.scan-weapons-list > summary {
-      margin-bottom: 0;
-      transition: margin 0.5s ease-out;
+    details.scan-feature-list {
+      border: 1px solid;
+      > summary {
+        margin-bottom: 0;
+        transition: margin 0.5s ease-out;
+        cursor: pointer;
+      }
     }
 
-    details[open].scan-weapons-list > summary {
-      // Change the bottom margin to make the transition work
-      margin-bottom: 0.2em;
+    details[open].scan-feature-list {
+      > summary {
+        // Change the bottom margin to make the transition work
+        margin-bottom: 0.2em;
+      }
     }
 
-    details.scan-weapons-list {
+    details.scan-feature-list {
       display: flex;
       flex-direction: column;
-      border: 1px solid var(--weapon-color);
       margin-top: 0.2em;
 
       & > .lancer-header {
@@ -383,15 +388,20 @@
         }
       }
     }
-    .scan-weapon-card {
+
+    .scan-feature-card {
       display: flex;
       flex-direction: column;
       background-color: var(--darken-1);
       margin-bottom: 0.5em;
 
       & > details > summary {
+        // TODO: this margin trick for making the details expansion animate doesn't work.
+        // Probably because negative margin doesn't trigger a transition?
+        // Using a positive margin messes up the layout with the mini-profile, though.
         margin-bottom: -0.1em;
         transition: margin 0.5s ease-out;
+        cursor: pointer;
       }
 
       & > details[open] > summary {
@@ -399,7 +409,7 @@
         margin-bottom: 0em;
       }
 
-      summary.scan-weapon-title {
+      summary.scan-feature-title {
         font-family: var(--header-font-family);
         font-size: 1em;
         font-weight: bold;
@@ -412,33 +422,13 @@
           "type type type";
       }
 
-      summary.scan-weapon-title .scan-weapon-type {
+      summary.scan-feature-title .scan-feature-type {
         display: none;
         grid-area: type;
       }
 
-      details:open > summary.scan-weapon-title .scan-weapon-type {
+      details:open > summary.scan-feature-title .scan-feature-type {
         display: inline;
-      }
-
-      .scan-weapon-attack,
-      .scan-weapon-ranges,
-      .scan-weapon-damages {
-        display: flex;
-        flex-direction: row;
-        justify-content: center;
-        gap: 1em;
-        font-family: var(--monospace-font-family);
-      }
-
-      .scan-weapon-range-damage {
-        display: grid;
-        grid-template: 1fr / 1fr 1fr;
-        gap: 0.5em;
-
-        .scan-weapon-ranges::after {
-          border-left: 2px solid var(--secondary-color);
-        }
       }
     }
   }

@@ -92,7 +92,7 @@ import {
 } from "./item-editors";
 import { effect_categories_view, effect_view } from "./effects";
 import { compactTagList, compactTagListHBS, itemEditTags } from "./tags";
-import { actionTypeSelector, npcScanWeaponView } from "./npc";
+import { actionTypeSelector, npcScanSystemView, npcScanTechAttackView, npcScanWeaponView } from "./npc";
 import { attackTarget, damageTarget, miniProfile } from "./chat";
 
 export function registerHandlebarsHelpers() {
@@ -368,6 +368,8 @@ export function registerHandlebarsHelpers() {
 
   // NPC scan components
   Handlebars.registerHelper("scan-weapon-view", npcScanWeaponView);
+  Handlebars.registerHelper("scan-tech-attack-view", npcScanTechAttackView);
+  Handlebars.registerHelper("scan-system-view", npcScanSystemView);
 
   // Stat rollers
 

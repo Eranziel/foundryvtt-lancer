@@ -1,4 +1,4 @@
-import { AttackType, DamageType, NpcFeatureType, StabOptions1, StabOptions2, SystemType } from "../enums";
+import { AttackType, DamageType, NpcFeatureType, NpcTechType, StabOptions1, StabOptions2, SystemType } from "../enums";
 import { AccDiffHudData } from "../apps/acc_diff";
 import type { ActionData } from "../models/bits/action";
 import type { DamageData } from "../models/bits/damage";
@@ -210,7 +210,21 @@ export namespace LancerFlowState {
     tags?: Tag[];
   }
 
-  interface ScanSystemData {
+  export interface ScanTechAttackData {
+    name: string;
+    type: NpcFeatureType;
+    effect: string;
+    tags: Tag[];
+    tech_type?: NpcTechType;
+    range: RangeData;
+    // tech_attack should always be true, but it's hard to convince the types
+    tech_attack: boolean;
+    attack_bonus?: number;
+    accuracy?: number;
+    on_hit?: string;
+  }
+
+  export interface ScanSystemData {
     name: string;
     type: NpcFeatureType;
     effect: string;
@@ -218,12 +232,7 @@ export namespace LancerFlowState {
     // Reactions
     trigger?: string;
     // Tech Actions
-    tech_type?: string;
-    // Tech Attacks
-    tech_attack?: boolean;
-    attack_bonus?: number[];
-    accuracy?: number[];
-    on_hit?: string;
+    tech_type?: NpcTechType;
   }
 
   export interface ScanData {
@@ -248,6 +257,7 @@ export namespace LancerFlowState {
       sensor_range: number;
     };
     weapons?: ScanWeaponData[];
+    techAttacks?: ScanTechAttackData[];
     systems?: ScanSystemData[];
   }
 

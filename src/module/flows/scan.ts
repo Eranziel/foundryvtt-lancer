@@ -1,5 +1,5 @@
 import type { LancerActor } from "../actor/lancer-actor";
-import { NpcFeatureType } from "../enums";
+import { NpcFeatureType, RangeType } from "../enums";
 import type { DamageData } from "../models/bits/damage";
 import type { UUIDRef } from "../source-template";
 import { renderTemplateStep } from "./_render";
@@ -78,7 +78,40 @@ async function initScanData(state: FlowState<LancerFlowState.ScanData>): Promise
       };
     });
 
-  // state.data.systems = actor.items...
+  state.data.techAttacks = actor.items
+    .filter(i => i.is_npc_feature() && i.system.type === NpcFeatureType.Tech && !!i.system.tech_attack)
+    .map(item => {
+      if (!item.is_npc_feature()) return null;
+      return {
+        name: item.name,
+        type: item.system.type || NpcFeatureType.Tech,
+        tech_attack: true,
+        attack_bonus: (item.system.attack_bonus && item.system.attack_bonus[tierIndex]) ?? 0,
+        accuracy: (item.system.accuracy && item.system.accuracy[tierIndex]) ?? 0,
+        range: { type: RangeType.Range, val: state.data?.target?.actor?.system.sensor_range || 0 },
+        effect: item.system.effect,
+        on_hit: item.system.on_hit,
+        tags: item.system.tags,
+      };
+    })
+    .filter(i => !!i);
+
+  state.data.systems = actor.items
+    .filter(i => i.is_npc_feature() && i.system.type !== NpcFeatureType.Weapon && !i.system.tech_attack)
+    .map(item => {
+      if (!item.is_npc_feature()) return null;
+      return {
+        name: item.name,
+        type: item.system.type || NpcFeatureType.Trait,
+        effect: item.system.effect,
+        tags: item.system.tags,
+        // Reactions
+        trigger: item.system.trigger,
+        // Tech Actions
+        tech_type: item.system.tech_type,
+      };
+    })
+    .filter(i => !!i);
   return true;
 }
 

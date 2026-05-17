@@ -70,8 +70,8 @@
       </div>
     </div>
     {{#if weapons}}
-      <details open class="scan-weapons-list">
-        <summary class="lancer-header lancer-weapon">
+      <details open class="scan-feature-list lancer-weapon lancer-border-weapon">
+        <summary class="lancer-header">
           <i class="cci cci-weapon i--4"></i><span>WEAPONS</span><i class="mdi mdi-unfold-less-horizontal"></i>
         </summary>
         <ul>
@@ -81,8 +81,29 @@
         </ul>
       </details>
     {{/if}}
+    {{#if techAttacks}}
+      <details open class="scan-feature-list lancer-tech lancer-border-tech">
+        <summary class="lancer-header">
+          <i class="cci cci-system i--4"></i><span>TECH ATTACKS</span><i class="mdi mdi-unfold-less-horizontal"></i>
+        </summary>
+        <ul>
+          {{#each techAttacks as |techAttack index|}}
+            {{{scan-tech-attack-view techAttack}}}
+          {{/each}}
+        </ul>
+      </details>
+    {{/if}}
     {{#if systems}}
-      <div class="lancer-header lancer-secondary">SYSTEMS</div>
+      <details open class="scan-feature-list lancer-trait lancer-border-trait">
+        <summary class="lancer-header">
+          <i class="cci cci-trait i--4"></i><span>SYSTEMS</span><i class="mdi mdi-unfold-less-horizontal"></i>
+        </summary>
+        <ul>
+          {{#each systems as |system index|}}
+            {{{scan-system-view system}}}
+          {{/each}}
+        </ul>
+      </details>
     {{/if}}
   </div>
 </div>
