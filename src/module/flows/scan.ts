@@ -56,6 +56,12 @@ async function initScanData(state: FlowState<LancerFlowState.ScanData>): Promise
   state.data.weapons = actor.items
     .filter(i => i.is_npc_feature() && i.system.type === NpcFeatureType.Weapon)
     .map(item => {
+      if (item.system.origin?.name === "EXOTIC") {
+        return {
+          name: "UNKNOWN EXOTIC WEAPON",
+          weapon_type: item.system.weapon_type || "Unknown",
+        };
+      }
       const tierDamage = item.system.damage && item.system.damage[tierIndex];
       let damages: DamageData[] = [];
       if (tierDamage) {
@@ -82,6 +88,15 @@ async function initScanData(state: FlowState<LancerFlowState.ScanData>): Promise
     .filter(i => i.is_npc_feature() && i.system.type === NpcFeatureType.Tech && !!i.system.tech_attack)
     .map(item => {
       if (!item.is_npc_feature()) return null;
+      if (item.system.origin?.name === "EXOTIC") {
+        return {
+          name: "UNKNOWN EXOTIC TECH ATTACK",
+          type: NpcFeatureType.Tech,
+          effect: "",
+          range: { type: RangeType.Range, val: state.data?.target?.actor?.system.sensor_range || 0 },
+          tech_attack: true,
+        };
+      }
       return {
         name: item.name,
         type: item.system.type || NpcFeatureType.Tech,
@@ -100,6 +115,13 @@ async function initScanData(state: FlowState<LancerFlowState.ScanData>): Promise
     .filter(i => i.is_npc_feature() && i.system.type !== NpcFeatureType.Weapon && !i.system.tech_attack)
     .map(item => {
       if (!item.is_npc_feature()) return null;
+      if (item.system.origin?.name === "EXOTIC") {
+        return {
+          name: "UNKNOWN EXOTIC SYSTEM",
+          type: item.system.type || NpcFeatureType.Trait,
+          effect: "",
+        };
+      }
       return {
         name: item.name,
         type: item.system.type || NpcFeatureType.Trait,
