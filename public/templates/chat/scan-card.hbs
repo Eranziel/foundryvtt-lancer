@@ -48,7 +48,13 @@
         <h4><i class="cci cci-edef"></i></h4>
         {{stats.edef}}
       </div>
-      <div>{{!-- EMPTY --}}</div>
+      <div class="scan-stat-item stat-size" data-tooltip="Size {{stats.size}}" style="grid-area: size">
+        {{#if (eq stats.size 0.5)}}
+          <i class="cci cci-size-half"></i>
+        {{else}}
+          <i class="cci cci-size-{{stats.size}}"></i>
+        {{/if}}
+      </div>
 
       <div class="scan-stat-item" data-tooltip="Speed">
         <h4><i class="mdi mdi-arrow-right-bold-hexagon-outline"></i></h4>
@@ -62,21 +68,11 @@
         <h4><i class="cci cci-sensor"></i></h4>
         {{stats.sensor_range}}
       </div>
-      <div class="scan-stat-item" data-tooltip="Size">
-        <h4>
-          {{#if (eq stats.size 0.5)}}
-            <i class="cci cci-size-half"></i>
-          {{else}}
-            <i class="cci cci-size-{{stats.size}}"></i>
-          {{/if}}
-        </h4>
-        {{stats.size}}
-      </div>
     </div>
     {{#if weapons}}
       <details open class="scan-weapons-list">
-        <summary class="lancer-header lancer-primary">
-          <span>WEAPONS</span><i class="mdi mdi-unfold-less-horizontal"></i>
+        <summary class="lancer-header lancer-weapon">
+          <i class="cci cci-weapon i--4"></i><span>WEAPONS</span><i class="mdi mdi-unfold-less-horizontal"></i>
         </summary>
         <ul>
           {{#each weapons as |weapon index|}}
