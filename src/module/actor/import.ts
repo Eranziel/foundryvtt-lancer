@@ -156,7 +156,7 @@ async function updateMech(
   await mech.update({
     name: data.name,
     folder: pilot.folder?.id || null,
-    img: replaceDefaultResource(mech.img, data.portrait, frame ? frameToPath(frame.name) : null),
+    img: replaceDefaultResource(mech.img, data.portrait, frameToPath(frame?.name ?? data.frameData.name)),
     ownershipLevel,
     prototypeToken: {
       name: pilot.system.callsign || data.name,
