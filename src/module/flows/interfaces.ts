@@ -198,13 +198,13 @@ export namespace LancerFlowState {
     tags: Tag[];
   }
 
-  interface ScanWeaponData {
+  export interface ScanWeaponData {
     name: string;
     weapon_type: string;
-    attack_bonus?: (number | null | undefined)[];
-    accuracy?: (number | null | undefined)[];
+    attack_bonus?: number | null | undefined;
+    accuracy?: number | null | undefined;
     range?: RangeData[];
-    damage?: DamageData[][];
+    damage?: DamageData[];
     effect?: string;
     on_hit?: string;
     tags?: Tag[];

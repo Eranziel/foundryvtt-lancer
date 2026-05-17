@@ -1,5 +1,6 @@
 import type { LancerActor } from "../actor/lancer-actor";
 import { NpcFeatureType } from "../enums";
+import type { DamageData } from "../models/bits/damage";
 import type { UUIDRef } from "../source-template";
 import { renderTemplateStep } from "./_render";
 import { Flow, type FlowState } from "./flow";
@@ -31,6 +32,7 @@ async function initScanData(state: FlowState<LancerFlowState.ScanData>): Promise
   const actor = state.data.target.actor;
   if (!actor) throw new TypeError(`Scan flow target does not reference an actor!`);
   state.data.name = state.data.target.name;
+  const tierIndex = (actor.system.tier || 1) - 1;
   state.data.stats = {
     hull: actor.system.hull,
     agi: actor.system.agi,
@@ -53,20 +55,28 @@ async function initScanData(state: FlowState<LancerFlowState.ScanData>): Promise
   // TODO: don't add weapons & systems to data for spotter scans
   state.data.weapons = actor.items
     .filter(i => i.is_npc_feature() && i.system.type === NpcFeatureType.Weapon)
-    .map(item => ({
-      name: item.name,
-      weapon_type: item.system.weapon_type || "Unknown",
-      attack_bonus: item.system.attack_bonus,
-      accuracy: item.system.accuracy,
-      range: item.system.range?.map(r => ({ type: r.type, val: r.val })).filter(r => Boolean(r)),
-      damage: item.system.damage?.map(tierDamage => {
-        if (Array.isArray(tierDamage)) return tierDamage.map(d => ({ type: d.type, val: d.val }));
-        return [{ type: tierDamage.type, val: tierDamage.val }];
-      }),
-      effect: item.system.effect,
-      on_hit: item.system.on_hit,
-      tags: item.system.tags,
-    }));
+    .map(item => {
+      const tierDamage = item.system.damage && item.system.damage[tierIndex];
+      let damages: DamageData[] = [];
+      if (tierDamage) {
+        if (Array.isArray(tierDamage)) {
+          damages = damages.concat(tierDamage.map(d => ({ type: d.type, val: d.val })));
+        } else {
+          damages.push(tierDamage && { type: tierDamage.type, val: tierDamage.val });
+        }
+      }
+      return {
+        name: item.name,
+        weapon_type: item.system.weapon_type || "Unknown",
+        attack_bonus: item.system.attack_bonus && item.system.attack_bonus[tierIndex],
+        accuracy: item.system.accuracy && item.system.accuracy[tierIndex],
+        range: item.system.range?.map(r => ({ type: r.type, val: r.val })).filter(r => Boolean(r)) || [],
+        damage: damages.length ? damages : undefined,
+        effect: item.system.effect,
+        on_hit: item.system.on_hit,
+        tags: item.system.tags,
+      };
+    });
 
   // state.data.systems = actor.items...
   return true;

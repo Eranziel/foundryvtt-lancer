@@ -4,10 +4,9 @@ import type { DamageData } from "../models/bits/damage";
 import type { RangeData } from "../models/bits/range";
 import { lancerDiceRoll } from "./commons";
 
-export function miniProfile(
-  profile: { range: RangeData[]; damage?: DamageData[]; attack?: number; accuracy?: number },
-  options: HelperOptions
-): string {
+export type MiniProfileData = { range: RangeData[]; damage?: DamageData[]; attack?: number; accuracy?: number };
+
+export function miniProfile(profile: MiniProfileData, options: HelperOptions): string {
   const attack = profile.attack
     ? `<span data-tooltip="Attack Bonus"><i class="cci cci-reticule"></i>${profile.attack}</span>`
     : "";

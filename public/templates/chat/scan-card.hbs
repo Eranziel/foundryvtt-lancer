@@ -74,7 +74,16 @@
       </div>
     </div>
     {{#if weapons}}
-      <div class="lancer-header lancer-secondary">WEAPONS</div>
+      <details open class="scan-weapons-list">
+        <summary class="lancer-header lancer-primary">
+          <span>WEAPONS</span><i class="mdi mdi-unfold-less-horizontal"></i>
+        </summary>
+        <ul>
+          {{#each weapons as |weapon index|}}
+            {{{scan-weapon-view weapon}}}
+          {{/each}}
+        </ul>
+      </details>
     {{/if}}
     {{#if systems}}
       <div class="lancer-header lancer-secondary">SYSTEMS</div>

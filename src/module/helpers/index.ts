@@ -91,8 +91,8 @@ import {
   item_edit_checkboxes_object,
 } from "./item-editors";
 import { effect_categories_view, effect_view } from "./effects";
-import { compactTagListHBS, itemEditTags } from "./tags";
-import { actionTypeSelector } from "./npc";
+import { compactTagList, compactTagListHBS, itemEditTags } from "./tags";
+import { actionTypeSelector, npcScanWeaponView } from "./npc";
 import { attackTarget, damageTarget, miniProfile } from "./chat";
 
 export function registerHandlebarsHelpers() {
@@ -288,6 +288,7 @@ export function registerHandlebarsHelpers() {
   // ------------------------------------------------------------------------
   // Tags
   Handlebars.registerHelper("tag-list", compactTagListHBS);
+  Handlebars.registerHelper("standalone-tag-list", compactTagList);
   Handlebars.registerHelper("item-edit-arrayed-tags", itemEditTags);
 
   // ------------------------------------------------------------------------
@@ -364,6 +365,9 @@ export function registerHandlebarsHelpers() {
   Handlebars.registerHelper("npc-feat-preview", npcFeatureView);
   Handlebars.registerHelper("ref-npc-class", npcClassRefView);
   Handlebars.registerHelper("ref-npc-template", npcTemplateRefView);
+
+  // NPC scan components
+  Handlebars.registerHelper("scan-weapon-view", npcScanWeaponView);
 
   // Stat rollers
 

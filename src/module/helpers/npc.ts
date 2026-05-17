@@ -6,7 +6,10 @@ import { slugify } from "../util/lid";
 import { effectBox, resolveHelperDotpath } from "./commons";
 import { actionTypeIcon, npcAccuracyView, npcAttackBonusView, damageArrayView, rangeArrayView } from "./item";
 import { chargedIndicator, limitedUsesIndicator, loadingIndicator, ref_params } from "./refs";
-import { compactTagListHBS } from "./tags";
+import { compactTagList, compactTagListHBS } from "./tags";
+import type { LancerFlowState } from "../flows/interfaces";
+import { miniProfile, type MiniProfileData } from "./chat";
+import type MiniProfile from "../apps/components/MiniProfile.svelte";
 
 export const EffectIcons = {
   Generic: `systems/lancer/assets/icons/generic_item.svg`,
@@ -243,4 +246,47 @@ export function npcWeaponView(path: string, options: HelperOptions): string {
     `,
     options
   );
+}
+
+export function npcScanWeaponView(weapon: LancerFlowState.ScanWeaponData, options: HelperOptions): string {
+  let effect = ``,
+    onHit = ``,
+    tags = ``;
+
+  if (weapon.effect) {
+    effect = `<div class="effect-box">
+        <span class="effect-title clipped-bot">EFFECT</span>
+        <span class="effect-text">${weapon.effect}</span>
+      </div>`;
+  }
+  if (weapon.on_hit) {
+    onHit = `<div class="effect-box">
+        <span class="effect-title clipped-bot">ON HIT</span>
+        <span class="effect-text">${weapon.on_hit}</span>
+      </div>`;
+  }
+  if (weapon.tags?.length) {
+    tags = compactTagList(weapon.tags, "", { ...options, editable: false });
+  }
+
+  const profileData: MiniProfileData = {
+    attack: weapon.accuracy || undefined,
+    accuracy: weapon.accuracy || undefined,
+    range: weapon.range || [],
+    damage: weapon.damage,
+  };
+  return `
+    <li class="scan-weapon-card">
+      <details>
+        <summary class="lancer-header lancer-secondary scan-weapon-title">
+          <span>${weapon.name}</span>
+          <i class="mdi mdi-unfold-less-horizontal"></i>
+          <span class="scan-weapon-type"> // ${weapon.weapon_type} // </span>
+        </summary>
+        ${miniProfile(profileData, options)}
+        ${effect}
+        ${onHit}
+        ${tags}
+      </details>
+    </li>`;
 }
