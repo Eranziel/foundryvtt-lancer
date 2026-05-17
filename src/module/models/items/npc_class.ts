@@ -77,7 +77,8 @@ export function unpackNpcClass(
   img: string | undefined;
   system: DeepPartial<SourceData.NpcClass>;
 } {
-  const frameImg = frameToPath(data.name);
+  // Rebake support - remove trailing " [K]"
+  const frameImg = frameToPath(data.name.replace(/ \[K\]$/, ""));
   return {
     name: data.name,
     type: EntryType.NPC_CLASS,

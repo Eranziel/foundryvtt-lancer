@@ -784,7 +784,8 @@ export class LancerActor<SubType extends Actor.SubType = Actor.SubType> extends 
   async swapFrameImage(newFrame: LancerFRAME | LancerNPC_CLASS): Promise<void> {
     if (!game.users.activeGM?.isSelf || !(this.is_mech() || this.is_npc())) return;
 
-    let new_frame_path = frameToPath(newFrame?.name);
+    // Rebake support - remove trailing " [K]"
+    let new_frame_path = frameToPath(newFrame?.name.replace(/ \[K\]$/, ""));
     let default_img = this.is_mech()
       ? "systems/lancer/assets/icons/mech.svg"
       : "systems/lancer/assets/icons/npc_class.svg";
