@@ -2,6 +2,21 @@
 
 @layer lancer.components {
   .scan-result {
+    padding: 0 0.3em 0.3em 0.3em;
+
+    .scan-classes {
+      padding: 0 1em 0.2em 1em;
+      margin-bottom: 0.3em;
+      color: var(--light-text);
+      font-family: var(--header-font-family);
+      font-size: 1em;
+      text-transform: uppercase;
+      text-align: center;
+      background-color: var(--primary-color);
+      clip-path: polygon(0 0, 100% 0, calc(100% - 1em) 100%, 1em 100%);
+      -webkit-clip-path: polygon(0 0, 100% 0, calc(100% - 1em) 100%, 1em 100%);
+    }
+
     .scan-img-stat-container {
       display: grid;
       grid-template: 9em / 9em 1fr;
@@ -59,6 +74,10 @@
           margin-bottom: 0;
           height: 101%; // There's a weird 1px gap at the top of some of them
           clip-path:
+            polygon(0% 0%, 100% 0%, 85% 100%, 0% 100%),
+            ;
+
+          -webkit-clip-path:
             polygon(0% 0%, 100% 0%, 85% 100%, 0% 100%),
             ;
         }

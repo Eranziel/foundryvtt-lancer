@@ -238,7 +238,10 @@ export namespace LancerFlowState {
   export interface ScanData {
     target: LancerToken | null;
     name: string;
-    img: string;
+    img: string | null;
+    tier: number;
+    class: string;
+    templates: string[];
     stats?: {
       hull: number;
       agi: number;

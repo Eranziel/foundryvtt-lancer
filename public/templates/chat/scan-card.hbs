@@ -1,6 +1,16 @@
 <div class="card clipped-bot" style="margin: 0px">
   <div class="lancer-header lancer-primary">SCAN // 🞂 {{upper-case name}} 🞀</div>
-  <div class="scan-result" style="padding: 5px">
+  <div class="scan-result">
+    <div class="scan-classes">
+      TIER {{tier}}
+      {{class}}
+      {{#if templates.length}}
+        ::
+        {{#each templates as |template|}}
+          {{template}}
+        {{/each}}
+      {{/if}}
+    </div>
     <div class="scan-stat-grid">
       <div class="scan-stat-item" data-tooltip="Hull">
         <div class="scan-stat-header"><i class="mdi mdi-alpha-h-box-outline"></i></div>

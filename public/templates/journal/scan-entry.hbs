@@ -1,4 +1,14 @@
 <div class="scan-result" style="padding: 5px">
+  <div class="scan-classes">
+    TIER {{tier}}
+    {{class}}
+    {{#if templates.length}}
+      ::
+      {{#each templates as |template|}}
+        {{template}}
+      {{/each}}
+    {{/if}}
+  </div>
   <div class="scan-img-stat-container">
     <img src="{{img}}">
     <div class="scan-stat-grid">

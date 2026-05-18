@@ -279,7 +279,7 @@ export function npcScanWeaponView(weapon: LancerFlowState.ScanWeaponData, option
     <li class="scan-feature-card">
       <details>
         <summary class="lancer-header lancer-secondary scan-feature-title">
-          <i class="cci cci-weapon i--4"></i>
+          <i class="cci cci-weapon i--3"></i>
           <span>${weapon.name}</span>
           <i class="mdi mdi-unfold-less-horizontal"></i>
           <span class="scan-feature-type"> // ${weapon.weapon_type} // </span>

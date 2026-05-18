@@ -28,6 +28,10 @@ export class ScanFlow extends Flow<LancerFlowState.ScanData> {
     const initialData: LancerFlowState.ScanData = {
       target: data?.target || null,
       name: data?.target?.name || "Enemy Unknown",
+      img: null,
+      tier: 1,
+      class: "Unknown Class",
+      templates: [],
     };
 
     super(uuid, initialData);
@@ -41,6 +45,11 @@ async function initScanData(state: FlowState<LancerFlowState.ScanData>): Promise
   if (!actor) throw new TypeError(`Scan flow target does not reference an actor!`);
   state.data.name = state.data.target.name;
   state.data.img = actor.img;
+  state.data.tier = actor.system.tier;
+  const classItem = actor.items.find(i => i.is_npc_class());
+  state.data.class = classItem?.name || "Unknown Class";
+  const templates = actor.items.filter(i => i.is_npc_template());
+  state.data.templates = templates.map(i => i.name);
   const tierIndex = (actor.system.tier || 1) - 1;
   state.data.stats = {
     hull: actor.system.hull,
