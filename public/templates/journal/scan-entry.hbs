@@ -135,13 +135,25 @@
     {{/if}}
   </div>
   {{#if systems}}
-    <details open class="clipped-top scan-feature-list lancer-trait lancer-border-trait">
+    <details open class="clipped-top scan-feature-list lancer-system lancer-border-system">
       <summary class="lancer-header">
-        <i class="cci cci-trait i--4"></i><span>SYSTEMS</span><i class="mdi mdi-unfold-less-horizontal"></i>
+        <i class="cci cci-system i--4"></i><span>SYSTEMS</span><i class="mdi mdi-unfold-less-horizontal"></i>
       </summary>
       <ul>
         {{#each systems as |system index|}}
           {{{scan-system-view system}}}
+        {{/each}}
+      </ul>
+    </details>
+  {{/if}}
+  {{#if traits}}
+    <details open class="clipped-top scan-feature-list lancer-trait lancer-border-trait">
+      <summary class="lancer-header">
+        <i class="cci cci-trait i--4"></i><span>TRAITS</span><i class="mdi mdi-unfold-less-horizontal"></i>
+      </summary>
+      <ul>
+        {{#each traits as |trait index|}}
+          {{{scan-system-view trait}}}
         {{/each}}
       </ul>
     </details>

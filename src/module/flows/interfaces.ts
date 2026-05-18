@@ -263,6 +263,7 @@ export namespace LancerFlowState {
     weapons?: ScanWeaponData[];
     techAttacks?: ScanTechAttackData[];
     systems?: ScanSystemData[];
+    traits?: ScanSystemData[];
   }
 
   export interface SystemUseData {

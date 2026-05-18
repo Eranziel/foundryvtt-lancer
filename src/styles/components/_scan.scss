@@ -183,7 +183,8 @@
       margin: 0.5em 0 0.5em 0;
     }
 
-    details.scan-feature-list.lancer-trait ul {
+    details.scan-feature-list.lancer-trait ul,
+    details.scan-feature-list.lancer-system ul {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 0.5em;

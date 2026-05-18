@@ -130,7 +130,13 @@ async function initScanData(state: FlowState<LancerFlowState.ScanData>): Promise
     .filter(i => !!i);
 
   state.data.systems = actor.items
-    .filter(i => i.is_npc_feature() && i.system.type !== NpcFeatureType.Weapon && !i.system.tech_attack)
+    .filter(
+      i =>
+        i.is_npc_feature() &&
+        i.system.type !== NpcFeatureType.Weapon &&
+        i.system.type !== NpcFeatureType.Trait &&
+        !i.system.tech_attack
+    )
     .map(item => {
       if (!item.is_npc_feature()) return null;
       if (item.system.origin?.name === "EXOTIC") {
@@ -149,6 +155,26 @@ async function initScanData(state: FlowState<LancerFlowState.ScanData>): Promise
         trigger: item.system.trigger,
         // Tech Actions
         tech_type: item.system.tech_type,
+      };
+    })
+    .filter(i => !!i);
+
+  state.data.traits = actor.items
+    .filter(i => i.is_npc_feature() && i.system.type === NpcFeatureType.Trait)
+    .map(item => {
+      if (!item.is_npc_feature()) return null;
+      if (item.system.origin?.name === "EXOTIC") {
+        return {
+          name: "UNKNOWN EXOTIC TRAIT",
+          type: item.system.type || NpcFeatureType.Trait,
+          effect: "",
+        };
+      }
+      return {
+        name: item.name,
+        type: item.system.type || NpcFeatureType.Trait,
+        effect: item.system.effect,
+        tags: item.system.tags,
       };
     })
     .filter(i => !!i);
