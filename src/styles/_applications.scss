@@ -69,10 +69,29 @@
     --background: var(--background-color);
   }
 
+  .theme-gms-red,
+  .theme-ssc,
+  .theme-ipsn {
+    .journal-entry-content {
+      color: var(--dark-text);
+    }
+  }
+
+  .theme-gms-dark,
+  .theme-msmc,
+  .theme-horus,
+  .theme-ha,
+  .theme-galsim {
+    .journal-entry-content {
+      color: var(--light-text);
+    }
+  }
+
   .journal-entry-content {
     font-family: var(--main-font-family);
 
     h1, h2, h3, h4 {
+      color: var(--dark-text);
       border-color: var(--primary-color);
     }
 
