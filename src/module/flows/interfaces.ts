@@ -214,7 +214,7 @@ export namespace LancerFlowState {
     name: string;
     type: NpcFeatureType;
     effect: string;
-    tags: Tag[];
+    tags?: Tag[];
     tech_type?: NpcTechType;
     range: RangeData;
     // tech_attack should always be true, but it's hard to convince the types
@@ -228,7 +228,7 @@ export namespace LancerFlowState {
     name: string;
     type: NpcFeatureType;
     effect: string;
-    tags: Tag[];
+    tags?: Tag[];
     // Reactions
     trigger?: string;
     // Tech Actions
@@ -238,6 +238,7 @@ export namespace LancerFlowState {
   export interface ScanData {
     target: LancerToken | null;
     name: string;
+    img: string;
     stats?: {
       hull: number;
       agi: number;

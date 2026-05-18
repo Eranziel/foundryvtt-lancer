@@ -1,0 +1,173 @@
+@use "../mixins";
+
+@layer lancer.components {
+  .scan-result {
+    .scan-img-stat-container {
+      display: grid;
+      grid-template: 9em / 9em 1fr;
+      gap: 0.5em;
+
+      img {
+        border: 2px solid var(--secondary-color);
+        border-radius: 1em;
+        border-right: none;
+        border-left: none;
+        height: 9em;
+      }
+    }
+
+    .scan-stat-grid {
+      display: grid;
+      grid-template: 1fr 1fr 1fr 1fr / 1fr 1fr 1fr 1fr;
+      grid-template-areas:
+        "hull agi sys eng"
+        "structure hp evasion armor"
+        "stress heat edef size"
+        "speed save sensor_range size";
+      gap: 0.2em;
+
+      &:has(+ .lancer-header) {
+        margin-bottom: 0.2em;
+      }
+
+      & > .scan-stat-item {
+        font-size: 1em;
+        font-weight: bold;
+        font-family: var(--monospace-font-family);
+        border: 1px solid var(--primary-color);
+        border-top-right-radius: 5px;
+        border-bottom-right-radius: 5px;
+        display: grid;
+        grid-template-columns: 2fr 1.5fr;
+        align-items: center;
+        text-align: center;
+        /* Using a custom clip path instead of var(--top-dogear-path) because there's
+           some weird 1px rendering edge cases. */
+        $clip_in: 10px;
+        clip-path: polygon(#{$clip_in} 0, 100% 0, 100% 103%, 0 103%, 0 #{$clip_in});
+        -webkit-clip-path: polygon(#{$clip_in} 0, 100% 0, 100% 103%, 0 103%, 0 #{$clip_in});
+
+        .scan-stat-header {
+          display: inline-block;
+          align-content: center;
+          font-family: var(--header-font-family);
+          font-size: 1.5em;
+          font-weight: bold;
+          color: var(--light-text);
+          background-color: var(--primary-color);
+          margin-top: 0;
+          margin-bottom: 0;
+          height: 101%; // There's a weird 1px gap at the top of some of them
+          clip-path:
+            polygon(0% 0%, 100% 0%, 85% 100%, 0% 100%),
+            ;
+        }
+
+        &.stat-size {
+          font-size: 3.4em;
+          color: var(--primary-color);
+          border: none;
+          display: block;
+        }
+      }
+    }
+
+    details.scan-feature-list {
+      border: 1px solid;
+      > summary {
+        margin-bottom: 0;
+        transition: margin 0.5s ease-out;
+        cursor: pointer;
+      }
+    }
+
+    details[open].scan-feature-list {
+      > summary {
+        // Change the bottom margin to make the transition work
+        margin-bottom: 0.2em;
+      }
+    }
+
+    details.scan-feature-list {
+      display: flex;
+      flex-direction: column;
+      margin-top: 0.2em;
+
+      & > .lancer-header {
+        font-size: 1.1em;
+        font-weight: bold;
+      }
+
+      & > ul {
+        margin: 0;
+        // padding-left: 0.5rem;
+        padding: 0.1em 0.1em 0.1em 0.5em;
+
+        & > li:nth-last-child(-n+1)::before {
+          padding: 0.1em;
+          border: 1px solid var(--secondary-color);
+        }
+      }
+    }
+
+    .scan-feature-card {
+      display: flex;
+      flex-direction: column;
+      background-color: var(--darken-1);
+      margin-bottom: 0.5em;
+
+      & > details > summary {
+        // TODO: this margin trick for making the details expansion animate doesn't work.
+        // Probably because negative margin doesn't trigger a transition?
+        // Using a positive margin messes up the layout with the mini-profile, though.
+        margin-bottom: -0.1em;
+        transition: margin 0.5s ease-out;
+        cursor: pointer;
+      }
+
+      & > details[open] > summary {
+        // Change the bottom margin to make the transition work
+        margin-bottom: 0em;
+      }
+
+      summary.scan-feature-title {
+        font-family: var(--header-font-family);
+        font-size: 1em;
+        font-weight: bold;
+        color: var(--light-text);
+        margin-bottom: 0;
+        display: grid;
+        grid-template: auto auto / min-content 1fr min-content;
+        grid-template-areas:
+          "icon name collapse"
+          "type type type";
+      }
+
+      summary.scan-feature-title .scan-feature-type {
+        display: none;
+        grid-area: type;
+      }
+
+      details:open > summary.scan-feature-title .scan-feature-type {
+        display: inline;
+      }
+    }
+  }
+
+  .journal-entry-content .scan-result {
+    .scan-weapon-tech-container {
+      align-items: start;
+      gap: 0.5em;
+    }
+
+    details.scan-feature-list {
+      margin: 0.5em 0 0.5em 0;
+    }
+
+    details.scan-feature-list.lancer-trait ul {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.5em;
+    }
+  }
+}

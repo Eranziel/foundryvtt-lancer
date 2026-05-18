@@ -1,3 +1,5 @@
+import { LANCER } from "../config";
+const lp = LANCER.log_prefix;
 import type { LancerActor } from "../actor/lancer-actor";
 import { NpcFeatureType, RangeType } from "../enums";
 import type { DamageData } from "../models/bits/damage";
@@ -5,6 +7,13 @@ import type { UUIDRef } from "../source-template";
 import { renderTemplateStep } from "./_render";
 import { Flow, type FlowState } from "./flow";
 import type { LancerFlowState } from "./interfaces";
+
+const journalFolderName = "SCAN Database";
+const scanEntryPrefix = "SCAN:";
+const entryNumberDigits = 3;
+function scanEntryName(count: string, targetName: string): string {
+  return `${scanEntryPrefix} ${count} - ${targetName}`;
+}
 
 export function registerScanSteps(flowSteps: Map<string, any>) {
   flowSteps.set("initScanData", initScanData);
@@ -27,11 +36,11 @@ export class ScanFlow extends Flow<LancerFlowState.ScanData> {
 
 async function initScanData(state: FlowState<LancerFlowState.ScanData>): Promise<boolean> {
   if (!state.data) throw new TypeError(`Flowstate missing!`);
-  console.log("scan flow data:", state.data);
   if (!state.data.target) throw new TypeError(`Scan flow requires a target.`);
   const actor = state.data.target.actor;
   if (!actor) throw new TypeError(`Scan flow target does not reference an actor!`);
   state.data.name = state.data.target.name;
+  state.data.img = actor.img;
   const tierIndex = (actor.system.tier || 1) - 1;
   state.data.stats = {
     hull: actor.system.hull,
@@ -139,13 +148,79 @@ async function initScanData(state: FlowState<LancerFlowState.ScanData>): Promise
 
 async function createScanJournal(state: FlowState<LancerFlowState.ScanData>): Promise<boolean> {
   if (!state.data) throw new TypeError(`Flowstate missing!`);
+  if (!state.data.target) throw new TypeError(`Scan flow requires a target.`);
+  const actor = state.data.target.actor;
+  if (!actor) throw new TypeError(`Scan flow target does not reference an actor!`);
+
+  // Generate the contents for the scan journal
+  const scanContent = await foundry.applications.handlebars.renderTemplate(
+    `systems/${game.system.id}/templates/journal/scan-entry.hbs`,
+    state.data as any
+  );
+
+  // Find or create the Scans folder
+  let journalFolder = game.folders.getName(journalFolderName);
+  if (!journalFolder && journalFolderName.length > 0) {
+    try {
+      journalFolder = await Folder.create({
+        name: journalFolderName,
+        type: "JournalEntry",
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  }
+  if (!journalFolder) {
+    ui.notifications.error(
+      `Journal folder ${journalFolderName} does not exist and must be created by a user with permissions to do so.`
+    );
+    return false;
+  }
+
+  // Find and update the scan entry for the target if it already exists.
+  // If a scan entry for this target does not exist yet, create one.
+  const matchingJournalEntries = journalFolder.contents.filter(e => e.name.includes(actor.name));
+  let scanEntry;
+
+  if (matchingJournalEntries.length == 1) {
+    console.log(`${lp} Updating existing scan journal for ${state.data.name}`);
+    const scanName = matchingJournalEntries[0].name;
+    scanEntry = game.journal.getName(scanName);
+    const scanPage = scanEntry!.pages.getName(scanName);
+    await scanPage!.update({
+      _id: matchingJournalEntries[0]._id,
+      text: {
+        content: scanContent,
+      },
+    });
+  } else {
+    console.log(`${lp} Creating a new scan journal for ${state.data.name}`);
+    let scanCount = String(journalFolder.contents.filter(e => e.name.startsWith(scanEntryPrefix)).length + 1).padStart(
+      entryNumberDigits,
+      "0"
+    );
+    const scanName = scanEntryName(scanCount, state.data.name);
+    let scanPage = new JournalEntryPage({
+      name: scanName,
+      type: "text",
+      text: { content: scanContent },
+    });
+    scanEntry = await JournalEntry.create({
+      folder: journalFolder.id,
+      name: scanName,
+    });
+    scanEntry!.createEmbeddedDocuments("JournalEntryPage", [scanPage]);
+  }
+
+  scanEntry?.update({ ownership: { default: CONST.DOCUMENT_OWNERSHIP_LEVELS.OWNER } });
+  scanEntry?.sheet?.render(true);
+
   return true;
 }
 
 async function printScanCard(state: FlowState<LancerFlowState.ScanData>): Promise<boolean> {
   if (!state.data) throw new TypeError(`Flowstate missing!`);
   const template = `systems/${game.system.id}/templates/chat/scan-card.hbs`;
-  // TODO: strip out data for irrelevant tiers
   await renderTemplateStep(state.actor, template, state.data);
   return true;
 }

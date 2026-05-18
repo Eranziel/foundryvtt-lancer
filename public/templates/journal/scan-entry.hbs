@@ -1,51 +1,73 @@
-<div class="card clipped-bot" style="margin: 0px">
-  <div class="lancer-header lancer-primary">SCAN // 🞂 {{upper-case name}} 🞀</div>
-  <div class="scan-result" style="padding: 5px">
+<div class="scan-result" style="padding: 5px">
+  <div class="scan-img-stat-container">
+    <img src="{{img}}">
     <div class="scan-stat-grid">
       <div class="scan-stat-item" data-tooltip="Hull">
-        <div class="scan-stat-header"><i class="mdi mdi-alpha-h-box-outline"></i></div>
+        <div class="scan-stat-header">
+          <i class="mdi mdi-alpha-h-box-outline"></i>
+        </div>
         {{stats.hull}}
       </div>
       <div class="scan-stat-item" data-tooltip="Agility">
-        <div class="scan-stat-header"><i class="mdi mdi-alpha-a-box-outline"></i></div>
+        <div class="scan-stat-header">
+          <i class="mdi mdi-alpha-a-box-outline"></i>
+        </div>
         {{stats.agi}}
       </div>
       <div class="scan-stat-item" data-tooltip="Systems">
-        <div class="scan-stat-header"><i class="mdi mdi-alpha-s-box-outline"></i></div>
+        <div class="scan-stat-header">
+          <i class="mdi mdi-alpha-s-box-outline"></i>
+        </div>
         {{stats.sys}}
       </div>
       <div class="scan-stat-item" data-tooltip="Engineering">
-        <div class="scan-stat-header"><i class="mdi mdi-alpha-e-box-outline"></i></div>
+        <div class="scan-stat-header">
+          <i class="mdi mdi-alpha-e-box-outline"></i>
+        </div>
         {{stats.eng}}
       </div>
 
       <div class="scan-stat-item" data-tooltip="Structure">
-        <div class="scan-stat-header"><i class="cci cci-structure"></i></div>
+        <div class="scan-stat-header">
+          <i class="cci cci-structure"></i>
+        </div>
         {{stats.structure}}
       </div>
       <div class="scan-stat-item" data-tooltip="Max HP">
-        <div class="scan-stat-header"><i class="mdi mdi-heart-outline"></i></div>
+        <div class="scan-stat-header">
+          <i class="mdi mdi-heart-outline"></i>
+        </div>
         {{stats.hp}}
       </div>
       <div class="scan-stat-item" data-tooltip="Evasion">
-        <div class="scan-stat-header"><i class="cci cci-evasion"></i></div>
+        <div class="scan-stat-header">
+          <i class="cci cci-evasion"></i>
+        </div>
         {{stats.evasion}}
       </div>
       <div class="scan-stat-item" data-tooltip="Armor">
-        <div class="scan-stat-header"><i class="mdi mdi-shield-outline"></i></div>
+        <div class="scan-stat-header">
+          <i class="mdi mdi-shield-outline"></i>
+        </div>
         {{stats.armor}}
       </div>
 
       <div class="scan-stat-item" data-tooltip="Stress">
-        <div class="scan-stat-header"><i class="cci cci-reactor"></i></div>
+        <div class="scan-stat-header">
+          <i class="cci cci-reactor"></i>
+        </div>
         {{stats.stress}}
       </div>
       <div class="scan-stat-item" data-tooltip="Heat Cap">
-        <div class="scan-stat-header"><i class="cci cci-heat"></i></div>
+        <div class="scan-stat-header">
+          <i class="cci cci-heat"></i>
+        </div>
         {{stats.heat}}
       </div>
       <div class="scan-stat-item" data-tooltip="E-Defense">
-        <div class="scan-stat-header"><i class="cci cci-edef"></i></div>
+        <div class="scan-stat-header">
+          <i class="cci cci-edef"></i>
+        </div>
         {{stats.edef}}
       </div>
       <div class="scan-stat-item stat-size" data-tooltip="Size {{stats.size}}" style="grid-area: size">
@@ -57,18 +79,26 @@
       </div>
 
       <div class="scan-stat-item" data-tooltip="Speed">
-        <div class="scan-stat-header"><i class="mdi mdi-arrow-right-bold-hexagon-outline"></i></div>
+        <div class="scan-stat-header">
+          <i class="mdi mdi-arrow-right-bold-hexagon-outline"></i>
+        </div>
         {{stats.speed}}
       </div>
       <div class="scan-stat-item" data-tooltip="Save Target">
-        <div class="scan-stat-header"><i class="cci cci-save"></i></div>
+        <div class="scan-stat-header">
+          <i class="cci cci-save"></i>
+        </div>
         {{stats.save}}
       </div>
       <div class="scan-stat-item" data-tooltip="Sensor Range">
-        <div class="scan-stat-header"><i class="cci cci-sensor"></i></div>
+        <div class="scan-stat-header">
+          <i class="cci cci-sensor"></i>
+        </div>
         {{stats.sensor_range}}
       </div>
     </div>
+  </div>
+  <div class="scan-weapon-tech-container flexrow">
     {{#if weapons}}
       <details open class="clipped-top scan-feature-list lancer-weapon lancer-border-weapon">
         <summary class="lancer-header">
@@ -93,17 +123,17 @@
         </ul>
       </details>
     {{/if}}
-    {{#if systems}}
-      <details open class="clipped-top scan-feature-list lancer-trait lancer-border-trait">
-        <summary class="lancer-header">
-          <i class="cci cci-trait i--4"></i><span>SYSTEMS</span><i class="mdi mdi-unfold-less-horizontal"></i>
-        </summary>
-        <ul>
-          {{#each systems as |system index|}}
-            {{{scan-system-view system}}}
-          {{/each}}
-        </ul>
-      </details>
-    {{/if}}
   </div>
+  {{#if systems}}
+    <details open class="clipped-top scan-feature-list lancer-trait lancer-border-trait">
+      <summary class="lancer-header">
+        <i class="cci cci-trait i--4"></i><span>SYSTEMS</span><i class="mdi mdi-unfold-less-horizontal"></i>
+      </summary>
+      <ul>
+        {{#each systems as |system index|}}
+          {{{scan-system-view system}}}
+        {{/each}}
+      </ul>
+    </details>
+  {{/if}}
 </div>
