@@ -91,7 +91,9 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
             try {
               raw_pilot_data = await fetchV2PilotViaShareCode(pilot.system.cloud_id);
             } catch (error) {
-              ui.notifications!.error("Error importing from V2 share code. Share code may need to be refreshed.");
+              ui.notifications!.error(
+                "Error importing from V2 share code. V2 share codes may no longer work, or this share code may need to be refreshed."
+              );
               console.error(`${lp} Failed import with V2 share code ${pilot.system.cloud_id}, error:`, error);
               return;
             }
