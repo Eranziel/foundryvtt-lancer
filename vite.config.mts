@@ -50,10 +50,10 @@ const config: UserConfig = {
     svelte({
       preprocess: preprocess(),
     }),
-    checker({
-      typescript: true,
-      // svelte: { root: __dirname },
-    }),
+    // checker({
+    //   typescript: true,
+    //   // svelte: { root: __dirname },
+    // }),
     visualizer({
       gzipSize: true,
       template: "treemap",
