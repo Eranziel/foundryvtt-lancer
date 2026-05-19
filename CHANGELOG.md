@@ -1,3 +1,10 @@
+# 2.12.0 (2026-05-18)
+
+## Features
+
+- #878 - Add support for Comp/Con v3 pilot imports. V3 pilots can be imported from file or via share code, and V2 pilots can be imported from file.
+- Removed Comp/Con login feature. It requires libraries that are a pain to keep up with for security, and phantom deleted pilots were a perennial issue.
+
 # 2.11.2 (2026-04-03)
 
 ## Bug Fixes
