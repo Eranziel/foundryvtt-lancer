@@ -54,12 +54,15 @@
       <div style="display: grid; grid-template: auto / 1fr 1fr;">
         <div class="card clipped" style="grid-area: 1/1/2/3;">
           <span class="lancer-header lancer-primary major">{{localize "lancer.pilot-sheet.cloud-header.label"}}</span>
-          <select class="lancer-input major lancer-text-field" style="text-align: center;" name="selectCloudId"
-            data-type="text"  >
-            {{selectOptions compConPilotList selected=system.cloud_id inverted=true}}
-          </select>
-          <input class="lancer-input major" style="text-align: center;" type="text" name="system.cloud_id" value="{{system.cloud_id}}"
-            data-dtype="String" placeholder="{{localize "lancer.pilot-sheet.cloud-header.raw-placeholder"}}" />
+          <input
+            class="lancer-input major"
+            style="text-align: center"
+            type="text"
+            name="system.cloud_id"
+            value="{{system.cloud_id}}"
+            data-dtype="String"
+            placeholder='{{localize "lancer.pilot-sheet.cloud-header.raw-placeholder"}}'
+          >
         </div>
 
         <div class="card clipped" style="grid-area: 2/1/3/2;">

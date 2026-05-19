@@ -60,7 +60,6 @@
     "@massif/ssmr-data": "^1.7.0",
     "@massif/wallflower-data": "^2.1.0",
     "@types/marked": "^1.2.1",
-    "aws-amplify": "^5.3.21",
     "fp-ts": "^2.11.2",
     "io-ts": "^2.2.16",
     "jszip": "^3.10.1",

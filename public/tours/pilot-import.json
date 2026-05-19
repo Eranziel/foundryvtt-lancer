@@ -5,13 +5,6 @@
   "display": true,
   "steps": [
     {
-      "id": "compconLogin",
-      "selector": "#sidebar #settings #compcon-login",
-      "title": "lancer.tour.pilot-import.compconLogin.title",
-      "content": "lancer.tour.pilot-import.compconLogin.content",
-      "sidebarTab": "settings"
-    },
-    {
       "id": "pilotCloudTab",
       "selector": "#LancerPilotSheet-Actor- nav.lancer-tabs [data-tab='cloud']",
       "title": "lancer.tour.pilot-import.pilotCloudTab.title",
@@ -62,11 +55,11 @@
       },
       "codeEntry": {
         "title": "Enter Code",
-        "content": "Enter the share code from COMP/CON. If you are logged into COMP/CON in Foundry, the dropdown will have a list of pilots."
+        "content": "Enter the share code from COMP/CON."
       },
       "download": {
         "title": "Download",
-        "content": "One a share code has been entered or a pilot selected in the dropdown, this button will start the process of syncing."
+        "content": "Once a share code has been entered, this button will start the process of syncing."
       },
       "folders": {
         "title": "Folders",
