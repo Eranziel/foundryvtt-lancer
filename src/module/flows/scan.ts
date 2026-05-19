@@ -17,12 +17,12 @@ function scanEntryName(count: string, targetName: string): string {
 
 export function registerScanSteps(flowSteps: Map<string, any>) {
   flowSteps.set("initScanData", initScanData);
-  flowSteps.set("createScanJournal", createScanJournal);
   flowSteps.set("printScanCard", printScanCard);
+  flowSteps.set("createScanJournal", createScanJournal);
 }
 
 export class ScanFlow extends Flow<LancerFlowState.ScanData> {
-  static steps = ["initScanData", "createScanJournal", "printScanCard"];
+  static steps = ["initScanData", "printScanCard", "createScanJournal"];
 
   constructor(uuid: UUIDRef | LancerActor, data?: Partial<LancerFlowState.ScanData>) {
     const initialData: LancerFlowState.ScanData = {
