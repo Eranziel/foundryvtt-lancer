@@ -367,8 +367,7 @@ export async function importCCv3(pilot: LancerPILOT, importedData: PackedPilotWr
     const pilotItemPool = [...pilot.items.contents];
     let selectedLoadout = 0;
 
-    // Get the object by LIDs first if able as a natural guard against incomplete data
-    // and then overwrite with values in the importing data
+    // Get the object by LIDs first or create from scratch using CC data
     const gears: string[] = [];
     const armors: string[] = [];
     const weapons: string[] = [];
