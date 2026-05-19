@@ -341,12 +341,19 @@ export async function importCCv3(
   clearFirst = true
 ) {
   console.log(`${lp} Importing v3 Pilot`, pilot, importedData);
-  if (!pilot.is_pilot()) console.error(`${lp} Actor was not a pilot type`, pilot);
-  if (!importedData) console.error(`${lp} Imported data is missing`, importedData);
+  if (!pilot.is_pilot()) {
+    console.error(`${lp} Actor was not a pilot type`, pilot);
+    return;
+  }
+  if (!importedData) {
+    console.error(`${lp} Imported data is missing`, importedData);
+    return;
+  }
   // CCv3 JSON exports have a wrapper that is missing in sharecode/cloud fetching
   const data: PackedPilotData = "EXPORT_TYPE" in importedData ? importedData.data : importedData;
   if (!data) {
     console.error(`${lp} Tried using CCv3 importer on CCv2 data`, importedData);
+    return;
   }
 
   if (clearFirst) {
