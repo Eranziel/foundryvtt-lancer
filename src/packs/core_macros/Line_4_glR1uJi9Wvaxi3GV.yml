@@ -1,0 +1,32 @@
+folder: r8tTAPddWnEN8GKi
+name: Line 4
+type: script
+_id: glR1uJi9Wvaxi3GV
+author: SulMOSV4xCr20IqX
+img: systems/lancer/assets/icons/macro-icons/aoe_line.svg
+scope: global
+command: |-
+  game.lancer.canvas.WeaponRangeTemplate.fromRange({
+      type: "Line",
+      val: 4,
+  }).placeTemplate()
+      .then(t => {
+          if (t) game.lancer.targetsFromTemplate(t.id);
+      }
+  );
+sort: 0
+ownership:
+  default: 0
+  SulMOSV4xCr20IqX: 3
+flags: {}
+_stats:
+  compendiumSource: null
+  duplicateSource: null
+  exportSource: null
+  coreVersion: '13.351'
+  systemId: lancer
+  systemVersion: 3.0.0-rc2
+  createdTime: 1779162562752
+  modifiedTime: 1779162582608
+  lastModifiedBy: SulMOSV4xCr20IqX
+_key: '!macros!glR1uJi9Wvaxi3GV'
