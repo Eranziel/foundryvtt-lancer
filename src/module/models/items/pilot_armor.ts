@@ -41,7 +41,7 @@ export function unpackPilotArmor(
       synergies: data.synergies?.map(unpackSynergy),
       counters: undefined,
       deployables: deployables ?? [],
-      description: data.description,
+      description: data.description ?? "",
       effect: data.effect,
       lid: data.id,
       tags: tags ?? [],

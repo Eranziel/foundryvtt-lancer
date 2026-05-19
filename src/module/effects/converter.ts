@@ -1,5 +1,5 @@
-import { LancerActor, LancerNPC } from "../actor/lancer-actor";
-import { EntryType } from "../enums";
+import { LancerActor, type LancerNPC } from "../actor/lancer-actor";
+import { EntryType, getMountType, MountType } from "../enums";
 import {
   LancerFRAME,
   LancerItem,
@@ -632,6 +632,16 @@ export function convertBonus(item: LancerItem, name: string, bonus: BonusData) {
     case "limited_bonus":
       target_type = EntryType.MECH;
       changes.push({ mode, value, priority, key: "system.loadout.limited_bonus" });
+      break;
+    case "add_mount": // New in CCv3
+      const mountType = value && typeof value === "number" ? getMountType(value) : -1;
+      // TODO: Indicate whether a mount was appended by a trait/talent/whatever
+      break;
+    case "no_mods": // New in CCv3
+      // TODO: Disallows/disables weapon mod on the a slot
+      break;
+    case "engineering": // New in CCv3
+      // TODO: Exposed Reactor: -1 accuracy on ENG checks and saves
       break;
     case "pilot_hp":
       target_type = EntryType.PILOT;

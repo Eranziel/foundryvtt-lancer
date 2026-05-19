@@ -1,9 +1,7 @@
-// TODO: Just use machine mind, where possible
-
-export enum PilotEquipType {
-  PilotArmor = "armor",
-  PilotWeapon = "weapon",
-  PilotGear = "gear",
+export enum PilotItemType {
+  Armor = "Armor",
+  Weapon = "Weapon",
+  Gear = "Gear",
 }
 
 export enum EffectType {
@@ -288,12 +286,48 @@ export enum SystemType {
 
 export type SystemTypeChecklist = { [key in SystemType]: boolean };
 
+/**
+ * New in CCv3:
+ * https://github.com/massif-press/lancer-data/wiki/active-effects#duration
+ * If the effect does not expire or lasts the entire encounter, this field should be omitted.
+ * Round durations should be validated and gotten using the `roundDuration` function
+ */
 export enum Duration {
-  Free = "Free",
-  Turn = "Turn",
-  NextTurn = "NextTurn",
-  Scene = "Scene",
-  Mission = "Mission",
+  NextTurnStartSelf = "next_turn_start_self",
+  NextTurnEndSelf = "next_turn_end_self",
+  NextTurnStartTarget = "next_turn_start_target",
+  NextTurnEndTarget = "next_turn_end_target",
+  RoundStart = "round_start_",
+  RoundEnd = "round_end_",
+}
+
+/**
+ * Validates the given round duration tag and returns its number
+ * @param tag A tag matching `round_start_X` or `round_end_X` where `X` is a number
+ * @returns The duration of the round, or null if it's not a round duration
+ */
+export function roundDuration(tag: string) {
+  const r = new RegExp(`^${Duration.RoundStart}|${Duration.RoundEnd}(\\d+)$`);
+  const match = tag.match(r);
+  if (match) {
+    return parseInt(match[1], 10);
+  }
+  return null;
+}
+
+export enum TargetDisposition {
+  Self = "self",
+  Ally = "ally",
+  Enemy = "enemy",
+}
+
+export enum Frequency {
+  Unlimited = "unlimited",
+  Round = "1/round",
+  Turn = "1/turn",
+  Scene = "1/scene",
+  Encounter = "1/encounter", // Alias of 1/scene
+  Mission = "1/mission",
 }
 
 export enum FrameEffectUse { // Handles cores and traits usage duration thingies
@@ -334,23 +368,32 @@ export enum RangeType {
 export type RangeTypeChecklist = { [key in RangeType]: boolean };
 
 export enum DamageType {
-  Kinetic = "Kinetic",
-  Energy = "Energy",
-  Explosive = "Explosive",
-  Heat = "Heat",
-  Burn = "Burn",
-  Variable = "Variable",
+  Kinetic = "kinetic",
+  Energy = "energy",
+  Explosive = "explosive",
+  Heat = "heat",
+  Burn = "burn",
+  Variable = "variable", // Only in CCv2(?)
+  Aoe = "aoe",
+  All = "all",
 }
 
 export type DamageTypeChecklist = { [key in DamageType]: boolean };
 
 export enum AttackType {
-  Melee = "Melee",
-  Ranged = "Ranged",
-  Tech = "Tech",
+  Melee = "melee",
+  Ranged = "ranged",
+  Tech = "tech",
 }
 
 export type AttackTypeChecklist = { [key in AttackType]: boolean };
+
+export enum OtherEffectType {
+  Overshield = "overshield",
+  Hp = "hp",
+  Repair = "repair",
+  cover = "cover",
+}
 
 export enum MechType {
   Balanced = "Balanced",
@@ -387,12 +430,6 @@ export enum OrgType {
   Industrial = "Industrial",
   Entertainment = "Entertainment",
   Political = "Political",
-}
-
-export enum EncounterSide {
-  Enemy = "Enemy",
-  Ally = "Ally",
-  Neutral = "Neutral",
 }
 
 export type SynergyLocation =
@@ -436,7 +473,8 @@ export type SynergyLocation =
   | "engineering"
   | "brace"
   | "cascade"
-  | "pilot_weapon";
+  | "pilot_weapon"
+  | "mount";
 export const AllSynergyLocations = [
   "any", // Acts as a wildcard
   "active_effects",
@@ -479,6 +517,7 @@ export const AllSynergyLocations = [
   "brace",
   "cascade",
   "pilot_weapon",
+  "mount",
 ];
 
 export enum DeployableType {

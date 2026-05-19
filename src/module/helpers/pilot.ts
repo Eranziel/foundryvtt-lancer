@@ -26,7 +26,7 @@ export function talent_view(talent_path: string, options: HelperOptions) {
   for (var i = 0; i < talent.system.curr_rank; i++) {
     let talent_actions = "";
 
-    if (talent.system.ranks[i].actions) {
+    if (talent.system.ranks[i]?.actions) {
       talent_actions = buildActionArrayHTML(talent, `system.ranks.${i}.actions`);
     }
 

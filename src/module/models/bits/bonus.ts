@@ -70,7 +70,7 @@ export function generateBonus(
 export function unpackBonus(data: PackedBonusData): BonusData {
   return {
     lid: data.id,
-    val: data.val.toString(),
+    val: data.val?.toString() ?? "",
     damage_types: data.damage_types ? Damage.MakeChecklist(data.damage_types) : null,
     range_types: data.range_types ? Range.MakeChecklist(data.range_types) : null,
     weapon_sizes: data.weapon_sizes ? makeWeaponSizeChecklist(data.weapon_sizes) : null,

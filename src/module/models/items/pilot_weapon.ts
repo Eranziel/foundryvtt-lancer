@@ -50,9 +50,9 @@ export function unpackPilotWeapon(
       counters: undefined,
       deployables: deployables ?? [],
 
-      description: data.description,
-      range: data.range.map(unpackRange),
-      damage: data.damage.map(unpackDamage),
+      description: data.description ?? "",
+      range: data.range?.map(unpackRange) ?? [],
+      damage: data.damage?.map(unpackDamage) ?? [],
       effect: data.effect,
       loaded: undefined,
 
