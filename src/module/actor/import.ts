@@ -321,7 +321,10 @@ export async function importCC(
   importedData: PackedPilotData | PackedPilotWrapper,
   clearFirst = true
 ) {
-  if ("EXPORT_TYPE" in importedData) {
+  // CCv3 JSON exports have a wrapper that is missing in sharecode/cloud fetching
+  // `originId` is some arbitrary V3 exclusive data; it can be anything else.
+  // `EXPORT_TYPE` is exclusive to V3 and only in JSON exports.
+  if ("originId" in importedData || "EXPORT_TYPE" in importedData) {
     await importCCv3(pilot, importedData, clearFirst);
   } else {
     await importCCv2(pilot, importedData, clearFirst);
@@ -332,11 +335,16 @@ export async function importCC(
  * Imports packed pilot data from CCv3.
  * Minimum import version: CCv3.0.4
  */
-export async function importCCv3(pilot: LancerPILOT, importedData: PackedPilotWrapper, clearFirst = true) {
+export async function importCCv3(
+  pilot: LancerPILOT,
+  importedData: PackedPilotWrapper | PackedPilotData,
+  clearFirst = true
+) {
   console.log(`${lp} Importing v3 Pilot`, pilot, importedData);
   if (!pilot.is_pilot()) console.error(`${lp} Actor was not a pilot type`, pilot);
   if (!importedData) console.error(`${lp} Imported data is missing`, importedData);
-  const data = importedData.data;
+  // CCv3 JSON exports have a wrapper that is missing in sharecode/cloud fetching
+  const data: PackedPilotData = "EXPORT_TYPE" in importedData ? importedData.data : importedData;
   if (!data) {
     console.error(`${lp} Tried using CCv3 importer on CCv2 data`, importedData);
   }
