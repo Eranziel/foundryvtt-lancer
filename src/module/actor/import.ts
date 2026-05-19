@@ -1,6 +1,6 @@
 import { LANCER } from "../config";
 import { replaceDefaultResource } from "../config";
-import { EntryType, FittingSize, MountType } from "../enums";
+import { EntryType, EntryTypeLidPrefix, FittingSize, MountType } from "../enums";
 import {
   type LancerBOND,
   type LancerCORE_BONUS,
@@ -14,6 +14,7 @@ import {
   type LancerPILOT_WEAPON,
   type LancerSKILL,
   type LancerTALENT,
+  type LancerRESERVE,
   type LancerWEAPON_MOD,
 } from "../item/lancer-item";
 import type { PowerData } from "../models/bits/power";
@@ -21,18 +22,864 @@ import type { SourceData } from "../source-template";
 import { get_pack_id, insinuate } from "../util/doc";
 import { fromLid } from "../helpers/from-lid";
 import type {
-  PackedEquipmentData,
-  PackedMechWeaponSaveData,
-  PackedMountData,
+  PackedPilotWrapper,
   PackedPilotData,
+  PackedPilotEquipmentWrapper,
   PackedPilotEquipmentState,
+  PackedPilotArmorData,
+  PackedPilotGearData,
+  PackedPilotWeaponData,
+  PackedClockBurdenData,
+  PackedCoreBonusData,
+  PackedMechData,
+  PackedMechWeaponSaveWrapper,
+  PackedMechWeaponSaveData,
+  PackedMechEquipmentData,
+  PackedMountData,
 } from "../util/unpacking/packed-types";
 import { LancerActor, type LancerMECH, type LancerPILOT } from "./lancer-actor";
 import { frameToPath } from "./retrograde-map";
+import { unpackPilotArmor } from "../models/items/pilot_armor";
+import type { UnpackContext } from "../models/shared";
+import { unpackPilotWeapon } from "../models/items/pilot_weapon";
+import { unpackPilotGear } from "../models/items/pilot_gear";
+import { unpackCoreBonus } from "../models/items/core_bonus";
+import { unpackSkill } from "../models/items/skill";
+import { unpackTalent } from "../models/items/talent";
+import { unpackBond } from "../models/items/bond";
+import { unpackLicense } from "../models/items/license";
+import { unpackMechSystem } from "../models/items/mech_system";
+import { unpackMechWeapon } from "../models/items/mech_weapon";
+import { unpackWeaponMod } from "../models/items/weapon_mod";
+import { unpackReserve } from "../models/items/reserve";
+import { unpackFrame } from "../models/items/frame";
 const lp = LANCER.log_prefix;
 
+/**
+ * Updates the Pilot document, given COMP/CON data.
+ * @param pilot   - The pilot actor
+ * @param data    - `PackedPilotData`
+ * @param armor   - Array of pilot armor UUIDs
+ * @param gear    - Array of pilot gear UUIDs
+ * @param weapons - Array of pilot weapon UUIDs
+ */
+async function updatePilot(
+  pilot: LancerPILOT,
+  data: PackedPilotData,
+  armor?: string[],
+  gear?: string[],
+  weapons?: string[]
+) {
+  const portrait = data.cloud_portrait ?? data.img.cloud_portrait;
+  const unpackClock = (clock: PackedClockBurdenData) => {
+    return {
+      lid: clock.id,
+      name: clock.title,
+      min: 0,
+      max: clock.segments,
+      value: clock.progress,
+      default_value: 0,
+    };
+  };
+
+  await pilot.update({
+    name: data.name,
+    img: replaceDefaultResource(pilot.img, portrait),
+    system: {
+      hp: {
+        value: data.stats.current.hp,
+      },
+
+      // Pilot specific
+      background: data.background,
+      callsign: data.callsign,
+      cloud_id: data.cloudID,
+      history: data.history,
+      level: data.level,
+      loadout: {
+        armor: armor ?? [],
+        gear: gear ?? [],
+        weapons: weapons ?? [],
+      },
+      hull: data.mechSkills[0],
+      agi: data.mechSkills[1],
+      sys: data.mechSkills[2],
+      eng: data.mechSkills[3],
+      mounted: data.state?.mounted ?? true,
+      notes: data.notes,
+      player_name: data.player_name,
+      status: data.status,
+      text_appearance: data.text_appearance,
+      bond_state: data.bond
+        ? {
+            xp: {
+              value: data.xp ?? data.bond.xp,
+            },
+            stress: {
+              value: data.stress ?? data.bond.stress,
+            },
+            answers: data.bondAnswers ?? data.bond.bondAnswers,
+            minor_ideal: data.minorIdeal ?? data.bond.minorIdeal,
+            burdens: (data.burdens ?? data.bond.burdens).map(b => unpackClock(b)),
+            clocks: (data.clocks ?? data.bond.clocks).map(c => unpackClock(c)),
+          }
+        : undefined,
+    },
+    prototypeToken: {
+      name: data.name,
+      texture: {
+        src: replaceDefaultResource(pilot.prototypeToken?.texture?.src, portrait, pilot.img),
+      },
+    },
+  });
+}
+
+/**
+ * Updates the Mech document, given COMP/CON data.
+ * @param mech              - The mech actor
+ * @param pilot             - The pilot actor
+ * @param data              - `PackedMechData`
+ * @param ownershipLevel    - The `CONST.DOCUMENT_OWNERSHIP_LEVELS` to set the mech document
+ * @param populatedMounts   - idk tbh lol
+ * @param populatedSystems  - Array of mech system UUIDs
+ * @param frame
+ */
+async function updateMech(
+  mech: LancerMECH,
+  pilot: LancerPILOT,
+  data: PackedMechData,
+  ownershipLevel: Record<string, CONST.DOCUMENT_OWNERSHIP_LEVELS>,
+  populatedMounts: SourceData.Mech["loadout"]["weapon_mounts"],
+  populatedSystems: string[],
+  frame?: LancerFRAME | null
+) {
+  await mech.update({
+    name: data.name,
+    folder: pilot.folder?.id || null,
+    img: replaceDefaultResource(mech.img, data.portrait, frameToPath(frame?.name ?? data.frameData.name)),
+    ownershipLevel,
+    prototypeToken: {
+      name: pilot.system.callsign || data.name,
+      disposition: CONST.TOKEN_DISPOSITIONS.FRIENDLY,
+      texture: {
+        src: replaceDefaultResource(
+          mech.prototypeToken?.texture?.src,
+          data.img.cloud_portrait,
+          frame ? frameToPath(frame.name) : null
+        ),
+      },
+    },
+    system: {
+      // Universal stuff
+      lid: data.id,
+      hp: {
+        value: data.stats.current.hp,
+        max: data.stats.max.hp,
+      },
+      overshield: {
+        value: data.stats.current.overshield,
+        max: data.stats.max.overshield,
+      },
+      burn: data.stats.current.burn,
+      activations: data.stats.current.activations,
+      heat: {
+        value: data.stats.current.heat,
+        max: data.stats.max.heat,
+      },
+      stress: {
+        value: data.stats.current.stress,
+        max: data.stats.max.stress,
+      },
+      structure: {
+        value: data.stats.current.structure,
+        max: data.stats.max.structure,
+      },
+
+      // Mech stuff
+      overcharge: data.stats.current.overcharge,
+      repairs: {
+        value: data.stats.current.repairCapacity,
+        max: data.stats.max.repairCapacity,
+      },
+      core_active: data.coreActive,
+      core_energy: data.corePower,
+      notes: data.notes,
+      pilot: pilot.uuid,
+      loadout: {
+        frame: frame?.id ?? null,
+        weapon_mounts: populatedMounts,
+        systems: populatedSystems,
+      },
+    },
+  });
+}
+
+/**
+ * Clear all embedded documents related to the given pilot
+ * @param pilot - The pilot actor to delete embedded documents off of
+ */
+async function clearPilotEmbeddedDocuments(pilot: LancerPILOT) {
+  await pilot.deleteEmbeddedDocuments("Item", Array.from(pilot.items.keys()));
+  let existing_mechs = game.actors?.filter((a: LancerActor) => a.is_mech() && a.system.pilot?.value == pilot) ?? [];
+  for (let m of existing_mechs) {
+    await m.deleteEmbeddedDocuments("Item", Array.from(m.items.keys()));
+  }
+}
+
+/**
+ * Checks whether the calling client is able to create Actors
+ */
+function hasCreatePermissions() {
+  const canCreate = game.user?.can("ACTOR_CREATE");
+  const gmsOnline = game.users?.some(u => u.isGM && u.active);
+  if (!canCreate && !gmsOnline) {
+    new foundry.applications.api.DialogV2({
+      window: {
+        title: `Cannot Create Actors`,
+        icon: "fas fa-triangle-exclamation",
+      },
+      content: `
+        <p>You are not permitted to create actors and no GM's are online, so sync will not produce any new mechs or deployables.</p>
+        <p>Your GM can allow Players/Trusted Players to create actors in Settings->Configure Permissions.</p>
+      `,
+      buttons: [
+        {
+          action: "close",
+          icon: "fas fa-check",
+          label: "Close",
+          default: true,
+        },
+      ],
+    }).render(true);
+
+    return false;
+  }
+
+  return true;
+}
+
+/**
+ * Prompts a pilot loadout selector
+ * @param loadouts - Array of loadout string names
+ * @return The index of the choice made
+ */
+async function promptLoadoutSelection(loadouts: string[]) {
+  let contentChoices = "";
+  loadouts.map((l, i) => {
+    contentChoices += `<label><input type="radio" name="choice" value=${i} ${i == 0 ? "checked" : ""}>${l}</label>`;
+  });
+
+  // @ts-ignore Please stop yelling at me :sob:
+  return foundry.applications.api.DialogV2.prompt({
+    window: {
+      title: `Select Pilot Loadout`,
+      icon: "fas fa-triangle-exclamation",
+    },
+    content: `
+      <span>Multiple pilot loadouts found. Please select a single loadout to import and use:</span>
+      ${contentChoices}
+      <hr>
+    `,
+    ok: {
+      label: "Import Selected Loadout",
+      callback: (_event: Event, button: HTMLButtonElement, _dialog: any) =>
+        (button.form?.elements as unknown as { choice: RadioNodeList }).choice.value,
+    },
+  });
+}
+
+/**
+ * Gets an actor's Item by their LID and tries to insert the item into their Document.
+ * Searches from the item pool first before attempting to look up the Compendium entry.
+ * @param lid           - LID to lookup
+ * @param actor         - Actor to insert the embedded documents into
+ * @param itemPool      - Item pool to reference
+ * @param missingItems  - Array appending an object holding the `actor` and `lid` of any failed lookups
+ * @return The `LancerItem` if successful or `null`
+ */
+async function getOrCreateActorItemByLid(
+  lid: string,
+  actor: LancerPILOT | LancerMECH,
+  itemPool: LancerItem[],
+  missingItems: { actor: string; lid: string }[]
+): Promise<LancerItem | null> {
+  let existingItem = itemPool.findSplice(i => (i as any).system.lid == lid);
+  if (existingItem) return existingItem;
+  let fromCompendium = (await fromLid(lid)) as LancerItem | null;
+  if (!fromCompendium) {
+    missingItems.push({ actor: actor.name, lid });
+    return null;
+  }
+  return (await insinuate([fromCompendium], actor))[0] ?? null;
+}
+
+/**
+ * Wrapper function to determine which importer to use
+ */
+export async function importCC(
+  pilot: LancerPILOT,
+  importedData: PackedPilotData | PackedPilotWrapper,
+  clearFirst = true
+) {
+  if ("EXPORT_TYPE" in importedData) {
+    await importCCv3(pilot, importedData, clearFirst);
+  } else {
+    await importCCv2(pilot, importedData, clearFirst);
+  }
+}
+
+/**
+ * Imports packed pilot data from CCv3.
+ * Minimum import version: CCv3.0.4
+ */
+export async function importCCv3(pilot: LancerPILOT, importedData: PackedPilotWrapper, clearFirst = true) {
+  console.log(`${lp} Importing v3 Pilot`, pilot, importedData);
+  if (!pilot.is_pilot()) console.error(`${lp} Actor was not a pilot type`, pilot);
+  if (!importedData) console.error(`${lp} Imported data is missing`, importedData);
+  const data = importedData.data;
+  if (!data) {
+    console.error(`${lp} Tried using CCv3 importer on CCv2 data`, importedData);
+  }
+
+  if (clearFirst) {
+    await clearPilotEmbeddedDocuments(pilot);
+  }
+
+  hasCreatePermissions();
+
+  // Extract data
+  try {
+    // Immediately fix the name, so deployables get named properly
+    await pilot.update({
+      name: data.name,
+      system: {
+        callsign: data.callsign,
+      },
+    });
+    const _context: UnpackContext = { createdDeployables: [] };
+
+    // Keep track of which actors and items could not be found/created
+    const _missingActors: { name: string; lid: string }[] = [];
+    const _missingItems: { actor: string; lid: string }[] = [];
+
+    // --- Pilot ---
+    const pilotItemUpdates: any = [];
+    const pilotItemPool = [...pilot.items.contents];
+    let selectedLoadout = 0;
+
+    // Get the object by LIDs first if able as a natural guard against incomplete data
+    // and then overwrite with values in the importing data
+    const gears: string[] = [];
+    const armors: string[] = [];
+    const weapons: string[] = [];
+    if (data.loadouts) {
+      try {
+        if (data.loadouts.length > 1)
+          selectedLoadout = Number(await promptLoadoutSelection(data.loadouts.map(l => l.name)));
+      } catch {
+        console.log(`${lp} User cancelled pilot import`);
+        return;
+      }
+
+      let flatData: ((PackedPilotEquipmentState & PackedPilotEquipmentWrapper) | null)[];
+
+      // Gear
+      flatData = (data.loadouts[selectedLoadout].gear ?? []).filter(a => a);
+      for (const item of flatData) {
+        if (!item) continue;
+        const compendiumItem = (await getOrCreateActorItemByLid(
+          item.id,
+          pilot,
+          pilotItemPool,
+          _missingItems
+        )) as LancerPILOT_GEAR | null;
+        const id =
+          compendiumItem?.id ??
+          (
+            await pilot.createEmbeddedDocuments("Item", [
+              {
+                ...unpackPilotGear(item.data as PackedPilotGearData, _context),
+                type: EntryType.PILOT_GEAR,
+                name: item.data.name,
+              },
+            ])
+          )[0].id;
+
+        gears.push(id);
+      }
+
+      // Armor
+      flatData = (data.loadouts[selectedLoadout].armor ?? []).filter(a => a);
+      for (const item of flatData) {
+        if (!item) continue;
+        const compendiumItem = (await getOrCreateActorItemByLid(
+          item.id,
+          pilot,
+          pilotItemPool,
+          _missingItems
+        )) as LancerPILOT_ARMOR | null;
+        const id =
+          compendiumItem?.id ??
+          (
+            await pilot.createEmbeddedDocuments("Item", [
+              {
+                ...unpackPilotArmor(item.data as PackedPilotArmorData, _context),
+                type: EntryType.PILOT_ARMOR,
+                name: item.data.name,
+              },
+            ])
+          )[0].id;
+
+        armors.push(id);
+      }
+
+      // Weapons
+      flatData = (data.loadouts[selectedLoadout].weapons ?? []).filter(a => a);
+      for (const item of flatData) {
+        if (!item) continue;
+        const compendiumItem = (await getOrCreateActorItemByLid(
+          item.id,
+          pilot,
+          pilotItemPool,
+          _missingItems
+        )) as LancerPILOT_WEAPON | null;
+        const id =
+          compendiumItem?.id ??
+          (
+            await pilot.createEmbeddedDocuments("Item", [
+              {
+                ...unpackPilotWeapon(item.data as PackedPilotWeaponData, _context),
+                type: EntryType.PILOT_WEAPON,
+                name: item.data.name,
+              },
+            ])
+          )[0].id;
+
+        weapons.push(id);
+      }
+    }
+
+    // Core Bonuses
+    for (const item of data.core_bonuses as PackedCoreBonusData[]) {
+      const compendiumItem = (await getOrCreateActorItemByLid(
+        item.id,
+        pilot,
+        pilotItemPool,
+        _missingItems
+      )) as LancerCORE_BONUS | null;
+      if (!compendiumItem) {
+        await pilot.createEmbeddedDocuments("Item", [
+          {
+            ...unpackCoreBonus(item, _context),
+            type: EntryType.CORE_BONUS,
+            name: item.name,
+          },
+        ]);
+      }
+    }
+
+    // Skills
+    for (const item of data.skills) {
+      if ("custom" in item && item.custom) {
+        pilot.createEmbeddedDocuments("Item", [
+          {
+            type: EntryType.SKILL,
+            name: item.id ?? "Custom Skill",
+            system: <any>{
+              rank: item.rank,
+              description: item.custom_desc || item.custom_detail || "",
+            },
+          },
+        ]);
+      } else if ("data" in item) {
+        const compendiumItem = (await getOrCreateActorItemByLid(
+          item.id,
+          pilot,
+          pilotItemPool,
+          _missingItems
+        )) as LancerSKILL | null;
+        let id = compendiumItem?.id;
+        if (!compendiumItem) {
+          const ccData = unpackSkill(item.data, _context);
+          id = (
+            await pilot.createEmbeddedDocuments("Item", [
+              {
+                ...ccData,
+                type: EntryType.SKILL,
+                name: item.data.name,
+              },
+            ])
+          )[0].id;
+        }
+
+        pilotItemUpdates.push({
+          _id: id,
+          system: {
+            curr_rank: item.rank ?? 1,
+          },
+        });
+      }
+    }
+
+    // Talents
+    for (const item of data.talents) {
+      const compendiumItem = (await getOrCreateActorItemByLid(
+        item.id,
+        pilot,
+        pilotItemPool,
+        _missingItems
+      )) as LancerTALENT | null;
+      let id = compendiumItem?.id;
+      if (!compendiumItem) {
+        const ccData = unpackTalent(item.data, _context);
+        id = (
+          await pilot.createEmbeddedDocuments("Item", [
+            {
+              ...ccData,
+              type: EntryType.TALENT,
+              name: item.data.name,
+            },
+          ])
+        )[0].id;
+      }
+
+      pilotItemUpdates.push({
+        _id: id,
+        system: {
+          curr_rank: item.rank,
+        },
+      });
+    }
+
+    // Bonds
+    if (data.bond?.bondId) {
+      const item = data.bond;
+      const bond = (await getOrCreateActorItemByLid(
+        item.bondId,
+        pilot,
+        pilotItemPool,
+        _missingItems
+      )) as LancerBOND | null;
+      if (!bond) {
+        await pilot.createEmbeddedDocuments("Item", [
+          {
+            ...unpackBond(item.data),
+            type: EntryType.BOND,
+            name: item.data.name,
+          },
+        ]);
+      }
+    }
+
+    // Licenses
+    for (const item of data.licenses) {
+      const lid = EntryTypeLidPrefix(EntryType.LICENSE) + item.id;
+      const compendiumItem = (await getOrCreateActorItemByLid(
+        lid,
+        pilot,
+        pilotItemPool,
+        _missingItems
+      )) as LancerLICENSE | null;
+      let id = compendiumItem?.id;
+      if (!compendiumItem) {
+        const ccData = unpackLicense(item.stub.name, lid, item.stub.source, _context);
+        id = (
+          await pilot.createEmbeddedDocuments("Item", [
+            {
+              ...ccData,
+              type: EntryType.LICENSE,
+              name: item.stub.name,
+            },
+          ])
+        )[0].id;
+      }
+
+      pilotItemUpdates.push({
+        _id: id,
+        system: {
+          curr_rank: item.rank,
+        },
+      });
+    }
+
+    // Reserves
+    for (const item of data.reserves) {
+      const compendiumItem = (await getOrCreateActorItemByLid(
+        item.id,
+        pilot,
+        pilotItemPool,
+        _missingItems
+      )) as LancerRESERVE | null;
+      if (!compendiumItem) {
+        await pilot.createEmbeddedDocuments("Item", [
+          {
+            ...unpackReserve(item, _context),
+            type: EntryType.RESERVE,
+            name: item.name,
+          },
+        ]);
+      }
+    }
+
+    // Update all items
+    await pilot.updateEmbeddedDocuments("Item", pilotItemUpdates);
+
+    // Delete all old items of certain types when done
+    const remove = pilotItemPool.filter(x =>
+      [EntryType.TALENT, EntryType.SKILL, EntryType.CORE_BONUS].includes(x.type! as EntryType)
+    );
+    await pilot._safeDeleteDescendant("Item", remove);
+
+    // Perform base pilot update
+    await updatePilot(pilot, data, armors, gears, weapons);
+
+    // --- Mechs ---
+    let activeMechUuid: string | null = null;
+    const ownershipLevel = foundry.utils.deepClone(pilot.ownership);
+    const createNewMech = async (importData: PackedMechData) => {
+      if (!game.user?.can("ACTOR_CREATE")) {
+        ui.notifications!.warn(
+          `Could not import mech '${importData.name}' as you lack the permission to create new actors. Please ask your GM for assistance (either they import for you, or give you permissions)`,
+          { permanent: true }
+        );
+        _missingActors.push({ name: importData.name, lid: importData.frameData.id });
+      } else {
+        return (await LancerActor.create({
+          name: importData.name,
+          type: EntryType.MECH,
+          folder: pilot.folder?.id,
+          ownership: ownershipLevel,
+          system: {
+            pilot: pilot.uuid,
+          },
+        })) as LancerMECH;
+      }
+    };
+
+    for (const importedMech of data.mechs) {
+      // Find the existing mech, or create one as necessary
+      let mech = game.actors!.find((m: LancerActor) => m.is_mech() && m.system.lid == importedMech.id) as LancerMECH;
+      if (!mech) {
+        const newMech = await createNewMech(importedMech);
+        if (newMech) mech = newMech;
+      }
+      if (!mech.canUserModify(game.user!, "update")) {
+        ui.notifications!.warn(
+          `Could not import mech '${importedMech.name}' as you lack the permission to update the actor. Please ask your GM for assistance.`,
+          { permanent: true }
+        );
+        _missingActors.push({ name: importedMech.name, lid: importedMech.frameData.id });
+        continue;
+      }
+
+      const mechItemPool = [...mech.items.contents];
+      const mechItemUpdates: any = [];
+      const loadout = importedMech.loadouts[importedMech.active_loadout_index];
+      const populatedMounts: SourceData.Mech["loadout"]["weapon_mounts"] = [];
+      const populatedSystems: string[] = [];
+
+      // Mech Frame
+      const compendiumFrame = (await getOrCreateActorItemByLid(
+        importedMech.frame,
+        mech,
+        mechItemPool,
+        _missingItems
+      )) as LancerFRAME | null;
+      if (!compendiumFrame) {
+        await mech.createEmbeddedDocuments("Item", [
+          {
+            ...unpackFrame(importedMech.frameData, _context),
+            type: EntryType.FRAME,
+            name: importedMech.frameData.name,
+          },
+        ]);
+      }
+
+      // Mech Systems
+      const flatSystems = [...loadout.integratedSystems, ...loadout.systems];
+      for (const item of flatSystems) {
+        const compendiumItem = (await getOrCreateActorItemByLid(
+          item.data.id,
+          mech,
+          mechItemPool,
+          _missingItems
+        )) as LancerMECH_SYSTEM | null;
+        let id = compendiumItem?.id;
+        if (!compendiumItem || !id) {
+          const ccData = unpackMechSystem(item.data, _context);
+          id = (
+            await mech.createEmbeddedDocuments("Item", [
+              {
+                ...ccData,
+                type: EntryType.MECH_SYSTEM,
+                name: item.data.name,
+              } as LancerMECH_SYSTEM,
+            ])
+          )[0].id;
+        }
+
+        populatedSystems.push(id);
+
+        mechItemUpdates.push({
+          _id: id,
+          system: {
+            uses: {
+              value: Math.max(0, (item.maxUses ?? 0) - (item.currentUses ?? 0)),
+              max: item.maxUses,
+            } as const,
+          },
+        });
+      }
+
+      // Mech Mounts
+      const flatMounts: PackedMountData[] = [
+        loadout.integratedWeapon,
+        loadout.improved_armament,
+        loadout.superheavy_mounting,
+        ...loadout.integratedMounts.map(im => ({
+          mount_type: MountType.Integrated,
+          slots: [
+            {
+              weapon: im.weapon,
+              mod: null,
+              size: FittingSize.Integrated,
+            },
+          ],
+          extra: [],
+          bonus_effects: [],
+        })),
+        ...loadout.mounts,
+      ].filter(m => m?.slots.some(x => x.weapon));
+
+      for (const mount of flatMounts) {
+        const populatedSlots: (typeof populatedMounts)[0]["slots"] = [];
+        // Helper that creates a weapon and maybe its mod and attaches it to the mech
+        const processMechWeapon = async (weaponSlot: PackedMechWeaponSaveData & PackedMechWeaponSaveWrapper) => {
+          const weapon = (await getOrCreateActorItemByLid(
+            weaponSlot.id,
+            mech,
+            mechItemPool,
+            _missingItems
+          )) as LancerMECH_WEAPON | null;
+          let weaponId = weapon?.id;
+          if (!weapon) {
+            const ccData = unpackMechWeapon(weaponSlot.data, _context);
+            weaponId = (
+              await mech.createEmbeddedDocuments("Item", [
+                {
+                  ...ccData,
+                  type: EntryType.MECH_WEAPON,
+                  name: weaponSlot.data.name,
+                },
+              ])
+            )[0].id;
+          }
+
+          mechItemUpdates.push({
+            _id: weaponId,
+            system: {
+              uses: {
+                value: Math.max(0, (weaponSlot.maxUses ?? 0) - (weaponSlot.currentUses ?? 0)),
+                max: weaponSlot.maxUses,
+              } as const,
+            },
+          });
+
+          let mod: LancerWEAPON_MOD | null = null;
+          let modId: string | null | undefined = null;
+          if (weaponSlot.mod) {
+            mod = (await getOrCreateActorItemByLid(
+              weaponSlot.mod.id,
+              mech,
+              mechItemPool,
+              _missingItems
+            )) as LancerWEAPON_MOD | null;
+            modId = mod?.id;
+            if (!mod) {
+              const ccData = unpackWeaponMod(weaponSlot.mod.data, _context);
+              modId = (
+                await mech.createEmbeddedDocuments("Item", [
+                  {
+                    ...ccData,
+                    type: EntryType.WEAPON_MOD,
+                    name: weaponSlot.mod.data.name,
+                  },
+                ])
+              )[0].id;
+            }
+
+            mechItemUpdates.push({
+              _id: modId,
+              system: {
+                uses: {
+                  value: Math.max(0, (weaponSlot.mod.maxUses ?? 0) - (weaponSlot.mod.currentUses ?? 0)),
+                  max: weaponSlot.mod.maxUses,
+                } as const,
+              },
+            });
+          }
+
+          return { weapon, weaponId, mod, modId };
+        };
+
+        for (const slot of mount.slots) {
+          if (!slot.weapon) continue;
+          const { weaponId, modId } = await processMechWeapon(slot.weapon);
+          populatedSlots.push({
+            mod: modId ?? null,
+            weapon: weaponId ?? null,
+            size: slot.size,
+          });
+        }
+
+        for (const extraSlot of mount.extra) {
+          if (!extraSlot.weapon) continue;
+          const { weaponId, modId } = await processMechWeapon(extraSlot.weapon);
+          populatedSlots.push({
+            mod: modId ?? null,
+            weapon: weaponId ?? null,
+            size: extraSlot.size,
+          });
+        }
+
+        populatedMounts.push({
+          bracing: mount.lock ?? false,
+          type: mount.mount_type as MountType,
+          slots: populatedSlots,
+        });
+      }
+
+      // Update all items
+      await mech.updateEmbeddedDocuments("Item", mechItemUpdates);
+
+      // Perform base mech update
+      await updateMech(mech, pilot, importedMech, ownershipLevel, populatedMounts, populatedSystems, compendiumFrame);
+
+      // Try to use CC's starred mech otherwise set the first one as active.
+      if (!activeMechUuid) activeMechUuid = mech.uuid;
+      else if (data.favorite_mech === mech.system.lid) activeMechUuid = mech.uuid;
+    }
+
+    // Update active mech and last imported timestamp
+    await pilot.update({
+      system: {
+        active_mech: activeMechUuid,
+        last_cloud_update: new Date().toISOString(),
+      },
+    });
+
+    pilot.effectHelper.propagateEffects(true);
+    // Reset current data and render all
+    pilot.render();
+    ui.notifications!.info("Successfully loaded pilot new state.");
+  } catch (e) {
+    console.warn(e);
+    ui.notifications!.warn(`Failed to update pilot: ${e instanceof Error ? e.message : e}`, { permanent: true });
+  }
+}
+
 // Imports packed pilot data, from either a vault id or gist id
-export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearFirst = true) {
+export async function importCCv2(pilot: LancerPILOT, data: PackedPilotData, clearFirst = true) {
   const coreVersion = game.settings.get(game.system.id, LANCER.setting_core_data);
   if (!coreVersion) {
     ui.notifications!.warn(
@@ -41,7 +888,7 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
     );
     return;
   }
-  console.log(`${lp} Importing Pilot`, pilot, data);
+  console.log(`${lp} Importing v2 Pilot`, pilot, data);
   if (!pilot.is_pilot() || !data) return;
   if (clearFirst) {
     await pilot.deleteEmbeddedDocuments("Item", Array.from(pilot.items.keys()));
@@ -232,6 +1079,16 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
         }
       }
 
+      // Do reserves
+      for (let reserve of data.reserves) {
+        let _r = (await getOrCreateActorItemByLid(
+          reserve.id,
+          pilot,
+          pilotItemPool,
+          missingItems
+        )) as LancerRESERVE | null;
+      }
+
       // Update all items
       await pilot.updateEmbeddedDocuments("Item", itemUpdates);
 
@@ -359,7 +1216,7 @@ export async function importCC(pilot: LancerPILOT, data: PackedPilotData, clearF
       // Populate our systems
       let flatSystems = [...loadout.integratedSystems, ...loadout.systems];
       let populatedSystems: string[] = [];
-      let assocSystemData = new Map<string, PackedEquipmentData>();
+      let assocSystemData = new Map<string, PackedMechEquipmentData>();
       for (let sys of flatSystems) {
         let realSys = (await getMechItemByLid(sys.id)) as LancerMECH_SYSTEM | null;
         if (realSys) {

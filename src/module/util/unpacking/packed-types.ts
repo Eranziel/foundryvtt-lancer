@@ -11,10 +11,24 @@ import {
   SystemType,
   WeaponSize,
   WeaponType,
+  HASE,
+  TargetDisposition,
+  StatusConditionType,
+  OtherEffectType,
+  AttackType,
+  PilotItemType,
 } from "../../enums";
 
+export interface PackedBrewData {
+  LcpId: string;
+  LcpName: string;
+  LcpVersion: string;
+  Website: string;
+  Status: string;
+}
+
 export interface PackedActionData {
-  name?: string;
+  name?: string; // Required in CCv3
   activation: ActivationType;
   cost?: number;
   frequency?: string;
@@ -35,6 +49,17 @@ export interface PackedActionData {
   id?: string;
   damage?: PackedDamageData[];
   range?: PackedRangeData[];
+
+  // New in CCv3:
+  // https://github.com/massif-press/lancer-data/wiki/actions
+  bonus_damage?: string; // XdY+Z; where X is the number of dice, dY is the dice type, and Z is a flat bonus. Z and X are optional
+  active_effects?: PackedActiveEffectData[];
+  add_status?: PackedStatusEffectData[];
+  add_resist?: PackedResistanceData[];
+  add_special?: PackedSpecialData[];
+  remove_special?: string[];
+  add_other?: PackedOtherEffectData[];
+  save?: HASE | PackedSaveData;
 }
 
 export interface PackedSkillData {
@@ -44,20 +69,105 @@ export interface PackedSkillData {
   detail: string; // v-html
   family: any; // These exist in lancer-data, but we will purposefully ignore them
   rank?: number;
+}
+
+export interface PackedSkillWrapper {
+  data: PackedSkillData;
+}
+
+export interface PackedCustomSkillData {
   custom?: true;
   custom_desc?: string;
   custom_detail?: string;
 }
 
+// New in CCv3:
+// https://github.com/massif-press/lancer-data/wiki/active-effects
+export interface PackedActiveEffectData {
+  name: string;
+  detail: string;
+  condition?: string;
+  frequency?: string;
+  duration?: string;
+  bonus_damage?: string; // XdY+Z; where X is the number of dice, dY is the dice type, and Z is a flat bonus. Z and X are optional
+  damage: PackedDamageData;
+  range: PackedRangeData;
+  add_status?: PackedStatusData[];
+  add_resist?: PackedResistanceData[];
+  add_special?: PackedSpecialData[];
+  remove_special?: string[];
+  add_other?: PackedOtherEffectData;
+  save?: HASE | PackedSaveData;
+  attack?: AttackType;
+  pilot?: boolean;
+  mech?: boolean;
+}
+
+// New in CCv3:
+// https://github.com/massif-press/lancer-data/wiki/active-effects#add_status
+export interface PackedStatusEffectData {
+  id: string;
+  duration?: string;
+  save?: HASE;
+  aoe?: string | boolean;
+  target?: TargetDisposition;
+}
+
+// New in CCv3:
+// https://github.com/massif-press/lancer-data/wiki/active-effects#add_resist
+export interface PackedResistanceData {
+  immunity?: DamageType | StatusConditionType;
+  resistance?: DamageType;
+  vulnerability?: DamageType;
+  target?: TargetDisposition;
+}
+
+// New in CCv3:
+// https://github.com/massif-press/lancer-data/wiki/active-effects#add_special
+export interface PackedSpecialData {
+  attribute: string;
+  detail?: string;
+  target?: TargetDisposition;
+  duration?: string;
+}
+
+// New in CCv3:
+// https://github.com/massif-press/lancer-data/wiki/active-effects#add_other
+export interface PackedOtherEffectData {
+  type: OtherEffectType;
+  val: any;
+  target?: TargetDisposition;
+  aoe: string | boolean;
+}
+
+// New in CCv3:
+// https://github.com/massif-press/lancer-data/wiki/active-effects#save
+export interface PackedSaveData {
+  stat: HASE;
+  aoe?: string | boolean;
+}
+
 export interface PackedDamageData {
-  type?: DamageType;
-  val?: string | number;
+  type?: DamageType; // Required in CCv3
+  val?: string | number; // Required in CCv3
   override?: boolean; // If player can set the damage of this, I guess????
+
+  // New in CCv3:
+  // https://github.com/massif-press/lancer-data/wiki/damage#IDamageData
+  aoe?: boolean | string;
+  save?: HASE | PackedSaveData;
+  save_half?: string;
+  ap?: boolean;
+  target?: TargetDisposition;
 }
 
 export interface PackedRangeData {
-  type?: RangeType;
-  val?: string | number;
+  type?: RangeType; // Required in CCv3
+  val?: string | number; // Required in CCv3
+
+  // New in CCv3:
+  // https://github.com/massif-press/lancer-data/wiki/range
+  min?: number;
 }
 
 export interface PackedBonusData {
@@ -71,6 +181,10 @@ export interface PackedBonusData {
   // ugh
   overwrite?: boolean;
   replace?: boolean;
+
+  // New in CCv3:
+  // https://github.com/massif-press/lancer-data/wiki/bonuses
+  accuracy?: number;
 }
 
 export interface PackedSynergyData {
@@ -144,9 +258,6 @@ export interface PackedCounterSaveData {
 export interface PackedRankedData {
   id: string;
   rank: number;
-  custom?: boolean;
-  custom_desc?: string;
-  custom_detail?: string;
 }
 
 export interface PackedAmmoData {
@@ -188,8 +299,33 @@ export interface PackedOrganizationData {
   lid: string;
 }
 
+// Starting in CCv3, pilot export data is nested inside of `data`
+export interface PackedPilotWrapper {
+  EXPORT_TYPE: string;
+  data: PackedPilotData;
+}
+
+// In CCv2 bond progression is baked into the pilot data directly
+export interface PackedBondProgressData {
+  bondId: string;
+  xp: number;
+  stress: number;
+  maxStress: number;
+  burdens: PackedClockBurdenData[];
+  clocks: PackedClockBurdenData[];
+  bondPowers: PackedBondPowerData[];
+  powerSelections: number;
+  bondAnswers: string[];
+  minorIdeal: string;
+}
+
+export interface PackedPortraitData {
+  portrait: string;
+  cloud_portrait: string;
+}
+
 // The compcon export format. This stuff just gets converted into owned items.
-export interface PackedPilotData {
+export interface PackedPilotData extends PackedBondProgressData {
   campaign: string;
   group: string;
   sort_index: number;
@@ -204,28 +340,26 @@ export interface PackedPilotData {
   text_appearance: string;
   notes: string;
   history: string;
+
   portrait: string;
   cloud_portrait: string;
+  img: PackedPortraitData; // New in CCv3; replaces cloud_portrait
+
   background: string;
   mechSkills: [number, number, number, number];
   cc_ver: string;
 
   id: string;
-  licenses: PackedRankedData[];
-  skills: Array<PackedRankedData | (PackedSkillData & { custom: true })>;
-  talents: PackedRankedData[];
+  licenses: (PackedRankedData & PackedLicenseData & PackedLicenseWrapper)[];
+  skills: (PackedRankedData & (PackedSkillWrapper | PackedCustomSkillData))[];
+  talents: (PackedRankedData & PackedTalentWrapper)[];
   reserves: PackedReserveData[];
   orgs: PackedOrganizationData[];
-  bondId: string;
-  xp: number;
-  stress: number;
-  maxStress: number;
-  burdens: PackedClockBurdenData[];
-  clocks: PackedClockBurdenData[];
-  bondPowers: PackedBondPowerData[];
-  powerSelections: number;
-  bondAnswers: string[];
-  minorIdeal: string;
+
+  stats: PackedCurrentStatsData;
+  bond?: PackedBondWrapper & PackedBondProgressData;
+
+  favorite_mech?: string; // New in CCv3; default selection for CC's 'Active Mode' & used as the default active mech in import
   mechs: PackedMechData[];
   state?: IMechState;
   counter_data: PackedCounterSaveData[];
@@ -255,7 +389,7 @@ export interface PackedPilotData {
   loadout?: PackedPilotLoadoutData;
   loadouts?: PackedPilotLoadoutData[];
   brews: string[];
-  core_bonuses: string[];
+  core_bonuses: string[] | PackedCoreBonusData[]; // in CCv3 it may be an array of PackedCoreBonusData
   factionID: string;
   quirk: string;
   current_hp: number;
@@ -265,11 +399,15 @@ export interface PackedPilotData {
 export interface PackedPilotLoadoutData {
   id: string;
   name: string;
-  armor: (PackedPilotEquipmentState | null)[]; // Accounts for gaps in the inventory slots.... Were it my call this wouldn't be how it was, but it ain't my way
-  weapons: (PackedPilotEquipmentState | null)[];
-  gear: (PackedPilotEquipmentState | null)[];
-  extendedWeapons: (PackedPilotEquipmentState | null)[];
-  extendedGear: (PackedPilotEquipmentState | null)[];
+  armor: ((PackedPilotEquipmentState & PackedPilotEquipmentWrapper) | null)[]; // Accounts for gaps in the inventory slots.... Were it my call this wouldn't be how it was, but it ain't my way
+  weapons: ((PackedPilotEquipmentState & PackedPilotEquipmentWrapper) | null)[];
+  gear: ((PackedPilotEquipmentState & PackedPilotEquipmentWrapper) | null)[];
+  extendedWeapons: ((PackedPilotEquipmentState & PackedPilotEquipmentWrapper) | null)[];
+  extendedGear: ((PackedPilotEquipmentState & PackedPilotEquipmentWrapper) | null)[];
+}
+
+export interface PackedPilotEquipmentWrapper {
+  data: PackedPilotEquipmentData;
 }
 
 export interface PackedPilotEquipmentState {
@@ -312,12 +450,14 @@ export interface PackedMechData {
   gm_note: string;
   portrait: string;
   cloud_portrait: string;
+  img: PackedPortraitData; // New in CCv3; replaces cloud_portrait
   overshield: number;
   burn: number;
   ejected: boolean;
   meltdown_imminent: boolean; // TODO: Make this active effect
   cc_ver: string;
   core_active: boolean;
+  coreActive: boolean; // New in CCv3; replaces core_active
 
   id: string;
   active: boolean;
@@ -327,8 +467,11 @@ export interface PackedMechData {
   current_heat: number;
   current_repairs: number;
   current_core_energy: number;
+  corePower: number; // New in CCv3
   current_overcharge: number;
+  stats: PackedCurrentStatsData; // New in CCv3
   frame: string;
+  frameData: PackedFrameData; // New in CCv3
   statuses: string[];
   conditions: string[];
   resistances: string[];
@@ -343,27 +486,74 @@ export interface PackedMechData {
   defeat: string;
 }
 
+export interface PackedCurrentStatsData {
+  max: PackedStatsData;
+  current: PackedStatsData;
+  stat_version: number;
+}
+
+export interface PackedStatsData {
+  activations: number;
+  size: number;
+  sizes: number[];
+  structure: number;
+  hull: number;
+  agi: number;
+  sys: number;
+  eng: number;
+  hp: number;
+  armor: number;
+  stress: number;
+  heat: number;
+  speed: number;
+  evasion: number;
+  edef: number;
+  sensorRange: number;
+  saveTarget: number;
+  overshield: number;
+  overcharge: number;
+  burn: number;
+  grit: number;
+  limitedBonus: number;
+  heatcap?: number;
+  repairCapacity?: number;
+  techAttack?: number;
+  grapple?: number;
+  ram?: number;
+  attack?: number;
+  sp?: number;
+}
+
 export interface PackedMechLoadoutData {
   id: string;
   name: string;
-  systems: PackedEquipmentData[];
-  integratedSystems: PackedEquipmentData[];
+  systems: (PackedMechEquipmentData & PackedMechEquipmentWrapper)[];
+  integratedSystems: (PackedMechEquipmentData & PackedMechEquipmentWrapper)[];
   mounts: PackedMountData[];
-  integratedMounts: { weapon: PackedMechWeaponSaveData }[];
+  integratedMounts: { weapon: PackedMechWeaponSaveData & PackedMechWeaponSaveWrapper }[];
   improved_armament: PackedMountData;
   integratedWeapon: PackedMountData;
   superheavy_mounting: PackedMountData;
 }
 
-export interface PackedEquipmentData {
+export interface PackedMechEquipmentData {
   id: string;
   destroyed: boolean;
   cascading: boolean;
   note: string;
+
   uses?: number;
   flavorName?: string;
   flavorDescription?: string;
   customDamageType?: string;
+
+  // New in CCv3
+  currentUses?: number;
+  maxUses?: number;
+}
+
+export interface PackedMechEquipmentWrapper {
+  data: PackedMechSystemData;
 }
 
 export interface PackedMountData {
@@ -371,19 +561,27 @@ export interface PackedMountData {
   lock?: boolean; // Superheavy bracing
   slots: PackedWeaponSlotData[];
   extra: PackedWeaponSlotData[];
-  bonus_effects: string[]; // "cb_mount_retrofitting", "cb_auto_stabilizing_hardpoints"
+  bonus_effects: string[];
 }
 
 export interface PackedWeaponSlotData {
   size: FittingSize; // Superheavy? look into that
-  weapon: PackedMechWeaponSaveData | null;
+  weapon: (PackedMechWeaponSaveData & PackedMechWeaponSaveWrapper) | null;
 }
 
-export interface PackedMechWeaponSaveData extends PackedEquipmentData {
+export interface PackedMechWeaponSaveData extends PackedMechEquipmentData {
   loaded: boolean;
-  mod?: PackedEquipmentData;
+  mod?: PackedMechEquipmentData & PackedWeaponModSaveWrapper;
   customDamageType?: string;
   maxUseOverride?: number;
+}
+
+export interface PackedMechWeaponSaveWrapper {
+  data: PackedMechWeaponData;
+}
+
+export interface PackedWeaponModSaveWrapper {
+  data: PackedWeaponModData;
 }
 
 export interface IContentPackManifest {
@@ -400,7 +598,7 @@ export interface IContentPackData {
   factions?: PackedFactionData[];
   coreBonuses?: PackedCoreBonusData[];
   frames?: PackedFrameData[];
-  weapons?: PackedMechWeaponData[];
+  weapons?: PackedMechWeaponData;
   systems?: PackedMechSystemData[];
   mods?: PackedWeaponModData[];
   pilotGear?: PackedPilotEquipmentData[];
@@ -448,37 +646,68 @@ interface PackedFactionData {
 }
 
 export interface PackedCoreBonusData {
+  id: string;
   name: string;
+  source: string; // must be the same as the Manufacturer ID to sort correctly
   effect: string; // v-html
   description: string; // v-html
+
   mounted_effect?: string;
   synergies?: PackedSynergyData[];
-  id: string;
   bonuses?: PackedBonusData[];
   deployables?: PackedDeployableData[];
   counters?: PackedCounterData[];
   integrated?: string[];
-  source: string; // must be the same as the Manufacturer ID to sort correctly
   actions?: PackedActionData[];
+
+  // New in CCv3:
+  // https://github.com/massif-press/lancer-data/wiki/core-bonuses
+  active_effects?: PackedActiveEffectData[];
+  special_equipment?: string[];
+}
+
+export interface PackedLicenseWrapper {
+  stub: PackedLicenseData;
+}
+
+export interface PackedLicenseData {
+  id: string;
+  name: string;
+  source: string;
+  frameName: string;
+  brew: PackedBrewData;
 }
 
 export interface PackedFrameData {
-  license_id?: string;
-  license_level: number; // set to zero for this item to be available to a LL0 character
+  id: string;
   name: string;
+  source: string;
+  license_id?: string; // Required in CCv3 if `variant` is `true`
+  license_level: number; // set to zero for this item to be available to a LL0 character
   mechtype: string[]; // can be customized
-  y_pos: number; // used for vertical alignment of the mech in banner views (like in the new mech selector)
   description: string; // v-html
   mounts: MountType[];
   stats: IFrameStats;
-  image_url?: string;
-  other_art?: IArtLocation[];
-  id: string;
   traits: PackedFrameTraitData[];
   core_system: PackedCoreSystemData;
-  source: string;
+
+  image_url?: string;
+  other_art?: IArtLocation[]; // Does not exist in CCv3
+  y_pos: number; // used for vertical alignment of the mech in banner views (like in the new mech selector)
   variant?: string; // If an alt frame, this is the primary license name
+  // New in CCv3:
+  // https://github.com/massif-press/lancer-data/wiki/frames
+  speciality?: PackedPrerequisiteData;
 }
+
+// For frameless licenses
+// https://github.com/massif-press/lancer-data/wiki/frames#specialty
+export interface PackedPrerequisiteData {
+  source: string;
+  min_rank: number;
+  cumulative?: boolean;
+}
+
 export interface IFrameStats {
   size: number;
   structure: number;
@@ -500,28 +729,29 @@ export interface PackedCoreSystemData {
   name: string;
   description: string; // v-html
   activation: ActivationType;
+  active_name: string;
+  active_effect: string; // v-html
+
   deactivation?: ActivationType;
   use?: FrameEffectUse;
 
-  //
-  active_name: string;
-  active_effect: string; // v-html
-  active_synergies: PackedSynergyData[];
+  active_effects?: PackedActiveEffectData[]; // New in CCv3
+  active_actions?: PackedActionData[];
+  active_bonuses?: PackedBonusData[];
+  active_synergies?: PackedSynergyData[]; // Optional in CCv3
 
-  // Basically the same but passives
   passive_name?: string;
   passive_effect?: string; // v-html,
+  passive_actions?: PackedActionData[];
+  passive_bonuses?: PackedBonusData[];
   passive_synergies?: PackedSynergyData[];
 
   // And all the rest
   deployables?: PackedDeployableData[];
   counters?: PackedCounterData[];
   integrated?: string[];
+  special_equipment?: string[]; // New in CCv3
   tags: PackedTagInstanceData[];
-  active_bonuses?: PackedBonusData[];
-  passive_bonuses?: PackedBonusData[];
-  active_actions?: PackedActionData[];
-  passive_actions?: PackedActionData[];
 }
 
 export interface PackedTagInstanceData {
@@ -538,6 +768,7 @@ export interface IArtLocation {
 export interface PackedFrameTraitData {
   name: string;
   description: string; // v-html
+
   use?: FrameEffectUse;
   synergies?: PackedSynergyData[];
   integrated?: string[];
@@ -545,6 +776,11 @@ export interface PackedFrameTraitData {
   deployables?: PackedDeployableData[];
   bonuses?: PackedBonusData[];
   actions?: PackedActionData[];
+
+  // New in CCv3:
+  // https://github.com/massif-press/lancer-data/wiki/frame-traits
+  special_equipment?: string[];
+  active_effects?: PackedActiveEffectData[];
 }
 
 export interface PackedMechWeaponData {
@@ -582,31 +818,45 @@ export interface PackedMechWeaponData {
   no_mods?: boolean;
   no_core_bonus?: boolean;
   license_id?: string;
+
+  // New in CCv3:
+  // https://github.com/massif-press/lancer-data/wiki/weapons
+  special_equipment?: string[];
+  active_effects?: PackedActiveEffectData[];
+  ammo?: PackedAmmoData[];
 }
 export type PackedMechWeaponProfile = Partial<
   Omit<PackedMechWeaponData, "id" | "profiles" | "source" | "license" | "license_level" | "mount" | "sp">
 >;
 
 export interface PackedMechSystemData {
+  id: string;
   name: string;
   license: string; // reference to the Frame name of the associated license
   license_level: number; // set to zero for this item to be available to a LL0 character
-  type?: SystemType;
-  sp: number;
-  description: string; // v-html
-  effect: string; // v-html
-  synergies?: PackedSynergyData[];
 
-  id: string;
+  source: string; // must be the same as the Manufacturer ID to sort correctly; not required if the item is included in a license collection
+  license_id?: string; // Not required if the item is included in a license collection
+
+  type?: SystemType;
+  effect?: string; // v-html; Optional in CCv3
+  description?: string; // v-html; Optional in CCv3
+  sp?: number; // Optional in CCv3
+  synergies?: PackedSynergyData[];
   deployables?: PackedDeployableData[];
   integrated?: string[];
   counters?: PackedCounterData[];
-  bonuses?: PackedBonusData[];
-  actions?: PackedActionData[];
-  ammo?: PackedAmmoData[];
   tags?: PackedTagInstanceData[];
-  source: string; // must be the same as the Manufacturer ID to sort correctly
-  license_id?: string;
+  actions?: PackedActionData[];
+  bonuses?: PackedBonusData[];
+  ammo?: PackedAmmoData[];
+
+  // New in CCv3:
+  // https://github.com/massif-press/lancer-data/wiki/systems
+  no_bonus?: boolean;
+  no_synergy?: boolean;
+  special_equipment?: string[];
+  active_effects?: PackedActiveEffectData[];
 }
 
 export interface PackedWeaponModData {
@@ -638,31 +888,43 @@ export interface PackedWeaponModData {
 
 export type PackedPilotEquipmentData = PackedPilotWeaponData | PackedPilotArmorData | PackedPilotGearData;
 
-interface AllPilotStuffPackedData {
+// Common specs in CCv3 for pilot items:
+// https://github.com/massif-press/lancer-data/wiki/pilot-gear
+export interface PackedPilotItemData {
   id: string;
-  name: string; // v-html
-  description: string;
+  name: string;
+  type: PilotItemType;
+}
+
+// Collated optional specs from CCv3 for pilot items:
+// https://github.com/massif-press/lancer-data/wiki/pilot-gear
+export interface PackedPilotItemOptionalData {
+  description?: string; // v-html; Optional in CCv3
+  tags?: PackedTagInstanceData[];
+  deployables?: PackedDeployableData[];
   actions?: PackedActionData[]; // these are only available to UNMOUNTED pilots
   bonuses?: PackedBonusData[]; // these bonuses are applied to the pilot, not parent system
   synergies?: PackedSynergyData[];
-  deployables?: PackedDeployableData[];
-  tags?: PackedTagInstanceData[];
-}
-
-export interface PackedPilotWeaponData extends AllPilotStuffPackedData {
-  type: "Weapon";
-  damage: PackedDamageData[];
-  range: PackedRangeData[];
+  counters?: PackedCounterData[];
   effect?: string;
-}
-export interface PackedPilotGearData extends AllPilotStuffPackedData {
-  type: "Gear";
-  effect: string;
+
+  // New in CCv3
+  active_effects?: PackedActiveEffectData[];
 }
 
-export interface PackedPilotArmorData extends AllPilotStuffPackedData {
-  type: "Armor";
-  effect: string;
+export interface PackedPilotWeaponData extends PackedPilotItemData, PackedPilotItemOptionalData {
+  type: PilotItemType.Weapon;
+
+  damage?: PackedDamageData[];
+  range?: PackedRangeData[];
+}
+
+export interface PackedPilotGearData extends PackedPilotItemData, PackedPilotItemOptionalData {
+  type: PilotItemType.Gear;
+}
+
+export interface PackedPilotArmorData extends PackedPilotItemData, PackedPilotItemOptionalData {
+  type: PilotItemType.Armor;
 }
 
 export interface PackedTalentData {
@@ -672,18 +934,30 @@ export interface PackedTalentData {
   terse: string; // terse text used in short descriptions. The fewer characters the better
   description: string; // v-html
   ranks: PackedTalentRank[];
+  // New in CCv3:
+  // https://github.com/massif-press/lancer-data/wiki/talents
+  icon_svg: string; // Strongly preferred
+  icon_url: string;
+}
+
+export interface PackedTalentWrapper {
+  data: PackedTalentData;
 }
 
 export interface PackedTalentRank {
   name: string;
   description: string; // v-html
-  exclusive: boolean; // see below
+  exclusive?: boolean;
   actions?: PackedActionData[];
   bonuses?: PackedBonusData[];
   synergies?: PackedSynergyData[];
   deployables?: PackedDeployableData[];
   counters?: PackedCounterData[];
   integrated?: string[];
+}
+
+export interface PackedBondWrapper {
+  data: PackedBondData;
 }
 
 export interface PackedBondData {
@@ -829,10 +1103,15 @@ export interface PackedNpcTemplateData {
 export interface PackedStatusData {
   name: string;
   icon: string;
+  type: "Status" | "Condition";
+  effects: string | string[];
   id?: string;
   terse?: string;
-  effects: string | string[];
-  type: "Status" | "Condition";
+  // New in CCv3:
+  // https://github.com/massif-press/lancer-data/wiki/statuses-&-conditions
+  icon_svg?: string; // inline SVG string
+  icon_url?: string;
+  exclusive?: "Mech" | "Pilot";
 }
 
 export interface PackedEnvironmentData {
