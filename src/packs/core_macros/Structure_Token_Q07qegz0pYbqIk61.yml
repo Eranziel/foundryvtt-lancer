@@ -13,16 +13,18 @@ command: |-
 folder: yxTxiLixDsbyThYC
 sort: 150000
 flags:
-  core:
-    sourceId: Macro.QwWNUKDeT8QcV1Hs
+  core: {}
 ownership:
   default: 0
   eC9B4k0LaO1597E7: 3
 _stats:
   systemId: lancer
   systemVersion: 2.0.0-rc1
-  coreVersion: "11.315"
+  coreVersion: '13.351'
   createdTime: null
   modifiedTime: 1710448425858
   lastModifiedBy: ci5PqVPSs3DhZWTF
-_key: "!macros!Q07qegz0pYbqIk61"
+  compendiumSource: Macro.QwWNUKDeT8QcV1Hs
+  duplicateSource: null
+  exportSource: null
+_key: '!macros!Q07qegz0pYbqIk61'

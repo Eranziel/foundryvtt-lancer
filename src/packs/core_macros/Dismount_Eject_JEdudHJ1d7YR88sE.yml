@@ -31,10 +31,13 @@ flags:
 _stats:
   systemId: lancer
   systemVersion: 2.0.0-rc1
-  coreVersion: '11.315'
+  coreVersion: '13.351'
   createdTime: 1711203090894
   modifiedTime: 1711205065151
   lastModifiedBy: ci5PqVPSs3DhZWTF
+  compendiumSource: null
+  duplicateSource: null
+  exportSource: null
 _id: JEdudHJ1d7YR88sE
 sort: 0
 _key: '!macros!JEdudHJ1d7YR88sE'

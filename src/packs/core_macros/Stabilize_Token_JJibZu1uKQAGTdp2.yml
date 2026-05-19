@@ -1,8 +1,7 @@
 name: Stabilize Token
 type: script
 flags:
-  core:
-    sourceId: Macro.d699WQo7DT5zrIK7
+  core: {}
 scope: global
 command: |-
   if (canvas.tokens.controlled.length !== 1) {
@@ -21,8 +20,11 @@ sort: 300000
 _stats:
   systemId: lancer
   systemVersion: 2.0.0-rc1
-  coreVersion: "11.315"
+  coreVersion: '13.351'
   createdTime: null
   modifiedTime: 1710448445404
   lastModifiedBy: ci5PqVPSs3DhZWTF
-_key: "!macros!JJibZu1uKQAGTdp2"
+  compendiumSource: Macro.d699WQo7DT5zrIK7
+  duplicateSource: null
+  exportSource: null
+_key: '!macros!JJibZu1uKQAGTdp2'

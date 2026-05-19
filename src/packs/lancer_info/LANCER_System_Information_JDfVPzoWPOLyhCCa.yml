@@ -77,12 +77,14 @@ pages:
     _stats:
       systemId: lancer
       systemVersion: 2.0.0-rc1
-      coreVersion: '12.331'
+      coreVersion: '13.351'
       createdTime: 1717039148554
       modifiedTime: 1717039451373
       lastModifiedBy: s7zimNuhog9aoiot
       compendiumSource: null
       duplicateSource: null
+      exportSource: null
+    category: null
     _key: '!journal.pages!JDfVPzoWPOLyhCCa.gotpldNfOwLxauXi'
   - sort: -100000
     name: Welcome to Lancer 2.0!
@@ -151,12 +153,14 @@ pages:
     _stats:
       systemId: lancer
       systemVersion: 2.0.0-rc1
-      coreVersion: '12.331'
+      coreVersion: '13.351'
       createdTime: 1717031277945
       modifiedTime: 1741130088072
       lastModifiedBy: noXx6fCk7156FG8X
       compendiumSource: null
       duplicateSource: null
+      exportSource: null
+    category: null
     _key: '!journal.pages!JDfVPzoWPOLyhCCa.3VVd9FeG9bFeRzkv'
   - sort: -200000
     name: Acknowledgements & Legal
@@ -195,12 +199,14 @@ pages:
     _stats:
       compendiumSource: null
       duplicateSource: null
-      coreVersion: '12.331'
+      coreVersion: '13.351'
       systemId: lancer
       systemVersion: 2.5.0
       createdTime: 1741130110357
       modifiedTime: 1741140148749
       lastModifiedBy: noXx6fCk7156FG8X
+      exportSource: null
+    category: null
     _key: '!journal.pages!JDfVPzoWPOLyhCCa.LVsmG9EfKH9VpVJX'
 folder: null
 sort: 0
@@ -211,10 +217,12 @@ flags: {}
 _stats:
   systemId: lancer
   systemVersion: 2.0.0-rc1
-  coreVersion: '12.331'
+  coreVersion: '13.351'
   createdTime: 1717031272559
   modifiedTime: 1717039520390
   lastModifiedBy: s7zimNuhog9aoiot
   compendiumSource: null
   duplicateSource: null
+  exportSource: null
+categories: []
 _key: '!journal!JDfVPzoWPOLyhCCa'

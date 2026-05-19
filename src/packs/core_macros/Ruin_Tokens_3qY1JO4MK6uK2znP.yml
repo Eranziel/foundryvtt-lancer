@@ -1,8 +1,7 @@
 name: Ruin Tokens
 type: script
 flags:
-  core:
-    sourceId: Macro.UIUpsTwS6c4oYRn9
+  core: {}
   combat-utility-belt:
     macroTrigger: ''
 scope: global
@@ -93,8 +92,11 @@ sort: 300000
 _stats:
   systemId: lancer
   systemVersion: 2.1.7
-  coreVersion: '11.315'
+  coreVersion: '13.351'
   createdTime: null
   modifiedTime: 1721274674816
   lastModifiedBy: RyAORVJNmdo1gq2Z
+  compendiumSource: Macro.UIUpsTwS6c4oYRn9
+  duplicateSource: null
+  exportSource: null
 _key: '!macros!3qY1JO4MK6uK2znP'

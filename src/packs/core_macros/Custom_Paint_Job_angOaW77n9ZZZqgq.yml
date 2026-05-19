@@ -6,9 +6,9 @@ img: systems/lancer/assets/icons/macro-icons/system.svg
 scope: global
 command: >-
   // This macro is designed to be used with Triggler from Combat Utility Belt.
-  // Otherwise, it can be used as an alternative to manually using the Structure macro.
-  // It also includes "destroying" the Custom Paint Job system in order to check if
-  // it's been used between full repairs.
+  // Otherwise, it can be used as an alternative to manually using the Structure
+  macro. // It also includes "destroying" the Custom Paint Job system in order
+  to check if // it's been used between full repairs.
 
   let cpjActor = game.actors.get(canvas.tokens.controlled[0].actor.id);
   //console.log(cpjActor);
@@ -26,8 +26,7 @@ command: >-
 
   let cpj = cpjActor.items.find(
       i => i.system.lid === "ms_custom_paint_job"
-  );
-  if (cpj) {
+  ); if (cpj) {
     if (!cpj.system.destroyed) {
         console.log("Custom Paint Job found.");
         let roll = new Roll('1d6');
@@ -61,9 +60,8 @@ command: >-
     } else {
       console.log("Custom Paint Job has already been used.");
     }
-  }
-  // If we reach here, either the actor doesn't have CPJ or it's already been used.
-  canvas.tokens.controlled[0].actor.beginStructureFlow();
+  } // If we reach here, either the actor doesn't have CPJ or it's already been
+  used. canvas.tokens.controlled[0].actor.beginStructureFlow();
 folder: yxTxiLixDsbyThYC
 sort: 100000
 flags: {}
@@ -73,8 +71,11 @@ ownership:
 _stats:
   systemId: lancer
   systemVersion: 2.0.0-rc1
-  coreVersion: "11.315"
+  coreVersion: '13.351'
   createdTime: null
   modifiedTime: 1710448405568
   lastModifiedBy: ci5PqVPSs3DhZWTF
-_key: "!macros!angOaW77n9ZZZqgq"
+  compendiumSource: null
+  duplicateSource: null
+  exportSource: null
+_key: '!macros!angOaW77n9ZZZqgq'

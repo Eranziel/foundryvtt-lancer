@@ -1,8 +1,7 @@
 name: Full Repair
 type: script
 flags:
-  core:
-    sourceId: Macro.SaR8ruxHJ8xpF1Wj
+  core: {}
 scope: global
 command: |-
   if (canvas.tokens.controlled.length !== 1) {
@@ -21,8 +20,11 @@ sort: 0
 _stats:
   systemId: lancer
   systemVersion: 2.0.0-rc1
-  coreVersion: "11.315"
+  coreVersion: '13.351'
   createdTime: null
   modifiedTime: 1710448441920
   lastModifiedBy: ci5PqVPSs3DhZWTF
-_key: "!macros!RUi3krm3oDSFiIvh"
+  compendiumSource: Macro.SaR8ruxHJ8xpF1Wj
+  duplicateSource: null
+  exportSource: null
+_key: '!macros!RUi3krm3oDSFiIvh'
