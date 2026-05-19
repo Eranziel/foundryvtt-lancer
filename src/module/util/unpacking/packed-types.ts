@@ -19,6 +19,9 @@ import {
   PilotItemType,
 } from "../../enums";
 
+export type PackedDamageType = Lowercase<DamageType> | "aoe" | "all"; // CCv3 drops the 'variable' type and adds 'aoe' and 'all'
+export type PackedAttackType = Lowercase<AttackType>;
+
 export interface PackedBrewData {
   LcpId: string;
   LcpName: string;
@@ -98,7 +101,7 @@ export interface PackedActiveEffectData {
   remove_special?: string[];
   add_other?: PackedOtherEffectData;
   save?: HASE | PackedSaveData;
-  attack?: AttackType;
+  attack?: PackedAttackType;
   pilot?: boolean;
   mech?: boolean;
 }
@@ -116,9 +119,9 @@ export interface PackedStatusEffectData {
 // New in CCv3:
 // https://github.com/massif-press/lancer-data/wiki/active-effects#add_resist
 export interface PackedResistanceData {
-  immunity?: DamageType | StatusConditionType;
-  resistance?: DamageType;
-  vulnerability?: DamageType;
+  immunity?: PackedDamageType | StatusConditionType;
+  resistance?: PackedDamageType;
+  vulnerability?: PackedDamageType;
   target?: TargetDisposition;
 }
 
@@ -148,7 +151,7 @@ export interface PackedSaveData {
 }
 
 export interface PackedDamageData {
-  type?: DamageType; // Required in CCv3
+  type?: PackedDamageType; // Required in CCv3
   val?: string | number; // Required in CCv3
   override?: boolean; // If player can set the damage of this, I guess????
 
@@ -173,7 +176,7 @@ export interface PackedRangeData {
 export interface PackedBonusData {
   id: string;
   val: string | number;
-  damage_types?: DamageType[];
+  damage_types?: PackedDamageType[];
   range_types?: RangeType[];
   weapon_types?: WeaponType[];
   weapon_sizes?: WeaponSize[];
