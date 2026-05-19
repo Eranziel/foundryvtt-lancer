@@ -276,6 +276,13 @@
       "sparri": "Sparri",
       "voladores": "Voladores"
     },
+    "scanOutput": {
+      "name": "Scan Output Location",
+      "hint": "Where should scan results be recorded?",
+      "both": "Chat & Journal",
+      "chat": "Chat only",
+      "journal": "Journal only"
+    },
     "statusIconsConfig": {
       "menu-name": "Status Icons",
       "menu-label": "Status Icon Configuration",

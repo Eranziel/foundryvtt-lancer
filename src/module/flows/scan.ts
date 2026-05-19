@@ -45,7 +45,7 @@ async function initScanData(state: FlowState<LancerFlowState.ScanData>): Promise
   if (!actor) throw new TypeError(`Scan flow target does not reference an actor!`);
   state.data.name = state.data.target.name;
   state.data.img = actor.img;
-  state.data.tier = actor.system.tier;
+  state.data.tier = actor.system.tier || 1;
   const classItem = actor.items.find(i => i.is_npc_class());
   state.data.class = classItem?.name || "Unknown Class";
   const templates = actor.items.filter(i => i.is_npc_template());
@@ -182,6 +182,9 @@ async function initScanData(state: FlowState<LancerFlowState.ScanData>): Promise
 }
 
 async function createScanJournal(state: FlowState<LancerFlowState.ScanData>): Promise<boolean> {
+  const scanOutput = game.settings.get(game.system.id, LANCER.setting_scan_outputs);
+  if (!["both", "journal"].includes(scanOutput)) return true;
+
   if (!state.data) throw new TypeError(`Flowstate missing!`);
   if (!state.data.target) throw new TypeError(`Scan flow requires a target.`);
   const actor = state.data.target.actor;
@@ -254,6 +257,9 @@ async function createScanJournal(state: FlowState<LancerFlowState.ScanData>): Pr
 }
 
 async function printScanCard(state: FlowState<LancerFlowState.ScanData>): Promise<boolean> {
+  const scanOutput = game.settings.get(game.system.id, LANCER.setting_scan_outputs);
+  if (!["both", "chat"].includes(scanOutput)) return true;
+
   if (!state.data) throw new TypeError(`Flowstate missing!`);
   const template = `systems/${game.system.id}/templates/chat/scan-card.hbs`;
   await renderTemplateStep(state.actor, template, state.data);

@@ -48,6 +48,7 @@ export const LANCER = {
   setting_automation: "automationOptions",
   setting_automation_switch: "automationSwitch",
   setting_automation_attack: "attackSwitch", // Deprecated
+  setting_scan_outputs: "scanOutputs",
   setting_actionTracker: "actionTracker",
   setting_combat_appearance: "combat-tracker-appearance",
   setting_combat_sort: "combat-tracker-sort",

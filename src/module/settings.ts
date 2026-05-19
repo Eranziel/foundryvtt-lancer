@@ -100,9 +100,9 @@ export const registerSettings = function () {
         sparri: "lancer.pauseIcon.sparri",
         voladores: "lancer.pauseIcon.voladores",
       },
-
       initial: "gms",
     }),
+    default: "gms",
   });
 
   game.settings.registerMenu(game.system.id, LANCER.setting_status_icons, {
@@ -138,6 +138,23 @@ export const registerSettings = function () {
     config: false,
     type: AutomationOptions,
     default: new AutomationOptions(),
+  });
+
+  game.settings.register(game.system.id, LANCER.setting_scan_outputs, {
+    name: "lancer.scanOutput.name",
+    hint: "lancer.scanOutput.hint",
+    scope: "world",
+    config: true,
+    type: new foundry.data.fields.StringField({
+      required: true,
+      choices: {
+        both: "lancer.scanOutput.both",
+        chat: "lancer.scanOutput.chat",
+        journal: "lancer.scanOutput.journal",
+      },
+      initial: "both",
+    }),
+    default: "both",
   });
 
   game.settings.registerMenu(game.system.id, LANCER.setting_actionTracker, {
