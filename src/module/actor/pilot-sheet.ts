@@ -6,9 +6,8 @@ import { buildCounterHeader, buildCounterHTML } from "../helpers/item";
 import { ref_params, resolve_ref_element } from "../helpers/refs";
 import { inc_if, resolveDotpath } from "../helpers/commons";
 import { LancerActor, type LancerMECH, type LancerPILOT } from "./lancer-actor";
-import { fetchPilotViaCache, fetchV2PilotViaShareCode, fetchV3PilotViaShareCode, pilotCache } from "../util/compcon";
+import { fetchV2PilotViaShareCode, fetchV3PilotViaShareCode } from "../util/compcon";
 import type { LancerFRAME } from "../item/lancer-item";
-import { fetchPilotViaShareCode } from "../util/compcon";
 import { clicker_num_input } from "../helpers/actor";
 import type { ResolvedDropData } from "../helpers/dragdrop";
 import { EntryType } from "../enums";
@@ -69,6 +68,8 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
       if (pilot.system.cloud_id) {
         download.on("click", async ev => {
           ev.stopPropagation();
+          if (!pilot.system.cloud_id)
+            return ui.notifications!.error("You must enter a Comp/Con pilot share code before downloading!");
 
           // Fetch data to sync
           let raw_pilot_data = null;
@@ -92,27 +93,6 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
             } catch (error) {
               ui.notifications!.error("Error importing from V2 share code. Share code may need to be refreshed.");
               console.error(`${lp} Failed import with V2 share code ${pilot.system.cloud_id}, error:`, error);
-              return;
-            }
-          } else if (pilot.system.cloud_id) {
-            // Vault ID from a logged-in Comp/Con account
-            ui.notifications!.info("Importing character from COMP/CON account...");
-            const cachedPilot = pilotCache().find(p => p.cloudID == pilot.system.cloud_id);
-            if (cachedPilot != undefined) {
-              try {
-                raw_pilot_data = await fetchPilotViaCache(cachedPilot);
-              } catch (error) {
-                ui.notifications!.error(
-                  "Failed to import from COMP/CON account. Try refreshing the page to reload pilot list."
-                );
-                console.error(`${lp} Failed to import vaultID ${pilot.system.cloud_id} via pilot list, error:`, error);
-                return;
-              }
-            } else {
-              ui.notifications!.error(
-                "Failed to import from COMP/CON account. Try refreshing the page to reload pilot list"
-              );
-              console.error(`${lp} Failed to find pilot in cache, vaultID: ${pilot.system.cloud_id}`);
               return;
             }
           } else {
