@@ -368,22 +368,20 @@ export enum RangeType {
 export type RangeTypeChecklist = { [key in RangeType]: boolean };
 
 export enum DamageType {
-  Kinetic = "kinetic",
-  Energy = "energy",
-  Explosive = "explosive",
-  Heat = "heat",
-  Burn = "burn",
-  Variable = "variable", // Only in CCv2(?)
-  Aoe = "aoe",
-  All = "all",
+  Kinetic = "Kinetic",
+  Energy = "Energy",
+  Explosive = "Explosive",
+  Heat = "Heat",
+  Burn = "Burn",
+  Variable = "Variable",
 }
 
 export type DamageTypeChecklist = { [key in DamageType]: boolean };
 
 export enum AttackType {
-  Melee = "melee",
-  Ranged = "ranged",
-  Tech = "tech",
+  Melee = "Melee",
+  Ranged = "Ranged",
+  Tech = "Tech",
 }
 
 export type AttackTypeChecklist = { [key in AttackType]: boolean };
