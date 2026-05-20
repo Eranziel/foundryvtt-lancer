@@ -984,6 +984,7 @@ export interface PackedBondPowerData {
   veteran: boolean | undefined;
   master: boolean | undefined;
   prerequisite: string | undefined;
+  origin: string | undefined;
 }
 
 export interface PackedClockBurdenData {

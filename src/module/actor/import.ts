@@ -17,7 +17,7 @@ import {
   type LancerRESERVE,
   type LancerWEAPON_MOD,
 } from "../item/lancer-item";
-import type { PowerData } from "../models/bits/power";
+import { type PowerData, unpackPower } from "../models/bits/power";
 import type { SourceData } from "../source-template";
 import { get_pack_id, insinuate } from "../util/doc";
 import { fromLid } from "../helpers/from-lid";
@@ -81,7 +81,6 @@ async function updatePilot(
       default_value: 0,
     };
   };
-
   await pilot.update({
     name: data.name,
     img: replaceDefaultResource(pilot.img, portrait),
@@ -568,21 +567,61 @@ export async function importCCv3(
     // Bonds
     if (data.bond?.bondId) {
       const item = data.bond;
-      const bond = (await getOrCreateActorItemByLid(
+      let bond = (await getOrCreateActorItemByLid(
         item.bondId,
         pilot,
         pilotItemPool,
         _missingItems
       )) as LancerBOND | null;
       if (!bond) {
-        await pilot.createEmbeddedDocuments("Item", [
-          {
-            ...unpackBond(item.data),
-            type: EntryType.BOND,
-            name: item.data.name,
-          },
-        ]);
+        bond = (
+          await pilot.createEmbeddedDocuments("Item", [
+            {
+              ...unpackBond(item.data),
+              type: EntryType.BOND,
+              name: item.data.name,
+            },
+          ])
+        )[0] as LancerBOND;
       }
+
+      // Update powers
+      // If it does not have an origin, it is from the originating bond ID
+      // while Veteran and Master powers always come with their origin.
+      const unlockedPowersSet = new Set(
+        item.bondPowers.filter(p => !p.origin || p.origin === item.bondId).map(p => p.name)
+      );
+      const unlockedPowers = bond.system.powers.map((p: PowerData) => ({
+        ...p,
+        unlocked: unlockedPowersSet.has(p.name!),
+      }));
+      const findPowerInCompendiums = async (name: string) => {
+        const compendiumPacks = game.packs.get(get_pack_id(EntryType.BOND));
+        const compendiumBonds: LancerItem[] | null =
+          ((await compendiumPacks?.getDocuments({ type: EntryType.BOND })) as unknown as LancerItem[]) ?? null;
+        if (!compendiumBonds) return undefined;
+        for (const bond of compendiumBonds) {
+          if (!bond.is_bond()) continue;
+          const found = bond.system.powers.find(p => p.name === name);
+          if (found) return found;
+        }
+      };
+
+      // Unpack other bonds' powers if necessary and unlock appropriate powers
+      const foreignPowers = [];
+      for (const power of data.bond.bondPowers) {
+        // Check compendiums first... note that this is much less efficient than just simply building the power
+        const foundPower = (await findPowerInCompendiums(power.name)) ?? unpackPower(power);
+        foreignPowers.push({
+          ...foundPower,
+          unlocked: true, // If a foreign power is being added it can be safely assumed it is unlocked
+        });
+      }
+      await bond.update({
+        system: {
+          powers: [...foreignPowers],
+        },
+      });
     }
 
     // Licenses
