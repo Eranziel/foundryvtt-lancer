@@ -17,8 +17,8 @@ import {
   type LancerRESERVE,
   type LancerWEAPON_MOD,
 } from "../item/lancer-item";
-import { PowerData } from "../models/bits/power";
-import { SourceData } from "../source-template";
+import { type PowerData, unpackPower } from "../models/bits/power";
+import type { SourceData } from "../source-template";
 import { get_pack_id, insinuate } from "../util/doc";
 import { fromLid } from "../helpers/from-lid";
 import type {
@@ -81,7 +81,6 @@ async function updatePilot(
       default_value: 0,
     };
   };
-
   await pilot.update({
     name: data.name,
     img: replaceDefaultResource(pilot.img, portrait),
@@ -321,7 +320,10 @@ export async function importCC(
   importedData: PackedPilotData | PackedPilotWrapper,
   clearFirst = true
 ) {
-  if ("EXPORT_TYPE" in importedData) {
+  // CCv3 JSON exports have a wrapper that is missing in sharecode/cloud fetching
+  // `originId` is some arbitrary V3 exclusive data; it can be anything else.
+  // `EXPORT_TYPE` is exclusive to V3 and only in JSON exports.
+  if ("originId" in importedData || "EXPORT_TYPE" in importedData) {
     await importCCv3(pilot, importedData, clearFirst);
   } else {
     await importCCv2(pilot, importedData, clearFirst);
@@ -332,13 +334,25 @@ export async function importCC(
  * Imports packed pilot data from CCv3.
  * Minimum import version: CCv3.0.4
  */
-export async function importCCv3(pilot: LancerPILOT, importedData: PackedPilotWrapper, clearFirst = true) {
+export async function importCCv3(
+  pilot: LancerPILOT,
+  importedData: PackedPilotWrapper | PackedPilotData,
+  clearFirst = true
+) {
   console.log(`${lp} Importing v3 Pilot`, pilot, importedData);
-  if (!pilot.is_pilot()) console.error(`${lp} Actor was not a pilot type`, pilot);
-  if (!importedData) console.error(`${lp} Imported data is missing`, importedData);
-  const data = importedData.data;
+  if (!pilot.is_pilot()) {
+    console.error(`${lp} Actor was not a pilot type`, pilot);
+    return;
+  }
+  if (!importedData) {
+    console.error(`${lp} Imported data is missing`, importedData);
+    return;
+  }
+  // CCv3 JSON exports have a wrapper that is missing in sharecode/cloud fetching
+  const data: PackedPilotData = "EXPORT_TYPE" in importedData ? importedData.data : importedData;
   if (!data) {
     console.error(`${lp} Tried using CCv3 importer on CCv2 data`, importedData);
+    return;
   }
 
   if (clearFirst) {
@@ -367,8 +381,7 @@ export async function importCCv3(pilot: LancerPILOT, importedData: PackedPilotWr
     const pilotItemPool = [...pilot.items.contents];
     let selectedLoadout = 0;
 
-    // Get the object by LIDs first if able as a natural guard against incomplete data
-    // and then overwrite with values in the importing data
+    // Get the object by LIDs first or create from scratch using CC data
     const gears: string[] = [];
     const armors: string[] = [];
     const weapons: string[] = [];
@@ -554,21 +567,61 @@ export async function importCCv3(pilot: LancerPILOT, importedData: PackedPilotWr
     // Bonds
     if (data.bond?.bondId) {
       const item = data.bond;
-      const bond = (await getOrCreateActorItemByLid(
+      let bond = (await getOrCreateActorItemByLid(
         item.bondId,
         pilot,
         pilotItemPool,
         _missingItems
       )) as LancerBOND | null;
       if (!bond) {
-        await pilot.createEmbeddedDocuments("Item", [
-          {
-            ...unpackBond(item.data),
-            type: EntryType.BOND,
-            name: item.data.name,
-          },
-        ]);
+        bond = (
+          await pilot.createEmbeddedDocuments("Item", [
+            {
+              ...unpackBond(item.data),
+              type: EntryType.BOND,
+              name: item.data.name,
+            },
+          ])
+        )[0] as LancerBOND;
       }
+
+      // Update powers
+      // If it does not have an origin, it is from the originating bond ID
+      // while Veteran and Master powers always come with their origin.
+      const unlockedPowersSet = new Set(
+        item.bondPowers.filter(p => !p.origin || p.origin === item.bondId).map(p => p.name)
+      );
+      const unlockedPowers = bond.system.powers.map((p: PowerData) => ({
+        ...p,
+        unlocked: unlockedPowersSet.has(p.name!),
+      }));
+      const findPowerInCompendiums = async (name: string) => {
+        const compendiumPacks = game.packs.get(get_pack_id(EntryType.BOND));
+        const compendiumBonds: LancerItem[] | null =
+          ((await compendiumPacks?.getDocuments({ type: EntryType.BOND })) as unknown as LancerItem[]) ?? null;
+        if (!compendiumBonds) return undefined;
+        for (const bond of compendiumBonds) {
+          if (!bond.is_bond()) continue;
+          const found = bond.system.powers.find(p => p.name === name);
+          if (found) return found;
+        }
+      };
+
+      // Unpack other bonds' powers if necessary and unlock appropriate powers
+      const foreignPowers = [];
+      for (const power of data.bond.bondPowers) {
+        // Check compendiums first... note that this is much less efficient than just simply building the power
+        const foundPower = (await findPowerInCompendiums(power.name)) ?? unpackPower(power);
+        foreignPowers.push({
+          ...foundPower,
+          unlocked: true, // If a foreign power is being added it can be safely assumed it is unlocked
+        });
+      }
+      await bond.update({
+        system: {
+          powers: [...foreignPowers],
+        },
+      });
     }
 
     // Licenses
