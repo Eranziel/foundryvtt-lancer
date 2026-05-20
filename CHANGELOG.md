@@ -1,3 +1,11 @@
+# 2.12.1 (2026-05-19)
+
+## Bug Fixes
+
+- #939 - Comp/Con v3 pilot imports now populate bond powers.
+- #940 - Fixed a bug which introduced some unnecessary damage types and prevented editing weapon damage to anything other than kinetic.
+- Fix a bug which was causing Comp/Con imports to use the wrong version parser in some cases.
+
 # 2.12.0 (2026-05-18)
 
 ## Features
