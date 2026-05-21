@@ -1,3 +1,20 @@
+# 3.0.0 (2026-05-20)
+
+## Features
+
+- #773 - Foundry v13 support!
+- **Breaking**: Removed support for migrating very old worlds (1.X and earlier) directly to newest version.
+- #886, #887 - Improved attack automation. Melee attacks ignore cover unless "thrown" is checked in the attack HUD, tech attacks always ignore cover.
+- Scan automation, now built into the system properly! Output can be set to chat only, journal only, or both. Start scans either from a mech character sheet, dragging the scan button to hotbar, or using the new Scan macro from the compendium.
+- Pause icon customization. Change which faction logo your game uses in the system settings.
+- Basic styling of journals to match selected Lancer theme. Not fancy, but at least they're not parchment anymore!
+- A whole host of optimizations, fixes, improvements to sheet layouts, and styling that I didn't record in detail.
+
+## Bug Fixes
+
+- #896 - Ensure that system automation (using actions, attack rolls, etc...) use the current chat visibility setting.
+- #918 - Overheat check automation fixes. Fix a typo in the Meltdown result, and fix the button to properly roll an Engineering check.
+
 # 2.12.1 (2026-05-19)
 
 ## Bug Fixes
@@ -1181,7 +1198,7 @@ Hotfix to correct new issue with pilot sheet not loading.
 
 # 0.1.0 (2020-07-19)
 
-## Alpha release!
+## Alpha release
 
 A huge thank you and shout-out to Animu36, Grygon, and Staubz, without whose help this initial release would have taken many more weeks!
 
