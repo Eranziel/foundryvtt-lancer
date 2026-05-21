@@ -70,7 +70,7 @@ export async function migrateWorld() {
         This world is too old to migrate directly to Lancer ${game.system.version} and Foundry 13.
       </h4>
       <p>
-        Restore a backup of this world and <strong>use Foundry 12.343</strong> to migrate it first.
+        Restore a backup of this world and <strong>migrate to Foundry 12.343</strong> first.
       </p>`,
       buttons: [
         {
@@ -80,11 +80,11 @@ export async function migrateWorld() {
       ],
     }).render(true);
     ui.notifications?.error(
-      `This world is too old to migrate directly to Lancer ${game.system.version} and Foundry 13. Restore a backup of this world and use Foundry 12.343 to migrate it first.`,
+      `This world is too old to migrate directly to Lancer ${game.system.version} and Foundry 13. Restore a backup of this world and migrate to Foundry 12.343 first.`,
       { permanent: true }
     );
     console.error(
-      4`${lp} World is coming from 1.X. World needs to be migrated through intermediate Foundry versions first.`
+      `${lp} World is coming from 1.X. World needs to be migrated through intermediate Foundry versions first.`
     );
     return;
   }

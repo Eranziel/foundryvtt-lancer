@@ -87,7 +87,7 @@ pages:
     category: null
     _key: '!journal.pages!JDfVPzoWPOLyhCCa.gotpldNfOwLxauXi'
   - sort: -100000
-    name: Welcome to Lancer 2.0!
+    name: Migrating from 1.X -> 2.X
     type: text
     _id: 3VVd9FeG9bFeRzkv
     title:
@@ -97,49 +97,40 @@ pages:
     text:
       format: 1
       content: >-
-        <h2>Migration from 1.X - what you need to know</h2>
-
-        <p>The Lancer system has undergone a fairly significant change since the
-        1.x versions, including simplifications of most of of the data model, as
-        well as the removal of our machine-minds. More importantly, Foundry has
-        evolved significantly as a platform, allowing us to do a lot of nice
-        cleanup in how we store and work with data. As such, we once again need
-        to migrate! Improvements in how Foundry tracks and validates data should
-        make this a fairly painless operation.</p>
-
-        <p>Unfortunately, your Lancer compendiums will be cleared to prevent
-        issues from old data, so you will need to re-import your LCPs. Some
-        things are also not fully migratable, so you may need to do a bit of
-        reconnecting:</p>
-
-        <ul> <li>Existing mechs may not be set as active mechs for their pilots,
-        and will not get HASE bonuses etc... You can set a pilot's active mech
-        in the "MECH//ACTIVE" tab on their sheet.</li> <li>Deployables will
-        likely lose the link to their deployers, and will need to be
-        reconnected.</li><li>Deployable tokens in existing scenes may not be the
-        correct size post-migration.</li> </ul>
-
-        <h2>What Happened to All the Compendiums?</h2>
-
-        <p>We have consolidated the Lancer compendiums, making use of the new
-        feature of folders within compendiums. They are now grouped by which
-        type of actor will use the items in the compendium.</p>
-
-        <p>Also, after lengthy debate, we have trimmed some of the fat in our
-        item types. The following item types are now deprecated:</p>
-
-        <ul> <li><code>tag</code>s - which are now tracked via the world
-        settings for efficiency and consistency.</li>
-        <li><code>manufacturer</code>s - which never really warranted an "item",
-        and are now just a string on licensed items.</li>
-        <li><code>sitreps</code>s - which were barely supported to begin with,
-        and didn't make sense to keep as an item.</li>
-        <li><code>environments</code>s - which may see an eventual return, were
-        not supported or implemented to our liking.</li>
-        <li><code>factions</code>s - which may see an eventual return as a
-        journal entry type when those are supported</li>
-        <li><code>quirks</code>s - which seemed to fit better as just a text
-        box.</li> </ul>
+        <h2>Migration from 1.X - what you need to know</h2><p>The Lancer system
+        has undergone a fairly significant change since the 1.x versions,
+        including simplifications of most of of the data model, as well as the
+        removal of our machine-minds. More importantly, Foundry has evolved
+        significantly as a platform, allowing us to do a lot of nice cleanup in
+        how we store and work with data. As such, we once again need to migrate!
+        Improvements in how Foundry tracks and validates data should make this a
+        fairly painless operation.</p><p>Unfortunately, your Lancer compendiums
+        will be cleared to prevent issues from old data, so you will need to
+        re-import your LCPs. Some things are also not fully migratable, so you
+        may need to do a bit of reconnecting:</p><ul><li>Existing mechs may not
+        be set as active mechs for their pilots, and will not get HASE bonuses
+        etc... You can set a pilot's active mech in the "MECH//ACTIVE" tab on
+        their sheet.</li><li>Deployables will likely lose the link to their
+        deployers, and will need to be reconnected.</li><li>Deployable tokens in
+        existing scenes may not be the correct size
+        post-migration.</li></ul><h2>What Happened to All the
+        Compendiums?</h2><p>We have consolidated the Lancer compendiums, making
+        use of the new feature of folders within compendiums. They are now
+        grouped by which type of actor will use the items in the
+        compendium.</p><p>Also, after lengthy debate, we have trimmed some of
+        the fat in our item types. The following item types are now
+        deprecated:</p><ul><li><code>tag</code>s - which are now tracked via the
+        world settings for efficiency and
+        consistency.</li><li><code>manufacturer</code>s - which never really
+        warranted an "item", and are now just a string on licensed
+        items.</li><li><code>sitreps</code>s - which were barely supported to
+        begin with, and didn't make sense to keep as an
+        item.</li><li><code>environments</code>s - which may see an eventual
+        return, were not supported or implemented to our
+        liking.</li><li><code>factions</code>s - which may see an eventual
+        return as a journal entry type when those are
+        supported</li><li><code>quirks</code>s - which seemed to fit better as
+        just a text box.</li></ul>
       markdown: ''
     video:
       controls: true
@@ -155,8 +146,8 @@ pages:
       systemVersion: 2.0.0-rc1
       coreVersion: '13.351'
       createdTime: 1717031277945
-      modifiedTime: 1741130088072
-      lastModifiedBy: noXx6fCk7156FG8X
+      modifiedTime: 1779341186619
+      lastModifiedBy: SulMOSV4xCr20IqX
       compendiumSource: null
       duplicateSource: null
       exportSource: null
@@ -208,6 +199,47 @@ pages:
       exportSource: null
     category: null
     _key: '!journal.pages!JDfVPzoWPOLyhCCa.LVsmG9EfKH9VpVJX'
+  - sort: -150000
+    name: Welcome to Lancer 3.0!
+    type: text
+    _id: wk3DjUFGluLea7ve
+    system: {}
+    title:
+      show: true
+      level: 1
+    image: {}
+    text:
+      format: 1
+      content: >-
+        <p>This update mainly revolves around Foundry v13 support, including a
+        ton of work on the visuals and styling to work with modern Foundry
+        styling. This may mean that old chat messages and journals look bad or
+        out of place; unfortunately these can't be fixed automatically.
+        </p><p></p><p>Fortunately, the data model changes from 2.X to 3.X are
+        pretty much non-existent, so there should be little to no migration
+        issues. </p><p></p><p>From here we plan to start work on v14 support
+        since it's out already. With any luck we'll be able to move to v14
+        relatively soon.</p><p></p><p>Now, go get in the mech!</p>
+    video:
+      controls: true
+      volume: 0.5
+    src: null
+    category: null
+    ownership:
+      default: -1
+      SulMOSV4xCr20IqX: 3
+    flags: {}
+    _stats:
+      compendiumSource: null
+      duplicateSource: null
+      exportSource: null
+      coreVersion: '13.351'
+      systemId: lancer
+      systemVersion: 3.0.0-rc2
+      createdTime: 1779341196083
+      modifiedTime: 1779341513388
+      lastModifiedBy: SulMOSV4xCr20IqX
+    _key: '!journal.pages!JDfVPzoWPOLyhCCa.wk3DjUFGluLea7ve'
 folder: null
 sort: 0
 ownership:
