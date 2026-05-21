@@ -70,8 +70,10 @@ async function initScanData(state: FlowState<LancerFlowState.ScanData>): Promise
     save: actor.system.save,
     sensor_range: actor.system.sensor_range,
   };
+
+  const items = Array.from(actor.items).sort((a, b) => a.sort - b.sort);
   // TODO: don't add weapons & systems to data for spotter scans
-  state.data.weapons = actor.items
+  state.data.weapons = items
     .filter(i => i.is_npc_feature() && i.system.type === NpcFeatureType.Weapon)
     .map(item => {
       if (item.system.origin?.name === "EXOTIC") {
@@ -102,7 +104,7 @@ async function initScanData(state: FlowState<LancerFlowState.ScanData>): Promise
       };
     });
 
-  state.data.techAttacks = actor.items
+  state.data.techAttacks = items
     .filter(i => i.is_npc_feature() && i.system.type === NpcFeatureType.Tech && !!i.system.tech_attack)
     .map(item => {
       if (!item.is_npc_feature()) return null;
@@ -129,7 +131,7 @@ async function initScanData(state: FlowState<LancerFlowState.ScanData>): Promise
     })
     .filter(i => !!i);
 
-  state.data.systems = actor.items
+  state.data.systems = items
     .filter(
       i =>
         i.is_npc_feature() &&
@@ -159,7 +161,7 @@ async function initScanData(state: FlowState<LancerFlowState.ScanData>): Promise
     })
     .filter(i => !!i);
 
-  state.data.traits = actor.items
+  state.data.traits = items
     .filter(i => i.is_npc_feature() && i.system.type === NpcFeatureType.Trait)
     .map(item => {
       if (!item.is_npc_feature()) return null;
