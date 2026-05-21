@@ -8,6 +8,7 @@
 - Scan automation, now built into the system properly! Output can be set to chat only, journal only, or both. Start scans either from a mech character sheet, dragging the scan button to hotbar, or using the new Scan macro from the compendium.
 - Pause icon customization. Change which faction logo your game uses in the system settings.
 - Basic styling of journals to match selected Lancer theme. Not fancy, but at least they're not parchment anymore!
+- Chat card styling for hidden rolls to make it clearer that it is not a normal/public message.
 - A whole host of optimizations, fixes, improvements to sheet layouts, and styling that I didn't record in detail.
 
 ## Bug Fixes
