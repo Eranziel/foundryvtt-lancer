@@ -144,6 +144,7 @@ declare module "fvtt-types/configuration" {
     "lancer.autoOKillHeat": boolean;
     "lancer.automationOptions": typeof AutomationOptions;
     "lancer.automationSwitch": boolean;
+    "lancer.scanOutputs": string;
     "lancer.combat-tracker-appearance": typeof CombatTrackerAppearance;
     "lancer.combat-tracker-sort": boolean;
     "lancer.combatTrackerConfig": { sortTracker: boolean } | ClientSettings.Values["lancer.combatTrackerConfig"];
