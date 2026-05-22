@@ -420,6 +420,14 @@ export async function importCCv3(
           )[0].id;
 
         gears.push(id);
+
+        pilotItemUpdates.push({
+          _id: id,
+          ...(item.flavorName ? { name: item.flavorName } : {}),
+          system: {
+            ...(item.flavorDescription ? { description: item.flavorDescription } : {}),
+          },
+        });
       }
 
       // Armor
@@ -445,6 +453,14 @@ export async function importCCv3(
           )[0].id;
 
         armors.push(id);
+
+        pilotItemUpdates.push({
+          _id: id,
+          ...(item.flavorName ? { name: item.flavorName } : {}),
+          system: {
+            ...(item.flavorDescription ? { description: item.flavorDescription } : {}),
+          },
+        });
       }
 
       // Weapons
@@ -470,6 +486,14 @@ export async function importCCv3(
           )[0].id;
 
         weapons.push(id);
+
+        pilotItemUpdates.push({
+          _id: id,
+          ...(item.flavorName ? { name: item.flavorName } : {}),
+          system: {
+            ...(item.flavorDescription ? { description: item.flavorDescription } : {}),
+          },
+        });
       }
     }
 
@@ -794,11 +818,13 @@ export async function importCCv3(
 
         mechItemUpdates.push({
           _id: id,
+          ...(item.flavorName ? { name: item.flavorName } : {}),
           system: {
             uses: {
               value: Math.max(0, (item.maxUses ?? 0) - (item.currentUses ?? 0)),
               max: item.maxUses,
             } as const,
+            ...(item.flavorDescription ? { description: item.flavorDescription } : {}),
           },
         });
       }
@@ -849,11 +875,13 @@ export async function importCCv3(
 
           mechItemUpdates.push({
             _id: weaponId,
+            ...(weaponSlot.flavorName ? { name: weaponSlot.flavorName } : {}),
             system: {
               uses: {
                 value: Math.max(0, (weaponSlot.maxUses ?? 0) - (weaponSlot.currentUses ?? 0)),
                 max: weaponSlot.maxUses,
               } as const,
+              ...(weaponSlot.flavorDescription ? { description: weaponSlot.flavorDescription } : {}),
             },
           });
 

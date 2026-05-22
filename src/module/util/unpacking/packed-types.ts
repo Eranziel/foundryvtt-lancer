@@ -419,6 +419,8 @@ export interface PackedPilotEquipmentState {
   uses: number;
   cascading: false;
   customDamageType: null;
+  flavorName: string;
+  flavorDescription: string;
 }
 
 export interface IMechState {
@@ -577,6 +579,8 @@ export interface PackedMechWeaponSaveData extends PackedMechEquipmentData {
   mod?: PackedMechEquipmentData & PackedWeaponModSaveWrapper;
   customDamageType?: string;
   maxUseOverride?: number;
+  flavorName: string;
+  flavorDescription: string;
 }
 
 export interface PackedMechWeaponSaveWrapper {
@@ -837,6 +841,9 @@ export interface PackedMechSystemData {
   name: string;
   license: string; // reference to the Frame name of the associated license
   license_level: number; // set to zero for this item to be available to a LL0 character
+
+  flavorName: string;
+  flavorDescription: string;
 
   source: string; // must be the same as the Manufacturer ID to sort correctly; not required if the item is included in a license collection
   license_id?: string; // Not required if the item is included in a license collection
