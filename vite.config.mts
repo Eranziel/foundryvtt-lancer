@@ -20,8 +20,6 @@ export default defineConfig({
       },
     },
   },
-  // For AWS Config
-  resolve: { alias: [{ find: "./runtimeConfig", replacement: "./runtimeConfig.browser" }] },
   optimizeDeps: {
     include: ["@massif/lancer-data"],
   },
@@ -34,23 +32,12 @@ export default defineConfig({
       formats: ["es"],
       fileName: "lancer",
     },
-  },
-  esbuild: {
-    minifyIdentifiers: false,
-    keepNames: true,
+    rolldownOptions: { output: { keepNames: true } },
   },
   plugins: [
     checker({ typescript: true, enableBuild: false }),
     svelte({ preprocess: sveltePreprocess() }),
     foundryvtt(systemJson),
-    {
-      name: "aws-global-fix",
-      apply: "serve",
-      transform(code, id) {
-        // Define window.global for use by an aws dependency
-        if (id === "\0virtual:entrypoint") return "window.global = window;\n" + code;
-      },
-    },
     visualizer({ gzipSize: true, template: "treemap" }),
   ],
   define: { "process.env.NODE_ENV": JSON.stringify(process.env.NODE_ENV) }, // This is to make tippy not error out in production
