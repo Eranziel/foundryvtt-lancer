@@ -5,7 +5,7 @@ import type { LancerCombat, LancerCombatant } from "./combat/lancer-combat";
 import { setAppearance } from "./combat/lancer-combat-tracker";
 import { LANCER } from "./config";
 import { LancerActiveEffect } from "./effects/lancer-active-effect";
-import { applyTheme } from "./themes";
+import { applyTheme, applySimpleFonts } from "./themes";
 import fields = foundry.data.fields;
 
 export const registerSettings = function () {
@@ -52,6 +52,16 @@ export const registerSettings = function () {
     config: true,
     type: Boolean,
     default: false,
+  });
+
+  game.settings.register(game.system.id, LANCER.setting_simple_fonts, {
+    name: "lancer.simpleFonts.name",
+    hint: "lancer.simpleFonts.hint",
+    scope: "client",
+    config: true,
+    type: Boolean,
+    default: false,
+    onChange: (v: boolean) => applySimpleFonts(v),
   });
 
   game.settings.register(game.system.id, LANCER.setting_ui_theme, {
