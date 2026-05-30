@@ -226,13 +226,24 @@ async function createScanJournal(state: FlowState<LancerFlowState.ScanData>): Pr
     console.log(`${lp} Updating existing scan journal for ${state.data.name}`);
     const scanName = matchingJournalEntries[0].name;
     scanEntry = game.journal.getName(scanName);
-    const scanPage = scanEntry!.pages.getName(scanName);
-    await scanPage!.update({
-      _id: matchingJournalEntries[0]._id,
-      text: {
-        content: scanContent,
-      },
-    });
+    let scanPage = scanEntry!.pages.getName(scanName);
+    if (!scanPage) {
+      // Create a new page and put it first
+      scanPage = new JournalEntryPage({
+        name: scanName,
+        type: "text",
+        sort: -100000,
+        text: { content: scanContent },
+      });
+      scanEntry!.createEmbeddedDocuments("JournalEntryPage", [scanPage]);
+    } else {
+      await scanPage.update({
+        _id: matchingJournalEntries[0]._id,
+        text: {
+          content: scanContent,
+        },
+      });
+    }
   } else {
     console.log(`${lp} Creating a new scan journal for ${state.data.name}`);
     let scanCount = String(journalFolder.contents.filter(e => e.name.startsWith(scanEntryPrefix)).length + 1).padStart(
