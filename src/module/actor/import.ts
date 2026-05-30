@@ -36,6 +36,7 @@ import type {
   PackedMechWeaponSaveData,
   PackedMechEquipmentData,
   PackedMountData,
+  PackedBondPowerData,
 } from "../util/unpacking/packed-types";
 import { LancerActor, type LancerMECH, type LancerPILOT } from "./lancer-actor";
 import { frameToPath } from "./retrograde-map";
@@ -419,6 +420,14 @@ export async function importCCv3(
           )[0].id;
 
         gears.push(id);
+
+        pilotItemUpdates.push({
+          _id: id,
+          ...(item.flavorName ? { name: item.flavorName } : {}),
+          system: {
+            ...(item.flavorDescription ? { description: item.flavorDescription } : {}),
+          },
+        });
       }
 
       // Armor
@@ -444,6 +453,14 @@ export async function importCCv3(
           )[0].id;
 
         armors.push(id);
+
+        pilotItemUpdates.push({
+          _id: id,
+          ...(item.flavorName ? { name: item.flavorName } : {}),
+          system: {
+            ...(item.flavorDescription ? { description: item.flavorDescription } : {}),
+          },
+        });
       }
 
       // Weapons
@@ -469,6 +486,14 @@ export async function importCCv3(
           )[0].id;
 
         weapons.push(id);
+
+        pilotItemUpdates.push({
+          _id: id,
+          ...(item.flavorName ? { name: item.flavorName } : {}),
+          system: {
+            ...(item.flavorDescription ? { description: item.flavorDescription } : {}),
+          },
+        });
       }
     }
 
@@ -586,40 +611,58 @@ export async function importCCv3(
       }
 
       // Update powers
-      // If it does not have an origin, it is from the originating bond ID
-      // while Veteran and Master powers always come with their origin.
-      const unlockedPowersSet = new Set(
-        item.bondPowers.filter(p => !p.origin || p.origin === item.bondId).map(p => p.name)
-      );
-      const unlockedPowers = bond.system.powers.map((p: PowerData) => ({
-        ...p,
-        unlocked: unlockedPowersSet.has(p.name!),
-      }));
-      const findPowerInCompendiums = async (name: string) => {
+      const collectCompendiumPowers = async () => {
+        // Build a map of collected powers from all compendiums
         const compendiumPacks = game.packs.get(get_pack_id(EntryType.BOND));
-        const compendiumBonds: LancerItem[] | null =
-          ((await compendiumPacks?.getDocuments({ type: EntryType.BOND })) as unknown as LancerItem[]) ?? null;
-        if (!compendiumBonds) return undefined;
+        const compendiumBonds =
+          ((await compendiumPacks?.getDocuments({
+            type: EntryType.BOND,
+          })) as LancerBOND[]) ?? [];
+        const compendiumPowerMap = new Map<string, PowerData>();
         for (const bond of compendiumBonds) {
-          if (!bond.is_bond()) continue;
-          const found = bond.system.powers.find(p => p.name === name);
-          if (found) return found;
+          for (const p of bond.system.powers) {
+            if (p.name && !compendiumPowerMap.has(p.name)) compendiumPowerMap.set(p.name, p);
+          }
         }
+
+        return compendiumPowerMap;
+      };
+      const getOrCreatePowers = async (data: PackedPilotData, currentBond: LancerBOND) => {
+        if (!data.bond) return;
+
+        const compendiumPowerMap = await collectCompendiumPowers();
+        const unlockedPowersMap = new Map<string, PackedBondPowerData>();
+        for (const p of data.bond.bondPowers) {
+          if (!unlockedPowersMap.has(p.name)) unlockedPowersMap.set(p.name, p);
+        }
+
+        // Build new array of powers and unlock them on the way
+        const unlockedPowers: PowerData[] = [];
+        for (const power of currentBond.system.powers) {
+          if (!power.name) continue;
+          unlockedPowers.push({
+            ...power,
+            unlocked: unlockedPowersMap.has(power.name),
+          });
+          unlockedPowersMap.delete(power.name);
+        }
+        // Add other bonds' powers if any
+        for (const [name, packedForeignPowerData] of unlockedPowersMap) {
+          // Prioritize compendium data before unpacking CC's data as is preference
+          const power = compendiumPowerMap.get(name) ?? unpackPower(packedForeignPowerData);
+          unlockedPowers.push({
+            ...power,
+            unlocked: true, // If a foreign power is being added it can be safely assumed it is unlocked
+          });
+        }
+
+        return unlockedPowers;
       };
 
-      // Unpack other bonds' powers if necessary and unlock appropriate powers
-      const foreignPowers = [];
-      for (const power of data.bond.bondPowers) {
-        // Check compendiums first... note that this is much less efficient than just simply building the power
-        const foundPower = (await findPowerInCompendiums(power.name)) ?? unpackPower(power);
-        foreignPowers.push({
-          ...foundPower,
-          unlocked: true, // If a foreign power is being added it can be safely assumed it is unlocked
-        });
-      }
+      const updatedPowers = (await getOrCreatePowers(data, bond)) ?? [];
       await bond.update({
         system: {
-          powers: [...foreignPowers],
+          powers: updatedPowers,
         },
       });
     }
@@ -775,11 +818,13 @@ export async function importCCv3(
 
         mechItemUpdates.push({
           _id: id,
+          ...(item.flavorName ? { name: item.flavorName } : {}),
           system: {
             uses: {
               value: Math.max(0, (item.maxUses ?? 0) - (item.currentUses ?? 0)),
               max: item.maxUses,
             } as const,
+            ...(item.flavorDescription ? { description: item.flavorDescription } : {}),
           },
         });
       }
@@ -830,11 +875,13 @@ export async function importCCv3(
 
           mechItemUpdates.push({
             _id: weaponId,
+            ...(weaponSlot.flavorName ? { name: weaponSlot.flavorName } : {}),
             system: {
               uses: {
                 value: Math.max(0, (weaponSlot.maxUses ?? 0) - (weaponSlot.currentUses ?? 0)),
                 max: weaponSlot.maxUses,
               } as const,
+              ...(weaponSlot.flavorDescription ? { description: weaponSlot.flavorDescription } : {}),
             },
           });
 
