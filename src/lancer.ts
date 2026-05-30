@@ -33,7 +33,7 @@ import { richTextEdit } from "./module/apps/text-editor";
 import { LCPManager, addLCPManagerButton } from "./module/apps/lcp-manager/lcp-manager";
 import { preloadTemplates } from "./module/preload-templates";
 import { registerSettings } from "./module/settings";
-import { applyTheme } from "./module/themes";
+import { applyTheme, applySimpleFonts } from "./module/themes";
 import * as migrations from "./module/world_migration";
 
 // Import sliding HUD (used for accuracy/difficulty windows)
@@ -203,6 +203,8 @@ Hooks.once("init", () => {
   registerSettings();
   // Apply theme colors
   applyTheme(game.settings.get(game.system.id, LANCER.setting_ui_theme) as "gms" | "msmc" | "horus");
+  // Apply simple fonts if enabled
+  applySimpleFonts(game.settings.get(game.system.id, LANCER.setting_simple_fonts) as boolean);
 
   // Register flow steps
   const { flows, flowSteps } = registerFlows();

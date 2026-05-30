@@ -39,7 +39,9 @@
     "LancerNPCFeatureSheet": "Lancer System NPC Feature Sheet",
     "Actor": {
       "FIELDS": {
-        "activations": { "label": "Activations" }
+        "activations": {
+          "label": "Activations"
+        }
       }
     },
     "placeholder": {
@@ -247,6 +249,10 @@
     "floatingDamageNumbers": {
       "name": "Floating Damage Numbers",
       "hint": "Enable floating damage numbers for changes to stats, including applying damage rolls. This setting is separate for each client."
+    },
+    "simpleFonts": {
+      "name": "Use Simple/Plain Fonts",
+      "hint": "Replace sci-fi style fonts (e.g. Orbitron headers) with Helvetica. This setting is separate for each client."
     },
     "uiTheme": {
       "name": "UI Theme",

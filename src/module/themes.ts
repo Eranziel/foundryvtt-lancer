@@ -9,6 +9,12 @@ const themeClassMap = {
   gal: "theme-galsim",
 };
 
+export function applySimpleFonts(enabled: boolean) {
+  const body = document.querySelector("body");
+  if (!body) return;
+  body.classList.toggle("lancer-simple-fonts", enabled);
+}
+
 export function applyTheme(theme: "gms" | "gmsDark" | "msmc" | "horus" | "ha" | "ssc" | "ipsn" | "gal") {
   const body = document.querySelector("body");
   if (!body) return;

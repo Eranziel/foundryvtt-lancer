@@ -111,7 +111,7 @@
     letter-spacing: 0.1em !important;
     line-height: 1.2rem;
     text-transform: uppercase;
-    font-family: Roboto, sans-serif !important;
+    font-family: var(--main-font-family) !important;
   }
 
   /** Fixes CSS priority on flexrows within cards */

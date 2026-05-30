@@ -73,7 +73,7 @@
 
         p,
         ul {
-          font-family: Consolas;
+          font-family: var(--monospace-font-family);
           font-size: var(--font-size-10);
           color: var(--light-text);
           margin: 0.2em;
