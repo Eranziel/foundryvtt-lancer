@@ -252,7 +252,7 @@
     },
     "simpleFonts": {
       "name": "Use Simple/Plain Fonts",
-      "hint": "Replace sci-fi style fonts (e.g. Orbitron headers) with Helvetica. This setting is separate for each client."
+      "hint": "Replace stylized sci-fi header fonts with Helvetica for legibility. This setting is separate for each client."
     },
     "uiTheme": {
       "name": "UI Theme",

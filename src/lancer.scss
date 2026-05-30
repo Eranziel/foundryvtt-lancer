@@ -105,14 +105,4 @@
   /* Elements Layer */
 
   /* ---------- */
-
-  /* Simple fonts override */
-  body.lancer-simple-fonts {
-    --header-font-family: Helvetica, Arial, sans-serif;
-
-    /* Pause overlay is intentionally excluded from the simple fonts setting */
-    #pause.lancer-pause figcaption {
-      font-family: Orbitron, Helvetica, Arial, sans-serif;
-    }
-  }
 }
