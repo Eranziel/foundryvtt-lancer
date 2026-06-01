@@ -165,7 +165,7 @@ export class WeaponRangeTemplate extends foundry.canvas.placeables.MeasuredTempl
         let destination = this.snapToCenter(event.getLocalPosition(this.layer));
         if (this.isBurst) {
           destination = this.snapToToken(event.getLocalPosition(this.layer));
-          const token = this.document.flags[game.system.id].burstToken;
+          const token = this.document.flags[game.system.id]?.burstToken;
           if (token) {
             const ignore = this.document.flags[game.system.id].ignore.tokens;
             ignore.push(token);
@@ -220,7 +220,7 @@ export class WeaponRangeTemplate extends foundry.canvas.placeables.MeasuredTempl
    */
   private snapToCenter({ x, y }: { x: number; y: number }): { x: number; y: number } {
     const snapped = canvas.grid!.getCenterPoint({ x, y });
-    return snapped;
+    return { x: Math.round(snapped.x), y: Math.round(snapped.y) };
   }
 
   /**
@@ -250,7 +250,7 @@ export class WeaponRangeTemplate extends foundry.canvas.placeables.MeasuredTempl
         distance: this.getBurstDistance(token.document.width),
         [`flags.${game.system.id}.burstToken`]: token.id,
       });
-      return token.center;
+      return { x: Math.round(token.center.x), y: Math.round(token.center.y) };
     } else {
       this.document.updateSource({ distance: this.getBurstDistance(1) });
       return this.snapToCenter({ x, y });
