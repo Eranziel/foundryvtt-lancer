@@ -1,3 +1,17 @@
+# 3.1.0 (2026-05-31)
+
+## Features
+
+- #895 - Add a checkbox to the attack HUD for Smart, so that effects which grant an attack the Smart tag can be handled much more easily.
+- #946 - Add a setting to use a plain font (Helvetica) for headers, for those who find the stylized header font difficult to read.
+
+## Bug Fixes
+
+- #907 - Apply custom names for equipment imported from Comp/Con.
+- #942 - Fix some bugs with bond data when importing to a pilot with an existing bond.
+- #945 - Fix an error when placing Burst templates.
+- Fix an error in Scan flow when updating an existing journal if the expected journal page isn't found.
+
 # 3.0.0 (2026-05-20)
 
 ## Features
