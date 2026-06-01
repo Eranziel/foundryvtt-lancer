@@ -336,6 +336,7 @@
       <!-- Accuracy column -->
       <div class="accdiff-grid__column">
         <HudCheckbox label="Accurate (+1)" bind:value={weapon.accurate} />
+        <HudCheckbox label="Smart (*)" bind:value={weapon.smart} />
         {#if kind == "attack"}
           <HudCheckbox label="Seeking (*)" bind:value={weapon.seeking} />
           {#each accWeaponPlugins as plugin}

@@ -413,6 +413,7 @@ export async function showAttackHUD(
     state.data.acc_diff = await openSlidingHud("attack", state.data.acc_diff!);
     state.data.grit = state.data.acc_diff.base.grit;
     state.data.flat_bonus = state.data.acc_diff.base.flatBonus;
+    state.data.is_smart = state.data.acc_diff.weapon.smart;
   } catch (_e) {
     // User hit cancel, abort the flow.
     return false;

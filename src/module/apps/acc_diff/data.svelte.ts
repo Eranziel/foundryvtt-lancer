@@ -19,6 +19,7 @@ export interface AccDiffHudWeaponParams {
   inaccurate: boolean;
   seeking: boolean;
   tech: boolean;
+  smart: boolean;
   melee: boolean;
   thrown: boolean;
   engaged: boolean;
@@ -30,6 +31,7 @@ export class AccDiffHudWeapon {
   inaccurate: boolean;
   seeking: boolean;
   tech: boolean;
+  smart: boolean;
   melee: boolean;
   thrown: boolean;
   engaged: boolean;
@@ -43,6 +45,7 @@ export class AccDiffHudWeapon {
     this.inaccurate = $state(obj.inaccurate);
     this.seeking = $state(obj.seeking);
     this.tech = $state(obj.tech);
+    this.smart = $state(obj.smart);
     this.melee = $state(obj.melee);
     this.thrown = $state(obj.thrown);
     this.engaged = $state(obj.engaged);
@@ -55,6 +58,7 @@ export class AccDiffHudWeapon {
       inaccurate: this.inaccurate,
       seeking: this.seeking,
       tech: this.tech,
+      smart: this.smart,
       melee: this.melee,
       thrown: this.thrown,
       engaged: this.engaged,
@@ -207,7 +211,7 @@ export class AccDiffHudTarget extends AccDiffHudBase {
       cover = Cover.Soft;
     }
     let ret: AccDiffHudTargetParams = {
-      targetUuid: t.document.uuid,
+      targetUuid: t.document.uuid!,
       // TODO: grit and flatBonus should be provided by base
       grit: 0,
       flatBonus: 0,
@@ -327,7 +331,7 @@ export class AccDiffHudData {
       weapon: this.weapon.raw,
       base: this.base.raw,
       targets: this.targets.map(t => t.raw),
-      runtimeData: this.lancerItem?.uuid || this.lancerActor?.uuid,
+      runtimeData: this.lancerItem?.uuid! || this.lancerActor?.uuid!,
     };
   }
 
@@ -382,6 +386,7 @@ export class AccDiffHudData {
       inaccurate: false,
       seeking: false,
       tech: !!(title?.toLowerCase() === "tech attack" || techItem),
+      smart: false,
       melee: weaponItem?.currentProfile().type === WeaponType.Melee || false,
       thrown: false,
       engaged: false,
@@ -402,6 +407,9 @@ export class AccDiffHudData {
           break;
         case "tg_inaccurate":
           weapon.inaccurate = true;
+          break;
+        case "tg_smart":
+          weapon.smart = true;
           break;
         case "tg_seeking":
           weapon.seeking = true;
@@ -433,7 +441,7 @@ export class AccDiffHudData {
           cover = Cover.Soft;
         }
         let ret: AccDiffHudTargetParams = {
-          targetUuid: t.document.uuid,
+          targetUuid: t.document.uuid!,
           grit: base.grit,
           flatBonus: base.flatBonus,
           accuracy: 0,
