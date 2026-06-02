@@ -136,8 +136,8 @@ export async function initTechAttackData(
       }
       let tier_index: number = state.item.system.tier_override || state.actor.system.tier - 1;
       let asTech = state.item.system as SystemTemplates.NPC.TechData;
-      let acc = asTech.accuracy ? asTech.accuracy[tier_index] ?? 0 : 0;
-      state.data.grit = asTech.attack_bonus ? asTech.attack_bonus[tier_index] ?? 0 : 0;
+      let acc = asTech.accuracy ? (asTech.accuracy[tier_index] ?? 0) : 0;
+      state.data.grit = asTech.attack_bonus ? (asTech.attack_bonus[tier_index] ?? 0) : 0;
       state.data.acc_diff = options?.acc_diff
         ? AccDiffHudData.fromObject(options.acc_diff)
         : AccDiffHudData.fromParams(
@@ -196,7 +196,7 @@ export async function printTechAttackCard(
     attackData: {
       origin: state.actor.id!,
       attackerUuid: state.actor.uuid!,
-      attackerItemUuid: state.item?.uuid,
+      attackerItemUuid: state.item?.uuid!,
       invade: state.data.invade,
       targets: state.data.hit_results.map(hr => {
         return {
@@ -210,6 +210,7 @@ export async function printTechAttackCard(
       }),
     },
   };
+  state.data.defense = state.data.is_smart ? "E-DEF" : "EVASION";
   const hitResultsWithRolls: LancerFlowState.HitResultWithRoll[] = [];
   for (const [index, hitResult] of state.data.hit_results.entries()) {
     hitResultsWithRolls.push({

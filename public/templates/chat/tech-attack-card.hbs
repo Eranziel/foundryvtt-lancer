@@ -1,4 +1,4 @@
-<div class="card clipped-bot" {{#if item_uuid}} data-uuid="{{item_uuid}}" {{/if}} style="margin: 0px;">
+<div class="card clipped-bot" {{#if item_uuid}} data-uuid="{{item_uuid}}" {{/if}} style="margin: 0px">
   <div class="lancer-header lancer-tech tech medium">
     <i class="cci cci-tech-quick i--4 i--light"> </i>
     <span>{{#if invade}}INVADE{{else}}TECH ATK{{/if}}{{#if title}} :: {{title}}{{/if}}</span>
@@ -28,7 +28,7 @@
   {{/if}}
   {{#if hit_results.length}}
     <div class="lancer-mini-header collapse-trigger" data-collapse-id="{{_uuid}}-hits">
-      {{localize "lancer.chat-card.title.defense-hit" defense="E-DEF"}}
+      {{localize "lancer.chat-card.title.defense-hit" defense=defense}}
     </div>
     <div class="collapse" data-collapse-id="{{_uuid}}-hits">
       {{#each hit_results as |hit key|}}
@@ -59,6 +59,8 @@
     <button
       class="lancer-button lancer-damage-flow lancer-secondary"
       label="lancer.chat-card.attack.roll-all-damage"
-    ><i class="mdi mdi-dice-multiple i--3 i--light"></i>&nbsp;{{localize "lancer.chat-card.attack.roll-all-damage"}}</button>
+    >
+      <i class="mdi mdi-dice-multiple i--3 i--light"></i>&nbsp;{{localize "lancer.chat-card.attack.roll-all-damage"}}
+    </button>
   {{/if}}
 </div>

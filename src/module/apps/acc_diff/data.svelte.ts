@@ -381,12 +381,13 @@ export class AccDiffHudData {
       !(runtimeData.is_npc_feature() && runtimeData.system.type === NpcFeatureType.Weapon)
         ? runtimeData
         : null;
+    const isTech = !!(title?.toLowerCase() === "tech attack" || techItem);
     const weapon = {
       accurate: false,
       inaccurate: false,
       seeking: false,
-      tech: !!(title?.toLowerCase() === "tech attack" || techItem),
-      smart: false,
+      tech: isTech,
+      smart: isTech,
       melee: weaponItem?.currentProfile().type === WeaponType.Melee || false,
       thrown: false,
       engaged: false,
