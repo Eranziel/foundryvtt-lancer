@@ -1,3 +1,9 @@
+# 3.1.1 (2026-06-01)
+
+## Bug Fixes
+
+- Fix a bug causing tech attacks to be treated as not-smart, comparing the attack rolls against evasion instead of e-def.
+
 # 3.1.0 (2026-05-31)
 
 ## Features
