@@ -147,12 +147,12 @@ export class DamageField<Options extends fields.SchemaField.Options<DamageFieldS
     return new Damage(value);
   }
 
-  migrateSource(sourceData: any, fieldData: any) {
-    if (fieldData.type) {
-      fieldData.type = restrict_enum(DamageType, DamageType.Kinetic, fieldData.type);
+  _migrate(value: any, _options: any) {
+    if (value.type) {
+      value.type = restrict_enum(DamageType, DamageType.Kinetic, value.type);
     }
 
-    return super.migrateSource(sourceData, fieldData);
+    return value;
   }
 
   /** @override */
