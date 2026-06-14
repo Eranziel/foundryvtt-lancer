@@ -15,7 +15,12 @@
 
   let selectedFiles: FileList | null = null;
   let filenames: string | null = null;
-  let filesData: { name: string; data: ArrayBuffer | null; loaded: boolean; cp: IContentPack | null }[] = [];
+  let filesData: {
+    name: string;
+    data: ArrayBuffer | null;
+    loaded: boolean;
+    cp: IContentPack | null;
+  }[] = [];
   let contentSummary: ContentSummary | null = null;
 
   function filesSelected(event: any) {
@@ -61,9 +66,17 @@
         ui.notifications.error(`Failed to load LCP ${fd.name}`);
         return;
       }
-      fd.cp = await parseContentPack(fd.data);
-      dispatch("lcpLoaded", { contentPacks: [fd.cp], contentSummary: generateLcpSummary(fd.cp) });
-      return;
+      try {
+        fd.cp = await parseContentPack(fd.data);
+        dispatch("lcpLoaded", {
+          contentPacks: [fd.cp],
+          contentSummary: generateLcpSummary(fd.cp),
+        });
+        return;
+      } catch (err: any) {
+        ui.notifications.error(`Could not load ${fd.name}: ${err.message || err}`, { permanent: true });
+        return;
+      }
     }
 
     // Parse the content packs
@@ -80,16 +93,23 @@
           ui.notifications.error(`Failed to load LCP ${fd.name}`);
           return;
         }
-        fd.cp = await parseContentPack(fd.data);
-        const author = fd.cp.manifest.website
-          ? `<a href="${fd.cp.manifest.website}">${fd.cp.manifest.author}</a>`
-          : `<em>${fd.cp.manifest.author}</em>`;
-        aggregateManifest.description += `<b>${fd.cp.manifest.name}</b> v${fd.cp.manifest.version} by ${author}<br />`;
+
+        try {
+          fd.cp = await parseContentPack(fd.data);
+          const author = fd.cp.manifest.website
+            ? `<a href="${fd.cp.manifest.website}">${fd.cp.manifest.author}</a>`
+            : `<em>${fd.cp.manifest.author}</em>`;
+          aggregateManifest.description += `<b>${fd.cp.manifest.name}</b> v${fd.cp.manifest.version} by ${author}<br />`;
+        } catch (err: any) {
+          ui.notifications.error(`Could not load ${fd.name}: ${err.message || err}`, { permanent: true });
+        }
       })
     );
     const contentPacks = filesData.map(fd => fd.cp!).filter(cp => Boolean(cp));
-    contentSummary = generateMultiLcpSummary(aggregateManifest, contentPacks);
-    dispatch("lcpLoaded", { contentPacks, contentSummary });
+    if (contentPacks.length) {
+      contentSummary = generateMultiLcpSummary(aggregateManifest, contentPacks);
+      dispatch("lcpLoaded", { contentPacks, contentSummary });
+    }
   }
 </script>
 
@@ -108,13 +128,13 @@
         {disabled}
         bind:files={selectedFiles}
         on:change={filesSelected}
-      />
+      >
 
       <span class="file-custom"><div class="file-custom__button">Browse</div>
         <span class="file-custom__filenames">{filenames || "Choose file..."}</span></span>
     </label>
     <button class="lancer-button deselect-file" {disabled} on:click={deselect}>
-      <i class="fas fa-broom" /> Unselect File
+      <i class="fas fa-broom"></i> Unselect File
     </button>
   </div>
 </div>

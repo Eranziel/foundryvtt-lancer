@@ -599,6 +599,8 @@ export interface IContentPackManifest {
   description?: string;
   website?: string;
   image_url?: string;
+  version_history?: { version: string; date: string; changes: string[] }[];
+  v3?: boolean;
 }
 export interface IContentPackData {
   manufacturers?: PackedManufacturerData[];

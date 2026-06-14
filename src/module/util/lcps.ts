@@ -237,6 +237,10 @@ export async function parseContentPack(binString: ArrayBuffer | string): Promise
   const manifest = await readZipJSON<IContentPackManifest>(zip, "lcp_manifest.json");
   if (!manifest) throw new Error("Content pack has no manifest");
   if (!isValidManifest(manifest)) throw new Error("Content manifest is invalid");
+  if (manifest.v3)
+    throw new Error(
+      `V3 LCPs are not yet supported in Foundry, please import the V2 LCP instead. (Usually listed on itch as \"for old.compcon.app\".)`
+    );
 
   function generateIDs<T extends { id: string; name: string }>(data: T[], dataPrefix?: string): T[] {
     if (dataPrefix) {
