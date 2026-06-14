@@ -40,9 +40,19 @@ export class ScanFlow extends Flow<LancerFlowState.ScanData> {
 
 async function initScanData(state: FlowState<LancerFlowState.ScanData>): Promise<boolean> {
   if (!state.data) throw new TypeError(`Flowstate missing!`);
-  if (!state.data.target) throw new TypeError(`Scan flow requires a target.`);
+  if (!state.data.target) {
+    ui.notifications.error(`You must target a token to scan.`);
+    return false;
+  }
   const actor = state.data.target.actor;
-  if (!actor) throw new TypeError(`Scan flow target does not reference an actor!`);
+  if (!actor) {
+    ui.notifications.error(`The targeted token has no associated actor.`);
+    return false;
+  }
+  if (!actor.is_npc()) {
+    ui.notifications.error(`You can only scan NPC actors.`);
+    return false;
+  }
   state.data.name = state.data.target.name;
   state.data.img = actor.img;
   state.data.tier = actor.system.tier || 1;
