@@ -44,7 +44,12 @@
   }
   init();
 
-  function lcpLoaded(event: CustomEvent<{ contentPacks: IContentPack[]; contentSummary: ContentSummary }>) {
+  function lcpLoaded(
+    event: CustomEvent<{
+      contentPacks: IContentPack[];
+      contentSummary: ContentSummary;
+    }>
+  ) {
     if (!event.detail) {
       contentPacks = [];
       fileContentSummary = null;
@@ -148,7 +153,10 @@
   async function clearCompendiums() {
     // Confirmation prompt
     const answer = await foundry.applications.api.DialogV2.confirm({
-      window: { title: "Clear Compendiums", icon: "fas fa-triangle-exclamation" },
+      window: {
+        title: "Clear Compendiums",
+        icon: "fas fa-triangle-exclamation",
+      },
       content: `<p>Are you sure you want to delete all actors and items from the Lancer compendiums?</p>
         <p><i class="fas fa-triangle-exclamation i--4"></i> This action cannot be undone!</p>`,
     });
@@ -165,9 +173,7 @@
 
 <div class="lcp-manager">
   {#if loading}
-    <div class="flexrow" style="margin: 5em">
-      <Spinner><span class="monospace">Loading data, please wait…</span></Spinner>
-    </div>
+    <Spinner><span class="monospace">Loading data, please wait…</span></Spinner>
   {:else}
     <div class="flexrow lcp-manager__main-content" style="flex: 1 1">
       <LCPTable
@@ -180,8 +186,17 @@
         on:clearCompendiums={clearCompendiums}
       />
       <div class="lcp-manager__detail-column">
-        <LcpSelector bind:disabled={busy} bind:deselect={deselectFiles} on:lcpLoaded={lcpLoaded} />
-        <LcpDetails bind:disabled={busy} {contentSummary} {showImportButton} on:importLcp={() => importManyLcps()} />
+        <LcpSelector
+          bind:disabled={busy}
+          bind:deselect={deselectFiles}
+          on:lcpLoaded={lcpLoaded}
+        />
+        <LcpDetails
+          bind:disabled={busy}
+          {contentSummary}
+          {showImportButton}
+          on:importLcp={() => importManyLcps()}
+        />
       </div>
     </div>
     <div class="lcp-manager__progress-area">
@@ -189,11 +204,22 @@
         {#if importing || importingMany}
           <span transition:fade|global class="monospace">{
               `${importingLcp?.manifest.name} v${importingLcp?.manifest.version}`
-            } {barWidth}%</span>
-          <div transition:fade|global class="lcp-manager__progress-bar" style:width={`${barWidth}%`} />
+            }
+            {barWidth}%</span>
+          <div
+            transition:fade|global
+            class="lcp-manager__progress-bar"
+            style:width={`${barWidth}%`}
+          >
+          </div>
         {/if}
         {#if importingMany}
-          <div transition:fade|global class="lcp-manager__progress-bar" style:width={`${secondBarWidth}%`} />
+          <div
+            transition:fade|global
+            class="lcp-manager__progress-bar"
+            style:width={`${secondBarWidth}%`}
+          >
+          </div>
         {/if}
       </div>
     </div>

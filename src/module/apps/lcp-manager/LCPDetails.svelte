@@ -27,16 +27,22 @@
 
 <!-- Show LCP name, art, and contents -->
 <div class="lcp-details card clipped">
-  <div class="lancer-header lancer-primary major"><span class={`transition ${fadeDirection}`}>{title}</span></div>
+  <div class="lancer-header lancer-primary major">
+    <span class={`transition ${fadeDirection}`}>{title}</span>
+  </div>
   <!-- New LCP Manifest -->
   {#if oldContentSummary}
     <div class="lcp-details__content" transition:fade|global>
       {#if oldContentSummary.website}
-        <a href={oldContentSummary.website} class={`medium transition ${fadeDirection}`} style="margin: 5px;"
-          >by {oldContentSummary.author}</a
-        >
+        <a
+          href={oldContentSummary.website}
+          class={`medium transition ${fadeDirection}`}
+          style="margin: 5px"
+        >by {oldContentSummary.author}</a>
       {:else}
-        <div class={`medium transition ${fadeDirection}`} style="margin: 10px;">by {oldContentSummary.author}</div>
+        <div class={`medium transition ${fadeDirection}`} style="margin: 10px">
+          by {oldContentSummary.author}
+        </div>
       {/if}
       <div class="lcp-description minor desc-text">
         <div class={`transition ${fadeDirection}`}>
@@ -46,45 +52,71 @@
               src={oldContentSummary.image_url}
               title={oldContentSummary.name}
               alt={oldContentSummary.name}
-            />
+            >
           {/if}
           <span>Contents:</span>
           <ul>
             {#if oldContentSummary.skills}
-              <li><span class="lcp-manifest-badge">{oldContentSummary.skills}</span> pilot skills</li>
+              <li>
+                <span class="lcp-manifest-badge">{oldContentSummary.skills}</span> pilot skills
+              </li>
             {/if}
             {#if oldContentSummary.talents}
-              <li><span class="lcp-manifest-badge">{oldContentSummary.talents}</span> talents</li>
+              <li>
+                <span class="lcp-manifest-badge">{oldContentSummary.talents}</span> talents
+              </li>
             {/if}
             {#if oldContentSummary.bonds}
-              <li><span class="lcp-manifest-badge">{oldContentSummary.bonds}</span> bonds</li>
+              <li>
+                <span class="lcp-manifest-badge">{oldContentSummary.bonds}</span> bonds
+              </li>
             {/if}
             {#if oldContentSummary.reserves}
-              <li><span class="lcp-manifest-badge">{oldContentSummary.reserves}</span> reserves</li>
+              <li>
+                <span class="lcp-manifest-badge">{oldContentSummary.reserves}</span> reserves
+              </li>
             {/if}
             {#if oldContentSummary.gear}
-              <li><span class="lcp-manifest-badge">{oldContentSummary.gear}</span> pilot gear</li>
+              <li>
+                <span class="lcp-manifest-badge">{oldContentSummary.gear}</span>
+                pilot gear
+              </li>
             {/if}
             {#if oldContentSummary.frames}
-              <li><span class="lcp-manifest-badge">{oldContentSummary.frames}</span> frames</li>
+              <li>
+                <span class="lcp-manifest-badge">{oldContentSummary.frames}</span> frames
+              </li>
             {/if}
             {#if oldContentSummary.systems}
-              <li><span class="lcp-manifest-badge">{oldContentSummary.systems}</span> mech systems</li>
+              <li>
+                <span class="lcp-manifest-badge">{oldContentSummary.systems}</span> mech systems
+              </li>
             {/if}
             {#if oldContentSummary.weapons}
-              <li><span class="lcp-manifest-badge">{oldContentSummary.weapons}</span> mech weapons</li>
+              <li>
+                <span class="lcp-manifest-badge">{oldContentSummary.weapons}</span> mech weapons
+              </li>
             {/if}
             {#if oldContentSummary.mods}
-              <li><span class="lcp-manifest-badge">{oldContentSummary.mods}</span> weapon mods</li>
+              <li>
+                <span class="lcp-manifest-badge">{oldContentSummary.mods}</span>
+                weapon mods
+              </li>
             {/if}
             {#if oldContentSummary.npc_classes}
-              <li><span class="lcp-manifest-badge">{oldContentSummary.npc_classes}</span> NPC classes</li>
+              <li>
+                <span class="lcp-manifest-badge">{oldContentSummary.npc_classes}</span> NPC classes
+              </li>
             {/if}
             {#if oldContentSummary.npc_templates}
-              <li><span class="lcp-manifest-badge">{oldContentSummary.npc_templates}</span> NPC templates</li>
+              <li>
+                <span class="lcp-manifest-badge">{oldContentSummary.npc_templates}</span> NPC templates
+              </li>
             {/if}
             {#if oldContentSummary.npc_features}
-              <li><span class="lcp-manifest-badge">{oldContentSummary.npc_features}</span> NPC features</li>
+              <li>
+                <span class="lcp-manifest-badge">{oldContentSummary.npc_features}</span> NPC features
+              </li>
             {/if}
           </ul>
           {#if oldContentSummary.description}
@@ -102,7 +134,7 @@
           {disabled}
           on:click={() => dispatch("importLcp")}
         >
-          <i class="cci cci-content-manager i--4" />
+          <i class="cci cci-content-manager i--4"></i>
           Import LCP
         </button>
       {/if}

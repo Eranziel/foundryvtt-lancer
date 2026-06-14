@@ -130,8 +130,10 @@
         on:change={filesSelected}
       >
 
-      <span class="file-custom"><div class="file-custom__button">Browse</div>
-        <span class="file-custom__filenames">{filenames || "Choose file..."}</span></span>
+      <span class="file-custom">
+        <div class="file-custom__button">Browse</div>
+        <span class="file-custom__filenames">{filenames || "Choose file..."}</span>
+      </span>
     </label>
     <button class="lancer-button deselect-file" {disabled} on:click={deselect}>
       <i class="fas fa-broom"></i> Unselect File

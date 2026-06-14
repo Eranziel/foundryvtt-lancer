@@ -109,7 +109,9 @@
 </script>
 
 <div class="lcp-table flexcol" style={$$restProps.style}>
-  <div class="lancer-header clipped-top lancer-primary major">Available and Installed Content</div>
+  <div class="lancer-header clipped-top lancer-primary major">
+    Available and Installed Content
+  </div>
   <!-- LCP table. Official content is listed first, manually installed content at the end. -->
   <div id="lcp-table">
     <div class="lcp-table__rows">
@@ -123,13 +125,13 @@
             bind:checked={selectAllRows}
             on:click={toggleSelectAllOfficial}
             on:change={() => debounceAggregateSummary()}
-          />
+          >
         </div>
         <span>TITLE</span>
         <span>AUTHOR</span>
-        <span />
+        <span></span>
         <span>CURRENT</span>
-        <span />
+        <span></span>
         <span>AVAILABLE</span>
       </div>
       {#each lcpData as pack}
@@ -148,9 +150,9 @@
               {disabled}
               bind:checked={rowSelectionTracker[pack.id].checked}
               on:change={() => debounceAggregateSummary()}
-            />
+            >
           {:else}
-            <span class="content-checkbox" />
+            <span class="content-checkbox"></span>
           {/if}
           <span class="content-label">
             {pack.title}
@@ -160,8 +162,13 @@
           </span>
           <span class="content-label">
             {#if pack.url}
-              <a href={pack.url} target="_blank" rel="noopener noreferrer" on:click={e => e.stopPropagation()}>
-                <i class="fas fa-external-link-alt" />
+              <a
+                href={pack.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                on:click={e => e.stopPropagation()}
+              >
+                <i class="fas fa-external-link-alt"></i>
               </a>
             {/if}
           </span>
@@ -169,11 +176,11 @@
           <span class="content-icon">
             {#if pack.availableVersion}
               {#if pack.currentVersion === pack.availableVersion}
-                <i class="fas fa-check" />
+                <i class="fas fa-check"></i>
               {:else if rowSelectionTracker[pack.id]}
-                <i class="fas fa-arrow-right" />
+                <i class="fas fa-arrow-right"></i>
               {:else}
-                <i class="fas fa-lock" />
+                <i class="fas fa-lock"></i>
               {/if}
             {/if}
           </span>
@@ -192,7 +199,7 @@
       disabled={disabled || !lcpData.some(p => rowSelectionTracker[p.id].checked)}
       on:click={dispatchLcpsToInstall}
     >
-      <i class="cci cci-content-manager i--4" />
+      <i class="cci cci-content-manager i--4"></i>
       Import/Update Selected
     </button>
 
@@ -204,7 +211,7 @@
       disabled={disabled || !lcpData.some(p => p.currentVersion !== "--")}
       on:click={clearCompendiums}
     >
-      <i class="fas fa-trash i--2" />
+      <i class="fas fa-trash i--2"></i>
       Clear Compendium Data
     </button>
   </div>
