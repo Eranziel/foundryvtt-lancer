@@ -1,10 +1,6 @@
 name: Release Creation
 
-on:
-  workflow_dispatch
-  push:
-    tags:
-      - "v*"
+on: workflow_dispatch
 
 jobs:
   build:
