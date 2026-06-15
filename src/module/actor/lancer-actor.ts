@@ -179,11 +179,11 @@ export class LancerActor<SubType extends Actor.SubType = Actor.SubType> extends 
 
     // Only set heat on items that have it
     if (this.hasHeatcap()) {
-      changes["system.heat.value"] = this.system.heat.value + damage.Heat;
+      changes["system.heat.value"] = this.system.heat.value + damage.Heat + damage.Infect;
     }
 
     const armorDamage = Math.ceil(damage.Kinetic + damage.Energy + damage.Explosive + damage.Variable);
-    let totalDamage = armorDamage + damage.Burn + damage.Infect;
+    let totalDamage = armorDamage + damage.Burn;
     let overshieldUsed = 0;
     // Reduce Overshield first
     if (this.system.overshield.value) {
