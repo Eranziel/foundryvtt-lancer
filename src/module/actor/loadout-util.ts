@@ -93,6 +93,7 @@ export class LoadoutHelper {
     // Things for heat-havers
     if (this.actor.is_mech() || this.actor.is_npc() || this.actor.is_deployable()) {
       changes["system.heat.value"] = 0;
+      changes["system.infect"] = 0;
     }
 
     if (this.actor.is_mech() || this.actor.is_npc()) {

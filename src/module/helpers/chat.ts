@@ -90,6 +90,7 @@ export function damageTarget(
     explosive: statuses.has("resistance_explosive"),
     kinetic: statuses.has("resistance_kinetic"),
     burn: statuses.has("resistance_burn"),
+    infect: statuses.has("resistance_infect"),
     heat: statuses.has("resistance_heat"),
   };
   const select = context.configurable
@@ -168,6 +169,7 @@ export function damageTarget(
         data-hit="${target.hit}"
         data-crit="${target.crit}"
         data-add-burn="${context.add_burn}"
+        data-add-infect="${context.add_infect}"
       >
         ${select}
         <button

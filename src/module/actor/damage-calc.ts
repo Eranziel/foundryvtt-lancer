@@ -6,6 +6,7 @@ export class AppliedDamage {
   public Energy: number;
   public Explosive: number;
   public Burn: number;
+  public Infect: number;
   public Heat: number;
   public Variable: number;
 
@@ -14,6 +15,7 @@ export class AppliedDamage {
     this.Energy = this.sum_damage(damageData, DamageType.Energy);
     this.Explosive = this.sum_damage(damageData, DamageType.Explosive);
     this.Burn = this.sum_damage(damageData, DamageType.Burn);
+    this.Infect = this.sum_damage(damageData, DamageType.Infect);
     this.Heat = this.sum_damage(damageData, DamageType.Heat);
     this.Variable = this.sum_damage(damageData, DamageType.Variable);
   }

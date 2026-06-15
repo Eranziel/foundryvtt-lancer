@@ -156,6 +156,7 @@ export namespace LancerFlowState {
     type: "damage";
     configurable: boolean;
     add_burn: boolean;
+    add_infect: boolean;
     damage_hud_data?: DamageHudData;
     invade?: boolean;
     tags: Tag[];
@@ -182,6 +183,12 @@ export namespace LancerFlowState {
 
   export interface BurnCheckData extends DamageRollData {
     // If we name this property 'result', DSN will show double d20 rolls for the Eng
+    check_total?: number;
+    amount: number;
+  }
+
+  export interface InfectCheckData extends DamageRollData {
+    // If we name this property 'result', DSN will show double d20 rolls for the Sys
     check_total?: number;
     amount: number;
   }
@@ -427,6 +434,7 @@ export namespace LancerFlowState {
     Overheat = "Overheat",
     Structure = "Structure",
     Burn = "Burn",
+    Infect = "Infect",
     Overcharge = "Overcharge",
     BasicAttack = "BasicAttack",
     Damage = "Damage",

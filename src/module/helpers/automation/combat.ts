@@ -69,6 +69,19 @@ function processEndTurn(actor: LancerActor) {
     }
   }
 
+  // Handle Infect
+  if (actor.system.infect > 0) {
+    // Since this code only runs for the GM, check whether we should get the infect prompt or forward it to a player.
+    if (userOwnsActor(actor)) {
+      actor.beginInfectFlow();
+    } else {
+      game.socket?.emit(`system.${game.system.id}`, {
+        action: "infectCheck",
+        data: { actorUuid: actor.uuid },
+      });
+    }
+  }
+
   // Print chat messages.
   if (game.settings.get(game.system.id, LANCER.setting_actionTracker).printMessages) {
     new ActionTrackFlow(actor, { start: false }).begin();

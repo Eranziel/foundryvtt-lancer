@@ -12,6 +12,13 @@ async function socketBurnCheck(msg: { action: string; data: { actorUuid: string 
   }
 }
 
+async function socketInfectCheck(msg: { action: string; data: { actorUuid: string } }) {
+  const actor = await LancerActor.fromUuid(msg.data.actorUuid);
+  if (actor && userOwnsActor(actor)) {
+    actor.beginInfectFlow();
+  }
+}
+
 export default function handleSocketMessage(msg: { action: string; data: any }) {
   switch (msg.action) {
     case "scrollText":
@@ -19,6 +26,9 @@ export default function handleSocketMessage(msg: { action: string; data: any }) 
       break;
     case "burnCheck":
       socketBurnCheck(msg);
+      break;
+    case "infectCheck":
+      socketInfectCheck(msg);
       break;
     default:
       console.warn(`Lancer | Unhandled socket message action: ${msg.action}`);

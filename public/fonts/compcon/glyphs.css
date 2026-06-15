@@ -209,6 +209,9 @@
 .cci-burn:before {
   content: "\e93c";
 }
+.cci-infect:before {
+  content: "\e93c";
+}
 .cci-energy:before {
   content: "\e93d";
 }
@@ -342,6 +345,9 @@
   content: "\e963";
 }
 .cci-burning:before {
+  content: "\e964";
+}
+.cci-infected:before {
   content: "\e964";
 }
 .cci-balance:before {

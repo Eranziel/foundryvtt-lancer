@@ -66,6 +66,7 @@ export class Damage implements Readonly<DamageData> {
     let override = damages.length == 0;
     return {
       Burn: override || damages.includes(DamageType.Burn),
+      Infect: override || damages.includes(DamageType.Infect),
       Energy: override || damages.includes(DamageType.Energy),
       Explosive: override || damages.includes(DamageType.Explosive),
       Heat: override || damages.includes(DamageType.Heat),

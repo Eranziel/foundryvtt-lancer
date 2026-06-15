@@ -35,6 +35,7 @@ export namespace SystemTemplates {
     // These are exactly the same
     lid: string;
     burn: number;
+    infect: number;
 
     activations: number;
     custom_counters: CounterData[];
@@ -82,6 +83,7 @@ export namespace SystemTemplates {
       explosive: boolean;
       heat: boolean;
       burn: boolean;
+      infect: boolean;
       variable: boolean;
     };
 

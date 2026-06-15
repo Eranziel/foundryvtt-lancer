@@ -125,6 +125,7 @@ export function unpackDeployableData(data: PackedDeployableData): DeepPartial<So
     avail_unmounted: undefined,
     hp: { min: 0, max: max_hp, value: max_hp },
     burn: undefined,
+    infect: undefined,
     cost: data.cost,
     custom_counters: undefined,
     deactivation: data.deactivation,

@@ -76,6 +76,11 @@ export function stat_edit_card(
         icon: "cci cci-burn",
         tooltip: "Roll a burn check and generate damage",
       });
+    } else if (data_path === "system.infect") {
+      flowButton = _basicFlowButton(getActorUUID(options)!, "Infect", {
+        icon: "cci cci-infect",
+        tooltip: "Roll an infect check and generate heat",
+      });
     }
   }
   const localizedTitle = game.i18n.localize(`lancer.common-sheet.shortStats.${title}`);

@@ -58,6 +58,7 @@ export enum StabOptions1 {
 export enum StabOptions2 {
   Reload = "Reload",
   ClearBurn = "ClearBurn",
+  ClearInfect = "ClearInfect",
   ClearOwnCond = "ClearOwnCond",
   ClearOtherCond = "ClearOtherCond",
 }
@@ -373,6 +374,7 @@ export enum DamageType {
   Explosive = "Explosive",
   Heat = "Heat",
   Burn = "Burn",
+  Infect = "Infect",
   Variable = "Variable",
 }
 
@@ -450,6 +452,7 @@ export type SynergyLocation =
   | "repair"
   | "overshield"
   | "burn"
+  | "infect"
   | "structure"
   | "heat"
   | "stress"
@@ -493,6 +496,7 @@ export const AllSynergyLocations = [
   "repair",
   "overshield",
   "burn",
+  "infect",
   "structure",
   "heat",
   "stress",

@@ -94,6 +94,9 @@ async function applyStabilizeUpdates(state: FlowState<LancerFlowState.StabilizeD
     case StabOptions2.ClearBurn:
       option2text = "Mech has cleared all burn.";
       break;
+    case StabOptions2.ClearInfect:
+      option2text = "Mech has cleared all infect.";
+      break;
     case StabOptions2.ClearOwnCond:
       option2text = "Mech has selected to clear own condition. Please clear manually.";
       break;

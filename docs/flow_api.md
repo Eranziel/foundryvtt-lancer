@@ -68,6 +68,7 @@ The list of flows provided by the Lancer system are:
 - `WeaponAttackFlow` - make an attack with a weapon using the attack HUD. This could be a pilot weapon, mech weapon, or NPC feature.
 - `BondPowerFlow` - use a pilot bond power.
 - `BurnFlow` - roll a hull check to end burn, and apply damage on failure. Used at end of turn in combat.
+- `InfectFlow` - roll a system check to end infect, and apply heat on failure. Used at end of turn in combat.
 - `CascadeFlow` - roll a cascade check as a consequence from a structure or overheat check.
 - `CoreActiveFlow` - use a mech's core system. This is an extension of `ActivationFlow`, adding consumption of the mech's core power.
 - `DamageRollFlow` - make a damage roll. This can use a pilot weapon, mech weapon, NPC feature, or no item.

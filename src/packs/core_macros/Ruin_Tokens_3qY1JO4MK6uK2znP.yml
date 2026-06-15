@@ -76,7 +76,7 @@ command: |-
     ];
 
     canvas.scene.updateEmbeddedDocuments("Token", data);
-    t.actor.update({ "system.hp": size * 10, "system.heat": 0, "system.burn": 0 });
+    t.actor.update({ "system.hp": size * 10, "system.heat": 0, "system.burn": 0, "system.infect": 0 });
     game.combat.getCombatantByToken(t.id)?.delete();
     // t.update(data);
     // t.refresh();

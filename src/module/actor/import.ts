@@ -181,6 +181,7 @@ async function updateMech(
         max: data.stats.max.overshield,
       },
       burn: data.stats.current.burn,
+      infect: data.stats.current.infect,
       activations: data.stats.current.activations,
       heat: {
         value: data.stats.current.heat,
@@ -1408,6 +1409,7 @@ export async function importCCv2(pilot: LancerPILOT, data: PackedPilotData, clea
           "hp.value": cloudMech.current_hp,
           "overshield.value": cloudMech.overshield,
           burn: cloudMech.burn,
+          infect: cloudMech.infect,
           activations: cloudMech.activations,
           // custom_counters: cloud_mech. - CC Doesn't have these except on pilots
           "heat.value": cloudMech.current_heat,

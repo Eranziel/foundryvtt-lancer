@@ -111,6 +111,7 @@ type FakePackedNPC = {
   conditions: [];
   resistances: [];
   burn: number;
+  infect: number;
   overshield: number;
   destroyed: false;
   actions: number;
@@ -172,6 +173,7 @@ function handleNPCExport(actor: LancerActor) {
     conditions: [],
     resistances: [],
     burn: 0,
+    infect: 0,
     overshield: 0,
     destroyed: false,
     actions: (data as any).activations,
@@ -332,6 +334,7 @@ function handlePilotExport(actor: LancerActor) {
         resistances: [],
         reactions: [],
         burn: 0,
+        infect: 0,
         destroyed: false,
         activations: 1,
         meltdown_imminent: false,
