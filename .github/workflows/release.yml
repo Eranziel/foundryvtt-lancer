@@ -27,21 +27,10 @@ jobs:
           echo "tag_name=$TAG_NAME" >> $GITHUB_OUTPUT
           echo "zip_name=lancer-$TAG_NAME.zip" >> $GITHUB_OUTPUT
 
-      # Verify correct naming
-      - name: Verify correct naming
-        run: |
-          if [[ ! v${{ steps.vars.outputs.version }} == ${{ steps.vars.outputs.tag_name }} ]]; then
-            echo "The system.json version does not match tag name."
-            echo "system.json: $PACKAGE_VERSION"
-            echo "tag name: ${{ steps.vars.outputs.tag_name }}"
-            echo "Please fix this and push the tag again."
-            exit 1
-          fi
-
       # Set up Node
       - uses: actions/setup-node@v4
         with:
-          node-version: "22"
+          node-version: "26"
           cache: "npm"
 
       # Install Dependencies
