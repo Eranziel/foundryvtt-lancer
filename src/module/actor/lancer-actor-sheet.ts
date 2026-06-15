@@ -330,6 +330,9 @@ export class LancerActorSheet<T extends LancerActorType> extends foundry.appv1.s
         case BasicFlowType.Burn:
           this.actor.beginBurnFlow();
           break;
+        case BasicFlowType.Infect:
+          this.actor.beginInfectFlow();
+          break;
         case BasicFlowType.BasicAttack:
           this.actor.beginBasicAttackFlow(flowArgs?.title ?? undefined);
           break;

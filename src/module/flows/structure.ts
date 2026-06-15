@@ -393,6 +393,7 @@ export async function beginDismembermentDamageFlow(actor: LancerActor) {
     damage: damageData,
     configurable: false,
     add_burn: false,
+    add_infect: false,
     tags: [],
     hit_results,
     has_normal_hit: true,

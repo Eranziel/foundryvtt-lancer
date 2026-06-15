@@ -7,6 +7,7 @@ export function template_universal_actor() {
   return {
     lid: new LIDField(),
     burn: new fields.NumberField({ min: 0, integer: true, nullable: false, initial: 0 }),
+    infect: new fields.NumberField({ min: 0, integer: true, nullable: false, initial: 0 }),
     activations: new fields.NumberField({ min: 0, integer: true, nullable: false, initial: 1 }),
     custom_counters: new fields.ArrayField(new CounterField()),
 

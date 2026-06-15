@@ -3,6 +3,7 @@ import { ActivationFlow, registerActivationSteps } from "./activation";
 import { BasicAttackFlow, registerAttackSteps, WeaponAttackFlow } from "./attack";
 import { BondPowerFlow, registerBondPowerSteps } from "./bond";
 import { BurnFlow, registerBurnSteps } from "./burn";
+import { InfectFlow, registerInfectSteps } from "./infect";
 import { CascadeFlow, registerCascadeSteps } from "./cascade";
 import { DamageRollFlow, registerDamageSteps } from "./damage";
 import type { Flow, FlowState, Step } from "./flow";
@@ -32,6 +33,7 @@ export function registerFlows() {
   flows.set(TechAttackFlow.name, TechAttackFlow);
   flows.set(WeaponAttackFlow.name, WeaponAttackFlow);
   flows.set(BurnFlow.name, BurnFlow);
+  flows.set(InfectFlow.name, InfectFlow);
   flows.set(ScanFlow.name, ScanFlow);
   flows.set(BondPowerFlow.name, BondPowerFlow);
   flows.set(CascadeFlow.name, CascadeFlow);
@@ -57,6 +59,7 @@ export function registerFlows() {
   registerTechAttackSteps(flowSteps);
   registerDamageSteps(flowSteps);
   registerBurnSteps(flowSteps);
+  registerInfectSteps(flowSteps);
   registerScanSteps(flowSteps);
   registerActivationSteps(flowSteps);
   registerCoreActiveSteps(flowSteps);

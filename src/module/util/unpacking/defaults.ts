@@ -31,6 +31,7 @@ export function BONUS(): BonusData {
     replace: false,
     damage_types: {
       Burn: true,
+      Infect: true,
       Energy: true,
       Explosive: true,
       Heat: true,

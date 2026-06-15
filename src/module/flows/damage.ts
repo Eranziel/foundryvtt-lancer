@@ -54,6 +54,7 @@ export class DamageRollFlow extends Flow<LancerFlowState.DamageRollData> {
       title: data?.title || "Damage Roll",
       configurable: data?.configurable !== undefined ? data.configurable : true,
       add_burn: data?.add_burn !== undefined ? data.add_burn : true,
+      add_infect: data?.add_infect !== undefined ? data.add_infect : true,
       invade: data?.invade || false,
       tags: data?.tags || [],
       ap: data?.ap || false,
@@ -326,7 +327,7 @@ export async function rollReliable(state: FlowState<LancerFlowState.DamageRollDa
   // We need it even if there aren't any misses, since it's the floor for normal and crit damage.
   if (state.data.reliable && state.data.reliable_val) {
     state.data.reliable_results = state.data.reliable_results || [];
-    // Find the first non-heat non-burn damage type
+    // Find the first non-heat non-burn non-infect damage type
     for (const x of state.data.damage ?? []) {
       if (!x.val || x.val == "0") continue; // Skip undefined and zero damage
       const damageType = x.type === DamageType.Variable ? DamageType.Kinetic : x.type;
@@ -753,6 +754,7 @@ export async function applyDamage(event: JQuery.ClickEvent) {
     multiple = Number.isNaN(multiple) ? 1 : multiple;
   }
   const addBurn = data.addBurn === "true";
+  const addInfect = data.addInfect === "true";
   const isCrit = data.crit === "true";
   const isHit = data.hit === "true";
   const target = await fromUuid(data.target);
@@ -777,7 +779,7 @@ export async function applyDamage(event: JQuery.ClickEvent) {
   // Apply the damage to the target
   await actor.damageCalc(
     new AppliedDamage(targetDamage.damage.map(d => new Damage({ type: d.type, val: d.amount.toString() }))),
-    { multiple, addBurn, ap: targetDamage.ap, paracausal: targetDamage.paracausal }
+    { multiple, addBurn, addInfect, ap: targetDamage.ap, paracausal: targetDamage.paracausal }
   );
 }
 
@@ -805,8 +807,10 @@ export async function undoDamage(event: JQuery.ClickEvent) {
   const hpDelta = parseInt(event.currentTarget.dataset.hpDelta);
   const burnDelta =
     event.currentTarget.dataset.addBurn === "true" ? parseInt(event.currentTarget.dataset.burnDelta) : 0;
+  const infectDelta =
+    event.currentTarget.dataset.addInfect === "true" ? parseInt(event.currentTarget.dataset.infectDelta) : 0;
   const heatDelta = parseInt(event.currentTarget.dataset.heatDelta);
-  if (!overshieldDelta && !hpDelta && !burnDelta && !heatDelta) {
+  if (!overshieldDelta && !hpDelta && !burnDelta && !infectDelta && !heatDelta) {
     ui.notifications?.error("Damage undo button has no damage to undo!");
     return;
   }
@@ -816,6 +820,7 @@ export async function undoDamage(event: JQuery.ClickEvent) {
       "overshield.value": target.system.overshield.value + overshieldDelta,
       "hp.value": target.system.hp.value + hpDelta,
       burn: target.system.burn - burnDelta,
+      infect: target.system.infect - infectDelta,
     },
   };
   if (target.is_mech() || target.is_npc() || target.is_deployable()) {

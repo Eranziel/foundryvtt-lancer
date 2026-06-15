@@ -55,6 +55,7 @@ export namespace SourceTemplates {
     hp: FullBoundedNum;
     overshield: FullBoundedNum;
     burn: number;
+    infect: number;
     activations: number;
     custom_counters: CounterData[];
     inherited_effects: InheritedEffectsState | null;

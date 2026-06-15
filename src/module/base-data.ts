@@ -60,6 +60,7 @@ export declare namespace BaseData {
       explosive: boolean;
       heat: boolean;
       burn: boolean;
+      infect: boolean;
       variable: boolean;
     };
 

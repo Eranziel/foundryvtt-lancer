@@ -10,6 +10,11 @@ export const baselineStatuses = [
     img: `systems/lancer/assets/icons/white/resistance_burn.svg`,
   },
   {
+    id: "resistance_infect",
+    name: "lancer.statusIconsNames.resistance_infect",
+    img: `systems/lancer/assets/icons/white/resistance_infect.svg`,
+  },
+  {
     id: "resistance_energy",
     name: "lancer.statusIconsNames.resistance_energy",
     img: `systems/lancer/assets/icons/white/resistance_energy.svg`,
@@ -159,6 +164,11 @@ export const cancerConditionsStatus = [
     id: "burn",
     name: "lancer.statusIconsNames.burn",
     img: "systems/lancer/assets/icons/alt-status/cancercondstat/burn.webp",
+  },
+  {
+    id: "infect",
+    name: "lancer.statusIconsNames.infect",
+    img: "systems/lancer/assets/icons/alt-status/cancercondstat/infect.webp",
   },
   {
     id: "dangerzone",
@@ -659,6 +669,11 @@ export const hayleyUtility = [
     id: "burn",
     name: "lancer.statusIconsNames.burn",
     img: "systems/lancer/assets/icons/alt-status/hayleyutil/burn.webp",
+  },
+  {
+    id: "infect",
+    name: "lancer.statusIconsNames.infect",
+    img: "systems/lancer/assets/icons/alt-status/hayleyutil/infect.webp",
   },
   {
     id: "overshield",

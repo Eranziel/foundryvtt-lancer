@@ -162,6 +162,7 @@ Hooks.once("init", () => {
       "agi",
       "armor",
       "burn",
+      "infect",
       "edef",
       "eng",
       "evasion",
@@ -582,11 +583,11 @@ Hooks.on("renderChatMessageHTML", async (cm, el, data) => {
               break;
             case "agi":
             case "agility":
-              actor.beginStatFlow("system.agility");
+              actor.beginStatFlow("system.agi");
               break;
             case "sys":
             case "systems":
-              actor.beginStatFlow("system.systems");
+              actor.beginStatFlow("system.sys");
               break;
             case "eng":
             case "engineering":

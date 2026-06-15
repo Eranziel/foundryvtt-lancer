@@ -458,6 +458,7 @@ export interface PackedMechData {
   img: PackedPortraitData; // New in CCv3; replaces cloud_portrait
   overshield: number;
   burn: number;
+  infect: number;
   ejected: boolean;
   meltdown_imminent: boolean; // TODO: Make this active effect
   cc_ver: string;
@@ -518,6 +519,7 @@ export interface PackedStatsData {
   overshield: number;
   overcharge: number;
   burn: number;
+  infect: number;
   grit: number;
   limitedBonus: number;
   heatcap?: number;

@@ -30,6 +30,7 @@ import * as lancer_data from "@massif/lancer-data";
 import { StabilizeFlow } from "../flows/stabilize";
 import { rollEvalSync, tokenScrollText, type TokenScrollTextOptions } from "../util/misc";
 import { BurnFlow } from "../flows/burn";
+import { InfectFlow } from "../flows/infect";
 import { createChatMessageStep } from "../flows/_render";
 import { DamageRollFlow } from "../flows/damage";
 import { ScanFlow } from "../flows/scan";
@@ -90,7 +91,7 @@ export class LancerActor<SubType extends Actor.SubType = Actor.SubType> extends 
 
   async damageCalc(
     damage: AppliedDamage,
-    { multiple = 1, ap = false, paracausal = false, addBurn = true }
+    { multiple = 1, ap = false, paracausal = false, addBurn = true, addInfect = true }
   ): Promise<number> {
     const armoredDamageTypes = [
       DamageType.Kinetic,
@@ -98,7 +99,7 @@ export class LancerActor<SubType extends Actor.SubType = Actor.SubType> extends 
       DamageType.Explosive,
       DamageType.Variable,
     ] as const;
-    const apDamageTypes = [DamageType.Burn, DamageType.Heat] as const;
+    const apDamageTypes = [DamageType.Burn, DamageType.Infect, DamageType.Heat] as const;
     // Promises for async tasks that happen as a result of this damage calculation
     const taskPromises: Promise<any>[] = [];
     const tokenId = this.token?.id;
@@ -124,7 +125,7 @@ export class LancerActor<SubType extends Actor.SubType = Actor.SubType> extends 
       }
     }
 
-    // Step 1: Exposed doubles non-burn, non-heat damage
+    // Step 1: Exposed doubles non-burn, non-infect, non-heat damage
     if (exposed) {
       armoredDamageTypes.forEach(d => Math.ceil((damage[d] *= 2)));
     }
@@ -182,7 +183,7 @@ export class LancerActor<SubType extends Actor.SubType = Actor.SubType> extends 
     }
 
     const armorDamage = Math.ceil(damage.Kinetic + damage.Energy + damage.Explosive + damage.Variable);
-    let totalDamage = armorDamage + damage.Burn;
+    let totalDamage = armorDamage + damage.Burn + damage.Infect;
     let overshieldUsed = 0;
     // Reduce Overshield first
     if (this.system.overshield.value) {
@@ -200,6 +201,11 @@ export class LancerActor<SubType extends Actor.SubType = Actor.SubType> extends 
     // Add to Burn stat
     if (damage.Burn && addBurn) {
       changes["system.burn"] = this.system.burn + damage.Burn;
+    }
+
+    // Add to Infect stat
+    if (damage.Infect && addInfect) {
+        changes["system.infect"] = this.system.infect + damage.Infect;
     }
 
     taskPromises.push(this.update(changes));
@@ -227,6 +233,10 @@ export class LancerActor<SubType extends Actor.SubType = Actor.SubType> extends 
       damageStrings.push(`${damage.Burn}<i class="cci cci-burn damage--burn i--2"></i>`);
       totalTypes += 1;
     }
+    if (damage.Infect) {
+      damageStrings.push(`${damage.Infect}<i class="cci cci-infect damage--infect i--2"></i>`);
+      totalTypes += 1;
+    }
     if (damage.Heat) {
       damageStrings.push(`${damage.Heat}<i class="cci cci-heat damage--heat i--2"></i>`);
       totalTypes += 1;
@@ -243,8 +253,10 @@ export class LancerActor<SubType extends Actor.SubType = Actor.SubType> extends 
         data-overshield-delta="${overshieldUsed}"
         data-hp-delta="${totalDamage}"
         data-burn-delta="${damage.Burn}"
+        data-infect-delta="${damage.Infect}"
         data-heat-delta="${damage.Heat}"
         data-add-burn="${addBurn}"
+        data-add-infect="${addInfect}"
       >
         <i class="fas fa-undo"></i>
       </a>
@@ -300,6 +312,7 @@ export class LancerActor<SubType extends Actor.SubType = Actor.SubType> extends 
     };
     sys.resistances = {
       burn: false,
+      infect: false,
       energy: false,
       explosive: false,
       heat: false,
@@ -425,6 +438,9 @@ export class LancerActor<SubType extends Actor.SubType = Actor.SubType> extends 
       switch (status) {
         case "resistance_burn":
           this.system.resistances.burn = true;
+          break;
+        case "resistance_infect":
+          this.system.resistances.infect = true;
           break;
         case "resistance_energy":
           this.system.resistances.energy = true;
@@ -919,7 +935,7 @@ export class LancerActor<SubType extends Actor.SubType = Actor.SubType> extends 
   }
 
   async statChangeScrollingText(data: unknown) {
-    // Show scrolling text above the token on overshield, hp, burn, and heat changes
+    // Show scrolling text above the token on overshield, hp, burn, infect, and heat changes
     const tokenId = this.token?.id || canvas?.scene?.tokens.find(t => t.actor?.id === this.id)?.id;
     if (!tokenId) return;
 
@@ -961,6 +977,21 @@ export class LancerActor<SubType extends Actor.SubType = Actor.SubType> extends 
         scrollingTexts.push({
           tokenId,
           content: `${val < 0 ? "+" : "-"}${Math.abs(val).toString()} Burn`,
+          style: {
+            anchor: CONST.TEXT_ANCHOR_POINTS.BOTTOM,
+            direction: val < 0 ? CONST.TEXT_ANCHOR_POINTS.TOP : CONST.TEXT_ANCHOR_POINTS.BOTTOM,
+            fill: "0xc43333",
+          },
+        });
+      }
+    }
+    // Infect
+    if ((data as any).system?.infect !== undefined) {
+      const val = this.system.infect - (data as any).system.infect;
+      if (val) {
+        scrollingTexts.push({
+          tokenId,
+          content: `${val < 0 ? "+" : "-"}${Math.abs(val).toString()} Infect`,
           style: {
             anchor: CONST.TEXT_ANCHOR_POINTS.BOTTOM,
             direction: val < 0 ? CONST.TEXT_ANCHOR_POINTS.TOP : CONST.TEXT_ANCHOR_POINTS.BOTTOM,
@@ -1080,6 +1111,11 @@ export class LancerActor<SubType extends Actor.SubType = Actor.SubType> extends 
 
   async beginBurnFlow(title?: string): Promise<boolean> {
     const flow = new BurnFlow(this, { title });
+    return await flow.begin();
+  }
+
+  async beginInfectFlow(title?: string): Promise<boolean> {
+    const flow = new InfectFlow(this, { title });
     return await flow.begin();
   }
 

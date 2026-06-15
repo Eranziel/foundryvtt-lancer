@@ -10,7 +10,7 @@ export class StrussHelper {
   /**
    * Stabilize this actor, given two choices that have already been made
    * @param o1  Choice 1, Cooling or Repairing
-   * @param o2  Choice 2, Reloading, removing Burn, or clearing own or adjacent ally condition
+   * @param o2  Choice 2, Reloading, removing Burn, removing Infect, or clearing own or adjacent ally condition
    * @returns   Details to be printed to chat
    */
   async stabilize(o1: StabOptions1, o2: StabOptions2): Promise<void> {
@@ -44,6 +44,9 @@ export class StrussHelper {
     switch (o2) {
       case StabOptions2.ClearBurn:
         changes["system.burn"] = 0;
+        break;
+      case StabOptions2.ClearInfect:
+        changes["system.infect"] = 0;
         break;
       case StabOptions2.ClearOtherCond:
         // TODO: make a flow for clearing a condition on yourself?
