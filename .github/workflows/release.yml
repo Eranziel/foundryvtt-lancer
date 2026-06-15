@@ -47,21 +47,8 @@ jobs:
           cd dist
           zip -r "${{ steps.vars.outputs.zip_name }}" *
 
-      # Create a release for this specific version
-      - name: Create Release with Files
-        id: create_version_release
-        uses: ncipollo/release-action@v1
+      - name: Archive release
+        uses: actions/upload-artifact@v4
         with:
-          allowUpdates: true
-          name: ${{ steps.vars.outputs.tag_name }}
-          draft: true
-          prerelease: true
-          omitDraftDuringUpdate: true
-          omitPrereleaseDuringUpdate: true
-          token: ${{ secrets.GITHUB_TOKEN }}
-          artifacts: "./dist/system.json, ./dist/${{ steps.vars.outputs.zip_name }}"
-          tag: ${{ steps.vars.outputs.tag_name }}
-          # TODO: can we automatically extract the changelog for this release?
-          body: |
-            
-            [Full changelog](https://github.com/Eranziel/foundryvtt-lancer/blob/master/CHANGELOG.md)
+          name: release
+          path: dist/${{ steps.vars.outputs.zip_name }}
