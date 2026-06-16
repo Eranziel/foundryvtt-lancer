@@ -84,7 +84,10 @@ export async function checkItemLimited(
     // The frame is not limited, so we're good.
     return true;
   }
-  if (state.item.isLimited() && state.item.system.uses.value <= 0) {
+  let cost = 1;
+  if (state.data.action) cost = state.data.action.cost ?? 1;
+  else if (state.item.system.cost) cost = state.item.system.cost;
+  if (state.item.isLimited() && state.item.system.uses.value < cost) {
     let iType = friendly_entrytype_name(state.item.type as EntryType);
     ui.notifications!.warn(`${iType} ${state.item.name} has no remaining uses!`);
     return false;
@@ -167,7 +170,12 @@ export async function updateItemAfterAction(
   if (state.item && limited_loading && attacks) {
     let itemChanges: DeepPartial<SourceData.MechWeapon | SourceData.NpcFeature | SourceData.PilotWeapon> = {};
     if (state.item.isLoading()) itemChanges.loaded = false;
-    if (state.item.isLimited()) itemChanges.uses = { value: Math.max(state.item.system.uses.value - 1, 0) };
+    if (state.item.isLimited()) {
+      let cost = 1;
+      if (state.data.action) cost = state.data.action.cost ?? 1;
+      else if (state.item.system.cost) cost = state.item.system.cost;
+      itemChanges.uses = { value: Math.max(state.item.system.uses.value - cost, 0) };
+    }
     if (state.item.is_npc_feature() && state.item.isRecharge())
       (itemChanges as DeepPartial<SourceData.NpcFeature>).charged = false;
     if (state.item.is_reserve() && state.item.system.consumable) {
