@@ -380,6 +380,7 @@
       "prone": "Prone",
       "reactor_meltdown": "Reactor Meltdown",
       "resistance_burn": "Resist Burn",
+      "resistance_infect": "Resist Infect",
       "resistance_energy": "Resist Energy",
       "resistance_explosive": "Resist Explosive",
       "resistance_heat": "Resist Heat",
