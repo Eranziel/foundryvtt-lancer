@@ -49,9 +49,10 @@
   <section class="sheet-body scroll-body">
     {{!-- Cloud Management Tab --}}
     <div class="tab manage" data-group="primary" data-tab="cloud">
-      <div style="display: grid; grid-template: auto / 1fr 1fr">
-        <div class="card clipped" style="grid-area: 1/1/2/3">
+      <div class="cloud-tab__body">
+        <div class="cloud-import card clipped">
           <span class="lancer-header lancer-primary major">{{localize "lancer.pilot-sheet.cloud-header.label"}}</span>
+          <span class="cloud-import-description">{{localize "lancer.pilot-sheet.cloud-download.description"}}</span>
           <input
             class="lancer-input major"
             style="text-align: center"
@@ -61,26 +62,39 @@
             data-dtype="String"
             placeholder='{{localize "lancer.pilot-sheet.cloud-header.raw-placeholder"}}'
           >
-        </div>
-
-        <div class="card clipped" style="grid-area: 2/1/3/2">
-          <span class="lancer-header lancer-primary major">{{localize "lancer.pilot-sheet.cloud-download.label"}}</span>
-          <a class="cloud-control lancer-button" style="align-self: center" data-action="download">
-            <i class="cci cci-tech-quick i--dark i--5"></i>
-          </a>
-          <span class="minor desc-text" style="text-align: center">
+          <button
+            class="cloud-control lancer-button"
+            style="align-self: center"
+            data-action="download"
+          >
+            <i class="cci cci-tech-quick i--dark i--5"></i> {{localize 'lancer.pilot-sheet.cloud-download.label'}}
+          </button>
+          <span class="last-sync minor desc-text">
             {{localize "lancer.pilot-sheet.cloud-download.lastSync" timestamp=system.last_cloud_update}}
           </span>
         </div>
 
-        <div class="card clipped" style="grid-area: 2/2/3/3">
-          <span class="lancer-header lancer-primary major">{{localize "lancer.pilot-sheet.cloud-upload.label"}}</span>
-          <span>{{localize "lancer.pilot-sheet.cloud-upload.wip"}}</span>
-        </div>
-
-        <div class="card clipped" style="grid-area: 3/1/4/2">
+        <div class="file-import card clipped">
           <span class="lancer-header lancer-primary major">{{localize "lancer.pilot-sheet.json-import.label"}}</span>
-          <input id="pilot-json-import" type="file" name="pilot-json-up" class="lcp-up" accept=".json">
+          <span class="file-import-description monospace">{{
+              localize "lancer.pilot-sheet.json-import.description"
+            }}</span>
+          <div class="file-select-container">
+            <label class="file">
+              <input
+                id="pilot-json-import"
+                type="file"
+                aria-label="{{localize 'lancer.pilot-sheet.json-import.placeholder'}}"
+                name="pilot-json-up"
+                accept=".json"
+              >
+
+              <span class="file-custom">
+                <div class="file-custom__button">Browse</div>
+                <span class="file-custom__filenames">{{localize "lancer.pilot-sheet.json-import.placeholder"}}</span>
+              </span>
+            </label>
+          </div>
         </div>
       </div>
     </div>

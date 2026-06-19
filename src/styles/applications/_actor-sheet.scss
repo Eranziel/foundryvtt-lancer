@@ -156,4 +156,72 @@
   .lancer.sheet select {
     width: min-content;
   }
+
+  .lancer.actor.pilot.sheet {
+    .cloud-tab__body {
+      display: grid;
+      grid-template: auto / 1fr;
+      gap: 1em;
+    }
+
+    .cloud-import {
+      display: grid;
+      grid-template: 3em min-content 1.5fr 1fr / 3fr 1fr;
+
+      .lancer-header {
+        grid-area: 1/1/2/3;
+        margin-bottom: 0.5em;
+      }
+
+      &-description {
+        grid-area: 2/1/3/3;
+        font-family: var(--monospace-font-family);
+      }
+
+      input {
+        height: 2.5em;
+        margin-left: 2em;
+        margin-right: 1em;
+        width: auto;
+      }
+
+      button {
+        margin-left: 1em;
+        margin-right: 2em;
+        width: auto;
+      }
+
+      .last-sync {
+        grid-area: 4/1/5/3;
+        text-align: center;
+        margin-left: 2em;
+        margin-right: 2em;
+        margin-bottom: 0.75em;
+      }
+    }
+
+    .file-import {
+      display: grid;
+      grid-template: 3em min-content 1.5fr / 1fr;
+      gap: 0.2em;
+
+      .lancer-header {
+        margin-bottom: 0.5em;
+      }
+
+      &-description {
+        font-family: var(--monospace-font-family);
+      }
+
+      .file-select-container {
+        margin-left: 2em;
+        margin-right: 2em;
+        margin-bottom: 0.75em;
+
+        label {
+          width: 100%;
+        }
+      }
+    }
+  }
 }

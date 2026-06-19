@@ -171,6 +171,7 @@
       },
       "cloud-download": {
         "label": "DOWNLOAD",
+        "description": "Use this section to import a Comp/Con share code.",
         "lastSync": "Last synced: {timestamp}"
       },
       "cloud-upload": {
@@ -178,7 +179,9 @@
         "wip": "FEATURE IN PROGRESS"
       },
       "json-import": {
-        "label": "IMPORT"
+        "label": "FILE IMPORT",
+        "description": "Use this section to import a JSON file exported from Comp/Con.",
+        "placeholder": "Select JSON file…"
       },
       "dossier": {
         "cs": "CALLSIGN",
