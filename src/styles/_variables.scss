@@ -1,16 +1,60 @@
+@use "sass:list";
+
 // No layer in this file because no actual styles are defined here, only variables
 
-/* prettier-ignore */
-$theme-types: "primary" "secondary" "dark-gray" "light-gray" "tooltip"    // General themes
-  "gms" "ips-n" "ssc" "horus" "ha"                       // Manufacturers
-  "trait" "mod" "bonus" "system" "tech" "talent" "weapon"     // Gear types
-  "reaction" "protocol" "quick" "full" "move" "free"; // Action types
+// General themes
+$theme-types: "primary"
+  "secondary"
+  "dark-gray"
+  "light-gray"
+  "tooltip"
+  // Manufacturers
+  "gms"
+  "ips-n"
+  "ssc"
+  "horus"
+  "ha"
+  // Gear types
+  "trait"
+  "mod"
+  "bonus"
+  "system"
+  "tech"
+  "talent"
+  "weapon"
+  // Action types
+  "reaction"
+  "protocol"
+  "quick"
+  "full"
+  "move"
+  "free";
 
 /* Item/document types, useful for shorthand */
-$item-types: core_bonus environment faction frame manufacturer npc_class npc_template npc_feature weapon_mod mech_system
-  mech_weapon organization pilot_armor pilot_gear pilot_weapon reserve sitrep skill status tag talent quirk;
+$item-types: core_bonus
+  environment
+  faction
+  frame
+  manufacturer
+  npc_class
+  npc_template
+  npc_feature
+  weapon_mod
+  mech_system
+  mech_weapon
+  organization
+  pilot_armor
+  pilot_gear
+  pilot_weapon
+  reserve
+  sitrep
+  skill
+  status
+  tag
+  talent
+  quirk;
 $actor-types: npc pilot mech deployable;
-$document-types: join($item-types, $actor-types);
+$document-types: list.join($item-types, $actor-types);
 
 $icon-size-1: 15px;
 $icon-size-2: 20px;
