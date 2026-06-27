@@ -53,8 +53,14 @@ export async function checkItemDestroyed(
 }
 
 export async function checkItemLimited(
-  state: FlowState<LancerFlowState.WeaponRollData | LancerFlowState.TechAttackRollData | LancerFlowState.ActionUseData>
+  state: FlowState<
+    | LancerFlowState.WeaponRollData
+    | LancerFlowState.TechAttackRollData
+    | LancerFlowState.ActionUseData
+    | LancerFlowState.SystemUseData
+  >
 ): Promise<boolean> {
+  if (!state.data) throw new TypeError(`Flow state missing!`);
   // If this automation option is not enabled, skip the check.
   const { limited_loading, attacks } = game.settings.get(game.system.id, LANCER.setting_automation);
   if (!limited_loading && attacks) return true;
@@ -84,10 +90,10 @@ export async function checkItemLimited(
     // The frame is not limited, so we're good.
     return true;
   }
-  let cost = 1;
-  if (state.data.action) cost = state.data.action.cost ?? 1;
-  else if (state.item.system.cost) cost = state.item.system.cost;
-  if (state.item.isLimited() && state.item.system.uses.value < cost) {
+  state.data.cost = 1;
+  // @ts-expect-error Yes, state.data.action might not exist, that's why we're checking
+  if (state.data.action) state.data.cost = state.data.action.cost ?? 1;
+  if (state.item.isLimited() && state.item.system.uses.value < state.data.cost) {
     let iType = friendly_entrytype_name(state.item.type as EntryType);
     ui.notifications!.warn(`${iType} ${state.item.name} has no remaining uses!`);
     return false;
@@ -171,10 +177,7 @@ export async function updateItemAfterAction(
     let itemChanges: DeepPartial<SourceData.MechWeapon | SourceData.NpcFeature | SourceData.PilotWeapon> = {};
     if (state.item.isLoading()) itemChanges.loaded = false;
     if (state.item.isLimited()) {
-      let cost = 1;
-      if (state.data.action) cost = state.data.action.cost ?? 1;
-      else if (state.item.system.cost) cost = state.item.system.cost;
-      itemChanges.uses = { value: Math.max(state.item.system.uses.value - cost, 0) };
+      itemChanges.uses = { value: Math.max(state.item.system.uses.value - state.data.cost, 0) };
     }
     if (state.item.is_npc_feature() && state.item.isRecharge())
       (itemChanges as DeepPartial<SourceData.NpcFeature>).charged = false;
