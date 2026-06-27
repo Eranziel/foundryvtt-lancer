@@ -1,3 +1,15 @@
+# 3.1.2 (2026-06-27)
+
+## Bug Fixes
+
+- #952 - Follow the `cost` for limited uses on actions/systems/weapons, instead of always deducting one use.
+
+## Misc
+
+- Scan flow will now display error notifications to inform why it can't do a scan instead of failing silently.
+- Recognize and omit v3 LCPs from the LCP importer, along with error messages to inform the user.
+- Update and organize the Pilot import tab (RM-4://SYNC) to improve clarity and remove placeholder sections.
+
 # 3.1.1 (2026-06-01)
 
 ## Bug Fixes
