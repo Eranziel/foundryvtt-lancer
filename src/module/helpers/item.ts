@@ -718,7 +718,7 @@ data-action="set" data-action-value="(int)${i}" data-path="${weapon_path}.system
   let on_crit = profile.on_crit ? effectBox("On Crit", profile.on_crit) : "";
 
   // Generate actions
-  let actions = weapon.system.actions.length > 0 ? buildActionArrayHTML(weapon, `system.actions`) : "";
+  let actions = "";
   actions +=
     profile.actions.length > 0
       ? buildActionArrayHTML(weapon, `system.profiles.${weapon.system.selected_profile_index}.actions`)
