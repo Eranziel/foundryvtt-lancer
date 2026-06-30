@@ -116,7 +116,7 @@
 <div style={$$restProps.style}>
   <div class="lancer-header lancer-primary major">Import From File</div>
   <div class="file-select-container">
-    <label class="file">
+    <label class="lancer-file-input">
       <input
         id="lcp-file"
         type="file"
@@ -130,9 +130,9 @@
         on:change={filesSelected}
       >
 
-      <span class="file-custom">
-        <div class="file-custom__button">Browse</div>
-        <span class="file-custom__filenames">{filenames || "Choose file..."}</span>
+      <span class="lancer-file-input-display">
+        <div class="lancer-file-input__button">Browse</div>
+        <span class="lancer-file-input__filenames">{filenames || "Choose file..."}</span>
       </span>
     </label>
     <button class="lancer-button deselect-file" {disabled} on:click={deselect}>
