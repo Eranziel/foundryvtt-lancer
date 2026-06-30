@@ -1,3 +1,9 @@
+# 3.1.3 (2026-06-29)
+
+## Bug Fixes
+
+- Fix some new CSS affecting the file picker UI unintentionally.
+
 # 3.1.2 (2026-06-27)
 
 ## Bug Fixes
