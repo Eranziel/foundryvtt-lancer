@@ -124,8 +124,6 @@ addEnrichers();
 Hooks.once("init", () => {
   console.log(`Initializing LANCER RPG System ${LANCER.ASCII}`);
 
-  CONFIG.ActiveEffect.legacyTransferral = false;
-
   // Add this schema for each document type.
   // game.documentTypes.Item.forEach(type => CONFIG.Item.dataModels[type] = MyItemModel);
   CONFIG.Item.dataModels[EntryType.PILOT_ARMOR] = PilotArmorModel;

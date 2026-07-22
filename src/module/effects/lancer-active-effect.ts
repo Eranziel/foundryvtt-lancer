@@ -265,7 +265,6 @@ export class LancerActiveEffect<
           changes,
         });
       } else {
-        existingStatus.img = existingStatus.img || existingStatus.icon;
         existingStatus.img = overwrite ? status.img || existingStatus.img : existingStatus.img || status.img;
         existingStatus.name = overwrite ? status.name || existingStatus.name : existingStatus.name || status.name;
         if (status.system.effects) {

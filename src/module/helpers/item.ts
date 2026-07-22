@@ -1483,6 +1483,14 @@ export function handleContextMenus(html: JQuery, doc: LancerActor | LancerItem, 
   _handleContextMenus(html, ".tag-list-append > .editable-tag-instance.compact-tag", "contextmenu", doc, view_only);
 }
 
+// Raise a document sheet above other windows. ApplicationV2 (e.g. the ActiveEffect
+// config) dropped `bringToTop` in Foundry v14 in favor of `bringToFront`, while the
+// AppV1 actor/item sheets still only expose `bringToTop`. Call whichever exists.
+function bringSheetToFront(sheet: { bringToTop?: () => unknown; bringToFront?: () => unknown }) {
+  if (typeof sheet.bringToFront === "function") sheet.bringToFront();
+  else sheet.bringToTop?.();
+}
+
 /** Handles context menus for
  * - Viewing an item sheet
  * - Marking items destroyed/repaired
@@ -1520,7 +1528,7 @@ function _handleContextMenus(
         let sheet = found_doc.sheet;
         // If the sheet is already rendered:
         if (sheet?.rendered) {
-          sheet.maximize().then(() => sheet!.bringToTop());
+          sheet.maximize().then(() => bringSheetToFront(sheet!));
         }
         // Otherwise render the sheet
         else sheet?.render(true);
@@ -1542,7 +1550,7 @@ function _handleContextMenus(
         let sheet = found_doc.sheet;
         // If the sheet is already rendered:
         if (sheet?.rendered) {
-          sheet.maximize().then(() => sheet!.bringToTop());
+          sheet.maximize().then(() => bringSheetToFront(sheet!));
         }
         // Otherwise render the sheet
         else sheet?.render(true);
@@ -1569,7 +1577,7 @@ function _handleContextMenus(
         let sheet = effects[index].sheet;
         // If the sheet is already rendered:
         if (sheet?.rendered) {
-          sheet.maximize().then(() => sheet!.bringToTop());
+          sheet.maximize().then(() => bringSheetToFront(sheet!));
         }
         // Otherwise render the sheet
         else sheet?.render(true);
