@@ -294,27 +294,50 @@ export class LancerActiveEffect<
 }
 
 // To support more effects, we add several effect types.
+//
+// @public Neither constant has a producer left in the system: appends now travel as "custom"
+// changes matched by key, and nothing has ever emitted AE_MODE_SET_JSON. Both are exported, so
+// a module may still emit them. The handler below therefore keeps accepting them.
 export const AE_MODE_SET_JSON = 11 as CONST.ACTIVE_EFFECT_MODES;
 export const AE_MODE_APPEND_JSON = 12 as CONST.ACTIVE_EFFECT_MODES;
 
+// Keys we append JSON-encoded values onto via a custom change.
+export const JSON_APPEND_KEYS = new Set(["system.bonuses.weapon_bonuses"]);
+
 const _json_cache = {} as Record<string, any>;
 Hooks.on("applyActiveEffect", function (actor, change) {
-  if (change.mode == AE_MODE_SET_JSON || change.mode == AE_MODE_APPEND_JSON) {
-    try {
-      let parsed_delta = _json_cache[change.value] ?? JSON.parse(change.value);
-      _json_cache[change.value] = parsed_delta;
-      // Ok, now set it to wherever it was labeled
-      if (change.mode == AE_MODE_SET_JSON) {
-        foundry.utils.setProperty(actor, change.key, parsed_delta);
-      } else if (change.mode == AE_MODE_APPEND_JSON) {
-        const items = foundry.utils.getProperty(actor, change.key) as unknown[];
-        items.push(parsed_delta);
-      }
-    } catch (e) {
-      // Nothing to do really, except log it
-      console.warn(e);
-      console.warn(`JSON effect parse failed, ${change.value}`);
+  // v14 swapped numeric change modes for string types, so the out-of-range modes we used
+  // for these (11/12) no longer resolve and the change never reached this hook -- which
+  // silently dropped weapon damage/range bonuses. Custom-typed changes still route here,
+  // so match those by key.
+  const changeType = (change as { type?: string }).type;
+  // A change that still carries a bare numeric mode can only come from a module, since v14
+  // gives its own changes a type. Reading the mode is deprecated, so only look when there
+  // is no type to read instead.
+  const legacyMode = changeType === undefined ? (change as { mode?: number }).mode : undefined;
+  const isSet = legacyMode == AE_MODE_SET_JSON;
+  const isAppend = legacyMode == AE_MODE_APPEND_JSON || (changeType === "custom" && JSON_APPEND_KEYS.has(change.key));
+  if (!isSet && !isAppend) return;
+  try {
+    // v14 resolves change values before handing them over, so what we stringified on the
+    // way in can arrive already parsed. Only decode when it is still a string, and keep
+    // that parse for the next actor carrying the same bonus.
+    const raw = change.value as unknown;
+    const source = typeof raw === "string" ? (_json_cache[raw] ??= JSON.parse(raw)) : raw;
+    // Hand out a copy either way. The value lands in an actor's prepared data, so two actors
+    // with the same bonus would otherwise end up sharing one object.
+    const parsed_delta = foundry.utils.deepClone(source);
+    // Ok, now set it to wherever it was labeled
+    if (isSet) {
+      foundry.utils.setProperty(actor, change.key, parsed_delta);
+    } else {
+      const items = foundry.utils.getProperty(actor, change.key) as unknown[];
+      items.push(parsed_delta);
     }
+  } catch (e) {
+    // Nothing to do really, except log it
+    console.warn(e);
+    console.warn(`JSON effect parse failed, ${change.value}`);
   }
 });
 

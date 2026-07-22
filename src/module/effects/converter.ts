@@ -11,7 +11,7 @@ import {
 import type { BonusData } from "../models/bits/bonus";
 import type { SystemTemplates } from "../system-template";
 import { rollEvalSync } from "../util/misc";
-import { AE_MODE_APPEND_JSON, LancerActiveEffect, type LancerEffectTarget } from "./lancer-active-effect";
+import { LancerActiveEffect, type LancerEffectTarget } from "./lancer-active-effect";
 
 const FRAME_STAT_PRIORITY = 10; // Also handles npc classes
 const BONUS_STAT_PRIORITY = 20;
@@ -488,7 +488,9 @@ export function convertBonus(item: LancerItem, name: string, bonus: BonusData) {
       },
       changes: [
         {
-          mode: AE_MODE_APPEND_JSON,
+          // Routed through the "custom" change type so it reaches the applyActiveEffect
+          // hook -- v14 no longer resolves the out-of-range numeric mode we used before.
+          type: "custom",
           value: JSON.stringify(bonus),
           priority: 50,
           key: "system.bonuses.weapon_bonuses",
