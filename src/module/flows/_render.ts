@@ -57,14 +57,20 @@ export async function createChatMessageStep(
   };
 
   const rollMode = game.settings.get("core", "rollMode");
+  // v14 replaced the legacy CONST.DICE_ROLL_MODES values ("blindroll", "gmroll", ...)
+  // with the CONFIG.ChatMessage.modes keys ("blind", "gm", ...). Accept both so the
+  // flavor still resolves regardless of which form the setting hands back.
   switch (rollMode) {
-    case CONST.DICE_ROLL_MODES.BLIND:
+    case "blind":
+    case "blindroll":
       chat_data.flavor = game.i18n.localize("CHAT.RollBlind");
       break;
-    case CONST.DICE_ROLL_MODES.PRIVATE:
+    case "gm":
+    case "gmroll":
       chat_data.flavor = game.i18n.localize("CHAT.RollPrivate");
       break;
-    case CONST.DICE_ROLL_MODES.SELF:
+    case "self":
+    case "selfroll":
       chat_data.flavor = game.i18n.localize("CHAT.RollSelf");
       break;
   }
