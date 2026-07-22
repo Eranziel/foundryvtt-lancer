@@ -42,7 +42,9 @@ export async function createChatMessageStep(
 ) {
   if (rolls && !Array.isArray(rolls)) rolls = [rolls];
   let chat_data = {
-    type: CONST.CHAT_MESSAGE_STYLES.IC,
+    // `type` is the ChatMessage document subtype; the presentation style lives on
+    // `style`. Passing a CHAT_MESSAGE_STYLES value as `type` fails validation in v14.
+    style: CONST.CHAT_MESSAGE_STYLES.IC,
     rolls,
     speaker: {
       actor: actor,
