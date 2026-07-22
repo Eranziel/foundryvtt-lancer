@@ -265,6 +265,10 @@ export class LancerActor<SubType extends Actor.SubType = Actor.SubType> extends 
       console.log("Actor is not a LancerActor:", this);
       return super.prepareBaseData();
     }
+    // Core sets up state that the active effect workflow depends on -- as of v14 this
+    // includes `tokenActiveEffectChanges`, which applyActiveEffects() writes to
+    // unconditionally. Skipping it leaves that undefined and breaks data preparation.
+    super.prepareBaseData();
     // TODO: Move these to the datamodels themselves
     // 1. First, finalize our system tasks. Items should be (minimally) prepared by now, so we can resolve embedded items
     // this.system.finalize_tasks();
