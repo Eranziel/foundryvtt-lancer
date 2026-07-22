@@ -18,7 +18,7 @@ declare module "fvtt-types/configuration" {
   }
 }
 
-export class LancerActionManager extends Application {
+export class LancerActionManager extends foundry.appv1.api.Application {
   static DEF_LEFT = 600;
   static DEF_TOP = 20;
   static enabled: boolean;

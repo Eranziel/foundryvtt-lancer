@@ -4,7 +4,7 @@ type SvelteAppOptions = Application.Options & {
   intro?: boolean;
 };
 
-export default class SvelteApp<DataModel> extends Application {
+export default class SvelteApp<DataModel> extends foundry.appv1.api.Application {
   klass: typeof SvelteComponent;
   data: DataModel;
   component?: SvelteComponent;

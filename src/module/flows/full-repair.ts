@@ -33,7 +33,7 @@ export async function displayFullRepairDialog(state: FlowState<LancerFlowState.T
   if (!state.data) throw new TypeError(`Full Repair flow state missing!`);
 
   return new Promise<boolean>((resolve, reject) => {
-    new Dialog({
+    new foundry.appv1.api.Dialog({
       title: `FULL REPAIR - ${state.actor.name}`,
       content: `<h3>Are you sure you want to fully repair the ${state.actor?.type} "${state.actor?.name}"?`,
       buttons: {

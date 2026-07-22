@@ -67,6 +67,8 @@ export async function createChatMessageStep(
       break;
   }
   // Respect the chat visibility setting
+  // NOTE: v14 renames this to ChatMessage.applyMode; applyRollMode still works in v14
+  // (deprecated, removed in v15). Switch once fvtt-types ships v14 definitions.
   ChatMessage.applyRollMode(chat_data, rollMode);
 
   if (!rolls) delete chat_data.rolls;

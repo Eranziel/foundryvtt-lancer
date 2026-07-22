@@ -63,7 +63,7 @@ export function addEnrichers() {
           data.classes.push("broken");
           data.icon = "fas fa-unlink";
         }
-        return TextEditor.createAnchor(data);
+        return foundry.applications.ux.TextEditor.implementation.createAnchor(data);
       },
     },
   ]);

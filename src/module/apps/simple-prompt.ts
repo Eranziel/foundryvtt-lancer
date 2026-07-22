@@ -1,7 +1,7 @@
 // Spawn a simple dialogue to edit a string. Returns null on close
 export function promptText(title: string, prefill: string = ""): Promise<string | null> {
   return new Promise((succ, _rej) => {
-    new Dialog(
+    new foundry.appv1.api.Dialog(
       {
         title,
         content: ` 

@@ -106,7 +106,7 @@ export function disableLancerInitiative() {
   initiative. Since all of its functionality is already included in the system, enabling the module
   can cause issues. <b>The module has been disabled.</b></p>
   <p>The page must now be refreshed for the module change to take effect.</p>`;
-  new Dialog(
+  new foundry.appv1.api.Dialog(
     {
       title: `Lancer Initiative Module is not Needed`,
       content: text,

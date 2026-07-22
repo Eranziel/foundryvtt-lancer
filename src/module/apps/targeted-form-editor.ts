@@ -6,7 +6,7 @@ import { LancerItem } from "../item/lancer-item";
  * A helper FormApplication subclass for editing a particular
  * @extends {FormApplication}
  */
-export class TargetedEditForm<T> extends FormApplication {
+export class TargetedEditForm<T> extends foundry.appv1.api.FormApplication {
   // The T we're editing
   value: T;
 

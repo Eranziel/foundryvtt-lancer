@@ -19,7 +19,7 @@ export interface InventoryDialogData {
  * A helper Dialog subclass for editing an actors inventories
  * @extends {Dialog}
  */
-export class InventoryDialog extends Dialog {
+export class InventoryDialog extends foundry.appv1.api.Dialog {
   constructor(readonly actor: LancerActor, dialogData: Dialog.Data, options: Partial<Dialog.Options> = {}) {
     super(dialogData, options);
     this.actor = actor;

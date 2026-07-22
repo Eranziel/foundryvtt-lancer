@@ -44,7 +44,7 @@ async function renderStabilizePrompt(state: FlowState<LancerFlowState.StabilizeD
   let submit: boolean | null = null;
 
   submit = await new Promise<boolean>((resolve, _reject) => {
-    new Dialog({
+    new foundry.appv1.api.Dialog({
       title: `STABILIZE - ${actor.name!}`,
       content: template,
       buttons: {

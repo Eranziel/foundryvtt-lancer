@@ -29,7 +29,7 @@ export async function richTextEdit(doc: foundry.abstract.Document.Any, property:
  * A helper Dialog subclass for editing html descriptions, which will automatically fixup html written to it (so the user doesn't just nuke themselves)
  * @extends {Dialog}
  */
-export class HTMLEditDialog extends FormApplication {
+export class HTMLEditDialog extends foundry.appv1.api.FormApplication {
   // The document we're editing
   target: LancerActor | LancerItem;
 
