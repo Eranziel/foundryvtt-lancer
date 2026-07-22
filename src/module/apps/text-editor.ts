@@ -3,7 +3,8 @@ import { resolveDotpath } from "../helpers/commons";
 import { LancerItem } from "../item/lancer-item";
 
 export async function richTextEdit(doc: foundry.abstract.Document.Any, property: string): Promise<string | undefined> {
-  const originalText = foundry.utils.getProperty(doc, property);
+  // An unset field is a normal starting state -- treat it as empty rather than refusing to open
+  const originalText = foundry.utils.getProperty(doc, property) ?? "";
   if (typeof originalText !== "string") throw new Error(`Document property ${property} is not a string`);
   const content = document.createElement("div");
   content.appendChild(

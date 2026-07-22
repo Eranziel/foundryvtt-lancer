@@ -1,5 +1,5 @@
 import type { HelperOptions } from "handlebars";
-import { HTMLEditDialog } from "../apps/text-editor";
+import { richTextEdit } from "../apps/text-editor";
 import type { GenControlContext } from "../interfaces";
 import * as defaults from "../util/unpacking/defaults";
 
@@ -855,7 +855,11 @@ export function handlePopoutTextEditor(html: JQuery, root_doc: LancerActor | Lan
     const path = elt.dataset.path;
     if (path) {
       let dd = drilldownDocument(root_doc, path);
-      await HTMLEditDialog.edit_text(dd.sub_doc, dd.sub_path);
+      // The old dialog rendered its content through the {{editor}} helper, which no longer
+      // populates in v14 -- it opened empty and saving wiped the field. Use the ProseMirror
+      // editor instead, which seeds itself from the current value.
+      const result = await richTextEdit(dd.sub_doc, dd.sub_path);
+      if (result !== undefined) await dd.sub_doc.update({ [dd.sub_path]: result });
     }
   });
 }
