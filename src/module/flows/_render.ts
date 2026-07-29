@@ -57,23 +57,26 @@ export async function createChatMessageStep(
   };
 
   const rollMode = game.settings.get("core", "rollMode");
-  // v14 replaced the legacy CONST.DICE_ROLL_MODES values ("blindroll", "gmroll", ...)
-  // with the CONFIG.ChatMessage.modes keys ("blind", "gm", ...). Accept both so the
-  // flavor still resolves regardless of which form the setting hands back.
-  switch (rollMode) {
-    case "blind":
-    case "blindroll":
-      chat_data.flavor = game.i18n.localize("CHAT.RollBlind");
-      break;
-    case "gm":
-    case "gmroll":
-      chat_data.flavor = game.i18n.localize("CHAT.RollPrivate");
-      break;
-    case "self":
-    case "selfroll":
-      chat_data.flavor = game.i18n.localize("CHAT.RollSelf");
-      break;
-  }
+  // v14 replaced the legacy CONST.DICE_ROLL_MODES values ("blindroll", "gmroll", ...) with the
+  // CONFIG.ChatMessage.modes keys ("blind", "gm", ...). Accept both: which form the setting hands
+  // back is not something we can rely on.
+  const ROLL_MODE_KEYS: Record<string, string> = {
+    blind: "blind",
+    blindroll: "blind",
+    gm: "gm",
+    gmroll: "gm",
+    self: "self",
+    selfroll: "self",
+  };
+  // Take the label from CONFIG rather than from CHAT.RollBlind / CHAT.RollPrivate / CHAT.RollSelf.
+  // v14 no longer ships those keys, so localizing them returned the key itself and the card showed
+  // "CHAT.RollBlind" where the mode name belonged.
+  // fvtt-types has no v14 release, so `modes` is missing from its CONFIG.ChatMessage definition.
+  // Describe just the part we read; drop the cast once the types catch up.
+  const chatModes = (CONFIG.ChatMessage as unknown as { modes?: Record<string, { label: string }> }).modes;
+  const modeKey = ROLL_MODE_KEYS[String(rollMode)];
+  const modeLabel = modeKey ? chatModes?.[modeKey]?.label : undefined;
+  if (modeLabel) chat_data.flavor = game.i18n.localize(modeLabel);
   // Respect the chat visibility setting
   // NOTE: v14 renames this to ChatMessage.applyMode; applyRollMode still works in v14
   // (deprecated, removed in v15). Switch once fvtt-types ships v14 definitions.
