@@ -159,7 +159,7 @@ export class Flow<StateData> {
       this.state.currentStep = key;
       const step = this.getStep(key);
       if (!step) {
-        ui.notifications!.error(`Lancer flow error: ${key} is not a valid step`);
+        ui.notifications!.error(game.i18n.format("lancer.flows.flow.invalid_step_error", { key }));
         console.log(`${lp} Flow aborted when ${key} was not found. All steps in this flow:`, this.constructor.steps);
         return false;
       }

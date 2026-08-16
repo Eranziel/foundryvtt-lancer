@@ -20,26 +20,26 @@
   <section class="sheet-body flexrow sheet-weapon-mod">
     <div class="flexcol" style="flex-basis: 66%">
       {{{item-edit-effect "system.effect"}}}
-      {{{item-edit-arrayed-actions "system.actions" "ADDED ACTIONS"}}}
-      {{{item-edit-arrayed-damage "system.added_damage" "ADDED DAMAGE"}}}
-      {{{item-edit-arrayed-range "system.added_range" "ADDED RANGE"}}}
-      {{{item-edit-arrayed-tags "system.added_tags" "ADDED TAGS"}}}
+      {{{item-edit-arrayed-actions "system.actions" (localize "lancer.weapon-mod.added-actions")}}}
+      {{{item-edit-arrayed-damage "system.added_damage" (localize "lancer.weapon-mod.added-damage")}}}
+      {{{item-edit-arrayed-range "system.added_range" (localize "lancer.weapon-mod.added-range")}}}
+      {{{item-edit-arrayed-tags "system.added_tags" (localize "lancer.weapon-mod.added-tags")}}}
       {{{item-edit-arrayed-bonuses "system.bonuses"}}}
       <div class="flexrow">
         {{{counter-array system.counters "system.counters" true}}}
       </div>
-      {{{item-edit-arrayed-deployables "system.deployables" "ADDED DEPLOYABLES"}}}
-      {{{item-edit-arrayed-synergies "system.synergies" "SYNERGIES"}}}
-      {{{item-edit-arrayed-integrated "system.integrated" "INTEGRATED ITEMS"}}}
-      {{{item-edit-arrayed-tags "system.tags" "TAGS"}}}
+      {{{item-edit-arrayed-deployables "system.deployables" (localize "lancer.weapon-mod.added-deployables")}}}
+      {{{item-edit-arrayed-synergies "system.synergies" (localize "lancer.weapon-mod.synergies")}}}
+      {{{item-edit-arrayed-integrated "system.integrated" (localize "lancer.weapon-mod.integrated")}}}
+      {{{item-edit-arrayed-tags "system.tags" (localize "lancer.weapon-mod.tags")}}}
     </div>
     <div class="flexcol" style="flex-basis: 33%">
       {{{item-edit-sp "system.sp"}}}
       {{#if (is-limited item)}}
         {{{limited-uses-indicator item "item"}}}
       {{/if}}
-      {{{item-edit-checkboxes-object "Allowed Sizes" "system.allowed_sizes"}}}
-      {{{item-edit-checkboxes-object "Allowed Types" "system.allowed_types"}}}
+      {{{item-edit-checkboxes-object (localize "lancer.weapon-mod.allowed-sizes") "system.allowed_sizes"}}}
+      {{{item-edit-checkboxes-object (localize "lancer.weapon-mod.allowed-types") "system.allowed_types"}}}
     </div>
   </section>
 </form>

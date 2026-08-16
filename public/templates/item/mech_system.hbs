@@ -27,7 +27,7 @@
 
     {{! Status }}
     <div class="card clipped">
-      <div class="lancer-header lancer-primary major">STATUS</div>
+      <div class="lancer-header lancer-primary major">{{localize "lancer.mech-system.status"}}</div>
       <div class="flexrow" style="align-self: center">
         {{#if (is-limited item)}}
           {{{limited-uses-indicator item "item"}}}
@@ -35,20 +35,20 @@
       </div>
     </div>
 
-    {{{textarea-card "DESCRIPTION" "system.description"}}}
-    {{{textarea-card "EFFECT" "system.effect"}}}
+    {{{textarea-card (localize "lancer.mech-system.description") "system.description"}}}
+    {{{textarea-card (localize "lancer.mech-system.effect") "system.effect"}}}
 
     {{! Bonuses }}
     {{!-- prettier-ignore --}}
     <div>
-      {{{item-edit-arrayed-actions      "system.actions"       "ACTIONS"}}}
+      {{{item-edit-arrayed-actions      "system.actions"       (localize "lancer.mech-system.actions")}}}
       {{{item-edit-arrayed-bonuses      "system.bonuses"}}}
       {{{counter-array system.counters  "system.counters"      true}}}
-      {{{item-edit-arrayed-deployables  "system.deployables"   "DEPLOYABLES"}}}
-      {{{item-edit-arrayed-synergies    "system.synergies"     "SYNERGIES"}}}
-      {{{item-edit-arrayed-integrated   "system.integrated"    "INTEGRATED ITEMS"}}}
+      {{{item-edit-arrayed-deployables  "system.deployables"   (localize "lancer.mech-system.deployables")}}}
+      {{{item-edit-arrayed-synergies    "system.synergies"     (localize "lancer.mech-system.synergies")}}}
+      {{{item-edit-arrayed-integrated   "system.integrated"    (localize "lancer.mech-system.integrated")}}}
     </div>
 
-    {{{item-edit-arrayed-tags "system.tags" "TAGS"}}}
+    {{{item-edit-arrayed-tags "system.tags" (localize "lancer.mech-system.tags")}}}
   </div>
 </form>

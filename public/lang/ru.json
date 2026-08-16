@@ -1,0 +1,1135 @@
+{
+  "TYPES": {
+    "Actor": {
+      "deployable": "Deployable",
+      "mech": "Mech",
+      "npc": "NPC",
+      "pilot": "Pilot"
+    },
+    "Item": {
+      "bond": "Bond",
+      "core_bonus": "Core Bonus",
+      "frame": "Frame",
+      "license": "License",
+      "mech_system": "Mech System",
+      "mech_weapon": "Mech Weapon",
+      "npc_class": "NPC Class",
+      "npc_feature": "NPC Feature",
+      "npc_template": "NPC Template",
+      "organization": "Organization",
+      "pilot_armor": "Pilot Armor",
+      "pilot_gear": "Pilot Gear",
+      "pilot_weapon": "Pilot Weapon",
+      "reserve": "Reserve",
+      "skill": "Skill",
+      "status": "Status/Condition",
+      "talent": "Talent",
+      "weapon_mod": "Weapon Mod"
+    }
+  },
+  "lancer": {
+    "LancerPilotSheet": "Lancer System Pilot Sheet",
+    "LancerMechSheet": "Lancer System Mech Sheet",
+    "LancerDeployableSheet": "Lancer System Deployable Sheet",
+    "LancerNPCSheet": "Lancer System NPC Sheet",
+    "LancerItemSheet": "Lancer System Item Sheet",
+    "LancerFrameSheet": "Lancer System Frame Sheet",
+    "LancerLicenseSheet": "Lancer System License Sheet",
+    "LancerNPCClassSheet": "Lancer System NPC Class/Template Sheet",
+    "LancerNPCFeatureSheet": "Lancer System NPC Feature Sheet",
+    "inventory": {
+      "title": "{name}'s Inventory",
+      "categories": {
+        "frames": "Frames",
+        "weapons": "Weapons",
+        "systems": "Systems",
+        "mods": "Mods",
+        "statuses": "Statuses",
+        "armor": "Armor",
+        "gear": "Gear",
+        "talents": "Talents",
+        "skills": "Skills",
+        "licenses": "Licenses",
+        "core_bonuses": "Core Bonuses",
+        "reserves": "Reserves",
+        "organizations": "Organizations"
+      }
+    },
+    "common": {
+      "save": "Save",
+      "confirm": "Confirm"
+    },
+
+    "Actor": {
+      "FIELDS": {
+        "activations": {
+          "label": "Activations"
+        }
+      }
+    },
+    "placeholder": {
+      "name": "Name"
+    },
+    "common-sheet": {
+      "tabs": {
+        "effects": "<EFFECTS//ACTIVE>"
+      },
+      "headers": {
+        "combatUtilities": "COMBAT UTILITIES"
+      },
+      "buttons": {
+        "basicAttack": "MELEE/RANGED",
+        "damage": "DAMAGE",
+        "fullRepair": "FULL REPAIR",
+        "overheat": "OVERHEAT",
+        "scan": "SCAN",
+        "stabilize": "STABILIZE",
+        "structure": "STRUCTURE",
+        "tech": "TECH"
+      },
+      "shortStats": {
+        "hull": "HUL",
+        "agi": "AGI",
+        "sys": "SYS",
+        "eng": "ENG",
+        "level": "LICENSE LEVEL",
+        "grit": "GRIT",
+        "tier": "TIER",
+        "activations": "ACTIV",
+        "hp": "HP",
+        "evasion": "EVA",
+        "armor": "ARM",
+        "structure": "STRUCT",
+        "heat": "HEAT",
+        "heatcap": "HEAT CAP",
+        "edef": "EDEF",
+        "stress": "STRESS",
+        "speed": "SPD",
+        "save": "SAVE",
+        "sensor_range": "SENS",
+        "tech_attack": "T ATK",
+        "overcharge": "OVERCHARGE",
+        "burn": "BURN",
+        "overshield": "O.SHLD",
+        "repairs": "REP",
+        "size": "SZ",
+        "cost": "COST",
+        "attack_bonus": "ATK BONUS",
+        "accuracy": "ACCURACY"
+      }
+    },
+    "deployable-sheet": {
+      "header": {
+        "owner": "Owner"
+      },
+      "tabs": {
+        "status": "<STATUS>",
+        "config": "<CONFIG>"
+      },
+      "deployer": {
+        "label": "DEPLOYER"
+      },
+      "stats": {
+        "label": "BASE STATS",
+        "maxHp": "MAX HP"
+      }
+    },
+    "mech-sheet": {
+      "header": {
+        "inactive-warning": "Warning: Inactive Mech - Pilot bonuses not tracked"
+      },
+      "tabs": {
+        "stats": "<MECH//STATS>",
+        "loadout": "<MECH//LOADOUT>",
+        "talents": "<PILOT//TALENTS>"
+      },
+      "core": {
+        "label": "CORE"
+      },
+      "actions": {
+        "label": "ACTIONS",
+        "protocol": "Protocol",
+        "move": "Movement",
+        "full": "Full Action",
+        "quick": "Quick Action",
+        "reaction": "Reaction"
+      },
+      "macros": {
+        "label": "MACROS"
+      },
+      "system": {
+        "label": "LOADOUT",
+        "sp-used": "SP USED"
+      },
+      "loadout": {
+        "mountedWeapons": "MOUNTED WEAPONS",
+        "mountedSystems": "MOUNTED SYSTEMS"
+      },
+      "buttons": {
+        "viewInventory": "View Inventory"
+      }
+    },
+    "npc-sheet": {
+      "header": {
+        "class": "CLASS",
+        "templates": "TEMPLATES"
+      },
+      "class": {
+        "label": "CLASS",
+        "none": "NO CLASS FOUND"
+      },
+      "templates": {
+        "label": "TEMPLATES"
+      },
+      "features": {
+        "label": "FEATURES",
+        "recharge": "Recharge"
+      },
+      "effects": {
+        "label": "ACTIVE EFFECTS"
+      },
+      "notes": "NOTES"
+    },
+    "pilot-sheet": {
+      "header": {
+        "ll": "LL",
+        "cs": "CALLSIGN",
+        "name": "NAME",
+        "bg": "BACKGROUND"
+      },
+      "tabs": {
+        "cloud": "<RM-4://SYNC>",
+        "dossier": "<PILOT//DOSSIER>",
+        "narrative": "<PILOT//NARRATIVE>",
+        "tactical": "<PILOT//TACTICAL>",
+        "loadout": "<EQUIP//LOADOUT>",
+        "mech": "<MECH//ACTIVE>"
+      },
+      "cloud-header": {
+        "label": "RM-4://(OMNINET UPLINK ID)",
+        "raw-placeholder": "Paste Pilot Share Code"
+      },
+      "cloud-download": {
+        "label": "DOWNLOAD",
+        "description": "Use this section to import a Comp/Con share code.",
+        "lastSync": "Last synced: {timestamp}"
+      },
+      "cloud-upload": {
+        "label": "UPLOAD",
+        "wip": "FEATURE IN PROGRESS"
+      },
+      "json-import": {
+        "label": "FILE IMPORT",
+        "description": "Use this section to import a JSON file exported from Comp/Con.",
+        "placeholder": "Select JSON file…",
+        "browse": "Browse"
+      },
+      "dossier": {
+        "cs": "CALLSIGN",
+        "name": "NAME",
+        "background": "BACKGROUND",
+        "history": "HISTORY",
+        "notes": "NOTES"
+      },
+      "narrative": {
+        "bond": "BOND OF {bondName}",
+        "burdens": "BURDENS",
+        "clocks": "CLOCKS",
+        "boon-xp": "Boon XP from another PC.",
+        "tally-xp": "Tally XP",
+        "stress": "Stress",
+        "xp": "XP",
+        "refresh-powers": "Refresh Powers"
+      },
+      "tactical": {
+        "armor": "ARMOR",
+        "weapons": "WEAPONS",
+        "gear": "GEAR",
+        "reserves": "RESERVES",
+        "licenses": "LICENSES",
+        "cores": "CORE BONUSES"
+      },
+      "abilities": {
+        "skills": "SKILL TRIGGERS",
+        "talents": "TALENTS"
+      }
+    },
+    "chat-card": {
+      "title": {
+        "attack": "// ATTACK //",
+        "damage": "// DAMAGE //",
+        "reliable": "// RELIABLE //",
+        "crit-damage": "// CRIT DAMAGE //",
+        "self-heat": "// SELF HEAT //",
+        "defense-hit": "// ATTACK VS {defense} //",
+        "effect": "// EFFECT //",
+        "on-attack": "// ON ATTACK //",
+        "on-hit": "// ON HIT //",
+        "on-crit": "// ON CRIT //",
+        "charge-roll": "// CHARGE ROLL //",
+        "recharged": "// RECHARGED //",
+        "structure": "// STRUCTURE DAMAGE //",
+        "overheating": "// OVERHEATING //",
+        "cascade": "// CASCADE //",
+        "check": "// CHECK :: {check} //",
+        "system": "// SYSTEM :: {title} //",
+        "mod": "// MOD :: {title} //",
+        "trait": "// TRAIT :: {title} //",
+        "tech": "// TECH :: {title} //",
+        "reaction": "// REACTION :: {title} //"
+      },
+      "label": {
+        "trigger": "TRIGGER",
+        "effect": "EFFECT"
+      },
+      "attack": {
+        "crit": "CRIT",
+        "hit": "HIT",
+        "miss": "MISS",
+        "roll-all-damage": "ROLL DAMAGE"
+      },
+      "exclamation": {
+        "overkill": "OVERKILL!"
+      },
+      "overcharge": {
+        "charged": "{target} + :: CHARGED",
+        "uncharged": "{target} + :: UNCHARGED"
+      },
+      "remaining": "{total} / {max} REMAINING"
+    },
+    "floatingDamageNumbers": {
+      "name": "Floating Damage Numbers",
+      "hint": "Enable floating damage numbers for changes to stats, including applying damage rolls. This setting is separate for each client."
+    },
+    "simpleFonts": {
+      "name": "Use Simple/Plain Fonts",
+      "hint": "Replace stylized sci-fi header fonts with Helvetica for legibility. This setting is separate for each client."
+    },
+    "uiTheme": {
+      "name": "UI Theme",
+      "hint": "Colour scheme for the UI, echoing Comp/Con's themes.",
+      "gms": "GMS Red (default)",
+      "gmsDark": "GMS Dark",
+      "msmc": "MSMC Solarized",
+      "horus": "HORUS Terminal",
+      "ha": "Harrison Armory Ras Shamra",
+      "ssc": "SSC Constellar Congress",
+      "ipsn": "IPS-N Carina",
+      "gal": "FORECAST/GALSIM"
+    },
+    "pauseIcon": {
+      "name": "Pause Icon",
+      "hint": "The icon graphic to use on the Foundry pause overlay.",
+      "gms": "Union/GMS (default)",
+      "horus": "HORUS",
+      "ha": "Harrison Armory",
+      "ssc": "SSC",
+      "ips-n": "IPS-N",
+      "albatross": "Albatross",
+      "aun": "Aun Ascendancy",
+      "barony": "Karrakin Trade Baronies",
+      "horizon": "Horizon Collective",
+      "ra": "RA",
+      "sparri": "Sparri",
+      "voladores": "Voladores"
+    },
+    "scanOutput": {
+      "name": "Scan Output Location",
+      "hint": "Where should scan results be recorded?",
+      "both": "Chat & Journal",
+      "chat": "Chat only",
+      "journal": "Journal only"
+    },
+    "statusIconsConfig": {
+      "menu-name": "Status Icons",
+      "menu-label": "Status Icon Configuration",
+      "menu-hint": "Configure the status icons that appear on the token HUD",
+      "defaultConditionsStatus": "Default Conditions & Status",
+      "defaultConditionsStatus-desc": "Enable the default icon set for conditions & status",
+      "cancerConditionsStatus": "Cancermantis' Conditions & Status",
+      "cancerConditionsStatus-desc": "Enable Cancermantis' icon set for conditions & status",
+      "cancerNPCTemplates": "Cancermantis' NPC Templates",
+      "cancerNPCTemplates-desc": "Enable Cancermantis' icon set for NPC templates",
+      "hayleyConditionsStatus": "Hayley's Condition & Status",
+      "hayleyConditionsStatus-desc": "Enable Hayley's icon set for conditions & status",
+      "hayleyPC": "Hayley's PC Systems",
+      "hayleyPC-desc": "Enable Hayley's icon set for PC system effects",
+      "hayleyNPC": "Hayley's NPC Systems",
+      "hayleyNPC-desc": "Enable Hayley's icon set for NPC system effects",
+      "hayleyUtility": "Hayley's Utility",
+      "hayleyUtility-desc": "Enable Hayley's icon set for utility indicators",
+      "tommyConditionsStatus": "Tommy's Condition & Status",
+      "tommyConditionsStatus-desc": "Enable Tommy's icon set for conditions & status"
+    },
+    "statusIconsNames": {
+      "abjure": "Abjure",
+      "aceso": "Aceso",
+      "blind": "Blind",
+      "bolster": "Bolster",
+      "burn": "Burn",
+      "camus_razor": "Camus' Razor",
+      "chain": "Chain",
+      "chains_of_prometheus": "Chains of Prometheus",
+      "clamp_bomb": "Clamp Bomb",
+      "commander": "Commander",
+      "cover_hard": "Cover - Hard",
+      "cover_soft": "Cover - Soft",
+      "dangerzone": "Danger Zone",
+      "destroyed": "Destroyed",
+      "dimensional_shackles": "Dimensional Shackles",
+      "dispersal_shield_1": "Dispersal Shield 1",
+      "dispersal_shield_2": "Dispersal Shield 2",
+      "dispersal_shield_3": "Dispersal Shield 3",
+      "dominions_breadth": "Dominion's Breadth",
+      "downandout": "Down and Out",
+      "duat_gate": "Duat Gate",
+      "echo_edge": "Echo Edge",
+      "elite": "Elite",
+      "engaged": "Engaged",
+      "excommunicate": "Excommunicate",
+      "exotic": "Exotic",
+      "exposed": "Exposed",
+      "fade_cloak": "Fade Cloak",
+      "flaw_minus": "FLAW_minus",
+      "flaw_plus": "FLAW_plus",
+      "flying": "Flying",
+      "focus_down": "Focus Down",
+      "follower_count": "Follower Count",
+      "grappled": "Grappled",
+      "gravity": "Gravity",
+      "grind_maniple": "Grind Maniple",
+      "grunt": "Grunt",
+      "haste": "Haste",
+      "hidden": "Hidden",
+      "hiddeninvis": "Hidden and Invisible",
+      "hunter_lock": "Hunter Lock",
+      "hyperdense_armor": "Hyperdense Armor",
+      "illusionary_subroutines": "Illusionary Subroutines",
+      "immobilized": "Immobilized",
+      "impaired": "Impaired",
+      "imperial_eye": "Imperial Eye",
+      "intangible": "Intangible",
+      "investiture": "Investiture",
+      "invisible": "Invisible",
+      "jammed": "Jammed",
+      "kraul_grapple": "Kraul Grapple",
+      "latch_drone": "Latch Drone",
+      "lockon": "Lock On",
+      "marked": "Marked",
+      "mercenary": "Mercenary",
+      "metahook": "Metahook",
+      "molten_puncture": "Molten Puncture",
+      "npc_tier_1": "Tier 1",
+      "npc_tier_2": "Tier 2",
+      "npc_tier_3": "Tier 3",
+      "overshield": "Overshield",
+      "pain_transference": "Pain Transference",
+      "petrify": "Petrify",
+      "pirate": "Pirate",
+      "prone": "Prone",
+      "reactor_meltdown": "Reactor Meltdown",
+      "resistance_burn": "Resist Burn",
+      "resistance_energy": "Resist Energy",
+      "resistance_explosive": "Resist Explosive",
+      "resistance_heat": "Resist Heat",
+      "resistance_kinetic": "Resist Kinetic",
+      "retort_loop": "Retort Loop",
+      "rpv": "RPV",
+      "sanctuary": "Sanctuary",
+      "shahnameh": "Shahnameh",
+      "ship": "Ship",
+      "shredded": "Shredded",
+      "shutdown": "Shut Down",
+      "slow": "Slowed",
+      "spacer": "Spacer",
+      "spike": "Spike",
+      "stasis": "Stasis",
+      "stunned": "Stunned",
+      "supercharger": "Supercharger",
+      "sympathetic_shield": "Sympathetic_shield",
+      "tachyon_shield": "Tachyon Shield",
+      "tear_down": "Tear Down",
+      "terrify": "Terrify",
+      "tiercust": "Custom Tier",
+      "tracking_bug": "Tracking Bug",
+      "trueblack": "Trueblack Aegis",
+      "ultra": "Ultra",
+      "unravel": "Unravel",
+      "vehicle": "Vehicle",
+      "veteran": "Veteran",
+      "viral_logic": "Viral Logic",
+      "walk_of_kings": "Walk of Kings",
+      "warp_sensors": "Warp Sensors"
+    },
+    "automation": {
+      "clear_all": "Clear All",
+      "menu-name": "Automation",
+      "menu-label": "System Automation Settings",
+      "menu-hint": "Set up what system automation options are enabled, or turn them all off",
+      "master-switch": "Enabled",
+      "master-switch-desc": "Turn this off to do everything manually",
+      "attacks": "Attack roll evaluation",
+      "attacks-desc": "Toggle for whether or not you want the system to auto-calculate hits and other attack related automation.",
+      "damage": "Damage application",
+      "damage-desc": "Toggle for whether or not you want the system to apply rolled damage to targets.",
+      "structure": "Structure/Stress",
+      "structure-desc": "Automatically prompt for a structure or stress roll when a mech reaches 0 hp or exceeds its heat cap.",
+      "overcharge_heat": "Apply Overcharge Heat",
+      "overcharge_heat-desc": "Automatically apply heat when rolling overcharge",
+      "attack_self_heat": "Self Heat from Attacks",
+      "attack_self_heat-desc": "When a weapon has the Overkill or Heat (self) tags, automatically apply any heat.",
+      "remove_templates": "Autoremove Templates",
+      "remove_templates-desc": "When the turn changes, should measured templates from attacks be cleared?",
+      "limited_loading": "Manage Limited/Loading",
+      "limited_loading-desc": "When items are used, should their limited and loading status be automatically managed and tracked?",
+      "npc_recharge": "NPC Recharge",
+      "npc_recharge-desc": "Automatically roll to recharge NPC systems at the start of their turn.",
+      "token_size": "Manage Token Sizes",
+      "token_size-desc": "Automatically force tokens sizes to match the associated actor's size stat."
+    },
+    "actionTracker": {
+      "menu-name": "Action Tracker",
+      "menu-label": "Action Tracker Settings",
+      "menu-hint": "Configure options related to action tracker HUD and automations.",
+      "showHotbar": "Show Hotbar",
+      "showHotbar-desc": "Toggles the display of the floating hotbar during combat.",
+      "allowPlayers": "Allow Players",
+      "allowPlayers-desc": "Allows players to modify their own actions.",
+      "printMessages": "Print Messages",
+      "printMessages-desc": "Prints chat messages for start and end of a token's turn."
+    },
+    "initiative": {
+      "sorttracker": "Sort the tracker",
+      "sorttracker-desc": "Moves the unit currently taking their turn to the top of the tracker and moves units that have taken their turn to the end of the tracker.",
+      "appearancesettingslabel": "Appearance Settings",
+      "appearancesettingsbutton": "Appearance",
+      "appearancesettings-desc": "Configure the colors and icon used in the tracker"
+    },
+    "squaregriddiagonals": {
+      "name": "Square Grid Diagonal Movement",
+      "hint": "How distances will be calculated when moving diagonally on a square grid.",
+      "111": "1-1-1: Diagonal moves cost 1 (default)",
+      "121": "1-2-1: Diagonal moves alternate cost from 1 to 2",
+      "222": "2-2-2: Manhattan distance. Diagonals cost 2",
+      "euc": "Euclidean: Euclidian distance rounded"
+    },
+    "effect": {
+      "categories": {
+        "passive": "Passive",
+        "passthrough": "Passthrough",
+        "disabled": "Disabled",
+        "inherited": "Inherited"
+      }
+    },
+    "tables": {
+      "structure": {
+        "title": {
+          "crushing": "Crushing Hit",
+          "direct": "Direct Hit",
+          "trauma": "System Trauma",
+          "glancing": "Glancing Blow"
+        },
+        "description": {
+          "crushing": "Your mech is damaged beyond repair – it is destroyed. You may still exit it as normal.",
+          "direct": {
+            "3plus": "Your mech is @LancerID[stunned] until the end of your next turn.",
+            "2": "Roll a HULL check. On a success, your mech is @LancerID[stunned] until the end of your next turn. On a failure, your mech is destroyed.",
+            "1": "Your mech is destroyed."
+          },
+          "trauma": "Parts of your mech are torn off by the damage. Roll 1d6. On a 1–3, all weapons on one mount of your choice are destroyed; on a 4–6, a system of your choice is destroyed. LIMITED systems and weapons that are out of charges are not valid choices. If there are no valid choices remaining, it becomes the other result. If there are no valid systems or weapons remaining, this result becomes a DIRECT HIT instead.",
+          "glancing": "Emergency systems kick in and stabilize your mech, but it’s @LancerID[impaired] until the end of your next turn."
+        }
+      },
+      "overheat": {
+        "title": {
+          "irreversible": "Irreversible Meltdown",
+          "meltdown": "Meltdown",
+          "destabilized": "Destabilized Power Plant",
+          "shunt": "Emergency Shunt"
+        },
+        "description": {
+          "irreversible": "The reactor goes critical. your mech suffers a reactor meltdown at the end of your next turn.",
+          "meltdown": {
+            "3plus": "Your mech becomes @Compendium[world.status-items.Exposed]",
+            "2": "Roll an ENGINEERING check. On a success, your mech is @Compendium[world.status-items.Exposed]. On a failure, it suffers a reactor meltdown after 1d6 of your turns (rolled by the GM). A reactor meltdown can be prevented by retrying the ENGINEERING check as a full action.",
+            "1": "Your mech suffers a reactor meltdown at the end of your next turn."
+          },
+          "destabilized": "The power plant becomes unstable, beginning to eject jets of plasma. Your mech becomes @Compendium[world.status-items.Exposed].",
+          "shunt": "Your mech’s cooling systems manage to contain the increasing heat; however, your mech becomes @Compendium[world.status-items.Impaired] until the end of your next turn."
+        }
+      },
+      "structureMonstrosity": {
+        "title": {
+          "fatal": "Fatal Hit",
+          "direct": "Direct Hit",
+          "dismember": "Dismemberment",
+          "powerful": "Powerful Hit",
+          "glancing": "Glancing Hit"
+        },
+        "description": {
+          "fatal": "The Monstrosity is destroyed.",
+          "direct": {
+            "3plus": "The Monstrosity is smacked in the head and is @LancerID[stunned] until the end of its next turn.",
+            "2": "The Monstrosity must succeed on a HULL save or be destroyed.",
+            "1": "The Monstrosity is destroyed."
+          },
+          "dismember": "The attack blows a limb or chunk off the Monstrosity; it takes 1d6 KINETIC damage and becomes @LancerID[slow] for the rest of the scene.",
+          "powerful": "The Monstrosity is knocked @LancerID[prone] by the force of the blow.",
+          "glancing": "The Monstrosity flinches in pain; it’s @LancerID[impaired] until the end of its next turn."
+        }
+      }
+    },
+    "compendium": {
+      "core_macros": "LANCER Macros",
+      "lancer_info": "LANCER Info",
+      "deployable": "Deployables",
+      "mech-items": "Mech Items",
+      "npc-actors": "Premade NPCs",
+      "npc-items": "NPC Items",
+      "pilot-items": "Pilot Items",
+      "player-actors": "Premade Player Actors",
+      "status-items": "Status/Condition"
+    },
+    "tokenConfig": {
+      "manual_token_size": {
+        "label": "Manual Token Sizing",
+        "hint": "Bypass system automation for determining token size"
+      }
+    },
+    "movement": {
+      "actions": {
+        "blink": "Teleport (Move)",
+        "forced": "Forced Move",
+        "ignore": "Ignore Terrain",
+        "teleport": "Teleport (Ability)"
+      }
+    },
+    "acc_diff": {
+      "cover": {
+        "no": "No Cover",
+        "soft": "Soft Cover (-1)",
+        "hard": "Hard Cover (-2)"
+      },
+      "add_accuracy": "Add global accuracy",
+      "add_difficulty": "Add global difficulty",
+      "adjustment_tooltip": "Global Accuracy/Difficulty Adjustment",
+      "manual_adjust": "Manual Adjust",
+      "stunned": "Stunned",
+      "consume_lock_on": "Consume Lock On (+1)",
+      "flat_modifier": "Flat Modifier",
+      "increase_flat_bonus": "Increase flat bonus",
+      "decrease_flat_bonus": "Decrease flat bonus",
+      "total": "Total",
+      "vs": "vs",
+      "accuracy": "Accuracy",
+      "difficulty": "Difficulty",
+      "accurate": "Accurate",
+      "smart": "Smart",
+      "seeking": "Seeking",
+      "inaccurate": "Inaccurate",
+      "impaired": "Impaired",
+      "thrown": "Thrown",
+      "engaged": "Engaged",
+      "prone": "Prone",
+      "lock_on": "Lock On",
+      "targeting": "Targeting",
+      "increase_accuracy": "Increase accuracy",
+      "increase_difficulty": "Increase difficulty",
+      "roll": "Roll",
+      "cancel": "Cancel",
+      "tech_item_base": "Tech Item Base",
+      "tech_attack": "Tech Attack",
+      "weapon_base": "Weapon Base",
+      "grit": "Grit",
+      "tier": "Tier"
+    },
+    "stabilize": {
+      "title": "STABILIZE",
+      "select-header": "Please select your two Stabilize actions",
+      "option1": "OPTION 1",
+      "option2": "OPTION 2",
+      "cool-mech": "Cool Mech",
+      "restore-hp": "Restore HP",
+      "reload": "Reload",
+      "clear-burn": "Clear Burn",
+      "clear-own-cond": "Clear Own Condition",
+      "clear-ally-cond": "Clear Ally Condition",
+      "submit": "Submit",
+      "cancel": "Cancel",
+      "has-stabilized": "{name} HAS STABILIZED",
+      "cool-desc": "Mech is cooling itself. Heat and @Compendium[world.status-items.Exposed] cleared.",
+      "no-repairs": "Mech has no repairs left. Please try again.",
+      "spent-repair": "Mech has spent 1 repair to regain HP.",
+      "cleared-burn": "Mech has cleared all burn.",
+      "cleared-own-cond": "Mech has selected to clear own condition. Please clear manually.",
+      "cleared-ally-cond": "Mech has selected to clear an allied condition. Please clear manually.",
+      "reloaded": "Mech has selected full reload. Weapons reloaded:"
+    },
+    "bonus": {
+      "title": "Bonus Editing",
+      "edit-bonus": "Edit Bonus:",
+      "id": "ID",
+      "value": "Value",
+      "overwrite": "Overwrite",
+      "replace": "Replace",
+      "damage-types": "DAMAGE TYPES",
+      "range-types": "RANGES TYPES",
+      "weapon-types": "WEAPON TYPES",
+      "weapon-sizes": "WEAPON SIZES"
+    },
+    "action": {
+      "editor": {
+        "title": "Action Editing",
+        "name": "ACTION NAME",
+        "lid": "ACTION ID",
+        "type": "TYPE",
+        "is_tech_attack": "IS TECH ATTACK?",
+        "reaction_init": "REACTION INIT",
+        "reaction_trigger": "REACTION TRIGGER",
+        "cost": "COST",
+        "frequency": "FREQUENCY",
+        "heat_cost": "HEAT COST",
+        "terse_description": "TERSE DESCRIPTION"
+      }
+    },
+    "counter": {
+      "min": "Min",
+      "value": "Value",
+      "max": "Max"
+    },
+    "editor": {
+      "edit_field": "Edit Field:",
+      "save": "Save"
+    },
+    "tag": {
+      "title": "TAG",
+      "lid": "LID: ",
+      "value": "Value:"
+    },
+    "frame": {
+      "description": "DESCRIPTION",
+      "available-mounts": "AVAILABLE WEAPON MOUNTS",
+      "traits": "TRAITS",
+      "core-system": "CORE SYSTEM",
+      "integrated-gear": "INTEGRATED GEAR",
+      "deployables": "DEPLOYABLES",
+      "passive": "PASSIVE",
+      "active": "ACTIVE",
+      "tags": "TAGS"
+    },
+    "mount": {
+      "aux_aux": "AUX/AUX",
+      "main": "MAIN",
+      "main_aux": "MAIN/AUX",
+      "flex": "FLEX",
+      "heavy": "HEAVY",
+      "integrated": "INTEGRATED",
+      "superheavy": "SUPERHEAVY",
+      "delete": "DELETE"
+    },
+    "license": {
+      "unlocked-rank": "UNLOCKED RANK",
+      "rank": "RANK",
+      "manufacturer": "Manufacturer",
+      "lid": "LID:",
+      "key": "Key:"
+    },
+    "mech-system": {
+      "status": "STATUS",
+      "description": "DESCRIPTION",
+      "effect": "EFFECT",
+      "actions": "ACTIONS",
+      "deployables": "DEPLOYABLES",
+      "synergies": "SYNERGIES",
+      "integrated": "INTEGRATED ITEMS",
+      "tags": "TAGS"
+    },
+    "mech-weapon": {
+      "size": "SIZE",
+      "status": "STATUS",
+      "type": "TYPE",
+      "range": "RANGE",
+      "damage": "DAMAGE",
+      "description": "DESCRIPTION",
+      "effect": "EFFECT",
+      "on_attack": "ON ATTACK",
+      "on_hit": "ON HIT",
+      "on_crit": "ON CRIT",
+      "profile_actions": "PROFILE ACTIONS",
+      "tags": "TAGS",
+      "base_actions": "BASE ACTIONS"
+    },
+    "npc-class": {
+      "description": "DESCRIPTION",
+      "tactics": "TACTICS",
+      "base-features": "BASE FEATURES",
+      "optional-features": "OPTIONAL FEATURES"
+    },
+    "npc-feature": {
+      "feature-type": "FEATURE TYPE",
+      "type": {
+        "reaction": "REACTION",
+        "system": "SYSTEM",
+        "tech": "TECH",
+        "trait": "TRAIT",
+        "weapon": "WEAPON"
+      },
+      "source": "SOURCE",
+      "origin": {
+        "class": "CLASS",
+        "template": "TEMPLATE"
+      },
+      "base-feature": "BASE FEATURE",
+      "optional-feature": "OPTIONAL FEATURE",
+      "uses": "USES",
+      "trigger": "TRIGGER",
+      "effect": "EFFECT",
+      "tech": "TECH",
+      "quick": "QUICK",
+      "full": "FULL",
+      "is-tech-attack": "TECH ATTACK?",
+      "weapon-type": "TYPE",
+      "range": "RANGE",
+      "damage": "DAMAGE",
+      "on-hit-effect": "ON HIT EFFECT",
+      "tags": "TAGS"
+    },
+    "npc-template": {
+      "description": "DESCRIPTION"
+    },
+    "organization": {
+      "description": "DESCRIPTION",
+      "purpose": "PURPOSE",
+      "efficiency": "EFFICIENCY",
+      "influence": "INFLUENCE"
+    },
+    "pilot-armor": {
+      "description": "DESCRIPTION",
+      "effect": "EFFECT",
+      "actions": "ACTIONS",
+      "deployables": "DEPLOYABLES",
+      "synergies": "SYNERGIES",
+      "tags": "TAGS"
+    },
+    "pilot-gear": {
+      "status": "STATUS",
+      "description": "DESCRIPTION",
+      "effect": "EFFECT",
+      "actions": "ACTIONS",
+      "deployables": "DEPLOYABLES",
+      "synergies": "SYNERGIES",
+      "tags": "TAGS"
+    },
+    "pilot-weapon": {
+      "status": "STATUS",
+      "range": "RANGE",
+      "damage": "DAMAGE",
+      "description": "DESCRIPTION",
+      "effect": "EFFECT",
+      "actions": "ACTIONS",
+      "deployables": "DEPLOYABLES",
+      "synergies": "SYNERGIES",
+      "tags": "TAGS"
+    },
+    "reserve": {
+      "resource-label": "RESOURCE LABEL",
+      "description": "DESCRIPTION",
+      "type": "TYPE",
+      "consumable": "CONSUMABLE"
+    },
+    "skill": {
+      "rank": "RANK",
+      "description": "DESCRIPTION",
+      "details": "DETAILS"
+    },
+    "status": {
+      "type": "TYPE",
+      "lid": "LID",
+      "description": "DESCRIPTION"
+    },
+    "talent": {
+      "unlocked-rank": "UNLOCKED RANK",
+      "description": "DESCRIPTION",
+      "terse-description": "TERSE DESCRIPTION",
+      "rank": "RANK",
+      "actions": "ACTIONS",
+      "integrated-gear": "INTEGRATED GEAR",
+      "deployables": "DEPLOYABLES",
+      "synergies": "SYNERGIES"
+    },
+    "weapon-mod": {
+      "added-actions": "ADDED ACTIONS",
+      "added-damage": "ADDED DAMAGE",
+      "added-range": "ADDED RANGE",
+      "added-tags": "ADDED TAGS",
+      "added-deployables": "ADDED DEPLOYABLES",
+      "synergies": "SYNERGIES",
+      "integrated": "INTEGRATED ITEMS",
+      "tags": "TAGS",
+      "allowed-sizes": "Allowed Sizes",
+      "allowed-types": "Allowed Types"
+    },
+    "lcp": {
+      "official_content": "Official LANCER Content",
+      "core_version": "Core Data is at",
+      "core_not_built": "Core Data has not been built yet",
+      "update_core": "Update Core Data",
+      "update_to": "Update to",
+      "rebuild_core": "Rebuild Core Data",
+      "import_update": "Import/Update LCP",
+      "by": "by",
+      "import": "Import LCP",
+      "contains": "This LCP contains",
+      "contents": "Contents",
+      "no_lcp_selected": "No LCP Selected",
+      "bonds": "bonds",
+      "reserves": "reserves",
+      "pilot_skills": "pilot skills",
+      "talents": "talents",
+      "pilot_gear": "pilot gear",
+      "frames": "frames",
+      "mech_systems": "mech systems",
+      "mech_weapons": "mech weapons",
+      "weapon_mods": "weapon mods",
+      "tags": "tags",
+      "statuses": "statuses/conditions",
+      "npc_classes": "NPC classes",
+      "npc_templates": "NPC templates",
+      "npc_features": "NPC features",
+      "imported_lcps": "Imported LCPs",
+      "name": "Name",
+      "author": "Author",
+      "author_upper": "AUTHOR",
+      "version": "Version",
+      "clear_compendiums": "Clear LANCER Compendium Data",
+      "selected_lcps": "Selected LCPs",
+      "various_authors": "Various",
+      "import_from_file": "Import From File",
+      "select_file": "Select LCP file",
+      "choose_file": "Choose file...",
+      "unselect_file": "Unselect File",
+      "selected_official_sources": "Selected Official Sources",
+      "available_installed": "Available and Installed Content",
+      "title": "TITLE",
+      "current": "CURRENT",
+      "available": "AVAILABLE",
+      "import_update_selected": "Import/Update Selected"
+    },
+    "scan": {
+      "header": "SCAN",
+      "tier": "TIER",
+      "hull": "Hull",
+      "agility": "Agility",
+      "systems": "Systems",
+      "engineering": "Engineering",
+      "structure": "Structure",
+      "max_hp": "Max HP",
+      "evasion": "Evasion",
+      "armor": "Armor",
+      "stress": "Stress",
+      "heat_cap": "Heat Cap",
+      "edefense": "E-Defense",
+      "size": "Size",
+      "speed": "Speed",
+      "save_target": "Save Target",
+      "sensor_range": "Sensor Range",
+      "weapons": "WEAPONS",
+      "tech_attacks": "TECH ATTACKS",
+      "system_header": "SYSTEMS",
+      "traits": "TRAITS"
+    },
+    "chat": {
+      "talent": "TALENT"
+    },
+    "core-bonus": {
+      "description": "DESCRIPTION",
+      "effect": "EFFECT",
+      "mounted-effect": "MOUNTED EFFECT",
+      "actions": "ACTIONS",
+      "synergies": "SYNERGIES",
+      "deployables": "DEPLOYABLES",
+      "integrated": "INTEGRATED ITEMS"
+    },
+    "bond": {
+      "major-ideals": "MAJOR IDEALS",
+      "minor-ideals": "MINOR IDEALS",
+      "questions": "QUESTIONS",
+      "powers": "POWERS",
+      "frequency": "Frequency:",
+      "veteran": "Veteran:",
+      "master": "Master:",
+      "prerequisite": "Prerequisite",
+      "effect": "Effect"
+    },
+    "damage_hud": {
+      "base_damage": "Base Damage",
+      "add_base_damage_type": "Add a base damage type",
+      "bonus_damage": "Bonus Damage",
+      "add_bonus_damage_type": "Add a bonus damage type",
+      "configuration": "Configuration",
+      "ap": "Armor Piercing (AP)",
+      "overkill": "Overkill",
+      "cannot_be_reduced": "Cannot be Reduced",
+      "cannot_be_reduced_tooltip": "For 'cannot be reduced' effects like the Paracausal mod",
+      "half_damage": "Half Damage",
+      "half_damage_tooltip": "For effects which cause the attacker to deal half damage in addition to resistance, like Heavy Gunner",
+      "reliable": "Reliable",
+      "roll": "Roll",
+      "cancel": "Cancel",
+      "remove_damage_type": "Remove this damage type",
+      "bonus": "Bonus",
+      "add_target_bonus_damage": "Add a bonus damage type for only this target"
+    },
+    "damage_type": {
+      "kinetic": "Kinetic",
+      "energy": "Energy",
+      "explosive": "Explosive",
+      "heat": "Heat",
+      "burn": "Burn",
+      "variable": "Variable"
+    },
+    "struct_stress_hud": {
+      "unknown_mech": "UNKNOWN MECH",
+      "damage_taken": "{name} has taken {stat} damage!",
+      "roll_dice": "Roll {count}d6 to determine what happens.",
+      "structure": "structure",
+      "stress": "overheat",
+      "roll": "Roll",
+      "cancel": "Cancel"
+    },
+    "flows": {
+      "action_track": {
+        "start_turn": "{name} is starting their turn",
+        "end_turn": "{name} is ending their turn"
+      },
+      "activation": {
+        "unknown_action": "UNKNOWN ACTION"
+      },
+      "attack": {
+        "tech_attack": "TECH ATTACK",
+        "basic_attack": "BASIC ATTACK",
+        "non_mech_weapon_warn": "Non-mech cannot fire a mech weapon!",
+        "non_piloted_weapon_warn": "Cannot fire a weapon on a non-piloted mech!",
+        "non_mech_system_warn": "Non-mech cannot use a mech system!",
+        "non_piloted_system_warn": "Cannot use a system on a non-piloted mech!",
+        "non_npc_weapon_warn": "Non-NPC cannot fire an NPC weapon!",
+        "non_pilot_weapon_warn": "Non-pilot cannot fire a pilot weapon!",
+        "invalid_type_error": "Error in attack flow - {name} is an invalid type!",
+        "not_loaded_warn": "Weapon {name} is not loaded!"
+      },
+      "burn": {
+        "burn_damage": "Burn Damage",
+        "no_token_error": "Burn flow requires the actor to have a token in the scene",
+        "burn_eng": "BURN :: ENG",
+        "burn_cleared": "BURN CLEARED!"
+      },
+      "cascade": {
+        "cascade": "CASCADE",
+        "shackles_intact": "The shackles remain intact, for now.",
+        "only_mechs_warn": "Only mechs can cascade.",
+        "shackles_loose_plural": "OUR SHACKLES LOOSE, OUR CHAINS UNBOUND!",
+        "shackles_loose_singular": "MY SHACKLES LOOSE, MY CHAINS UNBOUND!"
+      },
+      "damage": {
+        "damage_roll": "Damage Roll",
+        "cant_deal_damage_warn": "Item {name} can't deal damage!",
+        "no_damage_configured_warn": "No damage configured, skipping the roll."
+      },
+      "flow": {
+        "invalid_step_error": "Lancer flow error: {key} is not a valid step"
+      },
+      "frame": {
+        "no_core_power_warn": "No core power remaining on this frame!"
+      },
+      "full_repair": {
+        "dialog_title": "FULL REPAIR - {name}",
+        "dialog_content": "Are you sure you want to fully repair the {type} \"{name}\"?",
+        "card_title": "FULL REPAIR",
+        "card_description": "Notice: {name} has been fully repaired."
+      },
+      "item_utils": {
+        "system_no_uses_warn": "System {name} has no remaining uses!",
+        "weapon_no_uses_warn": "Weapon {name} has no remaining uses!",
+        "item_no_uses_warn": "{type} {name} has no remaining uses!",
+        "reserve_already_used_warn": "Reserve {name} has already been used!",
+        "system_not_recharged_warn": "System {name} has not recharged!",
+        "weapon_not_recharged_warn": "Weapon {name} has not recharged!"
+      },
+      "item": {
+        "reserve_title": "RESERVE :: {name}",
+        "no_macro_error": "Error - No macro exists for item type \"{type}\""
+      },
+      "overcharge": {
+        "title": "{name} IS OVERCHARGING"
+      },
+      "overheat": {
+        "only_mechs_npcs_warn": "Only Mechs and NPCs can take stress damage",
+        "not_at_heat_cap_info": "Token is not at heat cap. No need to roll stress.",
+        "full_stress_info": "The mech is at full Stress, no overheat check to roll."
+      },
+      "scan": {
+        "enemy_unknown": "Enemy Unknown",
+        "unknown_class": "Unknown Class",
+        "no_target_error": "You must target a token to scan.",
+        "no_actor_error": "The targeted token has no associated actor.",
+        "npc_only_error": "You can only scan NPC actors.",
+        "unknown_exotic_weapon": "UNKNOWN EXOTIC WEAPON",
+        "unknown_exotic_tech": "UNKNOWN EXOTIC TECH ATTACK",
+        "unknown_exotic_system": "UNKNOWN EXOTIC SYSTEM",
+        "unknown_exotic_trait": "UNKNOWN EXOTIC TRAIT",
+        "unknown_type": "Unknown",
+        "no_folder_error": "Journal folder {folder} does not exist and must be created by a user with permissions to do so."
+      },
+      "structure": {
+        "only_mechs_npcs_warn": "Only Mechs and NPCs can take structure damage",
+        "hp_remaining_info": "Token has hp remaining. No need to roll structure.",
+        "full_structure_info": "The mech is at full Structure, no structure check to roll.",
+        "no_actor_dismember_error": "No actor found for dismemberment damage button.",
+        "secondary_equipment_title": "Equipment Destruction",
+        "secondary_weapon_title": "Weapon Destruction",
+        "secondary_weapon_desc": "On a 1–3, all weapons on one mount of your choice are destroyed",
+        "secondary_system_title": "System Destruction",
+        "secondary_system_desc": "On a 4–6, a system of your choice is destroyed"
+      },
+      "tech": {
+        "invalid_attacker_error": "Error rolling tech attack macro (not a valid tech attacker).",
+        "non_npc_warn": "Non-NPC cannot use an NPC system!",
+        "non_pilot_talent_warn": "Non-pilot cannot use a pilot talent!",
+        "no_active_mech_warn": "Cannot use a talent without an active mech!",
+        "invalid_type_error": "Error in tech attack flow - {name} is an invalid type!"
+      }
+    }
+  },
+  "LANCERINITIATIVE": {
+    "COMBAT": {
+      "activateCombatantTurn": "Start this combatant's turn",
+      "deactivateCombatantTurn": "End this combatant's turn"
+    },
+    "IconSettingsMenu": "Icon Settings",
+    "Icon": "Action Icon",
+    "IconDesc": "CSS classes to define the activation icon.",
+    "DeactivateIcon": "Deactivation Icon",
+    "DeactivateIconDesc": "CSS classes to define the deactivation icon.",
+    "IconSize": "Icon Size",
+    "IconPreview": "Icon Preview",
+    "PCColor": "Player Color",
+    "PCColorDesc": "Default: #44abe0",
+    "FriendlyColor": "Friendly Color",
+    "FriendlyColorDesc": "Default: #44abe0",
+    "NeutralColor": "Neutral Color",
+    "NeutralColorDesc": "Default: #146464",
+    "EnemyColor": "Enemy Color",
+    "EnemyColorDesc": "Default: #d98f30",
+    "DoneColor": "Inactive Color",
+    "DoneColorDesc": "Default: #aaaaaa",
+    "ActivatedLast": "Activated Units Last",
+    "ActivatedLastDesc": "Moves units that have taken their turn to the end of the tracker.",
+    "SortTracker": "Sort the Tracker",
+    "SortTrackerDesc": "Moves the unit currently taking their turn to the top of the tracker and moves units that have taken their turn to the end of the tracker.",
+    "EnableInitiative": "Enable Initiative Rolling",
+    "EnableInitiativeDesc": "Adds a button to owned combatants for rolling initiative",
+    "AddActivation": "Add Activation",
+    "RemoveActivation": "Remove Activation",
+    "UndoActivation": "Undo Activation"
+  }
+}

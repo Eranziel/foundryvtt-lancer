@@ -259,9 +259,17 @@
     <div class="damage-grid">
       <div class="base-damage lancer-border-primary">
         <h4 class="damage-hud-section lancer-border-primary flexrow">
-          Base Damage
-          <button class="add-damage-type" type="button" aria-label="Add new base damage type" onclick={addBaseDamage}>
-            <i class="mdi mdi-plus-thick" data-tooltip="Add a base damage type"></i>
+          {game.i18n.localize("lancer.damage_hud.base_damage")}
+          <button
+            class="add-damage-type"
+            type="button"
+            aria-label={game.i18n.localize("lancer.damage_hud.add_base_damage_type")}
+            onclick={addBaseDamage}
+          >
+            <i
+              class="mdi mdi-plus-thick"
+              data-tooltip={game.i18n.localize("lancer.damage_hud.add_base_damage_type")}
+            ></i>
           </button>
         </h4>
         {#each weaponDamage as _damage, i}
@@ -277,9 +285,17 @@
       </div>
       <div class="bonus-damage">
         <h4 class="damage-hud-section lancer-border-primary flexrow">
-          Bonus Damage
-          <button class="add-damage-type" type="button" aria-lable="Add new bonus damage type" onclick={addBonusDamage}>
-            <i class="mdi mdi-plus-thick" data-tooltip="Add a bonus damage type"></i>
+          {game.i18n.localize("lancer.damage_hud.bonus_damage")}
+          <button
+            class="add-damage-type"
+            type="button"
+            aria-label={game.i18n.localize("lancer.damage_hud.add_bonus_damage_type")}
+            onclick={addBonusDamage}
+          >
+            <i
+              class="mdi mdi-plus-thick"
+              data-tooltip={game.i18n.localize("lancer.damage_hud.add_bonus_damage_type")}
+            ></i>
           </button>
         </h4>
         {#each weaponBonusDamage as _damage, i}
@@ -297,39 +313,43 @@
     <!-- Checkboxes - AP etc... -->
     <div class="damage-hud-options-grid">
       <h4 class="damage-hud-section lancer-border-primary" style="justify-content: center; grid-area: title">
-        Configuration
+        {game.i18n.localize("lancer.damage_hud.configuration")}
       </h4>
       <HudCheckbox
         icon="mdi mdi-shield-off-outline"
-        label="Armor Piercing (AP)"
+        label={game.i18n.localize("lancer.damage_hud.ap")}
         bind:value={base.ap}
         bind:partial={partialAP}
         on:change={toggleAP}
         disabled={base.paracausal}
         style="grid-area: ap"
       />
-      <HudCheckbox label="Overkill" bind:value={weapon.overkill} style="grid-area: overkill" />
+      <HudCheckbox
+        label={game.i18n.localize("lancer.damage_hud.overkill")}
+        bind:value={weapon.overkill}
+        style="grid-area: overkill"
+      />
       <HudCheckbox
         icon="cci cci-large-beam"
-        label="Cannot be Reduced"
+        label={game.i18n.localize("lancer.damage_hud.cannot_be_reduced")}
         bind:value={base.paracausal}
         bind:partial={partialParacausal}
         on:change={toggleParacausal}
-        tooltip="For 'cannot be reduced' effects like the Paracausal mod"
+        tooltip={game.i18n.localize("lancer.damage_hud.cannot_be_reduced_tooltip")}
         style="grid-area: paracausal"
       />
       <HudCheckbox
         icon="mdi mdi-fraction-one-half"
-        label="Half Damage"
+        label={game.i18n.localize("lancer.damage_hud.half_damage")}
         bind:value={base.halfDamage}
         bind:partial={partialHalfDamage}
         on:change={toggleHalfDamage}
-        tooltip="For effects which cause the attacker to deal half damage in addition to resistance, like Heavy Gunner"
+        tooltip={game.i18n.localize("lancer.damage_hud.half_damage_tooltip")}
         style="grid-area: halfdamage"
       />
       <div class="flexrow" style="grid-area: reliable; align-items: center">
         <HudCheckbox
-          label="Reliable"
+          label={game.i18n.localize("lancer.damage_hud.reliable")}
           bind:value={weapon.reliable}
           style="grid-area: reliable; max-width: fit-content; padding-right: 0.5em"
         />
@@ -399,11 +419,11 @@
       use:focus
     >
       <i class="fas fa-check"></i>
-      Roll
+      {game.i18n.localize("lancer.damage_hud.roll")}
     </button>
     <button class="dialog-button cancel" data-button="cancel" type="button" onclick={() => dispatch("cancel")}>
       <i class="fas fa-times"></i>
-      Cancel
+      {game.i18n.localize("lancer.damage_hud.cancel")}
     </button>
   </div>
 </form>

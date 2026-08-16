@@ -5,21 +5,21 @@
       <span class="major"><input name="name" type="text" value="{{ value.name }}"></span>
     </div>
     <div class="flexrow">
-      <label>Min: <input
+      <label>{{localize "lancer.counter.min"}}: <input
           class="lancer-stat"
           type="number"
           name="min"
           value="{{ value.min }}"
           data-dtype="Number"
         ></label>
-      <label>Value: <input
+      <label>{{localize "lancer.counter.value"}}: <input
           class="lancer-stat"
           type="number"
           name="value"
           value="{{ value.value }}"
           data-dtype="Number"
         ></label>
-      <label>Max: <input
+      <label>{{localize "lancer.counter.max"}}: <input
           class="lancer-stat"
           type="number"
           name="max"

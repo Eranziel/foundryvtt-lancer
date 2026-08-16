@@ -36,8 +36,8 @@ export class CascadeFlow extends Flow<LancerFlowState.CascadeRollData> {
   constructor(uuid: UUIDRef | LancerActor, data?: Partial<LancerFlowState.CascadeRollData>) {
     const initialData: LancerFlowState.CascadeRollData = {
       type: "cascade",
-      title: data?.title ?? "CASCADE",
-      desc: data?.desc ?? "The shackles remain intact, for now.",
+      title: data?.title ?? game.i18n.localize("lancer.flows.cascade.cascade"),
+      desc: data?.desc ?? game.i18n.localize("lancer.flows.cascade.shackles_intact"),
       ai_systems: data?.ai_systems ?? [],
       roll_str: data?.roll_str ?? "1d20",
     };
@@ -55,7 +55,7 @@ const cascadeExceptions = ["ms_comp_con_class_assistant_unit", "wm_uncle_class_c
 export async function initCascadeData(state: FlowState<LancerFlowState.CascadeRollData>): Promise<boolean> {
   if (!state.data) throw new TypeError(`Cascade roll flow data missing!`);
   if (!state.actor.is_mech()) {
-    ui.notifications!.warn("Only mechs can cascade.");
+    ui.notifications!.warn(game.i18n.localize("lancer.flows.cascade.only_mechs_warn"));
     return false;
   }
   // Find all the AI systems, filter out exceptions, and store the IDs in state.data
@@ -79,7 +79,7 @@ export async function cascadeRoll(state: FlowState<LancerFlowState.CascadeRollDa
 
   const actor = state.actor;
   if (!actor.is_mech()) {
-    ui.notifications!.warn("Only mechs can cascade.");
+    ui.notifications!.warn(game.i18n.localize("lancer.flows.cascade.only_mechs_warn"));
     return false;
   }
 
@@ -92,12 +92,12 @@ export async function cascadeRoll(state: FlowState<LancerFlowState.CascadeRollDa
     total: result.toString(),
   };
   if (result === 1) {
-    state.data.title = "CASCADE";
+    state.data.title = game.i18n.localize("lancer.flows.cascade.cascade");
     let names = state.data.ai_systems.map(id => actor.items.get(id)?.name).join(", ");
     let message =
       state.data.ai_systems.length > 1
-        ? "OUR SHACKLES LOOSE, OUR CHAINS UNBOUND!"
-        : "MY SHACKLES LOOSE, MY CHAINS UNBOUND!";
+        ? game.i18n.localize("lancer.flows.cascade.shackles_loose_plural")
+        : game.i18n.localize("lancer.flows.cascade.shackles_loose_singular");
     state.data.desc = `<b>${names}</b><p><code class="horus">${message}</code></p>`;
   }
   return true;

@@ -27,8 +27,8 @@ export class LancerInitiativeConfigApp extends HandlebarsApplicationMixin(Applic
       appearance: opts.reset ? new CombatTrackerAppearance() : appearance,
       fields: appearance.schema.fields,
       buttons: [
-        { type: "submit", name: "submit", icon: "fas fa-save", label: "Save" },
-        { type: "button", name: "reset", icon: "fas fa-undo", label: "Reset", action: "onReset" },
+        { type: "submit", name: "submit", icon: "fas fa-save", label: "lancer.common.save" },
+        { type: "button", name: "reset", icon: "fas fa-undo", label: "SETTINGS.Reset", action: "onReset" },
       ],
     };
     opts.reset = false;

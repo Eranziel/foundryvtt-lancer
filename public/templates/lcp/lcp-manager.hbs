@@ -3,43 +3,43 @@
     {{! Update core data }}
     {{#if coreUpdate}}
       <div class="card clipped flexcol">
-        <div class="lancer-header lancer-primary major">Official LANCER Content</div>
+        <div class="lancer-header lancer-primary major">{{localize "lancer.lcp.official_content"}}</div>
         <div class="form fields flexrow" style="align-items: center">
           <span style="margin: 5px 10px">
             {{#if coreVersion}}
-              Core Data is at v{{coreVersion}}
+              {{localize "lancer.lcp.core_version"}} v{{coreVersion}}
             {{else}}
-              Core Data has not been built yet
+              {{localize "lancer.lcp.core_not_built"}}
             {{/if}}
           </span>
           {{#if (ne coreVersion coreUpdate)}}
             <button
               type="button"
               class="lcp-core-update"
-              title="Update Core Data"
+              title="{{localize 'lancer.lcp.update_core'}}"
               tabindex="-1"
               style="margin: 5px 10px"
             >
               <i class="cci cci-content-manager i--4"></i>
-              Update to v{{coreUpdate}}
+              {{localize "lancer.lcp.update_to"}} v{{coreUpdate}}
             </button>
           {{else}}
             <button
               type="button"
               class="lcp-core-update"
-              title="Rebuild Core Data"
+              title="{{localize 'lancer.lcp.rebuild_core'}}"
               tabindex="-1"
               style="margin: 5px 10px"
             >
               <i class="cci cci-content-manager i--4"></i>
-              Rebuild Core Data
+              {{localize "lancer.lcp.rebuild_core"}}
             </button>
           {{/if}}
         </div>
         {{! Official LCPs }}
         <div class="massif-content-table">
           {{#each officialData as |pack|}}
-            <input class="massif-content-checkbox" name="{{pack.id}}" checked type="checkbox" />
+            <input class="massif-content-checkbox" name="{{pack.id}}" checked type="checkbox">
             <span class="massif-content-label" style="margin: 5px 10px">{{pack.name}}</span>
             <span class="massif-content-curr-version" style="margin: 5px 10px">{{pack.version}}</span>
             <span class="massif-content-icon" style="margin: 5px 10px"><i class="fas fa-arrow-right"></i></span>
@@ -51,62 +51,105 @@
 
     {{! Import New LCP }}
     <div class="lcp-importer card clipped">
-      <div class="lancer-header lancer-primary major" style="grid-area: 1/1/2/3;">Import/Update LCP</div>
-      <input id="lcp-file" type="file" name="lcp-up" class="lcp-up" accept=".lcp" />
+      <div class="lancer-header lancer-primary major" style="grid-area: 1/1/2/3">
+        {{localize "lancer.lcp.import_update"}}
+      </div>
+      <input id="lcp-file" type="file" name="lcp-up" class="lcp-up" accept=".lcp">
       {{! New LCP Manifest }}
       {{#if manifest}}
-        <div class="card clipped flexcol" style="grid-column: 1/3;">
-          <div class="lancer-header lancer-primary major">{{manifest.name}} v{{manifest.version}}</div>
+        <div class="card clipped flexcol" style="grid-column: 1/3">
+          <div class="lancer-header lancer-primary major">
+            {{manifest.name}} v{{manifest.version}}
+          </div>
           {{#if manifest.website}}
-            <a href="{{manifest.website}}" class="medium" style="margin: 5px;">by {{manifest.author}}</a>
+            <a href="{{manifest.website}}" class="medium" style="margin: 5px">{{localize "lancer.lcp.by"}}
+              {{manifest.author}}</a>
           {{else}}
-            <div class="major" style="margin: 10px;">by {{manifest.author}}</div>
+            <div class="major" style="margin: 10px">
+              {{localize "lancer.lcp.by"}}
+              {{manifest.author}}
+            </div>
           {{/if}}
-          <button type="button" class="lcp-import" title="Import LCP" tabindex="-1">
+          <button type="button" class="lcp-import" title="{{localize 'lancer.lcp.import'}}" tabindex="-1">
             <i class="cci cci-content-manager i--4"></i>
-            <label>Import LCP</label>
+            <label>{{localize "lancer.lcp.import"}}</label>
           </button>
-          <div class="flexrow" style="margin: 5px;">
+          <div class="flexrow" style="margin: 5px">
             {{#if manifest.description}}
               <div class="minor desc-text">
                 {{{manifest.description}}}
-                <p>This LCP contains:
+                <p>
+                  {{localize "lancer.lcp.contains"}}:
                   <ul>
                     {{#if manifest.skills}}
-                      <li><span class="lcp-manifest-badge">{{manifest.skills}}</span> pilot skills</li>
+                      <li>
+                        <span class="lcp-manifest-badge">{{manifest.skills}}</span> {{
+                          localize "lancer.lcp.pilot_skills"
+                        }}
+                      </li>
                     {{/if}}
                     {{#if manifest.talents}}
-                      <li><span class="lcp-manifest-badge">{{manifest.talents}}</span> talents</li>
+                      <li>
+                        <span class="lcp-manifest-badge">{{manifest.talents}}</span> {{localize "lancer.lcp.talents"}}
+                      </li>
                     {{/if}}
                     {{#if manifest.gear}}
-                      <li><span class="lcp-manifest-badge">{{manifest.gear}}</span> pilot gear</li>
+                      <li>
+                        <span class="lcp-manifest-badge">{{manifest.gear}}</span> {{localize "lancer.lcp.pilot_gear"}}
+                      </li>
                     {{/if}}
                     {{#if manifest.frames}}
-                      <li><span class="lcp-manifest-badge">{{manifest.frames}}</span> frames</li>
+                      <li>
+                        <span class="lcp-manifest-badge">{{manifest.frames}}</span> {{localize "lancer.lcp.frames"}}
+                      </li>
                     {{/if}}
                     {{#if manifest.systems}}
-                      <li><span class="lcp-manifest-badge">{{manifest.systems}}</span> mech systems</li>
+                      <li>
+                        <span class="lcp-manifest-badge">{{manifest.systems}}</span> {{
+                          localize "lancer.lcp.mech_systems"
+                        }}
+                      </li>
                     {{/if}}
                     {{#if manifest.weapons}}
-                      <li><span class="lcp-manifest-badge">{{manifest.weapons}}</span> mech weapons</li>
+                      <li>
+                        <span class="lcp-manifest-badge">{{manifest.weapons}}</span> {{
+                          localize "lancer.lcp.mech_weapons"
+                        }}
+                      </li>
                     {{/if}}
                     {{#if manifest.mods}}
-                      <li><span class="lcp-manifest-badge">{{manifest.mods}}</span> weapon mods</li>
+                      <li>
+                        <span class="lcp-manifest-badge">{{manifest.mods}}</span> {{localize "lancer.lcp.weapon_mods"}}
+                      </li>
                     {{/if}}
                     {{#if manifest.tags}}
-                      <li><span class="lcp-manifest-badge">{{manifest.tags}}</span> tags</li>
+                      <li><span class="lcp-manifest-badge">{{manifest.tags}}</span> {{localize "lancer.lcp.tags"}}</li>
                     {{/if}}
                     {{#if manifest.statuses}}
-                      <li><span class="lcp-manifest-badge">{{manifest.statuses}}</span> statuses/conditions</li>
+                      <li>
+                        <span class="lcp-manifest-badge">{{manifest.statuses}}</span> {{localize "lancer.lcp.statuses"}}
+                      </li>
                     {{/if}}
                     {{#if manifest.npc_classes}}
-                      <li><span class="lcp-manifest-badge">{{manifest.npc_classes}}</span> NPC classes</li>
+                      <li>
+                        <span class="lcp-manifest-badge">{{manifest.npc_classes}}</span> {{
+                          localize "lancer.lcp.npc_classes"
+                        }}
+                      </li>
                     {{/if}}
                     {{#if manifest.npc_templates}}
-                      <li><span class="lcp-manifest-badge">{{manifest.npc_templates}}</span> NPC templates</li>
+                      <li>
+                        <span class="lcp-manifest-badge">{{manifest.npc_templates}}</span> {{
+                          localize "lancer.lcp.npc_templates"
+                        }}
+                      </li>
                     {{/if}}
                     {{#if manifest.npc_features}}
-                      <li><span class="lcp-manifest-badge">{{manifest.npc_features}}</span> NPC features</li>
+                      <li>
+                        <span class="lcp-manifest-badge">{{manifest.npc_features}}</span> {{
+                          localize "lancer.lcp.npc_features"
+                        }}
+                      </li>
                     {{/if}}
                   </ul>
                 </p>
@@ -116,8 +159,8 @@
               <img
                 src="{{manifest.image_url}}"
                 title="{{manifest.name}}"
-                style="max-width: 400px; max-height: 400px;"
-              />
+                style="max-width: 400px; max-height: 400px"
+              >
             {{/if}}
           </div>
         </div>
@@ -126,13 +169,13 @@
 
     {{! List installed LCPs }}
     <div class="card clipped-top">
-      <div class="lancer-header lancer-primary major">Imported LCPs</div>
+      <div class="lancer-header lancer-primary major">{{localize "lancer.lcp.imported_lcps"}}</div>
       <div class="flexrow">
         <table class="lcp-index">
           <tr class="lcp-index-header">
-            <th class="lcp-index">Name</th>
-            <th class="lcp-index">Author</th>
-            <th class="lcp-index">Version</th>
+            <th class="lcp-index">{{localize "lancer.lcp.name"}}</th>
+            <th class="lcp-index">{{localize "lancer.lcp.author"}}</th>
+            <th class="lcp-index">{{localize "lancer.lcp.version"}}</th>
           </tr>
           {{#if lcps}}
             {{#each lcps.index as |lcp key|}}
@@ -150,11 +193,16 @@
     </div>
 
     <div class="flexrow medium">
-      <button type="button" class="lcp-clear-all" title="Clear Compendiums" tabindex="-1" style="margin: 5px 10px">
+      <button
+        type="button"
+        class="lcp-clear-all"
+        title="{{localize 'lancer.lcp.clear_compendiums'}}"
+        tabindex="-1"
+        style="margin: 5px 10px"
+      >
         <i class="cci cci-content-manager i--4"></i>
-        Clear LANCER Compendium Data
+        {{localize "lancer.lcp.clear_compendiums"}}
       </button>
     </div>
-
   </div>
 </form>

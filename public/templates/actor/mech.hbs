@@ -7,14 +7,13 @@
         name="name"
         type="text"
         value="{{actor.name}}"
-        placeholder='{{localize "
-        lancer.placeholder.name"}}'
+        placeholder="{{localize 'lancer.placeholder.name'}}"
       >
     </h1>
     {{{ref-portrait-img actor.img "img" actor}}}
     <div class="header-details monospace">
       {{#if (not is_active)}}
-        {{localize "lancer.mech-sheet.inactive-warning"}}
+        {{localize "lancer.mech-sheet.header.inactive-warning"}}
       {{else}}
         <span>{{localize "TYPES.Actor.pilot"}} :: {{pilot.system.callsign}}<br>
           {{localize "TYPES.Item.frame"}} :: {{itemTypes.frame.0.system.manufacturer}}
@@ -85,7 +84,9 @@
           {{{stat-rollable-card "eng" "" "system.eng"}}}
         </div>
         <div class="inventory" style="flex: inherit; margin: 3px 10px">
-          <button class="lancer-button" type="button" style="padding: 8px 16px">View Inventory</button>
+          <button class="lancer-button" type="button" style="padding: 8px 16px">
+            {{localize "lancer.mech-sheet.buttons.viewInventory"}}
+          </button>
         </div>
       </div>
       <div class="pilot-frame-wrapper flexrow">
@@ -107,11 +108,15 @@
               {{localize "lancer.mech-sheet.actions.label"}}
             </span>
             <div class="lancer-flow-button-grid">
-              {{{action-button "Protocol" "system.action_tracker.protocol" "protocol"}}}
-              {{{action-button "Movement" "system.action_tracker.move" "move"}}}
-              {{{action-button "Full Action" "system.action_tracker.full" "full"}}}
-              {{{action-button "Quick Action" "system.action_tracker.quick" "quick"}}}
-              {{{action-button "Reaction" "system.action_tracker.reaction" "reaction"}}}
+              {{
+                {action-button (localize "lancer.mech-sheet.actions.protocol") "system.action_tracker.protocol" "protocol"}
+              }}
+              {{{action-button (localize "lancer.mech-sheet.actions.move") "system.action_tracker.move" "move"}}}
+              {{{action-button (localize "lancer.mech-sheet.actions.full") "system.action_tracker.full" "full"}}}
+              {{{action-button (localize "lancer.mech-sheet.actions.quick") "system.action_tracker.quick" "quick"}}}
+              {{
+                {action-button (localize "lancer.mech-sheet.actions.reaction") "system.action_tracker.reaction" "reaction"}
+              }}
             </div>
           </div>
         {{/if}}

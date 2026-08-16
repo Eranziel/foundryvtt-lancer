@@ -13,10 +13,10 @@
 
   let id = `damage-quality-input-${counter++}`;
 
-  let inputs = [
-    { slug: "crit", human: "Crit", value: 2, icon: "fas fa-explosion" },
-    { slug: "hit", human: "Hit", value: 1, icon: "fas fa-crosshairs" },
-    { slug: "miss", human: "Miss", value: 0, icon: "mdi mdi-call-missed" },
+  $: inputs = [
+    { slug: "crit", human: game.i18n.localize("lancer.acc_diff.crit"), value: 2, icon: "fas fa-explosion" },
+    { slug: "hit", human: game.i18n.localize("lancer.acc_diff.hit"), value: 1, icon: "fas fa-crosshairs" },
+    { slug: "miss", human: game.i18n.localize("lancer.acc_diff.miss"), value: 0, icon: "mdi mdi-call-missed" },
   ];
 
   let [send, recv] = crossfade({});

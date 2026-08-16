@@ -51,7 +51,7 @@ export class DamageRollFlow extends Flow<LancerFlowState.DamageRollData> {
   constructor(uuid: UUIDRef | LancerItem | LancerActor, data?: Partial<LancerFlowState.DamageRollData>) {
     const initialData: LancerFlowState.DamageRollData = {
       type: "damage",
-      title: data?.title || "Damage Roll",
+      title: data?.title || game.i18n.localize("lancer.flows.damage.damage_roll"),
       configurable: data?.configurable !== undefined ? data.configurable : true,
       add_burn: data?.add_burn !== undefined ? data.add_burn : true,
       invade: data?.invade || false,
@@ -123,7 +123,7 @@ async function setDamageTags(state: FlowState<LancerFlowState.DamageRollData>): 
   } else if (state.item.is_pilot_weapon()) {
     state.data.tags = state.item.system.tags;
   } else {
-    ui.notifications!.warn(`Item ${state.item.id} can't deal damage!`);
+    ui.notifications!.warn(game.i18n.format("lancer.flows.damage.cant_deal_damage_warn", { name: state.item.id }));
     return false;
   }
 
@@ -318,7 +318,7 @@ export async function rollReliable(state: FlowState<LancerFlowState.DamageRollDa
 
   // Sanity check - is there any damage to roll?
   if (!state.data.damage.length && !allBonusDamage.length && !state.data.reliable_val) {
-    ui.notifications?.warn("No damage configured, skipping the roll.");
+    ui.notifications?.warn(game.i18n.localize("lancer.flows.damage.no_damage_configured_warn"));
     return false;
   }
 

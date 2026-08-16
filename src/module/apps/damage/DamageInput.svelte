@@ -25,11 +25,14 @@
   in:slide|global={{ delay: 100, duration: 300 }}
   out:slide|global={{ duration: 100 }}
 >
-  <i class="i--3 cci cci-{damage.type.toLowerCase()} damage--{damage.type.toLowerCase()}" data-tooltip={damage.type} />
+  <i
+    class="i--3 cci cci-{damage.type.toLowerCase()} damage--{damage.type.toLowerCase()}"
+    data-tooltip={damage.type}
+  ></i>
   <select class="damage-input-type" bind:value={damage.type}>
     {#each damageSelectOptions as damageOption}
       <option value={damageOption[1]} selected={selected(damageOption[1])}>
-        {damageOption[0]}
+        {game.i18n.localize(`lancer.damage_type.${damageOption[1].toLowerCase()}`)}
       </option>
     {/each}
   </select>
@@ -39,15 +42,15 @@
     data-dtype="string"
     bind:value={damage.val}
     placeholder="0"
-  />
+  >
   {#if deletable}
     <button
       class="lancer-button damage-delete"
       type="button"
       on:click={dispatchDelete}
-      data-tooltip="Remove this damage type"
+      data-tooltip={game.i18n.localize("lancer.damage_hud.remove_damage_type")}
     >
-      <i class="fas fa-trash" />
+      <i class="fas fa-trash"></i>
     </button>
   {/if}
 </div>

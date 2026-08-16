@@ -1,7 +1,7 @@
 <form>
-  <h2>Please select your two Stabilize actions</h2>
+  <h2>{{localize "lancer.stabilize.select-header"}}</h2>
   <div class="flexcol stabilize-wrapper">
-    <span style="align-self:center">OPTION 1</span>
+    <span style="align-self: center">{{localize "lancer.stabilize.option1"}}</span>
     <div class="flexrow">
       <input
         class="hidden radio-label stabilize-options-1"
@@ -10,11 +10,11 @@
         type="radio"
         value="Cool"
         checked="checked"
-      />
+      >
       <label class="button-label" for="stab-option-cool">
         <span><i class="fas fa-check checked-icon"></i></span>
         <i class="cci cci-heat i--3"></i>
-        <span class="center-text">Cool Mech</span>
+        <span class="center-text">{{localize "lancer.stabilize.cool-mech"}}</span>
       </label>
       <input
         class="hidden radio-label stabilize-options-1"
@@ -22,15 +22,15 @@
         name="stabilize-options-1"
         type="radio"
         value="Repair"
-      />
+      >
       <label class="button-label" for="stab-option-restore">
         <span><i class="fas fa-check checked-icon"></i></span>
         <i class="cci cci-repair i--3"></i>
-        <span class="center-text">Restore HP</span>
+        <span class="center-text">{{localize "lancer.stabilize.restore-hp"}}</span>
       </label>
     </div>
 
-    <span style="align-self: center;">OPTION 2</span>
+    <span style="align-self: center">{{localize "lancer.stabilize.option2"}}</span>
     <div class="flexrow">
       <input
         class="hidden radio-label stabilize-options-2"
@@ -39,11 +39,11 @@
         type="radio"
         value="Reload"
         checked="checked"
-      />
+      >
       <label class="button-label" for="stab-option-reload">
         <span><i class="fas fa-check checked-icon"></i></span>
         <i class="cci cci-ammo i--3"></i>
-        <span class="center-text">Reload</span>
+        <span class="center-text">{{localize "lancer.stabilize.reload"}}</span>
       </label>
       <input
         class="hidden radio-label stabilize-options-2"
@@ -51,11 +51,11 @@
         name="stabilize-options-2"
         type="radio"
         value="ClearBurn"
-      />
+      >
       <label class="button-label" for="stab-option-burn">
         <span><i class="fas fa-check checked-icon"></i></span>
         <i class="cci cci-burn i--3"></i>
-        <span class="center-text">Clear Burn</span>
+        <span class="center-text">{{localize "lancer.stabilize.clear-burn"}}</span>
       </label>
       <input
         class="hidden radio-label stabilize-options-2"
@@ -63,11 +63,11 @@
         name="stabilize-options-2"
         type="radio"
         value="ClearOwnCond"
-      />
+      >
       <label class="button-label" for="stab-option-clearown">
         <span><i class="fas fa-check checked-icon"></i></span>
         <i class="cci cci-condition-impaired i--3"></i>
-        <span class="center-text">Clear Own Condition</span>
+        <span class="center-text">{{localize "lancer.stabilize.clear-own-cond"}}</span>
       </label>
       <input
         class="hidden radio-label stabilize-options-2"
@@ -75,11 +75,11 @@
         name="stabilize-options-2"
         type="radio"
         value="ClearOtherCond"
-      />
+      >
       <label class="button-label" for="stab-option-clearother">
         <span><i class="fas fa-check checked-icon"></i></span>
         <i class="cci cci-condition-stunned i--3"></i>
-        <span class="center-text">Clear Ally Condition</span>
+        <span class="center-text">{{localize "lancer.stabilize.clear-ally-cond"}}</span>
       </label>
     </div>
   </div>

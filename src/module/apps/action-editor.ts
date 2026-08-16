@@ -10,7 +10,7 @@ export class ActionEditDialog extends TargetedEditForm<ActionData> {
   static get defaultOptions() {
     return foundry.utils.mergeObject(super.defaultOptions, {
       template: `systems/${game.system.id}/templates/window/action_editor.hbs`,
-      title: "Action Editing",
+      title: game.i18n.localize("lancer.action.editor.title"),
       classes: ["lancer", "action-editor"],
       submitOnClose: false,
     });

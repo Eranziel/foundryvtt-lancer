@@ -15,15 +15,15 @@
 
   {{! Sheet Body }}
   <section class="sheet-body">
-    {{{textarea-card "RESOURCE LABEL" "system.label"}}}
-    {{{textarea-card "DESCRIPTION" "system.description"}}}
+    {{{textarea-card (localize "lancer.reserve.resource-label") "system.label"}}}
+    {{{textarea-card (localize "lancer.reserve.description") "system.description"}}}
     <div class="flexrow">
       <div class="card clipped">
-        <div class="lancer-header lancer-primary">TYPE</div>
+        <div class="lancer-header lancer-primary">{{localize "lancer.reserve.type"}}</div>
         {{{item-edit-enum "system.type" "ReserveType" label=""}}}
       </div>
       <div class="card clipped" style="align-items: center">
-        <div class="lancer-header lancer-primary">CONSUMABLE</div>
+        <div class="lancer-header lancer-primary">{{localize "lancer.reserve.consumable"}}</div>
         <input type="checkbox" name="system.consumable" {{checked system.consumable}}>
       </div>
       {{#if system.consumable}}

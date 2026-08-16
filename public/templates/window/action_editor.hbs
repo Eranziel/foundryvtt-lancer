@@ -1,24 +1,23 @@
 <form>
-    <div class="flexcol">
-        {{{std-text-input "action.name" label="ACTION NAME"}}}
-        {{{std-text-input "action.lid" label="ACTION ID"}}}
-        <div class="flexrow">
-            {{{std-select "action.activation" activation_type label="TYPE"}}}
-            {{{std-checkbox "action.tech_attack" label="IS TECH ATTACK?"}}}
-        </div>
-        {{{std-text-input "action.init" label="REACTION INIT"}}}
-        {{{std-text-input "action.trigger" label="REACTION TRIGGER"}}}
-        {{{std-num-input "action.cost" label="COST"}}}
-        {{{std-text-input "action.frequency" label="FREQUENCY"}}}
-        {{{std-num-input "action.heat_cost" label="HEAT COST"}}}
-        {{{std-text-input "action.terse" label="TERSE DESCRIPTION"}}}
-        <!-- TODO: Synergy --> 
-        <!-- TODO: damage and range
+  <div class="flexcol">
+    {{{std-text-input "action.name" label=(localize "lancer.action.editor.name")}}}
+    {{{std-text-input "action.lid" label=(localize "lancer.action.editor.lid")}}}
+    <div class="flexrow">
+      {{{std-select "action.activation" activation_type label=(localize "lancer.action.editor.type")}}}
+      {{{std-checkbox "action.tech_attack" label=(localize "lancer.action.editor.is_tech_attack")}}}
+    </div>
+    {{{std-text-input "action.init" label=(localize "lancer.action.editor.reaction_init")}}}
+    {{{std-text-input "action.trigger" label=(localize "lancer.action.editor.reaction_trigger")}}}
+    {{{std-num-input "action.cost" label=(localize "lancer.action.editor.cost")}}}
+    {{{std-text-input "action.frequency" label=(localize "lancer.action.editor.frequency")}}}
+    {{{std-num-input "action.heat_cost" label=(localize "lancer.action.editor.heat_cost")}}}
+    {{{std-text-input "action.terse" label=(localize "lancer.action.editor.terse_description")}}}
+    <!-- TODO: Synergy -->
+    <!-- TODO: damage and range
         {{{item-edit-arrayed-damage "action.damage" "DAMAGE"}}}
         {{{item-edit-arrayed-range "action.range" "RANGE"}}}
         -->
-    </div>
+  </div>
 
-    {{> dialog-save-buttons}}
+  {{> dialog-save-buttons}}
 </form>
-

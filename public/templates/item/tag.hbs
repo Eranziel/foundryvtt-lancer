@@ -18,12 +18,12 @@
 
   {{! Sheet Body }}
   <section class="sheet-body">
-    {{{textarea-card "DESCRIPTION" "system.description"}}}
+    {{{textarea-card (localize "lancer.tag.description") "system.description"}}}
     <div class="card">
-      <span class="lancer-header lancer-primary">TAG META INFO</span>
-      {{{std-text-input "system.lid" label="ID:"}}}
-      {{{std-checkbox "system.hidden" label="Hidden:" label_classes="self-left"}}}
-      {{{std-checkbox "system.filterIgnore" label="Filter Ignore:" label_classes="self-left"}}}
+      <span class="lancer-header lancer-primary">{{localize "lancer.tag.meta_info"}}</span>
+      {{{std-text-input "system.lid" label=(localize "lancer.tag.id")}}}
+      {{{std-checkbox "system.hidden" label=(localize "lancer.tag.hidden") label_classes="self-left"}}}
+      {{{std-checkbox "system.filterIgnore" label=(localize "lancer.tag.filter_ignore") label_classes="self-left"}}}
     </div>
   </section>
 </form>

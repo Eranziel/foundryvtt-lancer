@@ -53,7 +53,7 @@ async function initSystemUseData(state: FlowState<LancerFlowState.SystemUseData>
   if (!state.data.effect && state.item.is_npc_feature()) {
     // Reactions need to combine the trigger and effect
     if (state.item.system.type === NpcFeatureType.Reaction) {
-      state.data.effect = `<p><b>TRIGGER</b></p><p>${state.item.system.trigger}</p><p><b>EFFECT</b></p><p>${state.item.system.effect}</p>`;
+      state.data.effect = `<p><b>${game.i18n.localize("lancer.common.trigger")}</b></p><p>${state.item.system.trigger}</p><p><b>${game.i18n.localize("lancer.common.effect")}</b></p><p>${state.item.system.effect}</p>`;
     } else {
       state.data.effect = state.item.system.effect;
     }

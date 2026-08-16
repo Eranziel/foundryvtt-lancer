@@ -1,9 +1,16 @@
 <form class="{{cssClass}} lancer-sheet bond" autocomplete="off">
-
   {{!-- Sheet Header --}}
   <header class="sheet-header card clipped-bot">
-    <h1 class="name"><input class="lancer-input header-field" name="name" type="text" value="{{item.name}}" placeholder="{{localize "lancer.placeholder.name"}}"/></h1>
-    {{{ ref-portrait-img item.img "img" item }}}
+    <h1 class="name">
+      <input
+        class="lancer-input header-field"
+        name="name"
+        type="text"
+        value="{{item.name}}"
+        placeholder='{{localize "lancer.placeholder.name"}}'
+      >
+    </h1>
+    {{{ref-portrait-img item.img "img" item}}}
   </header>
 
   {{!-- Sheet Body --}}
@@ -12,8 +19,13 @@
     {{!-- Major Ideals --}}
     <div class="card clipped">
       <div class="lancer-header lancer-primary major">
-        <span>MAJOR IDEALS</span>
-        <a class="gen-control fas fa-plus" data-action="append" data-path="system.major_ideals" data-action-value="(struct)string"></a>
+        <span>{{localize "lancer.bond.major-ideals"}}</span>
+        <a
+          class="gen-control fas fa-plus"
+          data-action="append"
+          data-path="system.major_ideals"
+          data-action-value="(struct)string"
+        ></a>
       </div>
       <ul>
         {{#each system.major_ideals}}
@@ -32,8 +44,13 @@
     {{!-- Minor Ideals --}}
     <div class="card clipped">
       <div class="lancer-header lancer-primary major">
-        <span>MINOR IDEALS</span>
-        <a class="gen-control fas fa-plus" data-action="append" data-path="system.minor_ideals" data-action-value="(struct)string"></a>
+        <span>{{localize "lancer.bond.minor-ideals"}}</span>
+        <a
+          class="gen-control fas fa-plus"
+          data-action="append"
+          data-path="system.minor_ideals"
+          data-action-value="(struct)string"
+        ></a>
       </div>
       <ul>
         {{#each system.minor_ideals}}
@@ -52,8 +69,13 @@
     {{!-- Questions --}}
     <div class="card clipped">
       <div class="lancer-header lancer-primary major">
-        <span>QUESTIONS</span>
-        <a class="gen-control fas fa-plus" data-action="append" data-path="system.questions" data-action-value="(struct)bond_question"></a>
+        <span>{{localize "lancer.bond.questions"}}</span>
+        <a
+          class="gen-control fas fa-plus"
+          data-action="append"
+          data-path="system.questions"
+          data-action-value="(struct)bond_question"
+        ></a>
       </div>
       {{#each system.questions as |question|}}
         <div class="bond-question">
@@ -67,8 +89,14 @@
             {{#each question.options as |option|}}
               <li>
                 <div class="bond-question-option-row">
-                  {{{std-text-input (concat "system.questions." (concat @../index (concat ".options." @index))) classes="lancer-text-field"}}}
-                  <a class="gen-control" data-action="splice" data-path="system.questions.{{@../index}}.options.{{@index}}">
+                  {{
+                    {std-text-input (concat "system.questions." (concat @../index (concat ".options." @index))) classes="lancer-text-field"}
+                  }}
+                  <a
+                    class="gen-control"
+                    data-action="splice"
+                    data-path="system.questions.{{@../index}}.options.{{@index}}"
+                  >
                     <i class="fas fa-trash"></i>
                   </a>
                 </div>
@@ -76,52 +104,68 @@
             {{/each}}
             <li>
               <span>
-                <a class="gen-control add-question fas fa-plus" data-action="append" data-path="{{concat "system.questions[" (concat @index "].options")}}" data-action-value="(struct)string"></a>
+                <a
+                  class="gen-control add-question fas fa-plus"
+                  data-action="append"
+                  data-path='{{concat "system.questions[" (concat @index "].options")}}'
+                  data-action-value="(struct)string"
+                ></a>
               </span>
             </li>
           </ul>
         </div>
-        <hr style="width: 95%;">
+        <hr style="width: 95%">
       {{/each}}
     </div>
 
     {{!-- Powers --}}
     <div class="card clipped">
       <div class="lancer-header lancer-primary major">
-        <span>POWERS</span>
-        <a class="gen-control fas fa-plus" data-action="append" data-path="system.powers" data-action-value="(struct)power"></a>
+        <span>{{localize "lancer.bond.powers"}}</span>
+        <a
+          class="gen-control fas fa-plus"
+          data-action="append"
+          data-path="system.powers"
+          data-action-value="(struct)power"
+        ></a>
       </div>
       {{#each system.powers as |power power_index|}}
         <div class="card clipped">
           <div class="lancer-header lancer-primary major">
             {{{std-checkbox (concat "system.powers." (concat power_index ".unlocked")) label="" classes=""}}}
             {{!-- TODO: bond icon? --}}
-            <i class="cci cci-trait i--4 i--light header-icon"> </i> 
+            <i class="cci cci-trait i--4 i--light header-icon"> </i>
             {{{std-text-input (concat "system.powers." (concat power_index ".name")) classes="lancer-text-field"}}}
             <a class="gen-control" data-action="splice" data-path="system.powers.{{power_index}}">
               <i class="fas fa-trash"></i>
             </a>
           </div>
           <div class="flexrow" style="padding: 0em 1.5em">
-            {{{std-text-input (concat "system.powers." (concat power_index ".frequency")) label="Frequency:" label_classes="flex-center flex2" classes="lancer-text-field"}}}
-            {{{std-checkbox (concat "system.powers." (concat power_index ".veteran")) label="Veteran:" classes=""}}}
-            {{{std-checkbox (concat "system.powers." (concat power_index ".master")) label="Master:" classes=""}}}
+            {{
+              {std-text-input (concat "system.powers." (concat power_index ".frequency")) label=(localize "lancer.bond.frequency") label_classes="flex-center flex2" classes="lancer-text-field"}
+            }}
+            {{
+              {std-checkbox (concat "system.powers." (concat power_index ".veteran")) label=(localize "lancer.bond.veteran") classes=""}
+            }}
+            {{
+              {std-checkbox (concat "system.powers." (concat power_index ".master")) label=(localize "lancer.bond.master") classes=""}
+            }}
           </div>
           {{#if (or power.veteran power.master)}}
             <div class="card">
               <div class="lancer-header lancer-primary minor">
-                <span>Prerequisite</span>
-                {{{popout-editor-button (concat "system.powers." (concat power_index ".prerequisite")) }}}
+                <span>{{localize "lancer.bond.prerequisite"}}</span>
+                {{{popout-editor-button (concat "system.powers." (concat power_index ".prerequisite"))}}}
               </div>
-              <div class="desc-text">{{{safe-html power.prerequisite }}}</div>
+              <div class="desc-text">{{{safe-html power.prerequisite}}}</div>
             </div>
           {{/if}}
           <div class="card">
             <div class="lancer-header lancer-primary minor">
-              <span>Effect</span>
-              {{{popout-editor-button (concat "system.powers." (concat power_index ".description")) }}}
+              <span>{{localize "lancer.bond.effect"}}</span>
+              {{{popout-editor-button (concat "system.powers." (concat power_index ".description"))}}}
             </div>
-            <div class="desc-text">{{{safe-html power.description }}}</div>
+            <div class="desc-text">{{{safe-html power.description}}}</div>
           </div>
         </div>
       {{/each}}

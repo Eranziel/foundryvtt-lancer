@@ -46,9 +46,15 @@ export class AutomationConfig extends HandlebarsApplicationMixin(ApplicationV2<{
       config: opts.loadDefault ? new AutomationOptions() : opts.loadEmpty ? blank : config,
       fields: config.schema.fields,
       buttons: [
-        { type: "submit", name: "submit", icon: "fas fa-save", label: "Save" },
+        { type: "submit", name: "submit", icon: "fas fa-save", label: "lancer.common.save" },
         { type: "button", name: "reset", icon: "fas fa-undo", label: "SETTINGS.Reset", action: "onReset" },
-        { type: "button", name: "clear", icon: "fas fa-cancel", label: "Clear All", action: "onLoadEmpty" },
+        {
+          type: "button",
+          name: "clear",
+          icon: "fas fa-cancel",
+          label: "lancer.automation.clear_all",
+          action: "onLoadEmpty",
+        },
       ],
     };
     opts.loadEmpty = false;

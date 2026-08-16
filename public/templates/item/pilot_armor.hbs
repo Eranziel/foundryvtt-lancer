@@ -13,9 +13,9 @@
     {{{ref-portrait-img item.img "img" item}}}
   </header>
 
-  {{{textarea-card "DESCRIPTION" "system.description"}}}
+  {{{textarea-card (localize "lancer.pilot-armor.description") "system.description"}}}
 
-  {{{textarea-card "EFFECT" "system.effect"}}}
+  {{{textarea-card (localize "lancer.pilot-armor.effect") "system.effect"}}}
 
   {{! Uses }}
   <div>
@@ -25,10 +25,10 @@
   </div>
 
   {{! Bonuses }}
-  {{{item-edit-arrayed-actions "system.actions" "ACTIONS"}}}
+  {{{item-edit-arrayed-actions "system.actions" (localize "lancer.pilot-armor.actions")}}}
   {{{item-edit-arrayed-bonuses "system.bonuses"}}}
-  {{{item-edit-arrayed-deployables "system.deployables" "DEPLOYABLES"}}}
-  {{{item-edit-arrayed-synergies "system.synergies" "SYNERGIES"}}}
+  {{{item-edit-arrayed-deployables "system.deployables" (localize "lancer.pilot-armor.deployables")}}}
+  {{{item-edit-arrayed-synergies "system.synergies" (localize "lancer.pilot-armor.synergies")}}}
 
-  {{{item-edit-arrayed-tags "system.tags" "TAGS"}}}
+  {{{item-edit-arrayed-tags "system.tags" (localize "lancer.pilot-armor.tags")}}}
 </form>

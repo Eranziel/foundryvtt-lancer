@@ -81,8 +81,8 @@
 
     // Parse the content packs
     const aggregateManifest: IContentPackManifest = {
-      name: "Selected LCPs",
-      author: "Various",
+      name: game.i18n.localize("lancer.lcp.selected_lcps"),
+      author: game.i18n.localize("lancer.lcp.various_authors"),
       item_prefix: "",
       version: "",
       description: "",
@@ -99,7 +99,7 @@
           const author = fd.cp.manifest.website
             ? `<a href="${fd.cp.manifest.website}">${fd.cp.manifest.author}</a>`
             : `<em>${fd.cp.manifest.author}</em>`;
-          aggregateManifest.description += `<b>${fd.cp.manifest.name}</b> v${fd.cp.manifest.version} by ${author}<br />`;
+          aggregateManifest.description += `<b>${fd.cp.manifest.name}</b> v${fd.cp.manifest.version} ${game.i18n.localize("lancer.lcp.by")} ${author}<br />`;
         } catch (err: any) {
           ui.notifications.error(`Could not load ${fd.name}: ${err.message || err}`, { permanent: true });
         }
@@ -114,14 +114,14 @@
 </script>
 
 <div style={$$restProps.style}>
-  <div class="lancer-header lancer-primary major">Import From File</div>
+  <div class="lancer-header lancer-primary major">{game.i18n.localize("lancer.lcp.import_from_file")}</div>
   <div class="file-select-container">
     <label class="lancer-file-input">
       <input
         id="lcp-file"
         type="file"
         multiple
-        aria-label="Select LCP file"
+        aria-label={game.i18n.localize("lancer.lcp.select_file")}
         name="lcp-up"
         class="lcp-up"
         accept=".lcp"
@@ -131,12 +131,12 @@
       >
 
       <span class="lancer-file-input-display">
-        <div class="lancer-file-input__button">Browse</div>
-        <span class="lancer-file-input__filenames">{filenames || "Choose file..."}</span>
+        <div class="lancer-file-input__button">{game.i18n.localize("lancer.pilot-sheet.json-import.browse")}</div>
+        <span class="lancer-file-input__filenames">{filenames || game.i18n.localize("lancer.lcp.choose_file")}</span>
       </span>
     </label>
     <button class="lancer-button deselect-file" {disabled} on:click={deselect}>
-      <i class="fas fa-broom"></i> Unselect File
+      <i class="fas fa-broom"></i> {game.i18n.localize("lancer.lcp.unselect_file")}
     </button>
   </div>
 </div>

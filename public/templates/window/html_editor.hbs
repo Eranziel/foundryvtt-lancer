@@ -1,6 +1,6 @@
 <form class="{{cssClass}}" onsubmit="event.preventDefault()">
   <div class="card">
-    <span class="lancer-header lancer-primary">Edit Field:</span>
+    <span class="lancer-header lancer-primary">{{localize "lancer.editor.edit_field"}}</span>
 
     <div class="big-editor">
       {{editor text target="text" button=false owner=true editable=true}}
@@ -8,7 +8,7 @@
 
     <button class="dialog-button done-button">
       <i class="fas fa-save"></i>
-      Save
+      {{localize "lancer.editor.save"}}
     </button>
   </div>
 </form>

@@ -41,7 +41,7 @@ export class StatusIconConfig extends HandlebarsApplicationMixin(ApplicationV2<{
       config: opts.loadDefault ? new StatusIconConfigOptions() : config,
       fields: config.schema.fields,
       buttons: [
-        { type: "submit", name: "submit", icon: "fas fa-save", label: "Save" },
+        { type: "submit", name: "submit", icon: "fas fa-save", label: "lancer.common.save" },
         { type: "button", name: "reset", icon: "fas fa-undo", label: "SETTINGS.Reset", action: "onReset" },
       ],
     };

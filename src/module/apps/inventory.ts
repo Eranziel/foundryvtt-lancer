@@ -20,7 +20,11 @@ export interface InventoryDialogData {
  * @extends {Dialog}
  */
 export class InventoryDialog extends Dialog {
-  constructor(readonly actor: LancerActor, dialogData: Dialog.Data, options: Partial<Dialog.Options> = {}) {
+  constructor(
+    readonly actor: LancerActor,
+    dialogData: Dialog.Data,
+    options: Partial<Dialog.Options> = {}
+  ) {
     super(dialogData, options);
     this.actor = actor;
   }
@@ -64,66 +68,66 @@ export class InventoryDialog extends Dialog {
     if (actor.is_mech()) {
       cats = [
         {
-          label: "Frames",
+          label: game.i18n.localize("lancer.inventory.categories.frames"),
           items: actor.items.filter(i => i.is_frame()),
         },
         {
-          label: "Weapons",
+          label: game.i18n.localize("lancer.inventory.categories.weapons"),
           items: actor.items.filter(i => i.is_mech_weapon()),
         },
         {
-          label: "Systems",
+          label: game.i18n.localize("lancer.inventory.categories.systems"),
           items: actor.items.filter(i => i.is_mech_system()),
         },
         {
-          label: "Mods",
+          label: game.i18n.localize("lancer.inventory.categories.mods"),
           items: actor.items.filter(i => i.is_weapon_mod()),
         },
         {
-          label: "Statuses",
+          label: game.i18n.localize("lancer.inventory.categories.statuses"),
           items: actor.items.filter(i => i.is_status()),
         },
       ];
     } else if (actor.is_pilot()) {
       cats = [
         {
-          label: "Weapons",
+          label: game.i18n.localize("lancer.inventory.categories.weapons"),
           items: actor.items.filter(i => i.is_pilot_weapon()),
         },
         {
-          label: "Armor",
+          label: game.i18n.localize("lancer.inventory.categories.armor"),
           items: actor.items.filter(i => i.is_pilot_armor()),
         },
         {
-          label: "Gear",
+          label: game.i18n.localize("lancer.inventory.categories.gear"),
           items: actor.items.filter(i => i.is_pilot_gear()),
         },
         {
-          label: "Talents",
+          label: game.i18n.localize("lancer.inventory.categories.talents"),
           items: actor.items.filter(i => i.is_talent()),
         },
         {
-          label: "Skills",
+          label: game.i18n.localize("lancer.inventory.categories.skills"),
           items: actor.items.filter(i => i.is_skill()),
         },
         {
-          label: "Licenses",
+          label: game.i18n.localize("lancer.inventory.categories.licenses"),
           items: actor.items.filter(i => i.is_license()),
         },
         {
-          label: "Core Bonuses",
+          label: game.i18n.localize("lancer.inventory.categories.core_bonuses"),
           items: actor.items.filter(i => i.is_core_bonus()),
         },
         {
-          label: "Reserves",
+          label: game.i18n.localize("lancer.inventory.categories.reserves"),
           items: actor.items.filter(i => i.is_reserve()),
         },
         {
-          label: "Organizations",
+          label: game.i18n.localize("lancer.inventory.categories.organizations"),
           items: actor.items.filter(i => i.is_organization()),
         },
         {
-          label: "Statuses",
+          label: game.i18n.localize("lancer.inventory.categories.statuses"),
           items: actor.items.filter(i => i.is_status()),
         },
       ];
@@ -163,7 +167,7 @@ export class InventoryDialog extends Dialog {
   static async show_inventory(actor: LancerActor): Promise<void> {
     return new Promise((resolve, _reject) => {
       const dlg = new this(actor, {
-        title: `${actor.name}'s inventory`,
+        title: game.i18n.format("lancer.inventory.title", { name: actor.name }),
         content: "",
         buttons: {},
         close: () => resolve(),

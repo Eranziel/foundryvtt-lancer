@@ -13,10 +13,10 @@
 
   let id = `accdiff-cover-input-${counter++}`;
 
-  let inputs = [
-    { slug: "no", human: "No Cover", value: 0, icon: "shield-outline" },
-    { slug: "soft", human: "Soft Cover (-1)", value: 1, icon: "shield-half-full" },
-    { slug: "hard", human: "Hard Cover (-2)", value: 2, icon: "shield" },
+  const inputs = [
+    { slug: "no", key: "lancer.acc_diff.cover.no", value: 0, icon: "shield-outline" },
+    { slug: "soft", key: "lancer.acc_diff.cover.soft", value: 1, icon: "shield-half-full" },
+    { slug: "hard", key: "lancer.acc_diff.cover.hard", value: 2, icon: "shield" },
   ];
 
   let [send, recv] = crossfade({});
@@ -33,8 +33,8 @@
       {disabled}
     >
     <label for="{id}-{input.slug}" class="lancer-cover-radio-label {labelClass}">
-      <i class="mdi mdi-{input.icon} i--2" title={input.human}></i>
-      <span class="no-grow">{input.human}</span>
+      <i class="mdi mdi-{input.icon} i--2" title={game.i18n.localize(input.key)}></i>
+      <span class="no-grow">{game.i18n.localize(input.key)}</span>
       {#if input.value == cover}
         <div class="cover-arrow" in:send={{ key: id }} out:recv={{ key: id }}></div>
       {/if}

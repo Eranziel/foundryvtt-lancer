@@ -68,13 +68,13 @@ export async function preStructureRollChecks(
   if (!state.data) throw new TypeError(`Structure roll flow data missing!`);
   const actor = state.actor;
   if (!actor.is_mech() && !actor.is_npc()) {
-    ui.notifications!.warn("Only Mechs and NPCs can take structure damage");
+    ui.notifications!.warn(game.i18n.localize("lancer.flows.structure.only_mechs_npcs_warn"));
     return false;
   }
 
   if (game.settings.get(game.system.id, LANCER.setting_automation).structure && !state.data?.reroll_data) {
     if (actor.system.hp.value > 0) {
-      ui.notifications!.info("Token has hp remaining. No need to roll structure.");
+      ui.notifications!.info(game.i18n.localize("lancer.flows.structure.hp_remaining_info"));
       return false;
     }
     const { openSlidingHud: open } = await import("../apps/slidinghud");
@@ -192,12 +192,12 @@ export async function rollStructureTable(state: FlowState<LancerFlowState.Primar
   if (!state.data) throw new TypeError(`Structure roll flow data missing!`);
   const actor = state.actor;
   if (!actor.is_mech() && !actor.is_npc()) {
-    ui.notifications!.warn("Only npcs and mechs can roll structure.");
+    ui.notifications!.warn(game.i18n.localize("lancer.flows.structure.only_mechs_npcs_warn"));
     return false;
   }
 
   if ((state.data?.reroll_data?.structure ?? actor.system.structure.value) >= actor.system.structure.max) {
-    ui.notifications!.info("The mech is at full Structure, no structure check to roll.");
+    ui.notifications!.info(game.i18n.localize("lancer.flows.structure.full_structure_info"));
     return false;
   }
 
@@ -372,7 +372,7 @@ export async function structureInsertDismembermentButton(
  */
 export async function beginDismembermentDamageFlow(actor: LancerActor) {
   if (!actor) {
-    ui.notifications?.error("No actor found for dismemberment damage button.");
+    ui.notifications?.error(game.i18n.localize("lancer.flows.structure.no_actor_dismember_error"));
     return;
   }
 
@@ -531,7 +531,7 @@ export class SecondaryStructureFlow extends Flow<LancerFlowState.SecondaryStruct
   constructor(uuid: UUIDRef | LancerActor, data?: Partial<LancerFlowState.SecondaryStructureRollData>) {
     const initialData: LancerFlowState.SecondaryStructureRollData = {
       type: "secondary_structure",
-      title: data?.title ?? "Equipment Destruction",
+      title: data?.title ?? game.i18n.localize("lancer.flows.structure.secondary_equipment_title"),
       desc: data?.desc ?? "",
       roll_str: data?.roll_str ?? "1d6",
     };
@@ -550,7 +550,7 @@ export async function secondaryStructureRoll(
 
   const actor = state.actor;
   if (!actor.is_mech() && !actor.is_npc()) {
-    ui.notifications!.warn('Only npcs and mechs can work with "remaining structure" logic.');
+    ui.notifications!.warn(game.i18n.localize("lancer.flows.structure.only_mechs_npcs_warn"));
     return false;
   }
 
@@ -563,11 +563,11 @@ export async function secondaryStructureRoll(
     total: result.toString(),
   };
   if (result <= 3) {
-    state.data.title = "Weapon Destruction";
-    state.data.desc = "On a 1–3, all weapons on one mount of your choice are destroyed";
+    state.data.title = game.i18n.localize("lancer.flows.structure.secondary_weapon_title");
+    state.data.desc = game.i18n.localize("lancer.flows.structure.secondary_weapon_desc");
   } else {
-    state.data.title = "System Destruction";
-    state.data.desc = "On a 4–6, a system of your choice is destroyed";
+    state.data.title = game.i18n.localize("lancer.flows.structure.secondary_system_title");
+    state.data.desc = game.i18n.localize("lancer.flows.structure.secondary_system_desc");
   }
   return true;
 }

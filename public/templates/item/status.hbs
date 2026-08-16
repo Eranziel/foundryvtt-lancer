@@ -12,13 +12,13 @@
     </h1>
     {{{ref-portrait-img item.img "img" item}}}
     <div class="header-details" style="padding-left: 1em; padding-right: 1em">
-      {{{std-select "system.type" status_types label="TYPE"}}}
-      {{{std-text-input "system.lid" label="LID"}}}
+      {{{std-select "system.type" status_types label=(localize "lancer.status.type")}}}
+      {{{std-text-input "system.lid" label=(localize "lancer.status.lid")}}}
     </div>
   </header>
 
   {{! Sheet Body }}
   <section class="sheet-body">
-    {{{textarea-card "DESCRIPTION" "system.effects"}}}
+    {{{textarea-card (localize "lancer.status.description") "system.effects"}}}
   </section>
 </form>

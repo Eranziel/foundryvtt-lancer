@@ -31,9 +31,9 @@ async function checkActions(state: FlowState<LancerFlowState.ActionTrackData>): 
   if (!actions) return false;
 
   if (state.data.start) {
-    state.data.title = `${actor.name} is starting their turn`;
+    state.data.title = game.i18n.format("lancer.flows.action_track.start_turn", { name: actor.name });
   } else {
-    state.data.title = `${actor.name} is ending their turn`;
+    state.data.title = game.i18n.format("lancer.flows.action_track.end_turn", { name: actor.name });
     state.data.description += condensedActionBadgeHTML(actions);
   }
 

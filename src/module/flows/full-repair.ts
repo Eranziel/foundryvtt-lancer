@@ -34,12 +34,12 @@ export async function displayFullRepairDialog(state: FlowState<LancerFlowState.T
 
   return new Promise<boolean>((resolve, reject) => {
     new Dialog({
-      title: `FULL REPAIR - ${state.actor.name}`,
-      content: `<h3>Are you sure you want to fully repair the ${state.actor?.type} "${state.actor?.name}"?`,
+      title: game.i18n.format("lancer.flows.full_repair.dialog_title", { name: state.actor.name }),
+      content: `<h3>${game.i18n.format("lancer.flows.full_repair.dialog_content", { type: state.actor?.type, name: state.actor?.name })}</h3>`,
       buttons: {
         submit: {
           icon: '<i class="fas fa-check"></i>',
-          label: "Yes",
+          label: game.i18n.localize("Yes"),
           callback: async _dlg => {
             // Gotta typeguard the actor again
             if (!state.actor) {
@@ -50,7 +50,7 @@ export async function displayFullRepairDialog(state: FlowState<LancerFlowState.T
         },
         cancel: {
           icon: '<i class="fas fa-times"></i>',
-          label: "No",
+          label: game.i18n.localize("No"),
           callback: async () => resolve(false),
         },
       },
@@ -71,8 +71,8 @@ export async function executeFullRepair(state: FlowState<LancerFlowState.TextRol
     tags: state.data.tags,
   };
   await state.actor.loadoutHelper.fullRepair();
-  data.title = "FULL REPAIR";
-  data.description = `Notice: ${state.actor.name} has been fully repaired.`;
+  data.title = game.i18n.localize("lancer.flows.full_repair.card_title");
+  data.description = game.i18n.format("lancer.flows.full_repair.card_description", { name: state.actor.name });
   await renderTemplateStep(state.actor, template, data, flags);
 
   return true;

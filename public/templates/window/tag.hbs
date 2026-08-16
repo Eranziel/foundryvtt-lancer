@@ -2,11 +2,11 @@
   <div class="card clipped">
     <div class="lancer-header lancer-primary">
       <i class="{{icon}} i--4 i--light header-icon"> </i>
-      <span class="major">TAG</span>
+      <span class="major">{{localize "lancer.tag.title"}}</span>
     </div>
     <div class="flexrow flex-center">
-      {{{std-select "lid" lid_options label="LID: "}}}
-      <label for="val">Value: </label>
+      {{{std-select "lid" lid_options label=(localize "lancer.tag.lid")}}}
+      <label for="val">{{localize "lancer.tag.value"}} </label>
       <input class="lancer-stat" type="text" name="val" value="{{ value.val }}" data-dtype="String">
     </div>
   </div>

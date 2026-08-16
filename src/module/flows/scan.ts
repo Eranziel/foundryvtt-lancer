@@ -27,10 +27,10 @@ export class ScanFlow extends Flow<LancerFlowState.ScanData> {
   constructor(uuid: UUIDRef | LancerActor, data?: Partial<LancerFlowState.ScanData>) {
     const initialData: LancerFlowState.ScanData = {
       target: data?.target || null,
-      name: data?.target?.name || "Enemy Unknown",
+      name: data?.target?.name || game.i18n.localize("lancer.flows.scan.enemy_unknown"),
       img: null,
       tier: 1,
-      class: "Unknown Class",
+      class: game.i18n.localize("lancer.flows.scan.unknown_class"),
       templates: [],
     };
 
@@ -41,23 +41,23 @@ export class ScanFlow extends Flow<LancerFlowState.ScanData> {
 async function initScanData(state: FlowState<LancerFlowState.ScanData>): Promise<boolean> {
   if (!state.data) throw new TypeError(`Flowstate missing!`);
   if (!state.data.target) {
-    ui.notifications.error(`You must target a token to scan.`);
+    ui.notifications.error(game.i18n.localize("lancer.flows.scan.no_target_error"));
     return false;
   }
   const actor = state.data.target.actor;
   if (!actor) {
-    ui.notifications.error(`The targeted token has no associated actor.`);
+    ui.notifications.error(game.i18n.localize("lancer.flows.scan.no_actor_error"));
     return false;
   }
   if (!actor.is_npc()) {
-    ui.notifications.error(`You can only scan NPC actors.`);
+    ui.notifications.error(game.i18n.localize("lancer.flows.scan.npc_only_error"));
     return false;
   }
   state.data.name = state.data.target.name;
   state.data.img = actor.img;
   state.data.tier = actor.system.tier || 1;
   const classItem = actor.items.find(i => i.is_npc_class());
-  state.data.class = classItem?.name || "Unknown Class";
+  state.data.class = classItem?.name || game.i18n.localize("lancer.flows.scan.unknown_class");
   const templates = actor.items.filter(i => i.is_npc_template());
   state.data.templates = templates.map(i => i.name);
   const tierIndex = (actor.system.tier || 1) - 1;
@@ -88,8 +88,8 @@ async function initScanData(state: FlowState<LancerFlowState.ScanData>): Promise
     .map(item => {
       if (item.system.origin?.name === "EXOTIC") {
         return {
-          name: "UNKNOWN EXOTIC WEAPON",
-          weapon_type: item.system.weapon_type || "Unknown",
+          name: game.i18n.localize("lancer.flows.scan.unknown_exotic_weapon"),
+          weapon_type: item.system.weapon_type || game.i18n.localize("lancer.flows.scan.unknown_type"),
         };
       }
       const tierDamage = item.system.damage && item.system.damage[tierIndex];
@@ -103,7 +103,7 @@ async function initScanData(state: FlowState<LancerFlowState.ScanData>): Promise
       }
       return {
         name: item.name,
-        weapon_type: item.system.weapon_type || "Unknown",
+        weapon_type: item.system.weapon_type || game.i18n.localize("lancer.flows.scan.unknown_type"),
         attack_bonus: item.system.attack_bonus && item.system.attack_bonus[tierIndex],
         accuracy: item.system.accuracy && item.system.accuracy[tierIndex],
         range: item.system.range?.map(r => ({ type: r.type, val: r.val })).filter(r => Boolean(r)) || [],
@@ -120,7 +120,7 @@ async function initScanData(state: FlowState<LancerFlowState.ScanData>): Promise
       if (!item.is_npc_feature()) return null;
       if (item.system.origin?.name === "EXOTIC") {
         return {
-          name: "UNKNOWN EXOTIC TECH ATTACK",
+          name: game.i18n.localize("lancer.flows.scan.unknown_exotic_tech"),
           type: NpcFeatureType.Tech,
           effect: "",
           range: { type: RangeType.Range, val: state.data?.target?.actor?.system.sensor_range || 0 },
@@ -153,7 +153,7 @@ async function initScanData(state: FlowState<LancerFlowState.ScanData>): Promise
       if (!item.is_npc_feature()) return null;
       if (item.system.origin?.name === "EXOTIC") {
         return {
-          name: "UNKNOWN EXOTIC SYSTEM",
+          name: game.i18n.localize("lancer.flows.scan.unknown_exotic_system"),
           type: item.system.type || NpcFeatureType.Trait,
           effect: "",
         };
@@ -177,7 +177,7 @@ async function initScanData(state: FlowState<LancerFlowState.ScanData>): Promise
       if (!item.is_npc_feature()) return null;
       if (item.system.origin?.name === "EXOTIC") {
         return {
-          name: "UNKNOWN EXOTIC TRAIT",
+          name: game.i18n.localize("lancer.flows.scan.unknown_exotic_trait"),
           type: item.system.type || NpcFeatureType.Trait,
           effect: "",
         };
@@ -221,9 +221,7 @@ async function createScanJournal(state: FlowState<LancerFlowState.ScanData>): Pr
     }
   }
   if (!journalFolder) {
-    ui.notifications.error(
-      `Journal folder ${journalFolderName} does not exist and must be created by a user with permissions to do so.`
-    );
+    ui.notifications.error(game.i18n.format("lancer.flows.scan.no_folder_error", { folder: journalFolderName }));
     return false;
   }
 

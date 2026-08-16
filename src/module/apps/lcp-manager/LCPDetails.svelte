@@ -13,7 +13,7 @@
   let fadeDirection: "fade-in" | "fade-out" = "fade-in";
   $: title = oldContentSummary
     ? `${oldContentSummary.name}${oldContentSummary.version ? ` v${oldContentSummary.version}` : ""}`
-    : "No LCP Selected";
+    : game.i18n.localize("lancer.lcp.no_lcp_selected");
   $: {
     if (contentSummary !== oldContentSummary) {
       fadeDirection = "fade-out";
@@ -38,10 +38,10 @@
           href={oldContentSummary.website}
           class={`medium transition ${fadeDirection}`}
           style="margin: 5px"
-        >by {oldContentSummary.author}</a>
+        >{game.i18n.localize("lancer.lcp.by")} {oldContentSummary.author}</a>
       {:else}
         <div class={`medium transition ${fadeDirection}`} style="margin: 10px">
-          by {oldContentSummary.author}
+          {game.i18n.localize("lancer.lcp.by")} {oldContentSummary.author}
         </div>
       {/if}
       <div class="lcp-description minor desc-text">
@@ -54,68 +54,88 @@
               alt={oldContentSummary.name}
             >
           {/if}
-          <span>Contents:</span>
+          <span>{game.i18n.localize("lancer.lcp.contents")}:</span>
           <ul>
             {#if oldContentSummary.skills}
               <li>
-                <span class="lcp-manifest-badge">{oldContentSummary.skills}</span> pilot skills
+                <span class="lcp-manifest-badge">{oldContentSummary.skills}</span> {
+                  game.i18n.localize("lancer.lcp.pilot_skills")
+                }
               </li>
             {/if}
             {#if oldContentSummary.talents}
               <li>
-                <span class="lcp-manifest-badge">{oldContentSummary.talents}</span> talents
+                <span class="lcp-manifest-badge">{oldContentSummary.talents}</span> {
+                  game.i18n.localize("lancer.lcp.talents")
+                }
               </li>
             {/if}
             {#if oldContentSummary.bonds}
               <li>
-                <span class="lcp-manifest-badge">{oldContentSummary.bonds}</span> bonds
+                <span class="lcp-manifest-badge">{oldContentSummary.bonds}</span> {
+                  game.i18n.localize("lancer.lcp.bonds")
+                }
               </li>
             {/if}
             {#if oldContentSummary.reserves}
               <li>
-                <span class="lcp-manifest-badge">{oldContentSummary.reserves}</span> reserves
+                <span class="lcp-manifest-badge">{oldContentSummary.reserves}</span> {
+                  game.i18n.localize("lancer.lcp.reserves")
+                }
               </li>
             {/if}
             {#if oldContentSummary.gear}
               <li>
                 <span class="lcp-manifest-badge">{oldContentSummary.gear}</span>
-                pilot gear
+                {game.i18n.localize("lancer.lcp.pilot_gear")}
               </li>
             {/if}
             {#if oldContentSummary.frames}
               <li>
-                <span class="lcp-manifest-badge">{oldContentSummary.frames}</span> frames
+                <span class="lcp-manifest-badge">{oldContentSummary.frames}</span> {
+                  game.i18n.localize("lancer.lcp.frames")
+                }
               </li>
             {/if}
             {#if oldContentSummary.systems}
               <li>
-                <span class="lcp-manifest-badge">{oldContentSummary.systems}</span> mech systems
+                <span class="lcp-manifest-badge">{oldContentSummary.systems}</span> {
+                  game.i18n.localize("lancer.lcp.mech_systems")
+                }
               </li>
             {/if}
             {#if oldContentSummary.weapons}
               <li>
-                <span class="lcp-manifest-badge">{oldContentSummary.weapons}</span> mech weapons
+                <span class="lcp-manifest-badge">{oldContentSummary.weapons}</span> {
+                  game.i18n.localize("lancer.lcp.mech_weapons")
+                }
               </li>
             {/if}
             {#if oldContentSummary.mods}
               <li>
                 <span class="lcp-manifest-badge">{oldContentSummary.mods}</span>
-                weapon mods
+                {game.i18n.localize("lancer.lcp.weapon_mods")}
               </li>
             {/if}
             {#if oldContentSummary.npc_classes}
               <li>
-                <span class="lcp-manifest-badge">{oldContentSummary.npc_classes}</span> NPC classes
+                <span class="lcp-manifest-badge">{oldContentSummary.npc_classes}</span> {
+                  game.i18n.localize("lancer.lcp.npc_classes")
+                }
               </li>
             {/if}
             {#if oldContentSummary.npc_templates}
               <li>
-                <span class="lcp-manifest-badge">{oldContentSummary.npc_templates}</span> NPC templates
+                <span class="lcp-manifest-badge">{oldContentSummary.npc_templates}</span> {
+                  game.i18n.localize("lancer.lcp.npc_templates")
+                }
               </li>
             {/if}
             {#if oldContentSummary.npc_features}
               <li>
-                <span class="lcp-manifest-badge">{oldContentSummary.npc_features}</span> NPC features
+                <span class="lcp-manifest-badge">{oldContentSummary.npc_features}</span> {
+                  game.i18n.localize("lancer.lcp.npc_features")
+                }
               </li>
             {/if}
           </ul>
@@ -129,13 +149,13 @@
           transition:fade|global
           type="button"
           class="lcp-import"
-          title="Import LCP"
+          title={game.i18n.localize("lancer.lcp.import")}
           tabindex="-1"
           {disabled}
           on:click={() => dispatch("importLcp")}
         >
           <i class="cci cci-content-manager i--4"></i>
-          Import LCP
+          {game.i18n.localize("lancer.lcp.import")}
         </button>
       {/if}
     </div>

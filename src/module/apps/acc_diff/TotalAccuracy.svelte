@@ -75,7 +75,12 @@
       bind:this={imgElement}
     >
     {#if target.stunned}
-      <label transition:blur|global for={stunnedId} class="stunned-label" title="Stunned">
+      <label
+        transition:blur|global
+        for={stunnedId}
+        class="stunned-label"
+        title={game.i18n.localize("lancer.acc_diff.stunned")}
+      >
         <i class="cci cci-condition-stunned i--3"></i>
       </label>
     {/if}
@@ -84,7 +89,7 @@
       class="lockon-label"
       class:checked={target.usingLockOn}
       class:disabled={!target.lockOnAvailable}
-      title="Consume Lock On (+1)"
+      title={game.i18n.localize("lancer.acc_diff.consume_lock_on")}
     >
       <i
         role="button"
@@ -97,7 +102,7 @@
         onkeypress={toggleLockOn}
       ></i>
       <HudCheckbox
-        label="Consume Lock On (+1)"
+        label={game.i18n.localize("lancer.acc_diff.consume_lock_on")}
         checked={!!target.usingLockOn}
         bind:value={target.consumeLockOn}
         disabled={!target.lockOnAvailable}

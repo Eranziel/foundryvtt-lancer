@@ -13,7 +13,7 @@ export class TagEditForm extends TargetedEditForm<TagData> {
       ...super.defaultOptions,
       template: `systems/${game.system.id}/templates/window/tag.hbs`,
       classes: ["lancer", "tag-editor"],
-      title: "Tag Editing",
+      title: game.i18n.localize("lancer.tag.title_editor"),
       submitOnClose: false,
     };
   }

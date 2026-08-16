@@ -11,23 +11,23 @@
       >
     </h1>
     <div class="header-details origin_type">
-      <span class="medium">FEATURE TYPE: </span>
+      <span class="medium">{{localize "lancer.npc-feature.feature-type"}}: </span>
       <select class="header-field" name="system.type" data-type="String">
         {{#select system.type}}
           <option class="i--dark" value="Reaction">
-            REACTION
+            {{localize "lancer.npc-feature.type.reaction"}}
           </option>
           <option class="i--dark" value="System">
-            SYSTEM
+            {{localize "lancer.npc-feature.type.system"}}
           </option>
           <option class="i--dark" value="Tech">
-            TECH
+            {{localize "lancer.npc-feature.type.tech"}}
           </option>
           <option class="i--dark" value="Trait">
-            TRAIT
+            {{localize "lancer.npc-feature.type.trait"}}
           </option>
           <option class="i--dark" value="Weapon">
-            WEAPON
+            {{localize "lancer.npc-feature.type.weapon"}}
           </option>
         {{/select}}
       </select>
@@ -37,24 +37,24 @@
   {{! Sheet Body }}
   <section class="sheet-body">
     <div class="effect-box">
-      <div class="effect-title clipped-bot">SOURCE</div>
+      <div class="effect-title clipped-bot">{{localize "lancer.npc-feature.source"}}</div>
       <div class="effect-text flexrow">
         <div class="origin-name">
           <input
             name="system.origin.name"
             type="text"
             value="{{system.origin.name}}"
-            placeholder="Origin Name"
+            placeholder="{{localize 'lancer.placeholder.origin_name'}}"
           >
         </div>
         <div class="origin-type flexrow">
           <select name="system.origin.type" data-type="text">
             {{#select system.origin.type}}
               <option class="i--dark" value="Class">
-                CLASS
+                {{localize "lancer.npc-feature.origin.class"}}
               </option>
               <option class="i--dark" value="Template">
-                TEMPLATE
+                {{localize "lancer.npc-feature.origin.template"}}
               </option>
             {{/select}}
           </select>
@@ -62,9 +62,9 @@
         <div class="origin_base flexrow" style="align-items: center">
           <span class="medium" style="text-align: right">
             {{#if system.origin.base}}
-              BASE FEATURE
+              {{localize "lancer.npc-feature.base-feature"}}
             {{else}}
-              OPTIONAL FEATURE
+              {{localize "lancer.npc-feature.optional-feature"}}
             {{/if}}
           </span>
           <input type="checkbox" name="system.origin.base" {{checked system.origin.base}}>
@@ -75,7 +75,7 @@
     {{#if (is-limited item)}}
       <div class="flexrow stat-container" style="align-self: center; margin: 5px 30px; max-width: max-content">
         <span class="medium">
-          USES:
+          {{localize "lancer.npc-feature.uses"}}:
         </span>
         <input
           class="lancer-stat major"
@@ -94,15 +94,17 @@
     {{/if}}
     {{! Reaction }}
     {{#if (eq system.type "Reaction")}}
-      {{{textarea-card "TRIGGER" "system.trigger"}}}{{{textarea-card "EFFECT" "system.effect"}}}
+      {{{textarea-card (localize "lancer.npc-feature.trigger") "system.trigger"}}}{{
+        {textarea-card (localize "lancer.npc-feature.effect") "system.effect"}
+      }}
     {{/if}}
     {{! System }}
     {{#if (eq system.type "System")}}
-      {{{textarea-card "EFFECT" "system.effect"}}}
+      {{{textarea-card (localize "lancer.npc-feature.effect") "system.effect"}}}
     {{/if}}
     {{! Trait }}
     {{#if (eq system.type "Trait")}}
-      {{{textarea-card "EFFECT" "system.effect"}}}
+      {{{textarea-card (localize "lancer.npc-feature.effect") "system.effect"}}}
     {{/if}}
     {{! Tech }}
     {{#if (eq system.type "Tech")}}
@@ -110,31 +112,31 @@
         <div class="flexcol">
           <div class="flexrow" style="align-items: center">
             <span class="medium" style="text-align: right; max-width: fit-content; padding-right: 1em">
-              TECH
+              {{localize "lancer.npc-feature.tech"}}
             </span>
             <select name="system.techType" data-type="String" style="align-self: center">
               {{#select system.techType}}
                 <option value="Quick">
-                  QUICK
+                  {{localize "lancer.npc-feature.quick"}}
                 </option>
                 <option value="Full">
-                  FULL
+                  {{localize "lancer.npc-feature.full"}}
                 </option>
               {{/select}}
             </select>
           </div>
           <div class="flexrow" style="align-items: center">
             <span class="medium" style="text-align: right; max-width: fit-content; padding-right: 1em">
-              TECH ATTACK?
+              {{localize "lancer.npc-feature.is-tech-attack"}}
             </span>
             <input type="checkbox" name="system.tech_attack" {{checked system.tech_attack}}>
           </div>
         </div>
         {{#if system.tech_attack}}
-          {{{npc-clicker-statarr-card "ATTACK BONUS" "system.attack_bonus"}}}
-          {{{npc-clicker-statarr-card "ACCURACY" "system.accuracy"}}}
+          {{{npc-clicker-statarr-card "attack_bonus" "system.attack_bonus"}}}
+          {{{npc-clicker-statarr-card "accuracy" "system.accuracy"}}}
         {{/if}}
-        {{{textarea-card "EFFECT" "system.effect"}}}
+        {{{textarea-card (localize "lancer.npc-feature.effect") "system.effect"}}}
       </div>
     {{/if}}
     {{! Weapon }}
@@ -143,7 +145,7 @@
         {{! Type }}
         <div class="card clipped">
           <span class="lancer-header lancer-primary major">
-            TYPE
+            {{localize "lancer.npc-feature.weapon-type"}}
           </span>
           {{! Can't use the weapon type/size selectors because NPC weapons only have
               a single string field that combines both }}
@@ -159,7 +161,7 @@
         {{! Range }}
         <div class="card clipped">
           <span class="lancer-header lancer-primary major">
-            RANGE
+            {{localize "lancer.npc-feature.range"}}
             <a
               class="gen-control"
               data-action="append"
@@ -175,17 +177,16 @@
           {{/each}}
         </div>
         {{! Attack Bonus }}
-        {{{npc-clicker-statarr-card "ATTACK BONUS" "system.attack_bonus"}}}
+        {{{npc-clicker-statarr-card "attack_bonus" "system.attack_bonus"}}}
         {{! Accuracy }}
-        {{{npc-clicker-statarr-card "ACCURACY" "system.accuracy"}}}
+        {{{npc-clicker-statarr-card "accuracy" "system.accuracy"}}}
         {{! All Damages }}
         {{#each system.damage as |tier_damage_array tier_index|}}
           <div class="card clipped">
             <span class="lancer-header lancer-primary major">
               <i class="cci cci-npc-tier-{{inc tier_index}} i--4 i--dark"></i>
-              T
-              {{inc tier_index}}
-              DAMAGE
+              T{{inc tier_index}}
+              {{localize "lancer.npc-feature.damage"}}
               <a class="npc-damage-append" style="float: right">
                 +
               </a>
@@ -196,10 +197,10 @@
           </div>
         {{/each}}
         {{! Effects }}
-        {{{textarea-card "ON HIT EFFECT" "system.on_hit"}}}
-        {{{textarea-card "EFFECT" "system.effect"}}}
+        {{{textarea-card (localize "lancer.npc-feature.on-hit-effect") "system.on_hit"}}}
+        {{{textarea-card (localize "lancer.npc-feature.effect") "system.effect"}}}
       </div>
     {{/if}}
-    {{{item-edit-arrayed-tags "system.tags" "TAGS"}}}
+    {{{item-edit-arrayed-tags "system.tags" (localize "lancer.npc-feature.tags")}}}
   </section>
 </form>

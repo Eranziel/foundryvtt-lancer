@@ -25,7 +25,7 @@ export class BonusEditDialog extends TargetedEditForm<BonusData> {
       ...super.defaultOptions,
       template: `systems/${game.system.id}/templates/window/bonus.hbs`,
       classes: ["lancer", "bonus-editor"],
-      title: "Bonus Editing",
+      title: game.i18n.localize("lancer.bonus.title"),
     };
   }
 

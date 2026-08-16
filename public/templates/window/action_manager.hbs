@@ -15,24 +15,36 @@
       <button
         class="action {{#if actions.protocol}}lancer-protocol{{/if}}"
         data-action="protocol"
-        data-tooltip="Protocol"
+        data-tooltip="{{localize 'lancer.mech-sheet.actions.protocol'}}"
       >
         <i class="cci cci-protocol theme--dark white--text"></i>
       </button>
       <hr class="v-divide" role="separator" aria-orientation="undefined">
-      <button class="action {{#if actions.move}}lancer-move{{/if}}" data-action="move" data-tooltip="Standard Move">
+      <button
+        class="action {{#if actions.move}}lancer-move{{/if}}"
+        data-action="move"
+        data-tooltip="{{localize 'lancer.mech-sheet.actions.move'}}"
+      >
         <i class="mdi mdi-arrow-right-bold-hexagon-outline theme--dark white--text"></i>
       </button>
-      <button class="action {{#if actions.full}}lancer-full{{/if}}" data-action="full" data-tooltip="Full Action">
+      <button
+        class="action {{#if actions.full}}lancer-full{{/if}}"
+        data-action="full"
+        data-tooltip="{{localize 'lancer.mech-sheet.actions.full'}}"
+      >
         <i class="mdi mdi-hexagon-slice-6 theme--dark white--text"></i>
       </button>
-      <button class="action {{#if actions.quick}}lancer-quick{{/if}}" data-action="quick" data-tooltip="Quick Action">
+      <button
+        class="action {{#if actions.quick}}lancer-quick{{/if}}"
+        data-action="quick"
+        data-tooltip="{{localize 'lancer.mech-sheet.actions.quick'}}"
+      >
         <i class="mdi mdi-hexagon-slice-3 theme--dark white--text"></i>
       </button>
       <button
         class="action {{#if actions.reaction}}lancer-reaction{{/if}}"
         data-action="reaction"
-        data-tooltip="Reaction"
+        data-tooltip="{{localize 'lancer.mech-sheet.actions.reaction'}}"
       >
         <i class="cci cci-reaction theme--dark white--text"></i>
       </button>

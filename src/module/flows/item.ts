@@ -57,7 +57,7 @@ export async function beginItemChatFlow(item: LancerItem, data: any) {
     return await flow.begin();
   } else if (item.is_reserve()) {
     const flow = new SimpleTextFlow(item, {
-      title: `RESERVE :: ${item.name}`,
+      title: game.i18n.format("lancer.flows.item.reserve_title", { name: item.name }),
       description: (item.system.label ? `<b>${item.system.label}</b></br>` : "") + item.system.description,
     });
     return await flow.begin();
@@ -70,7 +70,7 @@ export async function beginItemChatFlow(item: LancerItem, data: any) {
     return await flow.begin();
   } else {
     console.log("No macro exists for that item type");
-    ui.notifications!.error(`Error - No macro exists for item type "${item.type}"`);
+    ui.notifications!.error(game.i18n.format("lancer.flows.item.no_macro_error", { type: item.type }));
     return false;
   }
 }

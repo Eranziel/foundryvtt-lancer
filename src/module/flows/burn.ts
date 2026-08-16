@@ -20,7 +20,7 @@ export class BurnFlow extends DamageRollFlow {
   constructor(uuid: UUIDRef | LancerItem | LancerActor, data: Partial<LancerFlowState.BurnCheckData>) {
     const state: LancerFlowState.BurnCheckData = {
       type: "damage",
-      title: data?.title ?? "Burn Damage",
+      title: data?.title ?? game.i18n.localize("lancer.flows.burn.burn_damage"),
       icon: "cci cci-burn",
       amount: data?.amount ?? 0,
       damage: data?.damage ?? [{ type: DamageType.Burn, val: "1" }],
@@ -53,7 +53,7 @@ async function initBurnCheckData(state: FlowState<LancerFlowState.BurnCheckData>
   // Burn tick damage is always self-targeted, so construct a "hit" result for the actor
   const tokens = state.actor.getActiveTokens();
   if (!tokens || !tokens.length) {
-    ui.notifications?.error("Burn flow requires the actor to have a token in the scene");
+    ui.notifications?.error(game.i18n.localize("lancer.flows.burn.no_token_error"));
     return false;
   }
   const target = tokens[0];
@@ -76,7 +76,10 @@ async function initBurnCheckData(state: FlowState<LancerFlowState.BurnCheckData>
 
 async function rollBurnCheck(state: FlowState<LancerFlowState.BurnCheckData>): Promise<boolean> {
   if (!state.data) throw new TypeError(`Burn flow state missing!`);
-  const rollFlow = new StatRollFlow(state.actor, { title: "BURN :: ENG", path: "system.eng" });
+  const rollFlow = new StatRollFlow(state.actor, {
+    title: game.i18n.localize("lancer.flows.burn.burn_eng"),
+    path: "system.eng",
+  });
   const success = await rollFlow.begin();
   state.data.check_total = rollFlow.state.data?.result?.roll.total;
   if (game.dice3d) {
@@ -92,7 +95,7 @@ async function checkBurnResult(state: FlowState<LancerFlowState.BurnCheckData>):
   if (!state.data) throw new TypeError(`Burn flow state missing!`);
   if (!state.data.check_total) throw new TypeError(`Burn check hasn't been rolled yet!`);
   if (state.data.check_total >= 10) {
-    state.data.title = `BURN CLEARED!`;
+    state.data.title = game.i18n.localize("lancer.flows.burn.burn_cleared");
     state.data.icon = "mdi mdi-fire-extinguisher";
     await state.actor.update({ "system.burn": 0 });
     return true;

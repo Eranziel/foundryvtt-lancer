@@ -12,7 +12,7 @@ export function promptText(title: string, prefill: string = ""): Promise<string 
         `,
         buttons: {
           confirm: {
-            label: `Confirm`,
+            label: game.i18n.localize("lancer.common.confirm"),
             callback: async dialog_html => {
               // Get the value
               let new_val: string = ($(dialog_html).find("#textval")[0] as HTMLInputElement).value;

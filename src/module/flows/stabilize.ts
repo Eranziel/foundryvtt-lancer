@@ -32,7 +32,8 @@ export class StabilizeFlow extends Flow<LancerFlowState.StabilizeData> {
 
 async function initializeStabilize(state: FlowState<LancerFlowState.StabilizeData>): Promise<boolean> {
   if (!state.data) throw new TypeError(`Stabilize flow state data missing!`);
-  state.data.title = state.data.title || `${state.actor.name?.capitalize()} HAS STABILIZED`;
+  state.data.title =
+    state.data.title || game.i18n.format("lancer.stabilize.has-stabilized", { name: state.actor.name?.capitalize() });
   return true;
 }
 
@@ -45,12 +46,12 @@ async function renderStabilizePrompt(state: FlowState<LancerFlowState.StabilizeD
 
   submit = await new Promise<boolean>((resolve, _reject) => {
     new Dialog({
-      title: `STABILIZE - ${actor.name!}`,
+      title: `${game.i18n.localize("lancer.stabilize.title")} - ${actor.name!}`,
       content: template,
       buttons: {
         submit: {
           icon: '<i class="fas fa-check"></i>',
-          label: "Submit",
+          label: game.i18n.localize("lancer.stabilize.submit"),
           callback: async dlg => {
             // Typeguard the flow data again
             if (!state.data) return;
@@ -61,7 +62,7 @@ async function renderStabilizePrompt(state: FlowState<LancerFlowState.StabilizeD
         },
         cancel: {
           icon: '<i class="fas fa-times"></i>',
-          label: "Cancel",
+          label: game.i18n.localize("lancer.stabilize.cancel"),
           callback: async () => resolve(false),
         },
       },
@@ -79,29 +80,29 @@ async function applyStabilizeUpdates(state: FlowState<LancerFlowState.StabilizeD
   state.data.description = "";
   switch (state.data.option1) {
     case StabOptions1.Cool:
-      option1text = "Mech is cooling itself. Heat and @Compendium[world.status-items.Exposed] cleared.";
+      option1text = game.i18n.localize("lancer.stabilize.cool-desc");
       break;
     case StabOptions1.Repair:
-      if (state.actor.is_mech() && state.actor.system.repairs.value <= 0) {
-        ui.notifications!.warn("Mech has no repairs left. Please try again.");
+      if (state.actor.is_mech() && (state.actor.system.repairs?.value ?? 0) <= 0) {
+        ui.notifications!.warn(game.i18n.localize("lancer.stabilize.no-repairs"));
         return false;
       } else {
-        option1text = "Mech has spent 1 repair to regain HP.";
+        option1text = game.i18n.localize("lancer.stabilize.spent-repair");
       }
       break;
   }
   switch (state.data.option2) {
     case StabOptions2.ClearBurn:
-      option2text = "Mech has cleared all burn.";
+      option2text = game.i18n.localize("lancer.stabilize.cleared-burn");
       break;
     case StabOptions2.ClearOwnCond:
-      option2text = "Mech has selected to clear own condition. Please clear manually.";
+      option2text = game.i18n.localize("lancer.stabilize.cleared-own-cond");
       break;
     case StabOptions2.ClearOtherCond:
-      option2text = "Mech has selected to clear an allied condition. Please clear manually.";
+      option2text = game.i18n.localize("lancer.stabilize.cleared-ally-cond");
       break;
     case StabOptions2.Reload:
-      option2text = "Mech has selected full reload. Weapons reloaded:<ul>";
+      option2text = `${game.i18n.localize("lancer.stabilize.reloaded")}<ul>`;
       for (const change of state.actor.loadoutHelper.reloadableItems()) {
         if (change.name && change["system.loaded"] === true) {
           option2text = option2text.concat(`<li>${change.name}</li>`);

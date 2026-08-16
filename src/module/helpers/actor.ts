@@ -349,10 +349,13 @@ export function npc_stat_block_clicker_card(
         ${clicker_num_input(`${data_base_path}.${tier - 1}.${key}`, options)}
       </div>`);
   }
+  const localizedTitle = game.i18n.has(`lancer.common-sheet.shortStats.${title}`)
+    ? game.i18n.localize(`lancer.common-sheet.shortStats.${title}`)
+    : title;
   return `
     <div class="card clipped">
       <div class="flexrow lancer-header lancer-primary major">
-        ${title}
+        ${localizedTitle}
       </div>
       ${tier_clickers.join("")}
     </div>`;
@@ -371,10 +374,13 @@ export function npc_stat_array_clicker_card(title: string, path: string, options
         ${clicker_num_input(`${path}.${tier - 1}`, options)}
       </div>`);
   }
+  const localizedTitle = game.i18n.has(`lancer.common-sheet.shortStats.${title}`)
+    ? game.i18n.localize(`lancer.common-sheet.shortStats.${title}`)
+    : title;
   return `
     <div class="card clipped">
       <div class="flexrow lancer-header major">
-        ${title}
+        ${localizedTitle}
       </div>
       ${tier_clickers.join("")}
     </div>`;

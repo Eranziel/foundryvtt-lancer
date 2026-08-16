@@ -34,7 +34,10 @@ async function initOverchargeData(state: FlowState<LancerFlowState.OverchargeRol
   if (!state.actor || !state.actor.is_mech()) throw new Error(`Only mechs can overcharge!`);
   if (!state.data) throw new Error(`Data not found for overcharge flow!`);
 
-  state.data.title = options?.title || state.data.title || `${state.actor.name!.toUpperCase()} is OVERCHARGING`;
+  state.data.title =
+    options?.title ||
+    state.data.title ||
+    game.i18n.format("lancer.flows.overcharge.title", { name: state.actor.name!.toUpperCase() });
   state.data.roll_str = state.actor.strussHelper.getOverchargeRoll()!;
   state.data.level = Math.min(
     state.actor.system.overcharge + 1,

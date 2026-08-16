@@ -197,30 +197,30 @@
     // This is a tech attack
     if (isTech()) {
       if (lancerItem?.is_npc_feature() && lancerItem.system.type === NpcFeatureType.Tech) {
-        return "Tech Item Base";
+        return game.i18n.localize("lancer.acc_diff.tech_item_base");
       }
-      return "Tech Attack";
+      return game.i18n.localize("lancer.acc_diff.tech_attack");
     }
     // Not a tech attack and we have an item. Base the label on the item type.
     if (lancerItem) {
       if (lancerItem.is_mech_weapon() || lancerItem.is_pilot_weapon()) {
-        return "Grit";
+        return game.i18n.localize("lancer.acc_diff.grit");
       }
       if (lancerItem.is_npc_feature() && lancerItem.system.type === NpcFeatureType.Weapon) {
-        return "Weapon Base";
+        return game.i18n.localize("lancer.acc_diff.weapon_base");
       }
     }
     // Not a tech attack and we have no item. Base the label on the actor type.
     if (lancerActor) {
       if (lancerActor.is_npc()) {
-        return "Tier";
+        return game.i18n.localize("lancer.acc_diff.tier");
       }
       if (lancerActor.is_mech() || lancerActor.is_pilot() || lancerActor.is_deployable()) {
-        return "Grit";
+        return game.i18n.localize("lancer.acc_diff.grit");
       }
     }
     // Default fallback
-    return "Grit";
+    return game.i18n.localize("lancer.acc_diff.grit");
   }
 
   function flatSign(val: number) {
@@ -285,7 +285,9 @@
   <div id="{kind}-accdiff-dialog" class="lancer-hud-body">
     <!-- Flat attack bonus -->
     {#if isAttack()}
-      <label class="flexrow accdiff-weight lancer-border-primary" for="accdiff-flat-bonus"> Flat Modifier </label>
+      <label class="flexrow accdiff-weight lancer-border-primary" for="accdiff-flat-bonus">
+        {game.i18n.localize("lancer.acc_diff.flat_modifier")}
+      </label>
       <div class="accdiff-grid accdiff-flat-bonus">
         <div class="accdiff-other-grid">
           <span><b>{gritLabel()}:</b> {flatSign(base.grit)}{base.grit}</span>
@@ -296,7 +298,7 @@
           <button
             class="accdiff-flat-mod__plus"
             type="button"
-            aria-label="Increase flat bonus"
+            aria-label={game.i18n.localize("lancer.acc_diff.increase_flat_bonus")}
             onclick={() => (base.flatBonus = base.flatBonus + 1)}
           >
             <i class="fas fa-plus"></i>
@@ -304,14 +306,14 @@
           <button
             class="accdiff-flat-mod__minus"
             type="button"
-            aria-label="Decrease flat bonus"
+            aria-label={game.i18n.localize("lancer.acc_diff.decrease_flat_bonus")}
             onclick={() => (base.flatBonus = base.flatBonus - 1)}
           >
             <i class="fas fa-minus"></i>
           </button>
         </div>
         <div class="accdiff-other-grid">
-          <span><b>Total:</b> {flatSign(flatTotal)}{flatTotal}</span>
+          <span><b>{game.i18n.localize("lancer.acc_diff.total")}:</b> {flatSign(flatTotal)}{flatTotal}</span>
         </div>
       </div>
     {/if}
@@ -321,13 +323,13 @@
       <div class="accdiff-grid__column">
         <h4 class="lancer-border-primary">
           <i class="cci cci-accuracy i--4" style="vertical-align: middle; border: none"></i>
-          <span>Accuracy</span>
+          <span>{game.i18n.localize("lancer.acc_diff.accuracy")}</span>
         </h4>
       </div>
       <div class="accdiff-grid__column">
         <h4 class="lancer-border-primary">
           <i class="cci cci-difficulty i--4" style="vertical-align: middle; border: none"></i>
-          <span>Difficulty</span>
+          <span>{game.i18n.localize("lancer.acc_diff.difficulty")}</span>
         </h4>
       </div>
     </div>
@@ -335,10 +337,10 @@
     <div class="accdiff-grid accdiff-grid__section">
       <!-- Accuracy column -->
       <div class="accdiff-grid__column">
-        <HudCheckbox label="Accurate (+1)" bind:value={weapon.accurate} />
-        <HudCheckbox label="Smart (*)" bind:value={weapon.smart} />
+        <HudCheckbox label="{game.i18n.localize('lancer.acc_diff.accurate')} (+1)" bind:value={weapon.accurate} />
+        <HudCheckbox label="{game.i18n.localize('lancer.acc_diff.smart')} (*)" bind:value={weapon.smart} />
         {#if kind == "attack"}
-          <HudCheckbox label="Seeking (*)" bind:value={weapon.seeking} />
+          <HudCheckbox label="{game.i18n.localize('lancer.acc_diff.seeking')} (*)" bind:value={weapon.seeking} />
           {#each accWeaponPlugins as plugin}
             <Plugin data={plugin} />
           {/each}
@@ -347,13 +349,13 @@
 
       <!-- Difficulty column -->
       <div class="accdiff-grid__column">
-        <HudCheckbox label="Inaccurate (-1)" bind:value={weapon.inaccurate} />
-        <HudCheckbox label="Impaired (-1)" value={!!weapon.impaired} disabled />
+        <HudCheckbox label="{game.i18n.localize('lancer.acc_diff.inaccurate')} (-1)" bind:value={weapon.inaccurate} />
+        <HudCheckbox label="{game.i18n.localize('lancer.acc_diff.impaired')} (-1)" value={!!weapon.impaired} disabled />
         {#if kind == "attack" && !isTech()}
           {#if isMelee()}
-            <HudCheckbox label="Thrown (*)" bind:value={weapon.thrown} />
+            <HudCheckbox label="{game.i18n.localize('lancer.acc_diff.thrown')} (*)" bind:value={weapon.thrown} />
           {/if}
-          <HudCheckbox label="Engaged (-1)" bind:value={weapon.engaged} />
+          <HudCheckbox label="{game.i18n.localize('lancer.acc_diff.engaged')} (-1)" bind:value={weapon.engaged} />
           {#each diffWeaponPlugins as plugin}
             <Plugin data={plugin} />
           {/each}
@@ -366,11 +368,20 @@
         <!-- Target-related Accuracy -->
         <div class="accdiff-grid__column">
           {#if targets.length == 1}
-            <HudCheckbox style="grid-area: prone" label="Prone (+1)" bind:value={targets[0].prone} disabled />
-            <HudCheckbox label="Stunned (EVA=5)" bind:value={targets[0].stunned} disabled />
+            <HudCheckbox
+              style="grid-area: prone"
+              label="{game.i18n.localize('lancer.acc_diff.prone')} (+1)"
+              bind:value={targets[0].prone}
+              disabled
+            />
+            <HudCheckbox
+              label="{game.i18n.localize('lancer.acc_diff.stunned')} (EVA=5)"
+              bind:value={targets[0].stunned}
+              disabled
+            />
             <HudCheckbox
               style="grid-area: lock-on"
-              label="Lock On (+1)"
+              label="{game.i18n.localize('lancer.acc_diff.lock_on')} (+1)"
               checked={!!targets[0].usingLockOn}
               bind:value={targets[0].consumeLockOn}
               disabled={!targets[0].lockOnAvailable}
@@ -425,7 +436,7 @@
       </div>
       {#if ranges && ranges.length > 0}
         <div class="accdiff-grid__section">
-          <span class="accdiff-weight flex-center flexrow">Targeting</span>
+          <span class="accdiff-weight flex-center flexrow">{game.i18n.localize("lancer.acc_diff.targeting")}</span>
           <div class="accdiff-ranges flexrow">
             {#each ranges as range}
               <button class="range-button" type="button" onclick={() => deployTemplate(range)}>
@@ -448,9 +459,9 @@
                 class="accdiff-weight total-label lancer-mini-header"
                 for="total-display-0"
               >
-                🞂 <span>Total
+                🞂 <span>{game.i18n.localize("lancer.acc_diff.total")}
                   {#if targets.length > 0}
-                    vs {targets[0].targetName}
+                    {game.i18n.localize("lancer.acc_diff.vs")} {targets[0].targetName}
                   {/if}</span> 🞀
               </label>
             </div>
@@ -491,7 +502,7 @@
                     </div>
                     <div class="flexrow">
                       <button
-                        aria-label="Increase accuracy"
+                        aria-label={game.i18n.localize("lancer.acc_diff.increase_accuracy")}
                         class="i--4 no-grow accdiff-button"
                         type="button"
                         onclick={() => (data.accuracy = data.accuracy + 1)}
@@ -511,7 +522,7 @@
                       {/if}
                       <input style="display: none" type="number" bind:value={data.difficulty} min="0">
                       <button
-                        aria-label="Increase difficulty"
+                        aria-label={game.i18n.localize("lancer.acc_diff.increase_difficulty")}
                         class="i--4 no-grow accdiff-button"
                         type="button"
                         onclick={() => (data.difficulty = data.difficulty + 1)}
@@ -536,7 +547,7 @@
       use:focus
     >
       <i class="fas fa-check"></i>
-      Roll
+      {game.i18n.localize("lancer.acc_diff.roll")}
     </button>
     <button
       class="dialog-button cancel"
@@ -548,7 +559,7 @@
       }}
     >
       <i class="fas fa-times"></i>
-      Cancel
+      {game.i18n.localize("lancer.acc_diff.cancel")}
     </button>
   </div>
 </form>

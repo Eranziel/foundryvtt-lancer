@@ -38,7 +38,7 @@ export class CoreActiveFlow extends ActivationFlow {
 export async function checkCorePower(state: FlowState<LancerFlowState.ActionUseData>) {
   if (!state.actor || !state.actor.is_mech()) throw new TypeError(`Cannot consume core power on a non-mech!`);
   if (state.actor.system.core_energy == 0) {
-    ui.notifications!.warn(`No core power remaining on this frame!`);
+    ui.notifications!.warn(game.i18n.localize("lancer.flows.frame.no_core_power_warn"));
     return false;
   }
   return true;

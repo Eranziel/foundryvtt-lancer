@@ -42,6 +42,11 @@
     if (!a || (!a.is_mech() && !a.is_npc())) return 0;
     return a.system[stat].max - getCurrent(a);
   }
+  const statName = $derived(
+    stat === "stress"
+      ? game.i18n.localize("lancer.struct_stress_hud.stress")
+      : game.i18n.localize("lancer.struct_stress_hud.structure")
+  );
 </script>
 
 <form
@@ -58,7 +63,14 @@
   </div>
   {#if lancerActor && (lancerActor.is_mech() || lancerActor.is_npc())}
     <div class="lancer-hud-body">
-      <h4>{lancerActor?.name ?? "UNKNOWN MECH"} has taken {icon} damage!</h4>
+      <h4>
+        {
+          game.i18n.format("lancer.struct_stress_hud.damage_taken", {
+            name: lancerActor?.name ?? game.i18n.localize("lancer.struct_stress_hud.unknown_mech"),
+            stat: statName,
+          })
+        }
+      </h4>
       <div class="damage-preview">
         {#each { length: current } as _}
           <i class="cci cci-{icon} i--4 damage-pip"></i>
@@ -68,18 +80,18 @@
         {/each}
       </div>
       <p class="message">
-        Roll {damage}d6 to determine what happens.
+        {game.i18n.format("lancer.struct_stress_hud.roll_dice", { count: damage })}
       </p>
     </div>
   {/if}
   <div class="lancer-hud-buttons flexrow">
     <button class="dialog-button submit default" data-button="submit" type="submit" use:focus>
       <i class="fas fa-check"></i>
-      Roll
+      {game.i18n.localize("lancer.struct_stress_hud.roll")}
     </button>
     <button class="dialog-button cancel" data-button="cancel" type="button" onclick={() => dispatch("cancel")}>
       <i class="fas fa-times"></i>
-      Cancel
+      {game.i18n.localize("lancer.struct_stress_hud.cancel")}
     </button>
   </div>
 </form>

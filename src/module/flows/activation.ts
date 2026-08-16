@@ -74,7 +74,11 @@ export async function initActivationData(
       state.data.title = state.data.action?.name;
     }
     state.data.title =
-      options?.title || state.data.title || state.data.action?.name || state.item.name || "UNKNOWN ACTION";
+      options?.title ||
+      state.data.title ||
+      state.data.action?.name ||
+      state.item.name ||
+      game.i18n.localize("lancer.flows.activation.unknown_action");
     let detail_text = state.data.detail || "";
     if (!detail_text && state.data.action) {
       if (state.data.action.init) {

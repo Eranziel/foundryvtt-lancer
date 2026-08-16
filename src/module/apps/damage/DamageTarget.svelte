@@ -57,14 +57,14 @@
     <!-- Add bonus damage for this target -->
     <div class="card clipped target-bonus-damage">
       <span class="flexrow" style="width: 100%">
-        <b class="target-bonus-damage-title">Bonus</b>
+        <b class="target-bonus-damage-title">{game.i18n.localize("lancer.damage_hud.bonus")}</b>
         {#if target.bonusDamage.length}
           <button
-            aria-label="Add a bonus damage type for only this target"
+            aria-label={game.i18n.localize("lancer.damage_hud.add_target_bonus_damage")}
             class="lancer-button add-damage-type small"
             type="button"
             on:click={addBonusDamage}
-            data-tooltip="Add a bonus damage type for only this target"
+            data-tooltip={game.i18n.localize("lancer.damage_hud.add_target_bonus_damage")}
           >
             <i class="mdi mdi-plus-thick"></i>
           </button>
@@ -77,11 +77,11 @@
       {/each}
       {#if !target.bonusDamage.length}
         <button
-          aria-label="Add a bonus damage type for only this target"
+          aria-label={game.i18n.localize("lancer.damage_hud.add_target_bonus_damage")}
           class="lancer-button add-damage-type"
           type="button"
           on:click={addBonusDamage}
-          data-tooltip="Add a bonus damage type for only this target"
+          data-tooltip={game.i18n.localize("lancer.damage_hud.add_target_bonus_damage")}
         >
           <i class="mdi mdi-plus-thick"></i>
         </button>
@@ -98,21 +98,21 @@
       icon="mdi mdi-shield-off-outline"
       bind:value={target.ap}
       on:change={toggleAP}
-      tooltip="Armor Piercing (AP)"
+      tooltip={game.i18n.localize("lancer.damage_hud.ap")}
       disabled={target.paracausal}
     />
     <HudCheckbox
       icon="cci cci-large-beam"
       bind:value={target.paracausal}
       on:change={toggleParacausal}
-      tooltip="For 'cannot be reduced' effects like the Paracausal mod"
+      tooltip={game.i18n.localize("lancer.damage_hud.cannot_be_reduced_tooltip")}
       style="margin: 0 0.3em"
     />
     <HudCheckbox
       icon="mdi mdi-fraction-one-half"
       bind:value={target.halfDamage}
       on:change={toggleHalfDamage}
-      tooltip="For effects which cause the attacker to deal half damage in addition to resistance, like Heavy Gunner"
+      tooltip={game.i18n.localize("lancer.damage_hud.half_damage_tooltip")}
     />
   </div>
 </div>

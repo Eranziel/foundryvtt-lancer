@@ -193,7 +193,7 @@ function allWeaponMountView(loadout_path: string, options: HelperOptions) {
   return `
     <div class="lancer-header lancer-dark-gray loadout-category submajor">
       <i class="mdi mdi-unfold-less-horizontal collapse-trigger collapse-icon" data-collapse-id="weapons"></i>
-      <span>MOUNTED WEAPONS</span>
+      <span>${game.i18n.localize("lancer.mech-sheet.loadout.mountedWeapons")}</span>
       <a class="gen-control fas fa-plus" data-action="append" data-path="${loadout_path}.weapon_mounts" data-action-value="(struct)wep_mount"></a>
       <a class="reset-all-weapon-mounts-button fas fa-redo" data-path="${loadout_path}.weapon_mounts"></a>
     </div>
@@ -215,10 +215,10 @@ function allMechSystemsView(loadout_path: string, options: HelperOptions) {
   return `
     <div class="lancer-header lancer-dark-gray loadout-category submajor">
       <i class="mdi mdi-unfold-less-horizontal collapse-trigger collapse-icon" data-collapse-id="systems"></i>
-      <span>MOUNTED SYSTEMS</span>
+      <span>${game.i18n.localize("lancer.mech-sheet.loadout.mountedSystems")}</span>
       <span style="flex-grow: 0">
         <i class="cci cci-system-point i--4"></i>
-        ${loadout.sp.value} / ${loadout.sp.max} SP USED
+        ${loadout.sp.value} / ${loadout.sp.max} ${game.i18n.localize("lancer.mech-sheet.system.sp-used")}
       </span>
     </div>
     <div class="flexcol collapse" data-collapse-id="systems">

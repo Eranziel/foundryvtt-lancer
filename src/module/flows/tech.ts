@@ -102,10 +102,10 @@ export async function initTechAttackData(
   // If we only have an actor, it's a basic attack
   if (!state.item) {
     if (!state.actor.is_mech() && !state.actor.is_npc()) {
-      ui.notifications!.error(`Error rolling tech attack macro (not a valid tech attacker).`);
+      ui.notifications!.error(game.i18n.localize("lancer.flows.tech.invalid_attacker_error"));
       return false;
     }
-    state.data.title = options?.title ?? "TECH ATTACK";
+    state.data.title = options?.title ?? game.i18n.localize("lancer.flows.attack.tech_attack");
     state.data.attack_type = AttackType.Tech;
     state.data.flat_bonus = state.actor.system.bonuses.flat.tech_attack || 0;
     if (state.actor.is_pilot() || state.actor.is_mech()) {
@@ -131,7 +131,7 @@ export async function initTechAttackData(
     state.data.attack_type = AttackType.Tech;
     if (state.item.is_npc_feature()) {
       if (!state.actor.is_npc()) {
-        ui.notifications?.warn("Non-NPC cannot use an NPC system!");
+        ui.notifications?.warn(game.i18n.localize("lancer.flows.tech.non_npc_warn"));
         return false;
       }
       let tier_index: number = state.item.system.tier_override || state.actor.system.tier - 1;
@@ -153,11 +153,11 @@ export async function initTechAttackData(
     } else if (state.item.is_mech_system() || state.item.is_frame()) {
       // Tech attack system
       if (!state.actor.is_mech()) {
-        ui.notifications?.warn("Non-mech cannot use a mech system!");
+        ui.notifications?.warn(game.i18n.localize("lancer.flows.attack.non_mech_system_warn"));
         return false;
       }
       if (!state.actor.system.pilot?.value) {
-        ui.notifications?.warn("Cannot use a system on a non-piloted mech!");
+        ui.notifications?.warn(game.i18n.localize("lancer.flows.attack.non_piloted_system_warn"));
         return false;
       }
       commonMechTechAttackInit(state, options);
@@ -169,11 +169,11 @@ export async function initTechAttackData(
       return true;
     } else if (state.item.is_talent()) {
       if (!state.actor.is_pilot()) {
-        ui.notifications?.warn("Non-pilot cannot use a pilot talent!");
+        ui.notifications?.warn(game.i18n.localize("lancer.flows.tech.non_pilot_talent_warn"));
         return false;
       }
       if (!state.actor.system.active_mech?.value) {
-        ui.notifications?.warn("Cannot use a talent without an active mech!");
+        ui.notifications?.warn(game.i18n.localize("lancer.flows.tech.no_active_mech_warn"));
         return false;
       }
       // Override the flow's actor to the active mech
@@ -181,7 +181,7 @@ export async function initTechAttackData(
       commonMechTechAttackInit(state, options);
       return true;
     }
-    ui.notifications!.error(`Error in tech attack flow - ${state.item.name} is an invalid type!`);
+    ui.notifications!.error(game.i18n.format("lancer.flows.tech.invalid_type_error", { name: state.item.name }));
     return false;
   }
 }

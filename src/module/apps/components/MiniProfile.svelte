@@ -9,14 +9,18 @@
   {#if profile.attack || profile.accuracy}
     <div class="mini-weapon-profile-accuracy flexrow">
       {#if profile.attack}
-        <span data-tooltip="Attack bonus"><i class="cci cci-reticule"></i>{profile.attack < 0 ? "-" : "+"}{
-            profile.attack
-          }</span>
+        <span data-tooltip={game.i18n.localize("lancer.common-sheet.shortStats.attack_bonus")}><i
+            class="cci cci-reticule"
+          ></i>{profile.attack < 0 ? "-" : "+"}{profile.attack}</span>
       {/if}
       {#if profile.accuracy}
-        <span data-tooltip={(profile.accuracy ?? 0) > 0 ? "Accuracy" : "Difficulty"}><i
-            class="cci cci-{(profile.accuracy ?? 0) > 0 ? 'accuracy' : 'difficulty'}"
-          ></i>{Math.abs(profile.accuracy)}</span>
+        <span
+          data-tooltip={(profile.accuracy ?? 0) > 0
+          ? game.i18n.localize("lancer.acc_diff.accuracy")
+          : game.i18n.localize("lancer.acc_diff.difficulty")}
+        ><i class="cci cci-{(profile.accuracy ?? 0) > 0 ? 'accuracy' : 'difficulty'}"></i>{
+            Math.abs(profile.accuracy)
+          }</span>
       {/if}
     </div>
     <span class="mini-weapon-profile-separator">//</span>
