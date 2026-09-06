@@ -1,119 +1,109 @@
 <script lang="ts">
-  import { createEventDispatcher, onMount } from "svelte";
-  import { generateLcpSummary, generateMultiLcpSummary, type LCPData } from "../../util/lcps";
+  import { onMount } from "svelte";
+  import { type ContentSummary, generateLCPSummary, generateMultiLCPSummary, type LCPData } from "../../util/lcps";
+  import { SvelteMap, SvelteSet } from "svelte/reactivity";
+  import type { IContentPack } from "../../util/unpacking/packed-types";
 
-  const dispatch = createEventDispatcher();
+  interface Props {
+    lcpData: LCPData[];
 
-  export let lcpData: LCPData[];
-  export let disabled: boolean = false;
-  export const deselect = () => {
-    for (const pack of lcpData) {
-      rowSelectionTracker[pack.id].checked = false;
-    }
-  };
+    onRowHovered: (s: ContentSummary | null) => void;
+    onAggregateSummary: (s: ContentSummary | null) => void;
+    onImportMany: (p: IContentPack[] | null) => void;
+    onClearCompendiums: () => void;
 
-  $: selectAllRows = Object.values(rowSelectionTracker).every(v => !v.selectable || v.checked);
-
-  onMount(() => debounceAggregateSummary());
-
-  let rowSelectionTracker: Record<string, { checked: boolean; selectable: boolean }> = {};
-  $: {
-    if (typeof lcpData !== "undefined") {
-      for (const pack of lcpData) {
-        if (!rowSelectionTracker[pack.id]) {
-          rowSelectionTracker[pack.id] = {
-            checked: pack.availableVersion > pack.currentVersion,
-            selectable: Boolean(pack.availableVersion),
-          };
-        }
-      }
-    }
+    disabled: boolean;
   }
 
+  let { lcpData, onRowHovered, onAggregateSummary, onImportMany, onClearCompendiums, disabled = false }: Props = $props();
+
+  let selectableRows = new SvelteSet<string>();
+  let selectedRows = new SvelteMap<string, boolean>();
+  let allRowsSelected = $derived([...selectableRows].every(id => selectedRows.get(id) === true));
+
+  onMount(() => {
+    if (typeof lcpData !== "undefined") {
+      for (const pack of lcpData) {
+        selectedRows.set(pack.id, pack.availableVersion > pack.currentVersion);
+        if (Boolean(pack.availableVersion)) selectableRows.add(pack.id);
+      }
+    }
+    aggregateSummary();
+  });
+
   function toggleSelectAllOfficial() {
+    const toggle = !allRowsSelected;
     for (const pack of lcpData) {
-      if (!rowSelectionTracker[pack.id].selectable) continue;
-      rowSelectionTracker[pack.id].checked = !selectAllRows;
+      if (!selectableRows.has(pack.id)) continue;
+      selectedRows.set(pack.id, toggle);
     }
   }
 
   function toggleRow(packId: string) {
-    rowSelectionTracker[packId].checked = !rowSelectionTracker[packId].checked;
-    debounceAggregateSummary();
+    selectedRows.set(packId, !selectedRows.get(packId));
+    aggregateSummary();
   }
 
   const aggregateManifest = {
     author: "Massif Press",
-    name: "Selected Official Sources",
-    version: "1.0.0",
+    name: game.i18n.localize("lancer.lcpManager.header.selectedOfficial.label"),
+    version: "",
     item_prefix: "",
     description: "",
     website: "https://massif-press.itch.io/",
   };
   function generateAggregateSummary() {
-    const selected = lcpData.filter(p => rowSelectionTracker[p.id].checked);
+    const selected = lcpData.filter(p => selectedRows.get(p.id) === true);
     if (!selected.length) return null;
     if (selected.length === 1) {
-      const summary = generateLcpSummary(selected[0].cp);
+      const summary = generateLCPSummary(selected[0].cp);
       summary.aggregate = true;
       return summary;
     }
-    return generateMultiLcpSummary(
+    return generateMultiLCPSummary(
       aggregateManifest,
       selected.filter(p => Boolean(p.cp)).map(p => p.cp!)
     );
   }
 
-  let aggregateSummaryTimeout: NodeJS.Timeout | null = null;
-  function debounceAggregateSummary() {
-    if (aggregateSummaryTimeout) {
-      clearTimeout(aggregateSummaryTimeout);
-    }
-    aggregateSummaryTimeout = setTimeout(() => {
-      dispatch("aggregateSummary", generateAggregateSummary());
-    }, 100);
+  function aggregateSummary() {
+    const summary = generateAggregateSummary();
+    onAggregateSummary(summary);
   }
 
   let hoveredRow: string | null = null;
-  function onMouseenterRow(id: string) {
+  function onMouseEnterRow(id: string) {
     hoveredRow = id;
     const rowLcp = lcpData.find(p => p.id === id);
     if (!rowLcp || !rowLcp.cp || !rowLcp.cp.data) {
-      dispatch("lcpHovered", null);
+      onRowHovered(null);
       return;
     }
-    const lcpSummary = generateLcpSummary(rowLcp.cp);
-    dispatch("lcpHovered", lcpSummary);
+    const lcpSummary = generateLCPSummary(rowLcp.cp);
+    onRowHovered(lcpSummary);
   }
 
-  function onMouseleaveRow(id: string) {
+  function onMouseLeaveRow(id: string) {
     setTimeout(() => {
       if (hoveredRow === id) {
         hoveredRow = null;
-        dispatch("lcpHovered", null);
+        onRowHovered(null);
       }
     }, 50);
   }
 
-  function dispatchLcpsToInstall() {
-    const selected = lcpData.filter(p => rowSelectionTracker[p.id].checked);
-    dispatch(
-      "installManyLcps",
-      selected.map(p => p.cp)
-    );
-  }
-
-  function clearCompendiums() {
-    dispatch("clearCompendiums");
+  function dispatchLCPsToInstall() {
+    const selected = lcpData.filter(p => selectedRows.get(p.id));
+    onImportMany(selected.flatMap(p => (p.cp ? [p.cp] : [])));
   }
 </script>
 
-<div class="lcp-table flexcol" style={$$restProps.style}>
+<div class="lcp-table flexcol">
   <div class="lancer-header clipped-top lancer-primary major">
-    Available and Installed Content
+    {game.i18n.localize("lancer.lcpManager.header.availableContent.label")}
   </div>
   <!-- LCP table. Official content is listed first, manually installed content at the end. -->
-  <div id="lcp-table">
+  <div class="lcp-table__table">
     <div class="lcp-table__rows">
       <div class="row header">
         <div>
@@ -122,34 +112,37 @@
             name="select-all"
             type="checkbox"
             {disabled}
-            bind:checked={selectAllRows}
-            on:click={toggleSelectAllOfficial}
-            on:change={() => debounceAggregateSummary()}
+            bind:checked={allRowsSelected}
+            onclick={toggleSelectAllOfficial}
+            onchange={aggregateSummary}
           >
         </div>
-        <span>TITLE</span>
-        <span>AUTHOR</span>
+        <span>{game.i18n.localize("lancer.lcpManager.table.title.label")}</span>
+        <span>{game.i18n.localize("lancer.lcpManager.table.author.label")}</span>
         <span></span>
-        <span>CURRENT</span>
+        <span>{game.i18n.localize("lancer.lcpManager.table.current.label")}</span>
         <span></span>
-        <span>AVAILABLE</span>
+        <span>{game.i18n.localize("lancer.lcpManager.table.available.label")}</span>
       </div>
       {#each lcpData as pack}
+        <!-- svelte-ignore a11y_click_events_have_key_events -->
         <div
+          role="button"
+          tabindex="-1"
           class={`row${pack.availableVersion ? " has-data" : ""}`}
-          on:mouseenter={() => onMouseenterRow(pack.id)}
-          on:mouseleave={() => onMouseleaveRow(pack.id)}
-          on:click={() => toggleRow(pack.id)}
-          on:keypress={() => toggleRow(pack.id)}
+          onmouseenter={() => onMouseEnterRow(pack.id)}
+          onmouseleave={() => onMouseLeaveRow(pack.id)}
+          onclick={() => toggleRow(pack.id)}
         >
-          {#if rowSelectionTracker[pack.id].selectable}
+          {#if selectableRows.has(pack.id)}
             <input
               class="content-checkbox"
               name={pack.id}
               type="checkbox"
               {disabled}
-              bind:checked={rowSelectionTracker[pack.id].checked}
-              on:change={() => debounceAggregateSummary()}
+              bind:checked={() => selectedRows.get(pack.id) ?? false, v => selectedRows.set(pack.id, v)}
+              onchange={aggregateSummary}
+              onclick={e => e.stopPropagation()}
             >
           {:else}
             <span class="content-checkbox"></span>
@@ -163,10 +156,11 @@
           <span class="content-label">
             {#if pack.url}
               <a
+                title={pack.url}
                 href={pack.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                on:click={e => e.stopPropagation()}
+                onclick={e => e.stopPropagation()}
               >
                 <i class="fas fa-external-link-alt"></i>
               </a>
@@ -177,7 +171,7 @@
             {#if pack.availableVersion}
               {#if pack.currentVersion === pack.availableVersion}
                 <i class="fas fa-check"></i>
-              {:else if rowSelectionTracker[pack.id]}
+              {:else if selectedRows.has(pack.id)}
                 <i class="fas fa-arrow-right"></i>
               {:else}
                 <i class="fas fa-lock"></i>
@@ -194,25 +188,26 @@
     <button
       type="button"
       class="lancer-button lcp-bulk-import"
-      title="Import/Update Selected"
+      title={game.i18n.localize("lancer.lcpManager.importSelected.label")}
       tabindex="-1"
-      disabled={disabled || !lcpData.some(p => rowSelectionTracker[p.id].checked)}
-      on:click={dispatchLcpsToInstall}
+      disabled={disabled || !lcpData.some(p => selectedRows.get(p.id))}
+      onclick={dispatchLCPsToInstall}
     >
       <i class="cci cci-content-manager i--4"></i>
-      Import/Update Selected
+      {game.i18n.localize("lancer.lcpManager.importSelected.label")}
     </button>
 
     <button
       type="button"
+      id="clear-button"
       class="lancer-button lcp-clear-all"
-      title="Clear Compendium Data"
+      title={game.i18n.localize("lancer.lcpManager.clearCompendiumData.label")}
       tabindex="-1"
       disabled={disabled || !lcpData.some(p => p.currentVersion !== "--")}
-      on:click={clearCompendiums}
+      onclick={onClearCompendiums}
     >
       <i class="fas fa-trash i--2"></i>
-      Clear Compendium Data
+      {game.i18n.localize("lancer.lcpManager.clearCompendiumData.label")}
     </button>
   </div>
 </div>
@@ -220,31 +215,44 @@
 <style lang="scss">
   @layer lancer {
     @layer applications {
-      .lcp-table {
-        max-height: 100%;
-        height: 100%;
-        & * {
-          flex-grow: 0;
-        }
-      }
       button {
-        margin: 10px;
-        width: auto;
+        border-radius: 2px;
       }
 
-      #lcp-table {
-        display: grid;
-        max-height: calc(100% - 8em);
+      .lcp-table {
         flex-grow: 1;
-        overflow-y: scroll;
+        flex-shrink: 1;
+        flex-basis: auto;
+      }
+
+      .lcp-table__table {
+        flex-grow: 1;
+        flex-shrink: 1;
+        flex-basis: 0;
+
+        overflow: hidden scroll;
+        min-height: 10rem;
+        min-width: 20rem;
+
+        input.content-checkbox:disabled {
+          --checkbox-disabled-color: var(--darken-5);
+          --checkbox-background-color: var(--darken-5) !important; // Sorry, I don't want to touch the global styles
+          --checkbox-checked-color: var(--darken-5) !important; // Sorry, I don't want to touch the global styles
+          background-color: transparent;
+          cursor: default;
+        }
+
         .lcp-table__rows {
-          height: fit-content;
+          display: grid;
+          grid-template-columns: 2em minmax(0, 2fr) minmax(0, 1fr) 1.5em minmax(0, 1fr) 1em minmax(0, 1fr);
         }
 
         .row {
           display: grid;
           position: relative;
-          grid-template-columns: 2.5em 2fr 2fr 2.5em 1fr 3em 1fr;
+          grid-column: 1 / -1;
+          grid-template-columns: subgrid;
+          align-items: center;
           cursor: pointer;
 
           &:not(.header):nth-of-type(odd) {
@@ -253,35 +261,35 @@
           &:not(.header):hover {
             background-color: var(--lighten-1);
           }
+
+          & > * {
+            padding: 5px 10px;
+          }
+
+          & > *:first-child {
+            padding: 5px;
+          }
         }
 
         .header {
+          min-width: fit-content;
+          overflow-wrap: break-word;
+
           font-weight: bold;
           border-bottom: 2px solid var(--secondary-color);
-          align-content: center;
-        }
-
-        // .content-checkbox {
-        // }
-
-        .content-label {
-          margin: 5px 10px;
-        }
-
-        .curr-version {
-          margin: 5px 10px;
-        }
-
-        .avail-version {
-          margin: 5px 10px;
+          background-color: var(--darken-2);
         }
 
         .content-icon {
-          margin: 5px 10px;
+          justify-self: center;
         }
       }
+
       .lcp-table__buttons {
         flex-grow: 0;
+        flex-shrink: 0;
+        flex-basis: auto;
+
         .lcp-bulk-import,
         .lcp-clear-all {
           width: 100%;

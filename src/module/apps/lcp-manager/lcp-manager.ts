@@ -3,23 +3,26 @@ import type { ContentSummary } from "../../util/lcps";
 import type { IContentPackManifest } from "../../util/unpacking/packed-types";
 import type { DeepPartial } from "fvtt-types/utils";
 import { mount } from "svelte";
+import type LCPManagerComponent from "./LCPManager.svelte";
 
 import ApplicationV2 = foundry.applications.api.ApplicationV2;
 import HandlebarsApplicationMixin = foundry.applications.api.HandlebarsApplicationMixin;
 
 const lp = LANCER.log_prefix;
 
-let LCPManagerComponent: any;
+let lcpManagerComponent: typeof LCPManagerComponent | null = null;
 
 async function mountLCPManager(target: HTMLElement, props: any) {
-  if (!LCPManagerComponent) {
-    LCPManagerComponent = (await import("./LCPManager.svelte")).default;
+  if (!lcpManagerComponent) {
+    lcpManagerComponent = (await import("./LCPManager.svelte")).default;
   }
-  return mount(LCPManagerComponent, {
+  return mount(lcpManagerComponent, {
     target,
     props,
   });
 }
+
+type LCPManagerExports = Awaited<ReturnType<typeof mountLCPManager>>;
 
 /**
  * Insert a button into the compendium sidebar for opening the LCP Manager.
@@ -30,7 +33,7 @@ export function addLCPManagerButton(_app: foundry.applications.api.ApplicationV2
   if (!game.user?.isGM) return;
   const buttons = html.querySelector<HTMLDivElement>(".header-actions");
   if (!buttons) {
-    ui.notifications!.error("Unable to add LCP Manager button - Compendium Tab buttons not found!", {
+    ui.notifications!.error(game.i18n.localize("lancer.notifications.error.lcpManagerCompendiumTabButtonsNotFound"), {
       permanent: true,
     });
     console.log(`${lp} Unable to add LCP Manager button - Compendium Tab buttons not found!`, buttons);
@@ -75,8 +78,8 @@ export class LCPIndex {
 }
 
 export class LCPManager extends HandlebarsApplicationMixin(ApplicationV2) {
-  component: any = null;
-  renderPromise: Promise<void> | null = null;
+  component: LCPManagerExports | null = null;
+  renderPromise: Promise<LCPManagerExports> | null = null;
 
   constructor(options: Partial<ApplicationV2.Configuration> = {}) {
     super(options);
@@ -87,12 +90,12 @@ export class LCPManager extends HandlebarsApplicationMixin(ApplicationV2) {
     window: {
       title: "LANCER Compendium Manager",
       icon: "cci cci-content-manager i--3",
-      resizable: false,
+      resizable: true,
     },
     classes: ["lancer", "lcp-manager"],
     position: {
-      width: 1200,
-      height: 800,
+      width: 1000,
+      height: 600,
     },
   };
 
@@ -106,12 +109,15 @@ export class LCPManager extends HandlebarsApplicationMixin(ApplicationV2) {
     return {};
   }
 
-  _onFirstRender(context: {}, options: DeepPartial<ApplicationV2.RenderOptions>): void {
-    super._onRender(context, options);
-    const mount = $(this.element).find(".svelte-app-mount");
-    if (!mount || !mount.length) return;
-    this.renderPromise = mountLCPManager(mount[0], context);
-    this.renderPromise?.then((c: any) => (this.component = c));
+  protected override async _onFirstRender(
+    context: DeepPartial<ApplicationV2.RenderContext>,
+    options: DeepPartial<ApplicationV2.RenderOptions>
+  ): Promise<void> {
+    await super._onFirstRender(context, options);
+    const target = this.element.querySelector<HTMLElement>(".svelte-app-mount");
+    if (!target) return;
+    this.renderPromise = mountLCPManager(target, context);
+    this.component = await this.renderPromise;
   }
 
   override async render(options: any): Promise<this> {
@@ -123,6 +129,6 @@ export class LCPManager extends HandlebarsApplicationMixin(ApplicationV2) {
   }
 
   injectContentPack(content: ContentSummary | null) {
-    this.component.$set({ injectedContentSummary: content });
+    this.component?.injectContentPack(content);
   }
 }

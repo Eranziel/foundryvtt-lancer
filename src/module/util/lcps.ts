@@ -116,7 +116,7 @@ function isValidManifest(obj: any): obj is IContentPackManifest {
   );
 }
 
-export function generateLcpSummary(cp: any): ContentSummary {
+export function generateLCPSummary(cp: any): ContentSummary {
   const data: IContentPack["data"] = cp.data ? cp.data : cp;
   return {
     ...cp.manifest,
@@ -136,7 +136,7 @@ export function generateLcpSummary(cp: any): ContentSummary {
   };
 }
 
-export function generateMultiLcpSummary(manifest: IContentPackManifest, cps: IContentPack[]): ContentSummary {
+export function generateMultiLCPSummary(manifest: IContentPackManifest, cps: IContentPack[]): ContentSummary {
   return cps.reduce(
     (acc, lcp) => {
       if (!lcp.data) return acc;

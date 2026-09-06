@@ -69,36 +69,34 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
         download.on("click", async ev => {
           ev.stopPropagation();
           if (!pilot.system.cloud_id)
-            return ui.notifications!.error("You must enter a Comp/Con pilot share code before downloading!");
+            return ui.notifications!.error(game.i18n.localize("lancer.notifications.error.pilotMissingShareCode"));
 
           // Fetch data to sync
           let raw_pilot_data = null;
           if (pilot.system.cloud_id.match(shareCodeMatcherV3)) {
             // pilot share codes
-            ui.notifications!.info("Importing character from V3 share code...");
+            ui.notifications!.info(game.i18n.localize("lancer.notifications.info.pilotV3ShareCodeImportStarting"));
             console.log(`${lp} Attempting import with V3 share code: ${pilot.system.cloud_id}`);
             try {
               raw_pilot_data = await fetchV3PilotViaShareCode(pilot.system.cloud_id);
             } catch (error) {
-              ui.notifications!.error("Error importing from V3 share code.");
+              ui.notifications!.error(game.i18n.localize("lancer.notifications.error.pilotV3ShareCodeImportFailed"));
               console.error(`${lp} Failed import with V3 share code ${pilot.system.cloud_id}, error:`, error);
               return;
             }
           } else if (pilot.system.cloud_id.match(shareCodeMatcherV2)) {
             // pilot share codes
-            ui.notifications!.info("Importing character from V2 share code...");
+            ui.notifications!.info(game.i18n.localize("lancer.notifications.info.pilotV2ShareCodeImportStarting"));
             console.log(`${lp} Attempting import with V2 share code: ${pilot.system.cloud_id}`);
             try {
               raw_pilot_data = await fetchV2PilotViaShareCode(pilot.system.cloud_id);
             } catch (error) {
-              ui.notifications!.error(
-                "Error importing from V2 share code. V2 share codes may no longer work, or this share code may need to be refreshed."
-              );
+              ui.notifications!.error(game.i18n.localize("lancer.notifications.error.pilotV2ShareCodeImportFailed"));
               console.error(`${lp} Failed import with V2 share code ${pilot.system.cloud_id}, error:`, error);
               return;
             }
           } else {
-            ui.notifications!.error("Could not find character to import! No share code entered.");
+            ui.notifications!.error(game.i18n.localize("lancer.notifications.error.pilotCharacterNotFound"));
             return;
           }
           await importCC(this.actor as LancerPILOT, raw_pilot_data);
@@ -148,12 +146,22 @@ export class LancerPilotSheet extends LancerActorSheet<EntryType.PILOT> {
     console.log(`${lp} Pilot Data of selected JSON:`, pilotData);
 
     if (!pilotData) return;
-    ui.notifications!.info(`Starting import of ${pilotData.name}, Callsign ${pilotData.callsign}. Please wait.`);
+    ui.notifications!.info(
+      game.i18n.format("lancer.notifications.info.pilotJsonImportStarting", {
+        name: pilotData.name,
+        callsign: pilotData.callsign,
+      })
+    );
     console.log(`${lp} Starting import of ${pilotData.name}, Callsign ${pilotData.callsign}.`);
     console.log(`${lp} Parsed Pilot Data pack:`, pilotData);
 
     await importCC(this.actor as LancerPILOT, pilotData);
-    ui.notifications!.info(`Import of ${pilotData.name}, Callsign ${pilotData.callsign} complete.`);
+    ui.notifications!.info(
+      game.i18n.format("lancer.notifications.info.pilotJsonImportComplete", {
+        name: pilotData.name,
+        callsign: pilotData.callsign,
+      })
+    );
     console.log(`${lp} Import of ${pilotData.name}, Callsign ${pilotData.callsign} complete.`);
     this.render();
   }
@@ -355,16 +363,56 @@ export function mech_preview(mech: LancerMECH, active: boolean, _options: Helper
 
   // Making ourselves easy templates for the preview in case we want to switch in the future
   let preview_stats_arr = [
-    { title: "HP", icon: "mdi mdi-heart-outline", path: "system.hp.value" },
-    { title: "HEAT", icon: "cci cci-heat", path: "system.heat.value" },
-    { title: "EVASION", icon: "cci cci-evasion", path: "system.evasion" },
-    { title: "ARMOR", icon: "mdi mdi-shield-outline", path: "system.armor" },
-    { title: "STRUCTURE", icon: "cci cci-structure", path: "system.structure.value" },
-    { title: "STRESS", icon: "cci cci-reactor", path: "system.stress.value" },
-    { title: "E-DEF", icon: "cci cci-edef", path: "system.edef" },
-    { title: "SPEED", icon: "mdi mdi-arrow-right-bold-hexagon-outline", path: "system.speed" },
-    { title: "SAVE", icon: "cci cci-save", path: "system.save" },
-    { title: "SENSORS", icon: "cci cci-sensor", path: "system.sensor_range" },
+    {
+      title: game.i18n.localize("lancer.common.stat.hp.label").toUpperCase(),
+      icon: "mdi mdi-heart-outline",
+      path: "system.hp.value",
+    },
+    {
+      title: game.i18n.localize("lancer.common.stat.heat.label").toUpperCase(),
+      icon: "cci cci-heat",
+      path: "system.heat.value",
+    },
+    {
+      title: game.i18n.localize("lancer.common.stat.evasion.label").toUpperCase(),
+      icon: "cci cci-evasion",
+      path: "system.evasion",
+    },
+    {
+      title: game.i18n.localize("lancer.common.stat.armor.label").toUpperCase(),
+      icon: "mdi mdi-shield-outline",
+      path: "system.armor",
+    },
+    {
+      title: game.i18n.localize("lancer.common.stat.structure.label").toUpperCase(),
+      icon: "cci cci-structure",
+      path: "system.structure.value",
+    },
+    {
+      title: game.i18n.localize("lancer.common.stat.stress.label").toUpperCase(),
+      icon: "cci cci-reactor",
+      path: "system.stress.value",
+    },
+    {
+      title: game.i18n.localize("lancer.common.stat.eDefense.label").toUpperCase(),
+      icon: "cci cci-edef",
+      path: "system.edef",
+    },
+    {
+      title: game.i18n.localize("lancer.common.stat.speed.label").toUpperCase(),
+      icon: "mdi mdi-arrow-right-bold-hexagon-outline",
+      path: "system.speed",
+    },
+    {
+      title: game.i18n.localize("lancer.common.stat.save.label").toUpperCase(),
+      icon: "cci cci-save",
+      path: "system.save",
+    },
+    {
+      title: game.i18n.localize("lancer.common.stat.sensor.label").toUpperCase(),
+      icon: "cci cci-sensor",
+      path: "system.sensor_range",
+    },
   ];
 
   let stats_html = ``;
@@ -387,7 +435,7 @@ export function mech_preview(mech: LancerMECH, active: boolean, _options: Helper
   <div class="mech-preview lancer-border-${active ? "primary" : "dark-gray"}">
     <div class="mech-preview-titlebar ref set click-open ${active ? "active" : "inactive"}" ${ref_params(mech)}>
       ${button}
-      <span>${mech.name}${inc_if(" // ACTIVE", active)}  --  ${mfr} ${frame?.name}</span>
+      <span>${mech.name}${inc_if(` // ${game.i18n.localize("lancer.common.descriptor.active.label")}`, active)}  --  ${mfr} ${frame?.name}</span>
     </div>
     <img src="${mech.img}"/>
     ${stats_html}

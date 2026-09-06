@@ -271,7 +271,7 @@ Hooks.once("init", () => {
       getCostFunction: () => (cost, _f, _t, dist) => Math.max(cost, dist * 2),
     },
     teleport: {
-      label: "lancer.movement.actions.teleport",
+      label: "lancer.movement.actions.teleport.label",
       icon: "fa-solid fa-person-rays",
       order: 7,
       teleport: true,
@@ -282,18 +282,18 @@ Hooks.once("init", () => {
       canSelect: token => token.inCombat,
     },
     blink: {
-      label: "lancer.movement.actions.blink",
+      label: "lancer.movement.actions.blink.label",
       order: 8,
     },
     ignore: {
-      label: "lancer.movement.actions.ignore",
+      label: "lancer.movement.actions.ignore.label",
       icon: "fa-solid fa-person-walking-dashed-line-arrow-right",
       order: 9,
       // @ts-expect-error
       deriveTerrainDifficulty: d => Math.min(d.walk, 1),
     },
     forced: {
-      label: "lancer.movement.actions.forced",
+      label: "lancer.movement.actions.forced.label",
       icon: "fa-solid fa-people-pulling",
       img: "icons/svg/hazard.svg",
       order: 10,
@@ -537,21 +537,23 @@ Hooks.on("renderChatMessageHTML", async (cm, el, data) => {
       switch (action) {
         case "importActor":
           const actorId = elt.dataset.targetId;
-          if (!actorId) return ui.notifications?.error("No target actor ID found on actor import prompt button.");
+          if (!actorId)
+            return ui.notifications?.error(game.i18n.localize("lancer.notifications.error.chatMissingTargetActorId"));
           const importId = elt.dataset.importId;
-          if (!importId) return ui.notifications?.error("No import actor ID found on actor import prompt button.");
+          if (!importId)
+            return ui.notifications?.error(game.i18n.localize("lancer.notifications.error.chatMissingImportActorId"));
           const toImport = await LancerActor.fromUuid(
             importId,
-            "Invalid import actor ID on actor import prompt button."
+            game.i18n.localize("lancer.notifications.error.chatInvalidImportTarget")
           );
           const forActor = await LancerActor.fromUuid(
             actorId,
-            "Invalid target actor ID on actor import prompt button."
+            game.i18n.localize("lancer.notifications.error.chatInvalidActorTarget")
           );
           await fulfillImportActor(toImport, forActor);
           break;
         default:
-          ui.notifications?.error("Invalid action on chat button.");
+          ui.notifications?.error(game.i18n.localize("lancer.notifications.error.chatInvalidAction"));
           return false;
       }
       if (elt.classList.contains("self-destruct")) {
@@ -595,20 +597,27 @@ Hooks.on("renderChatMessageHTML", async (cm, el, data) => {
           }
           break;
         case "secondaryStructure":
-          if (!actorId) return ui.notifications?.error("No actor ID found on secondary structure prompt button.");
+          if (!actorId)
+            return ui.notifications?.error(
+              game.i18n.localize("lancer.notifications.error.chatMissingSecondaryStructureActorId")
+            );
           beginSecondaryStructureFlow(actorId);
           break;
         case "cascade":
-          if (!actorId) return ui.notifications?.error("No actor ID found on cascade prompt button.");
+          if (!actorId)
+            return ui.notifications?.error(game.i18n.localize("lancer.notifications.error.chatMissingCascadeActorId"));
           beginCascadeFlow(actorId);
           break;
         case "dismembermentDamage": {
-          const actor = LancerActor.fromUuidSync(actorId ?? "", "Invalid actor ID dismemberment damage button.");
+          const actor = LancerActor.fromUuidSync(
+            actorId ?? "",
+            game.i18n.localize("lancer.notifications.error.chatInvalidDismembermentDamage")
+          );
           beginDismembermentDamageFlow(actor);
           break;
         }
         default:
-          return ui.notifications?.error("Invalid flow type on flow prompt button.");
+          return ui.notifications?.error(game.i18n.localize("lancer.notifications.error.chatInvalidFlowType"));
       }
       return true;
     }
@@ -658,11 +667,11 @@ async function promptInstallCoreData() {
   await app.render(true);
   // Render a dialog on top to explain
   let content = `
-  <h2 style="text-align: center">WELCOME GAME MASTER</h2>
-  <p style="text-align: center;margin-bottom: 1em">THIS IS YOUR <span class="horus--very--subtle">FIRST</span> TIME LAUNCHING</p>
-  <p style="text-align: center;margin-bottom: 1em">Use the LANCER Compendium Manager window to install the <span class="horus--very--subtle">LANCER DATA</span> you wish to use.</p>`;
+  <h2 style="text-align: center">${game.i18n.localize("lancer.onboarding.import.content.0")}</h2>
+  <p style="text-align: center;margin-bottom: 1em">${game.i18n.localize("lancer.onboarding.import.content.1")}</p>
+  <p style="text-align: center;margin-bottom: 1em">${game.i18n.localize("lancer.onboarding.import.content.2")}</p>`;
   new foundry.applications.api.DialogV2({
-    window: { title: `Install Core Data`, icon: "cci cci-content-manager i--3" },
+    window: { title: game.i18n.localize("lancer.onboarding.import.title"), icon: "cci cci-content-manager i--3" },
     position: {
       width: 700,
     },
@@ -740,8 +749,8 @@ async function versionCheck(): Promise<"first_run" | "yes" | "no" | "too_old"> {
 
 async function promptLCPManagerTour() {
   const showTour = await foundry.applications.api.DialogV2.confirm({
-    window: { title: "Compendium Manager Tour?" },
-    content: "The LANCER Compendium Manager has had a major update. Would you like to get a tour?",
+    window: { title: game.i18n.localize("lancer.onboarding.lcpManagerTour.title") },
+    content: game.i18n.localize("lancer.onboarding.lcpManagerTour.content"),
     rejectClose: false,
   });
   if (!showTour) return;
@@ -783,10 +792,9 @@ async function doMigration() {
   } else if (needsMigrate == "too_old") {
     // System version is too old for migration
     ui.notifications!.error(
-      `Your LANCER system data is from too old a version (${game.settings.get(
-        game.system.id,
-        LANCER.setting_migration_version
-      )}) and cannot be reliably migrated to the latest version. Please install and migrate to version 1.5.0+ before attempting this migration`,
+      game.i18n.format("lancer.notifications.error.migrationTooOld", {
+        version: String(game.settings.get(game.system.id, LANCER.setting_migration_version)),
+      }),
       { permanent: true }
     );
     return;
@@ -797,10 +805,9 @@ async function doMigration() {
     // Update the stored version number for next migration
     await game.settings.set(game.system.id, LANCER.setting_migration_version, game.system.version);
   } else if (needsMigrate == "yes") {
-    ui.notifications!.warn(
-      "Your GM needs to migrate this world. Please do not attempt to play the game or edit anything until migrations are done.",
-      { permanent: true }
-    );
+    ui.notifications!.warn(game.i18n.localize("lancer.notifications.warning.migrationGmRequired"), {
+      permanent: true,
+    });
   } else if (needsMigrate == "no" && game.user!.isGM) {
     // Update the stored version number for next migration
     await game.settings.set(game.system.id, LANCER.setting_migration_version, game.system.version);

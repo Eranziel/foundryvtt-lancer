@@ -10,7 +10,7 @@
 
   {{!-- Reliable damage --}}
   {{#if reliable_results}}
-    <div class="lancer-mini-header" >{{localize "lancer.chat-card.title.reliable"}}</div>
+    <div class="lancer-mini-header" >{{decorate-card (upper-case (localize "lancer.chatCard.title.reliable.label"))}}</div>
   {{/if}}
   <div>
     {{#each reliable_results as |damage key|}}
@@ -30,13 +30,13 @@
 
   {{!-- Regular damage --}}
   {{#if (or (and damage_results.length crit_damage_results.length) (and damage_results.length reliable_results.length))}}
-    <div class="lancer-mini-header" >{{localize "lancer.chat-card.title.damage"}}</div>
+    <div class="lancer-mini-header" >{{decorate-card (upper-case (localize "lancer.common.attack.damage.label"))}}</div>
   {{/if}}
   <div>
     {{#each damage_results as |damage key|}}
       {{#if (not damage.target)}}
         <div class="flexrow">
-          {{#if damage.bonus}} <span class="lancer-damage-tag" style="flex-grow: 0" data-tooltip="This row is bonus damage">BONUS</span> {{/if}}
+          {{#if damage.bonus}} <span class="lancer-damage-tag" style="flex-grow: 0" data-tooltip="lancer.chatCard.damage.bonus.tooltip">{{upper-case (localize "lancer.common.descriptor.bonus.label")}}</span> {{/if}}
           {{{lancer-dice-roll damage.roll damage.tt (concat "cci cci-" (lower-case damage.d_type) " i--4 damage--" (lower-case damage.d_type))}}}
         </div>
       {{/if}}
@@ -55,12 +55,12 @@
 
   {{!-- Crit damage --}}
   {{#if crit_damage_results}}
-    <div class="lancer-mini-header">{{localize "lancer.chat-card.title.crit-damage"}}</div>
+    <div class="lancer-mini-header">{{decorate-card (upper-case (localize "lancer.chatCard.title.criticalDamage.label"))}}</div>
     <div>
       {{#each crit_damage_results as |damage key|}}
         {{#if (not damage.target)}}
           <div class="flexrow">
-            {{#if damage.bonus}} <span class="lancer-damage-tag" style="flex-grow: 0" data-tooltip="This row is bonus damage">BONUS</span> {{/if}}
+            {{#if damage.bonus}} <span class="lancer-damage-tag" style="flex-grow: 0" data-tooltip="lancer.chatCard.damage.bonus.tooltip">{{upper-case (localize "lancer.common.descriptor.bonus.label")}}</span> {{/if}}
             {{{lancer-dice-roll damage.roll damage.tt (concat "cci cci-" (lower-case damage.d_type) " i--4 damage--" (lower-case damage.d_type))}}}
           </div>
         {{/if}}
@@ -86,10 +86,10 @@
 
   {{#if overkill_heat}}
     <div class="card clipped">
-      <div class="lancer-mini-header collapse-trigger" data-collapse-id="{{_uuid}}-self-heat">{{localize "lancer.chat-card.title.self-heat"}}</div>
+      <div class="lancer-mini-header collapse-trigger" data-collapse-id="{{_uuid}}-self-heat">{{decorate-card (upper-case (localize "lancer.chatCard.title.selfHeat.label"))}}</div>
       <div class="collapse" data-collapse-id="{{_uuid}}-self-heat">
         <div class="flexrow">
-          <span style="text-align: left; margin-left: 5px; flex: 3;">{{localize "lancer.chat-card.exclamation.overkill"}}</span>
+          <span style="text-align: left; margin-left: 5px; flex: 3;">{{upper-case (localize "lancer.chatCard.overkill.label")}}!</span>
           <span class="dice-total major">{{ overkill_heat }} <i class="cci cci-heat i--4 damage--heat"></i></span>
         </div>
       </div>

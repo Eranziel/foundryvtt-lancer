@@ -64,62 +64,37 @@ export const LANCER = {
 } as const;
 
 // Convenience for mapping item/actor types to full names
-const FRIENDLY_DOCUMENT_NAMES_SINGULAR = {
-  [EntryType.CORE_BONUS]: "Core Bonus",
-  [EntryType.DEPLOYABLE]: "Deployable",
-  [EntryType.FRAME]: "Frame",
-  [EntryType.LICENSE]: "License",
-  [EntryType.MECH]: "Mech",
-  [EntryType.MECH_SYSTEM]: "Mech System",
-  [EntryType.MECH_WEAPON]: "Mech Weapon",
-  [EntryType.NPC]: "Npc",
-  [EntryType.NPC_CLASS]: "Npc Class",
-  [EntryType.NPC_FEATURE]: "Npc Feature",
-  [EntryType.NPC_TEMPLATE]: "Npc Template",
-  [EntryType.ORGANIZATION]: "Organization",
-  [EntryType.PILOT]: "Pilot Preset",
-  [EntryType.PILOT_ARMOR]: "Pilot Armor",
-  [EntryType.PILOT_GEAR]: "Pilot Gear",
-  [EntryType.PILOT_WEAPON]: "Pilot Weapon",
-  [EntryType.RESERVE]: "Reserve",
-  [EntryType.SKILL]: "Skill",
-  [EntryType.STATUS]: "Status/Condition",
-  [EntryType.TALENT]: "Talent",
-  [EntryType.BOND]: "Bond",
-  [EntryType.WEAPON_MOD]: "Weapon Mod",
-};
-const FRIENDLY_DOCUMENT_NAMES_PLURAL = {
-  [EntryType.CORE_BONUS]: "Core Bonuses",
-  [EntryType.DEPLOYABLE]: "Deployables",
-  [EntryType.FRAME]: "Frames",
-  [EntryType.LICENSE]: "Licenses",
-  [EntryType.MECH]: "Mechs",
-  [EntryType.MECH_SYSTEM]: "Mech Systems",
-  [EntryType.MECH_WEAPON]: "Mech Weapons",
-  [EntryType.NPC]: "Npcs",
-  [EntryType.NPC_CLASS]: "Npc Classes",
-  [EntryType.NPC_FEATURE]: "Npc Features",
-  [EntryType.NPC_TEMPLATE]: "Npc Templates",
-  [EntryType.ORGANIZATION]: "Organizations",
-  [EntryType.PILOT]: "Pilot Presets",
-  [EntryType.PILOT_ARMOR]: "Pilot Armor",
-  [EntryType.PILOT_GEAR]: "Pilot Gear",
-  [EntryType.PILOT_WEAPON]: "Pilot Weapons",
-  [EntryType.RESERVE]: "Reserves",
-  [EntryType.SKILL]: "Skills",
-  [EntryType.STATUS]: "Statuses / Conditions",
-  [EntryType.TALENT]: "Talents",
-  [EntryType.BOND]: "Bonds",
-  [EntryType.WEAPON_MOD]: "Weapon Mods",
+const FRIENDLY_DOCUMENT_NAME_KEYS: Partial<Record<LancerItemType | LancerActorType, string>> = {
+  [EntryType.CORE_BONUS]: "lancer.common.item.coreBonus",
+  [EntryType.DEPLOYABLE]: "lancer.common.actor.deployable",
+  [EntryType.FRAME]: "lancer.common.item.frame",
+  [EntryType.LICENSE]: "lancer.common.item.license",
+  [EntryType.MECH]: "lancer.common.actor.mech",
+  [EntryType.MECH_SYSTEM]: "lancer.common.item.mechSystem",
+  [EntryType.MECH_WEAPON]: "lancer.common.item.mechWeapon",
+  [EntryType.NPC]: "lancer.common.actor.npc",
+  [EntryType.NPC_CLASS]: "lancer.common.item.npcClass",
+  [EntryType.NPC_FEATURE]: "lancer.common.item.npcFeature",
+  [EntryType.NPC_TEMPLATE]: "lancer.common.item.npcTemplate",
+  [EntryType.ORGANIZATION]: "lancer.common.item.organization",
+  [EntryType.PILOT]: "lancer.common.actor.pilot",
+  [EntryType.PILOT_ARMOR]: "lancer.common.item.pilotArmor",
+  [EntryType.PILOT_GEAR]: "lancer.common.item.pilotGear",
+  [EntryType.PILOT_WEAPON]: "lancer.common.item.pilotWeapon",
+  [EntryType.RESERVE]: "lancer.common.item.reserve",
+  [EntryType.SKILL]: "lancer.common.item.skill",
+  [EntryType.STATUS]: "lancer.common.item.status",
+  [EntryType.TALENT]: "lancer.common.item.talent",
+  [EntryType.BOND]: "lancer.common.item.bond",
+  [EntryType.WEAPON_MOD]: "lancer.common.item.weaponMod",
 };
 
 // Quick for single/plural
-export function friendly_entrytype_name(type: LancerItemType | LancerActorType, count?: number): string {
-  if ((count ?? 1) > 1) {
-    return FRIENDLY_DOCUMENT_NAMES_PLURAL[type] ?? `Unknown <${type}>s`;
-  } else {
-    return FRIENDLY_DOCUMENT_NAMES_SINGULAR[type] ?? `Unknown <${type}>`;
-  }
+export function friendlyEntryTypeName(type: LancerItemType | LancerActorType, count?: number): string {
+  const plural = (count ?? 1) > 1;
+  const key = FRIENDLY_DOCUMENT_NAME_KEYS[type];
+  if (!key) return plural ? `Unknown <${type}>s` : `Unknown <${type}>`;
+  return game.i18n.localize(`${key}.${plural ? "plural" : "label"}`);
 }
 
 // TODO: const MACRO_ICONS

@@ -18,6 +18,7 @@
     "html.void.selfClosing": false
   },
   "excludes": [
+    "**/*.hbs",
     "**/*-lock.json",
     "**/node_modules",
     "public/assets",

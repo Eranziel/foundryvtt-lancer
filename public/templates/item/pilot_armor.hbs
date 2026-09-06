@@ -13,9 +13,9 @@
     {{{ref-portrait-img item.img "img" item}}}
   </header>
 
-  {{{textarea-card "DESCRIPTION" "system.description"}}}
+  {{{textarea-card (upper-case (localize "lancer.common.descriptor.description.label")) "system.description"}}}
 
-  {{{textarea-card "EFFECT" "system.effect"}}}
+  {{{textarea-card (upper-case (localize "lancer.common.descriptor.effect.label")) "system.effect"}}}
 
   {{! Uses }}
   <div>
@@ -25,10 +25,10 @@
   </div>
 
   {{! Bonuses }}
-  {{{item-edit-arrayed-actions "system.actions" "ACTIONS"}}}
+  {{{item-edit-arrayed-actions "system.actions" (upper-case (localize "lancer.common.descriptor.action.plural"))}}}
   {{{item-edit-arrayed-bonuses "system.bonuses"}}}
-  {{{item-edit-arrayed-deployables "system.deployables" "DEPLOYABLES"}}}
-  {{{item-edit-arrayed-synergies "system.synergies" "SYNERGIES"}}}
+  {{{item-edit-arrayed-deployables "system.deployables" (upper-case (localize "lancer.common.actor.deployable.plural"))}}}
+  {{{item-edit-arrayed-synergies "system.synergies" (upper-case (localize "lancer.commonSheet.synergies.label"))}}}
 
-  {{{item-edit-arrayed-tags "system.tags" "TAGS"}}}
+  {{{item-edit-arrayed-tags "system.tags" (upper-case (localize "lancer.common.descriptor.tag.plural"))}}}
 </form>

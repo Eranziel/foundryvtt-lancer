@@ -14,7 +14,7 @@
     {{#if item.isOwned}}
       <div class="header-details">
         <span style="max-width: fit-content">
-          UNLOCKED RANK:
+          {{upper-case (localize "lancer.common.descriptor.rank.unlocked.label")}}:
         </span>
         <div style="max-width: fit-content">
           {{{l-num-input "system.curr_rank"}}}
@@ -38,8 +38,8 @@
     {{/each}}
   </div>
   <div class="flexcol">
-    {{{std-text-input "system.manufacturer" label="Manufacturer"}}}
-    {{{std-text-input "system.lid" label="LID:"}}}
-    {{{std-text-input "system.key" label="Key:"}}}
+    {{{std-text-input "system.manufacturer" label=(concat (localize "lancer.common.descriptor.manufacturer.label") ":")}}}
+    {{{std-text-input "system.lid" label="LID:"}}} <!-- Don't localize -->
+    {{{std-text-input "system.key" label="Key:"}}} <!-- Don't localize -->
   </div>
 </form>

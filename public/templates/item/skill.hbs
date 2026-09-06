@@ -12,13 +12,13 @@
     </h1>
     {{{ref-portrait-img item.img "img" item}}}
     <div class="header-details">
-      <span>RANK:</span>
+      <span>{{{upper-case (localize "lancer.common.descriptor.rank.label")}}}:</span>
       {{{l-num-input "system.curr_rank"}}}
     </div>
   </header>
 
   {{! Sheet Body }}
-  {{{textarea-card "DESCRIPTION" "system.description"}}}
+  {{{textarea-card (upper-case (localize "lancer.common.descriptor.description.label")) "system.description"}}}
 
-  {{{textarea-card "DETAILS" "system.detail"}}}
+  {{{textarea-card (upper-case (localize "lancer.common.descriptor.detail.plural")) "system.detail"}}}
 </form>

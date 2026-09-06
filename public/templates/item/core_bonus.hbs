@@ -15,14 +15,14 @@
 
   {{! Sheet Body }}
   <div class="flexcol">
-    {{{textarea-card "DESCRIPTION" "system.description"}}}
-    {{{textarea-card "EFFECT" "system.effect"}}}
-    {{{textarea-card "MOUNTED EFFECT" "system.mountedEffect"}}}
-    {{{item-edit-arrayed-actions "system.actions" "ACTIONS"}}}
+    {{{textarea-card (upper-case (localize "lancer.common.descriptor.description.label")) "system.description"}}}
+    {{{textarea-card (upper-case (localize "lancer.common.descriptor.effect.label")) "system.effect"}}}
+    {{{textarea-card (upper-case (localize "lancer.mechSheet.mountedEffect.label")) "system.mountedEffect"}}}
+    {{{item-edit-arrayed-actions "system.actions" (upper-case (localize "lancer.common.descriptor.action.plural"))}}}
     {{{item-edit-arrayed-bonuses "system.bonuses"}}}
-    {{{item-edit-arrayed-synergies "system.synergies" "SYNERGIES"}}}
-    {{{item-edit-arrayed-deployables "system.deployables" "DEPLOYABLES"}}}
+    {{{item-edit-arrayed-synergies "system.synergies" (upper-case (localize "lancer.commonSheet.synergies.label"))}}}
+    {{{item-edit-arrayed-deployables "system.deployables" (upper-case (localize "lancer.common.actor.deployable.plural"))}}}
     {{{counter-array system.counters "system.counters" true}}}
-    {{{item-edit-arrayed-integrated "system.integrated" "INTEGRATED ITEMS"}}}
+    {{{item-edit-arrayed-integrated "system.integrated" (upper-case (localize "lancer.commonSheet.integratedItems.label"))}}}
   </div>
 </form>

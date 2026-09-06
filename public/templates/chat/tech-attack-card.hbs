@@ -1,7 +1,12 @@
 <div class="card clipped-bot" {{#if item_uuid}} data-uuid="{{item_uuid}}" {{/if}} style="margin: 0px">
   <div class="lancer-header lancer-tech tech medium">
     <i class="cci cci-tech-quick i--4 i--light"> </i>
-    <span>{{#if invade}}INVADE{{else}}TECH ATK{{/if}}{{#if title}} :: {{title}}{{/if}}</span>
+    <span>
+        {{#if invade}}
+            {{upper-case (localize "lancer.common.activation.invade.label")}}
+        {{else}}
+            {{upper-case (localize "lancer.common.stat.tech.attack.short")}}
+        {{/if}}{{#if title}} :: {{title}}{{/if}}</span>
     {{! TODO: refactor reroll button }}
     <!-- <a
       class="flow-button roll-attack lancer-button lancer-macro"
@@ -17,7 +22,7 @@
   {{#if (not hit_results.length)}}
     <div class="card clipped">
       <div class="lancer-mini-header collapse-trigger" data-collapse-id="{{_uuid}}-attacks">
-        {{localize "lancer.chat-card.title.attack"}}
+        {{decorate-card (upper-case (localize "lancer.common.attack.label"))}}
       </div>
       <div class="collapse" data-collapse-id="{{_uuid}}-attacks">
         {{#each attack_results as |attack key|}}
@@ -28,7 +33,7 @@
   {{/if}}
   {{#if hit_results.length}}
     <div class="lancer-mini-header collapse-trigger" data-collapse-id="{{_uuid}}-hits">
-      {{localize "lancer.chat-card.title.defense-hit" defense=defense}}
+      {{decorate-card (upper-case (localize "lancer.chatCard.title.defenseHit.label" defense=defense))}}
     </div>
     <div class="collapse" data-collapse-id="{{_uuid}}-hits">
       {{#each hit_results as |hit key|}}
@@ -39,7 +44,7 @@
   {{#if self_heat_result}}
     <div class="card clipped">
       <div class="lancer-mini-header collapse-trigger" data-collapse-id="{{_uuid}}-self-heat">
-        {{localize "lancer.chat-card.title.self-heat"}}
+        {{decorate-card (upper-case (localize "lancer.chatCard.title.selfHeat.label"))}}
       </div>
       <div class="collapse" data-collapse-id="{{_uuid}}-self-heat">
         {{{lancer-dice-roll self_heat_result.roll self_heat_result.tt "cci cci-heat i--4 damage--heat"}}}
@@ -49,7 +54,7 @@
   {{#if effect}}
     <div class="card clipped">
       <div class="lancer-mini-header collapse-trigger" data-collapse-id="{{_uuid}}-effect">
-        {{localize "lancer.chat-card.title.effect"}}
+        {{decorate-card (upper-case (localize "lancer.common.descriptor.effect.label"))}}
       </div>
       <span class="effect-text collapse" data-collapse-id="{{_uuid}}-effect">{{{effect}}}</span>
     </div>
@@ -58,9 +63,9 @@
   {{#if invade}}
     <button
       class="lancer-button lancer-damage-flow lancer-secondary"
-      label="lancer.chat-card.attack.roll-all-damage"
+      label="{{upper-case (localize "lancer.chatCard.attack.rollDamage.label")}}"
     >
-      <i class="mdi mdi-dice-multiple i--3 i--light"></i>&nbsp;{{localize "lancer.chat-card.attack.roll-all-damage"}}
+      <i class="mdi mdi-dice-multiple i--3 i--light"></i>&nbsp;{{upper-case (localize "lancer.chatCard.attack.rollDamage.label")}}
     </button>
   {{/if}}
 </div>

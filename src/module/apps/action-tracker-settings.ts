@@ -24,7 +24,7 @@ export class ActionTrackerConfig extends HandlebarsApplicationMixin(ApplicationV
     id: "lancer-action-tracker-settings",
     tag: "form",
     position: { width: 550 },
-    window: { title: "lancer.actionTracker.menu-label", contentClasses: ["standard-form"] },
+    window: { title: "lancer.setting.actionTracker.menu.label", contentClasses: ["standard-form"] },
     form: {
       handler: this.#formHandler,
       submitOnChange: false,

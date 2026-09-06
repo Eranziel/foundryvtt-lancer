@@ -25,7 +25,7 @@ export class AutomationConfig extends HandlebarsApplicationMixin(ApplicationV2<{
     id: "lancer-automation-settings",
     tag: "form",
     position: { width: 550 },
-    window: { title: "lancer.automation.menu-label", contentClasses: ["standard-form"] },
+    window: { title: "lancer.setting.automation.menu.label", contentClasses: ["standard-form"] },
     form: {
       handler: this.#formHandler,
       submitOnChange: false,

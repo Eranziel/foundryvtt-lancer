@@ -563,12 +563,18 @@ export class LancerItem<out SubType extends Item.SubType = Item.SubType> extends
     if (x instanceof LancerItem) return x;
     x = (await fromUuid(x)) as LancerItem;
     if (!x) {
-      let message = `${messagePrefix ? messagePrefix + " | " : ""}Item ${x} not found.`;
+      let message = game.i18n.format("lancer.notifications.error.itemNotFound", {
+        prefix: messagePrefix ? `${messagePrefix} | ` : "",
+        uuid: String(x),
+      });
       ui.notifications?.error(message);
       throw new Error(message);
     }
     if (!(x instanceof LancerItem)) {
-      let message = `${messagePrefix ? messagePrefix + " | " : ""}Document ${x} not an item.`;
+      let message = game.i18n.format("lancer.notifications.error.itemDocumentNotItem", {
+        prefix: messagePrefix ? `${messagePrefix} | ` : "",
+        uuid: String(x),
+      });
       ui.notifications?.error(message);
       throw new Error(message);
     }
@@ -580,12 +586,18 @@ export class LancerItem<out SubType extends Item.SubType = Item.SubType> extends
     if (x instanceof LancerItem) return x;
     x = fromUuidSync(x) as LancerItem;
     if (!x) {
-      let message = `${messagePrefix ? messagePrefix + " | " : ""}Item ${x} not found.`;
+      let message = game.i18n.format("lancer.notifications.error.itemNotFound", {
+        prefix: messagePrefix ? `${messagePrefix} | ` : "",
+        uuid: String(x),
+      });
       ui.notifications?.error(message);
       throw new Error(message);
     }
     if (!(x instanceof LancerItem)) {
-      let message = `${messagePrefix ? messagePrefix + " | " : ""}Document ${x} not an item.`;
+      let message = game.i18n.format("lancer.notifications.error.itemDocumentNotItem", {
+        prefix: messagePrefix ? `${messagePrefix} | ` : "",
+        uuid: String(x),
+      });
       ui.notifications?.error(message);
       throw new Error(message);
     }
@@ -594,7 +606,9 @@ export class LancerItem<out SubType extends Item.SubType = Item.SubType> extends
 
   async beginWeaponAttackFlow() {
     if (!this.is_mech_weapon() && !this.is_npc_feature() && !this.is_pilot_weapon()) {
-      ui.notifications!.error(`Item ${this.id} cannot attack as it is not a weapon!`);
+      ui.notifications!.error(
+        game.i18n.format("lancer.notifications.error.itemWeaponAttackInvalid", { id: String(this.id) })
+      );
       return;
     }
     const flow = new WeaponAttackFlow(this);
@@ -604,7 +618,9 @@ export class LancerItem<out SubType extends Item.SubType = Item.SubType> extends
 
   async beginTechAttackFlow() {
     if (!this.is_mech_system() && !this.is_npc_feature()) {
-      ui.notifications!.error(`Item ${this.id} cannot attack as it is not a system!`);
+      ui.notifications!.error(
+        game.i18n.format("lancer.notifications.error.itemTechAttackInvalid", { id: String(this.id) })
+      );
       return;
     }
     const flow = new TechAttackFlow(this);
@@ -613,7 +629,9 @@ export class LancerItem<out SubType extends Item.SubType = Item.SubType> extends
 
   async beginDamageFlow() {
     if (!this.is_mech_weapon() && !this.is_npc_feature() && !this.is_pilot_weapon()) {
-      ui.notifications!.error(`Item ${this.id} cannot roll damage as it is not a weapon!`);
+      ui.notifications!.error(
+        game.i18n.format("lancer.notifications.error.itemDamageInvalid", { id: String(this.id) })
+      );
       return;
     }
     const flow = new DamageRollFlow(this, { title: `${this.name} damage` });
@@ -622,7 +640,9 @@ export class LancerItem<out SubType extends Item.SubType = Item.SubType> extends
 
   async beginSystemFlow() {
     if (!this.is_mech_system() && !this.is_weapon_mod() && !this.is_npc_feature()) {
-      ui.notifications!.error(`Item ${this.id} is not a mech system, weapon mod, or NPC feature!`);
+      ui.notifications!.error(
+        game.i18n.format("lancer.notifications.error.itemSystemInvalid", { id: String(this.id) })
+      );
       return;
     }
     const flow = new SystemFlow(this);
@@ -633,7 +653,9 @@ export class LancerItem<out SubType extends Item.SubType = Item.SubType> extends
     if (!path) {
       // If no path is provided, default to the first action
       if (!this.system.actions || this.system.actions.length < 1) {
-        ui.notifications!.error(`Item ${this.id} has no actions, how did you even get here?`);
+        ui.notifications!.error(
+          game.i18n.format("lancer.notifications.error.itemActionsMissing", { id: String(this.id) })
+        );
         return;
       }
       path = "system.actions.0";
@@ -652,16 +674,23 @@ export class LancerItem<out SubType extends Item.SubType = Item.SubType> extends
 
   async beginCoreActiveFlow(path?: string) {
     if (!this.is_frame()) {
-      ui.notifications!.error(`Item ${this.id} is not a mech frame!`);
+      ui.notifications!.error(
+        game.i18n.format("lancer.notifications.error.itemFrameRequired", { id: String(this.id) })
+      );
       return;
     }
     path = path ?? "system.core_system";
     console.log("Core system activation flow on path", path);
     const actionName = this.system.core_system.active_actions[0]?.name ?? this.system.core_system.active_name;
+    const i18nTitle = game.i18n
+      .format("lancer.chatCard.title.coreActivation.label", {
+        title: actionName ? actionName?.toString() : game.i18n.localize("lancer.common.activation.unknown.label"),
+      })
+      .toUpperCase();
     // Construct a fake "action" for the frame's core system
     const action: ActionData = {
       lid: this.system.lid + "_core_system",
-      name: `CORE ACTIVATION :: ${actionName}`,
+      name: i18nTitle,
       activation: this.system.core_system.activation,
       detail: this.system.core_system.active_effect,
       // The rest doesn't matter, give it some defaults
@@ -684,7 +713,9 @@ export class LancerItem<out SubType extends Item.SubType = Item.SubType> extends
 
   async beginSkillFlow() {
     if (!this.is_skill()) {
-      ui.notifications!.error(`Item ${this.id} is not a skill!`);
+      ui.notifications!.error(
+        game.i18n.format("lancer.notifications.error.itemSkillRequired", { id: String(this.id) })
+      );
       return;
     }
     const flow = new StatRollFlow(this, { path: "system.curr_rank" });
@@ -693,7 +724,9 @@ export class LancerItem<out SubType extends Item.SubType = Item.SubType> extends
 
   async beginBondPowerFlow(powerIndex: number) {
     if (!this.is_bond()) {
-      ui.notifications!.error(`Item ${this.id} has no bond powers!`);
+      ui.notifications!.error(
+        game.i18n.format("lancer.notifications.error.itemBondPowersMissing", { id: String(this.id) })
+      );
       return;
     }
     const flow = new BondPowerFlow(this, { powerIndex });
@@ -702,7 +735,9 @@ export class LancerItem<out SubType extends Item.SubType = Item.SubType> extends
 
   async refreshPowers() {
     if (!this.is_bond()) {
-      ui.notifications!.error(`Item ${this.id} has no bond powers!`);
+      ui.notifications!.error(
+        game.i18n.format("lancer.notifications.error.itemBondPowersMissing", { id: String(this.id) })
+      );
       return;
     }
     for (let i = 0; i < this.system.powers.length; i++) {

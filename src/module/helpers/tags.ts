@@ -10,7 +10,7 @@ export function handleTagEditButtons(html: JQuery, doc: LancerItem) {
     ev.stopPropagation();
     const path = ev.currentTarget?.dataset.path;
     if (!path) {
-      ui.notifications!.error("Tag edit button missing data-path attribute");
+      ui.notifications!.error(game.i18n.localize("lancer.notifications.error.tagEditPathMissing"));
       return;
     }
     TagEditForm.edit(doc, path);
@@ -112,10 +112,11 @@ function tagList(tags: Tag[], tagArrayPath: string, options?: { compact?: boolea
 
 // A card with tags in it, that allows editing if appropriate
 export function itemEditTags(path: string, header: string, options: HelperOptions) {
+  const i18nTitle = game.i18n.localize(header).toUpperCase();
   return `
   <div class="card full">
     <div class="lancer-header lancer-primary major">
-      <span>${header}</span>
+      <span>${i18nTitle}</span>
       ${inc_if(
         `<a class="gen-control fas fa-plus" data-action="append" data-path="${path}" data-action-value="(struct)tag"></a>`,
         resolveHelperDotpath(options, "editable", false, true)

@@ -50,12 +50,12 @@ export function stat_edit_card_max(
 ): string {
   let data_val = resolveHelperDotpath(options, data_path, 0);
   let max_val = resolveHelperDotpath(options, max_path, 0);
-  const localizedTitle = game.i18n.localize(`lancer.common-sheet.shortStats.${title}`);
+  const i18nTitle = game.i18n.localize(title);
   return `
     <div class="stat-card card clipped">
       <div class="lancer-header lancer-primary ">
         <i class="${icon} i--4 i--light header-icon"> </i>
-        <span class="major">${localizedTitle}</span>
+        <span class="major">${i18nTitle}</span>
       </div>
       ${std_x_of_y(data_path, data_val, max_val, "lancer-stat")}
     </div>
@@ -78,12 +78,12 @@ export function stat_edit_card(
       });
     }
   }
-  const localizedTitle = game.i18n.localize(`lancer.common-sheet.shortStats.${title}`);
+  const i18nTitle = game.i18n.localize(title);
   return `
     <div class="card clipped">
       <div class="lancer-header lancer-primary ">
         <i class="${icon} i--4 i--light header-icon"> </i>
-        <span class="major">${localizedTitle}</span>
+        <span class="major">${i18nTitle}</span>
       </div>
       <div class="${flowButton ? "stat-flow-container" : "flexrow flex-center"}">
         ${flowButton}
@@ -121,12 +121,12 @@ export function stat_view_card(
       });
     }
   }
-  const localizedTitle = game.i18n.localize(`lancer.common-sheet.shortStats.${title}`);
+  const i18nTitle = game.i18n.localize(title);
   return `
     <div class="stat-card card clipped">
       <div class="lancer-header lancer-primary ">
         ${inc_if(`<i class="${icon} i--4 i--light header-icon"> </i>`, icon)}
-        <span class="major">${localizedTitle}</span>
+        <span class="major">${i18nTitle}</span>
       </div>
       <div class="${leftFlowButton || rightFlowButton ? "stat-flow-container" : "flexrow flex-center"}">
         ${leftFlowButton}
@@ -197,11 +197,11 @@ export function clicker_stat_card(
       attackButton = _basicFlowButton(uuid, "BasicAttack", { icon: "cci cci-weapon" });
     }
   }
-  const localizedTitle = game.i18n.localize(`lancer.common-sheet.shortStats.${title}`);
+  const i18nTitle = game.i18n.localize(title);
   return `<div class="card clipped stat-container">
       <div class="lancer-header lancer-primary ">
         <i class="${icon} i--4 i--light header-icon"> </i>
-        <span class="major">${localizedTitle}</span>
+        <span class="major">${i18nTitle}</span>
       </div>
       <div class="flexrow">
         ${statButton}
@@ -243,13 +243,15 @@ export function action_button(
   action: ActionType,
   options: HelperOptions & { rollable?: boolean }
 ): string {
-  let action_val = resolveHelperDotpath(options, data_path);
+  const i18nTitle = game.i18n.localize(title);
+  const action_val = resolveHelperDotpath(options, data_path);
   let active: boolean;
-  if (action == "move") {
+  if (action === "move") {
     active = (action_val as number) > 0;
-    title = `${title} (${action_val})`;
+    title = `${i18nTitle} (${action_val})`;
   } else {
     active = action_val as boolean;
+    title = i18nTitle;
   }
 
   let enabled = false;
@@ -261,7 +263,7 @@ export function action_button(
 
   return `
     <button
-      class="lancer-action-button lancer-button${enabled ? " enabled" : ""}${active ? ` active lancer-${action}` : ""}"
+      class="lancer-action-button lancer-button ${enabled ? "enabled" : ""} ${active ? `active lancer-${action}` : ""}"
       data-action="${action}"
       data-val="${action_val}"
   >
@@ -276,6 +278,7 @@ export function actor_flow_button(
   type: string,
   options: HelperOptions & { rollable?: boolean }
 ): string {
+  const i18nTitle = game.i18n.localize(title);
   let args = JSON.stringify({});
   let mIcon;
   const BasicFlowType = LancerFlowState.BasicFlowType;
@@ -308,7 +311,7 @@ export function actor_flow_button(
 
   return `
       <button type="button" class="lancer-flow-button lancer-button lancer-secondary" data-flow-type="${type}" data-flow-args=${args}>
-        <i class="cci ${mIcon} i--4"></i> ${title}
+        <i class="cci ${mIcon} i--4"></i> ${i18nTitle}
       </button>
     `;
 }
@@ -317,12 +320,12 @@ export function tech_flow_card(title: string, icon: string, data_path: string, o
   let uuid = getActorUUID(options) ?? "unknown";
   let data_val = resolveHelperDotpath(options, data_path);
 
-  const localizedTitle = game.i18n.localize(`lancer.common-sheet.shortStats.${title}`);
+  const i18nTitle = game.i18n.localize(title);
   return `
     <div class="stat-card card clipped">
       <div class="lancer-header lancer-primary">
         ${inc_if(`<i class="${icon} i--4 i--light header-icon"> </i>`, icon)}
-        <span class="major">${localizedTitle}</span>
+        <span class="major">${i18nTitle}</span>
       </div>
       <div class="stat-flow-container">
         ${_basicFlowButton(uuid, "TechAttack", { icon: "cci cci-tech-quick" })}
@@ -394,10 +397,11 @@ export function overchargeButton(actor: LancerMECH, overcharge_path: string, opt
   index = Math.max(0, Math.min(sequence.length - 1, index));
   let overchargeValue = sequence[index];
   let flowButton = _basicFlowButton(actor.uuid, "Overcharge");
+  const i18nTitle = game.i18n.localize("lancer.common.stat.overcharge.label").toUpperCase();
   return `
     <div class="flexcol card clipped">
       <div class="lancer-header lancer-primary clipped-top flexrow">
-        <span class="major">${game.i18n.localize("lancer.common-sheet.shortStats.overcharge")}</span>
+        <span class="major">${i18nTitle}</span>
       </div>
       <div class="overcharge-container">
         ${flowButton}

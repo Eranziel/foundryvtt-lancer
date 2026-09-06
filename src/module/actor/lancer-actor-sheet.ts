@@ -267,7 +267,7 @@ export class LancerActorSheet<T extends LancerActorType> extends foundry.appv1.s
       } else if (isDeployable) {
         // TODO - deployable actions
       } else {
-        ui.notifications!.error("Could not infer action type");
+        ui.notifications!.error(game.i18n.localize("lancer.notifications.error.actorSheetCouldNotInferActionType"));
         throw Error("Could not infer action type");
       }
     }
@@ -478,7 +478,7 @@ export class LancerActorSheet<T extends LancerActorType> extends foundry.appv1.s
       } else if (isDeployable) {
         // TODO - deployable actions
       } else {
-        ui.notifications!.error("Could not infer action type");
+        ui.notifications!.error(game.i18n.localize("lancer.notifications.error.actorSheetCouldNotInferActionType"));
       }
     });
 

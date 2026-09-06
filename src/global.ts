@@ -160,30 +160,30 @@ declare module "fvtt-types/configuration" {
     "lancer.tagConfig": Record<string, unknown>;
     "lancer.uiTheme": foundry.data.fields.StringField<{
       choices: {
-        gms: "lancer.uiTheme.gms";
-        gmsDark: "lancer.uiTheme.gmsDark";
-        msmc: "lancer.uiTheme.msmc";
-        horus: "lancer.uiTheme.horus";
-        ha: "lancer.uiTheme.ha";
-        ssc: "lancer.uiTheme.ssc";
-        ipsn: "lancer.uiTheme.ipsn";
-        gal: "lancer.uiTheme.gal";
+        gms: "lancer.setting.uiTheme.gms";
+        gmsDark: "lancer.setting.uiTheme.gmsDark";
+        msmc: "lancer.setting.uiTheme.msmc";
+        horus: "lancer.setting.uiTheme.horus";
+        ha: "lancer.setting.uiTheme.ha";
+        ssc: "lancer.setting.uiTheme.ssc";
+        ipsn: "lancer.setting.uiTheme.ipsn";
+        gal: "lancer.setting.uiTheme.gal";
       };
     }>;
     "lancer.pauseIcon": foundry.data.fields.StringField<{
       choices: {
-        gms: "lancer.pauseIcon.gms";
-        horus: "lancer.pauseIcon.horus";
-        ha: "lancer.pauseIcon.ha";
-        ssc: "lancer.pauseIcon.ssc";
-        "ips-n": "lancer.pauseIcon.ipsn";
-        albatross: "lancer.pauseIcon.albatross";
-        aun: "lancer.pauseIcon.aun";
-        barony: "lancer.pauseIcon.barony";
-        horizon: "lancer.pauseIcon.horizon";
-        ra: "lancer.pauseIcon.ra";
-        sparri: "lancer.pauseIcon.sparri";
-        voladores: "lancer.pauseIcon.voladores";
+        gms: "lancer.setting.pauseIcon.gms";
+        horus: "lancer.setting.pauseIcon.horus";
+        ha: "lancer.setting.pauseIcon.ha";
+        ssc: "lancer.setting.pauseIcon.ssc";
+        "ips-n": "lancer.setting.pauseIcon.ips-n";
+        albatross: "lancer.setting.pauseIcon.albatross";
+        aun: "lancer.setting.pauseIcon.aun";
+        barony: "lancer.setting.pauseIcon.barony";
+        horizon: "lancer.setting.pauseIcon.horizon";
+        ra: "lancer.setting.pauseIcon.ra";
+        sparri: "lancer.setting.pauseIcon.sparri";
+        voladores: "lancer.setting.pauseIcon.voladores";
       };
     }>;
     // "lancer.warningFor120": boolean; // Old setting, currently unused.
