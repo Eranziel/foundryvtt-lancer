@@ -201,11 +201,11 @@ export async function initAttackData(
     state.data.title = options?.title || state.data.title || state.item.name!;
     if (state.item.is_mech_weapon()) {
       if (!state.actor.is_mech()) {
-        ui.notifications?.warn("Non-mech cannot fire a mech weapon!");
+        ui.notifications?.warn(game.i18n.localize("lancer.notifications.warning.attackNonMechCannotFireMechWeapon"));
         return false;
       }
       if (!state.actor.system.pilot?.value) {
-        ui.notifications?.warn("Cannot fire a weapon on a non-piloted mech!");
+        ui.notifications?.warn(game.i18n.localize("lancer.notifications.warning.attackUnpilotedMechCannotFireWeapon"));
         return false;
       }
       let profile = state.item.system.active_profile;
@@ -236,11 +236,11 @@ export async function initAttackData(
     } else if (state.item.is_mech_system()) {
       // Tech attack system
       if (!state.actor.is_mech()) {
-        ui.notifications?.warn("Non-mech cannot use a mech system!");
+        ui.notifications?.warn(game.i18n.localize("lancer.notifications.warning.attackNonMechCannotUseMechSystem"));
         return false;
       }
       if (!state.actor.system.pilot?.value) {
-        ui.notifications?.warn("Cannot use a system on a non-piloted mech!");
+        ui.notifications?.warn(game.i18n.localize("lancer.notifications.warning.attackUnpilotedMechCannotUseSystem"));
         return false;
       }
       state.data.grit = state.actor.system.tech_attack;
@@ -258,7 +258,7 @@ export async function initAttackData(
       return true;
     } else if (state.item.is_npc_feature()) {
       if (!state.actor.is_npc()) {
-        ui.notifications?.warn("Non-NPC cannot fire an NPC weapon!");
+        ui.notifications?.warn(game.i18n.localize("lancer.notifications.warning.attackNonNpcCannotFireNpcWeapon"));
         return false;
       }
       let tier_index = (state.item.system.tier_override || state.actor.system.tier) - 1;
@@ -280,7 +280,7 @@ export async function initAttackData(
       return true;
     } else if (state.item.is_pilot_weapon()) {
       if (!state.actor.is_pilot()) {
-        ui.notifications?.warn("Non-pilot cannot fire a pilot weapon!");
+        ui.notifications?.warn(game.i18n.localize("lancer.notifications.warning.attackNonPilotCannotFirePilotWeapon"));
         return false;
       }
       // Pilot weapons don't have types like Mech/NPC weapons, so we need to check the ranges instead
@@ -301,7 +301,9 @@ export async function initAttackData(
           );
       return true;
     }
-    ui.notifications!.error(`Error in attack flow - ${state.item.name} is an invalid type!`);
+    ui.notifications!.error(
+      game.i18n.format("lancer.notifications.error.attackInvalidItemType", { name: state.item.name })
+    );
     return false;
   }
 }
@@ -314,7 +316,9 @@ export async function checkWeaponLoaded(state: FlowState<LancerFlowState.WeaponR
     return false;
   }
   if (state.item.isLoading() && !state.item.system.loaded) {
-    ui.notifications!.warn(`Weapon ${state.item.name} is not loaded!`);
+    ui.notifications!.warn(
+      game.i18n.format("lancer.notifications.warning.attackWeaponNotLoaded", { name: state.item.name })
+    );
     return false;
   }
   return true;
@@ -385,7 +389,9 @@ export async function setAttackEffects(
     state.data.effect = state.item.system.effect;
     return true;
   }
-  ui.notifications!.error(`Error in attack flow - ${state.item.name} is an invalid type!`);
+  ui.notifications!.error(
+    game.i18n.format("lancer.notifications.error.attackInvalidItemType", { name: state.item.name })
+  );
   return false;
 }
 

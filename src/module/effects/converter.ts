@@ -96,7 +96,7 @@ export function pilotInnateEffects(pilot: LancerActor): LancerActiveEffect[] {
   // Bake GRIT+HASE into an active effect
   let mech_effect = new LancerActiveEffect(
     {
-      name: "Pilot → Mech Bonuses",
+      name: game.i18n.localize("lancer.activeEffects.pilot.mech.label"),
       changes: [
         // HASE
         {
@@ -213,7 +213,7 @@ export function pilotInnateEffects(pilot: LancerActor): LancerActiveEffect[] {
 
   let deployable_effect = new LancerActiveEffect(
     {
-      name: "Pilot → Deployable Bonuses",
+      name: game.i18n.localize("lancer.activeEffects.pilot.deployable.label"),
       changes: [
         // Much simpler
         {
@@ -255,7 +255,7 @@ export function npcInnateEffects(npc: LancerActor): LancerActiveEffect[] {
 
   let deployable_effect = new LancerActiveEffect(
     {
-      name: "NPC → Deployable Bonuses",
+      name: game.i18n.localize("lancer.activeEffects.npc.deployable.label"),
       changes: [
         // Much simpler
         {
@@ -436,7 +436,7 @@ export function npcFeatureBonusEffects(feature: LancerNPC_FEATURE) {
   if (changes.length) {
     return {
       flags: { lancer: { ephemeral: true } },
-      name: `${feature.name!} - bonuses`,
+      name: `${feature.name!} - ${game.i18n.localize("lancer.common.descriptor.bonus.plural")}`,
       img: feature.img,
       origin: feature.uuid,
       transfer: true,
@@ -460,7 +460,7 @@ export function npcFeatureOverrideEffects(feature: LancerNPC_FEATURE) {
   if (changes.length) {
     return {
       flags: { lancer: { ephemeral: true } },
-      name: `${feature.name!} - overrides`,
+      name: `${feature.name!} - ${game.i18n.localize("lancer.common.descriptor.override.plural")}`,
       img: feature.img,
       origin: feature.uuid,
       transfer: true,

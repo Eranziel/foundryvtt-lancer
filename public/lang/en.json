@@ -37,281 +37,1451 @@
     "LancerLicenseSheet": "Lancer System License Sheet",
     "LancerNPCClassSheet": "Lancer System NPC Class/Template Sheet",
     "LancerNPCFeatureSheet": "Lancer System NPC Feature Sheet",
-    "Actor": {
-      "FIELDS": {
-        "activations": {
-          "label": "Activations"
-        }
-      }
-    },
     "placeholder": {
       "name": "Name"
     },
-    "common-sheet": {
-      "tabs": {
-        "effects": "<EFFECTS//ACTIVE>"
+    "common": {
+      "descriptor": {
+        "action": {
+          "label": "Action",
+          "plural": "Actions"
+        },
+        "active": {
+          "label": "Active"
+        },
+        "passive": {
+          "label": "Passive"
+        },
+        "use": {
+          "label": "Use",
+          "plural": "Uses"
+        },
+        "delete": {
+          "label": "Delete"
+        },
+        "hidden": {
+          "label": "Hidden"
+        },
+        "effect": {
+          "label": "Effect",
+          "plural": "Effects"
+        },
+        "description": {
+          "label": "Description"
+        },
+        "tag": {
+          "label": "Tag",
+          "plural": "Tags"
+        },
+        "type": {
+          "label": "Type"
+        },
+        "size": {
+          "label": "Size"
+        },
+        "status": {
+          "label": "Status"
+        },
+        "bonus": {
+          "label": "Bonus",
+          "plural": "Bonuses"
+        },
+        "prerequisite": {
+          "label": "Prerequisite"
+        },
+        "source": {
+          "label": "Source"
+        },
+        "consumable": {
+          "label": "Consumable"
+        },
+        "detail": {
+          "label": "Detail",
+          "plural": "Details"
+        },
+        "rank": {
+          "label": "Rank",
+          "unlocked": {
+            "label": "Unlocked Rank"
+          }
+        },
+        "trait": {
+          "label": "Trait",
+          "plural": "Traits"
+        },
+        "manufacturer": {
+          "label": "Manufacturer",
+          "plural": "Manufacturers"
+        },
+        "override": {
+          "label": "Override",
+          "plural": "Overrides"
+        },
+        "primary": {
+          "label": "Primary",
+          "plural": "Primaries"
+        }
       },
-      "headers": {
-        "combatUtilities": "COMBAT UTILITIES"
+      "state": {
+        "loaded": {
+          "label": "Loaded"
+        },
+        "charged": {
+          "label": "Charged"
+        }
       },
-      "buttons": {
-        "basicAttack": "MELEE/RANGED",
-        "damage": "DAMAGE",
-        "fullRepair": "FULL REPAIR",
-        "overheat": "OVERHEAT",
-        "scan": "SCAN",
-        "stabilize": "STABILIZE",
-        "structure": "STRUCTURE",
-        "tech": "TECH"
+      "activation": {
+        "label": "Activation",
+        "plural": "Activations",
+        "none": {
+          "label": "None"
+        },
+        "quickAction": {
+          "label": "Quick Action"
+        },
+        "quickTech": {
+          "label": "Quick Tech"
+        },
+        "invade": {
+          "label": "Invade"
+        },
+        "fullAction": {
+          "label": "Full Action"
+        },
+        "fullTech": {
+          "label": "Full Tech"
+        },
+        "reaction": {
+          "label": "Reaction"
+        },
+        "trigger": {
+          "label": "Trigger"
+        },
+        "init": {
+          "label": "Init"
+        },
+        "onHit": {
+          "label": "On Hit"
+        },
+        "onAttack": {
+          "label": "On Attack"
+        },
+        "onCrit": {
+          "label": "On Crit"
+        },
+        "protocol": {
+          "label": "Protocol"
+        },
+        "free": {
+          "label": "Free"
+        },
+        "other": {
+          "label": "Other"
+        },
+        "unknown": {
+          "label": "Unknown Action"
+        }
       },
-      "shortStats": {
-        "hull": "HUL",
-        "agi": "AGI",
-        "sys": "SYS",
-        "eng": "ENG",
-        "level": "LICENSE LEVEL",
-        "grit": "GRIT",
-        "tier": "TIER",
-        "activations": "ACTIV",
-        "hp": "HP",
-        "evasion": "EVA",
-        "armor": "ARM",
-        "structure": "STRUCT",
-        "heat": "HEAT",
-        "heatcap": "HEAT CAP",
-        "edef": "EDEF",
-        "stress": "STRESS",
-        "speed": "SPD",
-        "save": "SAVE",
-        "sensor_range": "SENS",
-        "tech_attack": "T ATK",
-        "overcharge": "OVERCHARGE",
-        "burn": "BURN",
-        "overshield": "O.SHLD",
-        "repairs": "REP",
-        "size": "SZ",
-        "cost": "COST"
+      "movement": {
+        "label": "Movement",
+        "move": {
+          "label": "Move"
+        },
+        "boost": {
+          "label": "Boost"
+        },
+        "standard": {
+          "label": "Standard Move"
+        }
+      },
+      "attack": {
+        "label": "Attack",
+        "plural": "Attacks",
+        "bonus": {
+          "label": "Attack Bonus"
+        },
+        "range": {
+          "label": "Range"
+        },
+        "damage": {
+          "label": "Damage",
+          "bonus": {
+            "label": "Damage Bonus"
+          }
+        },
+        "accuracy": {
+          "label": "Accuracy",
+          "bonus": {
+            "label": "Accuracy Bonus"
+          }
+        }
+      },
+      "stat": {
+        "size": {
+          "short": "SIZE",
+          "label": "Size"
+        },
+        "hp": {
+          "short": "HP",
+          "label": "HP",
+          "max": {
+            "short": "M.HP",
+            "label": "Max HP"
+          }
+        },
+        "overshield": {
+          "short": "O.SHLD",
+          "label": "Overshield"
+        },
+        "structure": {
+          "short": "STRUCT",
+          "label": "Structure"
+        },
+        "armor": {
+          "short": "ARMR",
+          "label": "Armor"
+        },
+        "evasion": {
+          "short": "EVA",
+          "label": "Evasion"
+        },
+        "heat": {
+          "short": "HEAT",
+          "label": "Heat",
+          "cap": {
+            "short": "M.HEAT",
+            "label": "Heat Cap"
+          }
+        },
+        "stress": {
+          "short": "STRESS",
+          "label": "Stress"
+        },
+        "eDefense": {
+          "short": "E.DEF",
+          "label": "E-Defense"
+        },
+        "tech": {
+          "label": "Tech",
+          "plural": "Techs",
+          "attack": {
+            "short": "T.ATK",
+            "label": "Tech Attack",
+            "plural": "Tech Attacks"
+          }
+        },
+        "sensor": {
+          "short": "SENS",
+          "label": "Sensor",
+          "plural": "Sensors",
+          "range": {
+            "label": "Sensor Range"
+          }
+        },
+        "save": {
+          "short": "SAVE",
+          "label": "Save",
+          "target": {
+            "label": "Save Target"
+          }
+        },
+        "speed": {
+          "short": "SPEED",
+          "label": "Speed"
+        },
+        "repair": {
+          "short": "REPR",
+          "label": "repair",
+          "plural": "repairs"
+        },
+        "hull": {
+          "short": "HUL",
+          "label": "Hull"
+        },
+        "agility": {
+          "short": "AGI",
+          "label": "Agility"
+        },
+        "systems": {
+          "short": "SYS",
+          "label": "Systems"
+        },
+        "engineering": {
+          "short": "ENG",
+          "label": "Engineering"
+        },
+        "grit": {
+          "short": "GRIT",
+          "label": "Grit"
+        },
+        "licenseLevel": {
+          "short": "LL",
+          "label": "License Level"
+        },
+        "level": {
+          "short": "LEVEL",
+          "label": "Level"
+        },
+        "overcharge": {
+          "short": "O.CHRG",
+          "label": "Overcharge"
+        },
+        "burn": {
+          "short": "BURN",
+          "label": "Burn"
+        },
+        "tier": {
+          "short": "T",
+          "label": "Tier"
+        },
+        "cost": {
+          "short": "COST",
+          "label": "Cost"
+        },
+        "experience": {
+          "short": "XP",
+          "label": "Experience"
+        }
+      },
+      "item": {
+        "bond": {
+          "label": "Bond",
+          "plural": "Bonds"
+        },
+        "coreBonus": {
+          "label": "Core Bonus",
+          "plural": "Core Bonuses"
+        },
+        "frame": {
+          "label": "Frame",
+          "plural": "Frames"
+        },
+        "license": {
+          "label": "License",
+          "plural": "Licenses"
+        },
+        "mechSystem": {
+          "label": "Mech System",
+          "plural": "Mech Systems"
+        },
+        "mechWeapon": {
+          "label": "Mech Weapon",
+          "plural": "Mech Weapons"
+        },
+        "npcClass": {
+          "label": "NPC Class",
+          "plural": "NPC Classes"
+        },
+        "npcFeature": {
+          "label": "NPC Feature",
+          "plural": "NPC Features"
+        },
+        "npcTemplate": {
+          "label": "NPC Template",
+          "plural": "NPC Templates"
+        },
+        "organization": {
+          "label": "Organization",
+          "plural": "Organizations"
+        },
+        "pilotArmor": {
+          "label": "Pilot Armor",
+          "plural": "Pilot Armor"
+        },
+        "pilotGear": {
+          "label": "Pilot Gear",
+          "plural": "Pilot Gear"
+        },
+        "pilotWeapon": {
+          "label": "Pilot Weapon",
+          "plural": "Pilot Weapons"
+        },
+        "reserve": {
+          "label": "Reserve",
+          "plural": "Reserves"
+        },
+        "skill": {
+          "label": "Skill",
+          "plural": "Skills",
+          "custom": {
+            "label": "Custom Skill",
+            "plural": "Custom Skills"
+          }
+        },
+        "status": {
+          "label": "Status/Condition",
+          "plural": "Statuses/Conditions"
+        },
+        "talent": {
+          "label": "Talent",
+          "plural": "Talents"
+        },
+        "weaponMod": {
+          "label": "Weapon Mod",
+          "plural": "Weapon Mods"
+        }
+      },
+      "actor": {
+        "deployable": {
+          "label": "Deployable",
+          "plural": "Deployable"
+        },
+        "mech": {
+          "label": "Mech",
+          "plural": "Mechs"
+        },
+        "npc": {
+          "label": "NPC",
+          "plural": "NPCs"
+        },
+        "pilot": {
+          "label": "Pilot",
+          "plural": "Pilots"
+        }
       }
     },
-    "deployable-sheet": {
+    "notifications": {
+      "error": {
+        "chatMissingTargetActorId": "No target actor ID found on actor import prompt button.",
+        "chatMissingImportActorId": "No import actor ID found on actor import prompt button.",
+        "chatInvalidAction": "Invalid action on chat button.",
+        "chatMissingSecondaryStructureActorId": "No actor ID found on secondary structure prompt button.",
+        "chatMissingCascadeActorId": "No actor ID found on cascade prompt button.",
+        "chatInvalidFlowType": "Invalid flow type on flow prompt button.",
+        "chatInvalidDismembermentDamage": "Invalid actor ID dismemberment damage button.",
+        "chatInvalidImportTarget": "Invalid import actor ID on actor import prompt button.",
+        "chatInvalidActorTarget": "Invalid target actor ID on actor import prompt button.",
+        "actorNotFound": "{prefix}Actor {uuid} not found.",
+        "actorDocumentNotActor": "{prefix}Document {uuid} not an actor.",
+        "actorSheetCouldNotInferActionType": "Could not infer action type",
+        "tokenFromDifferentScene": "Trying to access tokens from a different scene!",
+        "migrationTooOld": "Your LANCER system data is from too old a version ({version}) and cannot be reliably migrated to the latest version. Please install and migrate to version 1.5.0+ before attempting this migration",
+        "worldMigrationTooOld": "This world is too old to migrate directly to Lancer {version} and Foundry 13. Restore a backup of this world and migrate to Foundry 12.343 first.",
+        "worldMigrationCompendiumUnlockFailed": "Could not migrate {collection}: unable to unlock",
+        "worldMigrationActorCompendiumFailed": "Error while migrating actor compendium {name}. Check the console for details.",
+        "worldMigrationItemCompendiumFailed": "Error while migrating item compendium {name}. Check the console for details.",
+        "worldMigrationSceneCompendiumFailed": "Error while migrating scene {name}. Check the console for details.",
+        "worldMigrationActorFailed": "Error while migrating actor {name}. Check the console for details.",
+        "worldMigrationUnlinkedTokenFailed": "Error while migrating unlinked token {token} in scene {scene}. Check the console for details.",
+        "worldMigrationSceneFailed": "Error while migrating scene {name}. Check the console for details.",
+        "pilotMissingShareCode": "You must enter a Comp/Con pilot share code before downloading!",
+        "pilotV3ShareCodeImportFailed": "Error importing from V3 share code.",
+        "pilotV2ShareCodeImportFailed": "Error importing from V2 share code. V2 share codes may no longer work, or this share code may need to be refreshed.",
+        "pilotCharacterNotFound": "Could not find character to import! No share code entered.",
+        "npcMissingStat": "Error finding stat input for macro.",
+        "attackInvalidItemType": "Error in attack flow - {name} is an invalid type!",
+        "damageRollButtonNotInChatMessage": "Damage roll button not in chat message",
+        "damageRollAttackDataMissing": "Damage roll button has no attack data available",
+        "damageRollInvalidAttacker": "Invalid attacker for damage roll",
+        "damageRollActorNotOwned": "You do not own {name}, so you cannot roll damage for them",
+        "damageRollItemNotOwnedByActor": "Item {itemUuid} is not owned by actor {actorUuid}!",
+        "damageRollInvalidTarget": "Invalid target for damage roll",
+        "damageApplicationButtonNotInChatMessage": "Damage application button not in chat message",
+        "damageApplicationDataMissing": "Damage application button has no damage data available",
+        "damageApplicationTargetMissing": "No target for damage application",
+        "damageApplicationInvalidTargetUuid": "Invalid target UUID for damage application",
+        "damageApplicationTargetActorMissing": "Invalid target for damage application, no actor found",
+        "damageApplicationActorNotOwned": "You cannot apply damage to an actor you do not own",
+        "damageUndoButtonNotInChatMessage": "Damage undo button not in chat message",
+        "damageUndoChatMessageMissing": "Damage undo button has no chat message",
+        "damageUndoTargetMissing": "Damage undo button has no target",
+        "damageUndoActorNotOwned": "You cannot undo damage to an actor you do not own",
+        "damageUndoNothingToUndo": "Damage undo button has no damage to undo!",
+        "itemNoMacroForType": "Error - No macro exists for item type \"{type}\"",
+        "itemNotFound": "{prefix}Item {uuid} not found.",
+        "itemDocumentNotItem": "{prefix}Document {uuid} not an item.",
+        "itemWeaponAttackInvalid": "Item {id} cannot attack as it is not a weapon!",
+        "itemTechAttackInvalid": "Item {id} cannot attack as it is not a system!",
+        "itemDamageInvalid": "Item {id} cannot roll damage as it is not a weapon!",
+        "itemSystemInvalid": "Item {id} is not a mech system, weapon mod, or NPC feature!",
+        "itemActionsMissing": "Item {id} has no actions, how did you even get here?",
+        "itemFrameRequired": "Item {id} is not a mech frame!",
+        "itemSkillRequired": "Item {id} is not a skill!",
+        "itemBondPowersMissing": "Item {id} has no bond powers!",
+        "counterEditorInvalidNumericValue": "{value} is not a valid numeric value",
+        "flowInvalidStep": "Lancer flow error: {step} is not a valid step",
+        "techInvalidAttacker": "Error rolling tech attack macro (not a valid tech attacker).",
+        "techInvalidItemType": "Error in tech attack flow - {name} is an invalid type!",
+        "weaponRangeCanvasNotReady": "Cannot create WeaponRangeTemplate. Canvas is not ready",
+        "burnActorTokenMissing": "Burn flow requires the actor to have a token in the scene",
+        "tagEditPathMissing": "Tag edit button missing data-path attribute",
+        "structureDismembermentActorMissing": "No actor found for dismemberment damage button.",
+        "scanTargetRequired": "You must target a token to scan.",
+        "scanTargetActorMissing": "The targeted token has no associated actor.",
+        "scanNpcTargetRequired": "You can only scan NPC actors.",
+        "scanJournalFolderMissing": "Journal folder {name} does not exist and must be created by a user with permissions to do so.",
+        "hotbarInvalidUuid": "Invalid UUID for flow drop on hotbar",
+        "hotbarBasicNotActor": "Basic flow drop on hotbar was not from an actor",
+        "hotbarBasicMissingSubtype": "No flow subtype provided for basic flow drop on hotbar",
+        "hotbarStatNotActor": "Stat flow drop on hotbar was not from an actor",
+        "hotbarStatMissingPath": "Stat flow drop on hotbar was missing a stat path",
+        "hotbarAttackNotItem": "Attack flow drop on hotbar was not from an item",
+        "hotbarAttackNotWeapon": "Attack flow drop on hotbar was not from a weapon",
+        "hotbarTechAttackNotItem": "Tech attack flow drop on hotbar was not from an item",
+        "hotbarTechAttackInvalidItem": "Tech attack flow drop on hotbar was not from a system or NPC feature",
+        "hotbarDamageNotItem": "Damage flow drop on hotbar was not from an item",
+        "hotbarDamageNotWeapon": "Damage flow drop on hotbar was not from a weapon",
+        "hotbarChatNotItem": "Chat flow drop on hotbar was not from an item",
+        "hotbarChatMissingData": "Chat flow drop on hotbar was missing required data",
+        "hotbarSkillNotItem": "Skill flow drop on hotbar was not from an item",
+        "hotbarSkillNotSkill": "Skill flow drop on hotbar was not from a skill item",
+        "hotbarBondPowerNotItem": "Bond power flow drop on hotbar was not from an item",
+        "hotbarBondPowerNotBondPower": "Bond power flow drop on hotbar was not from a bond power item",
+        "hotbarBondPowerMissingPowerIndex": "Bond power flow drop on hotbar was missing a power index",
+        "hotbarEffectNotItem": "Effect flow drop on hotbar was not from an item",
+        "hotbarActivationNotItem": "Activation flow drop on hotbar was not from an item",
+        "hotbarActivationMissingActionPath": "Activation flow drop on hotbar was missing an action path",
+        "hotbarCoreActiveNotItem": "Core active flow drop on hotbar was not from an item",
+        "hotbarCoreActiveMissingActionPath": "Core active flow drop on hotbar was missing an action path",
+        "hotbarCoreActiveNotFrame": "Core active flow drop on hotbar was not from a frame item",
+        "hotbarUnknownFlowType": "Unknown flow type for flow drop on hotbar!",
+        "lcpManagerFileNotSelected": "You must select an LCP or LLP file before importing.",
+        "lcpManagerCompendiumTabButtonsNotFound": "Unable to add LCP Manager button - Compendium Tab buttons not found!",
+        "lcpManagerUnsupportedFileType": "{file} is not an LCP or LLP file.",
+        "lcpManagerLcpFailedLoad": "Failed to load LCP",
+        "lcpManagerLlpFailedParse": "{file} could not be read as JSON.",
+        "lcpManagerLlpInvalid": "{file} is an invalid LLP; missing 'lang', 'target', and 'data' fields.",
+        "lcpManagerLlpFailedDownload": "Could not download the {lang} localization for {pack}."
+      },
+      "warning": {
+        "migrationGmRequired": "Your GM needs to migrate this world. Please do not attempt to play the game or edit anything until migrations are done.",
+        "itemSystemNoRemainingUses": "System {name} has no remaining uses!",
+        "itemWeaponNoRemainingUses": "Weapon {name} has no remaining uses!",
+        "itemNoRemainingUses": "{type} {name} has no remaining uses!",
+        "itemReserveAlreadyUsed": "Reserve {name} has already been used!",
+        "itemSystemNotRecharged": "System {name} has not recharged!",
+        "itemWeaponNotRecharged": "Weapon {name} has not recharged!",
+        "actorOnlyMechsCanOvercharge": "Only mechs can overcharge!",
+        "actorOnlyNpcsCanRecharge": "Only NPCs can recharge!",
+        "actorOnlyMechsAndNpcsCanTechAttack": "Only mechs and NPCs can tech attack!",
+        "actorCannotStabilize": "A {type} can't be stabilized!",
+        "actorNoRepairsRemaining": "No repairs remaining!",
+        "actorInvalidStabilizeChoice": "Invalid Stabilize choice!",
+        "attackNonMechCannotFireMechWeapon": "Non-mech cannot fire a mech weapon!",
+        "attackUnpilotedMechCannotFireWeapon": "Cannot fire a weapon on a non-piloted mech!",
+        "attackNonMechCannotUseMechSystem": "Non-mech cannot use a mech system!",
+        "attackUnpilotedMechCannotUseSystem": "Cannot use a system on a non-piloted mech!",
+        "attackNonNpcCannotFireNpcWeapon": "Non-NPC cannot fire an NPC weapon!",
+        "attackNonPilotCannotFirePilotWeapon": "Non-pilot cannot fire a pilot weapon!",
+        "attackWeaponNotLoaded": "Weapon {name} is not loaded!",
+        "cascadeOnlyMechsCanCascade": "Only mechs can cascade.",
+        "frameNoCorePowerRemaining": "No core power remaining on this frame!",
+        "damageItemCannotDealDamage": "Item {id} can't deal damage!",
+        "damageNotConfigured": "No damage configured, skipping the roll.",
+        "overheatInvalidDamageActor": "Only Mechs and NPCs can take stress damage",
+        "overheatInvalidRollActor": "Only npcs and mechs can roll overheat.",
+        "structureInvalidDamageActor": "Only Mechs and NPCs can take structure damage",
+        "structureInvalidRollActor": "Only npcs and mechs can roll structure.",
+        "structureOverheatInvalidActor": "Only npcs and mechs can roll structure/overheat.",
+        "structureRemainingInvalidActor": "Only npcs and mechs can work with \"remaining structure\" logic.",
+        "techNpcSystemInvalidActor": "Non-NPC cannot use an NPC system!",
+        "techMechSystemInvalidActor": "Non-mech cannot use a mech system!",
+        "techMechNotPiloted": "Cannot use a system on a non-piloted mech!",
+        "techTalentInvalidActor": "Non-pilot cannot use a pilot talent!",
+        "techTalentNoActiveMech": "Cannot use a talent without an active mech!",
+        "stabilizeNoRepairs": "Mech has no repairs left. Please try again.",
+        "pilotImportFailed": "Failed to update pilot: {err}",
+        "pilotImportCrbRequired": "You must import the Core Book Data in the Lancer Compendium Manager before importing a pilot.",
+        "pilotImportCreatePermissions": "Could not import mech '{name}' as you lack the permission to create new actors. Please ask your GM to import for you, or give you permissions.",
+        "pilotImportUpdatePermissions": "Could not import mech '{name}' as you lack the permission to update actors. Please ask your GM to import for you, or give you permissions.",
+        "lcpManagerImportPrivileges": "Only a user with the Gamemaster role can import LCPs.",
+        "lcpManagerCoreVersionRequired": "Please update the Core data before importing LCPs.",
+        "pilotImportMissingData": "Partially loaded '{name}'s new state.",
+        "pilotImportMissingActor": " {number} actors could not be created/updated.",
+        "pilotImportMissingItem": " {number} items could not be found.",
+        "pilotImportMissingDataDefer": " See dialog for details."
+      },
+      "info": {
+        "pilotImportSuccess": "Successfully loaded pilot new state.",
+        "pilotV3ShareCodeImportStarting": "Importing character from V3 share code...",
+        "pilotV2ShareCodeImportStarting": "Importing character from V2 share code...",
+        "pilotJsonImportStarting": "Starting import of '{name}', callsign '{callsign}'. Please wait.",
+        "pilotJsonImportComplete": "Import of '{name}', callsign '{callsign}' complete.",
+        "worldMigrationInProgress": "Migration to v{version} in progress. Please do not shut down your world or refresh the page until migration is complete.",
+        "worldMigrationComplete": "LANCER System migration to version {version} completed!",
+        "compendiumBuilderClearInProgress": "Clearing all LANCER Compendium data. Please wait.",
+        "compendiumBuilderClearComplete": "LANCER Compendiums cleared.",
+        "overheatTokenBelowHeatCap": "Token is not at heat cap. No need to roll stress.",
+        "overheatMechAtFullStress": "The mech is at full Stress, no overheat check to roll.",
+        "structureTokenHasHpRemaining": "Token has hp remaining. No need to roll structure.",
+        "structureMechAtFullStructure": "The mech is at full Structure, no structure check to roll.",
+        "lcpManagerLlpImported": "Stored {count} LLP file(s).",
+        "lcpManagerLlpReplaced": "{count} already-stored entries were replaced."
+      }
+    },
+    "commonSheet": {
+      "tabs": {
+        "effects": {
+          "label": "<EFFECTS//ACTIVE>"
+        }
+      },
+      "header": {
+        "combatUtilities": {
+          "label": "Combat Utilities"
+        },
+        "notes": {
+          "label": "Notes"
+        },
+        "talents": {
+          "label": "Talents"
+        }
+      },
+      "buttons": {
+        "basicAttack": {
+          "label": "Melee/Ranged"
+        },
+        "damage": {
+          "label": "Damage"
+        },
+        "fullRepair": {
+          "label": "Full Repair"
+        },
+        "overheat": {
+          "label": "Overheat"
+        },
+        "scan": {
+          "label": "Scan"
+        },
+        "stabilize": {
+          "label": "Stabilize"
+        },
+        "structure": {
+          "label": "Structure"
+        },
+        "tech": {
+          "label": "Tech"
+        }
+      },
+      "synergies": {
+        "label": "Synergies"
+      },
+      "integratedGear": {
+        "label": "Integrated Gear"
+      },
+      "integratedItems": {
+        "label": "Integrated Items"
+      },
+      "context": {
+        "markRepaired": {
+          "label": "Mark Repaired"
+        },
+        "markDestroyed": {
+          "label": "Mark Destroyed"
+        },
+        "deleteDocument": {
+          "label": "Delete Document"
+        },
+        "unlink": {
+          "label": "Unlink"
+        },
+        "remove": {
+          "label": "Remove"
+        },
+        "edit": {
+          "label": "Edit"
+        },
+        "rename": {
+          "label": "Rename"
+        }
+      }
+    },
+    "deployableSheet": {
+      "tabs": {
+        "status": {
+          "label": "<STATUS>"
+        },
+        "config": {
+          "label": "<CONFIG>"
+        }
+      },
       "header": {
         "owner": "Owner"
       },
-      "tabs": {
-        "status": "<STATUS>",
-        "config": "<CONFIG>"
-      },
       "deployer": {
-        "label": "DEPLOYER"
+        "label": "Deployer"
       },
-      "stats": {
-        "label": "BASE STATS"
+      "baseStats": {
+        "label": "Base Stats"
+      },
+      "action": {
+        "activate": {
+          "label": "Activate"
+        },
+        "deactivate": {
+          "label": "Deactivate"
+        },
+        "recall": {
+          "label": "Recall"
+        },
+        "redeploy": {
+          "label": "Redeploy"
+        }
       }
     },
-    "mech-sheet": {
-      "header": {
-        "inactive-warning": "Warning: Inactive Mech - Pilot bonuses not tracked"
-      },
+    "mechSheet": {
       "tabs": {
-        "stats": "<MECH//STATS>",
-        "loadout": "<MECH//LOADOUT>",
-        "talents": "<PILOT//TALENTS>"
+        "stats": {
+          "label": "<MECH//STATS>"
+        },
+        "loadout": {
+          "label": "<MECH//LOADOUT>"
+        },
+        "talents": {
+          "label": "<PILOT//TALENTS>"
+        }
+      },
+      "inactiveWarning": {
+        "label": "Warning: Inactive Mech - Pilot bonuses not tracked"
+      },
+      "availableWeaponMounts": {
+        "label": "Available Weapon Mounts"
+      },
+      "mountedWeapons": {
+        "label": "Mounted Weapons",
+        "aux": {
+          "label": "Aux"
+        },
+        "auxAux": {
+          "label": "Aux/Aux"
+        },
+        "main": {
+          "label": "Main"
+        },
+        "mainAux": {
+          "label": "Main/Aux"
+        },
+        "flex": {
+          "label": "Flex"
+        },
+        "heavy": {
+          "label": "Heavy"
+        },
+        "superheavy": {
+          "label": "Superheavy"
+        },
+        "superheavyBracing": {
+          "label": "Superheavy Bracing"
+        },
+        "integrated": {
+          "label": "Integrated"
+        },
+        "unknown": {
+          "label": "Unknown"
+        }
+      },
+      "mountedSystems": {
+        "label": "Mounted Systems"
+      },
+      "mountedEffect": {
+        "label": "Mounted Effect"
+      },
+      "weaponProfiles": {
+        "label": "Weapon Profiles",
+        "baseActions": {
+          "label": "Base Actions"
+        },
+        "profileActions": {
+          "label": "Profile Actions"
+        }
+      },
+      "weaponMod": {
+        "label": "Weapon Mod",
+        "none": {
+          "label": "No Weapon Mod Installed"
+        },
+        "addedRange": {
+          "label": "Added Range"
+        },
+        "addedDamage": {
+          "label": "Added Damage"
+        },
+        "addedTags": {
+          "label": "Added Tags"
+        },
+        "addedActions": {
+          "label": "Added Actions"
+        },
+        "addedDeployables": {
+          "label": "Added Deployables"
+        }
+      },
+      "coreSystem": {
+        "label": "Core System"
       },
       "core": {
-        "label": "CORE"
-      },
-      "actions": {
-        "label": "ACTIONS"
+        "label": "Core"
       },
       "macros": {
-        "label": "MACROS"
+        "label": "Macros"
       },
       "system": {
-        "label": "LOADOUT",
-        "sp-used": "SP USED"
+        "points": {
+          "short": "M.SP",
+          "label": "System Points",
+          "used": {
+            "label": "SP Used"
+          }
+        }
+      },
+      "loadout": {
+        "label": "Loadout"
+      },
+      "inventory": {
+        "button": "View Inventory"
       }
     },
-    "npc-sheet": {
-      "header": {
-        "class": "CLASS",
-        "templates": "TEMPLATES"
-      },
+    "npcSheet": {
       "class": {
-        "label": "CLASS",
-        "none": "NO CLASS FOUND"
+        "label": "Class",
+        "none": "No Class Found"
       },
       "templates": {
-        "label": "TEMPLATES"
+        "label": "Templates"
       },
       "features": {
-        "label": "FEATURES"
+        "label": "Features",
+        "base": {
+          "label": "Base Features"
+        },
+        "optional": {
+          "label": "Optional Features"
+        },
+        "type": {
+          "label": "Feature Type"
+        }
       },
-      "effects": {
-        "label": "ACTIVE EFFECTS"
+      "sourceName": {
+        "label": "Source Name"
+      },
+      "recharge": {
+        "label": "Recharge"
+      },
+      "tactics": {
+        "label": "Tactics"
       }
     },
-    "pilot-sheet": {
-      "header": {
-        "ll": "LL",
-        "cs": "CALLSIGN",
-        "name": "NAME",
-        "bg": "BACKGROUND"
-      },
+    "pilotSheet": {
       "tabs": {
-        "cloud": "<RM-4://SYNC>",
-        "dossier": "<PILOT//DOSSIER>",
-        "narrative": "<PILOT//NARRATIVE>",
-        "tactical": "<PILOT//TACTICAL>",
-        "loadout": "<EQUIP//LOADOUT>",
-        "mech": "<MECH//ACTIVE>"
+        "cloud": {
+          "label": "<RM-4://SYNC>"
+        },
+        "dossier": {
+          "label": "<PILOT//DOSSIER>"
+        },
+        "narrative": {
+          "label": "<PILOT//NARRATIVE>"
+        },
+        "tactical": {
+          "label": "<PILOT//TACTICAL>"
+        },
+        "loadout": {
+          "label": "<EQUIP//LOADOUT>"
+        },
+        "mech": {
+          "label": "<MECH//ACTIVE>"
+        }
       },
-      "cloud-header": {
+      "cloudHeader": {
         "label": "RM-4://(OMNINET UPLINK ID)",
-        "raw-placeholder": "Paste Pilot Share Code"
+        "placeholder": "Paste Pilot Share Code"
       },
-      "cloud-download": {
-        "label": "DOWNLOAD",
+      "cloudDownload": {
+        "label": "Download",
         "description": "Use this section to import a Comp/Con share code.",
-        "lastSync": "Last synced: {timestamp}"
+        "lastSync": {
+          "label": "Last synced: {timestamp}"
+        }
       },
-      "cloud-upload": {
-        "label": "UPLOAD",
-        "wip": "FEATURE IN PROGRESS"
-      },
-      "json-import": {
-        "label": "FILE IMPORT",
+      "jsonImport": {
+        "label": "File Import",
         "description": "Use this section to import a JSON file exported from Comp/Con.",
-        "placeholder": "Select JSON file…"
+        "placeholder": "Select JSON file…",
+        "browse": {
+          "label": "Browse"
+        }
       },
       "dossier": {
-        "cs": "CALLSIGN",
-        "name": "NAME",
-        "background": "BACKGROUND"
+        "callsign": {
+          "label": "Callsign"
+        },
+        "name": {
+          "label": "Name"
+        },
+        "background": {
+          "label": "Background"
+        },
+        "history": {
+          "label": "History"
+        }
+      },
+      "buttons": {
+        "basicAttack": {
+          "label": "Basic Attack"
+        }
       },
       "narrative": {
-        "bond": "BOND OF {bondName}",
-        "burdens": "BURDENS",
-        "clocks": "CLOCKS"
-      },
-      "tactical": {
-        "armor": "ARMOR",
-        "weapons": "WEAPONS",
-        "gear": "GEAR",
-        "reserves": "RESERVES",
-        "licenses": "LICENSES",
-        "cores": "CORE BONUSES"
+        "bond": {
+          "label": "Bond of {bondName}",
+          "veteranPower": {
+            "label": "Boon XP from another PC"
+          },
+          "tallyXp": {
+            "label": "Tally XP"
+          },
+          "refresh": {
+            "label": "Refresh Powers"
+          },
+          "majorIdeals": {
+            "label": "Major Ideals"
+          },
+          "minorIdeals": {
+            "label": "Minor Ideals"
+          },
+          "questions": {
+            "label": "Questions"
+          },
+          "powers": {
+            "label": "Powers"
+          },
+          "frequency": {
+            "label": "Frequency"
+          },
+          "veteran": {
+            "label": "Veteran"
+          },
+          "master": {
+            "label": "Master"
+          }
+        },
+        "burdens": {
+          "label": "Burdens"
+        },
+        "clocks": {
+          "label": "Clocks"
+        }
       },
       "abilities": {
-        "skills": "SKILL TRIGGERS",
-        "talents": "TALENTS"
+        "skills": {
+          "label": "Skill Triggers"
+        },
+        "talents": {
+          "label": "Talents"
+        }
       }
     },
-    "chat-card": {
-      "title": {
-        "attack": "// ATTACK //",
-        "damage": "// DAMAGE //",
-        "reliable": "// RELIABLE //",
-        "crit-damage": "// CRIT DAMAGE //",
-        "self-heat": "// SELF HEAT //",
-        "defense-hit": "// ATTACK VS {defense} //",
-        "effect": "// EFFECT //",
-        "on-attack": "// ON ATTACK //",
-        "on-hit": "// ON HIT //",
-        "on-crit": "// ON CRIT //",
-        "charge-roll": "// CHARGE ROLL //",
-        "recharged": "// RECHARGED //",
-        "structure": "// STRUCTURE DAMAGE //",
-        "overheating": "// OVERHEATING //",
-        "cascade": "// CASCADE //",
-        "check": "// CHECK :: {check} //",
-        "system": "// SYSTEM :: {title} //",
-        "mod": "// MOD :: {title} //",
-        "trait": "// TRAIT :: {title} //",
-        "tech": "// TECH :: {title} //",
-        "reaction": "// REACTION :: {title} //"
+    "itemSheet": {
+      "organization": {
+        "purpose": {
+          "label": "Purpose"
+        },
+        "efficiency": {
+          "label": "Efficiency"
+        },
+        "influence": {
+          "label": "Influence"
+        }
       },
-      "label": {
-        "trigger": "TRIGGER",
-        "effect": "EFFECT"
+      "reserve": {
+        "resourceLabel": {
+          "label": "Resource Label"
+        }
+      },
+      "tag": {
+        "metaInfo": {
+          "label": "Tag Meta Info"
+        },
+        "filterIgnore": {
+          "label": "Filter Ignore"
+        }
+      },
+      "talent": {
+        "terseDescription": {
+          "label": "Terse Description"
+        }
+      },
+      "weaponMod": {
+        "allowedSizes": {
+          "label": "Allowed Sizes"
+        },
+        "allowedTypes": {
+          "label": "Allowed Types"
+        }
+      }
+    },
+    "chatCard": {
+      "title": {
+        "reliable": {
+          "label": "Reliable"
+        },
+        "criticalDamage": {
+          "label": "Critical Damage"
+        },
+        "selfHeat": {
+          "label": "Self Heat"
+        },
+        "defenseHit": {
+          "label": "Attack VS {defense}"
+        },
+        "recharging": {
+          "label": "Recharging"
+        },
+        "recharged": {
+          "label": "Recharged"
+        },
+        "structureDamage": {
+          "label": "Structure Damage"
+        },
+        "overheating": {
+          "label": "Overheating"
+        },
+        "cascade": {
+          "label": "Cascade"
+        },
+        "check": {
+          "label": "Check :: {check}"
+        },
+        "system": {
+          "label": "System :: {title}"
+        },
+        "mod": {
+          "label": "Mod :: {title}"
+        },
+        "trait": {
+          "label": "Trait :: {title}"
+        },
+        "tech": {
+          "label": "Tech :: {title}"
+        },
+        "reaction": {
+          "label": "Reaction :: {title}"
+        },
+        "talent": {
+          "label": "Talent :: {title} {lvl}"
+        },
+        "coreActivation": {
+          "label": "Core Activation :: {title}"
+        }
       },
       "attack": {
-        "crit": "CRIT",
-        "hit": "HIT",
-        "miss": "MISS",
-        "roll-all-damage": "ROLL DAMAGE"
+        "crit": {
+          "label": "Crit"
+        },
+        "hit": {
+          "label": "Hit"
+        },
+        "miss": {
+          "label": "Miss"
+        },
+        "rollDamage": {
+          "label": "Roll Damage"
+        }
       },
-      "exclamation": {
-        "overkill": "OVERKILL!"
+      "damage": {
+        "bonus": {
+          "tooltip": "This row is bonus damage"
+        }
+      },
+      "overkill": {
+        "label": "Overkill"
       },
       "overcharge": {
-        "charged": "{target} + :: CHARGED",
-        "uncharged": "{target} + :: UNCHARGED"
+        "charged": {
+          "label": "{target} + :: Charged"
+        },
+        "uncharged": {
+          "label": "{target} + :: Uncharged"
+        }
       },
-      "remaining": "{total} / {max} REMAINING"
+      "remaining": {
+        "label": "{total} / {max} Remaining"
+      }
     },
-    "floatingDamageNumbers": {
-      "name": "Floating Damage Numbers",
-      "hint": "Enable floating damage numbers for changes to stats, including applying damage rolls. This setting is separate for each client."
+    "activeEffects": {
+      "label": "Active Effects",
+      "categories": {
+        "passive": {
+          "label": "Passive"
+        },
+        "passthrough": {
+          "label": "Passthrough"
+        },
+        "disabled": {
+          "label": "Disabled"
+        },
+        "inherited": {
+          "label": "Inherited"
+        }
+      },
+      "pilot": {
+        "mech": {
+          "label": "Pilot → Mech Bonuses"
+        },
+        "deployable": {
+          "label": "Pilot → Deployable Bonuses"
+        }
+      },
+      "npc": {
+        "deployable": {
+          "label": "NPC → Deployable Bonuses"
+        }
+      }
     },
-    "simpleFonts": {
-      "name": "Use Simple/Plain Fonts",
-      "hint": "Replace stylized sci-fi header fonts with Helvetica for legibility. This setting is separate for each client."
+    "pilotImporter": {
+      "loadout": {
+        "title": "Select Pilot Loadout",
+        "content": "Multiple pilot loadouts found. Please select a single loadout to import and use:",
+        "confirm": {
+          "label": "Import Selected Loadout"
+        }
+      },
+      "incomplete": {
+        "title": "Incomplete Pilot Import"
+      },
+      "createPermissions": {
+        "title": "Cannot Create Actors",
+        "content": {
+          "0": "You are not permitted to create actors and no GM's are online, so sync will not produce any new mechs or deployables.",
+          "1": "Your GM can allow Players/Trusted Players to create actors in Settings -> Configure Permissions."
+        }
+      }
     },
-    "uiTheme": {
-      "name": "UI Theme",
-      "hint": "Colour scheme for the UI, echoing Comp/Con's themes.",
-      "gms": "GMS Red (default)",
-      "gmsDark": "GMS Dark",
-      "msmc": "MSMC Solarized",
-      "horus": "HORUS Terminal",
-      "ha": "Harrison Armory Ras Shamra",
-      "ssc": "SSC Constellar Congress",
-      "ipsn": "IPS-N Carina",
-      "gal": "FORECAST/GALSIM"
+    "lcpManager": {
+      "header": {
+        "noLcpSelected": {
+          "label": "No LCP Selected"
+        },
+        "importFromFile": {
+          "label": "Import From File"
+        },
+        "availableContent": {
+          "label": "Available Content"
+        },
+        "selectedOfficial": {
+          "label": "Selected Official Sources"
+        },
+        "selectedLcps": {
+          "label": "Selected LCPs"
+        },
+        "noLlpSelected": {
+          "label": "No Language Patch Selected"
+        },
+        "selectedLlps": {
+          "label": "Selected Language Patches"
+        }
+      },
+      "clearCompendium": {
+        "title": "Clear Compendiums",
+        "content": {
+          "0": "Are you sure you want to delete all actors and items from the Lancer compendiums?",
+          "1": "This action cannot be undone!"
+        }
+      },
+      "removeLlp": {
+        "title": "Remove Language Patch",
+        "content": {
+          "0": "Remove the {lang} language patch for {target}?",
+          "1": "Affected text will revert to its original language."
+        }
+      },
+      "loading": {
+        "label": "Loading data, please wait…"
+      },
+      "importLcp": {
+        "label": "Import LCP"
+      },
+      "clear": {
+        "label": "Clear"
+      },
+      "browse": {
+        "label": "Browse",
+        "hint": "Choose file..."
+      },
+      "contents": {
+        "label": "Contents"
+      },
+      "table": {
+        "title": {
+          "label": "Title"
+        },
+        "author": {
+          "label": "Author"
+        },
+        "current": {
+          "label": "Current"
+        },
+        "available": {
+          "label": "Available"
+        },
+        "locale": {
+          "tooltip": "Download an official translation for this content"
+        },
+        "orphanLocale": {
+          "tooltip": "Install the content this translates to apply it"
+        },
+        "removeLlp": {
+          "tooltip": "Remove this language patch"
+        }
+      },
+      "importSelected": {
+        "label": "Import/Update Selected"
+      },
+      "clearCompendiumData": {
+        "label": "Clear Compendium Data"
+      },
+      "writtenBy": {
+        "label": "by"
+      },
+      "various": {
+        "label": "various"
+      },
+      "llp": {
+        "lines": {
+          "label": "translated lines"
+        },
+        "language": {
+          "label": "Language"
+        },
+        "target": {
+          "label": "LCP"
+        },
+        "targetVersion": {
+          "label": "LCP version"
+        },
+        "lastUpdate": {
+          "label": "Last updated"
+        },
+        "included": {
+          "label": "Includes"
+        },
+        "import": {
+          "label": "Import LLP"
+        }
+      }
     },
-    "pauseIcon": {
-      "name": "Pause Icon",
-      "hint": "The icon graphic to use on the Foundry pause overlay.",
-      "gms": "Union/GMS (default)",
-      "horus": "HORUS",
-      "ha": "Harrison Armory",
-      "ssc": "SSC",
-      "ips-n": "IPS-N",
-      "albatross": "Albatross",
-      "aun": "Aun Ascendancy",
-      "barony": "Karrakin Trade Baronies",
-      "horizon": "Horizon Collective",
-      "ra": "RA",
-      "sparri": "Sparri",
-      "voladores": "Voladores"
+    "onboarding": {
+      "import": {
+        "title": "Install Core Data",
+        "content": {
+          "0": "WELCOME GAME MASTER",
+          "1": "THIS IS YOUR <span class=\"horus--very--subtle\">FIRST</span> TIME LAUNCHING",
+          "2": "Use the LANCER Compendium Manager window to install the <span class=\"horus--very--subtle\">LANCER DATA</span> you wish to use."
+        }
+      },
+      "lcpManagerTour": {
+        "title": "Compendium Manager Tour?",
+        "content": "The LANCER Compendium Manager has had a major update. Would you like to get a tour?"
+      }
     },
-    "scanOutput": {
-      "name": "Scan Output Location",
-      "hint": "Where should scan results be recorded?",
-      "both": "Chat & Journal",
-      "chat": "Chat only",
-      "journal": "Journal only"
-    },
-    "statusIconsConfig": {
-      "menu-name": "Status Icons",
-      "menu-label": "Status Icon Configuration",
-      "menu-hint": "Configure the status icons that appear on the token HUD",
-      "defaultConditionsStatus": "Default Conditions & Status",
-      "defaultConditionsStatus-desc": "Enable the default icon set for conditions & status",
-      "cancerConditionsStatus": "Cancermantis' Conditions & Status",
-      "cancerConditionsStatus-desc": "Enable Cancermantis' icon set for conditions & status",
-      "cancerNPCTemplates": "Cancermantis' NPC Templates",
-      "cancerNPCTemplates-desc": "Enable Cancermantis' icon set for NPC templates",
-      "hayleyConditionsStatus": "Hayley's Condition & Status",
-      "hayleyConditionsStatus-desc": "Enable Hayley's icon set for conditions & status",
-      "hayleyPC": "Hayley's PC Systems",
-      "hayleyPC-desc": "Enable Hayley's icon set for PC system effects",
-      "hayleyNPC": "Hayley's NPC Systems",
-      "hayleyNPC-desc": "Enable Hayley's icon set for NPC system effects",
-      "hayleyUtility": "Hayley's Utility",
-      "hayleyUtility-desc": "Enable Hayley's icon set for utility indicators",
-      "tommyConditionsStatus": "Tommy's Condition & Status",
-      "tommyConditionsStatus-desc": "Enable Tommy's icon set for conditions & status"
+    "setting": {
+      "floatingDamageNumbers": {
+        "name": "Floating Damage Numbers",
+        "hint": "Enable floating damage numbers for changes to stats, including applying damage rolls. This setting is separate for each client."
+      },
+      "simpleFonts": {
+        "name": "Use Simple/Plain Fonts",
+        "hint": "Replace stylized sci-fi header fonts with Helvetica for legibility. This setting is separate for each client."
+      },
+      "uiTheme": {
+        "name": "UI Theme",
+        "hint": "Colour scheme for the UI, echoing Comp/Con's themes.",
+        "gms": "GMS Red (default)",
+        "gmsDark": "GMS Dark",
+        "msmc": "MSMC Solarized",
+        "horus": "HORUS Terminal",
+        "ha": "Harrison Armory Ras Shamra",
+        "ssc": "SSC Constellar Congress",
+        "ipsn": "IPS-N Carina",
+        "gal": "FORECAST/GALSIM"
+      },
+      "pauseIcon": {
+        "name": "Pause Icon",
+        "hint": "The icon graphic to use on the Foundry pause overlay.",
+        "gms": "Union/GMS (default)",
+        "horus": "HORUS",
+        "ha": "Harrison Armory",
+        "ssc": "SSC",
+        "ips-n": "IPS-N",
+        "albatross": "Albatross",
+        "aun": "Aun Ascendancy",
+        "barony": "Karrakin Trade Baronies",
+        "horizon": "Horizon Collective",
+        "ra": "RA",
+        "sparri": "Sparri",
+        "voladores": "Voladores"
+      },
+      "scanOutput": {
+        "name": "Scan Output Location",
+        "hint": "Where should scan results be recorded?",
+        "both": "Chat & Journal",
+        "chat": "Chat only",
+        "journal": "Journal only",
+        "exotic": {
+          "weapon": {
+            "label": "UNKNOWN EXOTIC WEAPON"
+          },
+          "techAttack": {
+            "label": "UNKNOWN EXOTIC TECH ATTACK"
+          },
+          "system": {
+            "label": "UNKNOWN EXOTIC SYSTEM"
+          },
+          "trait": {
+            "label": "UNKNOWN EXOTIC TRAIT"
+          }
+        }
+      },
+      "statusIconsConfig": {
+        "menu": {
+          "name": "Status Icons",
+          "label": "Status Icon Configuration",
+          "hint": "Configure the status icons that appear on the token HUD"
+        },
+        "defaultConditionsStatus": {
+          "label": "Default Conditions & Status",
+          "hint": "Enable the default icon set for conditions & status"
+        },
+        "cancerConditionsStatus": {
+          "label": "Cancermantis' Conditions & Status",
+          "hint": "Enable Cancermantis' icon set for conditions & status"
+        },
+        "cancerNPCTemplates": {
+          "label": "Cancermantis' NPC Templates",
+          "hint": "Enable Cancermantis' icon set for NPC templates"
+        },
+        "hayleyConditionsStatus": {
+          "label": "Hayley's Condition & Status",
+          "hint": "Enable Hayley's icon set for conditions & status"
+        },
+        "hayleyPC": {
+          "label": "Hayley's PC Systems",
+          "hint": "Enable Hayley's icon set for PC system effects"
+        },
+        "hayleyNPC": {
+          "label": "Hayley's NPC Systems",
+          "hint": "Enable Hayley's icon set for NPC system effects"
+        },
+        "hayleyUtility": {
+          "label": "Hayley's Utility",
+          "hint": "Enable Hayley's icon set for utility indicators"
+        },
+        "tommyConditionsStatus": {
+          "label": "Tommy's Condition & Status",
+          "hint": "Enable Tommy's icon set for conditions & status"
+        }
+      },
+      "automation": {
+        "menu": {
+          "name": "Automation",
+          "label": "System Automation Settings",
+          "hint": "Set up what system automation options are enabled, or turn them all off"
+        },
+        "attacks": {
+          "label": "Attack roll evaluation",
+          "hint": "Toggle for whether or not you want the system to auto-calculate hits and other attack related automation."
+        },
+        "damage": {
+          "label": "Damage application",
+          "hint": "Toggle for whether or not you want the system to apply rolled damage to targets."
+        },
+        "structure": {
+          "label": "Structure/Stress",
+          "hint": "Automatically prompt for a structure or stress roll when a mech reaches 0 hp or exceeds its heat cap."
+        },
+        "overchargeHeat": {
+          "label": "Apply Overcharge Heat",
+          "hint": "Automatically apply heat when rolling overcharge"
+        },
+        "attackSelfHeat": {
+          "label": "Self Heat from Attacks",
+          "hint": "When a weapon has the Overkill or Heat (self) tags, automatically apply any heat."
+        },
+        "removeTemplates": {
+          "label": "Autoremove Templates",
+          "hint": "When the turn changes, should measured templates from attacks be cleared?"
+        },
+        "limitedLoading": {
+          "label": "Manage Limited/Loading",
+          "hint": "When items are used, should their limited and loading status be automatically managed and tracked?"
+        },
+        "npcRecharge": {
+          "label": "NPC Recharge",
+          "hint": "Automatically roll to recharge NPC systems at the start of their turn."
+        },
+        "tokenSize": {
+          "label": "Manage Token Sizes",
+          "hint": "Automatically force tokens sizes to match the associated actor's size stat."
+        }
+      },
+      "actionTracker": {
+        "menu": {
+          "name": "Action Tracker",
+          "label": "Action Tracker Settings",
+          "hint": "Configure options related to action tracker HUD and automations."
+        },
+        "showHotbar": {
+          "label": "Show Hotbar",
+          "hint": "Toggles the display of the floating hotbar during combat."
+        },
+        "allowPlayers": {
+          "label": "Allow Players",
+          "hint": "Allows players to modify their own actions."
+        },
+        "printMessages": {
+          "label": "Print Messages",
+          "hint": "Prints chat messages for start and end of a token's turn."
+        }
+      },
+      "localization": {
+        "menu": {
+          "name": "Localization",
+          "label": "Localization Settings",
+          "hint": "Configure localization options for imported LCPs"
+        },
+        "header": {
+          "override": {
+            "label": "LLP Override Map",
+            "hint": "Map the complete LLP paths to the complete LID and path used by the Lancer system. The system comes with curated overrides for official content by default."
+          }
+        },
+        "override": {
+          "consoleTip": {
+            "label": "Opening the affected compendium entries while the browser console is open will help in figuring out the paths",
+            "tooltip": "Depending on your browser and OS: [F12], [Ctrl + Shift + J], [Ctrl + Shift + K]"
+          },
+          "commaTip": {
+            "label": "Multiple LLP keys may be separated by commas.",
+            "tooltip": "[key1], [key2]"
+          },
+          "llpPathTip": {
+            "label": "Example LLP path:"
+          },
+          "systemPathTip": {
+            "label": "Example Foundry path:"
+          },
+          "systemKey": {
+            "label": "Foundry Key",
+            "placeholder": "Foundry path"
+          },
+          "llpKey": {
+            "label": "LLP Key",
+            "placeholder": "LLP path"
+          },
+          "none": {
+            "label": "No LLP files or index overrides stored."
+          }
+        },
+        "buttons": {
+          "add": {
+            "label": "Add Override"
+          },
+          "import": {
+            "label": "Import JSON"
+          },
+          "export": {
+            "label": "Export JSON"
+          }
+        }
+      }
     },
     "statusIconsNames": {
       "abjure": "Abjure",
@@ -413,42 +1583,6 @@
       "walk_of_kings": "Walk of Kings",
       "warp_sensors": "Warp Sensors"
     },
-    "automation": {
-      "menu-name": "Automation",
-      "menu-label": "System Automation Settings",
-      "menu-hint": "Set up what system automation options are enabled, or turn them all off",
-      "master-switch": "Enabled",
-      "master-switch-desc": "Turn this off to do everything manually",
-      "attacks": "Attack roll evaluation",
-      "attacks-desc": "Toggle for whether or not you want the system to auto-calculate hits and other attack related automation.",
-      "damage": "Damage application",
-      "damage-desc": "Toggle for whether or not you want the system to apply rolled damage to targets.",
-      "structure": "Structure/Stress",
-      "structure-desc": "Automatically prompt for a structure or stress roll when a mech reaches 0 hp or exceeds its heat cap.",
-      "overcharge_heat": "Apply Overcharge Heat",
-      "overcharge_heat-desc": "Automatically apply heat when rolling overcharge",
-      "attack_self_heat": "Self Heat from Attacks",
-      "attack_self_heat-desc": "When a weapon has the Overkill or Heat (self) tags, automatically apply any heat.",
-      "remove_templates": "Autoremove Templates",
-      "remove_templates-desc": "When the turn changes, should measured templates from attacks be cleared?",
-      "limited_loading": "Manage Limited/Loading",
-      "limited_loading-desc": "When items are used, should their limited and loading status be automatically managed and tracked?",
-      "npc_recharge": "NPC Recharge",
-      "npc_recharge-desc": "Automatically roll to recharge NPC systems at the start of their turn.",
-      "token_size": "Manage Token Sizes",
-      "token_size-desc": "Automatically force tokens sizes to match the associated actor's size stat."
-    },
-    "actionTracker": {
-      "menu-name": "Action Tracker",
-      "menu-label": "Action Tracker Settings",
-      "menu-hint": "Configure options related to action tracker HUD and automations.",
-      "showHotbar": "Show Hotbar",
-      "showHotbar-desc": "Toggles the display of the floating hotbar during combat.",
-      "allowPlayers": "Allow Players",
-      "allowPlayers-desc": "Allows players to modify their own actions.",
-      "printMessages": "Print Messages",
-      "printMessages-desc": "Prints chat messages for start and end of a token's turn."
-    },
     "initiative": {
       "sorttracker": "Sort the tracker",
       "sorttracker-desc": "Moves the unit currently taking their turn to the top of the tracker and moves units that have taken their turn to the end of the tracker.",
@@ -463,14 +1597,6 @@
       "121": "1-2-1: Diagonal moves alternate cost from 1 to 2",
       "222": "2-2-2: Manhattan distance. Diagonals cost 2",
       "euc": "Euclidean: Euclidian distance rounded"
-    },
-    "effect": {
-      "categories": {
-        "passive": "Passive",
-        "passthrough": "Passthrough",
-        "disabled": "Disabled",
-        "inherited": "Inherited"
-      }
     },
     "tables": {
       "structure": {
@@ -542,17 +1668,25 @@
       "status-items": "Status/Condition"
     },
     "tokenConfig": {
-      "manual_token_size": {
+      "manualTokenSize": {
         "label": "Manual Token Sizing",
         "hint": "Bypass system automation for determining token size"
       }
     },
     "movement": {
       "actions": {
-        "blink": "Teleport (Move)",
-        "forced": "Forced Move",
-        "ignore": "Ignore Terrain",
-        "teleport": "Teleport (Ability)"
+        "blink": {
+          "label": "Teleport (Move)"
+        },
+        "forced": {
+          "label": "Forced Move"
+        },
+        "ignore": {
+          "label": "Ignore Terrain"
+        },
+        "teleport": {
+          "label": "Teleport (Ability)"
+        }
       }
     }
   },

@@ -12,9 +12,9 @@
     </h1>
     {{{ref-portrait-img actor.img "img" actor}}}
     <div class="header-details monospace">
-      {{localize "TYPES.Actor.deployable"}}
+      {{localize "lancer.common.actor.deployable.label"}}
       {{#if owner}}
-        </br>{{localize "lancer.deployable-sheet.header.owner"}} ::
+        </br>{{localize "lancer.deployableSheet.header.owner"}} ::
         {{system.owner.value.name}}
       {{/if}}
     </div>
@@ -22,9 +22,9 @@
 
   {{! Sheet Tab Navigation }}
   <nav class="lancer-tabs" data-group="primary">
-    <a class="item lancer-tab medium" data-tab="status">{{localize "lancer.deployable-sheet.tabs.status"}}</a>
-    <a class="item lancer-tab medium" data-tab="config">{{localize "lancer.deployable-sheet.tabs.config"}}</a>
-    <a class="item lancer-tab medium" data-tab="effects">{{localize "lancer.common-sheet.tabs.effects"}}</a>
+    <a class="item lancer-tab medium" data-tab="status">{{localize "lancer.deployableSheet.tabs.status.label"}}</a>
+    <a class="item lancer-tab medium" data-tab="config">{{localize "lancer.deployableSheet.tabs.config.label"}}</a>
+    <a class="item lancer-tab medium" data-tab="effects">{{localize "lancer.commonSheet.tabs.effects.label"}}</a>
     <!--<a class="item lancer-tab medium" data-tab="mech">&lt;FRAME//LOADOUT&gt;</a>-->
   </nav>
 
@@ -33,39 +33,37 @@
     {{! Active Tab }}
     <div class="tab manage" data-group="primary" data-tab="status">
       <div class="wraprow quadruple">
-        {{{stat-edit-max-card "hp" "mdi mdi-heart-outline" "system.hp.value" "system.hp.max"}}}
-        {{{stat-edit-max-card "heat" "cci cci-heat" "system.heat.value" "system.heat.max"}}}
-        {{{stat-edit-rollable-card "burn" "cci cci-burn" "system.burn"}}}
-        {{{stat-edit-card "overshield" "mdi mdi-shield-star-outline" "system.overshield.value"}}}
+        {{{stat-edit-max-card (upper-case (localize "lancer.common.stat.hp.label")) "mdi mdi-heart-outline" "system.hp.value" "system.hp.max"}}}
+        {{{stat-edit-max-card (upper-case (localize "lancer.common.stat.heat.cap.label")) "cci cci-heat" "system.heat.value" "system.heat.max"}}}
+        {{{stat-edit-rollable-card (upper-case (localize "lancer.common.stat.burn.label")) "cci cci-burn" "system.burn"}}}
+        {{{stat-edit-card (upper-case (localize "lancer.common.stat.overshield.label")) "mdi mdi-shield-star-outline" "system.overshield.value"}}}
         {{#if (eq system.size 0.5)}}
-          {{{stat-view-card "size" "cci cci-size-half" "system.size"}}}
+          {{{stat-view-card (upper-case (localize "lancer.common.stat.size.label")) "cci cci-size-half" "system.size"}}}
         {{else}}
-          {{{stat-view-card "size" (concat "cci cci-size-" system.size) "system.size"}}}
+          {{{stat-view-card (upper-case (localize "lancer.common.stat.size.label")) (concat "cci cci-size-" system.size) "system.size"}}}
         {{/if}}
-        {{{stat-view-card "armor" "mdi mdi-shield-outline" "system.armor"}}}
-        {{{stat-view-card "evasion" "cci cci-evasion" "system.evasion"}}}
-        {{{stat-view-card "edef" "cci cci-edef" "system.edef"}}}
-        {{{stat-view-card "speed" "mdi mdi-arrow-right-bold-hexagon-outline" "system.speed"}}}
-        {{{stat-view-card "save" "cci cci-save" "system.save"}}}
+        {{{stat-view-card (upper-case (localize "lancer.common.stat.armor.label")) "mdi mdi-shield-outline" "system.armor"}}}
+        {{{stat-view-card (upper-case (localize "lancer.common.stat.evasion.label")) "cci cci-evasion" "system.evasion"}}}
+        {{{stat-view-card (upper-case (localize "lancer.common.stat.eDefense.label")) "cci cci-edef" "system.edef"}}}
+        {{{stat-view-card (upper-case (localize "lancer.common.stat.speed.label")) "mdi mdi-arrow-right-bold-hexagon-outline" "system.speed"}}}
+        {{{stat-view-card (upper-case (localize "lancer.common.stat.save.label")) "cci cci-save" "system.save"}}}
 
         <div class="card clipped full lancer-flow-button-grid">
-          <span class="lancer-header lancer-primary submajor">{{
-              localize "lancer.common-sheet.headers.combatUtilities"
-            }}</span>
+          <span class="lancer-header lancer-primary submajor">{{{upper-case (localize "lancer.commonSheet.header.combatUtilities.label")}}}</span>
           <div class="lancer-flow-button-grid">
-            {{{flow-button (localize "lancer.common-sheet.buttons.basicAttack") "BasicAttack"}}}
-            {{{flow-button (localize "lancer.common-sheet.buttons.damage") "Damage"}}}
+            {{{flow-button (upper-case (localize "lancer.commonSheet.buttons.basicAttack.label")) "BasicAttack"}}}
+            {{{flow-button (upper-case (localize "lancer.commonSheet.buttons.damage.label")) "Damage"}}}
           </div>
         </div>
 
         <div class="card clipped full">
           <div class="lancer-header lancer-primary major">
-            {{localize "lancer.deployable-sheet.deployer.label"}}
+            {{upper-case (localize "lancer.deployableSheet.deployer.label")}}
           </div>
           {{{deployer-slot "system.owner.value"}}}
         </div>
 
-        {{{textarea-card "DETAILS" "system.detail"}}}
+        {{{textarea-card (upper-case (localize "lancer.common.descriptor.detail.plural")) "system.detail"}}}
       </div>
     </div>
 
@@ -73,27 +71,24 @@
     <div class="tab manage flexcol" data-group="primary" data-tab="config">
       {{! Frame Stats }}
       <div class="card clipped" style="text-align: left">
-        <span class="lancer-header lancer-primary major" style="text-align: center">{{
-            localize
-            "lancer.deployable-sheet.stats.label"
-          }}</span>
+        <span class="lancer-header lancer-primary major" style="text-align: center">{{upper-case (localize "lancer.deployableSheet.baseStats.label")}}</span>
         <div class="card clipped wraprow quadruple">
           <div class="wraprow quadruple">
             <div class="card clipped stat-container">
               <div class="lancer-header lancer-primary">
                 <i class="mdi mdi-heart-outline i--4 i--light header-icon"> </i>
-                <span class="major">MAX HP</span>
+                <span class="major">{{{upper-case (localize "lancer.common.stat.hp.max.label")}}}</span>
               </div>
               {{!-- prettier-ignore --}}
               <input class="lancer-input major" {{{getset "system.stats.hp"}}} type="text" data-dtype="String">
             </div>
-            {{{clicker-stat-card "armor" "mdi mdi-shield-outline" "system.stats.armor" false}}}
-            {{{clicker-stat-card "evasion" "cci cci-evasion" "system.stats.evasion" false}}}
-            {{{clicker-stat-card "edef" "cci cci-edef" "system.stats.edef" false}}}
-            {{{clicker-stat-card "heatcap" "cci cci-heatcap" "system.stats.heatcap" false}}}
-            {{{clicker-stat-card "speed" "mdi mdi-arrow-right-bold-hexagon-outline" "system.stats.speed" false}}}
-            {{{clicker-stat-card "size" "cci cci-hexagon" "system.stats.size" false}}}
-            {{{clicker-stat-card "cost" "cci cci-hexagon" "system.cost" false}}}
+            {{{clicker-stat-card (upper-case (localize "lancer.common.stat.armor.label")) "mdi mdi-shield-outline" "system.stats.armor" false}}}
+            {{{clicker-stat-card (upper-case (localize "lancer.common.stat.evasion.label")) "cci cci-evasion" "system.stats.evasion" false}}}
+            {{{clicker-stat-card (upper-case (localize "lancer.common.stat.eDefense.label")) "cci cci-edef" "system.stats.edef" false}}}
+            {{{clicker-stat-card (upper-case (localize "lancer.common.stat.heat.cap.label")) "cci cci-heatcap" "system.stats.heatcap" false}}}
+            {{{clicker-stat-card (upper-case (localize "lancer.common.stat.speed.label")) "mdi mdi-arrow-right-bold-hexagon-outline" "system.stats.speed" false}}}
+            {{{clicker-stat-card (upper-case (localize "lancer.common.stat.size.label")) "cci cci-hexagon" "system.stats.size" false}}}
+            {{{clicker-stat-card (upper-case (localize "lancer.common.stat.cost.label")) "cci cci-hexagon" "system.cost" false}}}
           </div>
         </div>
       </div>

@@ -1,4 +1,4 @@
-import { LANCER } from "./config";
+import { friendlyEntryTypeName, LANCER } from "./config";
 const lp = LANCER.log_prefix;
 import { LCPIndex } from "./apps/lcp-manager/lcp-manager";
 import { get_pack, get_pack_id } from "./util/doc";
@@ -161,15 +161,15 @@ export async function importCP(
       let pack = await get_pack(et);
       let folder: Folder | undefined = [EntryType.NPC, EntryType.STATUS].includes(et)
         ? undefined
-        : pack.folders.find(f => f.getFlag(game.system.id, "entrytype") === et) ??
+        : (pack.folders.find(f => f.getFlag(game.system.id, "entrytype") === et) ??
           (await Folder.create(
             {
-              name: game.i18n.localize(`TYPES.${pack.metadata.type}.${et}`),
+              name: game.i18n.localize(friendlyEntryTypeName(et, 99)), // 99 is arbitrary to force plural locale string
               type: pack.metadata.type,
               [`flags.${game.system.id}.entrytype`]: et,
             },
             { pack: get_pack_id(et) }
-          ));
+          )));
       let results = [];
       for (let d of item_data) {
         let key = d.system.lid || d.name;
@@ -278,12 +278,12 @@ export async function setAllLock(lock = false, v1 = false) {
  * @param options.v1 Whether to clear v1 data
  */
 export async function clearCompendiumData(options = { v1: false }) {
-  ui.notifications!.info(`Clearing all LANCER Compendium data. Please wait.`);
+  ui.notifications!.info(game.i18n.localize("lancer.notifications.info.compendiumBuilderClearInProgress"));
   console.log(`${lp} Clearing all LANCER Compendium data.`);
   await game.settings.set(game.system.id, LANCER.setting_core_data, "");
   await game.settings.set(game.system.id, LANCER.setting_lcps, new LCPIndex(null));
   await clearAll(options.v1);
-  ui.notifications!.info(`LANCER Compendiums cleared.`);
+  ui.notifications!.info(game.i18n.localize("lancer.notifications.info.compendiumBuilderClearComplete"));
 }
 
 declare module "fvtt-types/configuration" {

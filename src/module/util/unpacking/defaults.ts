@@ -65,7 +65,7 @@ export function BONUS(): BonusData {
 
 export function ACTION(): ActionData {
   return {
-    name: "New action",
+    name: "New Action",
     lid: "act_" + nanoid(),
     activation: ActivationType.Quick,
     detail: DEFAULT_DESCRIPTION,

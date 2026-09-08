@@ -1,6 +1,9 @@
+<script lang="ts">
+</script>
+
 <div class="spinner__container">
-  <div class="spinner__spinner" />
-  <slot />
+  <div class="spinner__spinner"></div>
+  <slot></slot>
 </div>
 
 <style lang="scss">

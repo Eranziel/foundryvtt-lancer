@@ -196,7 +196,7 @@ function handlePilotExport(actor: LancerActor) {
   // Pilot Loadout
   const pilotLoadout: PackedPilotLoadoutData = {
     id: nanoid(),
-    name: "Primary",
+    name: game.i18n.localize("lancer.common.descriptor.primary.label"),
     armor: items
       .filter((item): item is Item.OfType<"pilot_armor"> => item.type === "pilot_armor")
       .map(item => {
@@ -235,7 +235,7 @@ function handlePilotExport(actor: LancerActor) {
   };
   const mechLoadout: PackedMechLoadoutData = {
     id: nanoid(),
-    name: "Primary",
+    name: game.i18n.localize("lancer.common.descriptor.primary.label"),
     systems: items
       .filter(item => item.type === "mech_system" && !item.integrated)
       .map(item => {

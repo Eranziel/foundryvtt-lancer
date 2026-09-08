@@ -54,7 +54,7 @@ import { unpackMechWeapon } from "../models/items/mech_weapon";
 import { unpackWeaponMod } from "../models/items/weapon_mod";
 import { unpackReserve } from "../models/items/reserve";
 import { unpackFrame } from "../models/items/frame";
-const lp = LANCER.log_prefix;
+const lp = LANCER.log_prefix + " Pilot Import |";
 
 /**
  * Updates the Pilot document, given COMP/CON data.
@@ -70,7 +70,7 @@ async function updatePilot(
   armor?: string[],
   gear?: string[],
   weapons?: string[]
-) {
+): Promise<void> {
   const portrait = data.cloud_portrait ?? data.img.cloud_portrait;
   const unpackClock = (clock: PackedClockBurdenData) => {
     return {
@@ -152,7 +152,7 @@ async function updateMech(
   populatedMounts: SourceData.Mech["loadout"]["weapon_mounts"],
   populatedSystems: string[],
   frame?: LancerFRAME | null
-) {
+): Promise<void> {
   await mech.update({
     name: data.name,
     folder: pilot.folder?.id || null,
@@ -218,7 +218,7 @@ async function updateMech(
  * Clear all embedded documents related to the given pilot
  * @param pilot - The pilot actor to delete embedded documents off of
  */
-async function clearPilotEmbeddedDocuments(pilot: LancerPILOT) {
+async function clearPilotEmbeddedDocuments(pilot: LancerPILOT): Promise<void> {
   await pilot.deleteEmbeddedDocuments("Item", Array.from(pilot.items.keys()));
   let existing_mechs = game.actors?.filter((a: LancerActor) => a.is_mech() && a.system.pilot?.value == pilot) ?? [];
   for (let m of existing_mechs) {
@@ -229,18 +229,18 @@ async function clearPilotEmbeddedDocuments(pilot: LancerPILOT) {
 /**
  * Checks whether the calling client is able to create Actors
  */
-function hasCreatePermissions() {
+function hasCreatePermissions(): boolean {
   const canCreate = game.user?.can("ACTOR_CREATE");
   const gmsOnline = game.users?.some(u => u.isGM && u.active);
   if (!canCreate && !gmsOnline) {
     new foundry.applications.api.DialogV2({
       window: {
-        title: `Cannot Create Actors`,
+        title: game.i18n.localize("lancer.pilotImporter.createPermissions.title"),
         icon: "fas fa-triangle-exclamation",
       },
       content: `
-        <p>You are not permitted to create actors and no GM's are online, so sync will not produce any new mechs or deployables.</p>
-        <p>Your GM can allow Players/Trusted Players to create actors in Settings->Configure Permissions.</p>
+        <p>${game.i18n.localize("lancer.pilotImporter.createPermissions.content.0")}</p>
+        <p>${game.i18n.localize("lancer.pilotImporter.createPermissions.content.1")}</p>
       `,
       buttons: [
         {
@@ -263,29 +263,31 @@ function hasCreatePermissions() {
  * @param loadouts - Array of loadout string names
  * @return The index of the choice made
  */
-async function promptLoadoutSelection(loadouts: string[]) {
+async function promptLoadoutSelection(loadouts: string[]): Promise<number> {
   let contentChoices = "";
   loadouts.map((l, i) => {
     contentChoices += `<label><input type="radio" name="choice" value=${i} ${i == 0 ? "checked" : ""}>${l}</label>`;
   });
 
-  // @ts-ignore Please stop yelling at me :sob:
-  return foundry.applications.api.DialogV2.prompt({
+  const result = await foundry.applications.api.DialogV2.prompt({
+    rejectClose: true, // Otherwise return can be null
     window: {
-      title: `Select Pilot Loadout`,
+      title: game.i18n.localize("lancer.pilotImporter.loadout.title"),
       icon: "fas fa-triangle-exclamation",
     },
     content: `
-      <span>Multiple pilot loadouts found. Please select a single loadout to import and use:</span>
+      <span>${game.i18n.localize("lancer.pilotImporter.loadout.content")}</span>
       ${contentChoices}
       <hr>
     `,
     ok: {
-      label: "Import Selected Loadout",
+      label: game.i18n.localize("lancer.pilotImporter.loadout.confirm.label"),
       callback: (_event: Event, button: HTMLButtonElement, _dialog: any) =>
         (button.form?.elements as unknown as { choice: RadioNodeList }).choice.value,
     },
   });
+
+  return Number(result);
 }
 
 /**
@@ -315,12 +317,15 @@ async function getOrCreateActorItemByLid(
 
 /**
  * Wrapper function to determine which importer to use
+ * @param pilot
+ * @param importedData
+ * @param clearFirst
  */
 export async function importCC(
   pilot: LancerPILOT,
   importedData: PackedPilotData | PackedPilotWrapper,
   clearFirst = true
-) {
+): Promise<void> {
   // CCv3 JSON exports have a wrapper that is missing in sharecode/cloud fetching
   // `originId` is some arbitrary V3 exclusive data; it can be anything else.
   // `EXPORT_TYPE` is exclusive to V3 and only in JSON exports.
@@ -334,12 +339,15 @@ export async function importCC(
 /**
  * Imports packed pilot data from CCv3.
  * Minimum import version: CCv3.0.4
+ * @param pilot
+ * @param importedData
+ * @param clearFirst
  */
 export async function importCCv3(
   pilot: LancerPILOT,
   importedData: PackedPilotWrapper | PackedPilotData,
   clearFirst = true
-) {
+): Promise<void> {
   console.log(`${lp} Importing v3 Pilot`, pilot, importedData);
   if (!pilot.is_pilot()) {
     console.error(`${lp} Actor was not a pilot type`, pilot);
@@ -388,8 +396,7 @@ export async function importCCv3(
     const weapons: string[] = [];
     if (data.loadouts) {
       try {
-        if (data.loadouts.length > 1)
-          selectedLoadout = Number(await promptLoadoutSelection(data.loadouts.map(l => l.name)));
+        if (data.loadouts.length > 1) selectedLoadout = await promptLoadoutSelection(data.loadouts.map(l => l.name));
       } catch {
         console.log(`${lp} User cancelled pilot import`);
         return;
@@ -522,7 +529,7 @@ export async function importCCv3(
         pilot.createEmbeddedDocuments("Item", [
           {
             type: EntryType.SKILL,
-            name: item.id ?? "Custom Skill",
+            name: item.id ?? game.i18n.localize("lancer.common.item.skill.custom.label"),
             system: <any>{
               rank: item.rank,
               description: item.custom_desc || item.custom_detail || "",
@@ -735,7 +742,7 @@ export async function importCCv3(
     const createNewMech = async (importData: PackedMechData) => {
       if (!game.user?.can("ACTOR_CREATE")) {
         ui.notifications!.warn(
-          `Could not import mech '${importData.name}' as you lack the permission to create new actors. Please ask your GM for assistance (either they import for you, or give you permissions)`,
+          game.i18n.format("lancer.notifications.warning.pilotImportCreatePermissions", { name: importData.name }),
           { permanent: true }
         );
         _missingActors.push({ name: importData.name, lid: importData.frameData.id });
@@ -761,7 +768,7 @@ export async function importCCv3(
       }
       if (!mech.canUserModify(game.user!, "update")) {
         ui.notifications!.warn(
-          `Could not import mech '${importedMech.name}' as you lack the permission to update the actor. Please ask your GM for assistance.`,
+          game.i18n.format("lancer.notifications.warning.pilotImportUpdatePermissions", { name: importedMech.name }),
           { permanent: true }
         );
         _missingActors.push({ name: importedMech.name, lid: importedMech.frameData.id });
@@ -971,10 +978,15 @@ export async function importCCv3(
     pilot.effectHelper.propagateEffects(true);
     // Reset current data and render all
     pilot.render();
-    ui.notifications!.info("Successfully loaded pilot new state.");
+    ui.notifications!.info(game.i18n.localize("lancer.notifications.info.pilotImportSuccess"));
   } catch (e) {
     console.warn(e);
-    ui.notifications!.warn(`Failed to update pilot: ${e instanceof Error ? e.message : e}`, { permanent: true });
+    ui.notifications!.warn(
+      game.i18n.format("lancer.notifications.warning.pilotImportFailed", {
+        err: e instanceof Error ? e.message : String(e),
+      }),
+      { permanent: true }
+    );
   }
 }
 
@@ -982,10 +994,9 @@ export async function importCCv3(
 export async function importCCv2(pilot: LancerPILOT, data: PackedPilotData, clearFirst = true) {
   const coreVersion = game.settings.get(game.system.id, LANCER.setting_core_data);
   if (!coreVersion) {
-    ui.notifications!.warn(
-      "You must import the Core Book Data in the Lancer Compendium Manager before importing a pilot.",
-      { permanent: true }
-    );
+    ui.notifications!.warn(game.i18n.localize("lancer.notifications.warning.pilotImportCrbRequired"), {
+      permanent: true,
+    });
     return;
   }
   console.log(`${lp} Importing v2 Pilot`, pilot, data);
@@ -1012,9 +1023,14 @@ export async function importCCv2(pilot: LancerPILOT, data: PackedPilotData, clea
     const gmsOnline = game.users?.some(u => u.isGM && u.active);
     if (!canCreate && !gmsOnline) {
       new foundry.applications.api.DialogV2({
-        window: { title: `Cannot Create Actors`, icon: "fas fa-triangle-exclamation" },
-        content: `<p>You are not permitted to create actors and no GM's are online, so sync will not produce any new mechs or deployables.</p>
-        <p>Your GM can allow Players/Trusted Players to create actors in Settings->Configure Permissions.</p>`,
+        window: {
+          title: game.i18n.localize("lancer.pilotImporter.createPermissions.title"),
+          icon: "fas fa-triangle-exclamation",
+        },
+        content: `
+          <p>${game.i18n.localize("lancer.pilotImporter.createPermissions.content.0")}</p>
+          <p>${game.i18n.localize("lancer.pilotImporter.createPermissions.content.1")}</p>
+        `,
         buttons: [
           {
             action: "close",
@@ -1265,7 +1281,7 @@ export async function importCCv2(pilot: LancerPILOT, data: PackedPilotData, clea
       if (!mech) {
         if (!game.user?.can("ACTOR_CREATE")) {
           ui.notifications!.warn(
-            `Could not import mech '${cloudMech.name}' as you lack the permission to create new actors. Please ask your GM for assistance (either they import for you, or give you permissions)`,
+            game.i18n.format("lancer.notifications.warning.pilotImportCreatePermissions", { name: cloudMech.name }),
             { permanent: true }
           );
           missingActors.push({ name: cloudMech.name, lid: cloudMech.frame });
@@ -1284,7 +1300,7 @@ export async function importCCv2(pilot: LancerPILOT, data: PackedPilotData, clea
       }
       if (!mech.canUserModify(game.user!, "update")) {
         ui.notifications!.warn(
-          `Could not import mech '${cloudMech.name}' as you lack the permission to update the actor. Please ask your GM for assistance.`,
+          game.i18n.format("lancer.notifications.warning.pilotImportUpdatePermissions", { name: cloudMech.name }),
           { permanent: true }
         );
         missingActors.push({ name: cloudMech.name, lid: cloudMech.frame });
@@ -1501,14 +1517,18 @@ export async function importCCv2(pilot: LancerPILOT, data: PackedPilotData, clea
     // Reset curr data and render all
     pilot.render();
     if (missingItems.length || missingActors.length) {
-      let message = `Partially loaded '${pilot.name}'s new state.`;
+      let message = game.i18n.format("lancer.notifications.warning.pilotImportMissingData", { name: pilot.name });
       if (missingActors.length) {
-        message += ` ${missingActors.length} actors could not be created/updated.`;
+        message += game.i18n.format("lancer.notifications.warning.pilotImportMissingActor", {
+          number: missingActors.length.toString(),
+        });
       }
       if (missingItems.length) {
-        message += ` ${missingItems.length} items could not be found.`;
+        message += game.i18n.format("lancer.notifications.warning.pilotImportMissingItem", {
+          number: missingItems.length.toString(),
+        });
       }
-      message += ` See dialog for details.`;
+      message += game.i18n.localize("lancer.notifications.warning.pilotImportMissingDataDefer");
       ui.notifications!.warn(message, { permanent: true });
       console.warn(`${lp} Some actors and/or items were missed during pilot import:`, missingActors, missingItems);
 
@@ -1523,7 +1543,10 @@ export async function importCCv2(pilot: LancerPILOT, data: PackedPilotData, clea
         <span>Import all necessary LCPs first using the <b>Lancer Compendium Manager</b>.</span></div>`;
       }
       new foundry.applications.api.DialogV2({
-        window: { title: `Incomplete Pilot Import`, icon: "fas fa-triangle-exclamation" },
+        window: {
+          title: game.i18n.localize("lancer.pilotImporter.incomplete.title"),
+          icon: "fas fa-triangle-exclamation",
+        },
         content,
         buttons: [
           {
@@ -1535,10 +1558,15 @@ export async function importCCv2(pilot: LancerPILOT, data: PackedPilotData, clea
         ],
       }).render(true);
     } else {
-      ui.notifications!.info("Successfully loaded pilot new state.");
+      ui.notifications!.info(game.i18n.localize("lancer.notifications.info.pilotImportSuccess"));
     }
   } catch (e) {
     console.warn(e);
-    ui.notifications!.warn(`Failed to update pilot: ${e instanceof Error ? e.message : e}`, { permanent: true });
+    ui.notifications!.warn(
+      game.i18n.format("lancer.notifications.warning.pilotImportFailed", {
+        err: e instanceof Error ? e.message : String(e),
+      }),
+      { permanent: true }
+    );
   }
 }

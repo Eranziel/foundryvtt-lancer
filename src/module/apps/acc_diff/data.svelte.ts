@@ -176,7 +176,7 @@ export class AccDiffHudTarget extends AccDiffHudBase {
   constructor(obj: AccDiffHudTargetParams) {
     super(obj);
     if (obj.targetUuid && !canvas!.scene!.tokens.find(t => t.uuid === obj.targetUuid)) {
-      ui.notifications.error("Trying to access tokens from a different scene!");
+      ui.notifications.error(game.i18n.localize("lancer.notifications.error.tokenFromDifferentScene"));
       throw new Error(`Token ${obj.targetUuid} not found in the active scene`);
     }
 

@@ -20,26 +20,26 @@
   <section class="sheet-body flexrow sheet-weapon-mod">
     <div class="flexcol" style="flex-basis: 66%">
       {{{item-edit-effect "system.effect"}}}
-      {{{item-edit-arrayed-actions "system.actions" "ADDED ACTIONS"}}}
-      {{{item-edit-arrayed-damage "system.added_damage" "ADDED DAMAGE"}}}
-      {{{item-edit-arrayed-range "system.added_range" "ADDED RANGE"}}}
-      {{{item-edit-arrayed-tags "system.added_tags" "ADDED TAGS"}}}
+      {{{item-edit-arrayed-actions "system.actions" (upper-case (localize "lancer.mechSheet.weaponMod.addedActions.label"))}}}
+      {{{item-edit-arrayed-damage "system.added_damage" (upper-case (localize "lancer.mechSheet.weaponMod.addedDamage.label"))}}}
+      {{{item-edit-arrayed-range "system.added_range" (upper-case (localize "lancer.mechSheet.weaponMod.addedRange.label"))}}}
+      {{{item-edit-arrayed-tags "system.added_tags" (upper-case (localize "lancer.mechSheet.weaponMod.addedTags.label"))}}}
       {{{item-edit-arrayed-bonuses "system.bonuses"}}}
       <div class="flexrow">
         {{{counter-array system.counters "system.counters" true}}}
       </div>
-      {{{item-edit-arrayed-deployables "system.deployables" "ADDED DEPLOYABLES"}}}
-      {{{item-edit-arrayed-synergies "system.synergies" "SYNERGIES"}}}
-      {{{item-edit-arrayed-integrated "system.integrated" "INTEGRATED ITEMS"}}}
-      {{{item-edit-arrayed-tags "system.tags" "TAGS"}}}
+      {{{item-edit-arrayed-deployables "system.deployables" (upper-case (localize "lancer.mechSheet.weaponMod.addedDeployables.label"))}}}
+      {{{item-edit-arrayed-synergies "system.synergies" (upper-case (localize "lancer.commonSheet.synergies.label"))}}}
+      {{{item-edit-arrayed-integrated "system.integrated" (upper-case (localize "lancer.commonSheet.integratedItems.label"))}}}
+      {{{item-edit-arrayed-tags "system.tags" (upper-case (localize "lancer.common.descriptor.tag.plural"))}}}
     </div>
     <div class="flexcol" style="flex-basis: 33%">
       {{{item-edit-sp "system.sp"}}}
       {{#if (is-limited item)}}
         {{{limited-uses-indicator item "item"}}}
       {{/if}}
-      {{{item-edit-checkboxes-object "Allowed Sizes" "system.allowed_sizes"}}}
-      {{{item-edit-checkboxes-object "Allowed Types" "system.allowed_types"}}}
+      {{{item-edit-checkboxes-object (localize "lancer.itemSheet.weaponMod.allowedSizes.label") "system.allowed_sizes"}}}
+      {{{item-edit-checkboxes-object (localize "lancer.itemSheet.weaponMod.allowedTypes.label") "system.allowed_types"}}}
     </div>
   </section>
 </form>

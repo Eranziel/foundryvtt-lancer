@@ -74,18 +74,22 @@ export async function initActivationData(
       state.data.title = state.data.action?.name;
     }
     state.data.title =
-      options?.title || state.data.title || state.data.action?.name || state.item.name || "UNKNOWN ACTION";
+      options?.title ||
+      state.data.title ||
+      state.data.action?.name ||
+      state.item.name ||
+      game.i18n.localize("lancer.common.activation.unknown.label").toUpperCase();
     let detail_text = state.data.detail || "";
     if (!detail_text && state.data.action) {
       if (state.data.action.init) {
-        detail_text += `<p><b>INIT</b></p><p>${state.data.action.init}</p>`;
+        detail_text += `<p><b>${game.i18n.localize("lancer.common.activation.init.label").toUpperCase()}</b></p><p>${state.data.action.init}</p>`;
       }
       if (state.data.action.trigger) {
-        detail_text += `<p><b>TRIGGER</b></p><p>${state.data.action.trigger}</p>`;
+        detail_text += `<p><b>${game.i18n.localize("lancer.common.activation.trigger.label").toUpperCase()}</b></p><p>${state.data.action.trigger}</p>`;
       }
       if (detail_text) {
         // If the action had an init or trigger, add a header for the effect text
-        detail_text += `<p><b>EFFECT</b></p><p>${state.data.action.detail}</p>`;
+        detail_text += `<p><b>${game.i18n.localize("lancer.common.descriptor.effect.label").toUpperCase()}</b></p><p>${state.data.action.detail}</p>`;
       } else {
         detail_text += state.data.action.detail || "";
       }

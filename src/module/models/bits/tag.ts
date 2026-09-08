@@ -1,4 +1,5 @@
 import { LANCER } from "../../config";
+import { lookupTranslation } from "../../util/localization/llp-index";
 import type { PackedTagData, PackedTagTemplateData } from "../../util/unpacking/packed-types";
 import { LIDField } from "../shared";
 import type { SimpleMerge } from "fvtt-types/utils";
@@ -39,8 +40,8 @@ export class Tag implements Readonly<TagData> {
     let tagConfig = game.settings.get(game.system.id, LANCER.setting_tag_config) as Record<string, TagTemplateData>;
     let assocTag = tagConfig[data.lid];
     if (assocTag) {
-      this.name = assocTag.name;
-      this.description = assocTag.description;
+      this.name = lookupTranslation(data.lid, "name") ?? assocTag.name;
+      this.description = lookupTranslation(data.lid, "description") ?? assocTag.description;
       this.hidden = assocTag.hidden;
     }
   }

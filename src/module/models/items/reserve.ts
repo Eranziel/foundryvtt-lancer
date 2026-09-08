@@ -49,7 +49,7 @@ export function unpackReserve(
   system: Item.CreateData;
 } {
   return {
-    name: data.name ?? data.label ?? "Unnamed Reserve",
+    name: data.name ?? data.label ?? game.i18n.localize("lancer.common.item.reserve.label"),
     type: EntryType.RESERVE,
     system: {
       lid: data.id,

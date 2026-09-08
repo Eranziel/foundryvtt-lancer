@@ -123,7 +123,9 @@ async function setDamageTags(state: FlowState<LancerFlowState.DamageRollData>): 
   } else if (state.item.is_pilot_weapon()) {
     state.data.tags = state.item.system.tags;
   } else {
-    ui.notifications!.warn(`Item ${state.item.id} can't deal damage!`);
+    ui.notifications!.warn(
+      game.i18n.format("lancer.notifications.warning.damageItemCannotDealDamage", { id: String(state.item.id) })
+    );
     return false;
   }
 
@@ -318,7 +320,7 @@ export async function rollReliable(state: FlowState<LancerFlowState.DamageRollDa
 
   // Sanity check - is there any damage to roll?
   if (!state.data.damage.length && !allBonusDamage.length && !state.data.reliable_val) {
-    ui.notifications?.warn("No damage configured, skipping the roll.");
+    ui.notifications?.warn(game.i18n.localize("lancer.notifications.warning.damageNotConfigured"));
     return false;
   }
 
@@ -638,37 +640,44 @@ export async function getCritRoll(normal: Roll) {
 export async function rollDamageCallback(event: JQuery.ClickEvent) {
   const chatMessageElement = event.currentTarget.closest(".chat-message.message");
   if (!chatMessageElement) {
-    ui.notifications?.error("Damage roll button not in chat message");
+    ui.notifications?.error(game.i18n.localize("lancer.notifications.error.damageRollButtonNotInChatMessage"));
     return;
   }
   const chatMessage = game.messages?.get(chatMessageElement.dataset.messageId);
   // Get attack data from the chat message
   const attackData = chatMessage?.flags.lancer?.attackData;
   if (!chatMessage || !attackData) {
-    ui.notifications?.error("Damage roll button has no attack data available");
+    ui.notifications?.error(game.i18n.localize("lancer.notifications.error.damageRollAttackDataMissing"));
     return;
   }
 
   // Get the attacker and weapon/system from the attack data
   const actor = (await fromUuid(attackData.attackerUuid)) as LancerActor | null;
   if (!actor) {
-    ui.notifications?.error("Invalid attacker for damage roll");
+    ui.notifications?.error(game.i18n.localize("lancer.notifications.error.damageRollInvalidAttacker"));
     return;
   }
   if (!actor.isOwner) {
-    ui.notifications?.error(`You do not own ${actor.name}, so you cannot roll damage for them`);
+    ui.notifications?.error(
+      game.i18n.format("lancer.notifications.error.damageRollActorNotOwned", { name: String(actor.name) })
+    );
     return;
   }
   const item = (await fromUuid(attackData.attackerItemUuid || "")) as LancerItem | null;
   if (item && item.parent !== actor) {
-    ui.notifications?.error(`Item ${item.uuid} is not owned by actor ${actor.uuid}!`);
+    ui.notifications?.error(
+      game.i18n.format("lancer.notifications.error.damageRollItemNotOwnedByActor", {
+        itemUuid: item.uuid,
+        actorUuid: actor.uuid,
+      })
+    );
     return;
   }
   const hit_results: LancerFlowState.HitResult[] = [];
   for (const t of attackData.targets) {
     const target = tokenDocFromUuidSync(t.uuid);
     if (!target || !target.object) {
-      ui.notifications?.error("Invalid target for damage roll");
+      ui.notifications?.error(game.i18n.localize("lancer.notifications.error.damageRollInvalidTarget"));
       continue;
     }
 
@@ -717,13 +726,13 @@ export async function rollDamageCallback(event: JQuery.ClickEvent) {
 export async function applyDamage(event: JQuery.ClickEvent) {
   const chatMessageElement = event.currentTarget.closest(".chat-message.message");
   if (!chatMessageElement) {
-    ui.notifications?.error("Damage application button not in chat message");
+    ui.notifications?.error(game.i18n.localize("lancer.notifications.error.damageApplicationButtonNotInChatMessage"));
     return;
   }
   const chatMessage = game.messages?.get(chatMessageElement.dataset.messageId);
   const damageData = chatMessage?.flags.lancer?.damageData;
   if (!chatMessage || !damageData) {
-    ui.notifications?.error("Damage application button has no damage data available");
+    ui.notifications?.error(game.i18n.localize("lancer.notifications.error.damageApplicationDataMissing"));
     return;
   }
   const hydratedDamageTargets = damageData.targetDamageResults
@@ -738,12 +747,12 @@ export async function applyDamage(event: JQuery.ClickEvent) {
     .filter(t => t !== null);
   const buttonGroup = event.currentTarget.closest(".lancer-damage-button-group");
   if (!buttonGroup) {
-    ui.notifications?.error("No target for damage application");
+    ui.notifications?.error(game.i18n.localize("lancer.notifications.error.damageApplicationTargetMissing"));
     return;
   }
   const data = buttonGroup.dataset;
   if (!data.target) {
-    ui.notifications?.error("No target for damage application");
+    ui.notifications?.error(game.i18n.localize("lancer.notifications.error.damageApplicationTargetMissing"));
     return;
   }
   let multiple: number = 1;
@@ -757,16 +766,16 @@ export async function applyDamage(event: JQuery.ClickEvent) {
   const isHit = data.hit === "true";
   const target = await fromUuid(data.target);
   if (!target || !(target instanceof LancerTokenDocument)) {
-    ui.notifications?.error("Invalid target UUID for damage application");
+    ui.notifications?.error(game.i18n.localize("lancer.notifications.error.damageApplicationInvalidTargetUuid"));
     return;
   }
   const actor = target.actor;
   if (!actor || !(actor instanceof LancerActor)) {
-    ui.notifications?.error("Invalid target for damage application, no actor found");
+    ui.notifications?.error(game.i18n.localize("lancer.notifications.error.damageApplicationTargetActorMissing"));
     return;
   }
   if (!actor.isOwner) {
-    ui.notifications?.error("You cannot apply damage to an actor you do not own");
+    ui.notifications?.error(game.i18n.localize("lancer.notifications.error.damageApplicationActorNotOwned"));
     return;
   }
 
@@ -784,21 +793,21 @@ export async function applyDamage(event: JQuery.ClickEvent) {
 export async function undoDamage(event: JQuery.ClickEvent) {
   const chatMessageElement = event.currentTarget.closest(".chat-message.message");
   if (!chatMessageElement) {
-    ui.notifications?.error("Damage undo button not in chat message");
+    ui.notifications?.error(game.i18n.localize("lancer.notifications.error.damageUndoButtonNotInChatMessage"));
     return;
   }
   const chatMessage = game.messages?.get(chatMessageElement.dataset.messageId);
   if (!chatMessage) {
-    ui.notifications?.error("Damage undo button has no chat message");
+    ui.notifications?.error(game.i18n.localize("lancer.notifications.error.damageUndoChatMessageMissing"));
     return;
   }
   const target = await fromUuid(event.currentTarget.dataset?.uuid);
   if (!target || !(target instanceof LancerActor)) {
-    ui.notifications?.error("Damage undo button has no target");
+    ui.notifications?.error(game.i18n.localize("lancer.notifications.error.damageUndoTargetMissing"));
     return;
   }
   if (!target.isOwner) {
-    ui.notifications?.error("You cannot undo damage to an actor you do not own");
+    ui.notifications?.error(game.i18n.localize("lancer.notifications.error.damageUndoActorNotOwned"));
     return;
   }
   const overshieldDelta = parseInt(event.currentTarget.dataset.overshieldDelta);
@@ -807,7 +816,7 @@ export async function undoDamage(event: JQuery.ClickEvent) {
     event.currentTarget.dataset.addBurn === "true" ? parseInt(event.currentTarget.dataset.burnDelta) : 0;
   const heatDelta = parseInt(event.currentTarget.dataset.heatDelta);
   if (!overshieldDelta && !hpDelta && !burnDelta && !heatDelta) {
-    ui.notifications?.error("Damage undo button has no damage to undo!");
+    ui.notifications?.error(game.i18n.localize("lancer.notifications.error.damageUndoNothingToUndo"));
     return;
   }
 

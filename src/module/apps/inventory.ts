@@ -20,7 +20,11 @@ export interface InventoryDialogData {
  * @extends {Dialog}
  */
 export class InventoryDialog extends Dialog {
-  constructor(readonly actor: LancerActor, dialogData: Dialog.Data, options: Partial<Dialog.Options> = {}) {
+  constructor(
+    readonly actor: LancerActor,
+    dialogData: Dialog.Data,
+    options: Partial<Dialog.Options> = {}
+  ) {
     super(dialogData, options);
     this.actor = actor;
   }
@@ -64,66 +68,66 @@ export class InventoryDialog extends Dialog {
     if (actor.is_mech()) {
       cats = [
         {
-          label: "Frames",
+          label: game.i18n.localize("lancer.common.item.frame.plural"),
           items: actor.items.filter(i => i.is_frame()),
         },
         {
-          label: "Weapons",
+          label: game.i18n.localize("lancer.common.item.mechWeapon.plural"),
           items: actor.items.filter(i => i.is_mech_weapon()),
         },
         {
-          label: "Systems",
+          label: game.i18n.localize("lancer.common.item.mechSystem.plural"),
           items: actor.items.filter(i => i.is_mech_system()),
         },
         {
-          label: "Mods",
+          label: game.i18n.localize("lancer.common.item.weaponMod.plural"),
           items: actor.items.filter(i => i.is_weapon_mod()),
         },
         {
-          label: "Statuses",
+          label: game.i18n.localize("lancer.common.item.status.plural"),
           items: actor.items.filter(i => i.is_status()),
         },
       ];
     } else if (actor.is_pilot()) {
       cats = [
         {
-          label: "Weapons",
+          label: game.i18n.localize("lancer.common.item.pilotWeapon.plural"),
           items: actor.items.filter(i => i.is_pilot_weapon()),
         },
         {
-          label: "Armor",
+          label: game.i18n.localize("lancer.common.item.pilotArmor.plural"),
           items: actor.items.filter(i => i.is_pilot_armor()),
         },
         {
-          label: "Gear",
+          label: game.i18n.localize("lancer.common.item.pilotGear.plural"),
           items: actor.items.filter(i => i.is_pilot_gear()),
         },
         {
-          label: "Talents",
+          label: game.i18n.localize("lancer.common.item.talent.plural"),
           items: actor.items.filter(i => i.is_talent()),
         },
         {
-          label: "Skills",
+          label: game.i18n.localize("lancer.common.item.skill.plural"),
           items: actor.items.filter(i => i.is_skill()),
         },
         {
-          label: "Licenses",
+          label: game.i18n.localize("lancer.common.item.license.plural"),
           items: actor.items.filter(i => i.is_license()),
         },
         {
-          label: "Core Bonuses",
+          label: game.i18n.localize("lancer.common.item.coreBonus.plural"),
           items: actor.items.filter(i => i.is_core_bonus()),
         },
         {
-          label: "Reserves",
+          label: game.i18n.localize("lancer.common.item.reserve.plural"),
           items: actor.items.filter(i => i.is_reserve()),
         },
         {
-          label: "Organizations",
+          label: game.i18n.localize("lancer.common.item.organization.plural"),
           items: actor.items.filter(i => i.is_organization()),
         },
         {
-          label: "Statuses",
+          label: game.i18n.localize("lancer.common.item.status.plural"),
           items: actor.items.filter(i => i.is_status()),
         },
       ];

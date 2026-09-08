@@ -3,7 +3,7 @@
 import { LancerActor } from "./actor/lancer-actor";
 import { LCPManager } from "./apps/lcp-manager/lcp-manager";
 import { clearCompendiumData, importCP } from "./comp-builder";
-import { LANCER } from "./config";
+import { friendlyEntryTypeName, LANCER } from "./config";
 import { EntryType } from "./enums";
 import { LancerItem } from "./item/lancer-item";
 import { LancerTokenDocument } from "./token";
@@ -80,7 +80,7 @@ export async function migrateWorld() {
       ],
     }).render(true);
     ui.notifications?.error(
-      `This world is too old to migrate directly to Lancer ${game.system.version} and Foundry 13. Restore a backup of this world and migrate to Foundry 12.343 first.`,
+      game.i18n.format("lancer.notifications.error.worldMigrationTooOld", { version: game.system.version }),
       { permanent: true }
     );
     console.error(
@@ -90,7 +90,7 @@ export async function migrateWorld() {
   }
 
   migrationNotification = ui.notifications!.info(
-    `Migration to v${game.system.version} in progress. Please do not shut down your world or refresh the page until migration is complete.`,
+    game.i18n.format("lancer.notifications.info.worldMigrationInProgress", { version: game.system.version }),
     {
       progress: true,
     }
@@ -159,9 +159,10 @@ export async function migrateWorld() {
   await game.settings.set(game.system.id, LANCER.setting_migration_version, game.system.version);
   // Update the progress bar to 100%
   migrationProgress(toMigrate - migrated);
-  ui.notifications.info(`LANCER System migration to version ${game.system.version} completed!`, {
-    permanent: true,
-  });
+  ui.notifications.info(
+    game.i18n.format("lancer.notifications.info.worldMigrationComplete", { version: game.system.version }),
+    { permanent: true }
+  );
 }
 
 /* -------------------------------------------- */
@@ -175,7 +176,12 @@ export async function migrateCompendium(pack: Compendium) {
   const wasLocked = pack.locked;
   await pack.configure({ locked: false });
 
-  if (pack.locked) return ui.notifications.error(`Could not migrate ${pack.collection}: unable to unlock`);
+  if (pack.locked)
+    return ui.notifications.error(
+      game.i18n.format("lancer.notifications.error.worldMigrationCompendiumUnlockFailed", {
+        collection: pack.collection,
+      })
+    );
 
   // Destroy packs we no longer support
   let name = pack.metadata.name;
@@ -195,7 +201,9 @@ export async function migrateCompendium(pack: Compendium) {
     } catch (e) {
       const packLabel = game.i18n.localize(pack.metadata.label);
       console.error(`Error while migrating actor compendium ${packLabel}:`, e);
-      ui.notifications?.error(`Error while migrating actor compendium ${packLabel}. Check the console for details.`);
+      ui.notifications?.error(
+        game.i18n.format("lancer.notifications.error.worldMigrationActorCompendiumFailed", { name: packLabel })
+      );
     }
   } else if (pack.documentName == "Item") {
     try {
@@ -205,7 +213,9 @@ export async function migrateCompendium(pack: Compendium) {
     } catch (e) {
       const packLabel = game.i18n.localize(pack.metadata.label);
       console.error(`Error while migrating item compendium ${packLabel}:`, e);
-      ui.notifications?.error(`Error while migrating item compendium ${packLabel}. Check the console for details.`);
+      ui.notifications?.error(
+        game.i18n.format("lancer.notifications.error.worldMigrationItemCompendiumFailed", { name: packLabel })
+      );
     }
   } else if (pack.documentName == "Scene") {
     try {
@@ -215,7 +225,9 @@ export async function migrateCompendium(pack: Compendium) {
     } catch (e) {
       const packLabel = game.i18n.localize(pack.metadata.label);
       console.error(`Error while migrating scene ${packLabel}:`, e);
-      ui.notifications?.error(`Error while migrating scene ${packLabel}. Check the console for details.`);
+      ui.notifications?.error(
+        game.i18n.format("lancer.notifications.error.worldMigrationSceneCompendiumFailed", { name: packLabel })
+      );
     }
   } else {
     // We don't migrate macros or journals
@@ -256,7 +268,9 @@ export async function migrateActor(actor: LancerActor): Promise<object> {
     return updateData;
   } catch (e) {
     console.error(`Error while migrating actor [${actor.id} | ${actor.name}]:`, e);
-    ui.notifications?.error(`Error while migrating actor ${actor.name}. Check the console for details.`);
+    ui.notifications?.error(
+      game.i18n.format("lancer.notifications.error.worldMigrationActorFailed", { name: actor.name })
+    );
     return {};
   }
 }
@@ -325,7 +339,10 @@ export async function migrateScene(scene: Scene.Implementation) {
           e
         );
         ui.notifications?.error(
-          `Error while migrating unlinked token ${token.name} in scene ${scene.name}. Check the console for details.`
+          game.i18n.format("lancer.notifications.error.worldMigrationUnlinkedTokenFailed", {
+            token: token.name,
+            scene: scene.name,
+          })
         );
       }
     }
@@ -335,7 +352,9 @@ export async function migrateScene(scene: Scene.Implementation) {
     await scene.updateEmbeddedDocuments("Token", tokenUpdates);
   } catch (e) {
     console.error(`Error while migrating scene [${scene.id} | ${scene.name}]:`, e);
-    ui.notifications?.error(`Error while migrating scene ${scene.name}. Check the console for details.`);
+    ui.notifications?.error(
+      game.i18n.format("lancer.notifications.error.worldMigrationSceneFailed", { name: scene.name })
+    );
   }
 }
 
@@ -390,7 +409,7 @@ export async function migrateCompendiumStructure() {
       : (pack.folders.find(f => f.getFlag(game.system.id, "entrytype") === et) ??
         (await Folder.create(
           {
-            name: game.i18n.localize(`TYPES.${pack.metadata.type}.${et}`),
+            name: game.i18n.localize(friendlyEntryTypeName(et, 99)), // 99 is arbitrary to force plural locale string
             type: pack.metadata.type,
             [`flags.${game.system.id}.entrytype`]: et,
           },

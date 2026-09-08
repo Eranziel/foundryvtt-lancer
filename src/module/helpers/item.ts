@@ -789,7 +789,7 @@ export function weaponModView(mod_path: string, weapon_path: string | null, opti
         data-path="${mod_path}"
         data-accept-types="${EntryType.WEAPON_MOD}">
       <i class="cci cci-weaponmod i--4 i--light"> </i>
-      <span>No Mod Installed</span>
+      <span>${game.i18n.localize("lancer.mechSheet.weaponMod.none.label")}</span>
     </div>`;
   }
 
@@ -799,7 +799,7 @@ export function weaponModView(mod_path: string, weapon_path: string | null, opti
   if (mod.system.added_range.length) {
     added_range = `
       <div class="effect-box">
-        <div class="effect-title clipped-bot">ADDED RANGE</div>
+        <div class="effect-title clipped-bot">${game.i18n.localize("lancer.mechSheet.weaponMod.addedRange.label")}</div>
         ${rangeArrayView(mod.system.added_range, options)}
       </div>`;
   }
@@ -807,7 +807,7 @@ export function weaponModView(mod_path: string, weapon_path: string | null, opti
   if (mod.system.added_damage.length) {
     added_damage = `
       <div class="effect-box">
-        <div class="effect-title clipped-bot">ADDED DAMAGE</div>
+        <div class="effect-title clipped-bot">${game.i18n.localize("lancer.mechSheet.weaponMod.addedDamage.label")}</div>
         ${damageArrayView(mod.system.added_damage, options)}
       </div>`;
   }
@@ -817,7 +817,7 @@ export function weaponModView(mod_path: string, weapon_path: string | null, opti
   if (mod.system.added_tags.length) {
     added_tags = `
     <div class="effect-box">
-      <span class="effect-title clipped-bot">ADDED TAGS</span>
+      <span class="effect-title clipped-bot">${game.i18n.localize("lancer.mechSheet.weaponMod.addedTags.label")}</span>
       ${compactTagListHBS(mod_path + ".system.added_tags", options)}
     </div>
     `;
@@ -1045,9 +1045,9 @@ export function buildActionHTML(
         <div>
           ${chip}
           <div>
-            <div class="overline">${game.i18n.localize("lancer.chat-card.label.trigger")}</div>
+            <div class="overline">${game.i18n.localize("lancer.common.activation.trigger.label")}</div>
             ${action.trigger || defaultPlaceholder}
-            <div class="overline">${game.i18n.localize("lancer.chat-card.label.effect")} ${editDetails}</div>
+            <div class="overline">${game.i18n.localize("lancer.common.descriptor.effect.label")} ${editDetails}</div>
             ${action.detail || defaultPlaceholder}
           </div>
         </div>
@@ -1176,10 +1176,22 @@ export function buildDeployableHTML(
     </div>`;
 
   let standardActions = [
-    { label: "ACTIVATE", action: dep.system.activation },
-    { label: "DEACTIVATE", action: dep.system.deactivation },
-    { label: "RECALL", action: dep.system.recall },
-    { label: "REDEPLOY", action: dep.system.redeploy },
+    {
+      label: game.i18n.localize("lancer.deployableSheet.action.activate.label").toUpperCase(),
+      action: dep.system.activation,
+    },
+    {
+      label: game.i18n.localize("lancer.deployableSheet.action.deactivate.label").toUpperCase(),
+      action: dep.system.deactivation,
+    },
+    {
+      label: game.i18n.localize("lancer.deployableSheet.action.recall.label").toUpperCase(),
+      action: dep.system.recall,
+    },
+    {
+      label: game.i18n.localize("lancer.deployableSheet.action.redeploy.label").toUpperCase(),
+      action: dep.system.redeploy,
+    },
   ].filter(a => !!a.action);
   standardActions.forEach(a => {
     chips.push(
@@ -1260,7 +1272,11 @@ export function buildChipHTML(
   const themeClass = activationStyle(activation);
   const interactiveClass = options?.nonInteractive ? "noninteractive" : "";
   const label = `${
-    flowData?.label ? `${flowData.label.toUpperCase()} - ` : `${!options?.nonInteractive ? "USE " : ""}`
+    flowData?.label
+      ? `${flowData.label.toUpperCase()} - `
+      : `${
+          !options?.nonInteractive ? `${game.i18n.localize("lancer.common.descriptor.use.label").toUpperCase()} ` : ""
+        }`
   }${activation.toUpperCase()}`;
   if (flowData && flowData.uuid && flowData.path !== undefined) {
     if (!flowData.icon) flowData.icon = `<i class="${activationIcon(activation)} i--3"></i>`;
@@ -1369,7 +1385,7 @@ export function buildCounterArrayHTML(
 
 export function genericCounter(name: string, data: FullBoundedNum, path: string): string {
   const counterData: CounterData = {
-    name,
+    name: game.i18n.localize(name),
     min: data.min,
     max: data.max,
     value: data.value,
@@ -1580,7 +1596,7 @@ function _handleContextMenus(
 
   // Toggle destroyed status, for items that support it
   let repairItem: ContextMenu.Entry<JQuery> = {
-    name: "Mark Repaired",
+    name: game.i18n.localize("lancer.commonSheet.context.markRepaired.label"),
     icon: `<i class="fas fa-fw fa-wrench"></i>`,
     callback: html => {
       const uuid = html.closest(".set")[0].dataset.uuid;
@@ -1612,7 +1628,7 @@ function _handleContextMenus(
 
   // Toggle destroyed status, for items that support it
   let destroyItem: ContextMenu.Entry<JQuery> = {
-    name: "Mark Destroyed",
+    name: game.i18n.localize("lancer.commonSheet.context.markDestroyed.label"),
     icon: `<i class="cci cci-eclipse"></i>`,
     callback: html => {
       const uuid = html.closest(".set")[0].dataset.uuid;
@@ -1644,7 +1660,7 @@ function _handleContextMenus(
 
   // Fully delete a document
   let deleteDocument: ContextMenu.Entry<JQuery> = {
-    name: "Delete Document",
+    name: game.i18n.localize("lancer.commonSheet.context.deleteDocument.label"),
     icon: '<i class="fas fa-fw fa-trash"></i>',
     callback: async (html: JQuery) => {
       const uuid = html.closest(".set")[0].dataset.uuid;
@@ -1665,7 +1681,7 @@ function _handleContextMenus(
   // Sets a reference to null
   // Logic elsewhere will clean up the array item (if any) if said array item would be problematic left blank
   let clearReference: ContextMenu.Entry<JQuery> = {
-    name: "Unlink",
+    name: game.i18n.localize("lancer.commonSheet.context.unlink.label"),
     icon: '<i class="fas fa-times"></i>',
     callback: async (html: JQuery) => {
       // Set as null
@@ -1691,7 +1707,7 @@ function _handleContextMenus(
 
   // Remove an array item (e.x. a counter, tag, or weapon profile)
   let arrayRemove: ContextMenu.Entry<JQuery> = {
-    name: "Remove",
+    name: game.i18n.localize("lancer.commonSheet.context.remove.label"),
     icon: '<i class="fas fa-fw fa-trash"></i>',
     callback: html => {
       // Find the counter
@@ -1720,7 +1736,7 @@ function _handleContextMenus(
 
   // Summon counter editor dialogue
   let editCounter: ContextMenu.Entry<JQuery> = {
-    name: "Edit",
+    name: game.i18n.localize("lancer.commonSheet.context.edit.label"),
     icon: `<i class="fas fa-edit"></i>`,
     callback: html => {
       CounterEditForm.edit(doc, path(html)!);
@@ -1732,7 +1748,7 @@ function _handleContextMenus(
 
   // Summon a tag editor dialog
   let editTag: ContextMenu.Entry<JQuery> = {
-    name: "Edit",
+    name: game.i18n.localize("lancer.commonSheet.context.edit.label"),
     icon: '<i class="fas fa-edit"></i>',
     callback: html => {
       TagEditForm.edit(doc, path(html)!);
@@ -1752,7 +1768,7 @@ function _handleContextMenus(
 
   // If the "renameSubpath" appears in the dataset, allow simple-prompt to change the name
   let rename: ContextMenu.Entry<JQuery> = {
-    name: "Rename",
+    name: game.i18n.localize("lancer.commonSheet.context.rename.label"),
     icon: '<i class="fas fa-fw fa-edit"></i>',
     callback: async html => {
       let full_path = path(html)! + html[0].dataset.renameSubpath;

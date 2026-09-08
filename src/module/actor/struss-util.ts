@@ -15,7 +15,9 @@ export class StrussHelper {
    */
   async stabilize(o1: StabOptions1, o2: StabOptions2): Promise<void> {
     if (!this.actor.is_mech() && !this.actor.is_npc()) {
-      ui.notifications!.warn(`A ${this.actor.type} can't be stabilized!`);
+      ui.notifications!.warn(
+        game.i18n.format("lancer.notifications.warning.actorCannotStabilize", { type: this.actor.type })
+      );
       return;
     }
 
@@ -29,7 +31,7 @@ export class StrussHelper {
       // Allow NPCs here for the Self Repair feature from Veteran
       if (this.actor.is_mech() || this.actor.is_npc()) {
         if (this.actor.is_mech() && this.actor.system.repairs.value <= 0) {
-          ui.notifications!.warn("No repairs remaining!");
+          ui.notifications!.warn(game.i18n.localize("lancer.notifications.warning.actorNoRepairsRemaining"));
           return;
         } else {
           changes["system.hp.value"] = this.actor.system.hp.max;
@@ -55,7 +57,7 @@ export class StrussHelper {
         item_changes = this.actor.loadoutHelper.reloadableItems();
         break;
       default:
-        ui.notifications!.warn("Invalid Stabilize choice!");
+        ui.notifications!.warn(game.i18n.localize("lancer.notifications.warning.actorInvalidStabilizeChoice"));
         return;
     }
 

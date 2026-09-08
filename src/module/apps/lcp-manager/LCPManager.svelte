@@ -1,74 +1,136 @@
-<svelte:options accessors={true} />
-
 <script lang="ts">
   import { fade } from "svelte/transition";
   import { LANCER } from "../../config";
   import Spinner from "../components/Spinner.svelte";
-  import LcpDetails from "./LCPDetails.svelte";
-  import LcpSelector from "./LCPSelector.svelte";
-  import { type ContentSummary, getOfficialData, type LCPData, mergeOfficialDataAndLcpIndex } from "../../util/lcps";
+  import LCPDetails from "./LCPDetails.svelte";
+  import LLPDetails from "./LLPDetails.svelte";
+  import LCPSelector from "./LCPSelector.svelte";
+  import {
+    type ContentSummary,
+    type LCPData,
+    getOfficialData,
+    mergeOfficialDataAndLcpIndex,
+    summarizeStagedPacks,
+  } from "../../util/lcps";
+  import {
+    buildLLPRows,
+    storeLanguagePatches,
+    getInstalledPatches,
+    getLanguageLabel,
+    type LLPSummary,
+    summarizeStagedLanguagePatches,
+    unstoreLanguagePatch,
+  } from "../../util/localization/llp-import";
+  import {
+    downloadOfficialLocales,
+    listOfficialLocales,
+    type OfficialLocaleHandle,
+  } from "../../util/localization/llp-fetch";
+  import { refreshLLPTranslations } from "../../util/localization/llp-map";
   import LCPTable from "./LCPTable.svelte";
-  import type { IContentPack, IContentPackManifest } from "../../util/unpacking/packed-types";
+  import LCPActions from "./LCPActions.svelte";
+  import type { IContentPack, IContentPackManifest, PackedLanguagePatchWrapper } from "../../util/unpacking/packed-types";
   import { clearCompendiumData, importCP } from "../../comp-builder";
   import { LCPIndex } from "./lcp-manager";
   const lp = LANCER.log_prefix;
 
-  // injectedContentSummary is only here to facilitate tours
-  export let injectedContentSummary: ContentSummary | null = null;
-  export let loading: boolean = true;
-  let lcpData: LCPData[] = [];
-  let contentPacks: IContentPack[] = [];
-  let fileContentSummary: ContentSummary | null = null;
-  let hoveredContentSummary: ContentSummary | null = null;
-  let aggregateContentSummary: ContentSummary | null = null;
-  let importingLcp: IContentPack | null = null;
-  let importing: boolean = false;
-  let importingMany: boolean = false;
-  let clearing: boolean = false;
-  let barWidth: number = 0;
-  let secondBarWidth: number = 0;
-  let deselectTable: () => void;
-  let deselectFiles: () => void;
+  interface Props {
+    loading?: boolean;
+  }
 
-  $: busy = importing || importingMany || clearing;
-  $: contentSummary = injectedContentSummary ?? hoveredContentSummary ?? fileContentSummary ?? aggregateContentSummary;
-  $: showImportButton = hoveredContentSummary !== null && !contentSummary?.aggregate;
-  $: coreVersion = lcpData.find(lcp => lcp.id === "core")?.currentVersion;
+  let { loading = $bindable(true) }: Props = $props();
+
+  let lcpData = $state<LCPData[]>([]);
+  let llpData = $state<PackedLanguagePatchWrapper[]>([]); // Language patches from the database cache
+
+  let llpsAvailable = $state<OfficialLocaleHandle[]>([]); // Locales fetchable from compcon-locales
+  let llpRows = $derived(buildLLPRows(lcpData, llpData, llpsAvailable));
+
+  let tablePacks = $state<IContentPack[]>([]); // This is batched with filePacks
+  let filePacks = $state<IContentPack[]>([]); // to generate one summary and one import call
+  let stagedPacks = $derived([...tablePacks, ...filePacks]);
+
+  let tablePatches = $state<PackedLanguagePatchWrapper[]>([]); // Same as packs but with LCP Language Patches
+  let filePatches = $state<PackedLanguagePatchWrapper[]>([]);
+  let stagedPatches = $derived([...tablePatches, ...filePatches]);
+
+  // Hovering a table row previews that row on top of the staged summary; it stages nothing
+  let stagedContentSummary = $derived(summarizeStagedPacks(tablePacks, filePacks));
+  let hoveredContentSummary = $state<ContentSummary | null>(null);
+  let injectedContentSummary = $state<ContentSummary | null>(null); // Is only here to facilitate tours
+  let contentSummary: ContentSummary | null = $derived(
+    injectedContentSummary ?? hoveredContentSummary ?? stagedContentSummary
+  );
+
+  let stagedPatchSummary = $derived(summarizeStagedLanguagePatches(tablePatches, filePatches));
+  let hoveredPatchSummary = $state<LLPSummary | null>(null);
+  let patchSummary: LLPSummary | null = $derived(hoveredPatchSummary ?? stagedPatchSummary);
+
+  let canImport = $derived(stagedPacks.length > 0 || stagedPatches.length > 0);
+  let canClear = $derived(lcpData.some(lcp => lcp.currentVersion !== "--"));
+
+  let coreVersion = $derived(lcpData.find(lcp => lcp.id === "core")?.currentVersion);
+  let importingLcp = $state<IContentPack | null>(null);
+  let importing = $state(false);
+  let importingMany = $state(false);
+  let clearing = $state(false);
+  let downloadingLocale = $state(false);
+  let importingLlps = $state(false);
+  let removingLlp = $state(false);
+  let busy = $derived(importing || importingMany || clearing || importingLlps || downloadingLocale || removingLlp);
+  let barWidth = $state(0);
+  let secondBarWidth = $state(0);
+
+  export function injectContentPack(content: ContentSummary | null) {
+    // Is only here to facilitate tours
+    injectedContentSummary = content;
+  }
 
   async function init() {
     loading = true;
     const index = new LCPIndex(game.settings.get(game.system.id, LANCER.setting_lcps).index);
     const officialData = await getOfficialData(index);
     lcpData = mergeOfficialDataAndLcpIndex(officialData, index);
+    llpData = getInstalledPatches();
     loading = false;
+    llpsAvailable = await listOfficialLocales(lcpData);
   }
-  init();
 
-  function lcpLoaded(
-    event: CustomEvent<{
-      contentPacks: IContentPack[];
-      contentSummary: ContentSummary;
-    }>
-  ) {
-    if (!event.detail) {
-      contentPacks = [];
-      fileContentSummary = null;
+  const initPromise = init();
+  export function ready() {
+    // Is only here to facilitate tours
+    return initPromise;
+  }
+
+  function lcpsLoaded(packs: IContentPack[]) {
+    filePacks = packs;
+  }
+
+  function llpsLoaded(patches: PackedLanguagePatchWrapper[]) {
+    filePatches = patches;
+  }
+
+  function lcpHovered(summary: ContentSummary | null) {
+    hoveredContentSummary = summary;
+  }
+
+  function llpHovered(summary: LLPSummary | null) {
+    hoveredPatchSummary = summary;
+  }
+
+  // Download locales only when table rows are checked
+  async function llpSelectionChanged(locales: OfficialLocaleHandle[]) {
+    if (!locales.length) {
+      tablePatches = [];
       return;
     }
-    fileContentSummary = event.detail.contentSummary;
-    contentPacks = event.detail.contentPacks;
-    deselectTable();
+    downloadingLocale = true;
+    tablePatches = await downloadOfficialLocales(locales, lcpData);
+    downloadingLocale = false;
   }
 
-  function lcpHovered(event: CustomEvent<ContentSummary>) {
-    hoveredContentSummary = event.detail;
-  }
-
-  function updateAggregateSummary(event: CustomEvent<ContentSummary>) {
-    aggregateContentSummary = event.detail;
-    contentPacks = [];
-    fileContentSummary = null;
-    deselectFiles();
+  function lcpSelectionChanged(packs: IContentPack[]) {
+    tablePacks = packs;
   }
 
   async function updateLcpIndex(manifest: IContentPackManifest) {
@@ -79,6 +141,7 @@
     if (updatedLcp) updatedLcp.currentVersion = manifest.version;
     else
       lcpData.push({
+        ...manifest,
         title: manifest.name,
         author: manifest.author,
         currentVersion: manifest.version,
@@ -91,11 +154,11 @@
 
   function _canImportLcp(): boolean {
     if (!game.user?.isGM) {
-      ui.notifications!.warn(`Only GM can modify the Compendiums.`);
+      ui.notifications!.warn(game.i18n.localize("lancer.notifications.warning.lcpManagerImportPrivileges"));
       return false;
     }
     if (!coreVersion) {
-      ui.notifications!.warn(`Please update the Core data before importing LCPs.`);
+      ui.notifications!.warn(game.i18n.localize("lancer.notifications.warning.lcpManagerCoreVersionRequired"));
       return false;
     }
     return true;
@@ -103,7 +166,7 @@
 
   async function importLcp(cp: IContentPack | null = null) {
     if (!cp) {
-      ui.notifications.error(`You must select an LCP file before importing.`);
+      ui.notifications.error(game.i18n.localize("lancer.notifications.error.lcpManagerFileNotSelected"));
       return;
     }
     if (!_canImportLcp()) return;
@@ -111,16 +174,19 @@
     const manifest = cp.manifest;
     if (!cp || !manifest) return;
 
-    const notificationLabel = `Importing ${cp.manifest.name} v${cp.manifest.version}`;
     importing = true;
     barWidth = 0;
     importingLcp = cp;
     updateProgressBar(0, 1);
-    console.log(`${lp} Starting import of ${cp.manifest.name} v${cp.manifest.version}.`);
-    console.log(`${lp} Parsed content pack:`, cp);
+    console.log(
+      `${lp} Starting import of '${$state.snapshot(cp.manifest.name)} v${$state.snapshot(cp.manifest.version)}'.`
+    );
+    console.log(`${lp} Parsed content pack:`, $state.snapshot(cp));
     await importCP(cp, (x, y) => updateProgressBar(x, y));
     updateProgressBar(1, 1);
-    console.log(`${lp} Import of ${cp.manifest.name} v${cp.manifest.version} complete.`);
+    console.log(
+      `${lp} Import of ${$state.snapshot(cp.manifest.name)} v${$state.snapshot(cp.manifest.version)} complete.`
+    );
     importing = false;
     setTimeout(() => {
       if (!importing && !importingMany) importingLcp = null;
@@ -129,11 +195,10 @@
     if (cp.manifest.name === "Lancer Core Book Data" && cp.manifest.author === "Massif Press") {
       await game.settings.set(game.system.id, LANCER.setting_core_data, cp.manifest.version);
     }
-    updateLcpIndex(manifest);
+    await updateLcpIndex(manifest);
   }
 
-  async function importManyLcps(lcps: IContentPack[] | null = null) {
-    if (!lcps) lcps = contentPacks;
+  async function importManyLcps(lcps: IContentPack[]) {
     if (!_canImportLcp()) return;
     importingMany = true;
     secondBarWidth = 0;
@@ -145,58 +210,121 @@
     importingMany = false;
   }
 
+  function _canImportLlp(): boolean {
+    if (!game.user?.isGM) {
+      ui.notifications!.warn(game.i18n.localize("lancer.notifications.warning.lcpManagerImportPrivileges"));
+      return false;
+    }
+    return true;
+  }
+
+  async function importManyLlps(llps: PackedLanguagePatchWrapper[]) {
+    if (!_canImportLlp()) return;
+    importingLlps = true;
+    console.log(`${lp} Starting import of ${llps.length} language patch(es).`, $state.snapshot(llps));
+    const { stored, replaced } = await storeLanguagePatches($state.snapshot(llps));
+    llpData = getInstalledPatches(); // Refresh table
+    console.log(`${lp} Import of ${stored} language patch(es) complete.`);
+    importingLlps = false;
+
+    if (!stored) return;
+    const message = [game.i18n.format("lancer.notifications.info.lcpManagerLlpImported", { count: `${stored}` })];
+    if (replaced)
+      message.push(game.i18n.format("lancer.notifications.info.lcpManagerLlpReplaced", { count: `${replaced}` }));
+    ui.notifications?.info(message.join(" "));
+  }
+
+  async function importStaged() {
+    if (stagedPacks.length) await importManyLcps(stagedPacks);
+    if (stagedPatches.length) await importManyLlps(stagedPatches);
+
+    if (stagedPacks.length || stagedPatches.length) await refreshLLPTranslations();
+  }
+
   function updateProgressBar(done: number, outOf: number) {
     const percent = Math.min(done / outOf, 1);
     barWidth = Math.floor(percent * 100);
+  }
+
+  async function removeLlp(patch: PackedLanguagePatchWrapper) {
+    const answer = await foundry.applications.api.DialogV2.confirm({
+      window: {
+        title: "lancer.lcpManager.removeLlp.title",
+        icon: "fas fa-triangle-exclamation",
+      },
+      content: `
+        <p>${game.i18n.format("lancer.lcpManager.removeLlp.content.0", { lang: getLanguageLabel(patch.lang), target: patch.target })}</p>\n
+        <p>${game.i18n.localize("lancer.lcpManager.removeLlp.content.1")}</p>
+      `,
+    });
+    if (!answer) return;
+    removingLlp = true;
+    await unstoreLanguagePatch($state.snapshot(patch)); // The setting's onChange retranslates every client
+    llpData = getInstalledPatches(); // Refresh the installed-patches table
+    removingLlp = false;
   }
 
   async function clearCompendiums() {
     // Confirmation prompt
     const answer = await foundry.applications.api.DialogV2.confirm({
       window: {
-        title: "Clear Compendiums",
+        title: "lancer.lcpManager.clearCompendium.title",
         icon: "fas fa-triangle-exclamation",
       },
-      content: `<p>Are you sure you want to delete all actors and items from the Lancer compendiums?</p>
-        <p><i class="fas fa-triangle-exclamation i--4"></i> This action cannot be undone!</p>`,
+      content: `
+        <p>${game.i18n.localize("lancer.lcpManager.clearCompendium.content.0")}</p>\n
+        <p style="text-align: center"><i class=\"fas fa-triangle-exclamation i--4\"></i> ${game.i18n.localize("lancer.lcpManager.clearCompendium.content.1")}
+      `,
     });
     if (!answer) return;
     clearing = true;
     await clearCompendiumData();
+    await game.settings.set(game.system.id, LANCER.setting_localization_llp_files, {});
+    await refreshLLPTranslations();
+    llpData = getInstalledPatches(); // Refresh the installed-patches table
     const officialData = await getOfficialData();
     const index = new LCPIndex(game.settings.get(game.system.id, LANCER.setting_lcps).index);
     lcpData = mergeOfficialDataAndLcpIndex(officialData, index);
-    deselectFiles();
     clearing = false;
   }
 </script>
 
 <div class="lcp-manager">
   {#if loading}
-    <Spinner><span class="monospace">Loading data, please wait…</span></Spinner>
+    <Spinner><span class="monospace">{game.i18n.localize("lancer.lcpManager.loading.label")}</span></Spinner>
   {:else}
     <div class="flexrow lcp-manager__main-content" style="flex: 1 1">
-      <LCPTable
-        {lcpData}
-        bind:disabled={busy}
-        bind:deselect={deselectTable}
-        on:lcpHovered={lcpHovered}
-        on:aggregateSummary={updateAggregateSummary}
-        on:installManyLcps={event => importManyLcps(event.detail)}
-        on:clearCompendiums={clearCompendiums}
-      />
+      <div class="lcp-manager__import-column">
+        <LCPTable
+          lcpData={lcpData}
+          llpRows={llpRows}
+          onLCPHovered={lcpHovered}
+          onLLPHovered={llpHovered}
+          onSelectionChanged={lcpSelectionChanged}
+          onLocalesChanged={llpSelectionChanged}
+          onRemovePatch={removeLlp}
+          disabled={busy}
+        />
+        <LCPSelector
+          disabled={busy}
+          onLCPsLoaded={lcpsLoaded}
+          onLLPsLoaded={llpsLoaded}
+        />
+        <LCPActions
+          canImport={canImport}
+          canClear={canClear}
+          onImport={importStaged}
+          onClearCompendiums={clearCompendiums}
+          disabled={busy}
+        />
+      </div>
       <div class="lcp-manager__detail-column">
-        <LcpSelector
-          bind:disabled={busy}
-          bind:deselect={deselectFiles}
-          on:lcpLoaded={lcpLoaded}
-        />
-        <LcpDetails
-          bind:disabled={busy}
-          {contentSummary}
-          {showImportButton}
-          on:importLcp={() => importManyLcps()}
-        />
+        {#if patchSummary}
+          <LLPDetails patchSummary={patchSummary} />
+        {/if}
+        {#if !patchSummary || contentSummary}
+          <LCPDetails contentSummary={contentSummary} />
+        {/if}
       </div>
     </div>
     <div class="lcp-manager__progress-area">
@@ -229,7 +357,22 @@
 <style lang="scss">
   @layer lancer {
     @layer applications {
+      @container lcp-manager (max-width: 40rem) {
+        .lcp-manager__main-content {
+          gap: 5px;
+        }
+
+        .lcp-manager__import-column {
+          max-height: 60%;
+        }
+
+        .lcp-manager__detail-column {
+          max-height: 40%;
+        }
+      }
+
       .lcp-manager {
+        container: lcp-manager / inline-size;
         position: relative;
         height: 100%;
         display: flex;
@@ -238,12 +381,37 @@
         .lcp-manager__main-content {
           align-items: normal;
           max-height: calc(100% - 50px);
-        }
 
-        .lcp-manager__detail-column {
-          padding-left: 10px;
-          padding-right: 10px;
-          max-height: 100%;
+          .lcp-manager__import-column,
+          .lcp-manager__detail-column {
+            height: 100%;
+            overflow: hidden;
+            overflow-y: auto;
+            min-height: 0;
+            gap: 5px;
+          }
+
+          .lcp-manager__import-column {
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+            flex-shrink: 0;
+            flex-basis: 15rem;
+
+            height: 100%;
+            min-width: 25rem;
+            padding-left: 5px;
+            padding-right: 5px;
+          }
+
+          .lcp-manager__detail-column {
+            flex-grow: 1;
+            flex-shrink: 1;
+            flex-basis: 15rem;
+
+            padding-left: 5px;
+            padding-right: 5px;
+          }
         }
 
         .lcp-manager__progress-area {
@@ -253,6 +421,7 @@
           bottom: 0;
           background-color: var(--background-color);
         }
+
         .lcp-manager__progress {
           width: 100%;
           height: 100%;

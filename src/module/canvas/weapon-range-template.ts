@@ -115,7 +115,7 @@ export class WeaponRangeTemplate extends foundry.canvas.placeables.MeasuredTempl
    */
   placeTemplate(): Promise<MeasuredTemplateDocument.Implementation> {
     if (!canvas.ready) {
-      ui.notifications?.error("Cannot create WeaponRangeTemplate. Canvas is not ready");
+      ui.notifications?.error(game.i18n.localize("lancer.notifications.error.weaponRangeCanvasNotReady"));
       throw new Error("Cannot create WeaponRangeTemplate. Canvas is not ready");
     }
     this.actorSheet?.minimize();
