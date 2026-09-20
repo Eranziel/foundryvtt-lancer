@@ -131,7 +131,9 @@ export class LancerCombatTracker extends foundry.applications.sidebar.tabs.Comba
             .then(() => getCombatant(li)?.modifyCurrentActivations(1)),
       },
     ];
-    m.push(...super._getEntryContextOptions().filter((i: any) => i.name !== "COMBAT.CombatantReroll"));
+    // Core entries are keyed `name` in v13 and `label` in v14, and the reroll entry was renamed
+    const reroll = ["COMBAT.CombatantReroll", "COMBATANT.ACTIONS.Reroll"];
+    m.push(...super._getEntryContextOptions().filter((i: any) => !reroll.includes(i.label ?? i.name)));
     return m;
   }
 }

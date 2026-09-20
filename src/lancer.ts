@@ -827,7 +827,13 @@ function addSettingsButtons(_app: foundry.applications.sidebar.tabs.Settings, ht
             <i class="fas fa-robot"></i>LANCER Help
         </button>`);
 
-  $(html).find("#settings-game").after(lancerHeader);
+  // v13 groups the core buttons in #settings-game; v14 renders them as <section class="settings">
+  const anchor = $(html).find("#settings-game, section.settings").first();
+  if (!anchor.length) {
+    console.warn(`${lp} Unable to add LANCER Help button - settings sidebar anchor not found!`);
+    return;
+  }
+  anchor.after(lancerHeader);
   $(html).find("#settings-lancer").append(faqButton);
 
   faqButton.on("click", async () => {

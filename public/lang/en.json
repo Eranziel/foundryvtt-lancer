@@ -559,7 +559,11 @@
   "LANCERINITIATIVE": {
     "COMBAT": {
       "activateCombatantTurn": "Start this combatant's turn",
-      "deactivateCombatantTurn": "End this combatant's turn"
+      "deactivateCombatantTurn": "End this combatant's turn",
+      "toggleVisibility": "Toggle Visibility",
+      "toggleDefeated": "Toggle Defeated",
+      "pingCombatant": "Ping Token",
+      "panToCombatant": "Pan to Combatant"
     },
     "IconSettingsMenu": "Icon Settings",
     "Icon": "Action Icon",
