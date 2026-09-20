@@ -12,28 +12,28 @@
             <div class="combatant-controls">
                 {{#if @root.user.isGM}}
                 <button type="button" class="inline-control combatant-control icon fa-solid fa-eye-slash {{#if hidden}}active{{/if}}"
-                        data-action="toggleHidden" data-tooltip="COMBAT.ToggleVis"
-                        aria-label="{{ localize "COMBAT.ToggleVis" }}"></button>
+                        data-action="toggleHidden" data-tooltip="LANCERINITIATIVE.COMBAT.toggleVisibility"
+                        aria-label="{{ localize "LANCERINITIATIVE.COMBAT.toggleVisibility" }}"></button>
                 <button type="button" class="inline-control combatant-control icon fa-solid fa-skull {{#if isDefeated}}active{{/if}}"
-                        data-action="toggleDefeated" data-tooltip="COMBAT.ToggleDead"
-                        aria-label="{{ localize "COMBAT.ToggleDead" }}"></button>
+                        data-action="toggleDefeated" data-tooltip="LANCERINITIATIVE.COMBAT.toggleDefeated"
+                        aria-label="{{ localize "LANCERINITIATIVE.COMBAT.toggleDefeated" }}"></button>
                 {{/if}}
                 {{#if canPing}}
                 <button type="button" class="inline-control combatant-control icon fa-solid fa-bullseye-arrow"
-                        data-action="pingCombatant" data-tooltip="COMBAT.PingCombatant"
-                        aria-label="{{ localize "COMBAT.PingCombatant" }}"></button>
+                        data-action="pingCombatant" data-tooltip="LANCERINITIATIVE.COMBAT.pingCombatant"
+                        aria-label="{{ localize "LANCERINITIATIVE.COMBAT.pingCombatant" }}"></button>
                 {{/if}}
                 {{#unless @root.user.isGM}}
                 <button type="button" class="inline-control combatant-control icon fa-solid fa-arrows-to-eye"
-                        data-action="panToCombatant" data-tooltip="COMBAT.PanToCombatant"
-                        aria-label="{{ localize "COMBAT.PanToCombatant" }}"></button>
+                        data-action="panToCombatant" data-tooltip="LANCERINITIATIVE.COMBAT.panToCombatant"
+                        aria-label="{{ localize "LANCERINITIATIVE.COMBAT.panToCombatant" }}"></button>
                 {{/unless}}
                 <span class="activations" data-tooltip="lancer.Actor.FIELDS.activations.label">
                   <i class="cci cci-activate"></i>
                   <span>{{this.activations}}</span>
                 </span>
                 {{!-- TODO: Target Control --}}
-                <div class="token-effects" data-tooltip="{{ effects.tooltip }}">
+                <div class="token-effects" data-tooltip-html="{{ effects.tooltip }}">
                     {{#each effects.icons}}
                     <img class="token-effect" src="{{ img }}" alt="{{ name }}">
                     {{/each}}
