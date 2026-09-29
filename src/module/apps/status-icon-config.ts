@@ -24,7 +24,7 @@ export class StatusIconConfig extends HandlebarsApplicationMixin(ApplicationV2<{
     id: "lancer-status-icon-settings",
     tag: "form",
     position: { width: 650 },
-    window: { title: "lancer.statusIconsConfig.menu-label", contentClasses: ["standard-form"] },
+    window: { title: "lancer.setting.statusIconsConfig.menu.label", contentClasses: ["standard-form"] },
     form: {
       handler: this.#formHandler,
       submitOnChange: false,

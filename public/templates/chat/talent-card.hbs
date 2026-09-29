@@ -1,7 +1,9 @@
 <div class="card clipped-bot" style="margin: 0px;">
-  <div class="lancer-header lancer-talent">// TALENT :: {{title}} {{inc lvl}} //</div>
-  <span class="major" style="margin:auto">{{rank.name}}</span>
-  <div class="effect-text" style="grid-area: 2/1/3/3">
+  <div class="lancer-header lancer-talent">
+    {{#decorate-card}}<span data-localize="title">{{upper-case (localize "lancer.chatCard.title.talent.label" title=title lvl=(inc lvl))}}</span>{{/decorate-card}}
+  </div>
+  <span class="major" style="margin:auto" data-localize="rankName">{{rank.name}}</span>
+  <div class="effect-text" style="grid-area: 2/1/3/3" data-localize="description">
     {{{rank.description}}}
   </div>
   {{! TODO: show actions }}

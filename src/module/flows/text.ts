@@ -22,6 +22,7 @@ export class SimpleTextFlow extends Flow<LancerFlowState.TextRollData> {
       title: data?.title ?? "",
       description: data?.description ?? "",
       tags: data?.tags ?? [],
+      flags: data?.flags,
     };
     if (!state.title && uuid instanceof LancerItem) state.title = uuid.name!;
 
@@ -29,12 +30,17 @@ export class SimpleTextFlow extends Flow<LancerFlowState.TextRollData> {
   }
 }
 
-export async function printGenericCard(state: FlowState<any>, options?: { template?: string }): Promise<boolean> {
+export async function printGenericCard(
+  state: FlowState<any>,
+  options?: { template?: string },
+  flags?: any
+): Promise<boolean> {
   if (!state.data) throw new TypeError(`Flow state missing!`);
   renderTemplateStep(
     state.actor,
     options?.template || `systems/${game.system.id}/templates/chat/generic-card.hbs`,
-    state.data
+    state.data,
+    flags ?? state.data.flags
   );
   return true;
 }
@@ -45,6 +51,7 @@ export class SimpleHTMLFlow extends Flow<LancerFlowState.HTMLToChatData> {
   constructor(uuid: UUIDRef | LancerItem | LancerActor, data: Partial<LancerFlowState.HTMLToChatData>) {
     const state: LancerFlowState.HTMLToChatData = {
       html: data?.html ?? "",
+      flags: data?.flags,
     };
     super(uuid, state);
   }
@@ -67,6 +74,6 @@ async function printGenericHTML(state: FlowState<LancerFlowState.HTMLToChatData>
       state.data.html = await renderTemplate(`systems/${game.system.id}/templates/chat/generic-card.hbs`, templateData);
     }
   }
-  createChatMessageStep(state.actor, state.data.html);
+  createChatMessageStep(state.actor, state.data.html, undefined, state.data.flags);
   return true;
 }

@@ -7,27 +7,26 @@
         name="name"
         type="text"
         value="{{actor.name}}"
-        placeholder='{{localize "
-        lancer.placeholder.name"}}'
+        placeholder='{{localize "lancer.placeholder.name"}}'
       >
     </h1>
     {{{ref-portrait-img actor.img "img" actor}}}
     <div class="header-details monospace">
       {{#if (not is_active)}}
-        {{localize "lancer.mech-sheet.inactive-warning"}}
+        {{localize "lancer.mechSheet.inactiveWarning.label"}}
       {{else}}
-        <span>{{localize "TYPES.Actor.pilot"}} :: {{pilot.system.callsign}}<br>
-          {{localize "TYPES.Item.frame"}} :: {{itemTypes.frame.0.system.manufacturer}}
+        <span>{{localize "lancer.common.actor.pilot.label"}} :: {{pilot.system.callsign}}<br>
+          {{localize "lancer.common.item.frame.label"}} :: {{itemTypes.frame.0.system.manufacturer}}
           {{itemTypes.frame.0.name}}</span>
       {{/if}}
     </div>
 
     {{!-- Sheet Tab Navigation --}}
     <nav class="lancer-tabs" data-group="primary">
-      <a class="item lancer-tab medium" data-tab="stats">{{localize "lancer.mech-sheet.tabs.stats"}}</a>
-      <a class="item lancer-tab medium" data-tab="loadout">{{localize "lancer.mech-sheet.tabs.loadout"}}</a>
-      <a class="item lancer-tab medium" data-tab="talents">{{localize "lancer.mech-sheet.tabs.talents"}}</a>
-      <a class="item lancer-tab medium" data-tab="effects">{{localize "lancer.common-sheet.tabs.effects"}}</a>
+      <a class="item lancer-tab medium" data-tab="stats">{{localize "lancer.mechSheet.tabs.stats.label"}}</a>
+      <a class="item lancer-tab medium" data-tab="loadout">{{localize "lancer.mechSheet.tabs.loadout.label"}}</a>
+      <a class="item lancer-tab medium" data-tab="talents">{{localize "lancer.mechSheet.tabs.talents.label"}}</a>
+      <a class="item lancer-tab medium" data-tab="effects">{{localize "lancer.commonSheet.tabs.effects.label"}}</a>
     </nav>
   </header>
 
@@ -35,21 +34,20 @@
   <section class="sheet-body">
     <div class="tab stats" data-group="primary" data-tab="stats">
       <div class="stat-grid">
-        {{{stat-edit-max-card
-          "hp" "mdi mdi-heart-outline" "system.hp.value" "system.hp.max"}}}
-        {{{stat-edit-max-card "heat" "cci cci-heat" "system.heat.value" "system.heat.max"}}}
-        {{{stat-view-card "evasion" "cci cci-evasion" "system.evasion"}}}
-        {{{stat-view-card "armor" "mdi mdi-shield-outline" "system.armor"}}}
-        {{{stat-edit-max-card "structure" "cci cci-structure" "system.structure.value" "system.structure.max"}}}
-        {{{stat-edit-max-card "stress" "cci cci-reactor" "system.stress.value" "system.stress.max"}}}
-        {{{stat-view-card "edef" "cci cci-edef" "system.edef"}}}
-        {{{stat-view-card "speed" "mdi mdi-arrow-right-bold-hexagon-outline" "system.speed"}}}
-        {{{stat-view-card "save" "cci cci-save" "system.save"}}}
-        {{{stat-view-card "sensor_range" "cci cci-sensor" "system.sensor_range"}}}
-        {{{tech-flow-card "tech_attack" "cci cci-tech-full" "system.tech_attack"}}}
-        {{{stat-edit-rollable-card "burn" "cci cci-burn" "system.burn"}}}
-        {{{stat-edit-card "overshield" "mdi mdi-shield-star-outline" "system.overshield.value"}}}
-        {{{stat-edit-max-card "repairs" "cci cci-repair" "system.repairs.value" "system.repairs.max"}}}
+        {{{stat-edit-max-card (upper-case (localize "lancer.common.stat.hp.label")) "mdi mdi-heart-outline" "system.hp.value" "system.hp.max"}}}
+        {{{stat-edit-max-card (upper-case (localize "lancer.common.stat.heat.cap.label")) "cci cci-heat" "system.heat.value" "system.heat.max"}}}
+        {{{stat-view-card (upper-case (localize "lancer.common.stat.evasion.label")) "cci cci-evasion" "system.evasion"}}}
+        {{{stat-view-card (upper-case (localize "lancer.common.stat.armor.label")) "mdi mdi-shield-outline" "system.armor"}}}
+        {{{stat-edit-max-card (upper-case (localize "lancer.common.stat.structure.label")) "cci cci-structure" "system.structure.value" "system.structure.max"}}}
+        {{{stat-edit-max-card (upper-case (localize "lancer.common.stat.stress.label")) "cci cci-reactor" "system.stress.value" "system.stress.max"}}}
+        {{{stat-view-card (upper-case (localize "lancer.common.stat.eDefense.label")) "cci cci-edef" "system.edef"}}}
+        {{{stat-view-card (upper-case (localize "lancer.common.stat.speed.label")) "mdi mdi-arrow-right-bold-hexagon-outline" "system.speed"}}}
+        {{{stat-view-card (upper-case (localize "lancer.common.stat.save.target.label")) "cci cci-save" "system.save"}}}
+        {{{stat-view-card (upper-case (localize "lancer.common.stat.sensor.range.label")) "cci cci-sensor" "system.sensor_range"}}}
+        {{{tech-flow-card (upper-case (localize "lancer.common.stat.tech.attack.label")) "cci cci-tech-full" "system.tech_attack"}}}
+        {{{stat-edit-rollable-card (upper-case (localize "lancer.common.stat.burn.label")) "cci cci-burn" "system.burn"}}}
+        {{{stat-edit-card (upper-case (localize "lancer.common.stat.overshield.label")) "mdi mdi-shield-star-outline" "system.overshield.value"}}}
+        {{{stat-edit-max-card (upper-case (localize "lancer.common.stat.repair.plural")) "cci cci-repair" "system.repairs.value" "system.repairs.max"}}}
         <div class="size-card">
           {{#if (eq system.size 0.5)}}
             <i class="cci cci-size-half size-icon theme--main"></i>
@@ -61,7 +59,7 @@
         <div class="flexcol card clipped">
           <div class="lancer-header lancer-primary">
             <span class="major">
-              {{localize "lancer.mech-sheet.core.label"}}
+              {{upper-case (localize "lancer.mechSheet.core.label")}}
             </span>
           </div>
           <div class="flexrow stat-container">
@@ -75,43 +73,45 @@
             >
           </div>
         </div>
-        {{{stat-rollable-card "grit" "cci cci-armor" "system.grit"}}}
+        {{{stat-rollable-card (upper-case (localize "lancer.common.stat.grit.short")) "cci cci-armor" "system.grit"}}}
         {{{pilot-slot "system.pilot" value=pilot}}}
 
         <div class="wraprow double hase">
-          {{{stat-rollable-card "hull" "" "system.hull"}}}
-          {{{stat-rollable-card "agi" "" "system.agi"}}}
-          {{{stat-rollable-card "sys" "" "system.sys"}}}
-          {{{stat-rollable-card "eng" "" "system.eng"}}}
+          {{{stat-rollable-card (upper-case (localize "lancer.common.stat.hull.short")) "" "system.hull"}}}
+          {{{stat-rollable-card (upper-case (localize "lancer.common.stat.agility.short")) "" "system.agi"}}}
+          {{{stat-rollable-card (upper-case (localize "lancer.common.stat.systems.short")) "" "system.sys"}}}
+          {{{stat-rollable-card (upper-case (localize "lancer.common.stat.engineering.short")) "" "system.eng"}}}
         </div>
         <div class="inventory" style="flex: inherit; margin: 3px 10px">
-          <button class="lancer-button" type="button" style="padding: 8px 16px">View Inventory</button>
+          <button class="lancer-button" type="button" style="padding: 8px 16px">
+            {{localize "lancer.mechSheet.inventory.button"}}
+          </button>
         </div>
       </div>
       <div class="pilot-frame-wrapper flexrow">
         <div class="card">
           <span class="lancer-header lancer-primary submajor clipped-top">
-            {{localize "lancer.mech-sheet.macros.label"}}
+            {{upper-case (localize "lancer.mechSheet.macros.label")}}
           </span>
           <div class="lancer-flow-button-grid">
-            {{{flow-button (localize "lancer.common-sheet.buttons.stabilize") "Stabilize"}}}
-            {{{flow-button (localize "lancer.common-sheet.buttons.fullRepair") "FullRepair"}}}
+            {{{flow-button (upper-case (localize "lancer.commonSheet.buttons.stabilize.label")) "Stabilize"}}}
+            {{{flow-button (upper-case (localize "lancer.commonSheet.buttons.fullRepair.label")) "FullRepair"}}}
             <div style="margin: 0px 8px; border-left: 2px solid #a2a2a2"></div>
-            {{{flow-button (localize "lancer.common-sheet.buttons.structure") "Structure"}}}
-            {{{flow-button (localize "lancer.common-sheet.buttons.overheat") "Overheat"}}}
+            {{{flow-button (upper-case (localize "lancer.commonSheet.buttons.structure.label")) "Structure"}}}
+            {{{flow-button (upper-case (localize "lancer.commonSheet.buttons.overheat.label")) "Overheat"}}}
           </div>
         </div>
         {{#if (is-combatant actor)}}
           <div style="min-width: 560px" class="card">
             <span class="lancer-header lancer-primary submajor clipped-top">
-              {{localize "lancer.mech-sheet.actions.label"}}
+              {{upper-case (localize "lancer.common.descriptor.action.plural")}}
             </span>
             <div class="lancer-flow-button-grid">
-              {{{action-button "Protocol" "system.action_tracker.protocol" "protocol"}}}
-              {{{action-button "Movement" "system.action_tracker.move" "move"}}}
-              {{{action-button "Full Action" "system.action_tracker.full" "full"}}}
-              {{{action-button "Quick Action" "system.action_tracker.quick" "quick"}}}
-              {{{action-button "Reaction" "system.action_tracker.reaction" "reaction"}}}
+              {{{action-button "lancer.common.activation.protocol.label" "system.action_tracker.protocol" "protocol"}}}
+              {{{action-button "lancer.common.movement.label" "system.action_tracker.move" "move"}}}
+              {{{action-button "lancer.common.activation.fullAction.label" "system.action_tracker.full" "full"}}}
+              {{{action-button "lancer.common.activation.quickAction.label" "system.action_tracker.quick" "quick"}}}
+              {{{action-button "lancer.common.activation.reaction.label" "system.action_tracker.reaction" "reaction"}}}
             </div>
           </div>
         {{/if}}
@@ -121,25 +121,23 @@
     <div class="tab loadout" data-group="primary" data-tab="loadout">
       {{{mech-frame "system.loadout.frame.value" system.core_energy}}}
       <div class="card clipped">
-        <span class="lancer-header lancer-primary submajor">{{
-            localize "lancer.common-sheet.headers.combatUtilities"
-          }}</span>
+        <span class="lancer-header lancer-primary submajor">{{{upper-case (localize "lancer.commonSheet.header.combatUtilities.label")}}}</span>
         <div class="lancer-flow-button-grid">
-          {{{flow-button (localize "lancer.common-sheet.buttons.scan") "Scan"}}}
-          {{{flow-button (localize "lancer.common-sheet.buttons.basicAttack") "BasicAttack"}}}
-          {{{flow-button (localize "lancer.common-sheet.buttons.damage") "Damage"}}}
-          {{{flow-button (localize "lancer.common-sheet.buttons.tech") "TechAttack"}}}
+          {{{flow-button (upper-case (localize "lancer.commonSheet.buttons.scan.label")) "Scan"}}}
+          {{{flow-button (upper-case (localize "lancer.commonSheet.buttons.basicAttack.label")) "BasicAttack"}}}
+          {{{flow-button (upper-case (localize "lancer.commonSheet.buttons.damage.label")) "Damage"}}}
+          {{{flow-button (upper-case (localize "lancer.commonSheet.buttons.tech.label")) "TechAttack"}}}
         </div>
       </div>
       <div class="card">
         <div class="lancer-header lancer-primary major">
           <span>
-            {{{localize "lancer.mech-sheet.system.label"}}}
+            {{{upper-case (localize "lancer.mechSheet.loadout.label")}}}
           </span>
           <span style="flex-grow: 0">
             <i class="cci cci-system-point i--4"></i>
             {{system.loadout.sp.value}} / {{system.loadout.sp.max}}
-            {{localize "lancer.mech-sheet.system.sp-used"}}
+            {{upper-case (localize "lancer.mechSheet.system.points.used.label")}}
           </span>
         </div>
         {{{mech-loadout}}}
@@ -151,7 +149,7 @@
       {{#if system.pilot.value}}
         <div class="card clipped">
           <h2 class="lancer-header lancer-primary major clipped">
-            {{localize "lancer.pilot-sheet.abilities.talents"}}
+            {{upper-case (localize "lancer.pilotSheet.abilities.talents.label")}}
           </h2>
           {{#each system.pilot.value.itemTypes.talent as |talent index|}}
             {{{item-preview (concat "system.pilot.value.itemTypes.talent." index) null}}}

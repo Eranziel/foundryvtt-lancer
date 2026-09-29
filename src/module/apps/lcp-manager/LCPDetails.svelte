@@ -1,190 +1,284 @@
 <script lang="ts">
-  import { createEventDispatcher } from "svelte";
   import { fade } from "svelte/transition";
   import type { ContentSummary } from "../../util/lcps";
 
-  const dispatch = createEventDispatcher();
+  interface Props {
+    contentSummary: ContentSummary | null;
+  }
 
-  export let contentSummary: ContentSummary | null = null;
-  export let showImportButton: boolean;
-  export let disabled: boolean = false;
+  let { contentSummary }: Props = $props();
 
-  let oldContentSummary: ContentSummary | null = null;
-  let fadeDirection: "fade-in" | "fade-out" = "fade-in";
-  $: title = oldContentSummary
-    ? `${oldContentSummary.name}${oldContentSummary.version ? ` v${oldContentSummary.version}` : ""}`
-    : "No LCP Selected";
-  $: {
-    if (contentSummary !== oldContentSummary) {
-      fadeDirection = "fade-out";
-      setTimeout(() => {
-        oldContentSummary = contentSummary;
-        fadeDirection = "fade-in";
-      }, 100); // Time must match transition duration
-    }
+  const FADE_MS = 100;
+
+  let title = $derived(
+    contentSummary
+      ? `${contentSummary.name}${contentSummary.version ? ` v${contentSummary.version}` : ""}`
+      : game.i18n.localize("lancer.lcpManager.header.noLcpSelected.label")
+  );
+
+  let imageExpanded = $state(false);
+
+  function onHoverHandler() {
+    imageExpanded = true;
+  }
+
+  function onUnhoverHandler() {
+    imageExpanded = false;
   }
 </script>
 
-<!-- Show LCP name, art, and contents -->
-<div class="lcp-details card clipped">
-  <div class="lancer-header lancer-primary major">
-    <span class={`transition ${fadeDirection}`}>{title}</span>
-  </div>
-  <!-- New LCP Manifest -->
-  {#if oldContentSummary}
-    <div class="lcp-details__content" transition:fade|global>
-      {#if oldContentSummary.website}
-        <a
-          href={oldContentSummary.website}
-          class={`medium transition ${fadeDirection}`}
-          style="margin: 5px"
-        >by {oldContentSummary.author}</a>
-      {:else}
-        <div class={`medium transition ${fadeDirection}`} style="margin: 10px">
-          by {oldContentSummary.author}
-        </div>
-      {/if}
-      <div class="lcp-description minor desc-text">
-        <div class={`transition ${fadeDirection}`}>
-          {#if oldContentSummary.image_url}
-            <img
-              class={`manifest-image transition ${fadeDirection}`}
-              src={oldContentSummary.image_url}
-              title={oldContentSummary.name}
-              alt={oldContentSummary.name}
-            >
-          {/if}
-          <span>Contents:</span>
-          <ul>
-            {#if oldContentSummary.skills}
-              <li>
-                <span class="lcp-manifest-badge">{oldContentSummary.skills}</span> pilot skills
-              </li>
-            {/if}
-            {#if oldContentSummary.talents}
-              <li>
-                <span class="lcp-manifest-badge">{oldContentSummary.talents}</span> talents
-              </li>
-            {/if}
-            {#if oldContentSummary.bonds}
-              <li>
-                <span class="lcp-manifest-badge">{oldContentSummary.bonds}</span> bonds
-              </li>
-            {/if}
-            {#if oldContentSummary.reserves}
-              <li>
-                <span class="lcp-manifest-badge">{oldContentSummary.reserves}</span> reserves
-              </li>
-            {/if}
-            {#if oldContentSummary.gear}
-              <li>
-                <span class="lcp-manifest-badge">{oldContentSummary.gear}</span>
-                pilot gear
-              </li>
-            {/if}
-            {#if oldContentSummary.frames}
-              <li>
-                <span class="lcp-manifest-badge">{oldContentSummary.frames}</span> frames
-              </li>
-            {/if}
-            {#if oldContentSummary.systems}
-              <li>
-                <span class="lcp-manifest-badge">{oldContentSummary.systems}</span> mech systems
-              </li>
-            {/if}
-            {#if oldContentSummary.weapons}
-              <li>
-                <span class="lcp-manifest-badge">{oldContentSummary.weapons}</span> mech weapons
-              </li>
-            {/if}
-            {#if oldContentSummary.mods}
-              <li>
-                <span class="lcp-manifest-badge">{oldContentSummary.mods}</span>
-                weapon mods
-              </li>
-            {/if}
-            {#if oldContentSummary.npc_classes}
-              <li>
-                <span class="lcp-manifest-badge">{oldContentSummary.npc_classes}</span> NPC classes
-              </li>
-            {/if}
-            {#if oldContentSummary.npc_templates}
-              <li>
-                <span class="lcp-manifest-badge">{oldContentSummary.npc_templates}</span> NPC templates
-              </li>
-            {/if}
-            {#if oldContentSummary.npc_features}
-              <li>
-                <span class="lcp-manifest-badge">{oldContentSummary.npc_features}</span> NPC features
-              </li>
-            {/if}
-          </ul>
-          {#if oldContentSummary.description}
-            {@html oldContentSummary.description}
-          {/if}
-        </div>
-      </div>
-      {#if !showImportButton && !oldContentSummary.aggregate}
-        <button
-          transition:fade|global
-          type="button"
-          class="lcp-import"
-          title="Import LCP"
-          tabindex="-1"
-          {disabled}
-          on:click={() => dispatch("importLcp")}
-        >
-          <i class="cci cci-content-manager i--4"></i>
-          Import LCP
-        </button>
+{#snippet lcpDescription(contentSummary: ContentSummary)}
+  <div class="lcp-description minor clipped">
+    <div class="">
+      <span>{game.i18n.localize("lancer.lcpManager.contents.label")}:</span>
+      <ul>
+        {#if contentSummary.skills}
+          <li>
+            <span class="lcp-manifest-badge">{contentSummary.skills}</span> {
+              game.i18n.localize("lancer.common.item.skill.plural").toLowerCase()
+            }
+          </li>
+        {/if}
+        {#if contentSummary.talents}
+          <li>
+            <span class="lcp-manifest-badge">{contentSummary.talents}</span> {
+              game.i18n.localize("lancer.common.item.talent.plural").toLowerCase()
+            }
+          </li>
+        {/if}
+        {#if contentSummary.bonds}
+          <li>
+            <span class="lcp-manifest-badge">{contentSummary.bonds}</span> {
+              game.i18n.localize("lancer.common.item.bond.plural").toLowerCase()
+            }
+          </li>
+        {/if}
+        {#if contentSummary.reserves}
+          <li>
+            <span class="lcp-manifest-badge">{contentSummary.reserves}</span> {
+              game.i18n.localize("lancer.common.item.reserve.plural").toLowerCase()
+            }
+          </li>
+        {/if}
+        {#if contentSummary.gear}
+          <li>
+            <span class="lcp-manifest-badge">{contentSummary.gear}</span> {
+              game.i18n.localize("lancer.common.item.pilotGear.plural").toLowerCase()
+            }
+          </li>
+        {/if}
+        {#if contentSummary.frames}
+          <li>
+            <span class="lcp-manifest-badge">{contentSummary.frames}</span> {
+              game.i18n.localize("lancer.common.item.frame.plural").toLowerCase()
+            }
+          </li>
+        {/if}
+        {#if contentSummary.systems}
+          <li>
+            <span class="lcp-manifest-badge">{contentSummary.systems}</span> {
+              game.i18n.localize("lancer.common.item.mechSystem.plural").toLowerCase()
+            }
+          </li>
+        {/if}
+        {#if contentSummary.weapons}
+          <li>
+            <span class="lcp-manifest-badge">{contentSummary.weapons}</span> {
+              game.i18n.localize("lancer.common.item.mechWeapon.plural").toLowerCase()
+            }
+          </li>
+        {/if}
+        {#if contentSummary.mods}
+          <li>
+            <span class="lcp-manifest-badge">{contentSummary.mods}</span> {
+              game.i18n.localize("lancer.common.item.weaponMod.plural").toLowerCase()
+            }
+          </li>
+        {/if}
+        {#if contentSummary.npc_classes}
+          <li>
+            <span class="lcp-manifest-badge">{contentSummary.npc_classes}</span> {
+              game.i18n.localize("lancer.common.item.npcClass.plural").toLowerCase()
+            }
+          </li>
+        {/if}
+        {#if contentSummary.npc_templates}
+          <li>
+            <span class="lcp-manifest-badge">{contentSummary.npc_templates}</span> {
+              game.i18n.localize("lancer.common.item.npcTemplate.plural").toLowerCase()
+            }
+          </li>
+        {/if}
+        {#if contentSummary.npc_features}
+          <li>
+            <span class="lcp-manifest-badge">{contentSummary.npc_features}</span> {
+              game.i18n.localize("lancer.common.item.npcFeature.plural").toLowerCase()
+            }
+          </li>
+        {/if}
+      </ul>
+      {#if contentSummary.description}
+        {@html contentSummary.description}
       {/if}
     </div>
-  {/if}
+  </div>
+{/snippet}
+
+{#snippet lcpImage(contentSummary: ContentSummary)}
+  <div
+    role="none"
+    class="lcp-image clipped"
+    onmouseenter={onHoverHandler}
+    onmouseleave={onUnhoverHandler}
+  >
+    <img
+      class="manifest-image"
+      src={contentSummary.image_url}
+      title={contentSummary.name}
+      alt={contentSummary.name}
+    >
+  </div>
+  <div
+    class="lcp-image__expanded"
+    style:background-image={`url("${contentSummary.image_url}")`}
+  >
+  </div>
+{/snippet}
+
+<!-- Show LCP name, art, and contents -->
+<div class="lcp-details">
+  {#key contentSummary}
+    <div
+      in:fade={{ duration: 333, delay: FADE_MS }}
+      out:fade={{ duration: FADE_MS }}
+      class="lcp-details__fade"
+    >
+      <div class="lancer-header lancer-primary major clipped-top">
+        <span>{title}</span>
+      </div>
+      {#if contentSummary}
+        {#if contentSummary.website}
+          <a
+            href={contentSummary.website}
+            class="medium card clipped"
+          >
+            {game.i18n.localize("lancer.lcpManager.writtenBy.label")} {contentSummary.author}
+          </a>
+        {:else}
+          <div class="medium card clipped">
+            {game.i18n.localize("lancer.lcpManager.writtenBy.label")} {contentSummary.author}
+          </div>
+        {/if}
+        <div class={["lcp-details__content", imageExpanded && "image-expanded"]}>
+          {@render lcpDescription(contentSummary)}
+          {#if contentSummary.image_url}
+            {@render lcpImage(contentSummary)}
+          {/if}
+        </div>
+      {/if}
+    </div>
+  {/key}
 </div>
 
 <style lang="scss">
   @layer lancer {
     @layer components {
-      .lcp-details.card {
-        margin-left: 0;
-        margin-right: 0;
-        margin-bottom: 0;
-        max-height: calc(100% - 5.5em);
+      .lcp-details {
+        display: grid;
+        height: 100%;
+        overflow: hidden;
+        min-height: 23rem;
       }
-      .lcp-details__content {
-        display: inline-grid;
-        grid-template-rows: auto 1fr auto;
-        max-height: calc(100% - 3em);
-        overflow-y: hidden;
-        .lcp-description {
-          overflow-y: scroll;
 
-          & ul {
-            margin-top: 0.25em;
+      .lcp-details__fade {
+        display: flex;
+        flex-direction: column;
+        grid-area: 1/1;
+
+        min-height: 0;
+      }
+
+      .lcp-details__content {
+        display: flex;
+        flex-direction: row;
+        flex-grow: 1;
+        flex-shrink: 1;
+        flex-basis: auto;
+
+        min-height: 0;
+        position: relative;
+
+        &.image-expanded {
+          .lcp-description {
+            opacity: 0;
+            pointer-events: none;
+          }
+
+          .lcp-image {
+            opacity: 0;
+          }
+
+          .lcp-image__expanded {
+            opacity: 1;
           }
         }
       }
 
-      .transition {
-        &.fade-in {
-          opacity: 1;
-          transition: opacity ease-in 0.333s;
-        }
-        &.fade-out {
-          opacity: 0;
-          transition: opacity ease-in 0.1s;
-        }
-      }
-      .manifest-image {
-        max-width: 400px;
-        max-height: 400px;
+      .lcp-description {
+        flex-grow: 1;
+        flex-shrink: 1;
+        flex-basis: auto;
 
-        .lcp-description & {
-          float: right;
-          margin-left: 10px;
-          margin-bottom: 10px;
-          max-width: 60%;
-        }
+        min-height: 0;
+        min-width: 0;
+        overflow-y: auto;
+
+        background-color: var(--darken-1);
+        padding: 10px;
+
+        transition: opacity 250ms ease;
+      }
+
+      .lcp-image {
+        display: flex;
+        justify-content: center;
+        align-items: stretch;
+        flex-grow: 0;
+        flex-shrink: 0;
+        flex-basis: auto;
+
+        min-height: 0;
+        min-width: 150px;
+        max-width: 150px;
+        overflow: hidden;
+
+        margin-left: 5px;
+
+        transition: opacity 250ms ease;
+      }
+
+      .lcp-image__expanded {
+        position: absolute;
+        inset: 0;
+
+        background-size: contain;
+        background-position: right center;
+        background-repeat: no-repeat;
+
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 250ms ease;
+      }
+
+      .manifest-image {
+        flex-grow: 0;
+        flex-shrink: 0;
+        flex-basis: auto;
+
+        height: 100%;
+        width: auto;
+        max-width: none;
+        margin: 0;
       }
     }
   }

@@ -68,13 +68,13 @@ export async function preStructureRollChecks(
   if (!state.data) throw new TypeError(`Structure roll flow data missing!`);
   const actor = state.actor;
   if (!actor.is_mech() && !actor.is_npc()) {
-    ui.notifications!.warn("Only Mechs and NPCs can take structure damage");
+    ui.notifications!.warn(game.i18n.localize("lancer.notifications.warning.structureInvalidDamageActor"));
     return false;
   }
 
   if (game.settings.get(game.system.id, LANCER.setting_automation).structure && !state.data?.reroll_data) {
     if (actor.system.hp.value > 0) {
-      ui.notifications!.info("Token has hp remaining. No need to roll structure.");
+      ui.notifications!.info(game.i18n.localize("lancer.notifications.info.structureTokenHasHpRemaining"));
       return false;
     }
     const { openSlidingHud: open } = await import("../apps/slidinghud");
@@ -192,12 +192,12 @@ export async function rollStructureTable(state: FlowState<LancerFlowState.Primar
   if (!state.data) throw new TypeError(`Structure roll flow data missing!`);
   const actor = state.actor;
   if (!actor.is_mech() && !actor.is_npc()) {
-    ui.notifications!.warn("Only npcs and mechs can roll structure.");
+    ui.notifications!.warn(game.i18n.localize("lancer.notifications.warning.structureInvalidRollActor"));
     return false;
   }
 
   if ((state.data?.reroll_data?.structure ?? actor.system.structure.value) >= actor.system.structure.max) {
-    ui.notifications!.info("The mech is at full Structure, no structure check to roll.");
+    ui.notifications!.info(game.i18n.localize("lancer.notifications.info.structureMechAtFullStructure"));
     return false;
   }
 
@@ -256,7 +256,7 @@ export async function noStructureRemaining(
 
   let actor = state.actor;
   if (!actor.is_mech() && !actor.is_npc()) {
-    ui.notifications!.warn("Only npcs and mechs can roll structure.");
+    ui.notifications!.warn(game.i18n.localize("lancer.notifications.warning.structureInvalidRollActor"));
     return false;
   }
 
@@ -293,7 +293,7 @@ export async function checkStructureMultipleOnes(
 
   let actor = state.actor;
   if (!actor.is_mech() && !actor.is_npc()) {
-    ui.notifications!.warn("Only npcs and mechs can roll structure.");
+    ui.notifications!.warn(game.i18n.localize("lancer.notifications.warning.structureInvalidRollActor"));
     return false;
   }
 
@@ -343,7 +343,7 @@ export async function structureInsertDismembermentButton(
 
   let actor = state.actor;
   if (!actor.is_mech() && !actor.is_npc()) {
-    ui.notifications!.warn("Only npcs and mechs can roll structure.");
+    ui.notifications!.warn(game.i18n.localize("lancer.notifications.warning.structureInvalidRollActor"));
     return false;
   }
 
@@ -372,7 +372,7 @@ export async function structureInsertDismembermentButton(
  */
 export async function beginDismembermentDamageFlow(actor: LancerActor) {
   if (!actor) {
-    ui.notifications?.error("No actor found for dismemberment damage button.");
+    ui.notifications?.error(game.i18n.localize("lancer.notifications.error.structureDismembermentActorMissing"));
     return;
   }
 
@@ -413,7 +413,7 @@ export async function structureInsertHullCheckButton(
 
   let actor = state.actor;
   if (!actor.is_mech() && !actor.is_npc()) {
-    ui.notifications!.warn("Only npcs and mechs can roll structure.");
+    ui.notifications!.warn(game.i18n.localize("lancer.notifications.warning.structureInvalidRollActor"));
     return false;
   }
 
@@ -442,7 +442,7 @@ export async function structureInsertSecondaryRollButton(
 
   let actor = state.actor;
   if (!actor.is_mech() && !actor.is_npc()) {
-    ui.notifications!.warn("Only npcs and mechs can roll structure.");
+    ui.notifications!.warn(game.i18n.localize("lancer.notifications.warning.structureInvalidRollActor"));
     return false;
   }
 
@@ -472,7 +472,7 @@ export async function structureInsertCascadeRollButton(
 
   let actor = state.actor;
   if (!actor.is_mech() && !actor.is_npc()) {
-    ui.notifications!.warn("Only npcs and mechs can roll structure/overheat.");
+    ui.notifications!.warn(game.i18n.localize("lancer.notifications.warning.structureOverheatInvalidActor"));
     return false;
   }
 
@@ -550,7 +550,7 @@ export async function secondaryStructureRoll(
 
   const actor = state.actor;
   if (!actor.is_mech() && !actor.is_npc()) {
-    ui.notifications!.warn('Only npcs and mechs can work with "remaining structure" logic.');
+    ui.notifications!.warn(game.i18n.localize("lancer.notifications.warning.structureRemainingInvalidActor"));
     return false;
   }
 

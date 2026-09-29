@@ -1145,3 +1145,32 @@ export interface PackedSitrepData {
   extraction?: string;
   id: string;
 }
+
+/**
+ * @param lang - ISO 639-1 locale code only (does not include ISO 3166-1 alpha-2 country codes). Foundry `game.i18n.lang`
+ * provides both codes joined in the BCP 47 format. E.g. `en` not `en-CA`
+ * @param target - LCP's `item_prefix` or `name`.
+ * @param target_version - Semantic version range of the LCP the translation was written against
+ * @param translation_version
+ * @param last_update
+ * @param translator - Attributions
+ * @param website
+ * @param data - The actual localization data contents as key-values. Keys being the LID dot-pathed to its referencing
+ * string and values being the string to replace the original with. E.g. `mf_gilgamesh.description` -> `{id: "mf_gilgamesh", description: "..."}`
+ * @remarks
+ * References:
+ * https://en.wikipedia.org/wiki/ISO_639-1 / https://en.wikipedia.org/wiki/List_of_ISO_639_language_codes
+ * https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2 / https://en.wikipedia.org/wiki/List_of_ISO_3166_country_codes
+ * https://developer.mozilla.org/en-US/docs/Glossary/BCP_47_language_tag
+ * https://github.com/massif-press/lancer-data/wiki/LCP-Language-Patches
+ */
+export interface PackedLanguagePatchWrapper {
+  lang: string;
+  target: string;
+  target_version: string;
+  translation_version: string;
+  last_update: string;
+  translator: string;
+  website?: string;
+  data: { [key: string]: string };
+}

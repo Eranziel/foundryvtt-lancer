@@ -20,8 +20,8 @@
   </header>
   {{! Sheet Body }}
   <div class="flexcol">
-    {{{textarea-card "DESCRIPTION" "system.description"}}}
-    {{{textarea-card "TERSE DESCRIPTION" "system.terse"}}}
+    {{{textarea-card (upper-case (localize "lancer.common.descriptor.hidden.label")) "system.description"}}}
+    {{{textarea-card (upper-case (localize "lancer.itemSheet.talent.terseDescription.label")) "system.terse"}}}
     <a
       class="gen-control fas fa-plus"
       data-action="append"
@@ -53,11 +53,11 @@
           {{{safe-html rank.description}}}
         </div>
         {{! Bonuses }}
-        {{{item-edit-arrayed-actions (concat "system.ranks." index ".actions") "ACTIONS"}}}
+        {{{item-edit-arrayed-actions (concat "system.ranks." index ".actions") (upper-case (localize "lancer.common.descriptor.action.plural"))}}}
         {{{item-edit-arrayed-bonuses (concat "system.ranks." index ".bonuses")}}}
         {{{counter-array rank.counters (concat "system.ranks." index ".counters") true}}}
         <div class="integrated-wrapper card clipped flexcol">
-          <div class="lancer-header lancer-primary" style="font-weight: bold">INTEGRATED GEAR</div>
+          <div class="lancer-header lancer-primary" style="font-weight: bold">{{{upper-case (localize "lancer.commonSheet.integratedGear.label")}}}</div>
           <ul>
             {{#each rank.integrated as |integrated integ_index|}}
               <li>
@@ -68,8 +68,8 @@
             {{/each}}
           </ul>
         </div>
-        {{{item-edit-arrayed-deployables (concat "system.ranks." index ".deployables") "DEPLOYABLES"}}}
-        {{{item-edit-arrayed-synergies (concat "system.ranks." index ".synergies") "SYNERGIES"}}}
+        {{{item-edit-arrayed-deployables (concat "system.ranks." index ".deployables") (upper-case (localize "lancer.common.actor.deployable.plural"))}}}
+        {{{item-edit-arrayed-synergies (concat "system.ranks." index ".synergies") (upper-case (localize "lancer.commonSheet.synergies.label"))}}}
       </div>
     {{/each}}
   </div>

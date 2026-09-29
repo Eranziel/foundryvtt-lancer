@@ -1,0 +1,6 @@
+{
+  "mf_balor_alt_hecatoncheires.system.core_system.active_actions.0.name": "mf_balor_alt_hecatoncheires.core_system.active_action_enrage_swarm.name",
+  "mf_balor_alt_hecatoncheires.system.core_system.active_actions.0.detail": "mf_balor_alt_hecatoncheires.core_system.active_action_enrage_swarm.detail",
+  "mf_balor_alt_hecatoncheires.system.core_system.passive_actions.0.name": "mf_balor_alt_hecatoncheires.core_system.passive_action_deploy_razor_swarm.name",
+  "mf_balor_alt_hecatoncheires.system.core_system.passive_actions.0.detail": "mf_balor_alt_hecatoncheires.core_system.passive_action_deploy_razor_swarm.detail"
+}

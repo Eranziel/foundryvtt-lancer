@@ -88,7 +88,6 @@ export type LCPData = {
  * Summary of an LCP's contents, for use in the LCP Manager app.
  */
 export type ContentSummary = IContentPackManifest & {
-  aggregate?: boolean;
   item_prefix: string;
   bonds: number;
   skills: number;
@@ -116,7 +115,7 @@ function isValidManifest(obj: any): obj is IContentPackManifest {
   );
 }
 
-export function generateLcpSummary(cp: any): ContentSummary {
+export function generateLCPSummary(cp: any): ContentSummary {
   const data: IContentPack["data"] = cp.data ? cp.data : cp;
   return {
     ...cp.manifest,
@@ -136,7 +135,7 @@ export function generateLcpSummary(cp: any): ContentSummary {
   };
 }
 
-export function generateMultiLcpSummary(manifest: IContentPackManifest, cps: IContentPack[]): ContentSummary {
+export function generateMultiLCPSummary(manifest: IContentPackManifest, cps: IContentPack[]): ContentSummary {
   return cps.reduce(
     (acc, lcp) => {
       if (!lcp.data) return acc;
@@ -170,6 +169,73 @@ export function generateMultiLcpSummary(manifest: IContentPackManifest, cps: ICo
       npc_features: 0,
     } as ContentSummary
   );
+}
+
+/**
+ * Summarizes `IContentPack`s staged for import via official sources (table) and unofficial sources (selector)
+ * @param official - Content packs from the checked rows of the official content table
+ * @param fromFile - Content packs read from the file selector
+ * @return Returns a combined summary, or null when nothing is staged
+ */
+export function summarizeStagedPacks(official: IContentPack[], fromFile: IContentPack[]): ContentSummary | null {
+  const officialManifestModel = {
+    author: "Massif Press",
+    name: game.i18n.localize("lancer.lcpManager.header.selectedOfficial.label"),
+    version: "",
+    item_prefix: "",
+    description: "",
+    website: "https://massif-press.itch.io/",
+  };
+
+  // If multiple official files are selected, prioritize the Massif Press labels, since they're sold there anyway
+  if (!fromFile.length && official.length > 1) return generateMultiLCPSummary(officialManifestModel, official);
+  return summarizeContentPacks([...official, ...fromFile]);
+}
+
+/**
+ *
+ * @param cps
+ * @return Returns an aggregate content summary of the given array of `IContentPack`s or a single content summary if only one is given
+ */
+export function summarizeContentPacks(cps: IContentPack[]): ContentSummary | null {
+  if (!cps.length) return null;
+  if (cps.length === 1) return generateLCPSummary(cps[0]);
+
+  const aggregateManifest: IContentPackManifest = {
+    name: game.i18n.localize("lancer.lcpManager.header.selectedLcps.label"),
+    author: game.i18n.localize("lancer.lcpManager.various.label"),
+    item_prefix: "",
+    version: "",
+    description: "",
+  };
+  for (const cp of cps) {
+    const author = cp.manifest.website
+      ? `<a href="${cp.manifest.website}">${cp.manifest.author}</a>`
+      : `<em>${cp.manifest.author}</em>`;
+    aggregateManifest.description += `<b>${cp.manifest.name}</b> v${cp.manifest.version} by ${author}<br />`;
+  }
+  return generateMultiLCPSummary(aggregateManifest, cps);
+}
+
+/**
+ * Reads from an array of `File`s all assumed to be `.lcp`s, returning `IContentPack`s once read for use in the LCP Manager
+ * @param files - Array of `.lcp` `File` types; non-LCP files are dropped
+ */
+export async function readContentPacks(files: File[]): Promise<IContentPack[]> {
+  const packs = await Promise.all(
+    files.map(async file => {
+      try {
+        return await parseContentPack(await file.arrayBuffer());
+      } catch (err: any) {
+        ui.notifications.error(
+          `${game.i18n.localize("lancer.notifications.error.lcpManagerLcpFailedLoad")} ${file.name}: ${err.message || err}`,
+          { permanent: true }
+        );
+        return null;
+      }
+    })
+  );
+  return packs.filter(cp => cp !== null);
 }
 
 // Get the version from the npm package

@@ -1,0 +1,9 @@
+{
+  "mf_chomolungma.system.core_system.passive_actions.0.name": "mf_chomolungma.core_system.passive_action_balance_control_lockout.name",
+  "mf_chomolungma.system.core_system.passive_actions.0.detail": "mf_chomolungma.core_system.passive_action_balance_control_lockout.detail",
+  "mf_chomolungma.system.core_system.passive_actions.1.name": "mf_chomolungma.core_system.passive_action_system_crusher.name",
+  "mf_chomolungma.system.core_system.passive_actions.1.detail": "mf_chomolungma.core_system.passive_action_system_crusher.detail",
+  "t_sysop.system.ranks.0.synergies.0.detail": "t_sysop.rank_inoculation.active_effect_inoculation.detail",
+  "t_sysop.system.ranks.1.synergies.0.detail": "t_sysop.rank_firewall.active_effect_firewall.detail",
+  "t_sysop.system.ranks.2.synergies.0.detail": "t_sysop.rank_aggressive_countermeasures.active_effect_aggressive_countermeasures.detail"
+}

@@ -21,37 +21,52 @@
     },
     {
       "id": "lcpTable",
-      "selector": ".lcp-manager .lcp-table #lcp-table",
+      "selector": ".lcp-manager .lcp-table .lcp-table__table",
       "title": "lancer.tour.lcp.lcpTable.title",
       "content": "lancer.tour.lcp.lcpTable.content",
       "inApp": true
     },
     {
       "id": "lcpUpdate",
-      "selector": ".lcp-manager .lcp-table button.lcp-bulk-import",
+      "selector": ".lcp-manager .lcp-actions button.lcp-bulk-import",
       "title": "lancer.tour.lcp.lcpUpdate.title",
       "content": "lancer.tour.lcp.lcpUpdate.content",
       "inApp": true
     },
     {
       "id": "lcpFile",
-      "selector": ".lcp-manager .file-select-container .file",
+      "selector": ".lcp-manager .lancer-file-input-display",
       "title": "lancer.tour.lcp.lcpFile.title",
       "content": "lancer.tour.lcp.lcpFile.content",
       "inApp": true
     },
     {
       "id": "lcpImport",
-      "selector": ".lcp-manager .lcp-details button.lcp-import",
+      "selector": ".lcp-manager .lcp-actions button.lcp-bulk-import",
       "title": "lancer.tour.lcp.lcpImport.title",
       "content": "lancer.tour.lcp.lcpImport.content",
       "inApp": true
     },
     {
       "id": "clearData",
-      "selector": ".lcp-manager .lcp-table button.lcp-clear-all",
+      "selector": ".lcp-manager .lcp-actions button.lcp-clear-all",
       "title": "lancer.tour.lcp.clearData.title",
       "content": "lancer.tour.lcp.clearData.content",
+      "inApp": true
+    },
+    {
+      "id": "languagePacks",
+      "selector": ".lcp-manager button.content-expand",
+      "title": "lancer.tour.lcp.languagePacks.title",
+      "content": "lancer.tour.lcp.languagePacks.content",
+      "inApp": true,
+      "click": true
+    },
+    {
+      "id": "llpImport",
+      "selector": ".lcp-manager .locale-row",
+      "title": "lancer.tour.lcp.llpImport.title",
+      "content": "lancer.tour.lcp.llpImport.content",
       "inApp": true
     }
   ],
@@ -66,27 +81,35 @@
       },
       "compendiumManagerButton": {
         "title": "LANCER Compendium Manager",
-        "content": "Manage core data and imported LCPs. NPC data is not included in the system and will need to be added here."
+        "content": "Click here to manage core data and imported LCPs.<br><br><i>Core NPC data is paid content and is not included with this system</i>, but can be added from here."
       },
       "lcpTable": {
         "title": "LCP Table",
-        "content": "You can select and bulk-import official data here. Any LCPs you manually install will also be shown at the end of the table."
+        "content": "You can select and bulk-import official content here. Any LCPs you manually install will also be shown at the end of the table.<br><br><i>Core NPC data is paid content and is not included with the system.</i>"
       },
       "lcpUpdate": {
         "title": "Bulk Import / Update",
-        "content": "Click here to install or update all selected LCPs from the table."
+        "content": "Click here to install or update all selected LCPs from their official sources."
       },
       "lcpFile": {
         "title": "File Selector",
-        "content": "Select a .lcp file here."
+        "content": "Click here to install an LCP from its `.lcp` file here.<br><br>This is where you can import the Core NPC data files."
       },
       "lcpImport": {
         "title": "Import",
-        "content": "Once you've selected a file, import its contents into the compendiums."
+        "content": "Once you've selected a file, click here to import its contents into the compendiums"
       },
       "clearData": {
         "title": "Clear Data",
-        "content": "Deletes imported content and core data. This CANNOT be undone and the only way to restore is to rebuild the core data and re-import the lcp files."
+        "content": "Click here to delete imported content and core data.<br><br>This <b><i>CANNOT</i></b> be undone and the only way to restore them is to rebuild the core data and re-import the lcp files."
+      },
+      "languagePacks": {
+        "title": "LCP Language Packs",
+        "content": "Official LCP Language Packs (LLPs) can be downloaded in the same way as LCPs.<br><br>With multiple LLPs installed, a player can be playing in a language independent from yours."
+      },
+      "llpImport": {
+        "title": "Importing LLPs",
+        "content": "You can select, install, and manage LLPs in the same way as LCPs."
       }
     }
   }

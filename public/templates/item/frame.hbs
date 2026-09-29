@@ -16,30 +16,30 @@
     </div>
   </header>
 
-  {{{textarea-card "DESCRIPTION" "system.description"}}}
+  {{{textarea-card (upper-case (localize "lancer.common.descriptor.description.label")) "system.description"}}}
 
   {{!-- Frame Stats --}}
   <div class="card clipped wraprow quadruple">
     <div class="wraprow quadruple">
-      {{{clicker-stat-card "HP"          "mdi mdi-heart-outline"     "system.stats.hp" false}}}
-      {{{clicker-stat-card "ARMOR"       "mdi mdi-shield-outline"    "system.stats.armor" false}}}
-      {{{clicker-stat-card "REPAIRS"     "cci cci-repair"            "system.stats.repcap" false}}}
-      {{{clicker-stat-card "EVASION"     "cci cci-evasion"           "system.stats.evasion" false}}}
-      {{{clicker-stat-card "E-DEF"       "cci cci-edef"              "system.stats.edef" false}}}
-      {{{clicker-stat-card "HEAT CAP"    "cci cci-heatcap"           "system.stats.heatcap" false}}}
-      {{{clicker-stat-card "SPEED"       "mdi mdi-arrow-right-bold-hexagon-outline" "system.stats.speed" false}}}
-      {{{clicker-stat-card "TECH ATK"    "cci cci-tech-full"         "system.stats.tech_attack" false}}}
-      {{{clicker-stat-card "SENSORS"     "cci cci-sensor"            "system.stats.sensor_range" false}}}
-      {{{clicker-stat-card "SAVE"        "cci cci-save"              "system.stats.save" false}}}
-      {{{clicker-stat-card "SYS POINTS"  "cci cci-system"            "system.stats.sp" false}}}
-      {{{clicker-stat-card "SIZE"        "cci cci-hexagon"           "system.stats.size" false}}}
+      {{{clicker-stat-card (upper-case (localize "lancer.common.stat.hp.short"))          "mdi mdi-heart-outline"     "system.stats.hp" false}}}
+      {{{clicker-stat-card (upper-case (localize "lancer.common.stat.armor.short"))       "mdi mdi-shield-outline"    "system.stats.armor" false}}}
+      {{{clicker-stat-card (upper-case (localize "lancer.common.stat.repair.short"))     "cci cci-repair"            "system.stats.repcap" false}}}
+      {{{clicker-stat-card (upper-case (localize "lancer.common.stat.evasion.short"))     "cci cci-evasion"           "system.stats.evasion" false}}}
+      {{{clicker-stat-card (upper-case (localize "lancer.common.stat.eDefense.short"))   "cci cci-edef"              "system.stats.edef" false}}}
+      {{{clicker-stat-card (upper-case (localize "lancer.common.stat.heat.cap.short"))    "cci cci-heatcap"           "system.stats.heatcap" false}}}
+      {{{clicker-stat-card (upper-case (localize "lancer.common.stat.speed.short"))       "mdi mdi-arrow-right-bold-hexagon-outline" "system.stats.speed" false}}}
+      {{{clicker-stat-card (upper-case (localize "lancer.common.stat.tech.attack.short")) "cci cci-tech-full"         "system.stats.tech_attack" false}}}
+      {{{clicker-stat-card (upper-case (localize "lancer.common.stat.sensor.short"))      "cci cci-sensor"            "system.stats.sensor_range" false}}}
+      {{{clicker-stat-card (upper-case (localize "lancer.common.stat.save.short"))        "cci cci-save"              "system.stats.save" false}}}
+      {{{clicker-stat-card (upper-case (localize "lancer.mechSheet.system.points.short"))"cci cci-system"            "system.stats.sp" false}}}
+      {{{clicker-stat-card (upper-case (localize "lancer.common.stat.size.short"))        "cci cci-hexagon"           "system.stats.size" false}}}
     </div>
   </div>
 
   {{!-- Mounts --}}
   <div class="flexcol">
     <div>
-      <span class="minor" style="float: left">AVAILABLE WEAPON MOUNTS</span>
+      <span class="minor" style="float: left">{{upper-case (localize "lancer.mechSheet.availableWeaponMounts.label")}}</span>
       <a
         class="gen-control"
         data-action="append"
@@ -53,14 +53,14 @@
         <div class="flexrow mount arrayed-item">
           <select class="mount-selector" name="system.mounts.{{key}}" data-type="String" index="{{key}}">
             {{#select mount}}
-              <option value="Aux/Aux">AUX/AUX</option>
-              <option value="Main">MAIN</option>
-              <option value="Main/Aux">MAIN/AUX</option>
-              <option value="Flex">FLEX</option>
-              <option value="Heavy">HEAVY</option>
-              <option value="Integrated">INTEGRATED</option>
-              <option value="Superheavy">SUPERHEAVY</option>
-              <option value="delete">DELETE</option>
+              <option value="Aux/Aux">{{upper-case (localize "lancer.mechSheet.mountedWeapons.auxAux.label")}}</option>
+              <option value="Main">{{upper-case (localize "lancer.mechSheet.mountedWeapons.main.label")}}</option>
+              <option value="Main/Aux">{{upper-case (localize "lancer.mechSheet.mountedWeapons.mainAux.label")}}</option>
+              <option value="Flex">{{upper-case (localize "lancer.mechSheet.mountedWeapons.flex.label")}}</option>
+              <option value="Heavy">{{upper-case (localize "lancer.mechSheet.mountedWeapons.heavy.label")}}</option>
+              <option value="Integrated">{{upper-case (localize "lancer.mechSheet.mountedWeapons.integrated.label")}}</option>
+              <option value="Superheavy">{{upper-case (localize "lancer.mechSheet.mountedWeapons.superheavy.label")}}</option>
+              <option value="delete">{{upper-case (localize "lancer.common.descriptor.delete.label")}}</option>
             {{/select}}
           </select>
         </div>
@@ -71,7 +71,7 @@
   {{!-- Traits --}}
   <div class="card">
     <div class="lancer-header lancer-primary">
-      <span class="major left">TRAITS</span>
+      <span class="major left">{{localize "lancer.common.descriptor.trait.plural"}}</span>
       <a
         class="gen-control"
         data-action="append"
@@ -113,14 +113,14 @@
         value="{{system.core_system.name}}"
         data-dtype="String"
       >
-      <div class="medium faded" style="justify-self: right">// CORE SYSTEM</div>
+      <div class="medium faded" style="justify-self: right">// {{upper-case (localize "lancer.mechSheet.coreSystem.label")}}</div>
       {{{popout-editor-button "system.core_system.description"}}}
     </div>
     <div class="desc-text">{{{safe-html system.core_system.description}}}</div>
 
     {{!-- Integrated --}}
     <div class="integrated-wrapper card clipped flexcol">
-      <div class="lancer-header lancer-primary">INTEGRATED GEAR</div>
+      <div class="lancer-header lancer-primary">{{upper-case (localize "lancer.commonSheet.integratedGear.label")}}</div>
       <ul>
         {{#each system.core_system.integrated as |integrated index|}}
           <li>
@@ -129,7 +129,7 @@
             </code>
           </li>
         {{/each}}
-        {{{item-edit-arrayed-deployables "system.core_system.deployables" "DEPLOYABLES"}}}
+        {{{item-edit-arrayed-deployables "system.core_system.deployables" (localize "lancer.common.actor.deployable.plural")}}}
       </ul>
     </div>
 
@@ -143,13 +143,15 @@
           value="{{system.core_system.passive_name}}"
           data-dtype="String"
         >
-        <div class="medium faded" style="justify-self: right">// PASSIVE</div>
+        <div class="medium faded" style="justify-self: right">
+          // {{localize "lancer.common.descriptor.passive.label"}}
+        </div>
         {{{popout-editor-button "system.core_system.passive_effect"}}}
       </div>
       <div class="desc-text">{{{safe-html system.core_system.passive_effect}}}</div>
       {{{bonuses-view "system.core_system.passive_bonuses" editable}}}
       {{#each system.core_system.passive_actions as |action index|}}
-        todo action
+        <!-- todo action-->
       {{/each}}
     </div>
 
@@ -163,15 +165,15 @@
           value="{{system.core_system.active_name}}"
           data-dtype="String"
         >
-        <div class="faded" style="justify-self: right">// ACTIVE</div>
+        <div class="faded" style="justify-self: right">// {{localize "lancer.common.descriptor.active.label"}}</div>
         {{{popout-editor-button "system.core_system.active_effect"}}}
       </div>
       <div class="desc-text">{{{safe-html system.core_system.active_effect}}}</div>
       {{{bonuses-view "system.core_system.active_bonuses" editable}}}
       {{#each system.core_system.active_actions as |action index|}}
-        todo action
+        <!-- todo action-->
       {{/each}}
     </div>
-    {{{item-edit-arrayed-tags "system.core_system.tags" "TAGS"}}}
+    {{{item-edit-arrayed-tags "system.core_system.tags" (upper-case (localize "lancer.common.descriptor.tag.plural"))}}}
   </div>
 </form>

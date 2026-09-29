@@ -98,22 +98,22 @@ export class LancerActiveEffect<
     // Define effect header categories
     let passives = {
       type: "passive",
-      label: game.i18n.localize("lancer.effect.categories.passive"),
+      label: game.i18n.localize("lancer.activeEffects.categories.passive.label"),
       effects: [] as [number, LancerActiveEffect][],
     };
     let inherited = {
       type: "inherited",
-      label: game.i18n.localize("lancer.effect.categories.inherited"),
+      label: game.i18n.localize("lancer.activeEffects.categories.inherited.label"),
       effects: [] as [number, LancerActiveEffect][],
     };
     let disabled = {
       type: "disabled",
-      label: game.i18n.localize("lancer.effect.categories.disabled"),
+      label: game.i18n.localize("lancer.activeEffects.categories.disabled.label"),
       effects: [] as [number, LancerActiveEffect][],
     };
     let passthrough = {
       type: "passthrough",
-      label: game.i18n.localize("lancer.effect.categories.passthrough"),
+      label: game.i18n.localize("lancer.activeEffects.categories.passthrough.label"),
       effects: [] as [number, LancerActiveEffect][],
     };
 

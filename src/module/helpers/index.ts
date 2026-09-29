@@ -185,6 +185,10 @@ export function registerHandlebarsHelpers() {
   });
 
   Handlebars.registerHelper("upper-case", function (str: string) {
+    if (!str) {
+      console.error("ayo what", str);
+      return str;
+    }
     return str.toUpperCase();
   });
 
@@ -382,4 +386,15 @@ export function registerHandlebarsHelpers() {
   Handlebars.registerHelper("mini-profile", miniProfile);
   Handlebars.registerHelper("attack-target", attackTarget);
   Handlebars.registerHelper("damage-target", damageTarget);
+  Handlebars.registerHelper(
+    "decorate-card",
+    function (this: unknown, value: string | HelperOptions, options?: HelperOptions) {
+      if (!options) {
+        const block = value as HelperOptions;
+        return new Handlebars.SafeString(`<span class="decorated-card">// ${block.fn(this)} //</span>`);
+      }
+
+      return `// ${value} //`;
+    }
+  );
 }

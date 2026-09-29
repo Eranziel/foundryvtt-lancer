@@ -83,7 +83,7 @@ async function applyStabilizeUpdates(state: FlowState<LancerFlowState.StabilizeD
       break;
     case StabOptions1.Repair:
       if (state.actor.is_mech() && state.actor.system.repairs.value <= 0) {
-        ui.notifications!.warn("Mech has no repairs left. Please try again.");
+        ui.notifications!.warn(game.i18n.localize("lancer.notifications.warning.stabilizeNoRepairs"));
         return false;
       } else {
         option1text = "Mech has spent 1 repair to regain HP.";

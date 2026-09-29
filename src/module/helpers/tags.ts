@@ -10,7 +10,7 @@ export function handleTagEditButtons(html: JQuery, doc: LancerItem) {
     ev.stopPropagation();
     const path = ev.currentTarget?.dataset.path;
     if (!path) {
-      ui.notifications!.error("Tag edit button missing data-path attribute");
+      ui.notifications!.error(game.i18n.localize("lancer.notifications.error.tagEditPathMissing"));
       return;
     }
     TagEditForm.edit(doc, path);
@@ -33,6 +33,8 @@ function tagView(tagPath: string, tag: Tag, compact: boolean = true, editable: b
   let interpolatedDescription = tag.description.replace("{VAL}", `${tag.val ?? "?"}`) ?? "";
   return `<div
     class="${editable ? "editable-tag-instance" : ""} ${compact ? "compact-tag flexrow" : "large-tag"}"
+    data-localize-tag="${tag.lid}"
+    data-tag-value="${tag.val}"
     ${editable ? `data-path="${tagPath}"` : ""}
     ${compact ? `data-tooltip="${interpolatedDescription}"` : ""}
   >
@@ -40,11 +42,11 @@ function tagView(tagPath: string, tag: Tag, compact: boolean = true, editable: b
       compact
         ? `
     <i class="mdi mdi-label i--2 i--light"></i>
-    <span style="margin: 3px;" >${interpolatedName}</span>`
+    <span style="margin: 3px;" data-tag-name>${interpolatedName}</span>`
         : `
     <div class="tag-header flexrow">
       <i class="mdi mdi-label i--2 i--light"></i>
-      <span style="margin: 3px;" >${interpolatedName}</span>
+      <span style="margin: 3px;" data-tag-name>${interpolatedName}</span>
       ${
         editable
           ? `
@@ -55,7 +57,7 @@ function tagView(tagPath: string, tag: Tag, compact: boolean = true, editable: b
           : ""
       }
     </div>
-    <div class="tag-description">${interpolatedDescription}</div>`
+    <div class="tag-description" data-tag-description>${interpolatedDescription}</div>`
     }
   </div>`;
 }
@@ -112,10 +114,11 @@ function tagList(tags: Tag[], tagArrayPath: string, options?: { compact?: boolea
 
 // A card with tags in it, that allows editing if appropriate
 export function itemEditTags(path: string, header: string, options: HelperOptions) {
+  const i18nTitle = game.i18n.localize(header).toUpperCase();
   return `
   <div class="card full">
     <div class="lancer-header lancer-primary major">
-      <span>${header}</span>
+      <span>${i18nTitle}</span>
       ${inc_if(
         `<a class="gen-control fas fa-plus" data-action="append" data-path="${path}" data-action-value="(struct)tag"></a>`,
         resolveHelperDotpath(options, "editable", false, true)

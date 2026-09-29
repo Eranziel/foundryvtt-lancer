@@ -1,5 +1,6 @@
 import { mechSystemView } from "../helpers/loadout";
 import { LancerItem } from "../item/lancer-item";
+import { createTranslationRef } from "../util/localization/llp-map";
 import { TalentFlow } from "./talent";
 import { SimpleHTMLFlow, SimpleTextFlow } from "./text";
 
@@ -11,11 +12,31 @@ import { SimpleHTMLFlow, SimpleTextFlow } from "./text";
  */
 export async function beginItemChatFlow(item: LancerItem, data: any) {
   if (item.is_skill()) {
-    const flow = new SimpleHTMLFlow(item, {});
+    const flow = new SimpleHTMLFlow(item, {
+      flags: {
+        localeData: {
+          lid: item.system.lid,
+          fields: {
+            title: createTranslationRef(item, "name", "name"),
+            description: createTranslationRef(item.system, "description", "system.description"),
+          },
+        },
+      },
+    });
     return await flow.begin();
   } else if (item.is_mech_weapon() || item.is_pilot_weapon()) {
     // TODO: build weapon card HTML, but non-interactive
-    const flow = new SimpleHTMLFlow(item, {});
+    const flow = new SimpleHTMLFlow(item, {
+      flags: {
+        localeData: {
+          lid: item.system.lid,
+          fields: {
+            title: createTranslationRef(item, "name", "name"),
+            description: createTranslationRef(item.system, "description", "system.description"),
+          },
+        },
+      },
+    });
     return await flow.begin();
   } else if (item.is_mech_system()) {
     const html = mechSystemView(item, null, { div: true, vertical: true, nonInteractive: true });
@@ -36,29 +57,99 @@ export async function beginItemChatFlow(item: LancerItem, data: any) {
       if (!data.index) throw new TypeError(`No index provided for trait flow!`);
       const trait = item.system.traits[data.index];
       if (!trait) throw new TypeError(`No trait found at path ${data.path}!`);
-      const flow = new SimpleTextFlow(item, { title: trait.name, description: trait.description });
+      const traitPath = `system.traits.${data.index}`;
+      const flow = new SimpleTextFlow(item, {
+        title: trait.name,
+        description: trait.description,
+        flags: {
+          localeData: {
+            lid: item.system.lid,
+            fields: {
+              title: createTranslationRef(trait, "name", `${traitPath}.name`),
+              description: createTranslationRef(trait, "description", `${traitPath}.description`),
+            },
+          },
+        },
+      });
       return await flow.begin();
     }
     if (data.type === "passive") {
       const core = item.system.core_system;
-      const flow = new SimpleTextFlow(item, { title: core.passive_name, description: core.passive_effect });
+      const flow = new SimpleTextFlow(item, {
+        title: core.passive_name,
+        description: core.passive_effect,
+        flags: {
+          localeData: {
+            lid: item.system.lid,
+            fields: {
+              title: createTranslationRef(core, "passive_name", "system.core_system.passive_name"),
+              description: createTranslationRef(core, "passive_effect", "system.core_system.passive_effect"),
+            },
+          },
+        },
+      });
       return await flow.begin();
     }
     throw new TypeError(`Invalid path provided for frame flow!`);
   } else if (item.is_pilot_gear()) {
     const flow = new SimpleTextFlow(item, {
       title: item.name!,
-      description: item.system.description,
+      description: item.system.description ?? "",
       tags: item.system.tags,
+      flags: {
+        localeData: {
+          lid: item.system.lid,
+          fields: {
+            title: createTranslationRef(item, "name", "name"),
+            description: createTranslationRef(item.system, "description", "system.description"),
+          },
+        },
+      },
     });
     return await flow.begin();
   } else if (item.is_core_bonus()) {
-    const flow = new SimpleTextFlow(item, { title: item.name!, description: item.system.effect });
+    const flow = new SimpleTextFlow(item, {
+      title: item.name!,
+      description: item.system.effect,
+      flags: {
+        localeData: {
+          lid: item.system.lid,
+          fields: {
+            title: createTranslationRef(item, "name", "name"),
+            description: createTranslationRef(item.system, "effect", "system.effect"),
+          },
+        },
+      },
+    });
     return await flow.begin();
   } else if (item.is_reserve()) {
+    const title = createTranslationRef(item, "name", "name");
+    title.format = {
+      key: "lancer.chatCard.title.reserve.label",
+      data: {
+        title: null,
+      },
+    };
+    const description = createTranslationRef(item.system, "description", "system.description");
+    description.format = {
+      key: "lancer.chatCard.reserve.label",
+      data: {
+        label: item.system.label ?? "",
+        description: null,
+      },
+    };
     const flow = new SimpleTextFlow(item, {
-      title: `RESERVE :: ${item.name}`,
-      description: (item.system.label ? `<b>${item.system.label}</b></br>` : "") + item.system.description,
+      title: item.name,
+      description: item.system.description,
+      flags: {
+        localeData: {
+          lid: item.system.lid,
+          fields: {
+            title: title,
+            description: description,
+          },
+        },
+      },
     });
     return await flow.begin();
   } else if (item.is_npc_feature()) {
@@ -66,11 +157,21 @@ export async function beginItemChatFlow(item: LancerItem, data: any) {
       title: item.name!,
       description: item.system.effect,
       tags: item.system.tags,
+      flags: {
+        // TODO: test localization
+        localeData: {
+          lid: item.system.lid,
+          fields: {
+            title: createTranslationRef(item, "name", "name"),
+            description: createTranslationRef(item.system, "effect", "system.effect"),
+          },
+        },
+      },
     });
     return await flow.begin();
   } else {
     console.log("No macro exists for that item type");
-    ui.notifications!.error(`Error - No macro exists for item type "${item.type}"`);
+    ui.notifications!.error(game.i18n.format("lancer.notifications.error.itemNoMacroForType", { type: item.type }));
     return false;
   }
 }

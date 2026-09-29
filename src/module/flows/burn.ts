@@ -53,7 +53,7 @@ async function initBurnCheckData(state: FlowState<LancerFlowState.BurnCheckData>
   // Burn tick damage is always self-targeted, so construct a "hit" result for the actor
   const tokens = state.actor.getActiveTokens();
   if (!tokens || !tokens.length) {
-    ui.notifications?.error("Burn flow requires the actor to have a token in the scene");
+    ui.notifications?.error(game.i18n.localize("lancer.notifications.error.burnActorTokenMissing"));
     return false;
   }
   const target = tokens[0];

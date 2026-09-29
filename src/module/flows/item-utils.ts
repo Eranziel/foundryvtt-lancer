@@ -1,5 +1,5 @@
 import type { DeepPartial } from "fvtt-types/utils";
-import { LANCER, friendly_entrytype_name } from "../config";
+import { LANCER, friendlyEntryTypeName } from "../config";
 import { EntryType, NpcFeatureType } from "../enums";
 import type { SourceData } from "../source-template";
 import { Flow, type FlowState, type Step } from "./flow";
@@ -43,9 +43,13 @@ export async function checkItemDestroyed(
       state.item.is_mech_system() ||
       (state.item.is_npc_feature() && state.item.system.type !== NpcFeatureType.Weapon)
     ) {
-      ui.notifications!.warn(`System ${state.item.name} has no remaining uses!`);
+      ui.notifications!.warn(
+        game.i18n.format("lancer.notifications.warning.itemSystemNoRemainingUses", { name: state.item.name })
+      );
     } else {
-      ui.notifications!.warn(`Weapon ${state.item.name} has no remaining uses!`);
+      ui.notifications!.warn(
+        game.i18n.format("lancer.notifications.warning.itemWeaponNoRemainingUses", { name: state.item.name })
+      );
     }
     return false;
   }
@@ -94,14 +98,18 @@ export async function checkItemLimited(
   // @ts-expect-error Yes, state.data.action might not exist, that's why we're checking
   if (state.data.action) state.data.cost = state.data.action.cost ?? 1;
   if (state.item.isLimited() && state.item.system.uses.value < state.data.cost) {
-    let iType = friendly_entrytype_name(state.item.type as EntryType);
-    ui.notifications!.warn(`${iType} ${state.item.name} has no remaining uses!`);
+    let iType = friendlyEntryTypeName(state.item.type as EntryType);
+    ui.notifications!.warn(
+      game.i18n.format("lancer.notifications.warning.itemNoRemainingUses", { type: iType, name: state.item.name })
+    );
     return false;
   }
   if (state.item.is_reserve() && state.item.system.consumable) {
     const result = !state.item.system.used; // Reserve items have their own way of tracking limited uses
     if (!result) {
-      ui.notifications!.warn(`Reserve ${state.item.name} has already been used!`);
+      ui.notifications!.warn(
+        game.i18n.format("lancer.notifications.warning.itemReserveAlreadyUsed", { name: state.item.name })
+      );
     }
     return result;
   }
@@ -119,9 +127,13 @@ export async function checkItemCharged(
 
   if (state.item.isRecharge() && !state.item.system.charged) {
     if (state.item.system.type !== NpcFeatureType.Weapon) {
-      ui.notifications!.warn(`System ${state.item.name} has not recharged!`);
+      ui.notifications!.warn(
+        game.i18n.format("lancer.notifications.warning.itemSystemNotRecharged", { name: state.item.name })
+      );
     } else {
-      ui.notifications!.warn(`Weapon ${state.item.name} has not recharged!`);
+      ui.notifications!.warn(
+        game.i18n.format("lancer.notifications.warning.itemWeaponNotRecharged", { name: state.item.name })
+      );
     }
     return false;
   }

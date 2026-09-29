@@ -1,8 +1,8 @@
 <div class="card clipped-bot" style="margin: 0px;">
-  <div class="lancer-header lancer-primary">{{localize "lancer.chat-card.title.check" check=title}}</div>
+  <div class="lancer-header lancer-primary">{{#decorate-card}}{{upper-case (localize "lancer.chatCard.title.check.label" check=title)}}{{/decorate-card}}</div>
   {{{lancer-dice-roll result.roll result.tt ""}}}
   {{#if effect}}
-    <div class="lancer-header lancer-primary">{{localize "lancer.chat-card.title.effect"}}</div>
+    <div class="lancer-header lancer-primary">{{#decorate-card}}{{upper-case (localize "lancer.common.descriptor.effect.label")}}{{/decorate-card}}</div>
     <div class="effect-text">{{{effect}}}</div>
   {{/if}}
 </div>

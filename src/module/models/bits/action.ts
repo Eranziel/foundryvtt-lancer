@@ -122,7 +122,7 @@ export function unpackAction(data: PackedActionData): ActionData {
     init: data.init ?? "",
     lid: data.id ?? "",
     mech: data.mech ?? true,
-    name: data.name ?? "Action",
+    name: data.name ?? game.i18n.localize("lancer.common.descriptor.action.label"),
     pilot: data.pilot ?? false,
     range: data.range?.map(unpackRange) ?? [],
     synergy_locations: data.synergy_locations ?? [],

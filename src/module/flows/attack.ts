@@ -11,6 +11,8 @@ import type { SystemTemplates } from "../system-template";
 import { renderTemplateStep } from "./_render";
 import { Flow, type FlowState, type Step } from "./flow";
 import { LancerFlowState } from "./interfaces";
+import type { LocaleFlag } from "../util/localization/llp-cards";
+import { createTranslationRef } from "../util/localization/llp-map";
 
 const lp = LANCER.log_prefix;
 
@@ -174,7 +176,9 @@ export async function initAttackData(
   // If we only have an actor, it's a basic attack
   if (!state.item) {
     const isTech = LancerFlowState.isTechRoll(state.data);
-    const defaultTitle = isTech ? "TECH ATTACK" : "BASIC ATTACK";
+    const defaultTitle = isTech
+      ? game.i18n.localize("lancer.common.stat.tech.attack.label").toUpperCase()
+      : game.i18n.localize("lancer.pilotSheet.buttons.basicAttack.label").toUpperCase();
     state.data.title = options?.title ?? defaultTitle;
     state.data.attack_type = isTech ? AttackType.Tech : AttackType.Melee; // Virtually all basic attacks are melee, so it's a good default
     state.data.flat_bonus = 0;
@@ -201,11 +205,11 @@ export async function initAttackData(
     state.data.title = options?.title || state.data.title || state.item.name!;
     if (state.item.is_mech_weapon()) {
       if (!state.actor.is_mech()) {
-        ui.notifications?.warn("Non-mech cannot fire a mech weapon!");
+        ui.notifications?.warn(game.i18n.localize("lancer.notifications.warning.attackNonMechCannotFireMechWeapon"));
         return false;
       }
       if (!state.actor.system.pilot?.value) {
-        ui.notifications?.warn("Cannot fire a weapon on a non-piloted mech!");
+        ui.notifications?.warn(game.i18n.localize("lancer.notifications.warning.attackUnpilotedMechCannotFireWeapon"));
         return false;
       }
       let profile = state.item.system.active_profile;
@@ -236,11 +240,11 @@ export async function initAttackData(
     } else if (state.item.is_mech_system()) {
       // Tech attack system
       if (!state.actor.is_mech()) {
-        ui.notifications?.warn("Non-mech cannot use a mech system!");
+        ui.notifications?.warn(game.i18n.localize("lancer.notifications.warning.attackNonMechCannotUseMechSystem"));
         return false;
       }
       if (!state.actor.system.pilot?.value) {
-        ui.notifications?.warn("Cannot use a system on a non-piloted mech!");
+        ui.notifications?.warn(game.i18n.localize("lancer.notifications.warning.attackUnpilotedMechCannotUseSystem"));
         return false;
       }
       state.data.grit = state.actor.system.tech_attack;
@@ -258,7 +262,7 @@ export async function initAttackData(
       return true;
     } else if (state.item.is_npc_feature()) {
       if (!state.actor.is_npc()) {
-        ui.notifications?.warn("Non-NPC cannot fire an NPC weapon!");
+        ui.notifications?.warn(game.i18n.localize("lancer.notifications.warning.attackNonNpcCannotFireNpcWeapon"));
         return false;
       }
       let tier_index = (state.item.system.tier_override || state.actor.system.tier) - 1;
@@ -280,7 +284,7 @@ export async function initAttackData(
       return true;
     } else if (state.item.is_pilot_weapon()) {
       if (!state.actor.is_pilot()) {
-        ui.notifications?.warn("Non-pilot cannot fire a pilot weapon!");
+        ui.notifications?.warn(game.i18n.localize("lancer.notifications.warning.attackNonPilotCannotFirePilotWeapon"));
         return false;
       }
       // Pilot weapons don't have types like Mech/NPC weapons, so we need to check the ranges instead
@@ -301,7 +305,9 @@ export async function initAttackData(
           );
       return true;
     }
-    ui.notifications!.error(`Error in attack flow - ${state.item.name} is an invalid type!`);
+    ui.notifications!.error(
+      game.i18n.format("lancer.notifications.error.attackInvalidItemType", { name: state.item.name })
+    );
     return false;
   }
 }
@@ -314,7 +320,9 @@ export async function checkWeaponLoaded(state: FlowState<LancerFlowState.WeaponR
     return false;
   }
   if (state.item.isLoading() && !state.item.system.loaded) {
-    ui.notifications!.warn(`Weapon ${state.item.name} is not loaded!`);
+    ui.notifications!.warn(
+      game.i18n.format("lancer.notifications.warning.attackWeaponNotLoaded", { name: state.item.name })
+    );
     return false;
   }
   return true;
@@ -385,7 +393,9 @@ export async function setAttackEffects(
     state.data.effect = state.item.system.effect;
     return true;
   }
-  ui.notifications!.error(`Error in attack flow - ${state.item.name} is an invalid type!`);
+  ui.notifications!.error(
+    game.i18n.format("lancer.notifications.error.attackInvalidItemType", { name: state.item.name })
+  );
   return false;
 }
 
@@ -493,7 +503,29 @@ export async function printAttackCard(
 ): Promise<boolean> {
   if (!state.data) throw new TypeError(`Attack flow state missing!`);
   const template = options?.template || `systems/${game.system.id}/templates/chat/attack-card.hbs`;
-  const flags: { attackData: AttackFlag } = {
+
+  const localeData: LocaleFlag = {
+    lid: state.item?.system.lid || "",
+    fields: {
+      title: "name",
+      trigger: "trigger",
+      effect: "effect",
+    },
+  };
+  if (state.item?.is_mech_weapon()) {
+    // TODO test when I figure out wtf item to use for testing
+    const profile = state.item.system.active_profile;
+    const profileIndex = state.item.system.profiles.indexOf(profile);
+    if (profileIndex >= 0) {
+      const profilePath = `system.profiles.${profileIndex}`;
+      localeData.fields.effect = createTranslationRef(profile, "effect", `${profilePath}.effect`);
+      localeData.fields.onAttack = createTranslationRef(profile, "on_attack", `${profilePath}.on_attack`);
+      localeData.fields.onHit = createTranslationRef(profile, "on_hit", `${profilePath}.on_hit`);
+      localeData.fields.onCrit = createTranslationRef(profile, "on_crit", `${profilePath}.on_crit`);
+    }
+  } // etc...
+
+  const flags: { attackData: AttackFlag; localeData: LocaleFlag } = {
     attackData: {
       origin: state.actor.id!,
       attackerUuid: state.actor.uuid!,
@@ -509,6 +541,7 @@ export async function printAttackCard(
         };
       }),
     },
+    localeData,
   };
   state.data.defense = state.data.is_smart ? "E-DEF" : "EVASION";
   // Add roll data to the hit results for the HBS template

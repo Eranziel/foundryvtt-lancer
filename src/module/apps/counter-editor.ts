@@ -28,9 +28,10 @@ export class CounterEditForm extends TargetedEditForm<CounterData> {
     // Pre-fixup/check value
     let invalid = [min, max, value].find(x => Number.isNaN(x));
     if (invalid !== undefined) {
-      let message = `${invalid} is not a valid numeric value`;
-      ui.notifications?.error(message);
-      throw new Error(message);
+      ui.notifications?.error(
+        game.i18n.format("lancer.notifications.error.counterEditorInvalidNumericValue", { value: String(invalid) })
+      );
+      throw new Error(`${invalid} is not a valid numeric value`);
     }
     name = name.trim();
 

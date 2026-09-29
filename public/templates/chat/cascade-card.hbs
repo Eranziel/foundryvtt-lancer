@@ -4,7 +4,7 @@
     <i class="cci cci-condition-jammed i--4"></i>
     {{#if reroll_data}}<span class="spacer"></span>{{/if}}
     <div class="flexcol">
-      <span>{{localize "lancer.chat-card.title.cascade"}}</span>
+      {{#decorate-card}}<span>{{upper-case (localize "lancer.chatCard.title.cascade.label")}}</span>{{/decorate-card}}
     </div>
     <span class="spacer"></span>
   </div>

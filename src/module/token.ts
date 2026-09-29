@@ -251,7 +251,7 @@ export function extendTokenConfig(app: foundry.applications.sheets.TokenConfig, 
 
   const lock = foundry.applications.fields.createCheckboxInput({
     name: `flags.${game.system.id}.manual_token_size`,
-    dataset: { tooltip: "lancer.tokenConfig.manual_token_size.hint" },
+    dataset: { tooltip: "lancer.tokenConfig.manualTokenSize.hint" },
     classes: `lock icon ${game.system.id}`,
     value: manual,
   });

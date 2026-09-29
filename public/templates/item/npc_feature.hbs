@@ -11,23 +11,23 @@
       >
     </h1>
     <div class="header-details origin_type">
-      <span class="medium">FEATURE TYPE: </span>
+      <span class="medium">{{upper-case (localize "lancer.npcSheet.features.type.label")}}: </span>
       <select class="header-field" name="system.type" data-type="String">
         {{#select system.type}}
           <option class="i--dark" value="Reaction">
-            REACTION
+            {{{upper-case (localize "lancer.common.activation.reaction.label")}}}
           </option>
           <option class="i--dark" value="System">
-            SYSTEM
+            {{{upper-case (localize "lancer.common.item.mechSystem.label")}}}
           </option>
           <option class="i--dark" value="Tech">
-            TECH
+            {{{upper-case (localize "lancer.common.stat.tech.attack.label")}}}
           </option>
           <option class="i--dark" value="Trait">
-            TRAIT
+            {{{upper-case (localize "lancer.common.descriptor.trait.label")}}}
           </option>
           <option class="i--dark" value="Weapon">
-            WEAPON
+            {{{upper-case (localize "lancer.common.item.mechWeapon.label")}}}
           </option>
         {{/select}}
       </select>
@@ -37,24 +37,24 @@
   {{! Sheet Body }}
   <section class="sheet-body">
     <div class="effect-box">
-      <div class="effect-title clipped-bot">SOURCE</div>
+      <div class="effect-title clipped-bot">{{upper-case (localize "lancer.common.descriptor.source.label")}}</div>
       <div class="effect-text flexrow">
         <div class="origin-name">
           <input
             name="system.origin.name"
             type="text"
             value="{{system.origin.name}}"
-            placeholder="Origin Name"
+            placeholder="{{localize "lancer.npcSheet.sourceName.label"}}"
           >
         </div>
         <div class="origin-type flexrow">
           <select name="system.origin.type" data-type="text">
             {{#select system.origin.type}}
               <option class="i--dark" value="Class">
-                CLASS
+                {{upper-case (localize "lancer.npcSheet.class.label")}}
               </option>
               <option class="i--dark" value="Template">
-                TEMPLATE
+                {{upper-case (localize "lancer.npcSheet.templates.label")}}
               </option>
             {{/select}}
           </select>
@@ -62,9 +62,9 @@
         <div class="origin_base flexrow" style="align-items: center">
           <span class="medium" style="text-align: right">
             {{#if system.origin.base}}
-              BASE FEATURE
+              {{upper-case (localize "lancer.npcSheet.features.base.label")}}
             {{else}}
-              OPTIONAL FEATURE
+              {{upper-case (localize "lancer.npcSheet.features.optional.label")}}
             {{/if}}
           </span>
           <input type="checkbox" name="system.origin.base" {{checked system.origin.base}}>
@@ -75,7 +75,7 @@
     {{#if (is-limited item)}}
       <div class="flexrow stat-container" style="align-self: center; margin: 5px 30px; max-width: max-content">
         <span class="medium">
-          USES:
+          {{upper-case (localize "lancer.common.descriptor.use.plural")}}:
         </span>
         <input
           class="lancer-stat major"
@@ -94,15 +94,15 @@
     {{/if}}
     {{! Reaction }}
     {{#if (eq system.type "Reaction")}}
-      {{{textarea-card "TRIGGER" "system.trigger"}}}{{{textarea-card "EFFECT" "system.effect"}}}
+      {{{textarea-card (upper-case (localize "lancer.common.activation.trigger.label")) "system.trigger"}}}{{{textarea-card (upper-case (localize "lancer.common.descriptor.effect.label")) "system.effect"}}}
     {{/if}}
     {{! System }}
     {{#if (eq system.type "System")}}
-      {{{textarea-card "EFFECT" "system.effect"}}}
+      {{{textarea-card (upper-case (localize "lancer.common.descriptor.effect.label")) "system.effect"}}}
     {{/if}}
     {{! Trait }}
     {{#if (eq system.type "Trait")}}
-      {{{textarea-card "EFFECT" "system.effect"}}}
+      {{{textarea-card (upper-case (localize "lancer.common.descriptor.effect.label")) "system.effect"}}}
     {{/if}}
     {{! Tech }}
     {{#if (eq system.type "Tech")}}
@@ -110,31 +110,31 @@
         <div class="flexcol">
           <div class="flexrow" style="align-items: center">
             <span class="medium" style="text-align: right; max-width: fit-content; padding-right: 1em">
-              TECH
+              {{{upper-case (localize "lancer.common.stat.tech.label")}}}
             </span>
             <select name="system.techType" data-type="String" style="align-self: center">
               {{#select system.techType}}
                 <option value="Quick">
-                  QUICK
+                  {{{upper-case (localize "lancer.common.activation.quickTech.label")}}}
                 </option>
                 <option value="Full">
-                  FULL
+                  {{{upper-case (localize "lancer.common.activation.fullTech.label")}}}
                 </option>
               {{/select}}
             </select>
           </div>
           <div class="flexrow" style="align-items: center">
             <span class="medium" style="text-align: right; max-width: fit-content; padding-right: 1em">
-              TECH ATTACK?
+              {{{upper-case (localize "lancer.common.stat.tech.attack.label")}}}?
             </span>
             <input type="checkbox" name="system.tech_attack" {{checked system.tech_attack}}>
           </div>
         </div>
         {{#if system.tech_attack}}
-          {{{npc-clicker-statarr-card "ATTACK BONUS" "system.attack_bonus"}}}
-          {{{npc-clicker-statarr-card "ACCURACY" "system.accuracy"}}}
+          {{{npc-clicker-statarr-card (upper-case (localize "lancer.common.attack.bonus.label")) "system.attack_bonus"}}}
+          {{{npc-clicker-statarr-card (upper-case (localize "lancer.common.attack.accuracy.label")) "system.accuracy"}}}
         {{/if}}
-        {{{textarea-card "EFFECT" "system.effect"}}}
+        {{{textarea-card (upper-case (localize "lancer.common.descriptor.effect.label")) "system.effect"}}}
       </div>
     {{/if}}
     {{! Weapon }}
@@ -175,17 +175,16 @@
           {{/each}}
         </div>
         {{! Attack Bonus }}
-        {{{npc-clicker-statarr-card "ATTACK BONUS" "system.attack_bonus"}}}
+        {{{npc-clicker-statarr-card (upper-case (localize "lancer.common.attack.bonus.label")) "system.attack_bonus"}}}
         {{! Accuracy }}
-        {{{npc-clicker-statarr-card "ACCURACY" "system.accuracy"}}}
+        {{{npc-clicker-statarr-card (upper-case (localize "lancer.common.attack.accuracy.label")) "system.accuracy"}}}
         {{! All Damages }}
         {{#each system.damage as |tier_damage_array tier_index|}}
           <div class="card clipped">
             <span class="lancer-header lancer-primary major">
               <i class="cci cci-npc-tier-{{inc tier_index}} i--4 i--dark"></i>
-              T
-              {{inc tier_index}}
-              DAMAGE
+              {{{localize "lancer.common.stat.tier.short"}}}{{inc tier_index}}
+              {{{upper-case (localize "lancer.common.attack.damage.label")}}}
               <a class="npc-damage-append" style="float: right">
                 +
               </a>
@@ -196,10 +195,10 @@
           </div>
         {{/each}}
         {{! Effects }}
-        {{{textarea-card "ON HIT EFFECT" "system.on_hit"}}}
-        {{{textarea-card "EFFECT" "system.effect"}}}
+        {{{textarea-card (upper-case (localize "lancer.common.activation.onHit.label")) "system.on_hit"}}}
+        {{{textarea-card (upper-case (localize "lancer.common.descriptor.effect.label")) "system.effect"}}}
       </div>
     {{/if}}
-    {{{item-edit-arrayed-tags "system.tags" "TAGS"}}}
+    {{{item-edit-arrayed-tags "system.tags" (upper-case (localize "lancer.common.descriptor.tag.plural"))}}}
   </section>
 </form>

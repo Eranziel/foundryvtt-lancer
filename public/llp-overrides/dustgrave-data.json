@@ -1,0 +1,10 @@
+{
+  "mf_störtebeker.system.core_system.passive_actions.0.name": "mf_störtebeker.core_system.passive_action_reprise.name",
+  "mf_störtebeker.system.core_system.passive_actions.0.detail": "mf_störtebeker.core_system.passive_action_reprise.detail",
+  "mf_störtebeker.system.core_system.passive_actions.1.name": "mf_störtebeker.core_system.passive_action_renewal.name",
+  "mf_störtebeker.system.core_system.passive_actions.1.detail": "mf_störtebeker.core_system.passive_action_renewal.detail",
+  "mw_brutus_shield.system.actions.0.name": "mw_brutus_shield.action_raise_shield.name",
+  "mw_brutus_shield.system.actions.0.detail": "mw_brutus_shield.action_raise_shield.detail",
+  "mw_brutus_shield.system.profiles.0.actions.0.name": "mw_brutus_shield.action_raise_shield.name",
+  "mw_brutus_shield.system.profiles.0.actions.0.detail": "mw_brutus_shield.action_raise_shield.detail"
+}

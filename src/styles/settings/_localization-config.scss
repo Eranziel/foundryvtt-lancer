@@ -1,0 +1,102 @@
+@layer lancer.applications {
+  #lancer-localization-settings {
+    .window-content > .llp-override-editor {
+      flex-grow: 1;
+      min-height: 0;
+      overflow-y: auto;
+    }
+
+    .window-content > .form-footer {
+      flex-grow: 0;
+      flex-shrink: 0;
+      flex-basis: auto;
+    }
+
+    details {
+      margin-right: 5px;
+    }
+
+    summary {
+      border: 1px solid;
+      border-color: transparent;
+      border-radius: 4px;
+      cursor: pointer;
+      padding-top: 5px;
+      padding-bottom: 5px;
+      padding-left: 5px;
+
+      &:hover {
+        border: 1px solid;
+        border-color: var(--color-light-5);
+      }
+
+      button {
+        --button-size: 2em;
+      }
+    }
+
+    .llp-override-grid,
+    .llp-override-grid-headers {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 2em;
+      gap: 0.5em;
+    }
+
+    .llp-override-grid-headers {
+      background: var(--color-text-selection-bg);
+      border-radius: 4px 4px 0 0;
+      padding-top: 0.5em;
+      margin-top: 0.5em;
+    }
+
+    .llp-override-grid {
+      background: var(--darken-2);
+      border-radius: 0 0 4px 4px;
+      padding-top: 0.5em;
+      padding-bottom: 0.5em;
+      margin-bottom: 0.5em;
+      max-height: 350px;
+      overflow-y: scroll;
+    }
+
+    .llp-override-rows {
+      display: contents;
+    }
+
+    .llp-override-row {
+      display: grid;
+      grid-template-columns: subgrid;
+      grid-column-start: 1;
+      grid-column-end: -1;
+      gap: 0.5em;
+      align-items: start;
+    }
+
+    .llp-override-grid-header {
+      font-weight: bold;
+      padding-left: 0.5em;
+    }
+
+    .llp-override-header {
+      display: inline-flex;
+      width: calc(100% - 1.5em);
+      vertical-align: middle;
+    }
+
+    .llp-translation-container {
+      grid-column-start: 1;
+      grid-column-end: -1;
+      max-height: 5em;
+      overflow: auto;
+      white-space: pre-wrap;
+      direction: rtl;
+
+      > .llp-translation-text {
+        direction: ltr;
+        padding-left: 5px;
+        padding-right: 5px;
+        font-size: small;
+      }
+    }
+  }
+}

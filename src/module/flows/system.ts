@@ -6,6 +6,8 @@ import { LancerFlowState } from "./interfaces";
 import { Flow, type FlowState } from "./flow";
 import { renderTemplateStep } from "./_render";
 import { NpcFeatureType, SystemType } from "../enums";
+import type { LocaleFlag } from "../util/localization/llp-cards";
+import { createTranslationRef } from "../util/localization/llp-map";
 
 const lp = LANCER.log_prefix;
 
@@ -53,7 +55,22 @@ async function initSystemUseData(state: FlowState<LancerFlowState.SystemUseData>
   if (!state.data.effect && state.item.is_npc_feature()) {
     // Reactions need to combine the trigger and effect
     if (state.item.system.type === NpcFeatureType.Reaction) {
-      state.data.effect = `<p><b>TRIGGER</b></p><p>${state.item.system.trigger}</p><p><b>EFFECT</b></p><p>${state.item.system.effect}</p>`;
+      const i18nTrigger = game.i18n.localize("lancer.common.activation.trigger.label");
+      const i18nEffect = game.i18n.localize("lancer.common.descriptor.effect.label");
+      state.data.effect = `
+        <p>
+          <b data-localize-foundry="${i18nTrigger}">
+            ${i18nTrigger.toUpperCase()}
+          </b>
+        </p>
+        <p data-localize-subpath="trigger">${state.item.system.trigger}</p>
+        <p>
+          <b data-localize-foundry="${i18nEffect}">
+            ${i18nEffect.toUpperCase()}
+          </b>
+        </p>
+        <p data-localize-subpath="effect">${state.item.system.effect}</p>
+      `;
     } else {
       state.data.effect = state.item.system.effect;
     }
@@ -76,8 +93,14 @@ async function printSystemCard(
   if (!state.data) throw new TypeError(`Flow state missing!`);
   if (!state.item || (!state.item.is_mech_system() && !state.item.is_weapon_mod() && !state.item.is_npc_feature()))
     throw new TypeError(`Only mech systems, mods, and NPC features can do system flows!`);
+  if (!state.data.type) throw new TypeError(`System flow state missing type!`);
   const template = options?.template || `systems/${game.system.id}/templates/chat/system-card.hbs`;
-  const flags = {
+  const title = createTranslationRef(state.item, "name", "name");
+  title.format = {
+    key: `lancer.chatCard.title.${state.data.type.toLowerCase()}.label`,
+    data: { title: null },
+  };
+  const flags: { localeData: LocaleFlag } = {
     // TODO: forced save data here
     // attackData: {
     //   origin: state.actor.id,
@@ -85,6 +108,14 @@ async function printSystemCard(
     //     return { id: t.target.id, setConditions: !!t.usedLockOn ? { lockon: !t.usedLockOn } : undefined };
     //   }),
     // },
+    localeData: {
+      lid: state.item.system.lid,
+      fields: {
+        title,
+        trigger: "trigger",
+        effect: "effect",
+      },
+    },
   };
   await renderTemplateStep(state.actor, template, state.data, flags);
 

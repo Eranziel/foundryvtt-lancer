@@ -10,6 +10,8 @@ import type { ActionData } from "../models/bits/action";
 import { LancerFlowState } from "./interfaces";
 import { Flow, type FlowState, type Step } from "./flow";
 import type { UUIDRef } from "../source-template";
+import type { LocaleFlag } from "../util/localization/llp-cards";
+import { createTranslationRef } from "../util/localization/llp-map";
 import { TechAttackFlow } from "./tech";
 
 const lp = LANCER.log_prefix;
@@ -74,20 +76,49 @@ export async function initActivationData(
       state.data.title = state.data.action?.name;
     }
     state.data.title =
-      options?.title || state.data.title || state.data.action?.name || state.item.name || "UNKNOWN ACTION";
+      options?.title ||
+      state.data.title ||
+      state.data.action?.name ||
+      state.item.name ||
+      game.i18n.localize("lancer.common.activation.unknown.label").toUpperCase();
     let detail_text = state.data.detail || "";
     if (!detail_text && state.data.action) {
+      const i18nInit = game.i18n.localize("lancer.common.activation.init.label");
+      const i18nTrigger = game.i18n.localize("lancer.common.activation.trigger.label");
+      const i18nEffect = game.i18n.localize("lancer.common.descriptor.effect.label");
       if (state.data.action.init) {
-        detail_text += `<p><b>INIT</b></p><p>${state.data.action.init}</p>`;
+        detail_text += `
+          <p>
+            <b data-localize-foundry="${i18nInit}">
+              ${i18nInit.toUpperCase()}
+            </b>
+          </p>
+          <p>${state.data.action.init}</p>
+        `;
       }
       if (state.data.action.trigger) {
-        detail_text += `<p><b>TRIGGER</b></p><p>${state.data.action.trigger}</p>`;
+        detail_text += `
+          <p>
+            <b data-localize-foundry="${i18nTrigger}">
+              ${i18nTrigger.toUpperCase()}
+            </b>
+          </p>
+          <p data-localize="trigger">${state.data.action.trigger}</p>
+        `;
       }
+      const effect = `<div data-localize="effect">${state.data.action.detail}</div>`;
       if (detail_text) {
         // If the action had an init or trigger, add a header for the effect text
-        detail_text += `<p><b>EFFECT</b></p><p>${state.data.action.detail}</p>`;
+        detail_text += `
+          <p>
+            <b data-localize-foundry="${i18nEffect}">
+              ${i18nEffect.toUpperCase()}
+            </b>
+          </p>
+          <p data-localize-subpath="effect">${effect}</p>
+        `;
       } else {
-        detail_text += state.data.action.detail || "";
+        detail_text += `<span data-localize-subpath="effect">${effect}</span>`;
       }
     }
     state.data.detail = detail_text;
@@ -127,11 +158,31 @@ export async function printActionUseCard(
 ): Promise<boolean> {
   if (!state.data) throw new TypeError(`Activation flow state missing!`);
   const template = options?.template || `systems/${game.system.id}/templates/chat/activation-card.hbs`;
+  const localePath = state.data.action_path;
+  const isCoreSystem = localePath === "system.core_system";
+  const titlePath = `${localePath}.${isCoreSystem ? "active_name" : "name"}`;
+  const triggerPath = `${localePath}.trigger`;
+  const effectPath = `${localePath}.${isCoreSystem ? "active_effect" : "detail"}`;
+  const title = createTranslationRef(state.data.action, "name", titlePath);
+  if (isCoreSystem) {
+    title.format = {
+      key: "lancer.chatCard.title.coreActivation.label",
+      data: { title: null },
+    };
+  }
   const flags = {
     actionData: {
       actor: state.actor.id,
       system: state.item?.id || undefined,
       action: state.data.action,
+    },
+    localeData: {
+      lid: state.item?.system.lid || "",
+      fields: {
+        title,
+        trigger: createTranslationRef(state.data.action, "trigger", triggerPath),
+        effect: createTranslationRef(state.data.action, "detail", effectPath),
+      },
     },
   };
 

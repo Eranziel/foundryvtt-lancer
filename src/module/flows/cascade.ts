@@ -55,7 +55,7 @@ const cascadeExceptions = ["ms_comp_con_class_assistant_unit", "wm_uncle_class_c
 export async function initCascadeData(state: FlowState<LancerFlowState.CascadeRollData>): Promise<boolean> {
   if (!state.data) throw new TypeError(`Cascade roll flow data missing!`);
   if (!state.actor.is_mech()) {
-    ui.notifications!.warn("Only mechs can cascade.");
+    ui.notifications!.warn(game.i18n.localize("lancer.notifications.warning.flowCascadeOnlyMechsCanCascade"));
     return false;
   }
   // Find all the AI systems, filter out exceptions, and store the IDs in state.data
@@ -79,7 +79,7 @@ export async function cascadeRoll(state: FlowState<LancerFlowState.CascadeRollDa
 
   const actor = state.actor;
   if (!actor.is_mech()) {
-    ui.notifications!.warn("Only mechs can cascade.");
+    ui.notifications!.warn(game.i18n.localize("lancer.notifications.warning.flowCascadeOnlyMechsCanCascade"));
     return false;
   }
 

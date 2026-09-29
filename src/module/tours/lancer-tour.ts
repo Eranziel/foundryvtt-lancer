@@ -72,9 +72,7 @@ export class LancerLcpTour extends LancerTour {
         await this.manager.render(true);
         await this.manager.renderPromise;
         // Wait for it to load the official packs from the server
-        while (this.manager.component.loading) {
-          await new Promise(resolve => setTimeout(resolve, 100));
-        }
+        await this.manager.component?.ready();
       }
     }
     if (this.currentStep?.id === "lcpTable") {

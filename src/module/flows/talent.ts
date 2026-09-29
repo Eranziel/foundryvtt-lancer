@@ -4,6 +4,8 @@ import { LancerItem } from "../item/lancer-item";
 import { Flow, type FlowState, type Step } from "./flow";
 import { LancerFlowState } from "./interfaces";
 import { printGenericCard } from "./text";
+import type { LocaleFlag } from "../util/localization/llp-cards";
+import { createTranslationRef } from "../util/localization/llp-map";
 
 const lp = LANCER.log_prefix;
 
@@ -32,5 +34,26 @@ export class TalentFlow extends Flow<LancerFlowState.TalentUseData> {
  * @returns true if successful
  */
 export function printTalentCard(state: FlowState<LancerFlowState.TalentUseData>): Promise<boolean> {
-  return printGenericCard(state, { template: `systems/${game.system.id}/templates/chat/talent-card.hbs` });
+  if (!state.data) throw new TypeError(`Activation flow state missing!`);
+  const rankPath = `system.ranks.${state.data.lvl}`;
+  const title = createTranslationRef(state.item, "name", "name");
+  title.format = {
+    key: "lancer.chatCard.title.talent.label",
+    data: {
+      title: null,
+      lvl: String(Number(state.data.lvl) + 1),
+    },
+  };
+
+  const flags: { localeData: LocaleFlag } = {
+    localeData: {
+      lid: state.item?.system.lid || "",
+      fields: {
+        title,
+        rankName: createTranslationRef(state.data.rank, "name", `${rankPath}.name`),
+        description: createTranslationRef(state.data.rank, "description", `${rankPath}.description`),
+      },
+    },
+  };
+  return printGenericCard(state, { template: `systems/${game.system.id}/templates/chat/talent-card.hbs` }, flags);
 }

@@ -12,7 +12,7 @@
     {{!-- Major Ideals --}}
     <div class="card clipped">
       <div class="lancer-header lancer-primary major">
-        <span>MAJOR IDEALS</span>
+        <span>{{upper-case (localize "lancer.pilotSheet.narrative.bond.majorIdeals.label")}}</span>
         <a class="gen-control fas fa-plus" data-action="append" data-path="system.major_ideals" data-action-value="(struct)string"></a>
       </div>
       <ul>
@@ -32,7 +32,7 @@
     {{!-- Minor Ideals --}}
     <div class="card clipped">
       <div class="lancer-header lancer-primary major">
-        <span>MINOR IDEALS</span>
+        <span>{{upper-case (localize "lancer.pilotSheet.narrative.bond.minorIdeals.label")}}</span>
         <a class="gen-control fas fa-plus" data-action="append" data-path="system.minor_ideals" data-action-value="(struct)string"></a>
       </div>
       <ul>
@@ -52,7 +52,7 @@
     {{!-- Questions --}}
     <div class="card clipped">
       <div class="lancer-header lancer-primary major">
-        <span>QUESTIONS</span>
+        <span>{{upper-case (localize "lancer.pilotSheet.narrative.bond.questions.label")}}</span>
         <a class="gen-control fas fa-plus" data-action="append" data-path="system.questions" data-action-value="(struct)bond_question"></a>
       </div>
       {{#each system.questions as |question|}}
@@ -88,7 +88,7 @@
     {{!-- Powers --}}
     <div class="card clipped">
       <div class="lancer-header lancer-primary major">
-        <span>POWERS</span>
+        <span>{{upper-case (localize "lancer.pilotSheet.narrative.bond.powers.label")}}</span>
         <a class="gen-control fas fa-plus" data-action="append" data-path="system.powers" data-action-value="(struct)power"></a>
       </div>
       {{#each system.powers as |power power_index|}}
@@ -96,21 +96,21 @@
           <div class="lancer-header lancer-primary major">
             {{{std-checkbox (concat "system.powers." (concat power_index ".unlocked")) label="" classes=""}}}
             {{!-- TODO: bond icon? --}}
-            <i class="cci cci-trait i--4 i--light header-icon"> </i> 
+            <i class="cci cci-trait i--4 i--light header-icon"> </i>
             {{{std-text-input (concat "system.powers." (concat power_index ".name")) classes="lancer-text-field"}}}
             <a class="gen-control" data-action="splice" data-path="system.powers.{{power_index}}">
               <i class="fas fa-trash"></i>
             </a>
           </div>
           <div class="flexrow" style="padding: 0em 1.5em">
-            {{{std-text-input (concat "system.powers." (concat power_index ".frequency")) label="Frequency:" label_classes="flex-center flex2" classes="lancer-text-field"}}}
-            {{{std-checkbox (concat "system.powers." (concat power_index ".veteran")) label="Veteran:" classes=""}}}
-            {{{std-checkbox (concat "system.powers." (concat power_index ".master")) label="Master:" classes=""}}}
+            {{{std-text-input (concat "system.powers." (concat power_index ".frequency")) label=(concat (localize "lancer.pilotSheet.narrative.bond.frequency.label") ":") label_classes="flex-center flex2" classes="lancer-text-field"}}}
+            {{{std-checkbox (concat "system.powers." (concat power_index ".veteran")) label=(concat (localize "lancer.pilotSheet.narrative.bond.veteran.label") ":") classes=""}}}
+            {{{std-checkbox (concat "system.powers." (concat power_index ".master")) label=(concat (localize "lancer.pilotSheet.narrative.bond.master.label") ":") classes=""}}}
           </div>
           {{#if (or power.veteran power.master)}}
             <div class="card">
               <div class="lancer-header lancer-primary minor">
-                <span>Prerequisite</span>
+                <span>{{localize "lancer.common.descriptor.prerequisite.label"}}</span>
                 {{{popout-editor-button (concat "system.powers." (concat power_index ".prerequisite")) }}}
               </div>
               <div class="desc-text">{{{safe-html power.prerequisite }}}</div>
@@ -118,7 +118,7 @@
           {{/if}}
           <div class="card">
             <div class="lancer-header lancer-primary minor">
-              <span>Effect</span>
+              <span>{{localize "lancer.common.descriptor.effect.label"}}</span>
               {{{popout-editor-button (concat "system.powers." (concat power_index ".description")) }}}
             </div>
             <div class="desc-text">{{{safe-html power.description }}}</div>

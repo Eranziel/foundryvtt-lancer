@@ -56,13 +56,13 @@ export async function preOverheatRollChecks(state: FlowState<LancerFlowState.Ove
   if (!state.data) throw new TypeError(`Overheat roll flow data missing!`);
   const actor = state.actor;
   if (!actor.is_mech() && !actor.is_npc()) {
-    ui.notifications!.warn("Only Mechs and NPCs can take stress damage");
+    ui.notifications!.warn(game.i18n.localize("lancer.notifications.warning.overheatInvalidDamageActor"));
     return false;
   }
 
   if (game.settings.get(game.system.id, LANCER.setting_automation).structure && !state.data?.reroll_data) {
     if (actor.system.heat.value <= actor.system.heat.max) {
-      ui.notifications!.info("Token is not at heat cap. No need to roll stress.");
+      ui.notifications!.info(game.i18n.localize("lancer.notifications.info.overheatTokenBelowHeatCap"));
       return false;
     }
     const { openSlidingHud: open } = await import("../apps/slidinghud");
@@ -137,7 +137,7 @@ export async function rollOverheatTable(state: FlowState<LancerFlowState.Overhea
   if (!state.data) throw new TypeError(`Overheat roll flow data missing!`);
   const actor = state.actor;
   if (!actor.is_mech() && !actor.is_npc()) {
-    ui.notifications!.warn("Only npcs and mechs can roll overheat.");
+    ui.notifications!.warn(game.i18n.localize("lancer.notifications.warning.overheatInvalidRollActor"));
     return false;
   }
 
@@ -157,7 +157,7 @@ export async function rollOverheatTable(state: FlowState<LancerFlowState.Overhea
   }
 
   if ((state.data?.reroll_data?.stress ?? actor.system.stress.value) >= actor.system.stress.max) {
-    ui.notifications!.info("The mech is at full Stress, no overheat check to roll.");
+    ui.notifications!.info(game.i18n.localize("lancer.notifications.info.overheatMechAtFullStress"));
     return false;
   }
 
@@ -202,7 +202,7 @@ export async function noStressRemaining(state: FlowState<LancerFlowState.Overhea
 
   let actor = state.actor;
   if (!actor.is_mech() && !actor.is_npc()) {
-    ui.notifications!.warn("Only npcs and mechs can roll overheat.");
+    ui.notifications!.warn(game.i18n.localize("lancer.notifications.warning.overheatInvalidRollActor"));
     return false;
   }
 
@@ -238,7 +238,7 @@ export async function checkOverheatMultipleOnes(state: FlowState<LancerFlowState
 
   let actor = state.actor;
   if (!actor.is_mech() && !actor.is_npc()) {
-    ui.notifications!.warn("Only npcs and mechs can roll overheat.");
+    ui.notifications!.warn(game.i18n.localize("lancer.notifications.warning.overheatInvalidRollActor"));
     return false;
   }
 
@@ -274,7 +274,7 @@ export async function overheatInsertEngCheckButton(
 
   let actor = state.actor;
   if (!actor.is_mech() && !actor.is_npc()) {
-    ui.notifications!.warn("Only npcs and mechs can roll overheat.");
+    ui.notifications!.warn(game.i18n.localize("lancer.notifications.warning.overheatInvalidRollActor"));
     return false;
   }
 
