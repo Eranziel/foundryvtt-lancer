@@ -12,7 +12,7 @@ export async function fetchV2PilotViaShareCode(sharecode: string): Promise<Packe
   });
 
   const shareObj = await shareCodeResponse.json();
-  const pilotResponse = await fetch(shareObj["presigned"]);
+  const pilotResponse = await fetch(shareObj["presigned"], { cache: "no-cache" });
   return await pilotResponse.json();
 }
 
@@ -30,7 +30,9 @@ export async function fetchV3PilotViaShareCodes(sharecodes: string[]): Promise<P
   const sourceObjs: { uri: string }[] = await shareCodeResponse.json();
   const sources = sourceObjs.map(o => o.uri);
 
-  return Promise.all(sources.map(source => fetch(`${CC_BUCKET_URI}/${source}`).then(res => res.json())));
+  return Promise.all(
+    sources.map(source => fetch(`${CC_BUCKET_URI}/${source}`, { cache: "no-cache" }).then(res => res.json()))
+  );
 }
 
 /**
